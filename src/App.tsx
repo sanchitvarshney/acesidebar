@@ -1,8 +1,14 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import MainLayout from "./components/layout/MainLayout";
+import Tickets from "./components/TicketManagement/Tickets";
 
 // Create a theme instance
 const theme = createTheme({
@@ -61,7 +67,7 @@ function App() {
       <Router>
         <MainLayout>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Navigate to="/tickets" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard-2" element={<Dashboard2 />} />
             <Route path="/dashboard-3" element={<Dashboard3 />} />
@@ -82,6 +88,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/tickets" element={<Tickets />} />
           </Routes>
         </MainLayout>
       </Router>

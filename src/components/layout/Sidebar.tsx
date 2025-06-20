@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -37,6 +38,7 @@ import {
   ChevronRight as ChevronRightIcon,
   ExitToApp as ExitToAppIcon,
   Menu as MenuIcon,
+  ConfirmationNumber as TicketIcon,
 } from "@mui/icons-material";
 
 const SIDEBAR_WIDTH = 80; // Reduced width to fit only icons
@@ -135,6 +137,8 @@ interface MenuItem {
 
 const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<{
     [key: string]: boolean;
   }>({});
@@ -144,6 +148,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
       title: "Dashboard",
       icon: <DashboardIcon />,
       path: "/dashboard",
+    },
+    {
+      title: "Ticket Management",
+      icon: <TicketIcon />,
+      path: "/tickets",
     },
     {
       title: "Layouts",
@@ -239,16 +248,30 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
     }));
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   const renderMenuItem = (item: MenuItem, index: number) => {
     const isExpanded = expandedItems[item.title] || false;
+    const active = item.path ? isActive(item.path) : false;
 
     return (
       <React.Fragment key={index}>
         <ListItem disablePadding>
           <ListItemButton
             onClick={() =>
-              item.children ? handleItemClick(item.title) : undefined
+              item.children
+                ? handleItemClick(item.title)
+                : item.path
+                ? handleNavigation(item.path)
+                : undefined
             }
+            selected={active}
             sx={{
               minHeight: 48,
               justifyContent: open ? "initial" : "center",
@@ -260,6 +283,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
                 minWidth: 0,
                 mr: open ? 3 : "auto",
                 justifyContent: "center",
+                color: active ? theme.palette.primary.main : "inherit",
               }}
             >
               {item.icon}
@@ -273,6 +297,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
                   ? "opacity 0.3s 0.15s, margin 0.3s 0.15s"
                   : "opacity 0.15s, margin 0.15s",
                 whiteSpace: "nowrap",
+                color: active ? theme.palette.primary.main : "inherit",
               }}
             />
             {item.children && (
@@ -357,7 +382,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
                 <SignalIcon fontSize="inherit" />
               </ColoredShortcutButton>
               <ColoredShortcutButton bgcolor={iconColors[1]}>
-                <EditIcon fontSize="inherit" />
+                <EditIcon fontSize="inherit" onClick={() => handleNavigation("/tickets")}/>
               </ColoredShortcutButton>
               <ColoredShortcutButton bgcolor={iconColors[2]}>
                 <PeopleIcon fontSize="inherit" />
