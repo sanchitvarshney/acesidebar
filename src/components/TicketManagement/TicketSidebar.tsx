@@ -202,10 +202,15 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
   return (
     <Box
       sx={{
-        width: "100%",
-        height: "100%",
+        width: 280,
+        minWidth: 280,
+        bgcolor: "white",
+        boxShadow: 1,
+        borderRadius: 3,
         display: "flex",
         flexDirection: "column",
+        height: "100%",
+        p: 0,
       }}
     >
       {/* Create Ticket Button */}
@@ -216,209 +221,153 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
           startIcon={<AddIcon />}
           onClick={onCreateTicket}
           sx={{
-            borderRadius: 2,
+            borderRadius: 3,
             textTransform: "none",
             fontWeight: 600,
-            py: 1,
+            py: 1.2,
+            fontSize: "1rem",
+            bgcolor: "primary.main",
+            boxShadow: 2,
+            "&:hover": { bgcolor: "primary.dark" },
           }}
         >
           Create Ticket
         </Button>
       </Box>
 
-      {/* Search Box */}
-      <Box sx={{ p: 2, pt: 1 }}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Search tickets..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: "text.secondary" }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-              backgroundColor: alpha(theme.palette.background.paper, 0.8),
-            },
-          }}
-        />
-      </Box>
-
-      <Divider />
-
-      {/* Main Filters */}
-      <Box sx={{ flex: 1, overflow: "auto" }}>
-        <List dense>
-          <Typography
-            variant="overline"
-            sx={{ px: 2, py: 1, color: "text.secondary", fontWeight: 600 }}
-          >
-            Status
-          </Typography>
-          {mainFilters.map((filter) => (
-            <ListItem key={filter.key} disablePadding>
-              <StyledListItemButton
-                active={currentFilter === filter.key}
-                onClick={() => onFilterChange(filter.key)}
+      {/* Main Folders */}
+      <List sx={{ pt: 0 }}>
+        {mainFilters.map((filter) => (
+          <ListItem key={filter.key} disablePadding sx={{ mb: 0.5 }}>
+            <ListItemButton
+              selected={currentFilter === filter.key}
+              onClick={() => onFilterChange(filter.key)}
+              sx={{
+                borderRadius: 2,
+                mx: 1,
+                bgcolor:
+                  currentFilter === filter.key ? "primary.50" : "transparent",
+                "&.Mui-selected": {
+                  bgcolor: "primary.100",
+                  color: "primary.main",
+                  fontWeight: 700,
+                },
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  color:
+                    currentFilter === filter.key ? "primary.main" : "grey.500",
+                  minWidth: 36,
+                }}
               >
-                <ListItemIcon sx={{ minWidth: 36 }}>{filter.icon}</ListItemIcon>
-                <ListItemText
-                  primary={filter.label}
-                  primaryTypographyProps={{ variant: "body2" }}
-                />
-                <Chip
-                  label={filter.count}
-                  size="small"
-                  sx={{
-                    height: 20,
-                    fontSize: "0.75rem",
-                    backgroundColor:
-                      currentFilter === filter.key
-                        ? alpha(theme.palette.primary.main, 0.2)
-                        : alpha(theme.palette.grey[300], 0.8),
-                    color:
-                      currentFilter === filter.key
-                        ? theme.palette.primary.main
-                        : theme.palette.text.secondary,
-                  }}
-                />
-              </StyledListItemButton>
-            </ListItem>
-          ))}
-
-          <Divider sx={{ my: 1 }} />
-
-          {/* Priority Filters */}
-          <Box>
-            <ListItemButton
-              dense
-              onClick={() => handleFilterToggle("priority")}
-              sx={{ px: 2 }}
-            >
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <FilterIcon />
+                {filter.icon}
               </ListItemIcon>
               <ListItemText
-                primary="Priority"
+                primary={filter.label}
                 primaryTypographyProps={{
-                  variant: "overline",
-                  fontWeight: 600,
+                  fontWeight: currentFilter === filter.key ? 700 : 500,
+                  fontSize: "1rem",
                 }}
               />
-              {expandedFilters.priority ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse
-              in={expandedFilters.priority}
-              timeout="auto"
-              unmountOnExit
-            >
-              <Box sx={{ px: 2, pb: 1 }}>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                  {priorityFilters.map((filter) => (
-                    <FilterChip
-                      key={filter.key}
-                      label={`${filter.label} (${filter.count})`}
-                      size="small"
-                      active={currentFilter === filter.key}
-                      onClick={() => onFilterChange(filter.key)}
-                      sx={{
-                        fontSize: "0.75rem",
-                        height: 24,
-                        "& .MuiChip-label": {
-                          px: 1,
-                        },
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            </Collapse>
-          </Box>
-
-          <Divider sx={{ my: 1 }} />
-
-          {/* Type Filters */}
-          <Box>
-            <ListItemButton
-              dense
-              onClick={() => handleFilterToggle("type")}
-              sx={{ px: 2 }}
-            >
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <FilterIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Type"
-                primaryTypographyProps={{
-                  variant: "overline",
-                  fontWeight: 600,
+              <Badge
+                badgeContent={filter.count}
+                color={currentFilter === filter.key ? "primary" : "default"}
+                sx={{
+                  "& .MuiBadge-badge": {
+                    fontWeight: 600,
+                    fontSize: "0.8rem",
+                    minWidth: 22,
+                    height: 22,
+                  },
                 }}
               />
-              {expandedFilters.type ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-            <Collapse in={expandedFilters.type} timeout="auto" unmountOnExit>
-              <Box sx={{ px: 2, pb: 1 }}>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                  {typeFilters.map((filter) => (
-                    <FilterChip
-                      key={filter.key}
-                      label={`${filter.label} (${filter.count})`}
-                      size="small"
-                      active={currentFilter === filter.key}
-                      onClick={() => onFilterChange(filter.key)}
-                      sx={{
-                        fontSize: "0.75rem",
-                        height: 24,
-                        "& .MuiChip-label": {
-                          px: 1,
-                        },
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            </Collapse>
-          </Box>
-
-          <Divider sx={{ my: 1 }} />
-
-          {/* Quick Actions */}
-          <Typography
-            variant="overline"
-            sx={{ px: 2, py: 1, color: "text.secondary", fontWeight: 600 }}
-          >
-            Quick Actions
-          </Typography>
-          <ListItem disablePadding>
-            <StyledListItemButton>
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <StarIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Starred"
-                primaryTypographyProps={{ variant: "body2" }}
-              />
-            </StyledListItemButton>
           </ListItem>
-          <ListItem disablePadding>
-            <StyledListItemButton>
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <AssignmentIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Assigned to Me"
-                primaryTypographyProps={{ variant: "body2" }}
+        ))}
+      </List>
+
+      {/* Divider */}
+      <Divider sx={{ my: 1 }} />
+
+      {/* Tags Section */}
+      <Box sx={{ px: 2, mt: 2 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: 700, color: "grey.700", mb: 1 }}
+        >
+          Tags
+        </Typography>
+        <List dense>
+          <ListItem sx={{ pl: 0 }}>
+            <ListItemIcon sx={{ minWidth: 28 }}>
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  bgcolor: "#e91e63",
+                  borderRadius: "50%",
+                }}
               />
-            </StyledListItemButton>
+            </ListItemIcon>
+            <ListItemText
+              primary="Family"
+              primaryTypographyProps={{ fontSize: "0.95rem" }}
+            />
+          </ListItem>
+          <ListItem sx={{ pl: 0 }}>
+            <ListItemIcon sx={{ minWidth: 28 }}>
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  bgcolor: "#2196f3",
+                  borderRadius: "50%",
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Friends"
+              primaryTypographyProps={{ fontSize: "0.95rem" }}
+            />
+          </ListItem>
+          <ListItem sx={{ pl: 0 }}>
+            <ListItemIcon sx={{ minWidth: 28 }}>
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  bgcolor: "#4caf50",
+                  borderRadius: "50%",
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Work"
+              primaryTypographyProps={{ fontSize: "0.95rem" }}
+            />
+          </ListItem>
+          <ListItem sx={{ pl: 0 }}>
+            <ListItemIcon sx={{ minWidth: 28 }}>
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  bgcolor: "#ff9800",
+                  borderRadius: "50%",
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary="Other"
+              primaryTypographyProps={{ fontSize: "0.95rem" }}
+            />
           </ListItem>
         </List>
       </Box>
+
+      {/* Spacer */}
+      <Box sx={{ flex: 1 }} />
     </Box>
   );
 };

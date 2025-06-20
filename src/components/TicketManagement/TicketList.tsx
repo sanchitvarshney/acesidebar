@@ -222,21 +222,22 @@ const TicketList: React.FC<TicketListProps> = ({
   };
 
   return (
-    <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+    <List sx={{ width: "100%", bgcolor: "background.paper", p: 0 }}>
       {tickets.map((ticket, index) => (
         <React.Fragment key={ticket.id}>
-          <StyledListItem
-            selected={selectedTickets.includes(ticket.id)}
-            unread={!ticket.isRead}
+          <ListItem
             disablePadding
-            onMouseEnter={() => setHovered(ticket.id)}
-            onMouseLeave={() => setHovered(null)}
+            sx={{
+              bgcolor: !ticket.isRead ? "primary.50" : "white",
+              borderBottom: "1px solid",
+              borderColor: "grey.100",
+              transition: "background 0.2s",
+              "&:hover": { bgcolor: "primary.100" },
+            }}
             secondaryAction={
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 {ticket.hasAttachment && (
-                  <AttachFileIcon
-                    sx={{ fontSize: 16, color: theme.palette.grey[500] }}
-                  />
+                  <AttachFileIcon sx={{ fontSize: 16, color: "grey.500" }} />
                 )}
                 <Typography
                   variant="caption"
@@ -245,44 +246,42 @@ const TicketList: React.FC<TicketListProps> = ({
                 >
                   {formatDate(ticket.updatedAt)}
                 </Typography>
-                {(hovered === ticket.id ||
-                  selectedTickets.includes(ticket.id)) && (
-                  <Box sx={{ display: "flex", gap: 0.5 }}>
+                {hovered === ticket.id && (
+                  <>
                     <IconButton size="small" color="error">
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                     <IconButton size="small" color="primary">
                       <ReplyIcon fontSize="small" />
                     </IconButton>
-                  </Box>
+                  </>
                 )}
-                <IconButton
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onStarToggle(ticket.id);
-                  }}
-                >
-                  {ticket.isStarred ? (
-                    <StarIcon
-                      sx={{ fontSize: 18, color: theme.palette.warning.main }}
-                    />
-                  ) : (
-                    <StarBorderIcon
-                      sx={{ fontSize: 18, color: theme.palette.grey[400] }}
-                    />
-                  )}
-                </IconButton>
               </Box>
             }
+            onMouseEnter={() => setHovered(ticket.id)}
+            onMouseLeave={() => setHovered(null)}
           >
             <Checkbox
               checked={selectedTickets.includes(ticket.id)}
               onChange={() => onTicketSelect(ticket.id)}
               onClick={(e) => e.stopPropagation()}
               size="small"
+              sx={{ ml: 1 }}
             />
-            <ListItemAvatar sx={{ minWidth: 40 }}>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onStarToggle(ticket.id);
+              }}
+              sx={{
+                color: ticket.isStarred ? "warning.main" : "grey.400",
+                ml: 1,
+              }}
+            >
+              {ticket.isStarred ? <StarIcon /> : <StarBorderIcon />}
+            </IconButton>
+            <ListItemAvatar sx={{ minWidth: 40, ml: 1 }}>
               {ticket.avatarUrl ? (
                 <Avatar src={ticket.avatarUrl} sx={{ width: 32, height: 32 }} />
               ) : (
@@ -290,7 +289,7 @@ const TicketList: React.FC<TicketListProps> = ({
                   sx={{
                     width: 32,
                     height: 32,
-                    bgcolor: theme.palette.primary.main,
+                    bgcolor: "primary.main",
                     fontSize: "0.875rem",
                   }}
                 >
@@ -298,65 +297,66 @@ const TicketList: React.FC<TicketListProps> = ({
                 </Avatar>
               )}
             </ListItemAvatar>
-            <ListItemButton
-              onClick={() => onTicketClick(ticket)}
-              sx={{ flexDirection: "column", alignItems: "flex-start", py: 1 }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  width: "100%",
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: ticket.isRead ? 400 : 700,
-                    color: ticket.isRead ? "text.primary" : "text.primary",
-                    flex: 1,
-                  }}
-                >
-                  {ticket.requester}
-                </Typography>
-                <Box sx={{ display: "flex", gap: 0.5 }}>
+            <ListItemText
+              primary={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontWeight: !ticket.isRead ? 700 : 500,
+                      color: "text.primary",
+                      mr: 1,
+                    }}
+                  >
+                    {ticket.requester}
+                  </Typography>
                   {ticket.priority === "urgent" && (
                     <Chip
                       label="Urgent"
                       size="small"
                       color="error"
-                      sx={{ fontWeight: 600, fontSize: "0.75rem" }}
+                      sx={{ fontWeight: 700, fontSize: "0.75rem", height: 22 }}
                     />
                   )}
-                  {ticket.tags.includes("important") && (
+                  {ticket.priority === "high" && (
                     <Chip
                       label="Important"
                       size="small"
                       color="warning"
-                      sx={{ fontWeight: 600, fontSize: "0.75rem" }}
+                      sx={{ fontWeight: 700, fontSize: "0.75rem", height: 22 }}
                     />
                   )}
+                  {/* Add more labels as needed */}
                 </Box>
-              </Box>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  fontWeight: ticket.isRead ? 400 : 600,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 1,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  width: "100%",
-                }}
-              >
-                {ticket.title}
-              </Typography>
-            </ListItemButton>
-          </StyledListItem>
-          {index < tickets.length - 1 && <Divider component="li" />}
+              }
+              secondary={
+                <Box
+                  sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "text.secondary", fontWeight: 500 }}
+                  >
+                    {ticket.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "grey.500",
+                      fontSize: "0.95rem",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      maxWidth: 400,
+                    }}
+                  >
+                    {ticket.description}
+                  </Typography>
+                </Box>
+              }
+              sx={{ ml: 1, minWidth: 0 }}
+            />
+          </ListItem>
         </React.Fragment>
       ))}
     </List>
