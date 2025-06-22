@@ -26,6 +26,7 @@ import {
   OutlinedInput,
   useTheme,
   alpha,
+  Avatar,
 } from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
@@ -46,6 +47,7 @@ import {
 } from "@mui/icons-material";
 import TicketSidebar from "./TicketSidebar";
 import TicketList from "./TicketList";
+import TicketDetailTemplate from "./TicketDetailTemplate";
 
 interface Ticket {
   id: string;
@@ -161,6 +163,8 @@ const TicketManagement: React.FC = () => {
     priority: "medium" as const,
     assignee: "",
   });
+  const [openTicket, setOpenTicket] = useState<Ticket | null>(null);
+  const [replyText, setReplyText] = useState("");
 
   // Calculate ticket counts
   const ticketCounts = useMemo(() => {
@@ -239,12 +243,17 @@ const TicketManagement: React.FC = () => {
   };
 
   const handleTicketClick = (ticket: Ticket) => {
-    // Mark ticket as read
     setTickets((prev) =>
       prev.map((t) => (t.id === ticket.id ? { ...t, isRead: true } : t))
     );
-    // Here you would typically open the ticket detail view
-    console.log("Opening ticket:", ticket);
+    setOpenTicket(ticket);
+  };
+
+  const handleBack = () => setOpenTicket(null);
+
+  const handleSendReply = () => {
+    // Here you would send the reply
+    setReplyText("");
   };
 
   const handleFilterChange = (filter: string) => {
@@ -330,6 +339,8 @@ const TicketManagement: React.FC = () => {
     setAnchorEl(null);
   };
 
+  console.log(openTicket, "ooooo");
+
   return (
     <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       {/* Header */}
@@ -379,96 +390,127 @@ const TicketManagement: React.FC = () => {
           />
         </Paper>
 
-        {/* Ticket List */}
+        {/* Main Content: Only one of TicketList or Detail is shown */}
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Toolbar */}
-          <Paper
-            elevation={1}
-            sx={{
-              borderRadius: 0,
-              borderBottom: `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Toolbar sx={{ minHeight: 56 }}>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}
+          {openTicket ? (
+            <>
+              <div
+                style={{ background: "yellow", padding: 8, fontWeight: "bold" }}
               >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={
-                        selectedTickets.length === filteredTickets.length &&
-                        filteredTickets.length > 0
+                DETAIL VIEW
+              </div>
+              <TicketDetailTemplate
+                ticket={{
+                  title: openTicket.title,
+                  requester: openTicket.requester,
+                  createdAt: openTicket.createdAt,
+                  description: openTicket.description,
+                  attachments: [
+                    { name: "Document.pdf", type: "pdf" },
+                    { name: "Video.mp4", type: "video" },
+                  ],
+                }}
+                onBack={handleBack}
+                replyText={replyText}
+                onReplyTextChange={setReplyText}
+                onSendReply={handleSendReply}
+              />
+            </>
+          ) : (
+            // Ticket List View
+            <>
+              {/* Toolbar */}
+              <Paper
+                elevation={1}
+                sx={{
+                  borderRadius: 0,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                }}
+              >
+                <Toolbar sx={{ minHeight: 56 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      flex: 1,
+                    }}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={
+                            selectedTickets.length === filteredTickets.length &&
+                            filteredTickets.length > 0
+                          }
+                          indeterminate={
+                            selectedTickets.length > 0 &&
+                            selectedTickets.length < filteredTickets.length
+                          }
+                          onChange={handleSelectAll}
+                        />
                       }
-                      indeterminate={
-                        selectedTickets.length > 0 &&
-                        selectedTickets.length < filteredTickets.length
-                      }
-                      onChange={handleSelectAll}
+                      label=""
                     />
-                  }
-                  label=""
+                    <Typography variant="body2" color="text.secondary">
+                      {selectedTickets.length > 0
+                        ? `${selectedTickets.length} selected`
+                        : `${filteredTickets.length} tickets`}
+                    </Typography>
+                  </Box>
+                  {selectedTickets.length > 0 && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Button
+                        size="small"
+                        startIcon={<VisibilityIcon />}
+                        onClick={() => handleBulkAction("mark-read")}
+                      >
+                        Mark Read
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<VisibilityOffIcon />}
+                        onClick={() => handleBulkAction("mark-unread")}
+                      >
+                        Mark Unread
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<ArchiveIcon />}
+                        onClick={() => handleBulkAction("archive")}
+                      >
+                        Archive
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<DeleteIcon />}
+                        color="error"
+                        onClick={() => handleBulkAction("delete")}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
+                  )}
+                  <IconButton
+                    onClick={(e) => setAnchorEl(e.currentTarget)}
+                    disabled={selectedTickets.length === 0}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                </Toolbar>
+              </Paper>
+              {/* Ticket List */}
+              <Box sx={{ flex: 1, overflow: "auto" }}>
+                <TicketList
+                  tickets={filteredTickets}
+                  selectedTickets={selectedTickets}
+                  onTicketSelect={handleTicketSelect}
+                  onTicketClick={handleTicketClick}
+                  onStarToggle={handleStarToggle}
                 />
-                <Typography variant="body2" color="text.secondary">
-                  {selectedTickets.length > 0
-                    ? `${selectedTickets.length} selected`
-                    : `${filteredTickets.length} tickets`}
-                </Typography>
               </Box>
-
-              {selectedTickets.length > 0 && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Button
-                    size="small"
-                    startIcon={<VisibilityIcon />}
-                    onClick={() => handleBulkAction("mark-read")}
-                  >
-                    Mark Read
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<VisibilityOffIcon />}
-                    onClick={() => handleBulkAction("mark-unread")}
-                  >
-                    Mark Unread
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<ArchiveIcon />}
-                    onClick={() => handleBulkAction("archive")}
-                  >
-                    Archive
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<DeleteIcon />}
-                    color="error"
-                    onClick={() => handleBulkAction("delete")}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-              )}
-
-              <IconButton
-                onClick={(e) => setAnchorEl(e.currentTarget)}
-                disabled={selectedTickets.length === 0}
-              >
-                <MoreVertIcon />
-              </IconButton>
-            </Toolbar>
-          </Paper>
-
-          {/* Ticket List */}
-          <Box sx={{ flex: 1, overflow: "auto" }}>
-            <TicketList
-              tickets={filteredTickets}
-              selectedTickets={selectedTickets}
-              onTicketSelect={handleTicketSelect}
-              onTicketClick={handleTicketClick}
-              onStarToggle={handleStarToggle}
-            />
-          </Box>
+            </>
+          )}
         </Box>
       </Box>
 

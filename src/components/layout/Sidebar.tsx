@@ -41,15 +41,15 @@ import {
   ConfirmationNumber as TicketIcon,
 } from "@mui/icons-material";
 
-const SIDEBAR_WIDTH = 80; // Reduced width to fit only icons
-const SIDEBAR_COLLAPSED_WIDTH = 0; // No width when collapsed
+const SIDEBAR_WIDTH = 80; // Icon width
+const SIDEBAR_COLLAPSED_WIDTH = 80; // Collapsed width is also icon width
 
 const StyledDrawer = styled(Drawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })<{ open?: boolean }>(({ theme, open }) => ({
   "--sidebar-width": `${SIDEBAR_WIDTH}px`,
   "--sidebar-collapsed-width": `${SIDEBAR_COLLAPSED_WIDTH}px`,
-  width: open ? "var(--sidebar-width)" : "var(--sidebar-collapsed-width)",
+  width: "var(--sidebar-width)",
   transition: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
   boxShadow: "none",
   overflowX: "hidden",
@@ -59,7 +59,7 @@ const StyledDrawer = styled(Drawer, {
   height: "100vh",
   zIndex: 1200,
   "& .MuiDrawer-paper": {
-    width: open ? "var(--sidebar-width)" : "var(--sidebar-collapsed-width)",
+    width: "var(--sidebar-width)",
     transition: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
     overflowX: "hidden",
     backgroundColor: theme.palette.background.paper,
@@ -109,19 +109,6 @@ const ColoredShortcutButton = styled(IconButton)<{ bgcolor: string }>(
     fontSize: 20,
   })
 );
-
-const ToggleButton = styled(IconButton)(({ theme }) => ({
-  position: "fixed",
-  left: 8,
-  top: "50%",
-  transform: "translateY(-50%)",
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[2],
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.background.paper, 0.9),
-  },
-  zIndex: 1300,
-}));
 
 interface SidebarProps {
   open: boolean;
@@ -300,55 +287,17 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
                 color: active ? theme.palette.primary.main : "inherit",
               }}
             />
-            {item.children && (
-              <Box
-                sx={{
-                  opacity: open ? 1 : 0,
-                  transition: "opacity 0.3s",
-                }}
-              >
-                {isExpanded ? <ExpandLess /> : <ExpandMore />}
-              </Box>
-            )}
           </ListItemButton>
         </ListItem>
-        {item.children && (
-          <Collapse in={isExpanded && open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {item.children.map((child, childIndex) => (
-                <ListItemButton
-                  key={childIndex}
-                  sx={{
-                    minHeight: 48,
-                    pl: 4,
-                    justifyContent: open ? "initial" : "center",
-                  }}
-                >
-                  <ListItemText
-                    primary={child.title}
-                    sx={{
-                      opacity: open ? 1 : 0,
-                      marginLeft: open ? 0 : -8,
-                      transition: open
-                        ? "opacity 0.3s 0.15s, margin 0.3s 0.15s"
-                        : "opacity 0.15s, margin 0.15s",
-                      whiteSpace: "nowrap",
-                    }}
-                  />
-                </ListItemButton>
-              ))}
-            </List>
-          </Collapse>
-        )}
       </React.Fragment>
     );
   };
 
   return (
     <>
-      <ToggleButton onClick={handleDrawerToggle}>
+      <IconButton onClick={handleDrawerToggle}>
         <MenuIcon />
-      </ToggleButton>
+      </IconButton>
       {open && (
         <StyledDrawer
           variant="permanent"
@@ -382,7 +331,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
                 <SignalIcon fontSize="inherit" />
               </ColoredShortcutButton>
               <ColoredShortcutButton bgcolor={iconColors[1]}>
-                <EditIcon fontSize="inherit" onClick={() => handleNavigation("/tickets")}/>
+                <EditIcon
+                  fontSize="inherit"
+                  onClick={() => handleNavigation("/tickets")}
+                />
               </ColoredShortcutButton>
               <ColoredShortcutButton bgcolor={iconColors[2]}>
                 <PeopleIcon fontSize="inherit" />

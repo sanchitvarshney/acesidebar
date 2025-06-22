@@ -232,7 +232,7 @@ const TicketList: React.FC<TicketListProps> = ({
               borderBottom: "1px solid",
               borderColor: "grey.100",
               transition: "background 0.2s",
-              "&:hover": { bgcolor: "primary.100" },
+              "&:hover": { bgcolor: "primary.100", cursor: "pointer" },
             }}
             secondaryAction={
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -260,6 +260,16 @@ const TicketList: React.FC<TicketListProps> = ({
             }
             onMouseEnter={() => setHovered(ticket.id)}
             onMouseLeave={() => setHovered(null)}
+            onClick={(e) => {
+              const target = e.target as HTMLElement;
+              console.log("Ticket row clicked", ticket, target);
+              if (
+                target.closest('input[type="checkbox"]') ||
+                target.closest(".MuiIconButton-root")
+              )
+                return;
+              onTicketClick(ticket);
+            }}
           >
             <Checkbox
               checked={selectedTickets.includes(ticket.id)}
