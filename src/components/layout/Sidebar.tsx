@@ -41,8 +41,8 @@ import {
   ConfirmationNumber as TicketIcon,
 } from "@mui/icons-material";
 
-const SIDEBAR_WIDTH = 80; // Reduced width to fit only icons
-const SIDEBAR_COLLAPSED_WIDTH = 0; // No width when collapsed
+const SIDEBAR_WIDTH = 240; // Expanded width
+const SIDEBAR_COLLAPSED_WIDTH = 80; // Collapsed width to fit only icons
 
 const StyledDrawer = styled(Drawer, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -109,19 +109,6 @@ const ColoredShortcutButton = styled(IconButton)<{ bgcolor: string }>(
     fontSize: 20,
   })
 );
-
-const ToggleButton = styled(IconButton)(({ theme }) => ({
-  position: "fixed",
-  left: 8,
-  top: "50%",
-  transform: "translateY(-50%)",
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[2],
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.background.paper, 0.9),
-  },
-  zIndex: 1300,
-}));
 
 interface SidebarProps {
   open: boolean;
@@ -346,75 +333,76 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
 
   return (
     <>
-      <ToggleButton onClick={handleDrawerToggle}>
-        <MenuIcon />
-      </ToggleButton>
-      {open && (
-        <StyledDrawer
-          variant="permanent"
-          open={open}
+      <StyledDrawer
+        variant="permanent"
+        open={open}
+        sx={{
+          "& .MuiDrawer-paper": {
+            backgroundColor: theme.palette.background.paper,
+          },
+        }}
+      >
+        <Box
           sx={{
-            "& .MuiDrawer-paper": {
-              backgroundColor: theme.palette.background.paper,
-            },
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            alignItems: "center",
+            height: "100vh",
+            py: 2,
           }}
         >
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
               alignItems: "center",
-              height: "100vh",
-              py: 2,
+              gap: 2,
+              mt: 2,
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-                mt: 2,
-              }}
-            >
-              <ColoredShortcutButton bgcolor={iconColors[0]}>
-                <SignalIcon fontSize="inherit" />
-              </ColoredShortcutButton>
-              <ColoredShortcutButton bgcolor={iconColors[1]}>
-                <EditIcon fontSize="inherit" onClick={() => handleNavigation("/tickets")}/>
-              </ColoredShortcutButton>
-              <ColoredShortcutButton bgcolor={iconColors[2]}>
-                <PeopleIcon fontSize="inherit" />
-              </ColoredShortcutButton>
-              <ColoredShortcutButton bgcolor={iconColors[3]}>
-                <SettingsIcon fontSize="inherit" />
-              </ColoredShortcutButton>
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 1,
-                mb: 2,
-              }}
-            >
-              <Avatar
-                src="/assets/image/avatar/avatar3.jpg"
-                sx={{
-                  width: 36,
-                  height: 36,
-                }}
+            <IconButton onClick={handleDrawerToggle} sx={{ mb: 2 }}>
+              <MenuIcon />
+            </IconButton>
+            <ColoredShortcutButton bgcolor={iconColors[0]}>
+              <SignalIcon fontSize="inherit" />
+            </ColoredShortcutButton>
+            <ColoredShortcutButton bgcolor={iconColors[1]}>
+              <EditIcon
+                fontSize="inherit"
+                onClick={() => handleNavigation("/tickets")}
               />
-              <IconButton size="small">
-                <ExitToAppIcon fontSize="small" />
-              </IconButton>
-            </Box>
+            </ColoredShortcutButton>
+            <ColoredShortcutButton bgcolor={iconColors[2]}>
+              <PeopleIcon fontSize="inherit" />
+            </ColoredShortcutButton>
+            <ColoredShortcutButton bgcolor={iconColors[3]}>
+              <SettingsIcon fontSize="inherit" />
+            </ColoredShortcutButton>
           </Box>
-        </StyledDrawer>
-      )}
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 1,
+              mb: 2,
+            }}
+          >
+            <Avatar
+              src="/assets/image/avatar/avatar3.jpg"
+              sx={{
+                width: 36,
+                height: 36,
+              }}
+            />
+            <IconButton size="small">
+              <ExitToAppIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        </Box>
+      </StyledDrawer>
     </>
   );
 };

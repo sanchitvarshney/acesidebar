@@ -25,6 +25,7 @@ import {
 } from "@mui/icons-material";
 
 const drawerWidth = 240;
+const collapsedDrawerWidth = 80;
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -123,8 +124,10 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     <AppBar
       position="fixed"
       sx={{
-        width: { sm: `calc(100% - ${open ? drawerWidth : 0}px)` },
-        ml: { sm: `${open ? drawerWidth : 0}px` },
+        width: {
+          sm: `calc(100% - ${open ? drawerWidth : collapsedDrawerWidth}px)`,
+        },
+        ml: { sm: `${open ? drawerWidth : collapsedDrawerWidth}px` },
         transition: theme.transitions.create(["margin", "width"], {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.leavingScreen,
@@ -155,11 +158,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           component="div"
           sx={{ display: { xs: "none", sm: "block" } }}
         >
-          <span
-            style={{ color: theme.palette.primary.main, fontWeight: "bold" }}
-          >
-            Ace
-          </span>
           <span style={{ color: theme.palette.text.secondary }}>
             {" "}
             Application
