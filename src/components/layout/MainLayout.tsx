@@ -3,7 +3,7 @@ import { Box, CssBaseline, useTheme, styled } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 
-const drawerWidth = 240;
+const drawerWidth = 0;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
