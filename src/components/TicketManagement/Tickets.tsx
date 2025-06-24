@@ -161,6 +161,7 @@ const Tickets: React.FC = () => {
     priority: "medium" as const,
     assignee: "",
   });
+  const [openTicket, setOpenTicket] = useState<Ticket | null>(null);
 
   // Calculate ticket counts
   const ticketCounts = useMemo(() => {
@@ -239,12 +240,10 @@ const Tickets: React.FC = () => {
   };
 
   const handleTicketClick = (ticket: Ticket) => {
-    // Mark ticket as read
     setTickets((prev) =>
       prev.map((t) => (t.id === ticket.id ? { ...t, isRead: true } : t))
     );
-    // Here you would typically open the ticket detail view
-    console.log("Opening ticket:", ticket);
+    setOpenTicket(ticket);
   };
 
   const handleFilterChange = (filter: string) => {
@@ -379,96 +378,124 @@ const Tickets: React.FC = () => {
           />
         </Paper>
 
-        {/* Ticket List */}
+        {/* Main Content: Only one of TicketList or Detail is shown */}
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Toolbar */}
-          <Paper
-            elevation={1}
-            sx={{
-              borderRadius: 0,
-              borderBottom: `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Toolbar sx={{ minHeight: 56 }}>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}
+          {openTicket ? (
+            <Box sx={{ p: 4 }}>
+              <Button
+                variant="outlined"
+                onClick={() => setOpenTicket(null)}
+                sx={{ mb: 2 }}
               >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={
-                        selectedTickets.length === filteredTickets.length &&
-                        filteredTickets.length > 0
+                Back
+              </Button>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
+                {openTicket.title}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                {openTicket.description}
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                Requested by: {openTicket.requester}
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                Created at: {new Date(openTicket.createdAt).toLocaleString()}
+              </Typography>
+            </Box>
+          ) : (
+            <>
+              {/* Toolbar */}
+              <Paper
+                elevation={1}
+                sx={{
+                  borderRadius: 0,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                }}
+              >
+                <Toolbar sx={{ minHeight: 56 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      flex: 1,
+                    }}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={
+                            selectedTickets.length === filteredTickets.length &&
+                            filteredTickets.length > 0
+                          }
+                          indeterminate={
+                            selectedTickets.length > 0 &&
+                            selectedTickets.length < filteredTickets.length
+                          }
+                          onChange={handleSelectAll}
+                        />
                       }
-                      indeterminate={
-                        selectedTickets.length > 0 &&
-                        selectedTickets.length < filteredTickets.length
-                      }
-                      onChange={handleSelectAll}
+                      label=""
                     />
-                  }
-                  label=""
+                    <Typography variant="body2" color="text.secondary">
+                      {selectedTickets.length > 0
+                        ? `${selectedTickets.length} selected`
+                        : `${filteredTickets.length} tickets`}
+                    </Typography>
+                  </Box>
+                  {selectedTickets.length > 0 && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Button
+                        size="small"
+                        startIcon={<VisibilityIcon />}
+                        onClick={() => handleBulkAction("mark-read")}
+                      >
+                        Mark Read
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<VisibilityOffIcon />}
+                        onClick={() => handleBulkAction("mark-unread")}
+                      >
+                        Mark Unread
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<ArchiveIcon />}
+                        onClick={() => handleBulkAction("archive")}
+                      >
+                        Archive
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<DeleteIcon />}
+                        color="error"
+                        onClick={() => handleBulkAction("delete")}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
+                  )}
+                  <IconButton
+                    onClick={(e) => setAnchorEl(e.currentTarget)}
+                    disabled={selectedTickets.length === 0}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                </Toolbar>
+              </Paper>
+              {/* Ticket List */}
+              <Box sx={{ flex: 1, overflow: "auto" }}>
+                <TicketList
+                  tickets={filteredTickets}
+                  selectedTickets={selectedTickets}
+                  onTicketSelect={handleTicketSelect}
+                  onTicketClick={handleTicketClick}
+                  onStarToggle={handleStarToggle}
                 />
-                <Typography variant="body2" color="text.secondary">
-                  {selectedTickets.length > 0
-                    ? `${selectedTickets.length} selected`
-                    : `${filteredTickets.length} tickets`}
-                </Typography>
               </Box>
-
-              {selectedTickets.length > 0 && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Button
-                    size="small"
-                    startIcon={<VisibilityIcon />}
-                    onClick={() => handleBulkAction("mark-read")}
-                  >
-                    Mark Read
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<VisibilityOffIcon />}
-                    onClick={() => handleBulkAction("mark-unread")}
-                  >
-                    Mark Unread
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<ArchiveIcon />}
-                    onClick={() => handleBulkAction("archive")}
-                  >
-                    Archive
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<DeleteIcon />}
-                    color="error"
-                    onClick={() => handleBulkAction("delete")}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-              )}
-
-              <IconButton
-                onClick={(e) => setAnchorEl(e.currentTarget)}
-                disabled={selectedTickets.length === 0}
-              >
-                <MoreVertIcon />
-              </IconButton>
-            </Toolbar>
-          </Paper>
-
-          {/* Ticket List */}
-          <Box sx={{ flex: 1, overflow: "auto" }}>
-            <TicketList
-              tickets={filteredTickets}
-              selectedTickets={selectedTickets}
-              onTicketSelect={handleTicketSelect}
-              onTicketClick={handleTicketClick}
-              onStarToggle={handleStarToggle}
-            />
-          </Box>
+            </>
+          )}
         </Box>
       </Box>
 
