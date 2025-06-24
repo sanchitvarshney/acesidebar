@@ -41,17 +41,14 @@ import {
   ConfirmationNumber as TicketIcon,
 } from "@mui/icons-material";
 
-const SIDEBAR_WIDTH = 240; // Expanded width
-const SIDEBAR_COLLAPSED_WIDTH = 80; // Collapsed width to fit only icons
+const SIDEBAR_WIDTH = 80;
+const SIDEBAR_COLLAPSED_WIDTH = 0;
 
 const StyledDrawer = styled(Drawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })<{ open?: boolean }>(({ theme, open }) => ({
-  "--sidebar-width": `${SIDEBAR_WIDTH}px`,
-  "--sidebar-collapsed-width": `${SIDEBAR_COLLAPSED_WIDTH}px`,
-  width: open ? "var(--sidebar-width)" : "var(--sidebar-collapsed-width)",
+  width: open ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
   transition: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
-  boxShadow: "none",
   overflowX: "hidden",
   position: "relative",
   top: 0,
@@ -59,7 +56,7 @@ const StyledDrawer = styled(Drawer, {
   height: "100vh",
   zIndex: 1200,
   "& .MuiDrawer-paper": {
-    width: open ? "var(--sidebar-width)" : "var(--sidebar-collapsed-width)",
+    width: open ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
     transition: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
     overflowX: "hidden",
     backgroundColor: theme.palette.background.paper,
@@ -361,9 +358,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
               mt: 2,
             }}
           >
-            <IconButton onClick={handleDrawerToggle} sx={{ mb: 2 }}>
-              <MenuIcon />
-            </IconButton>
             <ColoredShortcutButton bgcolor={iconColors[0]}>
               <SignalIcon fontSize="inherit" />
             </ColoredShortcutButton>

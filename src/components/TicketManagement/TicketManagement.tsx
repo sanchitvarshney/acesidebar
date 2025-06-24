@@ -342,7 +342,14 @@ const TicketManagement: React.FC = () => {
   console.log(openTicket, "ooooo");
 
   return (
-    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        ml: { sm: "80px" },
+      }}
+    >
       {/* Header */}
       <Paper elevation={1} sx={{ borderRadius: 0 }}>
         <Toolbar sx={{ justifyContent: "space-between" }}>

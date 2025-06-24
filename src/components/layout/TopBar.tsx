@@ -24,8 +24,8 @@ import {
   ExitToApp,
 } from "@mui/icons-material";
 
-const drawerWidth = 240;
-const collapsedDrawerWidth = 80;
+const drawerWidth = 80;
+const collapsedDrawerWidth = 0;
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -132,14 +132,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.leavingScreen,
         }),
-        ...(open && {
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          marginLeft: { sm: `${drawerWidth}px` },
-          transition: theme.transitions.create(["margin", "width"], {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-        }),
       }}
     >
       <Toolbar>
@@ -148,7 +140,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           aria-label="open drawer"
           edge="start"
           onClick={handleDrawerToggle}
-          sx={{ mr: 2, display: { sm: "none" } }}
+          sx={{ mr: 2 }}
         >
           <MenuIcon />
         </IconButton>
@@ -156,12 +148,9 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           variant="h6"
           noWrap
           component="div"
-          sx={{ display: { xs: "none", sm: "block" } }}
+          sx={{ display: { xs: "block", sm: "block" } }}
         >
-          <span style={{ color: theme.palette.text.secondary }}>
-            {" "}
-            Application
-          </span>
+          Application
         </Typography>
         <Search>
           <SearchIconWrapper>
