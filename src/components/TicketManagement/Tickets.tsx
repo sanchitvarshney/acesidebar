@@ -46,6 +46,7 @@ import {
 } from "@mui/icons-material";
 import TicketSidebar from "./TicketSidebar";
 import TicketList from "./TicketList";
+import TicketDetailTemplate from "./TicketDetailTemplate";
 
 interface Ticket {
   id: string;
@@ -381,27 +382,27 @@ const Tickets: React.FC = () => {
         {/* Main Content: Only one of TicketList or Detail is shown */}
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {openTicket ? (
-            <Box sx={{ p: 4 }}>
-              <Button
-                variant="outlined"
-                onClick={() => setOpenTicket(null)}
-                sx={{ mb: 2 }}
-              >
-                Back
-              </Button>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-                {openTicket.title}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                {openTicket.description}
-              </Typography>
-              <Typography variant="subtitle2" color="text.secondary">
-                Requested by: {openTicket.requester}
-              </Typography>
-              <Typography variant="subtitle2" color="text.secondary">
-                Created at: {new Date(openTicket.createdAt).toLocaleString()}
-              </Typography>
-            </Box>
+            <TicketDetailTemplate
+              ticket={{
+                title: openTicket.title,
+                requester: openTicket.requester,
+                createdAt: openTicket.createdAt,
+                description: openTicket.description,
+                attachments: openTicket.hasAttachment
+                  ? [
+                      { name: "Document.pdf", type: "pdf" },
+                      { name: "Video.mp4", type: "video" },
+                    ]
+                  : [],
+                avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg", // or your avatar logic
+                imageUrl:
+                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80",
+              }}
+              onBack={() => setOpenTicket(null)}
+              replyText={""}
+              onReplyTextChange={() => {}}
+              onSendReply={() => {}}
+            />
           ) : (
             <>
               {/* Toolbar */}
