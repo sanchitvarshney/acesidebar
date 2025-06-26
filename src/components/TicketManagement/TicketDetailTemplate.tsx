@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -26,6 +26,8 @@ import {
   PictureAsPdf as PictureAsPdfIcon,
 } from "@mui/icons-material";
 import Sidebar from "../layout/Sidebar";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 interface Attachment {
   name: string;
@@ -64,6 +66,26 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   onSendReply,
   children,
 }) => {
+  const [showReplyEditor, setShowReplyEditor] = useState(false);
+  const [localReply, setLocalReply] = useState("");
+
+  const handleReplyClick = () => {
+    setShowReplyEditor(true);
+  };
+
+  const handleSaveReply = () => {
+    onReplyTextChange(localReply);
+    onSendReply();
+    setShowReplyEditor(false);
+    setLocalReply("");
+  };
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: localReply,
+    onUpdate: ({ editor }) => setLocalReply(editor.getHTML()),
+  });
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f7f8fa" }}>
       <Sidebar open={false} handleDrawerToggle={() => {}} />
@@ -141,17 +163,16 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
             </Box>
             {/* Attachments and image */}
             <Box sx={{ display: "flex", alignItems: "flex-start", mb: 3 }}>
-              <Box>
+              <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
                   Attachments ({ticket.attachments?.length || 2} files, 30 MB)
                 </Typography>
-                <Paper
+                <Box
                   sx={{
-                    p: 2,
                     display: "flex",
-                    flexDirection: "column",
-                    gap: 1,
-                    maxWidth: 350,
+                    flexDirection: "row",
+                    gap: 2,
+                    flexWrap: "wrap",
                   }}
                 >
                   {(
@@ -160,26 +181,31 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
                       { name: "Video.mp4", type: "video" },
                     ]
                   ).map((att, idx) => (
-                    <Box
+                    <Paper
                       key={att.name + idx}
-                      sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        minWidth: 200,
+                        maxWidth: 300,
+                      }}
                     >
                       {iconForType(att.type)}
                       <Typography variant="body2" sx={{ flex: 1 }}>
                         {att.name}
                       </Typography>
-                      <IconButton>
+                      <IconButton size="small">
                         <FileDownloadIcon fontSize="small" />
                       </IconButton>
-                      <IconButton color="error">
+                      <IconButton size="small" color="error">
                         <DeleteIcon fontSize="small" />
                       </IconButton>
-                    </Box>
+                    </Paper>
                   ))}
-                </Paper>
+                </Box>
               </Box>
-              <Box sx={{ flex: 1 }} />
-              <Box>
+              <Box sx={{ ml: 2 }}>
                 <img
                   src={
                     ticket.imageUrl ||
@@ -195,15 +221,65 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
                 />
               </Box>
             </Box>
-            {/* Reply/Forward buttons */}
-            <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-              <Button variant="contained" startIcon={<ReplyIcon />}>
+            {/* Reply/Forward buttons - moved to bottom right */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+                mt: 3,
+              }}
+            >
+              <Button
+                variant="contained"
+                startIcon={<ReplyIcon />}
+                onClick={handleReplyClick}
+              >
                 Reply
               </Button>
               <Button variant="outlined" startIcon={<ForwardIcon />}>
                 Forward
               </Button>
             </Box>
+            {/* Reply Editor */}
+            {showReplyEditor && (
+              <Box
+                sx={{
+                  mt: 4,
+                  p: 2,
+                  bgcolor: "#f5f5f5",
+                  borderRadius: 2,
+                  boxShadow: 1,
+                }}
+              >
+                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                  Your Answer
+                </Typography>
+                <Box
+                  sx={{
+                    mb: 2,
+                    bgcolor: "#fff",
+                    borderRadius: 1,
+                    maxHeight: 300,
+                    overflow: "auto",
+                  }}
+                >
+                  <EditorContent
+                    editor={editor}
+                    style={{ minHeight: 180, maxHeight: 300, padding: 8 }}
+                  />
+                </Box>
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSaveReply}
+                  >
+                    Save
+                  </Button>
+                </Box>
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>
