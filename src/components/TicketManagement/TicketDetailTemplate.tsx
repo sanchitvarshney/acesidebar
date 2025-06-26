@@ -243,8 +243,8 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
                   bgcolor: "#f5f5f5",
                   borderRadius: 2,
                   boxShadow: 1,
-                  paddingBottom: 10,
-                  overflow: "auto",
+                  maxWidth: 900,
+                  margin: "0 auto",
                 }}
               >
                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -252,39 +252,56 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
                 </Typography>
                 <Box
                   sx={{
-                    mb: 2,
                     bgcolor: "#fff",
                     borderRadius: 1,
+                    mb: 0,
+                    minHeight: 180,
                     maxHeight: 300,
-                    overflow: "auto",
-                    padding: 2,
-                  }}
-                >
-                  <ReactSimpleWysiwyg
-                    value={localReply}
-                    onChange={(e) => setLocalReply(e.target.value)}
-                    style={{
-                      minHeight: 180,
-                      maxHeight: 300,
-                      padding: 8,
-                      paddingBottom: 20,
-                    }}
-                  />
-                </Box>
-                <Box
-                  sx={{
+                    p: 2,
+                    position: "relative",
                     display: "flex",
-                    justifyContent: "flex-end",
-                    paddingBottom: 20,
+                    flexDirection: "column",
                   }}
                 >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSaveReply}
+                  <Box
+                    sx={{
+                      flex: 1,
+                      overflowY: "auto",
+                      minHeight: 120,
+                      maxHeight: 200,
+                    }}
                   >
-                    Save
-                  </Button>
+                    <ReactSimpleWysiwyg
+                      value={localReply}
+                      onChange={(e) => setLocalReply(e.target.value)}
+                      style={{
+                        minHeight: 120,
+                        height: "100%",
+                        padding: 8,
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      position: "sticky",
+                      bottom: 0,
+                      left: 0,
+                      bgcolor: "#fff",
+                      pt: 2,
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      zIndex: 2,
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSaveReply}
+                    >
+                      Save
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
             )}
