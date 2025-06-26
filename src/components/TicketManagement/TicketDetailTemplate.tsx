@@ -26,8 +26,7 @@ import {
   PictureAsPdf as PictureAsPdfIcon,
 } from "@mui/icons-material";
 import Sidebar from "../layout/Sidebar";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import ReactSimpleWysiwyg from "react-simple-wysiwyg";
 
 interface Attachment {
   name: string;
@@ -79,12 +78,6 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
     setShowReplyEditor(false);
     setLocalReply("");
   };
-
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: localReply,
-    onUpdate: ({ editor }) => setLocalReply(editor.getHTML()),
-  });
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f7f8fa" }}>
@@ -246,14 +239,16 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
               <Box
                 sx={{
                   mt: 4,
-                  p: 2,
+                  p: 1,
                   bgcolor: "#f5f5f5",
                   borderRadius: 2,
                   boxShadow: 1,
+                  paddingBottom: 10,
+                  overflow: "auto",
                 }}
               >
                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                  Your Answer
+                  Your Reply
                 </Typography>
                 <Box
                   sx={{
@@ -262,14 +257,27 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
                     borderRadius: 1,
                     maxHeight: 300,
                     overflow: "auto",
+                    padding: 2,
                   }}
                 >
-                  <EditorContent
-                    editor={editor}
-                    style={{ minHeight: 180, maxHeight: 300, padding: 8 }}
+                  <ReactSimpleWysiwyg
+                    value={localReply}
+                    onChange={(e) => setLocalReply(e.target.value)}
+                    style={{
+                      minHeight: 180,
+                      maxHeight: 300,
+                      padding: 8,
+                      paddingBottom: 20,
+                    }}
                   />
                 </Box>
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    paddingBottom: 20,
+                  }}
+                >
                   <Button
                     variant="contained"
                     color="primary"
