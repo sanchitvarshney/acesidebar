@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 
 import {
-  ExpandMore as ExpandMoreIcon,
+  Delete as DeleteIcon,
   Reply as ReplyIcon,
   Forward as ForwardIcon,
 } from "@mui/icons-material";
@@ -25,6 +25,7 @@ const TicketReplayThread = ({
   forward:any
 }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
+   const [hovered, setHovered] = useState<string | null>(null);
 
   const handleToggle = () => {
     setExpanded(!expanded);
@@ -36,6 +37,8 @@ const TicketReplayThread = ({
       expanded={expanded}
       onChange={handleToggle}
       sx={{ boxShadow: "none" }}
+          onMouseEnter={() => setHovered(message?.user?.id)}
+      onMouseLeave={() => setHovered(null)}
     >
       <AccordionSummary
         // expandIcon={<ExpandMoreIcon />}
@@ -72,6 +75,15 @@ const TicketReplayThread = ({
               : "Just now"}
           </Typography>
         </Box>
+
+              {hovered === message?.user?.id && !expanded && (
+            <Box sx={{ display: "flex", gap: 1, position: "absolute", top: 0, right: 0 }}>
+        
+              <IconButton size="small" color="primary" onClick={() => reply()} >
+                <ReplyIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          )}
       </AccordionSummary>
 
       <AccordionDetails sx={{ pl: 6 }}>
@@ -87,7 +99,9 @@ const TicketReplayThread = ({
             <ForwardIcon fontSize="small" />
           </IconButton>
         </Box>
+        
       </AccordionDetails>
+ 
     </Accordion>
   );
 };
