@@ -262,7 +262,7 @@ const TicketList: React.FC<TicketListProps> = ({
             onMouseLeave={() => setHovered(null)}
             onClick={(e) => {
               const target = e.target as HTMLElement;
-              console.log("Ticket row clicked", ticket, target);
+             
               if (
                 target.closest('input[type="checkbox"]') ||
                 target.closest(".MuiIconButton-root")

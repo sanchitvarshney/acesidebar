@@ -26,6 +26,7 @@ import {
   OutlinedInput,
   useTheme,
   alpha,
+  styled,
 } from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
@@ -47,6 +48,7 @@ import {
 import TicketSidebar from "./TicketSidebar";
 import TicketList from "./TicketList";
 import TicketDetailTemplate from "./TicketDetailTemplate";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 interface Ticket {
   id: string;
@@ -62,10 +64,11 @@ interface Ticket {
   isStarred: boolean;
   isRead: boolean;
   tags: string[];
+  thread: any[] | undefined;
 }
 
 // Mock data for demonstration
-const mockTickets: Ticket[] = [
+export const mockTickets: Ticket[] = [
   {
     id: "1",
     title: "Login page not working properly",
@@ -81,6 +84,7 @@ const mockTickets: Ticket[] = [
     isStarred: true,
     isRead: false,
     tags: ["frontend", "authentication"],
+    thread: [],
   },
   {
     id: "2",
@@ -97,6 +101,7 @@ const mockTickets: Ticket[] = [
     isStarred: false,
     isRead: true,
     tags: ["backend", "database"],
+    thread: [],
   },
   {
     id: "3",
@@ -113,6 +118,7 @@ const mockTickets: Ticket[] = [
     isStarred: false,
     isRead: true,
     tags: ["feature-request", "ui"],
+    thread: [],
   },
   {
     id: "4",
@@ -128,6 +134,7 @@ const mockTickets: Ticket[] = [
     isStarred: true,
     isRead: true,
     tags: ["payment", "critical"],
+    thread: [],
   },
   {
     id: "5",
@@ -144,13 +151,27 @@ const mockTickets: Ticket[] = [
     isStarred: false,
     isRead: false,
     tags: ["mobile", "ios", "crash"],
+    thread: [],
   },
 ];
+
+const VisuallyHiddenInput = styled("input")`
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  white-space: nowrap;
+  width: 1px;
+`;
 
 const Tickets: React.FC = () => {
   const theme = useTheme();
   const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
+  const [files, setFiles] = useState<File[] | null>([]);
   const [currentFilter, setCurrentFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
@@ -276,6 +297,7 @@ const Tickets: React.FC = () => {
       isStarred: false,
       isRead: true,
       tags: [],
+      thread: [],
     };
 
     setTickets((prev) => [newTicketData, ...prev]);
@@ -331,7 +353,7 @@ const Tickets: React.FC = () => {
   };
 
   return (
-    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "78vh", display: "flex", flexDirection: "column" }}>
       {/* Header */}
       <Paper elevation={1} sx={{ borderRadius: 0 }}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
@@ -346,11 +368,6 @@ const Tickets: React.FC = () => {
             />
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton
-              onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
-            >
-              {viewMode === "list" ? <ViewModuleIcon /> : <ViewListIcon />}
-            </IconButton>
             <IconButton>
               <RefreshIcon />
             </IconButton>
@@ -397,6 +414,7 @@ const Tickets: React.FC = () => {
                 avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg", // or your avatar logic
                 imageUrl:
                   "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80",
+                thread: [],
               }}
               onBack={() => setOpenTicket(null)}
               replyText={""}
@@ -491,6 +509,7 @@ const Tickets: React.FC = () => {
                   tickets={filteredTickets}
                   selectedTickets={selectedTickets}
                   onTicketSelect={handleTicketSelect}
+                  //@ts-ignore
                   onTicketClick={handleTicketClick}
                   onStarToggle={handleStarToggle}
                 />
@@ -593,6 +612,51 @@ const Tickets: React.FC = () => {
                 setNewTicket((prev) => ({ ...prev, assignee: e.target.value }))
               }
             />
+
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+              sx={{ width: 200 }}
+            >
+              Upload files
+              <VisuallyHiddenInput
+                type="file"
+                onChange={(event) => {
+                  const fileList = event.target.files;
+                  if (fileList) {
+                    setFiles((prev) =>
+                      prev
+                        ? [...prev, ...Array.from(fileList)]
+                        : Array.from(fileList)
+                    );
+                  } else {
+                    setFiles(null);
+                  }
+                }}
+                multiple
+              />
+            </Button>
+            {files?.map((file) => (
+              <Box sx={
+                {
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center", 
+                }
+              }>
+                <Typography key={file.name}>{file.name}</Typography>
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={(file) => console.log(file)}
+                >
+                  <DeleteIcon sx={{ color: "red" }} />
+                </IconButton>
+              </Box>
+            ))}
           </Box>
         </DialogContent>
         <DialogActions>

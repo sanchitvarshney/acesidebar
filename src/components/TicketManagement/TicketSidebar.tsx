@@ -211,6 +211,7 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
         flexDirection: "column",
         height: "100%",
         p: 0,
+        overflowY: "auto",
       }}
     >
       {/* Create Ticket Button */}
@@ -311,7 +312,7 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
               />
             </ListItemIcon>
             <ListItemText
-              primary="Family"
+              primary="HR"
               primaryTypographyProps={{ fontSize: "0.95rem" }}
             />
           </ListItem>
@@ -327,7 +328,7 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
               />
             </ListItemIcon>
             <ListItemText
-              primary="Friends"
+              primary="IT"
               primaryTypographyProps={{ fontSize: "0.95rem" }}
             />
           </ListItem>
@@ -343,7 +344,7 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
               />
             </ListItemIcon>
             <ListItemText
-              primary="Work"
+              primary="Finance"
               primaryTypographyProps={{ fontSize: "0.95rem" }}
             />
           </ListItem>

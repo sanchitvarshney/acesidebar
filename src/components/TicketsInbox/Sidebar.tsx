@@ -25,9 +25,9 @@ import {
 } from "@mui/icons-material";
 
 const tagColors = {
-  Family: "#ff4081",
-  Friends: "#2979ff",
-  Work: "#00c853",
+  HR: "#ff4081",
+  IT : "#2979ff",
+  Finance: "#00c853",
   Other: "#ff9100",
 };
 
@@ -72,9 +72,9 @@ const Sidebar: React.FC = () => {
     { key: "trash", label: "Trash", icon: <DeleteIcon />, badge: null },
   ];
   const tags = [
-    { label: "Family", color: tagColors.Family },
-    { label: "Friends", color: tagColors.Friends },
-    { label: "Work", color: tagColors.Work },
+    { label: "HR", color: tagColors.HR },
+    { label: "IT", color: tagColors.IT },
+    { label: "Finance", color: tagColors.Finance },
     { label: "Other", color: tagColors.Other },
   ];
   return (

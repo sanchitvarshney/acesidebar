@@ -63,6 +63,7 @@ interface Ticket {
   isStarred: boolean;
   isRead: boolean;
   tags: string[];
+  thread: any[] | undefined;
 }
 
 // Mock data for demonstration
@@ -71,7 +72,7 @@ const mockTickets: Ticket[] = [
     id: "1",
     title: "Login page not working properly",
     description:
-      "Users are unable to log in to the application. The login button is not responding.",
+      "Users are unable to log in to the not responding.",
     status: "open",
     priority: "urgent",
     assignee: "John Doe",
@@ -82,6 +83,7 @@ const mockTickets: Ticket[] = [
     isStarred: true,
     isRead: false,
     tags: ["frontend", "authentication"],
+    thread: [],
   },
   {
     id: "2",
@@ -98,6 +100,7 @@ const mockTickets: Ticket[] = [
     isStarred: false,
     isRead: true,
     tags: ["backend", "database"],
+    thread: [],
   },
   {
     id: "3",
@@ -114,6 +117,7 @@ const mockTickets: Ticket[] = [
     isStarred: false,
     isRead: true,
     tags: ["feature-request", "ui"],
+    thread: [],
   },
   {
     id: "4",
@@ -129,6 +133,7 @@ const mockTickets: Ticket[] = [
     isStarred: true,
     isRead: true,
     tags: ["payment", "critical"],
+    thread: [],
   },
   {
     id: "5",
@@ -145,6 +150,7 @@ const mockTickets: Ticket[] = [
     isStarred: false,
     isRead: false,
     tags: ["mobile", "ios", "crash"],
+    thread: [],
   },
 ];
 
@@ -285,6 +291,7 @@ const TicketManagement: React.FC = () => {
       isStarred: false,
       isRead: true,
       tags: [],
+      thread: [],
     };
 
     setTickets((prev) => [newTicketData, ...prev]);
@@ -339,20 +346,22 @@ const TicketManagement: React.FC = () => {
     setAnchorEl(null);
   };
 
-  console.log(openTicket, "ooooo");
+
 
   return (
     <Box
+    
       sx={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
+        height: "40vh",
         ml: { sm: "80px" },
+        backgroundColor: "green",
       }}
     >
       {/* Header */}
-      <Paper elevation={1} sx={{ borderRadius: 0 }}>
-        <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Paper elevation={0} sx={{ borderRadius: 0,backgroundColor:"blue" }}>
+        <Toolbar sx={{ justifyContent: "space-between",  }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
               Ticket Management
@@ -364,11 +373,7 @@ const TicketManagement: React.FC = () => {
             />
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton
-              onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
-            >
-              {viewMode === "list" ? <ViewModuleIcon /> : <ViewListIcon />}
-            </IconButton>
+          
             <IconButton>
               <RefreshIcon />
             </IconButton>
@@ -397,7 +402,7 @@ const TicketManagement: React.FC = () => {
           />
         </Paper>
 
-        {/* Main Content: Only one of TicketList or Detail is shown */}
+  
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {openTicket ? (
             <>
@@ -416,11 +421,13 @@ const TicketManagement: React.FC = () => {
                     { name: "Document.pdf", type: "pdf" },
                     { name: "Video.mp4", type: "video" },
                   ],
+         
                 }}
                 onBack={handleBack}
                 replyText={replyText}
-                onReplyTextChange={setReplyText}
+                onReplyTextChange={(value) => setReplyText(value)}
                 onSendReply={handleSendReply}
+                
               />
             </>
           ) : (
@@ -434,7 +441,7 @@ const TicketManagement: React.FC = () => {
                   borderBottom: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                <Toolbar sx={{ minHeight: 56 }}>
+                <Toolbar sx={{ minHeight: 20, backgroundColor: "red" }}>
                   <Box
                     sx={{
                       display: "flex",
@@ -512,6 +519,7 @@ const TicketManagement: React.FC = () => {
                   tickets={filteredTickets}
                   selectedTickets={selectedTickets}
                   onTicketSelect={handleTicketSelect}
+                  //@ts-ignore
                   onTicketClick={handleTicketClick}
                   onStarToggle={handleStarToggle}
                 />
