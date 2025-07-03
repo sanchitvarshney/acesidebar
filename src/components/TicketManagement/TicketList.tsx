@@ -29,6 +29,7 @@ import {
   Cancel as CancelIcon,
   Warning as WarningIcon,
 } from "@mui/icons-material";
+import { useReplyContext } from "../../hooks/useReplyContext";
 
 interface Ticket {
   id: string;
@@ -144,6 +145,7 @@ const TicketList: React.FC<TicketListProps> = ({
 }) => {
   const theme = useTheme();
   const [hovered, setHovered] = useState<string | null>(null);
+  const { handleReplyClick } = useReplyContext();
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
@@ -251,7 +253,14 @@ const TicketList: React.FC<TicketListProps> = ({
                     <IconButton size="small" color="error">
                       <DeleteIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" color="primary">
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={() => {
+                        onTicketClick(ticket);
+                        handleReplyClick();
+                      }}
+                    >
                       <ReplyIcon fontSize="small" />
                     </IconButton>
                   </>
@@ -262,7 +271,7 @@ const TicketList: React.FC<TicketListProps> = ({
             onMouseLeave={() => setHovered(null)}
             onClick={(e) => {
               const target = e.target as HTMLElement;
-             
+
               if (
                 target.closest('input[type="checkbox"]') ||
                 target.closest(".MuiIconButton-root")

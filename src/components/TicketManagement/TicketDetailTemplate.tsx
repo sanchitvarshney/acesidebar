@@ -30,6 +30,7 @@ import {
 import Sidebar from "../layout/Sidebar";
 import ReactSimpleWysiwyg from "react-simple-wysiwyg";
 import TicketReplayThread from "./TicketReplayThread";
+import { useReplyContext } from "../../hooks/useReplyContext";
 
 interface Attachment {
   name: string;
@@ -69,15 +70,13 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   onSendReply,
   children,
 }) => {
-  const [showReplyEditor, setShowReplyEditor] = useState(false);
+ const {setShowReplyEditor, showReplyEditor, handleReplyClick } = useReplyContext()
   const [localReply, setLocalReply] = useState("");
   const [showForwardModal, setShowForwardModal] = useState(false);
   const [forwardRecipient, setForwardRecipient] = useState("");
   const [forwardMessage, setForwardMessage] = useState("");
 
-  const handleReplyClick = () => {
-    setShowReplyEditor(true);
-  };
+
 
   const handleSaveReply = () => {
     if (localReply.trim() === "") {
@@ -281,7 +280,7 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
                     Reply
                   </Button>
                   <Button variant="outlined" startIcon={<ForwardIcon />} onClick={handleForwardClick}>
-                    Forward
+                   Forward
                   </Button>
                 </Box>
               </>

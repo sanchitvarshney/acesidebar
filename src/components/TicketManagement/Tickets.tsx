@@ -49,6 +49,7 @@ import TicketSidebar from "./TicketSidebar";
 import TicketList from "./TicketList";
 import TicketDetailTemplate from "./TicketDetailTemplate";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CustomSearch from "../common/CustomSearch";
 
 interface Ticket {
   id: string;
@@ -368,6 +369,7 @@ const Tickets: React.FC = () => {
             />
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <CustomSearch placeholder="Search..." onChange={()=>{}} width="300px" bgColor="#888"  bgOpacity={0.6}/>
             <IconButton>
               <RefreshIcon />
             </IconButton>

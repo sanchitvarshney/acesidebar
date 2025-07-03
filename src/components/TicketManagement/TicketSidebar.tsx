@@ -17,6 +17,8 @@ import {
   styled,
   alpha,
   useTheme,
+  IconButton,
+  Modal,
 } from "@mui/material";
 import {
   Inbox as InboxIcon,
@@ -109,6 +111,14 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
     priority: true,
     type: true,
   });
+  const [tagName, setTagName] = useState("");
+  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [tags, setTags] = useState([
+    { name: "HR", color: "#e91e63" },
+    { name: "IT", color: "#2196f3" },
+    { name: "Finance", color: "#4caf50" },
+    { name: "Other", color: "#ff9800" },
+  ]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -293,82 +303,101 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
 
       {/* Tags Section */}
       <Box sx={{ px: 2, mt: 2 }}>
-        <Typography
-          variant="subtitle2"
-          sx={{ fontWeight: 700, color: "grey.700", mb: 1 }}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
         >
-          Tags
-        </Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 700, color: "grey.700" }}
+          >
+            Tags
+          </Typography>
+          <IconButton
+            sx={{
+              bgcolor: "primary.main",
+              "&:hover": { bgcolor: "primary.dark" },
+            }}
+            onClick={() => setIsTagModalOpen(true)}
+          >
+            <AddIcon sx={{ fontSize: 18, color: "#fff" }} />
+          </IconButton>
+        </Box>
+
         <List dense>
-          <ListItem sx={{ pl: 0 }}>
-            <ListItemIcon sx={{ minWidth: 28 }}>
-              <Box
-                sx={{
-                  width: 10,
-                  height: 10,
-                  bgcolor: "#e91e63",
-                  borderRadius: "50%",
-                }}
+          {tags.map((tag, idx) => (
+            <ListItem sx={{ pl: 0 }} key={tag.name + idx}>
+              <ListItemIcon sx={{ minWidth: 28 }}>
+                <Box
+                  sx={{
+                    width: 10,
+                    height: 10,
+                    bgcolor: tag.color,
+                    borderRadius: "50%",
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary={tag.name}
+                primaryTypographyProps={{ fontSize: "0.95rem" }}
               />
-            </ListItemIcon>
-            <ListItemText
-              primary="HR"
-              primaryTypographyProps={{ fontSize: "0.95rem" }}
-            />
-          </ListItem>
-          <ListItem sx={{ pl: 0 }}>
-            <ListItemIcon sx={{ minWidth: 28 }}>
-              <Box
-                sx={{
-                  width: 10,
-                  height: 10,
-                  bgcolor: "#2196f3",
-                  borderRadius: "50%",
-                }}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary="IT"
-              primaryTypographyProps={{ fontSize: "0.95rem" }}
-            />
-          </ListItem>
-          <ListItem sx={{ pl: 0 }}>
-            <ListItemIcon sx={{ minWidth: 28 }}>
-              <Box
-                sx={{
-                  width: 10,
-                  height: 10,
-                  bgcolor: "#4caf50",
-                  borderRadius: "50%",
-                }}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary="Finance"
-              primaryTypographyProps={{ fontSize: "0.95rem" }}
-            />
-          </ListItem>
-          <ListItem sx={{ pl: 0 }}>
-            <ListItemIcon sx={{ minWidth: 28 }}>
-              <Box
-                sx={{
-                  width: 10,
-                  height: 10,
-                  bgcolor: "#ff9800",
-                  borderRadius: "50%",
-                }}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary="Other"
-              primaryTypographyProps={{ fontSize: "0.95rem" }}
-            />
-          </ListItem>
+            </ListItem>
+          ))}
         </List>
       </Box>
 
       {/* Spacer */}
       <Box sx={{ flex: 1 }} />
+
+      <Modal open={isTagModalOpen} onClose={() => setIsTagModalOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+            minWidth: 350,
+            maxWidth: 500,
+            width: "90%",
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Add Tag
+          </Typography>
+          <TextField
+            label="Tag Name"
+            fullWidth
+            value={tagName}
+            onChange={(e) => setTagName(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+            <Button onClick={() => setIsTagModalOpen(false)} color="secondary">
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                if (!tags.some(tag => tag.name.toLowerCase() === tagName.toLowerCase())) {
+                  setTags([...tags, { name: tagName, color: "#607d8b" }]);
+                }
+                setTagName("");
+                setIsTagModalOpen(false);
+              }}
+              disabled={!tagName}
+            >
+              Add
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };
