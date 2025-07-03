@@ -23,6 +23,7 @@ import {
   Help,
   ExitToApp,
 } from "@mui/icons-material";
+import NotificationModal from "../notificationmodal/NotificationModal";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -75,6 +76,8 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -164,6 +167,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         <Box sx={{ flexGrow: 1 }} />
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton
+          onClick={()=> setNotificationOpen(true)}
             size="large"
             aria-label="show 17 new notifications"
             color="inherit"
@@ -186,6 +190,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         </Box>
       </Toolbar>
       {renderMenu}
+      <NotificationModal open={notificationOpen} onClose={() => setNotificationOpen(false)}/>
     </AppBar>
   );
 };
