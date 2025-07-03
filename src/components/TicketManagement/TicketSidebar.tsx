@@ -118,10 +118,10 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
   const [tagName, setTagName] = useState("");
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [tags, setTags] = useState([
-    { name: "HR", color: "#e91e63" },
+    { name: "Frontend", color: "#e91e63" },
     { name: "IT", color: "#2196f3" },
     { name: "Finance", color: "#4caf50" },
-    { name: "Other", color: "#ff9800" },
+    { name: "HR", color: "#ff9800" },
   ]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
