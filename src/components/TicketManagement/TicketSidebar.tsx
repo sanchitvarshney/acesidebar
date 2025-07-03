@@ -57,6 +57,8 @@ interface TicketSidebarProps {
     medium: number;
     low: number;
   };
+  onTagFilterChange: (tag: string) => void;
+  currentTag: string;
 }
 
 const StyledListItemButton = styled(ListItemButton)<{ active?: boolean }>(
@@ -103,6 +105,8 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
   onCreateTicket,
   currentFilter,
   ticketCounts,
+  onTagFilterChange,
+  currentTag,
 }) => {
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
@@ -329,21 +333,40 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
 
         <List dense>
           {tags.map((tag, idx) => (
-            <ListItem sx={{ pl: 0 }} key={tag.name + idx}>
-              <ListItemIcon sx={{ minWidth: 28 }}>
-                <Box
-                  sx={{
-                    width: 10,
-                    height: 10,
-                    bgcolor: tag.color,
-                    borderRadius: "50%",
-                  }}
+            <ListItem
+              sx={{ pl: 0, cursor: "pointer" }}
+              key={tag.name + idx}
+              disablePadding
+              onClick={() => onTagFilterChange(tag.name)}
+            >
+              <ListItemButton
+                selected={currentTag === tag.name}
+                sx={{
+                  borderRadius: 2,
+                  mx: 0,
+                  bgcolor: currentTag === tag.name ? "primary.50" : "transparent",
+                  "&.Mui-selected": {
+                    bgcolor: "primary.100",
+                    color: "primary.main",
+                    fontWeight: 700,
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 28 }}>
+                  <Box
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      bgcolor: tag.color,
+                      borderRadius: "50%",
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={tag.name}
+                  primaryTypographyProps={{ fontSize: "0.95rem" }}
                 />
-              </ListItemIcon>
-              <ListItemText
-                primary={tag.name}
-                primaryTypographyProps={{ fontSize: "0.95rem" }}
-              />
+              </ListItemButton>
             </ListItem>
           ))}
         </List>

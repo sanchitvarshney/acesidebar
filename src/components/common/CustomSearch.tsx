@@ -47,6 +47,7 @@ const SearchContainer = styled("div", {
 })<SearchStyleProps>(({ theme, bgColor, bgOpacity, borderRadius }) => ({
   position: "relative",
   borderRadius: borderRadius ?? 10,
+  border:"1px solid #000",
   backgroundColor: alpha(
     bgColor ?? theme.palette.common.white,
     bgOpacity ?? 0.15
@@ -84,9 +85,9 @@ const StyledInputBase = styled(InputBase, {
     padding: theme.spacing(1.5, 1.5, 1.5, 0),
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
-    color: textColor ?? theme.palette.common.white,
+    color: textColor ?? theme.palette.common.black,
     "::placeholder": {
-      color: textColor ?? theme.palette.grey[300],
+      color: textColor ?? theme.palette.grey[900],
       opacity: 0.8,
       transition: "opacity 0.2s ease-in-out",
     },

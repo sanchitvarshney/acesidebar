@@ -174,6 +174,7 @@ const Tickets: React.FC = () => {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [files, setFiles] = useState<File[] | null>([]);
   const [currentFilter, setCurrentFilter] = useState("all");
+  const [currentTag, setCurrentTag] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -201,12 +202,16 @@ const Tickets: React.FC = () => {
     };
   }, [tickets]);
 
-  // Filter tickets based on current filter and search query
+  // Filter tickets based on current filter, tag, and search query
   const filteredTickets = useMemo(() => {
     let filtered = tickets;
 
-    // Apply status filter
-    if (currentFilter !== "all") {
+    // Apply tag filter first if set
+    if (currentTag) {
+      filtered = filtered.filter((ticket) =>
+        ticket.tags.some((tag) => tag.toLowerCase() === currentTag.toLowerCase())
+      );
+    } else if (currentFilter !== "all") {
       filtered = filtered.filter((ticket) => {
         if (
           ["open", "in-progress", "resolved", "closed"].includes(currentFilter)
@@ -234,7 +239,7 @@ const Tickets: React.FC = () => {
     }
 
     return filtered;
-  }, [tickets, currentFilter, searchQuery]);
+  }, [tickets, currentFilter, currentTag, searchQuery]);
 
   const handleTicketSelect = (ticketId: string) => {
     setSelectedTickets((prev) =>
@@ -271,7 +276,14 @@ const Tickets: React.FC = () => {
 
   const handleFilterChange = (filter: string) => {
     setCurrentFilter(filter);
+    setCurrentTag(""); // Reset tag filter when status filter changes
     setSelectedTickets([]); // Clear selection when filter changes
+  };
+
+  const handleTagFilterChange = (tag: string) => {
+    setCurrentTag(tag);
+    setCurrentFilter("all");
+    setSelectedTickets([]); 
   };
 
   const handleSearchChange = (search: string) => {
@@ -369,7 +381,7 @@ const Tickets: React.FC = () => {
             />
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <CustomSearch placeholder="Search..." onChange={()=>{}} width="300px" bgColor="#888"  bgOpacity={0.6}/>
+            <CustomSearch placeholder="Search..." onChange={()=>{}} width="300px"  bgOpacity={0.6}/>
             <IconButton>
               <RefreshIcon />
             </IconButton>
@@ -395,6 +407,8 @@ const Tickets: React.FC = () => {
             onCreateTicket={handleCreateTicket}
             currentFilter={currentFilter}
             ticketCounts={ticketCounts}
+            onTagFilterChange={handleTagFilterChange}
+            currentTag={currentTag}
           />
         </Paper>
 

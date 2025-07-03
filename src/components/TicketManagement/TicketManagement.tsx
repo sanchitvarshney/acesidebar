@@ -71,8 +71,7 @@ const mockTickets: Ticket[] = [
   {
     id: "1",
     title: "Login page not working properly",
-    description:
-      "Users are unable to log in to the not responding.",
+    description: "Users are unable to log in to the not responding.",
     status: "open",
     priority: "urgent",
     assignee: "John Doe",
@@ -155,6 +154,8 @@ const mockTickets: Ticket[] = [
 ];
 
 const TicketManagement: React.FC = () => {
+  const [currentTag, setCurrentTag] = useState("");
+
   const theme = useTheme();
   const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
@@ -346,11 +347,13 @@ const TicketManagement: React.FC = () => {
     setAnchorEl(null);
   };
 
-
-
+  const handleTagFilterChange = (tag: string) => {
+    setCurrentTag(tag);
+    setCurrentFilter("all");
+    setSelectedTickets([]);
+  };
   return (
     <Box
-    
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -360,8 +363,8 @@ const TicketManagement: React.FC = () => {
       }}
     >
       {/* Header */}
-      <Paper elevation={0} sx={{ borderRadius: 0,backgroundColor:"blue" }}>
-        <Toolbar sx={{ justifyContent: "space-between",  }}>
+      <Paper elevation={0} sx={{ borderRadius: 0, backgroundColor: "blue" }}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
               Ticket Management
@@ -373,7 +376,6 @@ const TicketManagement: React.FC = () => {
             />
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          
             <IconButton>
               <RefreshIcon />
             </IconButton>
@@ -399,10 +401,11 @@ const TicketManagement: React.FC = () => {
             onCreateTicket={handleCreateTicket}
             currentFilter={currentFilter}
             ticketCounts={ticketCounts}
+            onTagFilterChange={handleTagFilterChange}
+            currentTag={currentTag}
           />
         </Paper>
 
-  
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {openTicket ? (
             <>
@@ -421,13 +424,11 @@ const TicketManagement: React.FC = () => {
                     { name: "Document.pdf", type: "pdf" },
                     { name: "Video.mp4", type: "video" },
                   ],
-         
                 }}
                 onBack={handleBack}
                 replyText={replyText}
                 onReplyTextChange={(value) => setReplyText(value)}
                 onSendReply={handleSendReply}
-                
               />
             </>
           ) : (
