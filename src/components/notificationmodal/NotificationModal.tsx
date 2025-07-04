@@ -67,7 +67,7 @@ const NotificationModal = forwardRef<HTMLDivElement, NotificationModalProps>(
     const handleListItemClick = (data: any) => {};
     return (
       <Dialog onClose={onClose} open={open}>
-        <Box sx={{ width: { sm: "300px", md: "600px" } }}>
+        <Box sx={{ width: { sm: "350px", md: "500px" } }}>
           <DialogTitle >Your Notifications</DialogTitle>
           <List sx={{ p: 1 }}>
             {notifications.map((msg) => (

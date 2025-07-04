@@ -22,7 +22,10 @@ import {
   Settings,
   Help,
   ExitToApp,
+ 
+
 } from "@mui/icons-material";
+
 import NotificationModal from "../notificationmodal/NotificationModal";
 
 const drawerWidth = 80;
@@ -105,7 +108,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>
-        <Avatar sx={{ width: 24, height: 24, mr: 1 }} />
+        <AccountCircle fontSize="small"  sx={{mr: 1 }} />
         <Typography variant="body2">My Profile</Typography>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>

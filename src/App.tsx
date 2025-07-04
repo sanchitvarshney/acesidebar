@@ -4,11 +4,15 @@ import {
   Routes,
   Route,
   Navigate,
+  RouterProvider,
 } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import MainLayout from "./components/layout/MainLayout";
 import Tickets from "./components/TicketManagement/Tickets";
+import LoginScreen from "./screens/LoginScreen";
+import SignupScreen from "./screens/SignupScreen";
+import { router } from "./routes/Routing";
 
 // Create a theme instance
 const theme = createTheme({
@@ -39,59 +43,12 @@ const theme = createTheme({
 });
 
 // Placeholder components for routes
-const Dashboard = () => <div>Dashboard</div>;
-const Dashboard2 = () => <div>Dashboard 2</div>;
-const Dashboard3 = () => <div>Dashboard 3</div>;
-const Dashboard4 = () => <div>Dashboard 4</div>;
-const Horizontal = () => <div>Horizontal Menu</div>;
-const TwoMenus = () => <div>Two Menus</div>;
-const Buttons = () => <div>Buttons</div>;
-const Alerts = () => <div>Alerts</div>;
-const Modals = () => <div>Modals</div>;
-const Tabs = () => <div>Tabs</div>;
-const BasicTables = () => <div>Basic Tables</div>;
-const DataTables = () => <div>DataTables</div>;
-const FormBasic = () => <div>Form Basic</div>;
-const FormMore = () => <div>Form More</div>;
-const Cards = () => <div>Cards</div>;
-const Calendar = () => <div>Calendar</div>;
-const Gallery = () => <div>Gallery</div>;
-const Profile = () => <div>Profile</div>;
-const Login = () => <div>Login</div>;
-const Pricing = () => <div>Pricing</div>;
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <MainLayout>
-          <Routes>
-            <Route path="/" element={<Navigate to="/tickets" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard-2" element={<Dashboard2 />} />
-            <Route path="/dashboard-3" element={<Dashboard3 />} />
-            <Route path="/dashboard-4" element={<Dashboard4 />} />
-            <Route path="/horizontal" element={<Horizontal />} />
-            <Route path="/two-menus" element={<TwoMenus />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/modals" element={<Modals />} />
-            <Route path="/tabs" element={<Tabs />} />
-            <Route path="/basic-tables" element={<BasicTables />} />
-            <Route path="/datatables" element={<DataTables />} />
-            <Route path="/form-basic" element={<FormBasic />} />
-            <Route path="/form-more" element={<FormMore />} />
-            <Route path="/cards" element={<Cards />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/tickets" element={<Tickets />} />
-          </Routes>
-        </MainLayout>
-      </Router>
+       <RouterProvider router={router} />
     </ThemeProvider>
   );
 }

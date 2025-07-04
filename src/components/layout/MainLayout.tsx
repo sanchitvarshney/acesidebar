@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box, CssBaseline, useTheme, styled } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
+import { Outlet } from "react-router-dom";
 
 const drawerWidth = 0;
 
@@ -34,9 +35,7 @@ const MainContent = styled(Box)(({ theme }) => ({
   boxShadow: theme.shadows[1],
 }));
 
-
-
-const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const MainLayout = ({  }) => {
   const [open, setOpen] = useState(true);
   const theme = useTheme();
 
@@ -45,13 +44,14 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    <Box sx={{ display: "flex", }}>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <TopBar open={open} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar open={open} handleDrawerToggle={handleDrawerToggle} />
       <Main open={open}>
-        <MainContent>{children}</MainContent>
- 
+        <MainContent>
+          <Outlet />
+        </MainContent>
       </Main>
     </Box>
   );

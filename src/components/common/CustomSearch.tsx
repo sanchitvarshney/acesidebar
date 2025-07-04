@@ -27,6 +27,7 @@ const CustomSearch = forwardRef<HTMLInputElement, CustomSearchPropsType>(
           onChange={onChange}
           inputRef={ref}
           textColor={textColor}
+          size="small"
         />
       </SearchContainer>
     );
@@ -46,7 +47,7 @@ const SearchContainer = styled("div", {
   shouldForwardProp: (prop:any) => !["bgColor", "bgOpacity", "borderRadius"].includes(prop),
 })<SearchStyleProps>(({ theme, bgColor, bgOpacity, borderRadius }) => ({
   position: "relative",
-  borderRadius: borderRadius ?? 10,
+  borderRadius:  4,
   border:"1px solid #000",
   backgroundColor: alpha(
     bgColor ?? theme.palette.common.white,
@@ -82,7 +83,7 @@ const StyledInputBase = styled(InputBase, {
   color: "inherit",
   width: "100%",
   "& .MuiInputBase-input": {
-    padding: theme.spacing(1.5, 1.5, 1.5, 0),
+    padding: theme.spacing(1.0, 1.0, 1.0, 0),
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     color: textColor ?? theme.palette.common.black,
