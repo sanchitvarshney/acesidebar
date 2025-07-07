@@ -3,8 +3,6 @@ import AuthenticateScreenWapper from '../components/layout/AuthenticateScreenWap
 import InstractionComponent from '../components/authscreencomponents/InstractionComponent'
 import SignUpComponent from '../components/authscreencomponents/SignUpComponent'
 
-
-
 const SignUpInstructions = [
   {
     id: 1,
