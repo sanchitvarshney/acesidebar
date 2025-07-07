@@ -22,11 +22,11 @@ import {
   Settings,
   Help,
   ExitToApp,
- 
-
 } from "@mui/icons-material";
 
 import NotificationModal from "../notificationmodal/NotificationModal";
+import NotificationDropDown from "../notificationmodal/NotificationDropDown";
+import CustomPopover from "../../reusable/CustomPopover";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -80,7 +80,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
   const [notificationOpen, setNotificationOpen] = useState(false);
-  
+  const notificationRef = React.useRef(null);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -108,7 +108,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>
-        <AccountCircle fontSize="small"  sx={{mr: 1 }} />
+        <AccountCircle fontSize="small" sx={{ mr: 1 }} />
         <Typography variant="body2">My Profile</Typography>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
@@ -170,15 +170,16 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         <Box sx={{ flexGrow: 1 }} />
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton
-          onClick={()=> setNotificationOpen(true)}
+            onClick={() => setNotificationOpen(true)}
             size="large"
             aria-label="show 17 new notifications"
             color="inherit"
           >
             <Badge badgeContent={17} color="error">
-              <NotificationsIcon />
+              <NotificationsIcon ref={notificationRef} />
             </Badge>
           </IconButton>
+        
           <IconButton
             size="large"
             edge="end"
@@ -193,7 +194,19 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         </Box>
       </Toolbar>
       {renderMenu}
-      <NotificationModal open={notificationOpen} onClose={() => setNotificationOpen(false)}/>
+        {notificationOpen && (
+            <CustomPopover
+              open={notificationOpen}
+              close={() => setNotificationOpen(false)}
+              //@ts-ignore
+              anchorEl={notificationRef}
+              width={400}
+              height={360}
+              isCone={true}
+            >
+              <NotificationDropDown />
+            </CustomPopover>
+          )}
     </AppBar>
   );
 };
