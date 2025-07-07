@@ -3,6 +3,7 @@ import { Box, CssBaseline, useTheme, styled } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { Outlet } from "react-router-dom";
+import BottomBar from "./BottomBar";
 
 const drawerWidth = 0;
 
@@ -35,7 +36,7 @@ const MainContent = styled(Box)(({ theme }) => ({
   boxShadow: theme.shadows[1],
 }));
 
-const MainLayout = ({  }) => {
+const MainLayout = ({}) => {
   const [open, setOpen] = useState(true);
   const theme = useTheme();
 
@@ -53,6 +54,7 @@ const MainLayout = ({  }) => {
           <Outlet />
         </MainContent>
       </Main>
+      <BottomBar />
     </Box>
   );
 };
