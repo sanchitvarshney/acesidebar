@@ -7,9 +7,9 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PersonIcon from "@mui/icons-material/Person";
-
+import CircularProgress from "@mui/material/CircularProgress";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import { useForm } from "react-hook-form";
@@ -17,10 +17,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../../zodSchema/AuthSchema";
 import z from "zod";
+import { useLoginMutation } from "../../services/auth";
+import { useToast } from "../../hooks/useToast";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contextApi/AuthContext";
 
 type RegisterFormData = z.infer<typeof loginSchema>;
 
 const LoginComponent = () => {
+  const {signIn} = useAuth();
+  const navigation = useNavigate();
   const {
     // setValue,
     register,
@@ -31,14 +37,46 @@ const LoginComponent = () => {
     mode: "onChange",
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const theme = useTheme();
+  const { showToast } = useToast();
+  const [login, { isLoading, error, data }] = useLoginMutation();
 
   const handleToggleVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const onSubmit = (data: RegisterFormData) => {
-    console.log("✅ Submitted Data:", data);
+  useEffect(() => {
+    if (!error) return;
+
+    if ("status" in error) {
+      const errData = error.data as { message?: string };
+      showToast(errData?.message || "Something went wrong", "error");
+    } else if ("message" in error) {
+      showToast(error.message || "An unexpected error occurred", "error");
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (!data) return;
+  
+    localStorage.setItem("userToken", JSON.stringify(data.data));
+
+    showToast("Login successful!", "success");
+    signIn();
+
+    navigation("/");
+  }, [data]);
+
+  const onSubmit = async (data: RegisterFormData) => {
+    try {
+      const payload = {
+        username: data.email,
+        password: data.password,
+      };
+      console.log("payload", payload);
+      await login(payload);
+    } catch (error) {
+      console.error("Error logging in:", error);
+    }
   };
 
   return (
@@ -126,25 +164,32 @@ const LoginComponent = () => {
           </Typography>
         </Box>
       </Box>
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        sx={{
-          mt: 3,
-          py: 1.2,
-          fontWeight: 600,
-          fontSize: 17,
-          borderRadius: 2,
-          boxShadow: "0 2px 8px rgba(99,102,241,0.10)",
-          transition: "background 0.2s",
-          "&:hover": { background: "#6366f1" },
-        }}
-        size="large"
-        type="submit"
-      >
-        Login
-      </Button>
+      {isLoading ? (
+        <div className="flex items-center justify-center">
+          <CircularProgress color="success" size={"40px"} />
+        </div>
+      ) : (
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{
+            mt: 3,
+            py: 1.2,
+            fontWeight: 600,
+            fontSize: 17,
+            borderRadius: 2,
+            boxShadow: "0 2px 8px rgba(99,102,241,0.10)",
+            transition: "background 0.2s",
+            "&:hover": { background: "#6366f1" },
+          }}
+          size="large"
+          type="submit"
+        >
+          Login
+        </Button>
+      )}
+
       <Button
         variant="text"
         sx={{

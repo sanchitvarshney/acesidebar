@@ -13,6 +13,8 @@ import Tickets from "./components/TicketManagement/Tickets";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import { router } from "./routes/Routing";
+import { ToastContext } from "./contextApi/ToastContext";
+import { AuthProvider } from "./contextApi/AuthContext";
 
 // Create a theme instance
 const theme = createTheme({
@@ -47,8 +49,12 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
+      <AuthProvider>
+       <ToastContext>
       <CssBaseline />
        <RouterProvider router={router} />
+       </ToastContext>
+       </AuthProvider>
     </ThemeProvider>
   );
 }

@@ -4,16 +4,19 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ReplyContext from './contextApi/ReplyContext';
+import { Provider } from 'react-redux';
+import { store } from './reduxStore/Store';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-   
+       <Provider store={store}>
     <ReplyContext>
     <App />
     </ReplyContext>
+    </Provider>
   </React.StrictMode>
 );
 
