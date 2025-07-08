@@ -27,6 +27,7 @@ import {
 import NotificationModal from "../notificationmodal/NotificationModal";
 import NotificationDropDown from "../notificationmodal/NotificationDropDown";
 import CustomPopover from "../../reusable/CustomPopover";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -81,7 +82,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const isMenuOpen = Boolean(anchorEl);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const notificationRef = React.useRef(null);
-
+  const navigate = useNavigate();
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -109,7 +110,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     >
       <MenuItem onClick={handleMenuClose}>
         <AccountCircle fontSize="small" sx={{ mr: 1 }} />
-        <Typography variant="body2">My Profile</Typography>
+        <Typography variant="body2" onClick={() => navigate("/profile")}>My Profile</Typography>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
         <Settings fontSize="small" sx={{ mr: 1 }} />
