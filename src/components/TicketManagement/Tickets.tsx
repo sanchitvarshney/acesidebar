@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import ReactSimpleWysiwyg from "react-simple-wysiwyg";
 import {
   Box,
   Grid,
@@ -50,7 +51,7 @@ import TicketList from "./TicketList";
 import TicketDetailTemplate from "./TicketDetailTemplate";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CustomSearch from "../common/CustomSearch";
-import { useCreateTicketMutation } from "../../services/ticketAuth";
+import { useCreateTicketMutation, useGetPriorityListQuery } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 
 interface Ticket {
@@ -182,6 +183,7 @@ const Tickets: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
+  const { data: priorityList, isLoading: isPriorityListLoading} = useGetPriorityListQuery();
   const { showToast } = useToast();
   const [newTicket, setNewTicket] = useState({
     user_name: "",
@@ -194,7 +196,6 @@ const Tickets: React.FC = () => {
     recipients: "",
   });
   const [openTicket, setOpenTicket] = useState<Ticket | null>(null);
-
   // Calculate ticket counts
   const ticketCounts = useMemo(() => {
     return {
@@ -677,23 +678,30 @@ const Tickets: React.FC = () => {
                     }
                     input={<OutlinedInput label="Priority" />}
                   >
-                    <MenuItem value={1}>Low</MenuItem>
-                    <MenuItem value={2}>Medium</MenuItem>
-                    <MenuItem value={3}>High</MenuItem>
-                    <MenuItem value={4}>Urgent</MenuItem>
+                    {priorityList?.map((item: any) => (
+                      <MenuItem value={item.key}>{item.specification}</MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
               <Grid size={12}>
-                <TextField
-                  label="Body"
-                  fullWidth
-                  multiline
-                  rows={4}
+                <Typography variant="body1" sx={{ fontWeight: 600, pb: 1 }}>
+                  Body
+                </Typography>
+                <ReactSimpleWysiwyg
                   value={newTicket.body}
                   onChange={(e) =>
-                    setNewTicket((prev) => ({ ...prev, body: e.target.value }))
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      body: e.target.value,
+                    }))
                   }
+                  style={{
+                    minHeight: 120,
+                    height: "100%",
+                    padding: 8,
+                    boxSizing: "border-box",
+                  }}
                 />
               </Grid>
             </Grid>

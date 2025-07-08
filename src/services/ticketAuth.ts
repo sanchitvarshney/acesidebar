@@ -13,6 +13,14 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
     }),
 
+    getPriorityList: builder.query<any, void>({
+      query: () => ({
+        url: '/priority/list',
+        method: 'GET',
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
+
     //  getuserdata: builder.mutation({
     //   query: (credentials) => ({
         
@@ -26,4 +34,4 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const { useCreateTicketMutation,   } = extendedTicketApi;
+  export const { useCreateTicketMutation, useGetPriorityListQuery } = extendedTicketApi;
