@@ -2,6 +2,7 @@ import { LinearProgress } from "@mui/material";
 import React, { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/buildings.png";
+import { decrypt } from "../../utils/encryption";
 
 interface ProtectedProps {
   children: ReactNode;
@@ -15,7 +16,8 @@ const Protected: React.FC<ProtectedProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const isAuthenticated = !!localStorage.getItem("userToken");
+  const encryptedToken = localStorage.getItem("userToken");
+  const isAuthenticated = encryptedToken ? !!decrypt(encryptedToken) : false;
 
   const checkAuth = useCallback(async () => {
     await new Promise((resolve) => setTimeout(resolve, 500));

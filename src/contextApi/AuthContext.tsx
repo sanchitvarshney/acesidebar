@@ -8,6 +8,7 @@ import React, {
 import type { ReactNode } from "react";
 
 import { useAppDispatch } from "../hooks/useReduxHook";
+import { decrypt } from "../utils/encryption";
 
 interface AuthContextType {
   user: string | null;
@@ -34,13 +35,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<any | null>(null);
 
   const signIn = useCallback(() => {
-    const token = localStorage.getItem("userToken");
-    if (token) {
-      // User is authenticated if token exists
-      setUser({
-        token: token,
-        isAuthenticated: true,
-      });
+    const encryptedToken = localStorage.getItem("userToken");
+    const encryptedUserData = localStorage.getItem("userData");
+
+    if (encryptedToken && encryptedUserData) {
+      try {
+        // Decrypt the token
+          const token = decrypt(encryptedToken);
+
+        // Decrypt the user data
+        const userData = decrypt(encryptedUserData);
+
+        if (token && userData) {
+          const finalUserData = {
+            ...userData,
+            token: token,
+          };
+          setUser(finalUserData);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        setUser(null);
+      }
     } else {
       setUser(null);
     }
@@ -53,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signOut = useCallback(() => {
     setUser(null);
     localStorage.removeItem("userToken");
-    localStorage.removeItem("user");
+    localStorage.removeItem("userData");
     window.location.href = "/login";
   }, []);
 

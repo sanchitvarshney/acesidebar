@@ -21,6 +21,7 @@ import { useLoginMutation } from "../../services/auth";
 import { useToast } from "../../hooks/useToast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contextApi/AuthContext";
+import { decrypt } from "../../utils/encryption";
 
 type RegisterFormData = z.infer<typeof loginSchema>;
 
@@ -43,28 +44,6 @@ const LoginComponent = () => {
   const handleToggleVisibility = () => {
     setShowPassword((prev) => !prev);
   };
-  console.log(data?.data?.token);
-  // useEffect(() => {
-  //   if (!error) return;
-
-  //   if ("status" in error) {
-  //     const errData = error.data as { message?: string };
-  //     showToast(errData?.message || "Something went wrong", "error");
-  //   } else if ("message" in error) {
-  //     showToast(error.message || "An unexpected error occurred", "error");
-  //   }
-  // }, [error]);
-
-  // useEffect(() => {
-  //   if (!data) return;
-
-  //   localStorage.setItem("userToken", JSON.stringify(data.data));
-
-  //   showToast("Login successful!", "success");
-  //   // signIn();
-
-  //   navigation("/");
-  // }, [data]);
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -72,12 +51,14 @@ const LoginComponent = () => {
         username: data.email,
         password: data.password,
       };
-      console.log("payload", payload);
       const result = await login(payload);
 
       if (result.data?.data?.token) {
-        // Store the token
         localStorage.setItem("userToken", result.data.data.token);
+
+        // Encrypt and store the full user data
+        const decryptedUserData = decrypt(result.data.data.user);
+        localStorage.setItem("userData", JSON.stringify(decryptedUserData));
 
         // Update auth context
         signIn();

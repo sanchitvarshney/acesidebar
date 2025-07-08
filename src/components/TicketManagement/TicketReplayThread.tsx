@@ -31,7 +31,6 @@ const TicketReplayThread = ({
     setExpanded(!expanded);
   };
 
-  // console.log(message);
   return (
     <Accordion
       expanded={expanded}

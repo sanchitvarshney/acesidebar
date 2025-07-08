@@ -65,7 +65,6 @@ const SignUpComponent = () => {
   };
 
   const password = watch("password");
-  console.log(password);
   const strength = criteria.reduce(
     (acc, curr) => acc + (curr.test(password) ? 1 : 0),
     0
