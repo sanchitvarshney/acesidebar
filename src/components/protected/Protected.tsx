@@ -3,8 +3,6 @@ import React, { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/buildings.png";
 
-
-
 interface ProtectedProps {
   children: ReactNode;
   authentication?: boolean;
@@ -14,11 +12,10 @@ const Protected: React.FC<ProtectedProps> = ({
   children,
   authentication = true,
 }) => {
-
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const isAuthenticated = !!localStorage.getItem("user");
+  const isAuthenticated = !!localStorage.getItem("userToken");
 
   const checkAuth = useCallback(async () => {
     await new Promise((resolve) => setTimeout(resolve, 500));

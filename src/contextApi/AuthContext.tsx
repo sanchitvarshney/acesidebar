@@ -31,22 +31,18 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useAppDispatch();
-  const [user, setUser] = useState<any | null>({
-    name: "",
-
-  });
+  const [user, setUser] = useState<any | null>(null);
 
   const signIn = useCallback(() => {
-    const storedUserStr = localStorage.getItem("user");
-    if (storedUserStr) {
-      const storedUser = JSON.parse(storedUserStr);
-  
-      const userData = {
-        name: storedUser,
-      
-      };
-
-      setUser(userData);
+    const token = localStorage.getItem("userToken");
+    if (token) {
+      // User is authenticated if token exists
+      setUser({
+        token: token,
+        isAuthenticated: true,
+      });
+    } else {
+      setUser(null);
     }
   }, [dispatch]);
 
@@ -57,8 +53,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signOut = useCallback(() => {
     setUser(null);
     localStorage.removeItem("userToken");
-  
-
+    localStorage.removeItem("user");
     window.location.href = "/login";
   }, []);
 

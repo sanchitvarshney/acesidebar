@@ -25,7 +25,7 @@ import { useAuth } from "../../contextApi/AuthContext";
 type RegisterFormData = z.infer<typeof loginSchema>;
 
 const LoginComponent = () => {
-  const {signIn} = useAuth();
+  const { signIn } = useAuth();
   const navigation = useNavigate();
   const {
     // setValue,
@@ -43,28 +43,28 @@ const LoginComponent = () => {
   const handleToggleVisibility = () => {
     setShowPassword((prev) => !prev);
   };
+  console.log(data?.data?.token);
+  // useEffect(() => {
+  //   if (!error) return;
 
-  useEffect(() => {
-    if (!error) return;
+  //   if ("status" in error) {
+  //     const errData = error.data as { message?: string };
+  //     showToast(errData?.message || "Something went wrong", "error");
+  //   } else if ("message" in error) {
+  //     showToast(error.message || "An unexpected error occurred", "error");
+  //   }
+  // }, [error]);
 
-    if ("status" in error) {
-      const errData = error.data as { message?: string };
-      showToast(errData?.message || "Something went wrong", "error");
-    } else if ("message" in error) {
-      showToast(error.message || "An unexpected error occurred", "error");
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (!data) return;
 
-  useEffect(() => {
-    if (!data) return;
-  
-    localStorage.setItem("userToken", JSON.stringify(data.data));
+  //   localStorage.setItem("userToken", JSON.stringify(data.data));
 
-    showToast("Login successful!", "success");
-    signIn();
+  //   showToast("Login successful!", "success");
+  //   // signIn();
 
-    navigation("/");
-  }, [data]);
+  //   navigation("/");
+  // }, [data]);
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -73,9 +73,24 @@ const LoginComponent = () => {
         password: data.password,
       };
       console.log("payload", payload);
-      await login(payload);
+      const result = await login(payload);
+
+      if (result.data?.data?.token) {
+        // Store the token
+        localStorage.setItem("userToken", result.data.data.token);
+
+        // Update auth context
+        signIn();
+
+        // Show success message
+        showToast("Login successful!", "success");
+
+        // Navigate to home
+        navigation("/");
+      }
     } catch (error) {
       console.error("Error logging in:", error);
+      showToast("Login failed. Please try again.", "error");
     }
   };
 
