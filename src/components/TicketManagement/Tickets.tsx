@@ -50,6 +50,8 @@ import TicketList from "./TicketList";
 import TicketDetailTemplate from "./TicketDetailTemplate";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CustomSearch from "../common/CustomSearch";
+import { useCreateTicketMutation } from "../../services/ticketAuth";
+import { useToast } from "../../hooks/useToast";
 
 interface Ticket {
   id: string;
@@ -179,11 +181,18 @@ const Tickets: React.FC = () => {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
+  const { showToast } = useToast();
   const [newTicket, setNewTicket] = useState({
-    title: "",
-    description: "",
-    priority: "medium" as const,
-    assignee: "",
+    user_name: "",
+    user_email: "",
+    user_phone: "",
+    subject: "",
+    body: "",
+    priority: 2,
+    ip_address: "",
+    format: "text",
+    recipients: "",
   });
   const [openTicket, setOpenTicket] = useState<Ticket | null>(null);
 
@@ -209,7 +218,9 @@ const Tickets: React.FC = () => {
     // Apply tag filter first if set
     if (currentTag) {
       filtered = filtered.filter((ticket) =>
-        ticket.tags.some((tag) => tag.toLowerCase() === currentTag.toLowerCase())
+        ticket.tags.some(
+          (tag) => tag.toLowerCase() === currentTag.toLowerCase()
+        )
       );
     } else if (currentFilter !== "all") {
       filtered = filtered.filter((ticket) => {
@@ -283,7 +294,7 @@ const Tickets: React.FC = () => {
   const handleTagFilterChange = (tag: string) => {
     setCurrentTag(tag);
     setCurrentFilter("all");
-    setSelectedTickets([]); 
+    setSelectedTickets([]);
   };
 
   const handleSearchChange = (search: string) => {
@@ -295,32 +306,36 @@ const Tickets: React.FC = () => {
     setCreateDialogOpen(true);
   };
 
-  const handleCreateTicketSubmit = () => {
-    const newTicketData: Ticket = {
-      id: Date.now().toString(),
-      title: newTicket.title,
-      description: newTicket.description,
-      status: "open",
-      priority: newTicket.priority,
-      assignee: newTicket.assignee,
-      requester: "Current User",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      hasAttachment: false,
-      isStarred: false,
-      isRead: true,
-      tags: [],
-      thread: [],
-    };
-
-    setTickets((prev) => [newTicketData, ...prev]);
-    setNewTicket({
-      title: "",
-      description: "",
-      priority: "medium",
-      assignee: "",
-    });
-    setCreateDialogOpen(false);
+  const handleCreateTicketSubmit = async () => {
+    try {
+      const payload = {
+        priority: Number(newTicket.priority),
+        user_name: newTicket.user_name,
+        user_email: newTicket.user_email,
+        user_phone: newTicket.user_phone,
+        subject: newTicket.subject,
+        ip_address: newTicket.ip_address,
+        body: newTicket.body,
+        format: newTicket.format,
+        recipients: newTicket.recipients,
+      };
+      await createTicket(payload).unwrap();
+      showToast("Ticket created successfully!", "success");
+      setCreateDialogOpen(false);
+      setNewTicket({
+        user_name: "",
+        user_email: "",
+        user_phone: "",
+        subject: "",
+        body: "",
+        priority: 2,
+        ip_address: "",
+        format: "text",
+        recipients: "",
+      });
+    } catch (error) {
+      showToast("Failed to create ticket", "error");
+    }
   };
 
   const handleBulkAction = (action: string) => {
@@ -381,7 +396,12 @@ const Tickets: React.FC = () => {
             />
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <CustomSearch placeholder="Search..." onChange={()=>{}} width="300px"  bgOpacity={0.6}/>
+            <CustomSearch
+              placeholder="Search..."
+              onChange={() => {}}
+              width="300px"
+              bgOpacity={0.6}
+            />
             <IconButton>
               <RefreshIcon />
             </IconButton>
@@ -582,23 +602,72 @@ const Tickets: React.FC = () => {
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
             <TextField
-              label="Title"
+              label="Name"
               fullWidth
-              value={newTicket.title}
+              value={newTicket.user_name}
               onChange={(e) =>
-                setNewTicket((prev) => ({ ...prev, title: e.target.value }))
+                setNewTicket((prev) => ({ ...prev, user_name: e.target.value }))
               }
             />
             <TextField
-              label="Description"
+              label="Email"
               fullWidth
-              multiline
-              rows={4}
-              value={newTicket.description}
+              value={newTicket.user_email}
               onChange={(e) =>
                 setNewTicket((prev) => ({
                   ...prev,
-                  description: e.target.value,
+                  user_email: e.target.value,
+                }))
+              }
+            />
+            <TextField
+              label="Phone"
+              fullWidth
+              value={newTicket.user_phone}
+              onChange={(e) =>
+                setNewTicket((prev) => ({
+                  ...prev,
+                  user_phone: e.target.value,
+                }))
+              }
+            />
+            <TextField
+              label="Subject"
+              fullWidth
+              value={newTicket.subject}
+              onChange={(e) =>
+                setNewTicket((prev) => ({ ...prev, subject: e.target.value }))
+              }
+            />
+            <TextField
+              label="IP Address"
+              fullWidth
+              value={newTicket.ip_address}
+              onChange={(e) =>
+                setNewTicket((prev) => ({
+                  ...prev,
+                  ip_address: e.target.value,
+                }))
+              }
+            />
+            <TextField
+              label="Body"
+              fullWidth
+              multiline
+              rows={4}
+              value={newTicket.body}
+              onChange={(e) =>
+                setNewTicket((prev) => ({ ...prev, body: e.target.value }))
+              }
+            />
+            <TextField
+              label="Recipients"
+              fullWidth
+              value={newTicket.recipients}
+              onChange={(e) =>
+                setNewTicket((prev) => ({
+                  ...prev,
+                  recipients: e.target.value,
                 }))
               }
             />
@@ -609,70 +678,26 @@ const Tickets: React.FC = () => {
                 onChange={(e) =>
                   setNewTicket((prev) => ({
                     ...prev,
-                    priority: e.target.value as any,
+                    priority: e.target.value,
                   }))
                 }
                 input={<OutlinedInput label="Priority" />}
               >
-                <MenuItem value="low">Low</MenuItem>
-                <MenuItem value="medium">Medium</MenuItem>
-                <MenuItem value="high">High</MenuItem>
-                <MenuItem value="urgent">Urgent</MenuItem>
+                <MenuItem value={1}>Low</MenuItem>
+                <MenuItem value={2}>Medium</MenuItem>
+                <MenuItem value={3}>High</MenuItem>
+                <MenuItem value={4}>Urgent</MenuItem>
               </Select>
             </FormControl>
             <TextField
-              label="Assignee"
+              label="Format"
               fullWidth
-              value={newTicket.assignee}
+              value={newTicket.format}
               onChange={(e) =>
-                setNewTicket((prev) => ({ ...prev, assignee: e.target.value }))
+                setNewTicket((prev) => ({ ...prev, format: e.target.value }))
               }
             />
-
-            <Button
-              component="label"
-              role={undefined}
-              variant="contained"
-              tabIndex={-1}
-              startIcon={<CloudUploadIcon />}
-              sx={{ width: 200 }}
-            >
-              Upload files
-              <VisuallyHiddenInput
-                type="file"
-                onChange={(event) => {
-                  const fileList = event.target.files;
-                  if (fileList) {
-                    setFiles((prev) =>
-                      prev
-                        ? [...prev, ...Array.from(fileList)]
-                        : Array.from(fileList)
-                    );
-                  } else {
-                    setFiles(null);
-                  }
-                }}
-                multiple
-              />
-            </Button>
-            {files?.map((file) => (
-              <Box sx={
-                {
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center", 
-                }
-              }>
-                <Typography key={file.name}>{file.name}</Typography>
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={(file) => console.log(file)}
-                >
-                  <DeleteIcon sx={{ color: "red" }} />
-                </IconButton>
-              </Box>
-            ))}
+            {/* File upload and other fields can go here */}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -680,9 +705,15 @@ const Tickets: React.FC = () => {
           <Button
             variant="contained"
             onClick={handleCreateTicketSubmit}
-            disabled={!newTicket.title || !newTicket.description}
+            disabled={
+              isCreating ||
+              !newTicket.user_name ||
+              !newTicket.user_email ||
+              !newTicket.subject ||
+              !newTicket.body
+            }
           >
-            Create Ticket
+            {isCreating ? "Creating..." : "Create Ticket"}
           </Button>
         </DialogActions>
       </Dialog>
