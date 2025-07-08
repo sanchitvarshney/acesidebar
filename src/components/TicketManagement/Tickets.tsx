@@ -190,8 +190,7 @@ const Tickets: React.FC = () => {
     subject: "",
     body: "",
     priority: 2,
-    ip_address: "",
-    format: "text",
+    format: "html",
     recipients: "",
   });
   const [openTicket, setOpenTicket] = useState<Ticket | null>(null);
@@ -314,7 +313,6 @@ const Tickets: React.FC = () => {
         user_email: newTicket.user_email,
         user_phone: newTicket.user_phone,
         subject: newTicket.subject,
-        ip_address: newTicket.ip_address,
         body: newTicket.body,
         format: newTicket.format,
         recipients: newTicket.recipients,
@@ -329,8 +327,7 @@ const Tickets: React.FC = () => {
         subject: "",
         body: "",
         priority: 2,
-        ip_address: "",
-        format: "text",
+        format: "html",
         recipients: "",
       });
     } catch (error) {
@@ -600,104 +597,106 @@ const Tickets: React.FC = () => {
       >
         <DialogTitle>Create New Ticket</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
-            <TextField
-              label="Name"
-              fullWidth
-              value={newTicket.user_name}
-              onChange={(e) =>
-                setNewTicket((prev) => ({ ...prev, user_name: e.target.value }))
-              }
-            />
-            <TextField
-              label="Email"
-              fullWidth
-              value={newTicket.user_email}
-              onChange={(e) =>
-                setNewTicket((prev) => ({
-                  ...prev,
-                  user_email: e.target.value,
-                }))
-              }
-            />
-            <TextField
-              label="Phone"
-              fullWidth
-              value={newTicket.user_phone}
-              onChange={(e) =>
-                setNewTicket((prev) => ({
-                  ...prev,
-                  user_phone: e.target.value,
-                }))
-              }
-            />
-            <TextField
-              label="Subject"
-              fullWidth
-              value={newTicket.subject}
-              onChange={(e) =>
-                setNewTicket((prev) => ({ ...prev, subject: e.target.value }))
-              }
-            />
-            <TextField
-              label="IP Address"
-              fullWidth
-              value={newTicket.ip_address}
-              onChange={(e) =>
-                setNewTicket((prev) => ({
-                  ...prev,
-                  ip_address: e.target.value,
-                }))
-              }
-            />
-            <TextField
-              label="Body"
-              fullWidth
-              multiline
-              rows={4}
-              value={newTicket.body}
-              onChange={(e) =>
-                setNewTicket((prev) => ({ ...prev, body: e.target.value }))
-              }
-            />
-            <TextField
-              label="Recipients"
-              fullWidth
-              value={newTicket.recipients}
-              onChange={(e) =>
-                setNewTicket((prev) => ({
-                  ...prev,
-                  recipients: e.target.value,
-                }))
-              }
-            />
-            <FormControl fullWidth>
-              <InputLabel>Priority</InputLabel>
-              <Select
-                value={newTicket.priority}
-                onChange={(e) =>
-                  setNewTicket((prev) => ({
-                    ...prev,
-                    priority: e.target.value,
-                  }))
-                }
-                input={<OutlinedInput label="Priority" />}
-              >
-                <MenuItem value={1}>Low</MenuItem>
-                <MenuItem value={2}>Medium</MenuItem>
-                <MenuItem value={3}>High</MenuItem>
-                <MenuItem value={4}>Urgent</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              label="Format"
-              fullWidth
-              value={newTicket.format}
-              onChange={(e) =>
-                setNewTicket((prev) => ({ ...prev, format: e.target.value }))
-              }
-            />
-            {/* File upload and other fields can go here */}
+          <Box sx={{ pt: 1 }}>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Name"
+                  fullWidth
+                  value={newTicket.user_name}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      user_name: e.target.value,
+                    }))
+                  }
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Email"
+                  fullWidth
+                  value={newTicket.user_email}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      user_email: e.target.value,
+                    }))
+                  }
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Phone"
+                  fullWidth
+                  value={newTicket.user_phone}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      user_phone: e.target.value,
+                    }))
+                  }
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Subject"
+                  fullWidth
+                  value={newTicket.subject}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      subject: e.target.value,
+                    }))
+                  }
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Recipients"
+                  fullWidth
+                  value={newTicket.recipients}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      recipients: e.target.value,
+                    }))
+                  }
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <FormControl fullWidth>
+                  <InputLabel>Priority</InputLabel>
+                  <Select
+                    value={newTicket.priority}
+                    onChange={(e) =>
+                      setNewTicket((prev) => ({
+                        ...prev,
+                        priority: e.target.value,
+                      }))
+                    }
+                    input={<OutlinedInput label="Priority" />}
+                  >
+                    <MenuItem value={1}>Low</MenuItem>
+                    <MenuItem value={2}>Medium</MenuItem>
+                    <MenuItem value={3}>High</MenuItem>
+                    <MenuItem value={4}>Urgent</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  label="Body"
+                  fullWidth
+                  multiline
+                  rows={4}
+                  value={newTicket.body}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({ ...prev, body: e.target.value }))
+                  }
+                />
+              </Grid>
+            </Grid>
           </Box>
         </DialogContent>
         <DialogActions>
