@@ -91,6 +91,11 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -122,7 +127,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
         <ExitToApp fontSize="small" sx={{ mr: 1 }} />
-        <Typography variant="body2">Logout</Typography>
+        <Typography variant="body2" onClick={() => handleLogout()}>Logout</Typography>
       </MenuItem>
     </Menu>
   );

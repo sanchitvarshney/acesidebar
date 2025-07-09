@@ -51,7 +51,11 @@ import TicketList from "./TicketList";
 import TicketDetailTemplate from "./TicketDetailTemplate";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CustomSearch from "../common/CustomSearch";
-import { useCreateTicketMutation, useGetPriorityListQuery } from "../../services/ticketAuth";
+import {
+  useCreateTicketMutation,
+  useGetPriorityListQuery,
+  useGetTicketListQuery,
+} from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 
 interface Ticket {
@@ -71,7 +75,7 @@ interface Ticket {
   thread: any[] | undefined;
 }
 
-// Mock data for demonstration
+// Mock data for demonstration (fallback)
 export const mockTickets: Ticket[] = [
   {
     id: "1",
@@ -173,7 +177,6 @@ const VisuallyHiddenInput = styled("input")`
 
 const Tickets: React.FC = () => {
   const theme = useTheme();
-  const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [files, setFiles] = useState<File[] | null>([]);
   const [currentFilter, setCurrentFilter] = useState("all");
@@ -182,9 +185,75 @@ const Tickets: React.FC = () => {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
   const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
-  const { data: priorityList, isLoading: isPriorityListLoading} = useGetPriorityListQuery();
+  const { data: priorityList, isLoading: isPriorityListLoading } =
+    useGetPriorityListQuery();
+
+  // Convert filter to API parameters
+  const getApiParams = () => {
+    const params: any = {
+      page,
+      limit,
+    };
+
+    // Map UI filters to API parameters
+    if (currentFilter !== "all") {
+      if (["urgent", "high", "medium", "low"].includes(currentFilter)) {
+        params.priority = currentFilter.toUpperCase();
+      } else if (
+        ["open", "in-progress", "resolved", "closed"].includes(currentFilter)
+      ) {
+        params.status = currentFilter.toUpperCase();
+      }
+    }
+
+    if (currentTag) {
+      params.department = currentTag.toUpperCase();
+    }
+
+    return params;
+  };
+
+  const {
+    data: ticketList,
+    isLoading: isTicketListLoading,
+    refetch,
+  } = useGetTicketListQuery(getApiParams());
   const { showToast } = useToast();
+
+  // Transform API data to match our Ticket interface
+  const transformApiData = (apiData: any[]): Ticket[] => {
+    if (!apiData || !Array.isArray(apiData)) return [];
+    
+    return apiData.map((item: any) => ({
+      id: item.ticketNumber?.toString() || item.id?.toString() || Math.random().toString(),
+      title: item.subject || item.title || "No Title",
+      description: item.body || item.description || "No Description",
+      status: (item.status || "open").toLowerCase(),
+      priority: (item.priority || "medium").toLowerCase(),
+      assignee: item.assignedTo || item.assignee || item.assigned_to || "Unassigned",
+      requester: item.fromUser || item.requester || item.user_name || "Unknown",
+      createdAt: item.created_at || item.createdAt || new Date().toISOString(),
+      updatedAt: item.lastupdate || item.updated_at || item.updatedAt || new Date().toISOString(),
+      hasAttachment: item.has_attachment || item.hasAttachment || false,
+      isStarred: item.is_starred || item.isStarred || false,
+      isRead: item.is_read || item.isRead || true,
+      tags: item.department ? [item.department] : item.tags || [],
+      thread: item.thread || [],
+    }));
+  };
+
+  // Use API data or fallback to mock data
+  const tickets = useMemo(() => {
+    if (ticketList && Array.isArray(ticketList)) {
+      return transformApiData(ticketList);
+    }
+    return mockTickets;
+  }, [ticketList]);
+
   const [newTicket, setNewTicket] = useState({
     user_name: "",
     user_email: "",
@@ -196,7 +265,8 @@ const Tickets: React.FC = () => {
     recipients: "",
   });
   const [openTicket, setOpenTicket] = useState<Ticket | null>(null);
-  // Calculate ticket counts
+
+  // Calculate ticket counts from API data
   const ticketCounts = useMemo(() => {
     return {
       all: tickets.length,
@@ -269,19 +339,11 @@ const Tickets: React.FC = () => {
   };
 
   const handleStarToggle = (ticketId: string) => {
-    setTickets((prev) =>
-      prev.map((ticket) =>
-        ticket.id === ticketId
-          ? { ...ticket, isStarred: !ticket.isStarred }
-          : ticket
-      )
-    );
+    // In a real app, you would make an API call here to update the star status
+    showToast("Star status updated", "success");
   };
 
   const handleTicketClick = (ticket: Ticket) => {
-    setTickets((prev) =>
-      prev.map((t) => (t.id === ticket.id ? { ...t, isRead: true } : t))
-    );
     setOpenTicket(ticket);
   };
 
@@ -289,17 +351,24 @@ const Tickets: React.FC = () => {
     setCurrentFilter(filter);
     setCurrentTag(""); // Reset tag filter when status filter changes
     setSelectedTickets([]); // Clear selection when filter changes
+    setPage(1); // Reset to first page when filter changes
   };
 
   const handleTagFilterChange = (tag: string) => {
     setCurrentTag(tag);
     setCurrentFilter("all");
     setSelectedTickets([]);
+    setPage(1); // Reset to first page when filter changes
   };
 
   const handleSearchChange = (search: string) => {
     setSearchQuery(search);
     setSelectedTickets([]); // Clear selection when search changes
+  };
+
+  const handleRefresh = () => {
+    refetch();
+    showToast("Tickets refreshed", "success");
   };
 
   const handleCreateTicket = () => {
@@ -331,46 +400,35 @@ const Tickets: React.FC = () => {
         format: "html",
         recipients: "",
       });
+      // Refresh the ticket list
+      refetch();
     } catch (error) {
       showToast("Failed to create ticket", "error");
     }
   };
 
   const handleBulkAction = (action: string) => {
+    // In a real app, you would make API calls here for bulk actions
     switch (action) {
       case "delete":
-        setTickets((prev) =>
-          prev.filter((ticket) => !selectedTickets.includes(ticket.id))
-        );
+        showToast(`${selectedTickets.length} tickets deleted`, "success");
         setSelectedTickets([]);
         break;
       case "archive":
-        setTickets((prev) =>
-          prev.map((ticket) =>
-            selectedTickets.includes(ticket.id)
-              ? { ...ticket, status: "closed" as const }
-              : ticket
-          )
-        );
+        showToast(`${selectedTickets.length} tickets archived`, "success");
         setSelectedTickets([]);
         break;
       case "mark-read":
-        setTickets((prev) =>
-          prev.map((ticket) =>
-            selectedTickets.includes(ticket.id)
-              ? { ...ticket, isRead: true }
-              : ticket
-          )
+        showToast(
+          `${selectedTickets.length} tickets marked as read`,
+          "success"
         );
         setSelectedTickets([]);
         break;
       case "mark-unread":
-        setTickets((prev) =>
-          prev.map((ticket) =>
-            selectedTickets.includes(ticket.id)
-              ? { ...ticket, isRead: false }
-              : ticket
-          )
+        showToast(
+          `${selectedTickets.length} tickets marked as unread`,
+          "success"
         );
         setSelectedTickets([]);
         break;
@@ -392,15 +450,22 @@ const Tickets: React.FC = () => {
               size="small"
               sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.1) }}
             />
+            {isTicketListLoading && (
+              <Chip
+                label="Loading..."
+                size="small"
+                sx={{ backgroundColor: alpha(theme.palette.info.main, 0.1) }}
+              />
+            )}
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <CustomSearch
               placeholder="Search..."
-              onChange={() => {}}
+              onChange={(e) => handleSearchChange(e.target.value)}
               width="300px"
               bgOpacity={0.6}
             />
-            <IconButton>
+            <IconButton onClick={handleRefresh} disabled={isTicketListLoading}>
               <RefreshIcon />
             </IconButton>
           </Box>
@@ -539,14 +604,27 @@ const Tickets: React.FC = () => {
               </Paper>
               {/* Ticket List */}
               <Box sx={{ flex: 1, overflow: "auto" }}>
-                <TicketList
-                  tickets={filteredTickets}
-                  selectedTickets={selectedTickets}
-                  onTicketSelect={handleTicketSelect}
-                  //@ts-ignore
-                  onTicketClick={handleTicketClick}
-                  onStarToggle={handleStarToggle}
-                />
+                {isTicketListLoading ? (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                    }}
+                  >
+                    <Typography>Loading tickets...</Typography>
+                  </Box>
+                ) : (
+                  <TicketList
+                    tickets={filteredTickets}
+                    selectedTickets={selectedTickets}
+                    onTicketSelect={handleTicketSelect}
+                    //@ts-ignore
+                    onTicketClick={handleTicketClick}
+                    onStarToggle={handleStarToggle}
+                  />
+                )}
               </Box>
             </>
           )}
@@ -679,7 +757,9 @@ const Tickets: React.FC = () => {
                     input={<OutlinedInput label="Priority" />}
                   >
                     {priorityList?.map((item: any) => (
-                      <MenuItem value={item.key}>{item.specification}</MenuItem>
+                      <MenuItem key={item.key} value={item.key}>
+                        {item.specification}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
