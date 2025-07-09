@@ -28,6 +28,7 @@ import {
   useTheme,
   alpha,
   styled,
+  TablePagination,
 } from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
@@ -47,7 +48,6 @@ import {
   useGetTicketListQuery,
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
-import Pagination from "@mui/material/Pagination";
 import TicketSkeleton from "./TicketSkeleton";
 
 interface Ticket {
@@ -170,11 +170,9 @@ const VisuallyHiddenInput = styled("input")`
 const Tickets: React.FC = () => {
   const theme = useTheme();
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
-  const [files, setFiles] = useState<File[] | null>([]);
   const [currentFilter, setCurrentFilter] = useState("all");
   const [currentTag, setCurrentTag] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -212,6 +210,7 @@ const Tickets: React.FC = () => {
   const {
     data: ticketList,
     isLoading: isTicketListLoading,
+    isFetching: isTicketListFetching,
     refetch,
   } = useGetTicketListQuery(getApiParams());
   const { showToast } = useToast();
@@ -321,6 +320,19 @@ const Tickets: React.FC = () => {
 
     return filtered;
   }, [tickets, currentFilter, currentTag, searchQuery]);
+
+  const handlePageChange = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+  const handleRowsPerPageChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setLimit(Number(event.target.value));
+    setPage(1);
+  };
 
   const handleTicketSelect = (ticketId: string) => {
     setSelectedTickets((prev) =>
@@ -436,6 +448,7 @@ const Tickets: React.FC = () => {
     setAnchorEl(null);
   };
 
+  console.log(isTicketListLoading, "isTicketListLoading");
   return (
     <Box sx={{ height: "78vh", display: "flex", flexDirection: "column" }}>
       {/* Header */}
@@ -617,8 +630,8 @@ const Tickets: React.FC = () => {
                 </Toolbar>
               </Paper>
               {/* Ticket List */}
-              <Box sx={{ flex: 1, overflow: "auto" }}>
-                {isTicketListLoading ? (
+              <Box sx={{ flex: 1, overflow: "auto", position: "relative" }}>
+                {isTicketListFetching ? (
                   <TicketSkeleton rows={limit} />
                 ) : (
                   <TicketList
@@ -630,36 +643,31 @@ const Tickets: React.FC = () => {
                     onStarToggle={handleStarToggle}
                   />
                 )}
-                {/* Pagination Controls */}
+                {/* Rows per page selector and Pagination Controls */}
                 <Box
                   sx={{
+                    borderTop: "1px solid #eee",
+                    background: theme.palette.background.paper,
+                    position: "sticky",
+                    bottom: 0,
+                    zIndex: 2,
+                    width: "100%",
+                    maxWidth: 1200, // or the width of your table/list
+                    margin: "0 auto",
+                    px: 2, // match your table/list horizontal padding
                     display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    py: 2,
+                    justifyContent: "flex-end",
+                    alignItems: "right",
+                    
                   }}
                 >
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={page === 1}
-                    sx={{ mr: 2 }}
-                  >
-                    Previous
-                  </Button>
-                  <Typography variant="body2" sx={{ mx: 2 }}>
-                    Page {page}
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => setPage((prev) => prev + 1)}
-                    disabled={filteredTickets.length < limit}
-                    sx={{ ml: 2 }}
-                  >
-                    Next
-                  </Button>
+                  <TablePagination
+                    count={filteredTickets.length}
+                    page={page}
+                    onPageChange={handlePageChange}
+                    rowsPerPage={limit}
+                    onRowsPerPageChange={handleRowsPerPageChange}
+                  />
                 </Box>
               </Box>
             </>

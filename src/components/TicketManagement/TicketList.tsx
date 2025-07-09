@@ -224,6 +224,9 @@ const TicketList: React.FC<TicketListProps> = ({
           py: 1,
           borderBottom: `1px solid ${theme.palette.divider}`,
           background: alpha(theme.palette.background.paper, 0.7),
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
         }}
       >
         <Box sx={{ width: 40 }} /> {/* Checkbox space */}
@@ -317,6 +320,9 @@ const TicketList: React.FC<TicketListProps> = ({
                 >
                   {ticket.isStarred ? <StarIcon /> : <StarBorderIcon />}
                 </IconButton>
+              </Box>
+              <Box sx={{ flex: 2, color: theme.palette.text.secondary }}>
+                {ticket.requester}
               </Box>
             </StyledListItem>
           );
