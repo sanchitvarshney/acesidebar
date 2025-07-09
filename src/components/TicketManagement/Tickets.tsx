@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import ReactSimpleWysiwyg from "react-simple-wysiwyg";
 import {
   Box,
@@ -31,25 +31,15 @@ import {
 } from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
-  Reply as ReplyIcon,
-  Forward as ForwardIcon,
   Archive as ArchiveIcon,
   Delete as DeleteIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
-  Flag as FlagIcon,
-  Folder as FolderIcon,
-  Add as AddIcon,
-  Search as SearchIcon,
-  FilterList as FilterIcon,
   Refresh as RefreshIcon,
-  ViewList as ViewListIcon,
-  ViewModule as ViewModuleIcon,
 } from "@mui/icons-material";
 import TicketSidebar from "./TicketSidebar";
 import TicketList from "./TicketList";
 import TicketDetailTemplate from "./TicketDetailTemplate";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CustomSearch from "../common/CustomSearch";
 import {
   useCreateTicketMutation,
@@ -57,6 +47,8 @@ import {
   useGetTicketListQuery,
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
+import Pagination from "@mui/material/Pagination";
+import TicketSkeleton from "./TicketSkeleton";
 
 interface Ticket {
   id: string;
@@ -186,7 +178,7 @@ const Tickets: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit, setLimit] = useState(10);
 
   const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -627,16 +619,7 @@ const Tickets: React.FC = () => {
               {/* Ticket List */}
               <Box sx={{ flex: 1, overflow: "auto" }}>
                 {isTicketListLoading ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "100%",
-                    }}
-                  >
-                    <Typography>Loading tickets...</Typography>
-                  </Box>
+                  <TicketSkeleton rows={limit} />
                 ) : (
                   <TicketList
                     tickets={filteredTickets}
@@ -647,6 +630,37 @@ const Tickets: React.FC = () => {
                     onStarToggle={handleStarToggle}
                   />
                 )}
+                {/* Pagination Controls */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    py: 2,
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={page === 1}
+                    sx={{ mr: 2 }}
+                  >
+                    Previous
+                  </Button>
+                  <Typography variant="body2" sx={{ mx: 2 }}>
+                    Page {page}
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => setPage((prev) => prev + 1)}
+                    disabled={filteredTickets.length < limit}
+                    sx={{ ml: 2 }}
+                  >
+                    Next
+                  </Button>
+                </Box>
               </Box>
             </>
           )}
