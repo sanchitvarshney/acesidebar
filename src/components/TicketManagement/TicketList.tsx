@@ -207,178 +207,122 @@ const TicketList: React.FC<TicketListProps> = ({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-
-    if (diffInHours < 24) {
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } else if (diffInHours < 168) {
-      // 7 days
-      return date.toLocaleDateString([], { weekday: "short" });
-    } else {
-      return date.toLocaleDateString([], { month: "short", day: "numeric" });
-    }
+    return (
+      date.toLocaleDateString() +
+      " " +
+      date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
   };
 
+  // Gmail-like header row
   return (
-    <List sx={{ width: "100%", bgcolor: "background.paper", p: 0 }}>
-      {tickets.map((ticket, index) => (
-        <React.Fragment key={ticket.id}>
-          <ListItem
-            disablePadding
-            sx={{
-              bgcolor: !ticket.isRead ? "primary.50" : "white",
-              borderBottom: "1px solid",
-              borderColor: "grey.100",
-              transition: "background 0.2s",
-              "&:hover": { bgcolor: "primary.100", cursor: "pointer" },
-            }}
-            secondaryAction={
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                {ticket.hasAttachment && (
-                  <AttachFileIcon sx={{ fontSize: 16, color: "grey.500" }} />
-                )}
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ fontWeight: 600 }}
-                >
-                  {formatDate(ticket.updatedAt)}
-                </Typography>
-                {hovered === ticket.id && (
-                  <>
-                    <IconButton size="small" color="error">
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      onClick={() => {
-                        onTicketClick(ticket);
-                        handleReplyClick();
-                      }}
-                    >
-                      <ReplyIcon fontSize="small" />
-                    </IconButton>
-                  </>
-                )}
-              </Box>
-            }
-            onMouseEnter={() => setHovered(ticket.id)}
-            onMouseLeave={() => setHovered(null)}
-            onClick={(e) => {
-              const target = e.target as HTMLElement;
-
-              if (
-                target.closest('input[type="checkbox"]') ||
-                target.closest(".MuiIconButton-root")
-              )
-                return;
-              onTicketClick(ticket);
-            }}
-          >
-            <Checkbox
-              checked={selectedTickets.includes(ticket.id)}
-              onChange={() => onTicketSelect(ticket.id)}
-              onClick={(e) => e.stopPropagation()}
-              size="small"
-              sx={{ ml: 1 }}
-            />
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                onStarToggle(ticket.id);
-              }}
+    <Box>
+      <Box
+        sx={{
+          display: "flex",
+          px: 2,
+          py: 1,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          background: alpha(theme.palette.background.paper, 0.7),
+        }}
+      >
+        <Box sx={{ width: 40 }} /> {/* Checkbox space */}
+        <Box sx={{ flex: 2, fontWeight: 700 }}>Ticket #</Box>
+        <Box sx={{ flex: 4, fontWeight: 700 }}>Subject</Box>
+        <Box sx={{ flex: 2, fontWeight: 700 }}>Department</Box>
+        <Box sx={{ flex: 2, fontWeight: 700 }}>Priority</Box>
+        <Box sx={{ flex: 2, fontWeight: 700 }}>Last Update</Box>
+        <Box sx={{ width: 40 }} /> {/* Star space */}
+      </Box>
+      <List disablePadding>
+        {tickets.map((ticket) => {
+          const isSelected = selectedTickets.includes(ticket.id);
+          return (
+            <StyledListItem
+              key={ticket.id}
+              selected={isSelected}
+              unread={!ticket.isRead}
+              onMouseEnter={() => setHovered(ticket.id)}
+              onMouseLeave={() => setHovered(null)}
               sx={{
-                color: ticket.isStarred ? "warning.main" : "grey.400",
-                ml: 1,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                px: 2,
               }}
+              onClick={() => onTicketClick(ticket)}
             >
-              {ticket.isStarred ? <StarIcon /> : <StarBorderIcon />}
-            </IconButton>
-            <ListItemAvatar sx={{ minWidth: 40, ml: 1 }}>
-              {ticket.avatarUrl ? (
-                <Avatar src={ticket.avatarUrl} sx={{ width: 32, height: 32 }} />
-              ) : (
-                <Avatar
+              <Checkbox
+                checked={isSelected}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTicketSelect(ticket.id);
+                }}
+                sx={{ mr: 1 }}
+              />
+              <Box
+                sx={{
+                  flex: 2,
+                  fontWeight: 600,
+                  color: theme.palette.text.secondary,
+                }}
+              >
+                {ticket.id}
+              </Box>
+              <Box
+                sx={{
+                  flex: 4,
+                  fontWeight: !ticket.isRead ? 700 : 400,
+                  color: !ticket.isRead
+                    ? theme.palette.text.primary
+                    : theme.palette.text.secondary,
+                }}
+              >
+                {ticket.title}
+              </Box>
+              <Box sx={{ flex: 2, color: theme.palette.text.secondary }}>
+                {ticket.tags && ticket.tags.length > 0 ? ticket.tags[0] : "-"}
+              </Box>
+              <Box sx={{ flex: 2 }}>
+                <PriorityChip
+                  priority={ticket.priority}
+                  label={
+                    ticket.priority.charAt(0).toUpperCase() +
+                    ticket.priority.slice(1)
+                  }
+                />
+              </Box>
+              <Box sx={{ flex: 2, color: theme.palette.text.secondary }}>
+                {formatDate(ticket.updatedAt)}
+              </Box>
+              <Box
+                sx={{
+                  width: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStarToggle(ticket.id);
+                  }}
                   sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "primary.main",
-                    fontSize: "0.875rem",
+                    color: ticket.isStarred
+                      ? theme.palette.warning.main
+                      : theme.palette.action.disabled,
                   }}
                 >
-                  {ticket.requester.charAt(0).toUpperCase()}
-                </Avatar>
-              )}
-            </ListItemAvatar>
-            <ListItemText
-              primary={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      fontWeight: !ticket.isRead ? 700 : 500,
-                      color: "text.primary",
-                      mr: 1,
-                    }}
-                  >
-                    {ticket.requester}
-                  </Typography>
-                  {ticket.priority === "urgent" && (
-                    <Chip
-                      label="Urgent"
-                      size="small"
-                      color="error"
-                      sx={{ fontWeight: 700, fontSize: "0.75rem", height: 22 }}
-                    />
-                  )}
-                  {ticket.priority === "high" && (
-                    <Chip
-                      label="Important"
-                      size="small"
-                      color="warning"
-                      sx={{ fontWeight: 700, fontSize: "0.75rem", height: 22 }}
-                    />
-                  )}
-                  {/* Add more labels as needed */}
-                </Box>
-              }
-              secondary={
-                <Box
-                  sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "text.secondary", fontWeight: 500 }}
-                  >
-                    {ticket.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "grey.500",
-                      fontSize: "0.95rem",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      maxWidth: 400,
-                    }}
-                  >
-                    {ticket.description}
-                  </Typography>
-                </Box>
-              }
-              sx={{ ml: 1, minWidth: 0 }}
-            />
-          </ListItem>
-        </React.Fragment>
-      ))}
-    </List>
+                  {ticket.isStarred ? <StarIcon /> : <StarBorderIcon />}
+                </IconButton>
+              </Box>
+            </StyledListItem>
+          );
+        })}
+      </List>
+    </Box>
   );
 };
 

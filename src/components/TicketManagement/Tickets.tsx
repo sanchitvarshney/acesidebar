@@ -227,17 +227,25 @@ const Tickets: React.FC = () => {
   // Transform API data to match our Ticket interface
   const transformApiData = (apiData: any[]): Ticket[] => {
     if (!apiData || !Array.isArray(apiData)) return [];
-    
+
     return apiData.map((item: any) => ({
-      id: item.ticketNumber?.toString() || item.id?.toString() || Math.random().toString(),
+      id:
+        item.ticketNumber?.toString() ||
+        item.id?.toString() ||
+        Math.random().toString(),
       title: item.subject || item.title || "No Title",
       description: item.body || item.description || "No Description",
       status: (item.status || "open").toLowerCase(),
       priority: (item.priority || "medium").toLowerCase(),
-      assignee: item.assignedTo || item.assignee || item.assigned_to || "Unassigned",
+      assignee:
+        item.assignedTo || item.assignee || item.assigned_to || "Unassigned",
       requester: item.fromUser || item.requester || item.user_name || "Unknown",
       createdAt: item.created_at || item.createdAt || new Date().toISOString(),
-      updatedAt: item.lastupdate || item.updated_at || item.updatedAt || new Date().toISOString(),
+      updatedAt:
+        item.lastupdate ||
+        item.updated_at ||
+        item.updatedAt ||
+        new Date().toISOString(),
       hasAttachment: item.has_attachment || item.hasAttachment || false,
       isStarred: item.is_starred || item.isStarred || false,
       isRead: item.is_read || item.isRead || true,
@@ -442,8 +450,8 @@ const Tickets: React.FC = () => {
       <Paper elevation={1} sx={{ borderRadius: 0 }}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Ticket Management
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              Tickets Inbox
             </Typography>
             <Chip
               label={`${filteredTickets.length} tickets`}
@@ -471,6 +479,20 @@ const Tickets: React.FC = () => {
           </Box>
         </Toolbar>
       </Paper>
+
+      {/* Section header above ticket list */}
+      <Box
+        sx={{
+          px: 3,
+          py: 1,
+          background: alpha(theme.palette.background.paper, 0.7),
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+          All Tickets
+        </Typography>
+      </Box>
 
       {/* Main Content */}
       <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
@@ -500,7 +522,7 @@ const Tickets: React.FC = () => {
           {openTicket ? (
             <TicketDetailTemplate
               ticket={{
-                title: openTicket.title,
+                title: `${openTicket.title} (Ticket #${openTicket.id})`,
                 requester: openTicket.requester,
                 createdAt: openTicket.createdAt,
                 description: openTicket.description,
