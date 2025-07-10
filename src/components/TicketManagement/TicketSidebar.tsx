@@ -40,7 +40,11 @@ import {
   ExpandLess,
   ExpandMore,
 } from "@mui/icons-material";
-import { useGetTagListQuery } from "../../services/ticketAuth";
+import {
+  useAddTagMutation,
+  useGetTagListQuery,
+} from "../../services/ticketAuth";
+import { useToast } from "../../hooks/useToast";
 
 interface TicketSidebarProps {
   onFilterChange: (filter: string) => void;
@@ -61,45 +65,6 @@ interface TicketSidebarProps {
   onTagFilterChange: (tag: string) => void;
   currentTag: string;
 }
-
-const StyledListItemButton = styled(ListItemButton)<{ active?: boolean }>(
-  ({ theme, active }) => ({
-    borderRadius: theme.spacing(1),
-    margin: theme.spacing(0.5, 1),
-    backgroundColor: active
-      ? alpha(theme.palette.primary.main, 0.08)
-      : "transparent",
-    borderLeft: active ? `3px solid ${theme.palette.primary.main}` : "none",
-    "&:hover": {
-      backgroundColor: active
-        ? alpha(theme.palette.primary.main, 0.12)
-        : alpha(theme.palette.action.hover, 0.04),
-    },
-    "& .MuiListItemIcon-root": {
-      color: active ? theme.palette.primary.main : theme.palette.text.secondary,
-    },
-    "& .MuiListItemText-primary": {
-      fontWeight: active ? 600 : 400,
-      color: active ? theme.palette.primary.main : theme.palette.text.primary,
-    },
-  })
-);
-
-const FilterChip = styled(Chip)<{ active?: boolean }>(({ theme, active }) => ({
-  backgroundColor: active
-    ? theme.palette.primary.main
-    : alpha(theme.palette.primary.main, 0.1),
-  color: active
-    ? theme.palette.primary.contrastText
-    : theme.palette.primary.main,
-  fontWeight: active ? 600 : 400,
-  "&:hover": {
-    backgroundColor: active
-      ? theme.palette.primary.dark
-      : alpha(theme.palette.primary.main, 0.2),
-  },
-}));
-
 const TicketSidebar: React.FC<TicketSidebarProps> = ({
   onFilterChange,
   onSearchChange,
@@ -116,16 +81,18 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
     priority: true,
     type: true,
   });
+  const { showToast } = useToast();
   const [tagName, setTagName] = useState("");
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-  const { data: tagsList, isLoading: isTagListLoading } =
-  useGetTagListQuery();
+  const { data: tagsList, isLoading: isTagListLoading,refetch } = useGetTagListQuery();
   const [tags, setTags] = useState([
     { name: "Frontend", color: "#e91e63" },
     { name: "IT", color: "#2196f3" },
     { name: "Finance", color: "#4caf50" },
     { name: "HR", color: "#ff9800" },
   ]);
+  const [tagDescription, setTagDescription] = useState("");
+  const [addTag, { isLoading: isAddingTag }] = useAddTagMutation();
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -335,7 +302,7 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
         </Box>
 
         <List dense>
-          {tagsList.map((tag:any) => (
+          {tagsList?.map((tag: any) => (
             <ListItem
               sx={{ pl: 0, cursor: "pointer" }}
               key={tag?.tagID}
@@ -347,7 +314,8 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
                 sx={{
                   borderRadius: 2,
                   mx: 0,
-                  bgcolor: currentTag === tag.tagName ? "primary.50" : "transparent",
+                  bgcolor:
+                    currentTag === tag.tagName ? "primary.50" : "transparent",
                   "&.Mui-selected": {
                     bgcolor: "primary.100",
                     color: "primary.main",
@@ -404,22 +372,42 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
             onChange={(e) => setTagName(e.target.value)}
             sx={{ mb: 2 }}
           />
+          <TextField
+            label="Description"
+            fullWidth
+            value={tagDescription}
+            onChange={(e) => setTagDescription(e.target.value)}
+            sx={{ mb: 2 }}
+          />
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
             <Button onClick={() => setIsTagModalOpen(false)} color="secondary">
               Cancel
             </Button>
             <Button
               variant="contained"
-              onClick={() => {
-                if (!tags.some(tag => tag.name.toLowerCase() === tagName.toLowerCase())) {
-                  setTags([...tags, { name: tagName, color: "#607d8b" }]);
+              onClick={async () => {
+                if (!tagName) return;
+                try {
+                 const res = await addTag({
+                    name: tagName,
+                    description: tagDescription,
+                  }).unwrap();
+                  if(res?.success){
+
+                    setTagName("");
+                    setTagDescription("");
+                    setIsTagModalOpen(false);
+                    // Optionally refetch tags
+                    refetch();
+                    showToast(res?.message||"Tag Created Succesfully")
+                  }
+                } catch (error:any) {
+                  showToast(error?.data?.message||"Failed to add tag","error");
                 }
-                setTagName("");
-                setIsTagModalOpen(false);
               }}
-              disabled={!tagName}
+              disabled={!tagName || isAddingTag}
             >
-              Add
+              {isAddingTag ? "Adding..." : "Add"}
             </Button>
           </Box>
         </Box>

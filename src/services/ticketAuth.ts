@@ -14,17 +14,16 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
   endpoints: (builder) => ({
     createTicket: builder.mutation({
       query: (credentials) => ({
-        
-        url: '/ticket/create',
-        method: 'POST',
+        url: "/ticket/create",
+        method: "POST",
         body: credentials,
       }),
     }),
 
     getPriorityList: builder.query<any, void>({
       query: () => ({
-        url: '/priority/list',
-        method: 'GET',
+        url: "/priority/list",
+        method: "GET",
       }),
       transformResponse: (response: any) => response?.data,
     }),
@@ -54,10 +53,18 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
 
     getTagList: builder.query<any, void>({
       query: () => ({
-        url: '/tag/list',
-        method: 'GET',
+        url: "/tag/list",
+        method: "GET",
       }),
       transformResponse: (response: any) => response?.data,
+    }),
+
+    addTag: builder.mutation({
+      query: (body: { name: string; description: string }) => ({
+        url: "/tag/add",
+        method: "POST",
+        body,
+      }),
     }),
 
     //  getuserdata: builder.mutation({
@@ -77,4 +84,5 @@ export const {
   useGetPriorityListQuery,
   useGetTicketListQuery,
   useGetTagListQuery,
+  useAddTagMutation,
 } = extendedTicketApi;
