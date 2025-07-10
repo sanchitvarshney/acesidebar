@@ -29,6 +29,7 @@ import {
   alpha,
   styled,
   TablePagination,
+  Drawer,
 } from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
@@ -37,6 +38,7 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   Refresh as RefreshIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import TicketSidebar from "./TicketSidebar";
 import TicketList from "./TicketList";
@@ -228,7 +230,7 @@ const Tickets: React.FC = () => {
       title: item.subject || item.title || "No Title",
       description: item.body || item.description || "No Description",
       status: (item.status || "open").toLowerCase(),
-      priority: (item.priority || "medium").toLowerCase(),
+      priority: (item.priority?.desc || "medium")?.toLowerCase(),
       assignee:
         item.assignedTo || item.assignee || item.assigned_to || "Unassigned",
       requester: item.fromUser || item.requester || item.user_name || "Unknown",
@@ -406,8 +408,9 @@ const Tickets: React.FC = () => {
         format: newTicket.format,
         recipients: newTicket.recipients,
       };
-      await createTicket(payload).unwrap();
-      showToast("Ticket created successfully!", "success");
+       const res = await createTicket(payload).unwrap();
+
+      showToast(res.payload.message||"Ticket created successfully!", "success");
       setCreateDialogOpen(false);
       setNewTicket({
         user_name: "",
@@ -683,7 +686,7 @@ const Tickets: React.FC = () => {
                 {isTicketListFetching ? (
                   <TicketSkeleton rows={limit} />
                 ) : (
-                   <DataGrid
+                  <DataGrid
                     rows={filteredTickets}
                     columns={columns}
                     pageSizeOptions={[5, 10, 20, 50, 100]}
@@ -694,7 +697,7 @@ const Tickets: React.FC = () => {
                     autoHeight={true}
                     sx={{ flex: 1, background: theme.palette.background.paper }}
                     hideFooter
-                  />                 
+                  />
                 )}
                 {/* Rows per page selector and Pagination Controls */}
                 <Box
@@ -763,143 +766,183 @@ const Tickets: React.FC = () => {
         </MenuItem>
       </Menu>
 
-      {/* Create Ticket Dialog */}
-      <Dialog
+      {/* Create Ticket Drawer */}
+      <Drawer
+        anchor="right"
         open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
+        PaperProps={{
+          sx: {
+            width: 780,
+            maxWidth: "100vw",
+            p: 0,
+            borderRadius: "12px 0 0 12px",
+          },
+        }}
       >
-        <DialogTitle>Create New Ticket</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 1 }}>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Name"
-                  fullWidth
-                  value={newTicket.user_name}
-                  onChange={(e) =>
-                    setNewTicket((prev) => ({
-                      ...prev,
-                      user_name: e.target.value,
-                    }))
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Email"
-                  fullWidth
-                  value={newTicket.user_email}
-                  onChange={(e) =>
-                    setNewTicket((prev) => ({
-                      ...prev,
-                      user_email: e.target.value,
-                    }))
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Phone"
-                  fullWidth
-                  value={newTicket.user_phone}
-                  onChange={(e) =>
-                    setNewTicket((prev) => ({
-                      ...prev,
-                      user_phone: e.target.value,
-                    }))
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Subject"
-                  fullWidth
-                  value={newTicket.subject}
-                  onChange={(e) =>
-                    setNewTicket((prev) => ({
-                      ...prev,
-                      subject: e.target.value,
-                    }))
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Recipients"
-                  fullWidth
-                  value={newTicket.recipients}
-                  onChange={(e) =>
-                    setNewTicket((prev) => ({
-                      ...prev,
-                      recipients: e.target.value,
-                    }))
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Priority</InputLabel>
-                  <Select
-                    value={newTicket.priority}
-                    onChange={(e) =>
-                      setNewTicket((prev) => ({
-                        ...prev,
-                        priority: e.target.value,
-                      }))
-                    }
-                    input={<OutlinedInput label="Priority" />}
-                  >
-                    {priorityList?.map((item: any) => (
-                      <MenuItem key={item.key} value={item.key}>
-                        {item.specification}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid size={12}>
-                <Typography variant="body1" sx={{ fontWeight: 600, pb: 1 }}>
-                  Body
-                </Typography>
-                <ReactSimpleWysiwyg
-                  value={newTicket.body}
-                  onChange={(e) =>
-                    setNewTicket((prev) => ({
-                      ...prev,
-                      body: e.target.value,
-                    }))
-                  }
-                  style={{
-                    minHeight: 120,
-                    height: "100%",
-                    padding: 8,
-                    boxSizing: "border-box",
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleCreateTicketSubmit}
-            disabled={
-              isCreating ||
-              !newTicket.user_name ||
-              !newTicket.user_email ||
-              !newTicket.subject ||
-              !newTicket.body
-            }
+        <Box
+          sx={{
+            p: 3,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
           >
-            {isCreating ? "Creating..." : "Create Ticket"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 700, }}>
+              Create New Ticket
+            </Typography>
+            <IconButton onClick={() => setCreateDialogOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Divider sx={{ mb: 2 }} />
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+            Ticket Details
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Fill in the details below to create a new ticket.
+          </Typography>
+          <Grid container spacing={2} alignItems="flex-start">
+            <Grid  size={{ xs: 12, sm: 6 }} >
+              <TextField
+                label="Name"
+                fullWidth
+                value={newTicket.user_name}
+                onChange={(e) =>
+                  setNewTicket((prev) => ({
+                    ...prev,
+                    user_name: e.target.value,
+                  }))
+                }
+              />
+            </Grid>
+            <Grid  size={{ xs: 12, sm: 6 }} >
+              <TextField
+                label="Email"
+                fullWidth
+                value={newTicket.user_email}
+                onChange={(e) =>
+                  setNewTicket((prev) => ({
+                    ...prev,
+                    user_email: e.target.value,
+                  }))
+                }
+              />
+            </Grid>
+            <Grid  size={{ xs: 12, sm: 6 }} >
+              <TextField
+                label="Phone"
+                fullWidth
+                value={newTicket.user_phone}
+                onChange={(e) =>
+                  setNewTicket((prev) => ({
+                    ...prev,
+                    user_phone: e.target.value,
+                  }))
+                }
+              />
+            </Grid>
+            <Grid  size={{ xs: 12, sm: 6 }} >
+              <TextField
+                label="Subject"
+                fullWidth
+                value={newTicket.subject}
+                onChange={(e) =>
+                  setNewTicket((prev) => ({
+                    ...prev,
+                    subject: e.target.value,
+                  }))
+                }
+              />
+            </Grid>
+            <Grid  size={{ xs: 12, sm: 6 }} >
+              <TextField
+                label="Recipients"
+                fullWidth
+                value={newTicket.recipients}
+                onChange={(e) =>
+                  setNewTicket((prev) => ({
+                    ...prev,
+                    recipients: e.target.value,
+                  }))
+                }
+              />
+            </Grid>
+            <Grid  size={{ xs: 12, sm: 6 }} >
+              <FormControl fullWidth>
+                <InputLabel>Priority</InputLabel>
+                <Select
+                  value={newTicket.priority}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      priority: e.target.value,
+                    }))
+                  }
+                  input={<OutlinedInput label="Priority" />}
+                >
+                  {priorityList?.map((item: any) => (
+                    <MenuItem key={item.key} value={item.key}>
+                      {item.specification}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid  size={12}>
+              <Typography variant="body1" sx={{ fontWeight: 600, pb: 1 }}>
+                Body
+              </Typography>
+              <ReactSimpleWysiwyg
+                value={newTicket.body}
+                onChange={(e) =>
+                  setNewTicket((prev) => ({
+                    ...prev,
+                    body: e.target.value,
+                  }))
+                }
+                style={{
+                  minHeight: 120,
+                  height: "100%",
+                  padding: 8,
+                  boxSizing: "border-box",
+                }}
+              />
+            </Grid>
+          </Grid>
+          <Box sx={{ flexGrow: 1 }} />
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1,paddingBottom:4 }}>
+            <Button
+              onClick={() => setCreateDialogOpen(false)}
+              variant="outlined"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleCreateTicketSubmit}
+              disabled={
+                isCreating ||
+                !newTicket.user_name ||
+                !newTicket.user_email ||
+                !newTicket.subject ||
+                !newTicket.body
+              }
+            >
+              {isCreating ? "Creating..." : "Create Ticket"}
+            </Button>
+          </Box>
+        </Box>
+      </Drawer>
     </Box>
   );
 };
