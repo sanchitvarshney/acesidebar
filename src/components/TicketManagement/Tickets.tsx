@@ -49,13 +49,14 @@ import {
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 import TicketSkeleton from "./TicketSkeleton";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 interface Ticket {
   id: string;
   title: string;
   description: string;
   status: "open" | "in-progress" | "resolved" | "closed";
-  priority: "low" | "medium" | "high" | "urgent";
+  priority: "low" | "normal" | "high" | "emergency";
   assignee: string;
   requester: string;
   createdAt: string;
@@ -75,7 +76,7 @@ export const mockTickets: Ticket[] = [
     description:
       "Users are unable to log in to the application. The login button is not responding.",
     status: "open",
-    priority: "urgent",
+    priority: "emergency",
     assignee: "John Doe",
     requester: "Sarah Wilson",
     createdAt: "2024-01-15T10:30:00Z",
@@ -109,7 +110,7 @@ export const mockTickets: Ticket[] = [
     description:
       "Users have expressed a strong interest in having a dark mode to improve their experience. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Many have suggested that a darker theme would enhance usability and comfort. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. Feedback continues to highlight the desire for a dark mode interface. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. There is a recurring demand for a night-friendly viewing option. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. Several users have emphasized the benefits of a dark theme for extended use. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. The request for a visually soothing dark mode remains one of the most common. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos.",
     status: "open",
-    priority: "medium",
+    priority: "normal",
     assignee: "Lisa Chen",
     requester: "Alex Thompson",
     createdAt: "2024-01-13T16:20:00Z",
@@ -125,7 +126,7 @@ export const mockTickets: Ticket[] = [
     title: "Payment processing error",
     description: "Credit card payments are failing with error code 500.",
     status: "resolved",
-    priority: "urgent",
+    priority: "emergency",
     assignee: "Tom Wilson",
     requester: "Emma Davis",
     createdAt: "2024-01-12T13:45:00Z",
@@ -191,7 +192,7 @@ const Tickets: React.FC = () => {
 
     // Map UI filters to API parameters
     if (currentFilter !== "all") {
-      if (["urgent", "high", "medium", "low"].includes(currentFilter)) {
+      if (["emergency", "high", "normal", "low"].includes(currentFilter)) {
         params.priority = currentFilter.toUpperCase();
       } else if (
         ["open", "in-progress", "resolved", "closed"].includes(currentFilter)
@@ -273,10 +274,13 @@ const Tickets: React.FC = () => {
       inProgress: tickets.filter((t) => t.status === "in-progress").length,
       resolved: tickets.filter((t) => t.status === "resolved").length,
       closed: tickets.filter((t) => t.status === "closed").length,
-      urgent: tickets.filter((t) => t.priority === "urgent").length,
+      emergency: tickets.filter((t) => t.priority === "emergency").length,
       high: tickets.filter((t) => t.priority === "high").length,
-      medium: tickets.filter((t) => t.priority === "medium").length,
+      normal: tickets.filter((t) => t.priority === "normal").length,
       low: tickets.filter((t) => t.priority === "low").length,
+      // For backward compatibility with TicketSidebar props
+      urgent: tickets.filter((t) => t.priority === "emergency").length,
+      medium: tickets.filter((t) => t.priority === "normal").length,
     };
   }, [tickets]);
 
@@ -298,9 +302,12 @@ const Tickets: React.FC = () => {
         ) {
           return ticket.status === currentFilter;
         }
-        if (["urgent", "high", "medium", "low"].includes(currentFilter)) {
+        if (["emergency", "high", "normal", "low"].includes(currentFilter)) {
           return ticket.priority === currentFilter;
         }
+        // For backward compatibility
+        if (currentFilter === "urgent") return ticket.priority === "emergency";
+        if (currentFilter === "medium") return ticket.priority === "normal";
         return true;
       });
     }
@@ -349,7 +356,7 @@ const Tickets: React.FC = () => {
       setSelectedTickets(filteredTickets.map((ticket) => ticket.id));
     }
   };
-
+  console.log(filteredTickets, "filteredTickets");
   const handleStarToggle = (ticketId: string) => {
     // In a real app, you would make an API call here to update the star status
     showToast("Star status updated", "success");
@@ -449,6 +456,48 @@ const Tickets: React.FC = () => {
   };
 
   console.log(isTicketListLoading, "isTicketListLoading");
+  const columns: GridColDef[] = [
+    { field: "id", headerName: "Ticket #", width: 120 },
+    { field: "title", headerName: "Subject", flex: 1, minWidth: 180 },
+    {
+      field: "department",
+      headerName: "Department",
+      width: 120,
+      valueGetter: (params: any) =>
+        params?.row && Array.isArray(params.row.tags)
+          ? params.row.tags[0] || ""
+          : "",
+    },
+    {
+      field: "priority",
+      headerName: "Priority",
+      width: 100,
+      renderCell: (params: GridRenderCellParams) => (
+        <span
+          style={{
+            color:
+              params.value === "emergency"
+                ? "#d32f2f"
+                : params.value === "high"
+                ? "#ed6c02"
+                : params.value === "low"
+                ? "#0288d1"
+                : "#388e3c",
+            fontWeight: 600,
+            textTransform: "capitalize",
+          }}
+        >
+          {params.value}
+        </span>
+      ),
+    },
+    {
+      field: "lastupdate",
+      headerName: "Last Update",
+      width: 180,
+    },
+    { field: "requester", headerName: "Requester", width: 140 },
+  ];
   return (
     <Box sx={{ height: "78vh", display: "flex", flexDirection: "column" }}>
       {/* Header */}
@@ -634,14 +683,18 @@ const Tickets: React.FC = () => {
                 {isTicketListFetching ? (
                   <TicketSkeleton rows={limit} />
                 ) : (
-                  <TicketList
-                    tickets={filteredTickets}
-                    selectedTickets={selectedTickets}
-                    onTicketSelect={handleTicketSelect}
-                    //@ts-ignore
-                    onTicketClick={handleTicketClick}
-                    onStarToggle={handleStarToggle}
-                  />
+                   <DataGrid
+                    rows={filteredTickets}
+                    columns={columns}
+                    pageSizeOptions={[5, 10, 20, 50, 100]}
+                    pagination
+                    paginationMode="server"
+                    rowCount={filteredTickets.length} // Use total from API if available
+                    loading={isTicketListFetching}
+                    autoHeight={true}
+                    sx={{ flex: 1, background: theme.palette.background.paper }}
+                    hideFooter
+                  />                 
                 )}
                 {/* Rows per page selector and Pagination Controls */}
                 <Box
@@ -658,7 +711,6 @@ const Tickets: React.FC = () => {
                     display: "flex",
                     justifyContent: "flex-end",
                     alignItems: "right",
-                    
                   }}
                 >
                   <TablePagination
