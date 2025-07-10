@@ -250,7 +250,7 @@ const Tickets: React.FC = () => {
 
   // Use API data or fallback to mock data
   const tickets = useMemo(() => {
-    if (ticketList && Array.isArray(ticketList)) {
+    if (ticketList && Array.isArray(ticketList)) { 
       return transformApiData(ticketList);
     }
     return mockTickets;
