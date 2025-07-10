@@ -218,36 +218,6 @@ const Tickets: React.FC = () => {
   } = useGetTicketListQuery(getApiParams());
   const { showToast } = useToast();
 
-  // Transform API data to match our Ticket interface
-  const transformApiData = (apiData: any[]): Ticket[] => {
-    if (!apiData || !Array.isArray(apiData)) return [];
-
-    return apiData.map((item: any) => ({
-      id:
-        item.ticketNumber?.toString() ||
-        item.id?.toString() ||
-        Math.random().toString(),
-      title: item.subject || item.title || "No Title",
-      description: item.body || item.description || "No Description",
-      status: (item.status || "open").toLowerCase(),
-      priority: (item.priority?.desc || "medium")?.toLowerCase(),
-      assignee:
-        item.assignedTo || item.assignee || item.assigned_to || "Unassigned",
-      requester: item.fromUser || item.requester || item.user_name || "Unknown",
-      createdAt: item.created_at || item.createdAt || new Date().toISOString(),
-      updatedAt:
-        item.lastupdate ||
-        item.updated_at ||
-        item.updatedAt ||
-        new Date().toISOString(),
-      hasAttachment: item.has_attachment || item.hasAttachment || false,
-      isStarred: item.is_starred || item.isStarred || false,
-      isRead: item.is_read || item.isRead || true,
-      tags: item.department ? [item.department] : item.tags || [],
-      thread: item.thread || [],
-    }));
-  };
-
   // Use API data or fallback to mock data
   const tickets = useMemo(() => {
     if (ticketList && Array.isArray(ticketList)) {
@@ -383,6 +353,7 @@ const Tickets: React.FC = () => {
   };
 
   const handleSearchChange = (search: string) => {
+    console.log(search)
     setSearchQuery(search);
     setSelectedTickets([]); // Clear selection when search changes
   };
@@ -478,19 +449,29 @@ const Tickets: React.FC = () => {
       headerName: "Priority",
       width: 100,
       renderCell: (params) => (
-        <span
-          style={{
-            background: params.row.priority?.color || "#eee",
+        <Chip
+          label={
+            params.row.priority?.desc && params.row.priority?.desc.length > 6
+              ? params.row.priority?.desc
+              : params.row.priority?.desc || params.row.priority?.name
+          }
+          size="small"
+          sx={{
+            backgroundColor: params.row.priority?.color || "#eee",
             color: "#222",
-            padding: "2px 8px",
-            borderRadius: 2,
             fontWeight: 600,
             textTransform: "capitalize",
-            display: "inline-block",
+            borderRadius: 1,
+            px: 1.5,
+            py: 0.5,
+            minWidth: 80,
+            fontSize: 13,
+            maxWidth: 120,
+            whiteSpace: "nowrap",
+            overflow: "visible",
+            textOverflow: "unset",
           }}
-        >
-          {params.row.priority?.desc || params.row.priority?.name}
-        </span>
+        />
       ),
     },
     {
@@ -498,7 +479,7 @@ const Tickets: React.FC = () => {
       headerName: "Last Update",
       width: 180,
     },
-    { field: "requester", headerName: "fromUser", width: 140 },
+    { field: "fromUser", headerName: "Requester", width: 140 },
   ];
   return (
     <Box sx={{ height: "78vh", display: "flex", flexDirection: "column" }}>

@@ -40,6 +40,7 @@ import {
   ExpandLess,
   ExpandMore,
 } from "@mui/icons-material";
+import { useGetTagListQuery } from "../../services/ticketAuth";
 
 interface TicketSidebarProps {
   onFilterChange: (filter: string) => void;
@@ -117,6 +118,8 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
   });
   const [tagName, setTagName] = useState("");
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const { data: tagsList, isLoading: isTagListLoading } =
+  useGetTagListQuery();
   const [tags, setTags] = useState([
     { name: "Frontend", color: "#e91e63" },
     { name: "IT", color: "#2196f3" },
@@ -332,19 +335,19 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
         </Box>
 
         <List dense>
-          {tags.map((tag, idx) => (
+          {tagsList.map((tag:any) => (
             <ListItem
               sx={{ pl: 0, cursor: "pointer" }}
-              key={tag.name + idx}
+              key={tag?.tagID}
               disablePadding
-              onClick={() => onTagFilterChange(tag.name)}
+              onClick={() => onTagFilterChange(tag.tagName)}
             >
               <ListItemButton
-                selected={currentTag === tag.name}
+                selected={currentTag === tag.tagName}
                 sx={{
                   borderRadius: 2,
                   mx: 0,
-                  bgcolor: currentTag === tag.name ? "primary.50" : "transparent",
+                  bgcolor: currentTag === tag.tagName ? "primary.50" : "transparent",
                   "&.Mui-selected": {
                     bgcolor: "primary.100",
                     color: "primary.main",
@@ -363,7 +366,7 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
                   />
                 </ListItemIcon>
                 <ListItemText
-                  primary={tag.name}
+                  primary={tag.tagName}
                   primaryTypographyProps={{ fontSize: "0.95rem" }}
                 />
               </ListItemButton>

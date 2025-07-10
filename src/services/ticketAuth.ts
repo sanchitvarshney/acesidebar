@@ -52,6 +52,14 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       transformResponse: (response: any) => response?.data,
     }),
 
+    getTagList: builder.query<any, void>({
+      query: () => ({
+        url: '/tag/list',
+        method: 'GET',
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
+
     //  getuserdata: builder.mutation({
     //   query: (credentials) => ({
 
@@ -68,4 +76,5 @@ export const {
   useCreateTicketMutation,
   useGetPriorityListQuery,
   useGetTicketListQuery,
+  useGetTagListQuery,
 } = extendedTicketApi;
