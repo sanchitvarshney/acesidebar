@@ -250,8 +250,8 @@ const Tickets: React.FC = () => {
 
   // Use API data or fallback to mock data
   const tickets = useMemo(() => {
-    if (ticketList && Array.isArray(ticketList)) { 
-      return transformApiData(ticketList);
+    if (ticketList && Array.isArray(ticketList)) {
+      return ticketList;
     }
     return mockTickets;
   }, [ticketList]);
@@ -294,7 +294,7 @@ const Tickets: React.FC = () => {
     if (currentTag) {
       filtered = filtered.filter((ticket) =>
         ticket.tags.some(
-          (tag) => tag.toLowerCase() === currentTag.toLowerCase()
+          (tag:any) => tag.toLowerCase() === currentTag.toLowerCase()
         )
       );
     } else if (currentFilter !== "all") {
@@ -323,7 +323,7 @@ const Tickets: React.FC = () => {
           ticket.description.toLowerCase().includes(query) ||
           ticket.requester.toLowerCase().includes(query) ||
           ticket.assignee.toLowerCase().includes(query) ||
-          ticket.tags.some((tag) => tag.toLowerCase().includes(query))
+          ticket.tags.some((tag:any) => tag.toLowerCase().includes(query))
       );
     }
 
@@ -358,7 +358,7 @@ const Tickets: React.FC = () => {
       setSelectedTickets(filteredTickets.map((ticket) => ticket.id));
     }
   };
-  console.log(filteredTickets, "filteredTickets");
+
   const handleStarToggle = (ticketId: string) => {
     // In a real app, you would make an API call here to update the star status
     showToast("Star status updated", "success");
@@ -397,7 +397,7 @@ const Tickets: React.FC = () => {
   };
 
   const handleCreateTicketSubmit = async () => {
-    try {
+
       const payload = {
         priority: Number(newTicket.priority),
         user_name: newTicket.user_name,
@@ -408,25 +408,31 @@ const Tickets: React.FC = () => {
         format: newTicket.format,
         recipients: newTicket.recipients,
       };
-       const res = await createTicket(payload).unwrap();
+      const res = await createTicket(payload).unwrap();
+      if(res.success){
+        showToast(
+          res?.payload?.message || "Ticket created successfully!",
+          "success"
+        );
+        setCreateDialogOpen(false);
+        setNewTicket({
+          user_name: "",
+          user_email: "",
+          user_phone: "",
+          subject: "",
+          body: "",
+          priority: 2,
+          format: "html",
+          recipients: "",
+        });
+        // Refresh the ticket list
+        refetch();
+      }
+      else{
+        showToast(res.payload.message||"Failed to create ticket", "error");
+      }
 
-      showToast(res.payload.message||"Ticket created successfully!", "success");
-      setCreateDialogOpen(false);
-      setNewTicket({
-        user_name: "",
-        user_email: "",
-        user_phone: "",
-        subject: "",
-        body: "",
-        priority: 2,
-        format: "html",
-        recipients: "",
-      });
-      // Refresh the ticket list
-      refetch();
-    } catch (error) {
-      showToast("Failed to create ticket", "error");
-    }
+      
   };
 
   const handleBulkAction = (action: string) => {
@@ -460,37 +466,30 @@ const Tickets: React.FC = () => {
 
   console.log(isTicketListLoading, "isTicketListLoading");
   const columns: GridColDef[] = [
-    { field: "id", headerName: "Ticket #", width: 120 },
-    { field: "title", headerName: "Subject", flex: 1, minWidth: 180 },
+    { field: "ticketNumber", headerName: "Ticket #", width: 120 },
+    { field: "subject", headerName: "Subject", flex: 1, minWidth: 180 },
     {
       field: "department",
       headerName: "Department",
       width: 120,
-      valueGetter: (params: any) =>
-        params?.row && Array.isArray(params.row.tags)
-          ? params.row.tags[0] || ""
-          : "",
     },
     {
       field: "priority",
       headerName: "Priority",
       width: 100,
-      renderCell: (params: GridRenderCellParams) => (
+      renderCell: (params) => (
         <span
           style={{
-            color:
-              params.value === "emergency"
-                ? "#d32f2f"
-                : params.value === "high"
-                ? "#ed6c02"
-                : params.value === "low"
-                ? "#0288d1"
-                : "#388e3c",
+            background: params.row.priority?.color || "#eee",
+            color: "#222",
+            padding: "2px 8px",
+            borderRadius: 2,
             fontWeight: 600,
             textTransform: "capitalize",
+            display: "inline-block",
           }}
         >
-          {params.value}
+          {params.row.priority?.desc || params.row.priority?.name}
         </span>
       ),
     },
@@ -499,7 +498,7 @@ const Tickets: React.FC = () => {
       headerName: "Last Update",
       width: 180,
     },
-    { field: "requester", headerName: "Requester", width: 140 },
+    { field: "requester", headerName: "fromUser", width: 140 },
   ];
   return (
     <Box sx={{ height: "78vh", display: "flex", flexDirection: "column" }}>
@@ -689,10 +688,11 @@ const Tickets: React.FC = () => {
                   <DataGrid
                     rows={filteredTickets}
                     columns={columns}
+                    getRowId={(row) => row.ticketNumber}
                     pageSizeOptions={[5, 10, 20, 50, 100]}
                     pagination
                     paginationMode="server"
-                    rowCount={filteredTickets.length} // Use total from API if available
+                    rowCount={ticketList} // Use total from API if available
                     loading={isTicketListFetching}
                     autoHeight={true}
                     sx={{ flex: 1, background: theme.palette.background.paper }}
@@ -787,7 +787,7 @@ const Tickets: React.FC = () => {
             display: "flex",
             flexDirection: "column",
           }}
-          >
+        >
           <Box
             sx={{
               display: "flex",
@@ -796,7 +796,7 @@ const Tickets: React.FC = () => {
               mb: 2,
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 700, }}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
               Create New Ticket
             </Typography>
             <IconButton onClick={() => setCreateDialogOpen(false)}>
@@ -811,7 +811,7 @@ const Tickets: React.FC = () => {
             Fill in the details below to create a new ticket.
           </Typography>
           <Grid container spacing={2} alignItems="flex-start">
-            <Grid  size={{ xs: 12, sm: 6 }} >
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Name"
                 fullWidth
@@ -824,7 +824,7 @@ const Tickets: React.FC = () => {
                 }
               />
             </Grid>
-            <Grid  size={{ xs: 12, sm: 6 }} >
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Email"
                 fullWidth
@@ -837,7 +837,7 @@ const Tickets: React.FC = () => {
                 }
               />
             </Grid>
-            <Grid  size={{ xs: 12, sm: 6 }} >
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Phone"
                 fullWidth
@@ -850,7 +850,7 @@ const Tickets: React.FC = () => {
                 }
               />
             </Grid>
-            <Grid  size={{ xs: 12, sm: 6 }} >
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Subject"
                 fullWidth
@@ -863,7 +863,7 @@ const Tickets: React.FC = () => {
                 }
               />
             </Grid>
-            <Grid  size={{ xs: 12, sm: 6 }} >
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Recipients"
                 fullWidth
@@ -876,7 +876,7 @@ const Tickets: React.FC = () => {
                 }
               />
             </Grid>
-            <Grid  size={{ xs: 12, sm: 6 }} >
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Priority</InputLabel>
                 <Select
@@ -897,7 +897,7 @@ const Tickets: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid  size={12}>
+            <Grid size={12}>
               <Typography variant="body1" sx={{ fontWeight: 600, pb: 1 }}>
                 Body
               </Typography>
@@ -920,7 +920,14 @@ const Tickets: React.FC = () => {
           </Grid>
           <Box sx={{ flexGrow: 1 }} />
           <Divider sx={{ my: 2 }} />
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1,paddingBottom:4 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 1,
+              paddingBottom: 4,
+            }}
+          >
             <Button
               onClick={() => setCreateDialogOpen(false)}
               variant="outlined"
