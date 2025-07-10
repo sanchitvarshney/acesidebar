@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import ReactSimpleWysiwyg from "react-simple-wysiwyg";
 import {
   Box,
@@ -48,6 +48,7 @@ import {
   useCreateTicketMutation,
   useGetPriorityListQuery,
   useGetTicketListQuery,
+  useTicketSearchMutation,
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 import TicketSkeleton from "./TicketSkeleton";
@@ -170,6 +171,8 @@ const VisuallyHiddenInput = styled("input")`
   width: 1px;
 `;
 
+const debounceTimeout = 500; // ms
+
 const Tickets: React.FC = () => {
   const theme = useTheme();
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
@@ -180,10 +183,40 @@ const Tickets: React.FC = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [ticketNumberSearch, setTicketNumberSearch] = useState("");
+  const [searchResult, setSearchResult] = useState<any | null>(null);
+  const [ticketSearch, { isLoading: isTicketSearchLoading }] =
+    useTicketSearchMutation();
 
   const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
   const { data: priorityList, isLoading: isPriorityListLoading } =
     useGetPriorityListQuery();
+
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!ticketNumberSearch || ticketNumberSearch.length <= 3) {
+      setSearchResult(null);
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await ticketSearch(ticketNumberSearch).unwrap();
+        if (res && res.ticketNumber) {
+          setSearchResult([res]);
+        } else {
+          setSearchResult([]);
+        }
+      } catch (err) {
+        setSearchResult([]);
+      }
+    }, debounceTimeout);
+    // Cleanup on unmount or ticketNumberSearch change
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [ticketNumberSearch]);
 
   // Convert filter to API parameters
   const getApiParams = () => {
@@ -264,7 +297,7 @@ const Tickets: React.FC = () => {
     if (currentTag) {
       filtered = filtered.filter((ticket) =>
         ticket.tags.some(
-          (tag:any) => tag.toLowerCase() === currentTag.toLowerCase()
+          (tag: any) => tag.toLowerCase() === currentTag.toLowerCase()
         )
       );
     } else if (currentFilter !== "all") {
@@ -293,7 +326,7 @@ const Tickets: React.FC = () => {
           ticket.description.toLowerCase().includes(query) ||
           ticket.requester.toLowerCase().includes(query) ||
           ticket.assignee.toLowerCase().includes(query) ||
-          ticket.tags.some((tag:any) => tag.toLowerCase().includes(query))
+          ticket.tags.some((tag: any) => tag.toLowerCase().includes(query))
       );
     }
 
@@ -353,7 +386,7 @@ const Tickets: React.FC = () => {
   };
 
   const handleSearchChange = (search: string) => {
-    console.log(search)
+    console.log(search);
     setSearchQuery(search);
     setSelectedTickets([]); // Clear selection when search changes
   };
@@ -368,42 +401,38 @@ const Tickets: React.FC = () => {
   };
 
   const handleCreateTicketSubmit = async () => {
-
-      const payload = {
-        priority: Number(newTicket.priority),
-        user_name: newTicket.user_name,
-        user_email: newTicket.user_email,
-        user_phone: newTicket.user_phone,
-        subject: newTicket.subject,
-        body: newTicket.body,
-        format: newTicket.format,
-        recipients: newTicket.recipients,
-      };
-      const res = await createTicket(payload).unwrap();
-      if(res.success){
-        showToast(
-          res?.payload?.message || "Ticket created successfully!",
-          "success"
-        );
-        setCreateDialogOpen(false);
-        setNewTicket({
-          user_name: "",
-          user_email: "",
-          user_phone: "",
-          subject: "",
-          body: "",
-          priority: 2,
-          format: "html",
-          recipients: "",
-        });
-        // Refresh the ticket list
-        refetch();
-      }
-      else{
-        showToast(res.payload.message||"Failed to create ticket", "error");
-      }
-
-      
+    const payload = {
+      priority: Number(newTicket.priority),
+      user_name: newTicket.user_name,
+      user_email: newTicket.user_email,
+      user_phone: newTicket.user_phone,
+      subject: newTicket.subject,
+      body: newTicket.body,
+      format: newTicket.format,
+      recipients: newTicket.recipients,
+    };
+    const res = await createTicket(payload).unwrap();
+    if (res.success) {
+      showToast(
+        res?.payload?.message || "Ticket created successfully!",
+        "success"
+      );
+      setCreateDialogOpen(false);
+      setNewTicket({
+        user_name: "",
+        user_email: "",
+        user_phone: "",
+        subject: "",
+        body: "",
+        priority: 2,
+        format: "html",
+        recipients: "",
+      });
+      // Refresh the ticket list
+      refetch();
+    } else {
+      showToast(res.payload.message || "Failed to create ticket", "error");
+    }
   };
 
   const handleBulkAction = (action: string) => {
@@ -504,12 +533,25 @@ const Tickets: React.FC = () => {
             )}
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <CustomSearch
-              placeholder="Search..."
-              onChange={(e) => handleSearchChange(e.target.value)}
-              width="300px"
-              bgOpacity={0.6}
-            />
+            {/* Add this above the table, after the section header */}
+            <Box
+              sx={{
+                px: 3,
+                py: 2,
+                display: "flex",
+                gap: 2,
+                alignItems: "center",
+              }}
+            >
+              <TextField
+                label="Search by Ticket Number"
+                size="small"
+                value={ticketNumberSearch}
+                onChange={(e) => setTicketNumberSearch(e.target.value)}
+                sx={{ width: 260 }}
+                // disabled={isTicketSearchLoading}
+              />
+            </Box>
             <IconButton onClick={handleRefresh} disabled={isTicketListLoading}>
               <RefreshIcon />
             </IconButton>
@@ -667,14 +709,18 @@ const Tickets: React.FC = () => {
                   <TicketSkeleton rows={limit} />
                 ) : (
                   <DataGrid
-                    rows={filteredTickets}
+                    rows={
+                      searchResult !== null ? searchResult : filteredTickets
+                    }
                     columns={columns}
                     getRowId={(row) => row.ticketNumber}
                     pageSizeOptions={[5, 10, 20, 50, 100]}
                     pagination
                     paginationMode="server"
-                    rowCount={ticketList} // Use total from API if available
-                    loading={isTicketListFetching}
+                    rowCount={
+                      searchResult !== null ? searchResult.length : ticketList
+                    }
+                    loading={isTicketListFetching || isTicketSearchLoading}
                     autoHeight={true}
                     sx={{ flex: 1, background: theme.palette.background.paper }}
                     hideFooter

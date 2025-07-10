@@ -67,6 +67,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
     }),
 
+    ticketSearch: builder.mutation({
+      query: (ticketNumber: string) => ({
+        url: `/ticket/search?ticket=${ticketNumber}`,
+        method: "GET",
+      }),
+    }),
+
     //  getuserdata: builder.mutation({
     //   query: (credentials) => ({
 
@@ -85,4 +92,5 @@ export const {
   useGetTicketListQuery,
   useGetTagListQuery,
   useAddTagMutation,
+  useTicketSearchMutation,
 } = extendedTicketApi;
