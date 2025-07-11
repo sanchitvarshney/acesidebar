@@ -12,11 +12,13 @@ import {
   useTicketSearchMutation,
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
+import CreateTicketDialog from "./CreateTicketDialog";
 
 const Tickets: React.FC = () => {
   const [sortBy, setSortBy] = useState("Date created");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [ticketSearch, { isLoading: isTicketSearchLoading }] =
     useTicketSearchMutation();
 
@@ -99,11 +101,11 @@ const Tickets: React.FC = () => {
     >
       <div className="flex items-center mr-4 mb-2 md:mb-0">
         <input type="checkbox" className="mr-3" />
-        {ticket.avatarUrl ? (
+        {ticket?.avatarUrl ? (
           <Avatar src={ticket.avatarUrl} className="w-10 h-10 mr-3" />
         ) : (
           <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600 mr-3">
-            {ticket?.fromUser[0] || "D"}
+            {ticket?.fromUser?.name[0] || "D"}
           </div>
         )}
       </div>
@@ -126,14 +128,14 @@ const Tickets: React.FC = () => {
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
           <span className="flex items-center gap-1">
-            <span className="font-medium">{ticket.requester}</span>
-            <span className="text-xs">• Created: {ticket?.lastupdate}</span>
+            <span className="font-medium">{ticket.fromUser?.name}</span>
+            <span className="text-xs">• Created: {ticket?.lastupdate?.timestamp}</span>
             {ticket.updatedAt && (
               <span className="text-xs">
-                • Agent responded: {ticket?.lastupdate}
+                • Agent responded: {ticket?.stats?.agentRespondedAt?.timeAgo}
               </span>
             )}
-            <span className="text-xs">• Due in: 8 hours</span>
+            <span className="text-xs">• {ticket?.lastupdate?.timeAgo}</span>
           </span>
         </div>
       </div>
@@ -152,85 +154,96 @@ const Tickets: React.FC = () => {
   );
   console.log(ticketList);
   return (
-    <div className="flex flex-col bg-gray-50 h-[calc(100vh-160px)]">
-      {/* Header Bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
-        <div className="flex items-center gap-4">
-          <span className="text-xl font-semibold">All tickets</span>
-          <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
-            {ticketList?.length}
-          </span>
-          <div className="ml-6 flex items-center gap-2">
-            <span className="text-sm text-gray-600">Sort by:</span>
-            <select
-              className="border border-gray-300 rounded px-2 py-1 text-sm"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+    <>
+      <div className="flex flex-col bg-gray-50 h-[calc(100vh-160px)]">
+        {/* Header Bar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
+          <div className="flex items-center gap-4">
+            <span className="text-xl font-semibold">All tickets</span>
+            <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
+              {ticketList?.length}
+            </span>
+            <div className="ml-6 flex items-center gap-2">
+              <span className="text-sm text-gray-600">Sort by:</span>
+              <select
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option>Date created</option>
+                <option>Priority</option>
+                <option>Status</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm"
+              onClick={() => {setCreateDialogOpen(true); console.log("okk")}}
             >
-              <option>Date created</option>
-              <option>Priority</option>
-              <option>Status</option>
-            </select>
+              + New
+            </button>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search"
+                className="border border-gray-300 rounded pl-8 pr-2 py-1.5 text-sm w-40 focus:outline-none"
+              />
+              <SearchIcon className="absolute left-2 top-2.5 text-gray-400" />
+            </div>
+            <button className="relative p-2 rounded hover:bg-gray-100">
+              <NotificationsNoneIcon className="text-2xl" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <button className="p-2 rounded hover:bg-gray-100">
+              <HelpOutlineIcon className="text-xl" />
+            </button>
+            <button className="p-2 rounded hover:bg-gray-100">
+              <AppsIcon className="text-xl" />
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-700">
+              D
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm">
-            + New
-          </button>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search"
-              className="border border-gray-300 rounded pl-8 pr-2 py-1.5 text-sm w-40 focus:outline-none"
-            />
-            <SearchIcon className="absolute left-2 top-2.5 text-gray-400" />
-          </div>
-          <button className="relative p-2 rounded hover:bg-gray-100">
-            <NotificationsNoneIcon className="text-2xl" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
-          <button className="p-2 rounded hover:bg-gray-100">
-            <HelpOutlineIcon className="text-xl" />
-          </button>
-          <button className="p-2 rounded hover:bg-gray-100">
-            <AppsIcon className="text-xl" />
-          </button>
-          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-700">
-            D
-          </div>
-        </div>
-      </div>
-      {/* Main Content */}
-      <div className="flex flex-1 ">
-        {/* Ticket List */}
-        <div className="flex-1 p-6 ">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              Sort by: <span className="font-medium">{sortBy}</span>
-            </div>
-            <div className="text-sm text-gray-600">
-              Layout: <span className="font-medium">Card</span>
-            </div>
-            <div className="text-sm text-gray-600">Export</div>
-          </div>
-          <div>
-            {ticketList && ticketList.length > 0 ? (
-              ticketList.map(renderTicketCard)
-            ) : (
-              <div className="text-gray-400 text-center py-8">
-                No tickets found.
+        {/* Main Content */}
+        <div className="flex flex-1 ">
+          {/* Ticket List */}
+          <div className="flex-1 p-6 ">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                Sort by: <span className="font-medium">{sortBy}</span>
               </div>
-            )}
+              <div className="text-sm text-gray-600">
+                Layout: <span className="font-medium">Card</span>
+              </div>
+              <div className="text-sm text-gray-600">Export</div>
+            </div>
+            <div>
+              {ticketList && ticketList.length > 0 ? (
+                ticketList.map(renderTicketCard)
+              ) : (
+                <div className="text-gray-400 text-center py-8">
+                  No tickets found.
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        {/* Filters Panel */}
-        <div className="w-80 min-w-[320px] border-l bg-white flex flex-col ">
-          <div className="flex-1 overflow-y-auto">
-            <TicketFilterPanel onApplyFilters={handleApplyFilters} />
+          {/* Filters Panel */}
+          <div className="w-80 min-w-[320px] border-l bg-white flex flex-col ">
+            <div className="flex-1 overflow-y-auto">
+              <TicketFilterPanel onApplyFilters={handleApplyFilters} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {createDialogOpen && (
+        <CreateTicketDialog
+          open={setCreateDialogOpen(true)}
+          onClose={setCreateDialogOpen(false)}
+        />
+      )}
+    </>
   );
 };
 
