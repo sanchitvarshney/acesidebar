@@ -54,7 +54,7 @@ const MainLayout = ({}) => {
           <Outlet />
         </MainContent>
       </Main>
-      <BottomBar />
+      {/* <BottomBar /> */}
     </Box>
   );
 };

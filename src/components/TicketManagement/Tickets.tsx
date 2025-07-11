@@ -132,7 +132,7 @@ console.log(ticketList)
           <span className="flex items-center gap-1">
             <span className="font-medium">{ticket.fromUser?.name}</span>
             <span className="text-xs">
-              • Created: {ticket?.lastupdate?.timestamp}
+              • Created: {ticket?.createdDt?.timestamp}
             </span>
             {ticket.updatedAt && (
               <span className="text-xs">
@@ -222,7 +222,7 @@ console.log(ticketList)
                     setLimit(parseInt(e.target.value, 10));
                     setPage(1); // Reset to first page on page size change
                   }}
-                  rowsPerPageOptions={[10,20,30,50,100]}
+                  rowsPerPageOptions={[10, 20, 30, 50, 100]}
                   labelRowsPerPage="Tickets per page"
                 />
               )}
