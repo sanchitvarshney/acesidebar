@@ -1,224 +1,23 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
-import ReactSimpleWysiwyg from "react-simple-wysiwyg";
-import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  IconButton,
-  Button,
-  Toolbar,
-  Checkbox,
-  FormControlLabel,
-  Divider,
-  Chip,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  OutlinedInput,
-  useTheme,
-  alpha,
-  styled,
-  TablePagination,
-  Drawer,
-} from "@mui/material";
-import {
-  MoreVert as MoreVertIcon,
-  Archive as ArchiveIcon,
-  Delete as DeleteIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  Refresh as RefreshIcon,
-  Close as CloseIcon,
-} from "@mui/icons-material";
-import TicketSidebar from "./TicketSidebar";
-import TicketList from "./TicketList";
-import TicketDetailTemplate from "./TicketDetailTemplate";
-import CustomSearch from "../common/CustomSearch";
-import {
-  useCreateTicketMutation,
-  useGetPriorityListQuery,
-  useGetTicketListQuery,
-  useTicketSearchMutation,
-} from "../../services/ticketAuth";
+import React, { useState } from "react";
+import TicketFilterPanel from "./TicketSidebar";
+import { Avatar } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import AppsIcon from "@mui/icons-material/Apps";
+import { useCreateTicketMutation, useGetPriorityListQuery, useGetTicketListQuery, useTicketSearchMutation } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
-import TicketSkeleton from "./TicketSkeleton";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-
-interface Ticket {
-  id: string;
-  title: string;
-  description: string;
-  status: "open" | "in-progress" | "resolved" | "closed";
-  priority: "low" | "normal" | "high" | "emergency";
-  assignee: string;
-  requester: string;
-  createdAt: string;
-  updatedAt: string;
-  hasAttachment: boolean;
-  isStarred: boolean;
-  isRead: boolean;
-  tags: string[];
-  thread: any[] | undefined;
-}
-
-// Mock data for demonstration (fallback)
-export const mockTickets: Ticket[] = [
-  {
-    id: "1",
-    title: "Login page not working properly",
-    description:
-      "Users are unable to log in to the application. The login button is not responding.",
-    status: "open",
-    priority: "emergency",
-    assignee: "John Doe",
-    requester: "Sarah Wilson",
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-01-15T14:20:00Z",
-    hasAttachment: true,
-    isStarred: true,
-    isRead: false,
-    tags: ["frontend", "authentication"],
-    thread: [],
-  },
-  {
-    id: "2",
-    title: "Database connection timeout",
-    description:
-      "The application is experiencing frequent database connection timeouts during peak hours.",
-    status: "in-progress",
-    priority: "high",
-    assignee: "Mike Johnson",
-    requester: "David Brown",
-    createdAt: "2024-01-14T09:15:00Z",
-    updatedAt: "2024-01-15T11:45:00Z",
-    hasAttachment: false,
-    isStarred: false,
-    isRead: true,
-    tags: ["backend", "database"],
-    thread: [],
-  },
-  {
-    id: "3",
-    title: "Add dark mode feature",
-    description:
-      "Users have expressed a strong interest in having a dark mode to improve their experience. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Many have suggested that a darker theme would enhance usability and comfort. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. Feedback continues to highlight the desire for a dark mode interface. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. There is a recurring demand for a night-friendly viewing option. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. Several users have emphasized the benefits of a dark theme for extended use. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. The request for a visually soothing dark mode remains one of the most common. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos.",
-    status: "open",
-    priority: "normal",
-    assignee: "Lisa Chen",
-    requester: "Alex Thompson",
-    createdAt: "2024-01-13T16:20:00Z",
-    updatedAt: "2024-01-13T16:20:00Z",
-    hasAttachment: false,
-    isStarred: false,
-    isRead: true,
-    tags: ["feature-request", "ui"],
-    thread: [],
-  },
-  {
-    id: "4",
-    title: "Payment processing error",
-    description: "Credit card payments are failing with error code 500.",
-    status: "resolved",
-    priority: "emergency",
-    assignee: "Tom Wilson",
-    requester: "Emma Davis",
-    createdAt: "2024-01-12T13:45:00Z",
-    updatedAt: "2024-01-14T10:30:00Z",
-    hasAttachment: true,
-    isStarred: true,
-    isRead: true,
-    tags: ["payment", "critical"],
-    thread: [],
-  },
-  {
-    id: "5",
-    title: "Mobile app crashes on startup",
-    description:
-      "The mobile application crashes immediately after launching on iOS devices.",
-    status: "open",
-    priority: "high",
-    assignee: "Rachel Green",
-    requester: "Mark Anderson",
-    createdAt: "2024-01-11T08:30:00Z",
-    updatedAt: "2024-01-15T09:15:00Z",
-    hasAttachment: false,
-    isStarred: false,
-    isRead: false,
-    tags: ["mobile", "ios", "crash"],
-    thread: [],
-  },
-];
-
-const VisuallyHiddenInput = styled("input")`
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  white-space: nowrap;
-  width: 1px;
-`;
-
-const debounceTimeout = 500; // ms
 
 const Tickets: React.FC = () => {
-  const theme = useTheme();
-  const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
-  const [currentFilter, setCurrentFilter] = useState("all");
-  const [currentTag, setCurrentTag] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [sortBy, setSortBy] = useState("Date created");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [ticketNumberSearch, setTicketNumberSearch] = useState("");
-  const [searchResult, setSearchResult] = useState<any | null>(null);
   const [ticketSearch, { isLoading: isTicketSearchLoading }] =
-    useTicketSearchMutation();
+  useTicketSearchMutation();
 
-  const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
-  const { data: priorityList, isLoading: isPriorityListLoading } =
-    useGetPriorityListQuery();
-
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (!ticketNumberSearch || ticketNumberSearch.length <= 3) {
-      setSearchResult(null);
-      return;
-    }
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const res = await ticketSearch(ticketNumberSearch).unwrap();
-        if (res && res.ticketNumber) {
-          setSearchResult([res]);
-        } else {
-          setSearchResult([]);
-        }
-      } catch (err) {
-        setSearchResult([]);
-      }
-    }, debounceTimeout);
-    // Cleanup on unmount or ticketNumberSearch change
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [ticketNumberSearch]);
-
-  // Convert filter to API parameters
+const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
+const { data: priorityList, isLoading: isPriorityListLoading } =
+  useGetPriorityListQuery();
   const getApiParams = () => {
     const params: any = {
       page,
@@ -226,23 +25,22 @@ const Tickets: React.FC = () => {
     };
 
     // Map UI filters to API parameters
-    if (currentFilter !== "all") {
-      if (["emergency", "high", "normal", "low"].includes(currentFilter)) {
-        params.priority = currentFilter.toUpperCase();
-      } else if (
-        ["open", "in-progress", "resolved", "closed"].includes(currentFilter)
-      ) {
-        params.status = currentFilter.toUpperCase();
-      }
-    }
+    // if (currentFilter !== "all") {
+    //   if (["emergency", "high", "normal", "low"].includes(currentFilter)) {
+    //     params.priority = currentFilter.toUpperCase();
+    //   } else if (
+    //     ["open", "in-progress", "resolved", "closed"].includes(currentFilter)
+    //   ) {
+    //     params.status = currentFilter.toUpperCase();
+    //   }
+    // }
 
-    if (currentTag) {
-      params.department = currentTag.toUpperCase();
-    }
+    // if (currentTag) {
+    //   params.department = currentTag.toUpperCase();
+    // }
 
     return params;
   };
-
   const {
     data: ticketList,
     isLoading: isTicketListLoading,
@@ -250,734 +48,184 @@ const Tickets: React.FC = () => {
     refetch,
   } = useGetTicketListQuery(getApiParams());
   const { showToast } = useToast();
-
-  // Use API data or fallback to mock data
-  const tickets = useMemo(() => {
-    if (ticketList && Array.isArray(ticketList)) {
-      return ticketList;
-    }
-    return mockTickets;
-  }, [ticketList]);
-
-  const [newTicket, setNewTicket] = useState({
-    user_name: "",
-    user_email: "",
-    user_phone: "",
-    subject: "",
-    body: "",
-    priority: 2,
-    format: "html",
-    recipients: "",
-  });
-  const [openTicket, setOpenTicket] = useState<Ticket | null>(null);
-
-  // Calculate ticket counts from API data
-  const ticketCounts = useMemo(() => {
-    return {
-      all: tickets.length,
-      open: tickets.filter((t) => t.status === "open").length,
-      inProgress: tickets.filter((t) => t.status === "in-progress").length,
-      resolved: tickets.filter((t) => t.status === "resolved").length,
-      closed: tickets.filter((t) => t.status === "closed").length,
-      emergency: tickets.filter((t) => t.priority === "emergency").length,
-      high: tickets.filter((t) => t.priority === "high").length,
-      normal: tickets.filter((t) => t.priority === "normal").length,
-      low: tickets.filter((t) => t.priority === "low").length,
-      // For backward compatibility with TicketSidebar props
-      urgent: tickets.filter((t) => t.priority === "emergency").length,
-      medium: tickets.filter((t) => t.priority === "normal").length,
-    };
-  }, [tickets]);
-
-  // Filter tickets based on current filter, tag, and search query
-  const filteredTickets = useMemo(() => {
-    let filtered = tickets;
-
-    // Apply tag filter first if set
-    if (currentTag) {
-      filtered = filtered.filter((ticket) =>
-        ticket.tags.some(
-          (tag: any) => tag.toLowerCase() === currentTag.toLowerCase()
-        )
-      );
-    } else if (currentFilter !== "all") {
-      filtered = filtered.filter((ticket) => {
-        if (
-          ["open", "in-progress", "resolved", "closed"].includes(currentFilter)
-        ) {
-          return ticket.status === currentFilter;
-        }
-        if (["emergency", "high", "normal", "low"].includes(currentFilter)) {
-          return ticket.priority === currentFilter;
-        }
-        // For backward compatibility
-        if (currentFilter === "urgent") return ticket.priority === "emergency";
-        if (currentFilter === "medium") return ticket.priority === "normal";
-        return true;
-      });
-    }
-
-    // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (ticket) =>
-          ticket.title.toLowerCase().includes(query) ||
-          ticket.description.toLowerCase().includes(query) ||
-          ticket.requester.toLowerCase().includes(query) ||
-          ticket.assignee.toLowerCase().includes(query) ||
-          ticket.tags.some((tag: any) => tag.toLowerCase().includes(query))
-      );
-    }
-
-    return filtered;
-  }, [tickets, currentFilter, currentTag, searchQuery]);
-
-  const handlePageChange = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
-  const handleRowsPerPageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setLimit(Number(event.target.value));
-    setPage(1);
-  };
-
-  const handleTicketSelect = (ticketId: string) => {
-    setSelectedTickets((prev) =>
-      prev.includes(ticketId)
-        ? prev.filter((id) => id !== ticketId)
-        : [...prev, ticketId]
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedTickets.length === filteredTickets.length) {
-      setSelectedTickets([]);
-    } else {
-      setSelectedTickets(filteredTickets.map((ticket) => ticket.id));
-    }
-  };
-
-  const handleStarToggle = (ticketId: string) => {
-    // In a real app, you would make an API call here to update the star status
-    showToast("Star status updated", "success");
-  };
-
-  const handleTicketClick = (ticket: Ticket) => {
-    setOpenTicket(ticket);
-  };
-
-  const handleFilterChange = (filter: string) => {
-    setCurrentFilter(filter);
-    setCurrentTag(""); // Reset tag filter when status filter changes
-    setSelectedTickets([]); // Clear selection when filter changes
-    setPage(1); // Reset to first page when filter changes
-  };
-
-  const handleTagFilterChange = (tag: string) => {
-    setCurrentTag(tag);
-    setCurrentFilter("all");
-    setSelectedTickets([]);
-    setPage(1); // Reset to first page when filter changes
-  };
-
-  const handleSearchChange = (search: string) => {
-    console.log(search);
-    setSearchQuery(search);
-    setSelectedTickets([]); // Clear selection when search changes
-  };
-
-  const handleRefresh = () => {
-    refetch();
-    showToast("Tickets refreshed", "success");
-  };
-
-  const handleCreateTicket = () => {
-    setCreateDialogOpen(true);
-  };
-
-  const handleCreateTicketSubmit = async () => {
-    const payload = {
-      priority: Number(newTicket.priority),
-      user_name: newTicket.user_name,
-      user_email: newTicket.user_email,
-      user_phone: newTicket.user_phone,
-      subject: newTicket.subject,
-      body: newTicket.body,
-      format: newTicket.format,
-      recipients: newTicket.recipients,
-    };
-    const res = await createTicket(payload).unwrap();
-    if (res.success) {
-      showToast(
-        res?.payload?.message || "Ticket created successfully!",
-        "success"
-      );
-      setCreateDialogOpen(false);
-      setNewTicket({
-        user_name: "",
-        user_email: "",
-        user_phone: "",
-        subject: "",
-        body: "",
-        priority: 2,
-        format: "html",
-        recipients: "",
-      });
-      // Refresh the ticket list
-      refetch();
-    } else {
-      showToast(res.payload.message || "Failed to create ticket", "error");
-    }
-  };
-
-  const handleBulkAction = (action: string) => {
-    // In a real app, you would make API calls here for bulk actions
-    switch (action) {
-      case "delete":
-        showToast(`${selectedTickets.length} tickets deleted`, "success");
-        setSelectedTickets([]);
-        break;
-      case "archive":
-        showToast(`${selectedTickets.length} tickets archived`, "success");
-        setSelectedTickets([]);
-        break;
-      case "mark-read":
-        showToast(
-          `${selectedTickets.length} tickets marked as read`,
-          "success"
-        );
-        setSelectedTickets([]);
-        break;
-      case "mark-unread":
-        showToast(
-          `${selectedTickets.length} tickets marked as unread`,
-          "success"
-        );
-        setSelectedTickets([]);
-        break;
-    }
-    setAnchorEl(null);
-  };
-
-  console.log(isTicketListLoading, "isTicketListLoading");
-  const columns: GridColDef[] = [
-    { field: "ticketNumber", headerName: "Ticket #", width: 120 },
-    { field: "subject", headerName: "Subject", flex: 1, minWidth: 180 },
+  const tickets = [
     {
-      field: "department",
-      headerName: "Department",
-      width: 120,
+      id: 1,
+      avatarUrl: "https://via.placeholder.com/50",
+      requester: "John Doe",
+      createdAt: "2023-10-26T10:00:00Z",
+      updatedAt: "2023-10-26T11:00:00Z",
+      title: "Issue with product delivery",
+      status: "open",
+      priority: "high",
     },
     {
-      field: "priority",
-      headerName: "Priority",
-      width: 100,
-      renderCell: (params) => (
-        <Chip
-          label={
-            params.row.priority?.desc && params.row.priority?.desc.length > 6
-              ? params.row.priority?.desc
-              : params.row.priority?.desc || params.row.priority?.name
-          }
-          size="small"
-          sx={{
-            backgroundColor: params.row.priority?.color || "#eee",
-            color: "#222",
-            fontWeight: 600,
-            textTransform: "capitalize",
-            borderRadius: 1,
-            px: 1.5,
-            py: 0.5,
-            minWidth: 80,
-            fontSize: 13,
-            maxWidth: 120,
-            whiteSpace: "nowrap",
-            overflow: "visible",
-            textOverflow: "unset",
-          }}
-        />
-      ),
+      id: 2,
+      avatarUrl: "https://via.placeholder.com/50",
+      requester: "Jane Smith",
+      createdAt: "2023-10-25T14:30:00Z",
+      updatedAt: "2023-10-25T15:00:00Z",
+      title: "Website not loading",
+      status: "undelivered",
+      priority: "urgent",
     },
     {
-      field: "lastupdate",
-      headerName: "Last Update",
-      width: 180,
+      id: 3,
+      avatarUrl: "https://via.placeholder.com/50",
+      requester: "Peter Jones",
+      createdAt: "2023-10-24T09:15:00Z",
+      updatedAt: "2023-10-24T09:45:00Z",
+      title: "Payment processing issue",
+      status: "open",
+      priority: "low",
     },
-    { field: "fromUser", headerName: "Requester", width: 140 },
-  ];
-  return (
-    <Box sx={{ height: "78vh", display: "flex", flexDirection: "column" }}>
-      {/* Header */}
-      <Paper elevation={1} sx={{ borderRadius: 0 }}>
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
-              Tickets Inbox
-            </Typography>
-            <Chip
-              label={`${filteredTickets.length} tickets`}
-              size="small"
-              sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.1) }}
-            />
-            {isTicketListLoading && (
-              <Chip
-                label="Loading..."
-                size="small"
-                sx={{ backgroundColor: alpha(theme.palette.info.main, 0.1) }}
-              />
-            )}
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {/* Add this above the table, after the section header */}
-            <Box
-              sx={{
-                px: 3,
-                py: 2,
-                display: "flex",
-                gap: 2,
-                alignItems: "center",
-              }}
-            >
-              <TextField
-                label="Search by Ticket Number"
-                size="small"
-                value={ticketNumberSearch}
-                onChange={(e) => setTicketNumberSearch(e.target.value)}
-                sx={{ width: 260 }}
-                // disabled={isTicketSearchLoading}
-              />
-            </Box>
-            <IconButton onClick={handleRefresh} disabled={isTicketListLoading}>
-              <RefreshIcon />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </Paper>
+  ]; // Replace with API data as needed
 
-      {/* Section header above ticket list */}
-      <Box
-        sx={{
-          px: 3,
-          py: 1,
-          background: alpha(theme.palette.background.paper, 0.7),
-          borderBottom: `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          All Tickets
-        </Typography>
-      </Box>
+  // Handle filter apply
+  const handleApplyFilters = (newFilters: any) => {
+    // TODO: Trigger API call with newFilters
+  };
 
-      {/* Main Content */}
-      <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {/* Sidebar */}
-        <Paper
-          elevation={1}
-          sx={{
-            width: 280,
-            minWidth: 280,
-            borderRadius: 0,
-            borderRight: `1px solid ${theme.palette.divider}`,
-          }}
-        >
-          <TicketSidebar
-            onFilterChange={handleFilterChange}
-            onSearchChange={handleSearchChange}
-            onCreateTicket={handleCreateTicket}
-            currentFilter={currentFilter}
-            ticketCounts={ticketCounts}
-            onTagFilterChange={handleTagFilterChange}
-            currentTag={currentTag}
-          />
-        </Paper>
-
-        {/* Main Content: Only one of TicketList or Detail is shown */}
-        <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {openTicket ? (
-            <TicketDetailTemplate
-              ticket={{
-                title: `${openTicket.title} (Ticket #${openTicket.id})`,
-                requester: openTicket.requester,
-                createdAt: openTicket.createdAt,
-                description: openTicket.description,
-                attachments: openTicket.hasAttachment
-                  ? [
-                      { name: "Document.pdf", type: "pdf" },
-                      { name: "Video.mp4", type: "video" },
-                    ]
-                  : [],
-                avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg", // or your avatar logic
-                imageUrl:
-                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=200&q=80",
-                thread: [],
-              }}
-              onBack={() => setOpenTicket(null)}
-              replyText={""}
-              onReplyTextChange={() => {}}
-              onSendReply={() => {}}
-            />
-          ) : (
-            <>
-              {/* Toolbar */}
-              <Paper
-                elevation={1}
-                sx={{
-                  borderRadius: 0,
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                }}
-              >
-                <Toolbar sx={{ minHeight: 56 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      flex: 1,
-                    }}
-                  >
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={
-                            selectedTickets.length === filteredTickets.length &&
-                            filteredTickets.length > 0
-                          }
-                          indeterminate={
-                            selectedTickets.length > 0 &&
-                            selectedTickets.length < filteredTickets.length
-                          }
-                          onChange={handleSelectAll}
-                        />
-                      }
-                      label=""
-                    />
-                    <Typography variant="body2" color="text.secondary">
-                      {selectedTickets.length > 0
-                        ? `${selectedTickets.length} selected`
-                        : `${filteredTickets.length} tickets`}
-                    </Typography>
-                  </Box>
-                  {selectedTickets.length > 0 && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Button
-                        size="small"
-                        startIcon={<VisibilityIcon />}
-                        onClick={() => handleBulkAction("mark-read")}
-                      >
-                        Mark Read
-                      </Button>
-                      <Button
-                        size="small"
-                        startIcon={<VisibilityOffIcon />}
-                        onClick={() => handleBulkAction("mark-unread")}
-                      >
-                        Mark Unread
-                      </Button>
-                      <Button
-                        size="small"
-                        startIcon={<ArchiveIcon />}
-                        onClick={() => handleBulkAction("archive")}
-                      >
-                        Archive
-                      </Button>
-                      <Button
-                        size="small"
-                        startIcon={<DeleteIcon />}
-                        color="error"
-                        onClick={() => handleBulkAction("delete")}
-                      >
-                        Delete
-                      </Button>
-                    </Box>
-                  )}
-                  <IconButton
-                    onClick={(e) => setAnchorEl(e.currentTarget)}
-                    disabled={selectedTickets.length === 0}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </Toolbar>
-              </Paper>
-              {/* Ticket List */}
-              <Box sx={{ flex: 1, overflow: "auto", position: "relative" }}>
-                {isTicketListFetching ? (
-                  <TicketSkeleton rows={limit} />
-                ) : (
-                  <DataGrid
-                    rows={
-                      searchResult !== null ? searchResult : filteredTickets
-                    }
-                    columns={columns}
-                    getRowId={(row) => row.ticketNumber}
-                    pageSizeOptions={[5, 10, 20, 50, 100]}
-                    pagination
-                    paginationMode="server"
-                    rowCount={
-                      searchResult !== null ? searchResult.length : ticketList
-                    }
-                    loading={isTicketListFetching || isTicketSearchLoading}
-                    autoHeight={true}
-                    sx={{ flex: 1, background: theme.palette.background.paper }}
-                    hideFooter
-                  />
-                )}
-                {/* Rows per page selector and Pagination Controls */}
-                <Box
-                  sx={{
-                    borderTop: "1px solid #eee",
-                    background: theme.palette.background.paper,
-                    position: "sticky",
-                    bottom: 0,
-                    zIndex: 2,
-                    width: "100%",
-                    maxWidth: 1200, // or the width of your table/list
-                    margin: "0 auto",
-                    px: 2, // match your table/list horizontal padding
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "right",
-                  }}
-                >
-                  <TablePagination
-                    count={filteredTickets.length}
-                    page={page}
-                    onPageChange={handlePageChange}
-                    rowsPerPage={limit}
-                    onRowsPerPageChange={handleRowsPerPageChange}
-                  />
-                </Box>
-              </Box>
-            </>
+  // Card-style ticket rendering
+  const renderTicketCard = (ticket: any) => (
+    <div
+      key={ticket.id}
+      className="bg-white rounded border border-gray-200 mb-3 flex flex-col md:flex-row items-start md:items-center px-4 py-3 shadow-sm hover:shadow transition relative"
+    >
+      <div className="flex items-center mr-4 mb-2 md:mb-0">
+        <input type="checkbox" className="mr-3" />
+        {ticket.avatarUrl ? (
+          <Avatar src={ticket.avatarUrl} className="w-10 h-10 mr-3" />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600 mr-3">
+            {ticket.requester?.[0] || "D"}
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          {ticket.status === "open" && (
+            <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded mr-2">
+              First response due
+            </span>
           )}
-        </Box>
-      </Box>
-
-      {/* Action Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
-      >
-        <MenuItem onClick={() => handleBulkAction("mark-read")}>
-          <ListItemIcon>
-            <VisibilityIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Mark as Read</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => handleBulkAction("mark-unread")}>
-          <ListItemIcon>
-            <VisibilityOffIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Mark as Unread</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => handleBulkAction("archive")}>
-          <ListItemIcon>
-            <ArchiveIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Archive</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem
-          onClick={() => handleBulkAction("delete")}
-          sx={{ color: "error.main" }}
-        >
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
-        </MenuItem>
-      </Menu>
-
-      {/* Create Ticket Drawer */}
-      <Drawer
-        anchor="right"
-        open={createDialogOpen}
-        onClose={() => setCreateDialogOpen(false)}
-        PaperProps={{
-          sx: {
-            width: 780,
-            maxWidth: "100vw",
-            p: 0,
-            borderRadius: "12px 0 0 12px",
-          },
-        }}
-      >
-        <Box
-          sx={{
-            p: 3,
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 2,
-            }}
+          {ticket.status === "undelivered" && (
+            <span className="bg-gray-200 text-pink-600 text-xs font-semibold px-2 py-0.5 rounded mr-2">
+              Undelivered
+            </span>
+          )}
+          <span className="font-semibold text-gray-800 truncate">
+            {ticket.title} <span className="text-gray-400">#{ticket.id}</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
+          <span className="flex items-center gap-1">
+            <span className="font-medium">{ticket.requester}</span>
+            <span className="text-xs">• Created: {ticket.createdAt}</span>
+            {ticket.updatedAt && (
+              <span className="text-xs">
+                • Agent responded: {ticket.updatedAt}
+              </span>
+            )}
+            <span className="text-xs">• Due in: 8 hours</span>
+          </span>
+        </div>
+      </div>
+      <div className="flex flex-col items-end ml-auto min-w-[120px] gap-2">
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-xs font-semibold ${
+              ticket.priority === "urgent" || ticket.priority === "emergency"
+                ? "text-red-500"
+                : ticket.priority === "high"
+                ? "text-yellow-500"
+                : "text-green-500"
+            }`}
           >
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Create New Ticket
-            </Typography>
-            <IconButton onClick={() => setCreateDialogOpen(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          <Divider sx={{ mb: 2 }} />
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-            Ticket Details
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Fill in the details below to create a new ticket.
-          </Typography>
-          <Grid container spacing={2} alignItems="flex-start">
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Name"
-                fullWidth
-                value={newTicket.user_name}
-                onChange={(e) =>
-                  setNewTicket((prev) => ({
-                    ...prev,
-                    user_name: e.target.value,
-                  }))
-                }
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Email"
-                fullWidth
-                value={newTicket.user_email}
-                onChange={(e) =>
-                  setNewTicket((prev) => ({
-                    ...prev,
-                    user_email: e.target.value,
-                  }))
-                }
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Phone"
-                fullWidth
-                value={newTicket.user_phone}
-                onChange={(e) =>
-                  setNewTicket((prev) => ({
-                    ...prev,
-                    user_phone: e.target.value,
-                  }))
-                }
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Subject"
-                fullWidth
-                value={newTicket.subject}
-                onChange={(e) =>
-                  setNewTicket((prev) => ({
-                    ...prev,
-                    subject: e.target.value,
-                  }))
-                }
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Recipients"
-                fullWidth
-                value={newTicket.recipients}
-                onChange={(e) =>
-                  setNewTicket((prev) => ({
-                    ...prev,
-                    recipients: e.target.value,
-                  }))
-                }
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>Priority</InputLabel>
-                <Select
-                  value={newTicket.priority}
-                  onChange={(e) =>
-                    setNewTicket((prev) => ({
-                      ...prev,
-                      priority: e.target.value,
-                    }))
-                  }
-                  input={<OutlinedInput label="Priority" />}
-                >
-                  {priorityList?.map((item: any) => (
-                    <MenuItem key={item.key} value={item.key}>
-                      {item.specification}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={12}>
-              <Typography variant="body1" sx={{ fontWeight: 600, pb: 1 }}>
-                Body
-              </Typography>
-              <ReactSimpleWysiwyg
-                value={newTicket.body}
-                onChange={(e) =>
-                  setNewTicket((prev) => ({
-                    ...prev,
-                    body: e.target.value,
-                  }))
-                }
-                style={{
-                  minHeight: 120,
-                  height: "100%",
-                  padding: 8,
-                  boxSizing: "border-box",
-                }}
-              />
-            </Grid>
-          </Grid>
-          <Box sx={{ flexGrow: 1 }} />
-          <Divider sx={{ my: 2 }} />
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 1,
-              paddingBottom: 4,
-            }}
-          >
-            <Button
-              onClick={() => setCreateDialogOpen(false)}
-              variant="outlined"
+            {ticket.priority?.charAt(0).toUpperCase() +
+              ticket.priority?.slice(1)}
+          </span>
+          <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">Open</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Header Bar */}
+      <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
+        <div className="flex items-center gap-4">
+          <span className="text-xl font-semibold">All tickets</span>
+          <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
+            {ticketList?.data?.length}
+          </span>
+          <div className="ml-6 flex items-center gap-2">
+            <span className="text-sm text-gray-600">Sort by:</span>
+            <select
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleCreateTicketSubmit}
-              disabled={
-                isCreating ||
-                !newTicket.user_name ||
-                !newTicket.user_email ||
-                !newTicket.subject ||
-                !newTicket.body
-              }
-            >
-              {isCreating ? "Creating..." : "Create Ticket"}
-            </Button>
-          </Box>
-        </Box>
-      </Drawer>
-    </Box>
+              <option>Date created</option>
+              <option>Priority</option>
+              <option>Status</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <button className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm">
+            + New
+          </button>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search"
+              className="border border-gray-300 rounded pl-8 pr-2 py-1.5 text-sm w-40 focus:outline-none"
+            />
+            <SearchIcon className="absolute left-2 top-2.5 text-gray-400" />
+          </div>
+          <button className="relative p-2 rounded hover:bg-gray-100">
+            <NotificationsNoneIcon className="text-2xl" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+          <button className="p-2 rounded hover:bg-gray-100">
+            <HelpOutlineIcon className="text-xl" />
+          </button>
+          <button className="p-2 rounded hover:bg-gray-100">
+            <AppsIcon className="text-xl" />
+          </button>
+          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-700">
+            D
+          </div>
+        </div>
+      </div>
+      {/* Main Content */}
+      <div className="flex flex-1">
+        {/* Ticket List */}
+        <div className="flex-1 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Sort by: <span className="font-medium">{sortBy}</span>
+            </div>
+            <div className="text-sm text-gray-600">
+              Layout: <span className="font-medium">Card</span>
+            </div>
+            <div className="text-sm text-gray-600">Export</div>
+          </div>
+          <div>{tickets.map(renderTicketCard)}</div>
+        </div>
+        {/* Filters Panel */}
+        <div className="w-80 min-w-[320px] border-l bg-white flex flex-col ">
+          <div className="flex-1 overflow-y-auto">
+            <TicketFilterPanel onApplyFilters={handleApplyFilters} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
