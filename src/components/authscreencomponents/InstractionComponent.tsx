@@ -34,7 +34,7 @@ const InstractionComponent = ({ data }: { data: any }) => {
         Ticket Management
       </Typography>
       <List dense sx={{ color: { md: "white" } }}>
-        {data.map((item: any) => (
+        {data?.map((item: any) => (
           <ListItem key={item.id}>
             <ListItemIcon>
               <CheckCircleIcon color={isSmall ? "primary" : "inherit"} />

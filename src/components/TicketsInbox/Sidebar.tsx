@@ -97,7 +97,7 @@ const Sidebar: React.FC = () => {
         Compose
       </SidebarButton>
       <List>
-        {mainFolders.map((folder) => (
+        {mainFolders?.map((folder) => (
           <ListItem key={folder.key} disablePadding sx={{ mb: 1 }}>
             <ListItemButton
               selected={folder.key === "inbox"}
@@ -132,7 +132,7 @@ const Sidebar: React.FC = () => {
         </IconButton>
       </Box>
       <Box>
-        {tags.map((tag) => (
+        {tags?.map((tag) => (
           <Box
             key={tag.label}
             sx={{

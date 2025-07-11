@@ -16,7 +16,7 @@ const TicketSkeleton: React.FC<{ rows?: number }> = ({ rows = 10 }) => {
         <Skeleton variant="text" width={120} height={28} />
       </Box>
       {/* Ticket row skeletons */}
-      {[...Array(rows)].map((_, idx) => (
+      {[...Array(rows)]?.map((_, idx) => (
         <Paper
           key={idx}
           sx={{

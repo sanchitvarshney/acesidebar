@@ -222,7 +222,7 @@ const TicketSidebar: React.FC<TicketSidebarProps> = ({
 
       {/* Main Folders */}
       <List sx={{ pt: 0 }}>
-        {mainFilters.map((filter) => (
+        {mainFilters?.map((filter) => (
           <ListItem key={filter.key} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
               selected={currentFilter === filter.key}
