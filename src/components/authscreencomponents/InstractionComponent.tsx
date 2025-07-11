@@ -37,7 +37,7 @@ const InstractionComponent = ({ data }: { data: any }) => {
             <span
               className="text-xs font-semibold px-2 py-0.5 rounded mr-2"
               style={{
-                background: ticket.priority.color,
+                background: ticket?.priority?.color,
                 color:
                   ticket.priority.name === "emergency"
                     ? "#d32f2f"
@@ -69,7 +69,7 @@ const InstractionComponent = ({ data }: { data: any }) => {
         <div className="flex items-center gap-2">
           <span
             className={`text-xs font-semibold`}
-            style={{ color: ticket.priority.color }}
+            style={{ color: ticket?.priority?.color }}
           >
             {ticket.priority?.desc}
           </span>

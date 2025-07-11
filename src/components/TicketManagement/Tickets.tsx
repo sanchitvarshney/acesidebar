@@ -144,7 +144,7 @@ const Tickets: React.FC = () => {
           <span className={`text-xs font-semibold ${ticket.priority?.color}`}>
             {ticket?.priority?.name}
           </span>
-          <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+          <span className="w-2 h-2 rounded-full inline-block"></span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500">Open</span>
