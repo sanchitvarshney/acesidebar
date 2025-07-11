@@ -129,7 +129,9 @@ const Tickets: React.FC = () => {
         <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
           <span className="flex items-center gap-1">
             <span className="font-medium">{ticket.fromUser?.name}</span>
-            <span className="text-xs">• Created: {ticket?.lastupdate?.timestamp}</span>
+            <span className="text-xs">
+              • Created: {ticket?.lastupdate?.timestamp}
+            </span>
             {ticket.updatedAt && (
               <span className="text-xs">
                 • Agent responded: {ticket?.stats?.agentRespondedAt?.timeAgo}
@@ -179,31 +181,17 @@ const Tickets: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm"
-              onClick={() => {setCreateDialogOpen(true); console.log("okk")}}
+              onClick={() => {
+                setCreateDialogOpen(true);
+                console.log("okk");
+              }}
             >
               + New
             </button>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search"
-                className="border border-gray-300 rounded pl-8 pr-2 py-1.5 text-sm w-40 focus:outline-none"
-              />
-              <SearchIcon className="absolute left-2 top-2.5 text-gray-400" />
-            </div>
-            <button className="relative p-2 rounded hover:bg-gray-100">
-              <NotificationsNoneIcon className="text-2xl" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+
             <button className="p-2 rounded hover:bg-gray-100">
               <HelpOutlineIcon className="text-xl" />
             </button>
-            <button className="p-2 rounded hover:bg-gray-100">
-              <AppsIcon className="text-xl" />
-            </button>
-            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-700">
-              D
-            </div>
           </div>
         </div>
         {/* Main Content */}
@@ -239,8 +227,8 @@ const Tickets: React.FC = () => {
       </div>
       {createDialogOpen && (
         <CreateTicketDialog
-          open={setCreateDialogOpen(true)}
-          onClose={setCreateDialogOpen(false)}
+          open={createDialogOpen}
+          onClose={() => setCreateDialogOpen(false)}
         />
       )}
     </>
