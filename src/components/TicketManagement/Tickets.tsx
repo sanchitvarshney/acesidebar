@@ -14,6 +14,7 @@ import {
 import { useToast } from "../../hooks/useToast";
 import CreateTicketDialog from "./CreateTicketDialog";
 import TicketSkeleton from "./TicketSkeleton";
+import TablePagination from "@mui/material/TablePagination";
 
 const Tickets: React.FC = () => {
   const [sortBy, setSortBy] = useState("Date created");
@@ -93,7 +94,7 @@ const Tickets: React.FC = () => {
   const handleApplyFilters = (newFilters: any) => {
     // TODO: Trigger API call with newFilters
   };
-
+console.log(ticketList)
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => (
     <div
@@ -167,7 +168,7 @@ const Tickets: React.FC = () => {
           <div className="flex items-center gap-4">
             <span className="text-xl font-semibold">All tickets</span>
             <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
-              {ticketList?.length}
+              {ticketList?.data?.length}
             </span>
             <div className="ml-6 flex items-center gap-2">
               <span className="text-sm text-gray-600">Sort by:</span>
@@ -210,13 +211,28 @@ const Tickets: React.FC = () => {
                 Layout: <span className="font-medium">Card</span>
               </div>
               <div className="text-sm text-gray-600">Export</div>
+              {ticketList?.pagination && (
+                <TablePagination
+                  component="div"
+                  count={ticketList.pagination.total}
+                  page={page - 1} // MUI is 0-based, your state is 1-based
+                  onPageChange={(_, newPage) => setPage(newPage + 1)}
+                  rowsPerPage={limit}
+                  onRowsPerPageChange={(e) => {
+                    setLimit(parseInt(e.target.value, 10));
+                    setPage(1); // Reset to first page on page size change
+                  }}
+                  rowsPerPageOptions={[10,20,30,50,100]}
+                  labelRowsPerPage="Tickets per page"
+                />
+              )}
             </div>
             {isTicketListFetching ? (
               <TicketSkeleton />
             ) : (
               <div>
-                {ticketList && ticketList.length > 0 ? (
-                  ticketList.map(renderTicketCard)
+                {ticketList && ticketList?.data?.length > 0 ? (
+                  ticketList?.data?.map(renderTicketCard)
                 ) : (
                   <div className="text-gray-400 text-center py-8">
                     No tickets found.

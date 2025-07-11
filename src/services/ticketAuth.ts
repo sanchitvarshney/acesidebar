@@ -48,7 +48,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
           method: "GET",
         };
       },
-      transformResponse: (response: any) => response?.data,
+      // transformResponse: (response: any) => response?.data,
     }),
 
     getTagList: builder.query<any, void>({

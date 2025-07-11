@@ -83,7 +83,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       </div>
       <div className="mb-4">
         <label className="block text-xs text-gray-600 mb-1">
-          Groups Include
+          Tags
         </label>
         <select
           name="group"
