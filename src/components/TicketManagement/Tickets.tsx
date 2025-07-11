@@ -199,9 +199,9 @@ const Tickets: React.FC = () => {
           </div>
         </div>
         {/* Main Content */}
-        <div className="flex flex-1 ">
+        <div className="flex flex-1 h-0 min-h-0">
           {/* Ticket List */}
-          <div className="flex-1 p-6 ">
+          <div className="flex-1 p-6 h-full overflow-y-auto">
             <div className="mb-4 flex items-center justify-between">
               <div className="text-sm text-gray-600">
                 Sort by: <span className="font-medium">{sortBy}</span>
@@ -225,8 +225,8 @@ const Tickets: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="w-80 min-w-[320px] border-l bg-white flex flex-col ">
-            <div className="flex-1 overflow-y-auto">
+          <div className="w-80 min-w-[320px] border-l bg-white flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto h-full">
               <TicketFilterPanel onApplyFilters={handleApplyFilters} />
             </div>
           </div>
