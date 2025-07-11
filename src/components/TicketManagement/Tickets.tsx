@@ -5,7 +5,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import AppsIcon from "@mui/icons-material/Apps";
-import { useCreateTicketMutation, useGetPriorityListQuery, useGetTicketListQuery, useTicketSearchMutation } from "../../services/ticketAuth";
+import {
+  useCreateTicketMutation,
+  useGetPriorityListQuery,
+  useGetTicketListQuery,
+  useTicketSearchMutation,
+} from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 
 const Tickets: React.FC = () => {
@@ -13,11 +18,11 @@ const Tickets: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [ticketSearch, { isLoading: isTicketSearchLoading }] =
-  useTicketSearchMutation();
+    useTicketSearchMutation();
 
-const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
-const { data: priorityList, isLoading: isPriorityListLoading } =
-  useGetPriorityListQuery();
+  const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
+  const { data: priorityList, isLoading: isPriorityListLoading } =
+    useGetPriorityListQuery();
   const getApiParams = () => {
     const params: any = {
       page,
@@ -89,7 +94,7 @@ const { data: priorityList, isLoading: isPriorityListLoading } =
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => (
     <div
-      key={ticket.id}
+      key={ticket?.ticketNumber}
       className="bg-white rounded border border-gray-200 mb-3 flex flex-col md:flex-row items-start md:items-center px-4 py-3 shadow-sm hover:shadow transition relative"
     >
       <div className="flex items-center mr-4 mb-2 md:mb-0">
@@ -98,7 +103,7 @@ const { data: priorityList, isLoading: isPriorityListLoading } =
           <Avatar src={ticket.avatarUrl} className="w-10 h-10 mr-3" />
         ) : (
           <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600 mr-3">
-            {ticket.requester?.[0] || "D"}
+            {ticket?.fromUser[0] || "D"}
           </div>
         )}
       </div>
@@ -115,16 +120,17 @@ const { data: priorityList, isLoading: isPriorityListLoading } =
             </span>
           )}
           <span className="font-semibold text-gray-800 truncate">
-            {ticket.title} <span className="text-gray-400">#{ticket.id}</span>
+            {ticket?.subject}{" "}
+            <span className="text-gray-400">#{ticket?.ticketNumber}</span>
           </span>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
           <span className="flex items-center gap-1">
             <span className="font-medium">{ticket.requester}</span>
-            <span className="text-xs">• Created: {ticket.createdAt}</span>
+            <span className="text-xs">• Created: {ticket?.lastupdate}</span>
             {ticket.updatedAt && (
               <span className="text-xs">
-                • Agent responded: {ticket.updatedAt}
+                • Agent responded: {ticket?.lastupdate}
               </span>
             )}
             <span className="text-xs">• Due in: 8 hours</span>
@@ -133,17 +139,8 @@ const { data: priorityList, isLoading: isPriorityListLoading } =
       </div>
       <div className="flex flex-col items-end ml-auto min-w-[120px] gap-2">
         <div className="flex items-center gap-2">
-          <span
-            className={`text-xs font-semibold ${
-              ticket.priority === "urgent" || ticket.priority === "emergency"
-                ? "text-red-500"
-                : ticket.priority === "high"
-                ? "text-yellow-500"
-                : "text-green-500"
-            }`}
-          >
-            {ticket.priority?.charAt(0).toUpperCase() +
-              ticket.priority?.slice(1)}
+          <span className={`text-xs font-semibold ${ticket.priority?.color}`}>
+            {ticket?.priority?.name}
           </span>
           <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
         </div>
@@ -153,15 +150,15 @@ const { data: priorityList, isLoading: isPriorityListLoading } =
       </div>
     </div>
   );
-
+  console.log(ticketList);
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col bg-gray-50 h-[calc(100vh-160px)]">
       {/* Header Bar */}
       <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
         <div className="flex items-center gap-4">
           <span className="text-xl font-semibold">All tickets</span>
           <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
-            {ticketList?.data?.length}
+            {ticketList?.length}
           </span>
           <div className="ml-6 flex items-center gap-2">
             <span className="text-sm text-gray-600">Sort by:</span>
@@ -204,9 +201,9 @@ const { data: priorityList, isLoading: isPriorityListLoading } =
         </div>
       </div>
       {/* Main Content */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 ">
         {/* Ticket List */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 ">
           <div className="mb-4 flex items-center justify-between">
             <div className="text-sm text-gray-600">
               Sort by: <span className="font-medium">{sortBy}</span>
@@ -216,7 +213,15 @@ const { data: priorityList, isLoading: isPriorityListLoading } =
             </div>
             <div className="text-sm text-gray-600">Export</div>
           </div>
-          <div>{tickets.map(renderTicketCard)}</div>
+          <div>
+            {ticketList && ticketList.length > 0 ? (
+              ticketList.map(renderTicketCard)
+            ) : (
+              <div className="text-gray-400 text-center py-8">
+                No tickets found.
+              </div>
+            )}
+          </div>
         </div>
         {/* Filters Panel */}
         <div className="w-80 min-w-[320px] border-l bg-white flex flex-col ">
