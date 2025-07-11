@@ -13,6 +13,7 @@ import {
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 import CreateTicketDialog from "./CreateTicketDialog";
+import TicketSkeleton from "./TicketSkeleton";
 
 const Tickets: React.FC = () => {
   const [sortBy, setSortBy] = useState("Date created");
@@ -146,7 +147,10 @@ const Tickets: React.FC = () => {
           <span className={`text-xs font-semibold ${ticket.priority?.color}`}>
             {ticket?.priority?.name}
           </span>
-          <span className="w-2 h-2 rounded-full inline-block"></span>
+          <span
+            className="w-2 h-2 rounded-full inline-block"
+            style={{ backgroundColor: ticket.priority?.color }}
+          ></span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500">Open</span>
@@ -154,7 +158,7 @@ const Tickets: React.FC = () => {
       </div>
     </div>
   );
-  console.log(ticketList);
+
   return (
     <>
       <div className="flex flex-col bg-gray-50 h-[calc(100vh-160px)]">
@@ -207,17 +211,20 @@ const Tickets: React.FC = () => {
               </div>
               <div className="text-sm text-gray-600">Export</div>
             </div>
-            <div>
-              {ticketList && ticketList.length > 0 ? (
-                ticketList.map(renderTicketCard)
-              ) : (
-                <div className="text-gray-400 text-center py-8">
-                  No tickets found.
-                </div>
-              )}
-            </div>
+            {isTicketListFetching ? (
+              <TicketSkeleton />
+            ) : (
+              <div>
+                {ticketList && ticketList.length > 0 ? (
+                  ticketList.map(renderTicketCard)
+                ) : (
+                  <div className="text-gray-400 text-center py-8">
+                    No tickets found.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          {/* Filters Panel */}
           <div className="w-80 min-w-[320px] border-l bg-white flex flex-col ">
             <div className="flex-1 overflow-y-auto">
               <TicketFilterPanel onApplyFilters={handleApplyFilters} />
@@ -228,7 +235,10 @@ const Tickets: React.FC = () => {
       {createDialogOpen && (
         <CreateTicketDialog
           open={createDialogOpen}
-          onClose={() => setCreateDialogOpen(false)}
+          onClose={() => {
+            setCreateDialogOpen(false);
+            refetch();
+          }}
         />
       )}
     </>

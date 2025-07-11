@@ -15,6 +15,7 @@ import {
   OutlinedInput,
   useTheme,
   Drawer,
+  Chip,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import {
@@ -22,6 +23,7 @@ import {
   useGetPriorityListQuery,
   useGetTicketListQuery,
   useTicketSearchMutation,
+  useGetTagListQuery,
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 
@@ -42,105 +44,21 @@ interface Ticket {
   thread: any[] | undefined;
 }
 
-// Mock data for demonstration (fallback)
-export const mockTickets: Ticket[] = [
-  {
-    id: "1",
-    title: "Login page not working properly",
-    description:
-      "Users are unable to log in to the application. The login button is not responding.",
-    status: "open",
-    priority: "emergency",
-    assignee: "John Doe",
-    requester: "Sarah Wilson",
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-01-15T14:20:00Z",
-    hasAttachment: true,
-    isStarred: true,
-    isRead: false,
-    tags: ["frontend", "authentication"],
-    thread: [],
-  },
-  {
-    id: "2",
-    title: "Database connection timeout",
-    description:
-      "The application is experiencing frequent database connection timeouts during peak hours.",
-    status: "in-progress",
-    priority: "high",
-    assignee: "Mike Johnson",
-    requester: "David Brown",
-    createdAt: "2024-01-14T09:15:00Z",
-    updatedAt: "2024-01-15T11:45:00Z",
-    hasAttachment: false,
-    isStarred: false,
-    isRead: true,
-    tags: ["backend", "database"],
-    thread: [],
-  },
-  {
-    id: "3",
-    title: "Add dark mode feature",
-    description:
-      "Users have expressed a strong interest in having a dark mode to improve their experience. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Many have suggested that a darker theme would enhance usability and comfort. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. Feedback continues to highlight the desire for a dark mode interface. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. There is a recurring demand for a night-friendly viewing option. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. Several users have emphasized the benefits of a dark theme for extended use. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos. The request for a visually soothing dark mode remains one of the most common. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam, quos.",
-    status: "open",
-    priority: "normal",
-    assignee: "Lisa Chen",
-    requester: "Alex Thompson",
-    createdAt: "2024-01-13T16:20:00Z",
-    updatedAt: "2024-01-13T16:20:00Z",
-    hasAttachment: false,
-    isStarred: false,
-    isRead: true,
-    tags: ["feature-request", "ui"],
-    thread: [],
-  },
-  {
-    id: "4",
-    title: "Payment processing error",
-    description: "Credit card payments are failing with error code 500.",
-    status: "resolved",
-    priority: "emergency",
-    assignee: "Tom Wilson",
-    requester: "Emma Davis",
-    createdAt: "2024-01-12T13:45:00Z",
-    updatedAt: "2024-01-14T10:30:00Z",
-    hasAttachment: true,
-    isStarred: true,
-    isRead: true,
-    tags: ["payment", "critical"],
-    thread: [],
-  },
-  {
-    id: "5",
-    title: "Mobile app crashes on startup",
-    description:
-      "The mobile application crashes immediately after launching on iOS devices.",
-    status: "open",
-    priority: "high",
-    assignee: "Rachel Green",
-    requester: "Mark Anderson",
-    createdAt: "2024-01-11T08:30:00Z",
-    updatedAt: "2024-01-15T09:15:00Z",
-    hasAttachment: false,
-    isStarred: false,
-    isRead: false,
-    tags: ["mobile", "ios", "crash"],
-    thread: [],
-  },
-];
-
 interface Props {
   open: any;
   onClose: any;
 }
 
 const CreateTicketDialog: React.FC<Props> = ({ open, onClose }) => {
-
   const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
   const { data: priorityList, isLoading: isPriorityListLoading } =
     useGetPriorityListQuery();
+  const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const { showToast } = useToast();
+
+  // Add agentOptions for AssignTo dropdown
+  const agentOptions = ["Any agent", "Agent 1", "Agent 2"];
 
   const [newTicket, setNewTicket] = useState({
     user_name: "",
@@ -151,6 +69,7 @@ const CreateTicketDialog: React.FC<Props> = ({ open, onClose }) => {
     priority: 2,
     format: "html",
     recipients: "",
+    assignee: "", // Add assignee field
   });
 
   const handleCreateTicketSubmit = async () => {
@@ -163,6 +82,8 @@ const CreateTicketDialog: React.FC<Props> = ({ open, onClose }) => {
       body: newTicket.body,
       format: newTicket.format,
       recipients: newTicket.recipients,
+      tags: selectedTags, // Now tagIDs
+      assignee: newTicket.assignee,
     };
     const res = await createTicket(payload).unwrap();
     if (res.success) {
@@ -180,7 +101,9 @@ const CreateTicketDialog: React.FC<Props> = ({ open, onClose }) => {
         priority: 2,
         format: "html",
         recipients: "",
+        assignee: "",
       });
+      setSelectedTags([]); // Clear selected tags on successful creation
       // Refresh the ticket list
     } else {
       showToast(res.payload.message || "Failed to create ticket", "error");
@@ -318,6 +241,90 @@ const CreateTicketDialog: React.FC<Props> = ({ open, onClose }) => {
                     </MenuItem>
                   ))}
                 </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>Assign To</InputLabel>
+                <Select
+                  value={newTicket.assignee}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({
+                      ...prev,
+                      assignee: e.target.value,
+                    }))
+                  }
+                  input={<OutlinedInput label="Assign To" />}
+                >
+                  {agentOptions.map((agent) => (
+                    <MenuItem key={agent} value={agent}>
+                      {agent}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            {/* Tag Dropdown and Chips */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>Tags</InputLabel>
+                <Select
+                  multiple
+                  value={selectedTags}
+                  onChange={(e) => {
+                    const value =
+                      typeof e.target.value === "string"
+                        ? e.target.value.split(",")
+                        : e.target.value;
+                    if (value.length <= 5) {
+                      setSelectedTags(value);
+                    }
+                  }}
+                  input={<OutlinedInput label="Tags" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((tagID) => {
+                        const tagObj = tagList?.find(
+                          (tag: any) => tag.tagID === tagID
+                        );
+                        return (
+                          <Chip
+                            key={tagID}
+                            label={tagObj ? tagObj.tagName : tagID}
+                            onDelete={(e) => {
+                              e.stopPropagation();
+                              setSelectedTags((prev) =>
+                                prev.filter((id) => id !== tagID)
+                              );
+                            }}
+                          />
+                        );
+                      })}
+                    </Box>
+                  )}
+                >
+                  {isTagListLoading ? (
+                    <MenuItem disabled>
+                      <span>Loading...</span>
+                    </MenuItem>
+                  ) : (
+                    tagList?.map((tag: any) => (
+                      <MenuItem
+                        key={tag.tagID}
+                        value={tag.tagID}
+                        disabled={
+                          selectedTags.length >= 5 &&
+                          !selectedTags.includes(tag.tagID)
+                        }
+                      >
+                        {tag.tagName}
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+                <Typography variant="caption" color="text.secondary">
+                  Maximum 5 tags can be selected.
+                </Typography>
               </FormControl>
             </Grid>
             <Grid size={12}>

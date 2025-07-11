@@ -1,58 +1,44 @@
 import React from "react";
-import { Box, Skeleton, Paper } from "@mui/material";
 
-const TicketSkeleton: React.FC<{ rows?: number }> = ({ rows = 10 }) => {
+const TicketSkeleton: React.FC<{ rows?: number }> = ({ rows = 5 }) => {
   return (
-    <Box>
-      {/* Section header skeleton */}
-      <Box
-        sx={{
-          px: 3,
-          py: 1,
-          background: "rgba(0,0,0,0.03)",
-          borderBottom: "1px solid #eee",
-        }}
-      >
-        <Skeleton variant="text" width={120} height={28} />
-      </Box>
-      {/* Ticket row skeletons */}
-      {[...Array(rows)]?.map((_, idx) => (
-        <Paper
+    <div className="space-y-3">
+      {Array.from({ length: rows }).map((_, idx) => (
+        <div
           key={idx}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            px: 2,
-            py: 1,
-            mb: 1,
-            borderRadius: 0,
-            boxShadow: "none",
-            borderBottom: "1px solid #eee",
-            gap: 6,
-          }}
+          className="bg-white rounded border border-gray-200 flex flex-col md:flex-row items-start md:items-center px-4 py-3 shadow-sm animate-pulse"
         >
-          <Skeleton variant="circular" width={24} height={24} sx={{ mr: 2 }} />
-          <Skeleton
-            variant="rectangular"
-            width={60}
-            height={20}
-            sx={{ mr: 2, borderRadius: 1 }}
-          />
-          <Skeleton variant="text" width={180} height={20} sx={{ mr: 2 }} />
-          <Skeleton variant="text" width={80} height={20} sx={{ mr: 2 }} />
-          <Skeleton
-            variant="rectangular"
-            width={60}
-            height={20}
-            sx={{ mr: 2, borderRadius: 1 }}
-          />
-          <Skeleton variant="text" width={100} height={20} sx={{ mr: 2 }} />
-          <Skeleton variant="circular" width={24} height={24} />
-          <Skeleton variant="text" width={100} height={20} sx={{ mr: 2 }} />
-
-        </Paper>
+          {/* Checkbox and Avatar */}
+          <div className="flex items-center mr-4 mb-2 md:mb-0">
+            <span className="w-4 h-4 rounded border border-gray-300 bg-gray-100 mr-3" />
+            <span className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600 mr-3">
+              <span className="w-6 h-6 bg-gray-200 rounded-full" />
+            </span>
+          </div>
+          {/* Ticket Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="block h-4 w-24 bg-gray-200 rounded" />
+              <span className="block h-4 w-16 bg-gray-100 rounded" />
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="block h-4 w-20 bg-gray-100 rounded" />
+              <span className="block h-4 w-28 bg-gray-100 rounded" />
+            </div>
+          </div>
+          {/* Priority and Status */}
+          <div className="flex flex-col items-end ml-auto min-w-[120px] gap-2">
+            <div className="flex items-center gap-2">
+              <span className="block h-4 w-10 bg-gray-200 rounded" />
+              <span className="w-2 h-2 rounded-full bg-gray-200" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="block h-4 w-8 bg-gray-100 rounded" />
+            </div>
+          </div>
+        </div>
       ))}
-    </Box>
+    </div>
   );
 };
 
