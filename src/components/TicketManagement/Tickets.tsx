@@ -156,49 +156,42 @@ const Tickets: React.FC = () => {
     <>
       <div className="flex flex-col bg-gray-50 h-[calc(100vh-160px)]">
         {/* Main Header Bar */}
-        <div className="flex items-center justify-between px-6 pb-4 border-b bg-white w-full">
+        <div className="flex items-center justify-between px-6 pb-2 border-b bg-white w-full">
+          {/* Left: Title and count */}
           <div className="flex items-center gap-4">
             <span className="text-xl font-semibold">All tickets</span>
             <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
               {ticketList?.data?.length}
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          {/* Right: Controls */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* + New Button */}
             <button
               className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm"
               onClick={() => setCreateDialogOpen(true)}
             >
               + New
             </button>
-            <button className="p-2 rounded hover:bg-gray-100">
-              <HelpOutlineIcon className="text-xl" />
-            </button>
-          </div>
-        </div>
-        {/* Second Top Bar (Filter/Sort/Pagination) */}
-        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200">
-          {/* Left: Sort by */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Sort by:</span>
-            <select
-              className="border border-gray-300 rounded px-2 py-1 text-sm bg-white"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option>Date created</option>
-              <option>Priority</option>
-              <option>Status</option>
-            </select>
-          </div>
-          {/* Right: Layout, Export, Pagination */}
-          <div className="flex items-center gap-3">
+            {/* Sort by */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Layout:</span>
-              <span className="font-medium">Card</span>
+              <span className="text-sm text-gray-600">Sort by:</span>
+              <select
+                className="border border-gray-300 rounded px-2 py-1 text-sm bg-white"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option>Date created</option>
+                <option>Priority</option>
+                <option>Status</option>
+              </select>
             </div>
+
+            {/* Export */}
             <button className="px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium hover:bg-gray-100">
               Export
             </button>
+            {/* Pagination */}
             {ticketList?.pagination && (
               <TablePagination
                 component="div"

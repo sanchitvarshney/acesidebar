@@ -64,93 +64,101 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   }
 
   return (
-    <Box className="w-72 min-w-72 bg-white shadow rounded-lg flex flex-col h-full p-4 relative h-calc(100vh - 80px) overflow-scroll">
+    <Box className="w-72 min-w-72 bg-white shadow rounded-lg flex flex-col h-full p-4 relative">
+      {/* Header */}
       <Box className="flex items-center justify-between mb-2">
         <span className="font-semibold text-gray-700 text-sm">FILTERS</span>
         <button className="text-xs text-blue-600 hover:underline">
           Show applied filters
         </button>
       </Box>
-      {/* DYNAMIC FIELDS */}
-      {criteriaArray.map((field: any) => (
-        <Box className="mb-4" key={field.name}>
-          {field.type === "dropdown" && (
-            <FormControl fullWidth size="small">
-              <InputLabel>{field.label}</InputLabel>
-              <Select
+      {/* Scrollable filter fields */}
+      <Box className="flex-1 overflow-y-auto">
+        {criteriaArray.map((field: any) => (
+          <Box className="mb-4" key={field.name}>
+            {field.type === "dropdown" && (
+              <FormControl fullWidth size="small">
+                <InputLabel>{field.label}</InputLabel>
+                <Select
+                  name={field.name}
+                  value={filters[field.name]}
+                  label={field.label}
+                  onChange={() => handleChange}
+                >
+                  <MenuItem value="">Select {field.label}</MenuItem>
+                  {field.choices?.map((opt: any) => (
+                    <MenuItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+            {field.type === "text" && (
+              <TextField
+                fullWidth
+                size="small"
+                label={field.label}
                 name={field.name}
                 value={filters[field.name]}
+                onChange={handleChange}
+                variant="outlined"
+              />
+            )}
+            {field.type === "date" && (
+              <TextField
+                fullWidth
+                size="small"
                 label={field.label}
-                onChange={() => handleChange}
-              >
-                <MenuItem value="">Select {field.label}</MenuItem>
-                {field.choices?.map((opt: any) => (
-                  <MenuItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-          {field.type === "text" && (
-            <TextField
-              fullWidth
-              size="small"
-              label={field.label}
-              name={field.name}
-              value={filters[field.name]}
-              onChange={handleChange}
-              variant="outlined"
-            />
-          )}
-          {field.type === "date" && (
-            <TextField
-              fullWidth
-              size="small"
-              label={field.label}
-              name={field.name}
-              value={filters[field.name]}
-              onChange={handleChange}
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              variant="outlined"
-            />
-          )}
-          {field.type === "chip" && (
-            <FormControl fullWidth size="small">
-              <InputLabel>{field.label}</InputLabel>
-              <Select
-                multiple
                 name={field.name}
-                value={
-                  Array.isArray(filters[field.name]) ? filters[field.name] : []
-                }
-                onChange={(e) => handleChipChange(e, field.name)}
-                label={field.label}
-                renderValue={(selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value: string) => {
-                      const label =
-                        field.choices.find(
-                          (c: { value: string; label: string }) =>
-                            c.value === value
-                        )?.label || value;
-                      return <Chip key={value} label={label} size="small" />;
-                    })}
-                  </Box>
-                )}
-              >
-                {field.choices?.map((opt: { value: string; label: string }) => (
-                  <MenuItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-        </Box>
-      ))}
-      <Box className="sticky bottom-0 left-0 right-0 bg-white pt-2 pb-0 z-10">
+                value={filters[field.name]}
+                onChange={handleChange}
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                variant="outlined"
+              />
+            )}
+            {field.type === "chip" && (
+              <FormControl fullWidth size="small">
+                <InputLabel>{field.label}</InputLabel>
+                <Select
+                  multiple
+                  name={field.name}
+                  value={
+                    Array.isArray(filters[field.name])
+                      ? filters[field.name]
+                      : []
+                  }
+                  onChange={(e) => handleChipChange(e, field.name)}
+                  label={field.label}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value: string) => {
+                        const label =
+                          field.choices.find(
+                            (c: { value: string; label: string }) =>
+                              c.value === value
+                          )?.label || value;
+                        return <Chip key={value} label={label} size="small" />;
+                      })}
+                    </Box>
+                  )}
+                >
+                  {field.choices?.map(
+                    (opt: { value: string; label: string }) => (
+                      <MenuItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </MenuItem>
+                    )
+                  )}
+                </Select>
+              </FormControl>
+            )}
+          </Box>
+        ))}
+      </Box>
+      {/* Fixed Apply button */}
+      <Box className="pt-2 pb-0 z-10 bg-white">
         <button
           className="w-full bg-blue-600 text-white font-semibold py-2 rounded disabled:opacity-50"
           onClick={handleApply}
