@@ -24,12 +24,12 @@ const menuSections: MenuSection[] = [
     title: "Recent",
     description: "Recently accessed settings",
   },
-  {
-    icon: FaRobot,
-    iconClass: "text-indigo-500 text-xl",
-    title: "Freddy",
-    description: "Manage your AI tools to boost productivity",
-  },
+  // {
+  //   icon: FaRobot,
+  //   iconClass: "text-indigo-500 text-xl",
+  //   title: "Freddy",
+  //   description: "Manage your AI tools to boost productivity",
+  // },
   {
     icon: FaUsersCog,
     iconClass: "text-green-500 text-xl",

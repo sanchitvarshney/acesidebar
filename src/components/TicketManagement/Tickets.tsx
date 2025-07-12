@@ -163,16 +163,6 @@ const Tickets: React.FC = () => {
             <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
               {ticketList?.data?.length}
             </span>
-          </div>
-          {/* Right: Controls */}
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* + New Button */}
-            <button
-              className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm"
-              onClick={() => setCreateDialogOpen(true)}
-            >
-              + New
-            </button>
             {/* Sort by */}
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Sort by:</span>
@@ -186,7 +176,10 @@ const Tickets: React.FC = () => {
                 <option>Status</option>
               </select>
             </div>
+          </div>
 
+          {/* Right: Controls */}
+          <div className="flex items-center gap-3 flex-wrap">
             {/* Export */}
             <button className="px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium hover:bg-gray-100">
               Export
@@ -204,9 +197,16 @@ const Tickets: React.FC = () => {
                   setPage(1);
                 }}
                 rowsPerPageOptions={[10, 20, 30, 50, 100]}
-                labelRowsPerPage="Tickets per page"
+                labelRowsPerPage=""
               />
             )}
+            {/* + New Button */}
+            <button
+              className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm"
+              onClick={() => setCreateDialogOpen(true)}
+            >
+              + New
+            </button>
           </div>
         </div>
         {/* Main Content: Tickets + Filters */}
