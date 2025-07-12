@@ -74,6 +74,14 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
     }),
 
+    getAdvancedSearch: builder.query<any, void>({
+      query: () => ({
+        url: "/ticket/advance-search-criteria",
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.searchCriteria,
+    }),
+
     //  getuserdata: builder.mutation({
     //   query: (credentials) => ({
 
@@ -93,4 +101,5 @@ export const {
   useGetTagListQuery,
   useAddTagMutation,
   useTicketSearchMutation,
+  useGetAdvancedSearchQuery,
 } = extendedTicketApi;

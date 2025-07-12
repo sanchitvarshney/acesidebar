@@ -2,12 +2,8 @@ import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
 import { Avatar } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import AppsIcon from "@mui/icons-material/Apps";
 import {
-  useCreateTicketMutation,
-  useGetPriorityListQuery,
   useGetTicketListQuery,
   useTicketSearchMutation,
 } from "../../services/ticketAuth";
@@ -23,10 +19,6 @@ const Tickets: React.FC = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [ticketSearch, { isLoading: isTicketSearchLoading }] =
     useTicketSearchMutation();
-
-  const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
-  const { data: priorityList, isLoading: isPriorityListLoading } =
-    useGetPriorityListQuery();
   const getApiParams = () => {
     const params: any = {
       page,

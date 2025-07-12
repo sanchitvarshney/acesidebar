@@ -1,41 +1,29 @@
-import React, { useState } from "react";
-
-interface FilterValues {
-  search: string;
-  agent: string;
-  group: string;
-  sentiment: string;
-  created: string;
-  closed: string;
-  resolved: string;
-}
+import React, { useState, useEffect } from "react";
+import { useGetAdvancedSearchQuery } from "../../services/ticketAuth";
 
 interface TicketFilterPanelProps {
-  onApplyFilters: (filters: FilterValues) => void;
+  onApplyFilters: (filters: Record<string, any>) => void;
 }
 
-const agentOptions = ["Any agent", "Agent 1", "Agent 2"];
-const groupOptions = ["Any group", "Group 1", "Group 2"];
-const sentimentOptions = ["Any", "Positive", "Neutral", "Negative"];
-const createdOptions = [
-  "Last 7 days",
-  "Last 30 days",
-  "Last 90 days",
-  "Any time",
-];
-const closedOptions = ["Any time", "Last 7 days", "Last 30 days"];
-const resolvedOptions = ["Any time", "Last 7 days", "Last 30 days"];
-
 const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
-  const [filters, setFilters] = useState<FilterValues>({
-    search: "",
-    agent: agentOptions[0],
-    group: groupOptions[0],
-    sentiment: sentimentOptions[0],
-    created: createdOptions[1],
-    closed: closedOptions[0],
-    resolved: resolvedOptions[0],
-  });
+  const {
+    data: searchCriteria,
+    isLoading,
+    error,
+  } = useGetAdvancedSearchQuery();
+  const [filters, setFilters] = useState<Record<string, any>>({});
+
+  // Initialize filters when searchCriteria loads
+  useEffect(() => {
+    if (searchCriteria && Array.isArray(searchCriteria)) {
+      const initialFilters: Record<string, any> = {};
+      searchCriteria.forEach((field: any) => {
+        if (field.type === "chip") initialFilters[field.name] = [];
+        else initialFilters[field.name] = "";
+      });
+      setFilters(initialFilters);
+    }
+  }, [searchCriteria]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -44,10 +32,32 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleApply = () => {
-    onApplyFilters(filters);
+  // For chips/multi-select
+  const handleChipChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, selectedOptions } = e.target as HTMLSelectElement;
+    const values = Array.from(selectedOptions).map((opt) => opt.value);
+    setFilters((prev) => ({ ...prev, [name]: values }));
   };
 
+  const handleApply = () => {
+    onApplyFilters(filters);
+    console.log(filters);
+  };
+
+  if (isLoading) {
+    return <div className="p-4">Loading filters...</div>;
+  }
+  if (error) {
+    return <div className="p-4 text-red-500">Failed to load filters.</div>;
+  }
+  const criteriaArray = Array.isArray(searchCriteria)
+    ? searchCriteria
+    : Array.isArray(searchCriteria?.data)
+    ? searchCriteria.data
+    : [];
+  if (!criteriaArray || criteriaArray.length === 0) {
+    return null;
+  }
   return (
     <div className="w-72 min-w-72 bg-white shadow rounded-lg flex flex-col h-full p-4 relative h-calc(100vh - 80px) overflow-scroll">
       <div className="flex items-center justify-between mb-2">
@@ -56,108 +66,63 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           Show applied filters
         </button>
       </div>
-      <input
-        type="text"
-        name="search"
-        value={filters.search}
-        onChange={handleChange}
-        placeholder="Search fields"
-        className="w-full mb-4 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-      />
-      <div className="mb-4">
-        <label className="block text-xs text-gray-600 mb-1">
-          Agents Include
-        </label>
-        <select
-          name="agent"
-          value={filters.agent}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-        >
-          {agentOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <label className="block text-xs text-gray-600 mb-1">
-          Tags
-        </label>
-        <select
-          name="group"
-          value={filters.group}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-        >
-          {groupOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <label className="block text-xs text-gray-600 mb-1">Sentiment</label>
-        <select
-          name="sentiment"
-          value={filters.sentiment}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-        >
-          {sentimentOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <label className="block text-xs text-gray-600 mb-1">Created</label>
-        <select
-          name="created"
-          value={filters.created}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-        >
-          {createdOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <label className="block text-xs text-gray-600 mb-1">Closed at</label>
-        <select
-          name="closed"
-          value={filters.closed}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-        >
-          {closedOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-6">
-        <label className="block text-xs text-gray-600 mb-1">Resolved at</label>
-        <select
-          name="resolved"
-          value={filters.resolved}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-        >
-          {resolvedOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* DYNAMIC FIELDS */}
+      {criteriaArray.map((field: any) => (
+        <div className="mb-4" key={field.name}>
+          <label className="block text-xs text-gray-600 mb-1">
+            {field.label}
+          </label>
+          {field.type === "dropdown" && (
+            <select
+              name={field.name}
+              value={filters[field.name]}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            >
+              <option value="">Select {field.label}</option>
+              {field.choices?.map((opt: any) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          )}
+          {field.type === "text" && (
+            <input
+              type="text"
+              name={field.name}
+              value={filters[field.name]}
+              onChange={handleChange}
+              placeholder={field.label}
+              className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          )}
+          {field.type === "date" && (
+            <input
+              type="date"
+              name={field.name}
+              value={filters[field.name]}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            />
+          )}
+          {field.type === "chip" && (
+            <select
+              name={field.name}
+              multiple
+              value={filters[field.name]}
+              onChange={handleChipChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            >
+              {field.choices?.map((opt: any) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      ))}
       <div className="sticky bottom-0 left-0 right-0 bg-white pt-2 pb-0 z-10">
         <button
           className="w-full bg-blue-600 text-white font-semibold py-2 rounded disabled:opacity-50"
