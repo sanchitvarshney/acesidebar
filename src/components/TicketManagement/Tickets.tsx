@@ -9,7 +9,7 @@ import {
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 import CreateTicketDialog from "./CreateTicketDialog";
-import TicketSkeleton from "./TicketSkeleton";
+import TicketSkeleton from "../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
 
 const Tickets: React.FC = () => {
