@@ -7,6 +7,7 @@ import NotFound from "../components/common/NotFound";
 import Protected from "../components/protected/Protected";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ProfilePage from "../components/layout/ProfilePage";
+import Settings from "../components/Settings";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,21 @@ export const router = createBrowserRouter([
         <ProfilePage />
       </Protected>
     ),
+  },
+  {
+    path: "/settings",
+    element: (
+      <Protected>
+        <MainLayout />
+      </Protected>
+    ),
+    children: [
+      {
+        index: true,
+
+        element: <Settings />,
+      },
+    ],
   },
   {
     path: "*",

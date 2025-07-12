@@ -371,7 +371,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
               <PeopleIcon fontSize="inherit" />
             </ColoredShortcutButton>
             <ColoredShortcutButton bgcolor={iconColors[3]}>
-              <SettingsIcon fontSize="inherit" />
+              <SettingsIcon fontSize="inherit" onClick={() => handleNavigation("/settings")}/>
             </ColoredShortcutButton>
           </Box>
 
