@@ -94,7 +94,7 @@ const Tickets: React.FC = () => {
   const handleApplyFilters = (newFilters: any) => {
     // TODO: Trigger API call with newFilters
   };
-console.log(ticketList)
+  console.log(ticketList);
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => (
     <div
@@ -163,70 +163,71 @@ console.log(ticketList)
   return (
     <>
       <div className="flex flex-col bg-gray-50 h-[calc(100vh-160px)]">
-        {/* Header Bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b bg-white">
+        {/* Main Header Bar */}
+        <div className="flex items-center justify-between px-6 pb-4 border-b bg-white w-full">
           <div className="flex items-center gap-4">
             <span className="text-xl font-semibold">All tickets</span>
             <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
               {ticketList?.data?.length}
             </span>
-            <div className="ml-6 flex items-center gap-2">
-              <span className="text-sm text-gray-600">Sort by:</span>
-              <select
-                className="border border-gray-300 rounded px-2 py-1 text-sm"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option>Date created</option>
-                <option>Priority</option>
-                <option>Status</option>
-              </select>
-            </div>
           </div>
           <div className="flex items-center gap-3">
             <button
               className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm"
-              onClick={() => {
-                setCreateDialogOpen(true);
-                console.log("okk");
-              }}
+              onClick={() => setCreateDialogOpen(true)}
             >
               + New
             </button>
-
             <button className="p-2 rounded hover:bg-gray-100">
               <HelpOutlineIcon className="text-xl" />
             </button>
           </div>
         </div>
-        {/* Main Content */}
+        {/* Second Top Bar (Filter/Sort/Pagination) */}
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200">
+          {/* Left: Sort by */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Sort by:</span>
+            <select
+              className="border border-gray-300 rounded px-2 py-1 text-sm bg-white"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option>Date created</option>
+              <option>Priority</option>
+              <option>Status</option>
+            </select>
+          </div>
+          {/* Right: Layout, Export, Pagination */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Layout:</span>
+              <span className="font-medium">Card</span>
+            </div>
+            <button className="px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium hover:bg-gray-100">
+              Export
+            </button>
+            {ticketList?.pagination && (
+              <TablePagination
+                component="div"
+                count={ticketList.pagination.total}
+                page={page - 1}
+                onPageChange={(_, newPage) => setPage(newPage + 1)}
+                rowsPerPage={limit}
+                onRowsPerPageChange={(e) => {
+                  setLimit(parseInt(e.target.value, 10));
+                  setPage(1);
+                }}
+                rowsPerPageOptions={[10, 20, 30, 50, 100]}
+                labelRowsPerPage="Tickets per page"
+              />
+            )}
+          </div>
+        </div>
+        {/* Main Content: Tickets + Filters */}
         <div className="flex flex-1 h-0 min-h-0">
           {/* Ticket List */}
           <div className="flex-1 p-6 h-full overflow-y-auto">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                Sort by: <span className="font-medium">{sortBy}</span>
-              </div>
-              <div className="text-sm text-gray-600">
-                Layout: <span className="font-medium">Card</span>
-              </div>
-              <div className="text-sm text-gray-600">Export</div>
-              {ticketList?.pagination && (
-                <TablePagination
-                  component="div"
-                  count={ticketList.pagination.total}
-                  page={page - 1} // MUI is 0-based, your state is 1-based
-                  onPageChange={(_, newPage) => setPage(newPage + 1)}
-                  rowsPerPage={limit}
-                  onRowsPerPageChange={(e) => {
-                    setLimit(parseInt(e.target.value, 10));
-                    setPage(1); // Reset to first page on page size change
-                  }}
-                  rowsPerPageOptions={[10, 20, 30, 50, 100]}
-                  labelRowsPerPage="Tickets per page"
-                />
-              )}
-            </div>
             {isTicketListFetching ? (
               <TicketSkeleton />
             ) : (
