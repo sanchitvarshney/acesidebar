@@ -18,6 +18,112 @@ import CallMergeIcon from "@mui/icons-material/CallMerge";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import BlockIcon from "@mui/icons-material/Block";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Popover from "@mui/material/Popover";
+import MenuItem from "@mui/material/MenuItem";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import PersonIcon from "@mui/icons-material/Person";
+import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+
+// Priority/Status/Agent dropdown options
+const PRIORITY_OPTIONS = [
+  { label: "Low", value: "low", color: "#b6e388" },
+  { label: "Medium", value: "medium", color: "#5cb6f9" },
+  { label: "High", value: "high", color: "#ffe066" },
+  { label: "Urgent", value: "urgent", color: "#ff6b6b" },
+];
+const STATUS_OPTIONS = [
+  { label: "Open", value: "open" },
+  { label: "Pending", value: "pending" },
+  { label: "Resolved", value: "resolved" },
+  { label: "Closed", value: "closed" },
+  { label: "Waiting on Third Party", value: "waiting" },
+];
+const AGENT_OPTIONS = [
+  { label: "Unassigned", value: "" },
+  { label: "Admin", value: "admin" },
+  { label: "Agent 1", value: "agent1" },
+  { label: "Agent 2", value: "agent2" },
+];
+const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
+
+// Custom dropdown option type
+interface DropdownOption {
+  label: string;
+  value: string;
+  color?: string;
+}
+
+// CustomDropdown props type
+interface CustomDropdownProps {
+  value: string;
+  options: DropdownOption[];
+  onChange: (value: string) => void;
+  colorDot?: boolean;
+  width?: number;
+}
+
+// Custom dropdown component
+function CustomDropdown({
+  value,
+  options,
+  onChange,
+  colorDot,
+  width = 120,
+}: CustomDropdownProps) {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
+    setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+  const handleSelect = (option: DropdownOption) => {
+    onChange(option.value);
+    handleClose();
+  };
+  const selected =
+    options.find((o: DropdownOption) => o.value === value) || options[0];
+  return (
+    <>
+      <button
+        className="flex items-center gap-1 px-0 py-0 bg-transparent border-none text-gray-600 text-sm font-normal hover:text-gray-800 focus:outline-none min-w-0"
+        style={{ width, boxShadow: "none" }}
+        onClick={handleClick}
+        type="button"
+      >
+        {colorDot && (
+          <span
+            className="w-3 h-3 rounded-sm inline-block"
+            style={{ background: selected.color }}
+          ></span>
+        )}
+        <span className="truncate">{selected.label}</span>
+        <ArrowDropDownIcon fontSize="small" className="-ml-1" />
+      </button>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        PaperProps={{ style: { minWidth: width } }}
+      >
+        {options.map((option: DropdownOption) => (
+          <MenuItem
+            key={option.value}
+            selected={option.value === value}
+            onClick={() => handleSelect(option)}
+          >
+            {colorDot && (
+              <span
+                className="w-3 h-3 rounded-sm inline-block mr-2"
+                style={{ background: option.color }}
+              ></span>
+            )}
+            {option.label}
+          </MenuItem>
+        ))}
+      </Popover>
+    </>
+  );
+}
 
 const Tickets: React.FC = () => {
   const [sortBy, setSortBy] = useState("Date created");
@@ -26,6 +132,9 @@ const Tickets: React.FC = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
+  const [ticketDropdowns, setTicketDropdowns] = useState<
+    Record<string, { priority: string; agent: string; status: string }>
+  >({});
   const [ticketSearch, { isLoading: isTicketSearchLoading }] =
     useTicketSearchMutation();
   const getApiParams = () => {
@@ -127,74 +236,129 @@ const Tickets: React.FC = () => {
     );
   }, [selectedTickets, ticketList]);
   // Card-style ticket rendering
-  const renderTicketCard = (ticket: any) => (
-    <div
-      key={ticket?.ticketNumber}
-      className="bg-white rounded border border-gray-200 mb-3 flex flex-col md:flex-row items-start md:items-center px-4 py-3 shadow-sm hover:shadow transition relative"
-    >
-      <div className="flex items-center mr-4 mb-2 md:mb-0">
-        <input
-          type="checkbox"
-          className="mr-3"
-          checked={selectedTickets.includes(ticket.ticketNumber)}
-          onChange={() => handleTicketCheckbox(ticket.ticketNumber)}
-        />
-        {ticket?.avatarUrl ? (
-          <Avatar src={ticket.avatarUrl} className="w-10 h-10 mr-3" />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600 mr-3">
-            {ticket?.fromUser?.name[0] || "D"}
+  const renderTicketCard = (ticket: any) => {
+    // Sentiment emoji logic
+    const sentiment: keyof typeof SENTIMENT_EMOJI = ticket.sentiment || "NEU";
+    const emoji = SENTIMENT_EMOJI[sentiment] || "😐";
+    // State for dropdowns
+    const dropdownState = ticketDropdowns[ticket.ticketNumber] || {
+      priority: ticket.priority?.value || ticket.priority?.name || "low",
+      agent: ticket.assignedTo?.name || "",
+      status: ticket.status || "open",
+    };
+    return (
+      <div
+        key={ticket?.ticketNumber}
+        className="bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-3 shadow-sm hover:shadow transition relative"
+      >
+        {/* Left: Checkbox, Avatar, Sentiment */}
+        <div className="flex items-center mr-4 min-w-[60px]">
+          <input
+            type="checkbox"
+            className="mr-3"
+            checked={selectedTickets.includes(ticket.ticketNumber)}
+            onChange={() => handleTicketCheckbox(ticket.ticketNumber)}
+          />
+          <div className="relative">
+            {ticket?.avatarUrl ? (
+              <Avatar src={ticket.avatarUrl} className="w-10 h-10" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
+                {ticket?.fromUser?.name[0] || "D"}
+              </div>
+            )}
+            {/* Sentiment emoji overlay */}
+            <span
+              className="absolute -bottom-1 -right-1 text-xl"
+              title="Sentiment"
+            >
+              {emoji}
+            </span>
           </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          {ticket.status === "open" && (
-            <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded mr-2">
-              First response due
-            </span>
-          )}
-          {ticket.status === "undelivered" && (
-            <span className="bg-gray-200 text-pink-600 text-xs font-semibold px-2 py-0.5 rounded mr-2">
-              Undelivered
-            </span>
-          )}
-          <span className="font-semibold text-gray-800 truncate">
-            {ticket?.subject}{" "}
-            <span className="text-gray-400">#{ticket?.ticketNumber}</span>
-          </span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
-          <span className="flex items-center gap-1">
-            <span className="font-medium">{ticket.fromUser?.name}</span>
-            <span className="text-xs">
-              • Created: {ticket?.createdDt?.timestamp}
-            </span>
-            {ticket.updatedAt && (
-              <span className="text-xs">
-                • Agent responded: {ticket?.stats?.agentRespondedAt?.timeAgo}
+        {/* Middle: Ticket info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {ticket.status === "open" && (
+              <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded mr-2">
+                First response due
               </span>
             )}
-            <span className="text-xs">• {ticket?.lastupdate?.timeAgo}</span>
-          </span>
+            {ticket.status === "undelivered" && (
+              <span className="bg-gray-200 text-pink-600 text-xs font-semibold px-2 py-0.5 rounded mr-2">
+                Undelivered
+              </span>
+            )}
+            <span className="font-semibold text-gray-800 truncate">
+              {ticket?.subject}{" "}
+              <span className="text-gray-400">#{ticket?.ticketNumber}</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
+            <span className="flex items-center gap-1">
+              <span className="font-medium">{ticket.fromUser?.name}</span>
+              <span className="text-xs">
+                • Created: {ticket?.createdDt?.timestamp}
+              </span>
+              {ticket.updatedAt && (
+                <span className="text-xs">
+                  • Agent responded: {ticket?.stats?.agentRespondedAt?.timeAgo}
+                </span>
+              )}
+              <span className="text-xs">• {ticket?.lastupdate?.timeAgo}</span>
+            </span>
+          </div>
+        </div>
+        {/* Right: Priority, Agent, Status dropdowns */}
+        <div className="flex flex-col items-end gap-1 min-w-[140px] ml-4">
+          <div className="flex items-center w-full">
+            <CustomDropdown
+              value={dropdownState.priority}
+              onChange={(val) =>
+                setTicketDropdowns((prev) => ({
+                  ...prev,
+                  [ticket.ticketNumber]: { ...dropdownState, priority: val },
+                }))
+              }
+              options={PRIORITY_OPTIONS}
+              colorDot={true}
+              width={90}
+            />
+          </div>
+          <div className="flex items-center w-full">
+            <PersonIcon fontSize="small" className="mr-1 text-gray-500" />
+            <CustomDropdown
+              value={dropdownState.agent}
+              onChange={(val) =>
+                setTicketDropdowns((prev) => ({
+                  ...prev,
+                  [ticket.ticketNumber]: { ...dropdownState, agent: val },
+                }))
+              }
+              options={AGENT_OPTIONS}
+              colorDot={false}
+              width={110}
+            />
+          </div>
+          <div className="flex items-center w-full">
+            <MonitorHeartIcon fontSize="small" className="mr-1 text-gray-500" />
+            <CustomDropdown
+              value={dropdownState.status}
+              onChange={(val) =>
+                setTicketDropdowns((prev) => ({
+                  ...prev,
+                  [ticket.ticketNumber]: { ...dropdownState, status: val },
+                }))
+              }
+              options={STATUS_OPTIONS}
+              colorDot={false}
+              width={110}
+            />
+          </div>
         </div>
       </div>
-      <div className="flex flex-col items-end ml-auto min-w-[120px] gap-2">
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-semibold ${ticket.priority?.color}`}>
-            {ticket?.priority?.name}
-          </span>
-          <span
-            className="w-2 h-2 rounded-full inline-block"
-            style={{ backgroundColor: ticket.priority?.color }}
-          ></span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Open</span>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
