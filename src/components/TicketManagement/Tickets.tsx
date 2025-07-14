@@ -11,12 +11,21 @@ import { useToast } from "../../hooks/useToast";
 import CreateTicketDialog from "./CreateTicketDialog";
 import TicketSkeleton from "../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import SyncAltIcon from "@mui/icons-material/SyncAlt";
+import CallMergeIcon from "@mui/icons-material/CallMerge";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import BlockIcon from "@mui/icons-material/Block";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const Tickets: React.FC = () => {
   const [sortBy, setSortBy] = useState("Date created");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
+  const [masterChecked, setMasterChecked] = useState(false);
   const [ticketSearch, { isLoading: isTicketSearchLoading }] =
     useTicketSearchMutation();
   const getApiParams = () => {
@@ -87,6 +96,36 @@ const Tickets: React.FC = () => {
     // TODO: Trigger API call with newFilters
   };
   console.log(ticketList);
+  // Handle ticket checkbox change
+  const handleTicketCheckbox = (ticketId: string) => {
+    setSelectedTickets((prev) =>
+      prev.includes(ticketId)
+        ? prev.filter((id) => id !== ticketId)
+        : [...prev, ticketId]
+    );
+  };
+
+  // Handle master checkbox change
+  const handleMasterCheckbox = () => {
+    if (selectedTickets.length === ticketList?.data?.length) {
+      setSelectedTickets([]);
+      setMasterChecked(false);
+    } else {
+      setSelectedTickets(
+        ticketList?.data?.map((t: any) => t.ticketNumber) || []
+      );
+      setMasterChecked(true);
+    }
+  };
+
+  // Update master checkbox if all/none selected
+  React.useEffect(() => {
+    if (!ticketList?.data) return;
+    setMasterChecked(
+      ticketList.data.length > 0 &&
+        selectedTickets.length === ticketList.data.length
+    );
+  }, [selectedTickets, ticketList]);
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => (
     <div
@@ -94,7 +133,12 @@ const Tickets: React.FC = () => {
       className="bg-white rounded border border-gray-200 mb-3 flex flex-col md:flex-row items-start md:items-center px-4 py-3 shadow-sm hover:shadow transition relative"
     >
       <div className="flex items-center mr-4 mb-2 md:mb-0">
-        <input type="checkbox" className="mr-3" />
+        <input
+          type="checkbox"
+          className="mr-3"
+          checked={selectedTickets.includes(ticket.ticketNumber)}
+          onChange={() => handleTicketCheckbox(ticket.ticketNumber)}
+        />
         {ticket?.avatarUrl ? (
           <Avatar src={ticket.avatarUrl} className="w-10 h-10 mr-3" />
         ) : (
@@ -157,25 +201,60 @@ const Tickets: React.FC = () => {
       <div className="flex flex-col bg-gray-50 h-[calc(100vh-160px)]">
         {/* Main Header Bar */}
         <div className="flex items-center justify-between px-6 pb-2 border-b bg-white w-full">
-          {/* Left: Title and count */}
-          <div className="flex items-center gap-4">
-            <span className="text-xl font-semibold">All tickets</span>
-            <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">
+          {/* Left: Title, master checkbox, count, and action buttons (inline) */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <input
+              type="checkbox"
+              className="mr-2 w-5 h-5 accent-blue-600"
+              checked={masterChecked}
+              onChange={handleMasterCheckbox}
+              aria-label="Select all tickets"
+            />
+            <span className="text-xl font-semibold whitespace-nowrap">
+              All tickets
+            </span>
+            <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">
               {ticketList?.data?.length}
             </span>
-            {/* Sort by */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Sort by:</span>
-              <select
-                className="border border-gray-300 rounded px-2 py-1 text-sm bg-white"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option>Date created</option>
-                <option>Priority</option>
-                <option>Status</option>
-              </select>
-            </div>
+            {selectedTickets.length > 0 && (
+              <div className="flex items-center gap-2 ml-4 flex-wrap">
+                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                  <PersonAddAltIcon fontSize="small" /> Assign
+                </button>
+                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                  <CheckCircleIcon fontSize="small" /> Close
+                </button>
+                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                  <SyncAltIcon fontSize="small" /> Bulk update
+                </button>
+                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                  <CallMergeIcon fontSize="small" /> Merge
+                </button>
+                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                  <AssignmentIcon fontSize="small" /> Scenarios
+                </button>
+                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                  <BlockIcon fontSize="small" /> Spam
+                </button>
+                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                  <DeleteIcon fontSize="small" /> Delete
+                </button>
+              </div>
+            )}
+            {selectedTickets.length === 0 && (
+              <div className="flex items-center gap-2 ml-4">
+                <span className="text-sm text-gray-600">Sort by:</span>
+                <select
+                  className="border border-gray-300 rounded px-2 py-1 text-sm bg-white"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option>Date created</option>
+                  <option>Priority</option>
+                  <option>Status</option>
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Right: Controls */}
