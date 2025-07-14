@@ -6,6 +6,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
   useGetTicketListQuery,
   useTicketSearchMutation,
+  useGetPriorityListQuery,
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 import CreateTicketDialog from "./CreateTicketDialog";
@@ -18,19 +19,11 @@ import CallMergeIcon from "@mui/icons-material/CallMerge";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import BlockIcon from "@mui/icons-material/Block";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Popover from "@mui/material/Popover";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import CustomDropdown from "../shared/CustomDropdown";
 import PersonIcon from "@mui/icons-material/Person";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 
 // Priority/Status/Agent dropdown options
-const PRIORITY_OPTIONS = [
-  { label: "Low", value: "low", color: "#b6e388" },
-  { label: "Medium", value: "medium", color: "#5cb6f9" },
-  { label: "High", value: "high", color: "#ffe066" },
-  { label: "Urgent", value: "urgent", color: "#ff6b6b" },
-];
 const STATUS_OPTIONS = [
   { label: "Open", value: "open" },
   { label: "Pending", value: "pending" },
@@ -46,85 +39,6 @@ const AGENT_OPTIONS = [
 ];
 const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
-// Custom dropdown option type
-interface DropdownOption {
-  label: string;
-  value: string;
-  color?: string;
-}
-
-// CustomDropdown props type
-interface CustomDropdownProps {
-  value: string;
-  options: DropdownOption[];
-  onChange: (value: string) => void;
-  colorDot?: boolean;
-  width?: number;
-}
-
-// Custom dropdown component
-function CustomDropdown({
-  value,
-  options,
-  onChange,
-  colorDot,
-  width = 120,
-}: CustomDropdownProps) {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
-    setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
-  const handleSelect = (option: DropdownOption) => {
-    onChange(option.value);
-    handleClose();
-  };
-  const selected =
-    options.find((o: DropdownOption) => o.value === value) || options[0];
-  return (
-    <>
-      <button
-        className="flex items-center gap-1 px-0 py-0 bg-transparent border-none text-gray-600 text-sm font-normal hover:text-gray-800 focus:outline-none min-w-0"
-        style={{ width, boxShadow: "none" }}
-        onClick={handleClick}
-        type="button"
-      >
-        {colorDot && (
-          <span
-            className="w-3 h-3 rounded-sm inline-block"
-            style={{ background: selected.color }}
-          ></span>
-        )}
-        <span className="truncate">{selected.label}</span>
-        <ArrowDropDownIcon fontSize="small" className="-ml-1" />
-      </button>
-      <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        transformOrigin={{ vertical: "top", horizontal: "left" }}
-        PaperProps={{ style: { minWidth: width } }}
-      >
-        {options.map((option: DropdownOption) => (
-          <MenuItem
-            key={option.value}
-            selected={option.value === value}
-            onClick={() => handleSelect(option)}
-          >
-            {colorDot && (
-              <span
-                className="w-3 h-3 rounded-sm inline-block mr-2"
-                style={{ background: option.color }}
-              ></span>
-            )}
-            {option.label}
-          </MenuItem>
-        ))}
-      </Popover>
-    </>
-  );
-}
-
 const Tickets: React.FC = () => {
   const [sortBy, setSortBy] = useState("Date created");
   const [page, setPage] = useState(1);
@@ -137,28 +51,24 @@ const Tickets: React.FC = () => {
   >({});
   const [ticketSearch, { isLoading: isTicketSearchLoading }] =
     useTicketSearchMutation();
+
+  // Fetch live priority list
+  const { data: priorityList, isLoading: isPriorityListLoading } =
+    useGetPriorityListQuery();
+
+  // Map API priorities to dropdown options
+  const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
+    label: item.specification,
+    value: item.priorityName,
+    color: item.color,
+    key: item?.key,
+  }));
+  // Restore getApiParams for ticket list API
   const getApiParams = () => {
-    const params: any = {
+    return {
       page,
       limit,
     };
-
-    // Map UI filters to API parameters
-    // if (currentFilter !== "all") {
-    //   if (["emergency", "high", "normal", "low"].includes(currentFilter)) {
-    //     params.priority = currentFilter.toUpperCase();
-    //   } else if (
-    //     ["open", "in-progress", "resolved", "closed"].includes(currentFilter)
-    //   ) {
-    //     params.status = currentFilter.toUpperCase();
-    //   }
-    // }
-
-    // if (currentTag) {
-    //   params.department = currentTag.toUpperCase();
-    // }
-
-    return params;
   };
   const {
     data: ticketList,

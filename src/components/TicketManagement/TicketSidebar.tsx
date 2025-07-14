@@ -8,6 +8,9 @@ import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 interface TicketFilterPanelProps {
   onApplyFilters: (filters: Record<string, any>) => void;
@@ -106,17 +109,23 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
               />
             )}
             {field.type === "date" && (
-              <TextField
-                fullWidth
-                size="small"
-                label={field.label}
-                name={field.name}
-                value={filters[field.name]}
-                onChange={handleChange}
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                variant="outlined"
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label={field.label}
+                  value={filters[field.name] || null}
+                  onChange={(newValue: any) => {
+                    setFilters((prev) => ({ ...prev, [field.name]: newValue }));
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      size: "small",
+                      variant: "outlined",
+                      name: field.name,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
             )}
             {field.type === "chip" && (
               <FormControl fullWidth size="small">
