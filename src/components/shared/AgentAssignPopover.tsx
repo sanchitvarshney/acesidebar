@@ -7,12 +7,14 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import PersonIcon from "@mui/icons-material/Person";
 
 interface AgentAssignPopoverProps {
   value: string;
   onChange: (val: string) => void;
   agentList: string[];
-  groupList: string[];
+  departmentList: string[];
   trigger: React.ReactNode;
 }
 
@@ -20,24 +22,24 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
   value,
   onChange,
   agentList,
-  groupList,
+  departmentList,
   trigger,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [tab, setTab] = useState<"group" | "agent">("agent");
+  const [tab, setTab] = useState<"department" | "agent">("agent");
   const [search, setSearch] = useState("");
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) =>
     setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
-  const handleTabChange = (_: any, newValue: "group" | "agent") =>
+  const handleTabChange = (_: any, newValue: "department" | "agent") =>
     setTab(newValue);
 
   const filteredAgents = agentList.filter((a) =>
     a.toLowerCase().includes(search.toLowerCase())
   );
-  const filteredGroups = groupList.filter((g) =>
-    g.toLowerCase().includes(search.toLowerCase())
+  const filteredDepartments = departmentList.filter((d) =>
+    d.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSelect = (val: string) => {
@@ -71,9 +73,11 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
           <Tabs value={tab} onChange={handleTabChange} variant="fullWidth">
             <Tab
               label={
-                <span style={{ fontWeight: 600, fontSize: 13 }}>GROUP</span>
+                <span style={{ fontWeight: 600, fontSize: 13 }}>
+                  Department
+                </span>
               }
-              value="group"
+              value="department"
             />
             <Tab
               label={
@@ -106,7 +110,7 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
             color="text.secondary"
             sx={{ fontWeight: 600, mb: 1, display: "block" }}
           >
-            {tab === "group" ? "Group" : "Agent"}
+            {tab === "department" ? "Department" : "Agent"}
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <Box
@@ -120,29 +124,50 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
                 color: value === "Unassigned" ? "#1976d2" : "inherit",
                 fontSize: 15,
                 mb: 0.5,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
               }}
               onClick={() => handleSelect("Unassigned")}
             >
+              <PersonIcon fontSize="small" style={{ marginRight: 8 }} />
               Unassigned
             </Box>
-            {(tab === "group" ? filteredGroups : filteredAgents).map((item) => (
-              <Box
-                key={item}
-                sx={{
-                  px: 1,
-                  py: 0.5,
-                  borderRadius: 1,
-                  cursor: "pointer",
-                  bgcolor: value === item ? "#f0f4ff" : "transparent",
-                  fontWeight: value === item ? 600 : 400,
-                  color: value === item ? "#1976d2" : "inherit",
-                  fontSize: 15,
-                }}
-                onClick={() => handleSelect(item)}
-              >
-                {item}
-              </Box>
-            ))}
+            {(tab === "department" ? filteredDepartments : filteredAgents).map(
+              (item) => (
+                <Box
+                  key={item}
+                  sx={{
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1,
+                    cursor: "pointer",
+                    bgcolor: value === item ? "#f0f4ff" : "transparent",
+                    fontWeight: value === item ? 600 : 400,
+                    color: value === item ? "#1976d2" : "inherit",
+                    fontSize: 15,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                  onClick={() => handleSelect(item)}
+                >
+                  {tab === "agent" ? (
+                    <Avatar
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        fontSize: 14,
+                        marginRight: 1,
+                      }}
+                    >
+                      {item[0]}
+                    </Avatar>
+                  ) : null}
+                  {item}
+                </Box>
+              )
+            )}
           </Box>
         </Box>
       </Popover>

@@ -167,7 +167,8 @@ const Tickets: React.FC = () => {
         <div className="flex items-center mr-4 min-w-[60px]">
           <input
             type="checkbox"
-            className="mr-3"
+            // className="mr-3"
+             className="mr-2 w-4 h-4 accent-blue-600"
             checked={selectedTickets.includes(ticket.ticketNumber)}
             onChange={() => handleTicketCheckbox(ticket.ticketNumber)}
           />
@@ -201,13 +202,13 @@ const Tickets: React.FC = () => {
                 Undelivered
               </span>
             )}
-            <span className="font-semibold text-gray-800 truncate">
-              {ticket?.subject}{" "}
-              <span className="text-gray-400">#{ticket?.ticketNumber}</span>
+            <span className="font-semibold text-gray-800 truncate text-lg">
+              {ticket?.subject}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
             <span className="flex items-center gap-1">
+            <span className="text-gray-800 text-base">#{ticket?.ticketNumber} | </span>
               <span className="font-medium">{ticket.fromUser?.name}</span>
               <span className="text-xs">
                 • Created: {ticket?.createdDt?.timestamp}
@@ -247,7 +248,7 @@ const Tickets: React.FC = () => {
                 }))
               }
               agentList={["Admin", "Agent 1", "Agent 2"]}
-              groupList={["Support", "Sales", "Billing"]}
+              departmentList={["Support", "Sales", "Billing"]}
               trigger={
                 <span className="flex items-center gap-1 text-gray-600 text-sm cursor-pointer">
                   <PersonIcon fontSize="small" />
@@ -305,15 +306,15 @@ const Tickets: React.FC = () => {
                 <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
                   <CheckCircleIcon fontSize="small" /> Close
                 </button>
-                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                {/* <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
                   <SyncAltIcon fontSize="small" /> Bulk update
-                </button>
+                </button> */}
                 <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
                   <CallMergeIcon fontSize="small" /> Merge
                 </button>
-                <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
+                {/* <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
                   <AssignmentIcon fontSize="small" /> Scenarios
-                </button>
+                </button> */}
                 <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
                   <BlockIcon fontSize="small" /> Spam
                 </button>
