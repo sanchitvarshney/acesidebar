@@ -22,6 +22,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CustomDropdown from "../shared/CustomDropdown";
 import PersonIcon from "@mui/icons-material/Person";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
+import AgentAssignPopover from "../shared/AgentAssignPopover";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -236,18 +238,23 @@ const Tickets: React.FC = () => {
             />
           </div>
           <div className="flex items-center w-full">
-            <PersonIcon fontSize="small" className="mr-1 text-gray-500" />
-            <CustomDropdown
-              value={dropdownState.agent}
+            <AgentAssignPopover
+              value={dropdownState.agent || "Unassigned"}
               onChange={(val) =>
                 setTicketDropdowns((prev) => ({
                   ...prev,
                   [ticket.ticketNumber]: { ...dropdownState, agent: val },
                 }))
               }
-              options={AGENT_OPTIONS}
-              colorDot={false}
-              width={110}
+              agentList={["Admin", "Agent 1", "Agent 2"]}
+              groupList={["Support", "Sales", "Billing"]}
+              trigger={
+                <span className="flex items-center gap-1 text-gray-600 text-sm cursor-pointer">
+                  <PersonIcon fontSize="small" />
+                  <span>{dropdownState.agent || "Unassigned"}</span>
+                  <ArrowDropDownIcon fontSize="small" />
+                </span>
+              }
             />
           </div>
           <div className="flex items-center w-full">

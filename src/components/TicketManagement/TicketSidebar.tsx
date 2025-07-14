@@ -88,7 +88,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   label={field.label}
                   onChange={() => handleChange}
                 >
-                  <MenuItem value="">Select {field.label}</MenuItem>
                   {field.choices?.map((opt: any) => (
                     <MenuItem key={opt.value} value={opt.value}>
                       {opt.label}
