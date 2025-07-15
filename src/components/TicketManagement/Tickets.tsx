@@ -168,7 +168,7 @@ const Tickets: React.FC = () => {
           <input
             type="checkbox"
             // className="mr-3"
-             className="mr-2 w-4 h-4 accent-blue-600"
+            className="mr-2 w-4 h-4 accent-blue-600"
             checked={selectedTickets.includes(ticket.ticketNumber)}
             onChange={() => handleTicketCheckbox(ticket.ticketNumber)}
           />
@@ -208,7 +208,9 @@ const Tickets: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
             <span className="flex items-center gap-1">
-            <span className="text-gray-800 text-base">#{ticket?.ticketNumber} | </span>
+              <span className="text-gray-800 text-base">
+                #{ticket?.ticketNumber} |{" "}
+              </span>
               <span className="font-medium">{ticket.fromUser?.name}</span>
               <span className="text-xs">
                 • Created: {ticket?.createdDt?.timestamp}
@@ -301,25 +303,32 @@ const Tickets: React.FC = () => {
             {selectedTickets.length > 0 && (
               <div className="flex items-center gap-2 ml-4 flex-wrap">
                 <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                  <PersonAddAltIcon fontSize="small" /> Assign
+                  <PersonAddAltIcon
+                    fontSize="small"
+                    sx={{ color: "#1976d2" }}
+                  />{" "}
+                  Assign
                 </button>
                 <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                  <CheckCircleIcon fontSize="small" /> Close
+                  <CheckCircleIcon fontSize="small" sx={{ color: "#43a047" }} />{" "}
+                  Close
                 </button>
                 {/* <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
                   <SyncAltIcon fontSize="small" /> Bulk update
                 </button> */}
                 <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                  <CallMergeIcon fontSize="small" /> Merge
+                  <CallMergeIcon fontSize="small" sx={{ color: "#ff9800" }} />{" "}
+                  Merge
                 </button>
                 {/* <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
                   <AssignmentIcon fontSize="small" /> Scenarios
                 </button> */}
                 <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                  <BlockIcon fontSize="small" /> Spam
+                  <BlockIcon fontSize="small" sx={{ color: "#e53935" }} /> Spam
                 </button>
                 <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                  <DeleteIcon fontSize="small" /> Delete
+                  <DeleteIcon fontSize="small" sx={{ color: "#6d4c41" }} />{" "}
+                  Delete
                 </button>
               </div>
             )}
