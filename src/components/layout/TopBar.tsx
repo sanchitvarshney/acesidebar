@@ -1,17 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
   IconButton,
   Typography,
-  InputBase,
   Badge,
   Menu,
   MenuItem,
-  Avatar,
   Box,
-  styled,
-  alpha,
   useTheme,
 } from "@mui/material";
 import {
@@ -24,52 +20,13 @@ import {
   ExitToApp,
 } from "@mui/icons-material";
 
-import NotificationModal from "../notificationmodal/NotificationModal";
 import NotificationDropDown from "../notificationmodal/NotificationDropDown";
 import CustomPopover from "../../reusable/CustomPopover";
 import { useNavigate } from "react-router-dom";
+import SearchDropdownPanel from "../common/SearchDropdownPanel";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
-
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "20ch",
-    },
-  },
-}));
 
 interface TopBarProps {
   open: boolean;
@@ -115,7 +72,9 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     >
       <MenuItem onClick={handleMenuClose}>
         <AccountCircle fontSize="small" sx={{ mr: 1 }} />
-        <Typography variant="body2" onClick={() => navigate("/profile")}>My Profile</Typography>
+        <Typography variant="body2" onClick={() => navigate("/profile")}>
+          My Profile
+        </Typography>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
         <Settings fontSize="small" sx={{ mr: 1 }} />
@@ -127,10 +86,49 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
         <ExitToApp fontSize="small" sx={{ mr: 1 }} />
-        <Typography variant="body2" onClick={() => handleLogout()}>Logout</Typography>
+        <Typography variant="body2" onClick={() => handleLogout()}>
+          Logout
+        </Typography>
       </MenuItem>
     </Menu>
   );
+
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [recentSearched, setRecentSearched] = useState<string[]>([
+    "12",
+    "test",
+  ]);
+  const [recentViewed, setRecentViewed] = useState([
+    { title: "Testing 2", id: 6 },
+    { title: "Testing Email", id: 5 },
+    { title: "TEST MAIL", id: 4 },
+    { title: "Issues with reports", id: 3 },
+    { title: "Authentication failure", id: 2 },
+  ]);
+
+  // Collapse search bar when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target as Node) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setSearchExpanded(false);
+      }
+    }
+    if (searchExpanded) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [searchExpanded]);
 
   return (
     <AppBar
@@ -164,15 +162,34 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         >
           Application
         </Typography>
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ "aria-label": "search" }}
-          />
-        </Search>
+        {/* Expanding Search Bar */}
+        <div
+          ref={dropdownRef}
+          className={`transition-all duration-200 ml-4 ${
+            searchExpanded ? "w-[480px]" : "w-[240px]"
+          } relative`}
+        >
+          <div className="flex items-center w-full bg-white border border-gray-300 rounded px-2 py-1 shadow-sm">
+            <SearchIcon className="text-gray-400 mr-2" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search…"
+              className="flex-1 bg-transparent outline-none text-gray-800 text-base"
+              onFocus={() => setSearchExpanded(true)}
+              onClick={() => setSearchExpanded(true)}
+            />
+          </div>
+          {/* Dropdown panel */}
+          {searchExpanded && (
+            <SearchDropdownPanel
+              recentSearched={recentSearched}
+              setRecentSearched={setRecentSearched}
+              recentViewed={recentViewed}
+              setRecentViewed={setRecentViewed}
+            />
+          )}
+        </div>
         <Box sx={{ flexGrow: 1 }} />
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton
@@ -185,7 +202,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
               <NotificationsIcon ref={notificationRef} />
             </Badge>
           </IconButton>
-        
+
           <IconButton
             size="large"
             edge="end"
@@ -200,19 +217,19 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         </Box>
       </Toolbar>
       {renderMenu}
-        {notificationOpen && (
-            <CustomPopover
-              open={notificationOpen}
-              close={() => setNotificationOpen(false)}
-              //@ts-ignore
-              anchorEl={notificationRef}
-              width={400}
-              height={360}
-              isCone={true}
-            >
-              <NotificationDropDown />
-            </CustomPopover>
-          )}
+      {notificationOpen && (
+        <CustomPopover
+          open={notificationOpen}
+          close={() => setNotificationOpen(false)}
+          //@ts-ignore
+          anchorEl={notificationRef}
+          width={400}
+          height={360}
+          isCone={true}
+        >
+          <NotificationDropDown />
+        </CustomPopover>
+      )}
     </AppBar>
   );
 };
