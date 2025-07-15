@@ -72,6 +72,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         url: `/ticket/search?ticket=${ticketNumber}`,
         method: "GET",
       }),
+      transformResponse:(response: any) => response?.data,
     }),
 
     getAdvancedSearch: builder.query<any, void>({

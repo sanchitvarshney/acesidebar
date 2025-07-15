@@ -24,6 +24,7 @@ import NotificationDropDown from "../notificationmodal/NotificationDropDown";
 import CustomPopover from "../../reusable/CustomPopover";
 import { useNavigate } from "react-router-dom";
 import SearchDropdownPanel from "../common/SearchDropdownPanel";
+import { useTicketSearchMutation } from "../../services/ticketAuth";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -96,6 +97,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [recentSearched, setRecentSearched] = useState<string[]>([
     "12",
     "test",
@@ -107,6 +109,37 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     { title: "Issues with reports", id: 3 },
     { title: "Authentication failure", id: 2 },
   ]);
+
+  // Ticket search mutation
+  const [
+    ticketSearch,
+    { data: searchResult, isLoading: isSearching, reset: resetSearch },
+  ] = useTicketSearchMutation();
+
+  // Debounced search effect
+  useEffect(() => {
+    if (searchQuery.trim().length >= 3) {
+      const handler = setTimeout(() => {
+        ticketSearch(searchQuery.trim());
+        if (!recentSearched.includes(searchQuery.trim())) {
+          setRecentSearched(
+            [searchQuery.trim(), ...recentSearched].slice(0, 5)
+          );
+        }
+      }, 400);
+      return () => clearTimeout(handler);
+    } else {
+      resetSearch && resetSearch();
+    }
+    // eslint-disable-next-line
+  }, [searchQuery]);
+
+  // Clear search result if input is cleared (keep this for safety)
+  useEffect(() => {
+    if (!searchQuery) {
+      resetSearch && resetSearch();
+    }
+  }, [searchQuery, resetSearch]);
 
   // Collapse search bar when clicking outside
   useEffect(() => {
@@ -176,6 +209,8 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
               type="text"
               placeholder="Search…"
               className="flex-1 bg-transparent outline-none text-gray-800 text-base"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchExpanded(true)}
               onClick={() => setSearchExpanded(true)}
             />
@@ -187,6 +222,9 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
               setRecentSearched={setRecentSearched}
               recentViewed={recentViewed}
               setRecentViewed={setRecentViewed}
+              isSearching={isSearching}
+              searchResult={searchResult}
+              searchQuery={searchQuery}
             />
           )}
         </div>

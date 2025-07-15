@@ -7,6 +7,9 @@ interface SearchDropdownPanelProps {
   setRecentViewed: React.Dispatch<
     React.SetStateAction<{ title: string; id: number }[]>
   >;
+  isSearching?: boolean;
+  searchResult?: any;
+  searchQuery?: string;
 }
 
 const FILTERS = ["All", "Tickets", "Contacts", "Solutions", "Forums"];
@@ -16,6 +19,9 @@ const SearchDropdownPanel: React.FC<SearchDropdownPanelProps> = ({
   setRecentSearched,
   recentViewed,
   setRecentViewed,
+  isSearching,
+  searchResult,
+  searchQuery,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
@@ -32,6 +38,32 @@ const SearchDropdownPanel: React.FC<SearchDropdownPanelProps> = ({
   const handleCancel = () => setShowSettings(false);
   const handleApply = () => setShowSettings(false);
 
+  // Ticket card rendering for search result
+  const renderTicketResult = (ticket: any) => (
+    <div className="bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-3 shadow-sm hover:shadow transition relative mt-4">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="font-semibold text-gray-800 truncate text-lg">
+            {ticket?.subject || ticket?.title || "No subject"}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
+          <span className="flex items-center gap-1">
+            <span className="text-gray-800 text-base">
+              #{ticket?.ticketId || ticket?.id}
+            </span>
+            <span className="font-medium">
+              {ticket?.fromUser || ticket?.requester}
+            </span>
+            <span className="text-xs">
+              • Created: {ticket?.createDt || ticket?.createdAt}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+console.log(searchResult)
   return (
     <div className="absolute left-0 top-12 w-[480px] z-50 rounded-lg shadow-lg border border-gray-200 bg-white">
       {/* Filter bar */}
@@ -183,6 +215,22 @@ const SearchDropdownPanel: React.FC<SearchDropdownPanelProps> = ({
               Apply
             </button>
           </div>
+        </div>
+      ) : isSearching ? (
+        <div className="p-6">
+          <div className="h-16 bg-gray-200 rounded w-full animate-pulse mb-2" />
+          <div className="h-6 bg-gray-100 rounded w-1/2 animate-pulse mb-2" />
+        </div>
+      ) : searchResult && searchQuery ? (
+        <div className="p-4 max-h-80 overflow-y-auto">
+          {Array.isArray(searchResult) && searchResult.length === 0 && (
+            <div className="text-gray-400 text-center py-8">
+              No tickets found.
+            </div>
+          )}
+          {Array.isArray(searchResult)
+            ? searchResult.map(renderTicketResult)
+            : renderTicketResult(searchResult)}
         </div>
       ) : (
         <>
