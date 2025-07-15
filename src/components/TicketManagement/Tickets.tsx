@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
-import { Avatar } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { Avatar, Select, MenuItem } from "@mui/material";
 import {
   useGetTicketListQuery,
-  useTicketSearchMutation,
   useGetPriorityListQuery,
+  useGetTicketListSortingQuery,
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 import CreateTicketDialog from "./CreateTicketDialog";
@@ -14,9 +12,7 @@ import TicketSkeleton from "../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import CallMergeIcon from "@mui/icons-material/CallMerge";
-import AssignmentIcon from "@mui/icons-material/Assignment";
 import BlockIcon from "@mui/icons-material/Block";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CustomDropdown from "../shared/CustomDropdown";
@@ -51,8 +47,9 @@ const Tickets: React.FC = () => {
   const [ticketDropdowns, setTicketDropdowns] = useState<
     Record<string, { priority: string; agent: string; status: string }>
   >({});
-  const [ticketSearch, { isLoading: isTicketSearchLoading }] =
-    useTicketSearchMutation();
+
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortType, setSortType] = useState<string | null>(null);
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -78,45 +75,37 @@ const Tickets: React.FC = () => {
     isFetching: isTicketListFetching,
     refetch,
   } = useGetTicketListQuery(getApiParams());
+  const sortingParams = sortType
+    ? { type: sortType, order: sortOrder, page, limit }
+    : undefined;
+  const {
+    data: sortedTicketList,
+    isLoading: isSortedTicketListLoading,
+    isFetching: isSortedTicketListFetching,
+    refetch: refetchSorted,
+  } = useGetTicketListSortingQuery(
+    sortingParams as {
+      type: string;
+      order: string;
+      page: number;
+      limit: number;
+    },
+    { skip: !sortType }
+  );
   const { showToast } = useToast();
-  const tickets = [
-    {
-      id: 1,
-      avatarUrl: "https://via.placeholder.com/50",
-      requester: "John Doe",
-      createdAt: "2023-10-26T10:00:00Z",
-      updatedAt: "2023-10-26T11:00:00Z",
-      title: "Issue with product delivery",
-      status: "open",
-      priority: "high",
-    },
-    {
-      id: 2,
-      avatarUrl: "https://via.placeholder.com/50",
-      requester: "Jane Smith",
-      createdAt: "2023-10-25T14:30:00Z",
-      updatedAt: "2023-10-25T15:00:00Z",
-      title: "Website not loading",
-      status: "undelivered",
-      priority: "urgent",
-    },
-    {
-      id: 3,
-      avatarUrl: "https://via.placeholder.com/50",
-      requester: "Peter Jones",
-      createdAt: "2023-10-24T09:15:00Z",
-      updatedAt: "2023-10-24T09:45:00Z",
-      title: "Payment processing issue",
-      status: "open",
-      priority: "low",
-    },
-  ]; // Replace with API data as needed
+  const ticketsToShow = sortType ? sortedTicketList : ticketList;
+  const isTicketsLoading = sortType
+    ? isSortedTicketListLoading
+    : isTicketListLoading;
+  const isTicketsFetching = sortType
+    ? isSortedTicketListFetching
+    : isTicketListFetching;
 
   // Handle filter apply
   const handleApplyFilters = (newFilters: any) => {
     // TODO: Trigger API call with newFilters
   };
-  console.log(ticketList);
+
   // Handle ticket checkbox change
   const handleTicketCheckbox = (ticketId: string) => {
     setSelectedTickets((prev) =>
@@ -346,15 +335,25 @@ const Tickets: React.FC = () => {
             {selectedTickets.length === 0 && (
               <div className="flex items-center gap-2 ml-4">
                 <span className="text-sm text-gray-600">Sort by:</span>
-                <select
-                  className="border border-gray-300 rounded px-2 py-1 text-sm bg-white"
+                <Select
+                  size="small"
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    let type = "createdAt";
+                    if (e.target.value === "Priority") type = "priority";
+                    else if (e.target.value === "Status") type = "status";
+                    else if (e.target.value === "Date created")
+                      type = "createdAt";
+                    setSortType(type);
+                    setSortOrder("desc");
+                  }}
+                  sx={{ minWidth: 140, background: "#fff" }}
                 >
-                  <option>Date created</option>
-                  <option>Priority</option>
-                  <option>Status</option>
-                </select>
+                  <MenuItem value="Date created">Date created</MenuItem>
+                  <MenuItem value="Priority">Priority</MenuItem>
+                  <MenuItem value="Status">Status</MenuItem>
+                </Select>
               </div>
             )}
           </div>
@@ -394,12 +393,12 @@ const Tickets: React.FC = () => {
         <div className="flex flex-1 h-0 min-h-0">
           {/* Ticket List */}
           <div className="flex-1 p-6 h-full overflow-y-auto">
-            {isTicketListFetching ? (
+            {isTicketsFetching ? (
               <TicketSkeleton />
             ) : (
               <div>
-                {ticketList && ticketList?.data?.length > 0 ? (
-                  ticketList?.data?.map(renderTicketCard)
+                {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
+                  ticketsToShow?.data?.map(renderTicketCard)
                 ) : (
                   <div className="text-gray-400 text-center py-8">
                     No tickets found.

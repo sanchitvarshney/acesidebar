@@ -51,6 +51,27 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       // transformResponse: (response: any) => response?.data,
     }),
 
+    getTicketListSorting: builder.query<
+      any,
+      { type: string; order: string; page: number; limit: number }
+    >({
+      query: (params) => {
+        const searchParams = new URLSearchParams();
+        if (params.type) searchParams.append("type", params.type);
+        if (params.order) searchParams.append("order", params.order);
+        if (params.page) searchParams.append("page", params.page.toString());
+        if (params.limit) searchParams.append("limit", params.limit.toString());
+        const queryString = searchParams.toString();
+        const url = queryString
+          ? `/ticket/list-sorting?${queryString}`
+          : "/ticket/list-sorting";
+        return {
+          url,
+          method: "GET",
+        };
+      },
+    }),
+
     getTagList: builder.query<any, void>({
       query: () => ({
         url: "/tag/list",
@@ -72,7 +93,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         url: `/ticket/search?ticket=${ticketNumber}`,
         method: "GET",
       }),
-      transformResponse:(response: any) => response?.data,
+      transformResponse: (response: any) => response?.data,
     }),
 
     getAdvancedSearch: builder.query<any, void>({
@@ -103,4 +124,5 @@ export const {
   useAddTagMutation,
   useTicketSearchMutation,
   useGetAdvancedSearchQuery,
+  useGetTicketListSortingQuery,
 } = extendedTicketApi;
