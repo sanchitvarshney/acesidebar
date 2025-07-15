@@ -202,7 +202,10 @@ const Tickets: React.FC = () => {
                 Undelivered
               </span>
             )}
-            <span className="font-semibold text-gray-800 truncate text-lg">
+            <span
+              className="font-semibold text-gray-800 truncate text-lg max-w-[220px] overflow-hidden whitespace-nowrap"
+              title={ticket?.subject}
+            >
               {ticket?.subject}
             </span>
           </div>
@@ -211,7 +214,12 @@ const Tickets: React.FC = () => {
               <span className="text-gray-800 text-base">
                 #{ticket?.ticketNumber} |{" "}
               </span>
-              <span className="font-medium">{ticket.fromUser?.name}</span>
+              <span
+                className="font-medium max-w-[120px] truncate overflow-hidden whitespace-nowrap"
+                title={ticket.fromUser?.name}
+              >
+                {ticket.fromUser?.name}
+              </span>
               <span className="text-xs">
                 • Created: {ticket?.createdDt?.timestamp}
               </span>
@@ -252,7 +260,10 @@ const Tickets: React.FC = () => {
               agentList={["Admin", "Agent 1", "Agent 2"]}
               departmentList={["Support", "Sales", "Billing"]}
               trigger={
-                <span className="flex items-center gap-1 text-gray-600 text-sm cursor-pointer">
+                <span
+                  className="flex items-center gap-1 text-gray-600 text-sm cursor-pointer max-w-[120px] truncate overflow-hidden whitespace-nowrap"
+                  title={dropdownState.agent || "Unassigned"}
+                >
                   <PersonIcon fontSize="small" />
                   <span>{dropdownState.agent || "Unassigned"}</span>
                   <ArrowDropDownIcon fontSize="small" />
