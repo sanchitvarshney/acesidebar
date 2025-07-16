@@ -26,8 +26,22 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
   trigger,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [tab, setTab] = useState<"department" | "agent">("agent");
+  const [tab, setTab] = useState<"department" | "agent">("department");
   const [search, setSearch] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [selectedAgent, setSelectedAgent] = useState<string>("");
+
+  // When value changes from parent, update local state
+  React.useEffect(() => {
+    if (value && value.includes("/")) {
+      const [dep, ag] = value.split("/");
+      setSelectedDepartment(dep);
+      setSelectedAgent(ag);
+    } else {
+      setSelectedDepartment("");
+      setSelectedAgent("");
+    }
+  }, [value]);
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) =>
     setAnchorEl(e.currentTarget);
@@ -42,10 +56,51 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
     d.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSelect = (val: string) => {
-    onChange(val);
-    handleClose();
+  const handleSelectDepartment = (dep: string) => {
+    setSelectedDepartment(dep);
+    setTab("agent"); // Switch to agent tab after department selection
+    setSearch("");
   };
+
+  const handleSelectAgent = (ag: string) => {
+    setSelectedAgent(ag);
+    handleClose();
+    onChange(`${selectedDepartment || "Unassigned"}/${ag}`);
+  };
+
+  // The trigger displays Department/Agent if both selected, else fallback
+  let triggerContent: React.ReactNode = trigger;
+  if (selectedDepartment && selectedAgent) {
+    triggerContent = (
+      <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <span
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth:60,
+            display: "inline-block",
+          }}
+        >
+          {selectedDepartment}
+        </span>
+        <span style={{ margin: "0 2px" }}>/</span>
+        <span
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth: 60,
+            display: "inline-block",
+          }}
+        >
+          {selectedAgent}
+        </span>
+      </div>
+    );
+  } else if (typeof value === "string" && value) {
+    triggerContent = value;
+  }
 
   return (
     <>
@@ -57,7 +112,7 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
           alignItems: "center",
         }}
       >
-        {trigger}
+        {triggerContent}
       </span>
       <Popover
         open={Boolean(anchorEl)}
@@ -84,6 +139,7 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
                 <span style={{ fontWeight: 600, fontSize: 13 }}>AGENT</span>
               }
               value="agent"
+              disabled={!selectedDepartment}
             />
           </Tabs>
         </Box>
@@ -113,46 +169,114 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
             {tab === "department" ? "Department" : "Agent"}
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <Box
-              sx={{
-                px: 1,
-                py: 0.5,
-                borderRadius: 1,
-                cursor: "pointer",
-                bgcolor: value === "Unassigned" ? "#f0f4ff" : "transparent",
-                fontWeight: value === "Unassigned" ? 600 : 400,
-                color: value === "Unassigned" ? "#1976d2" : "inherit",
-                fontSize: 15,
-                mb: 0.5,
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-              onClick={() => handleSelect("Unassigned")}
-            >
-              <PersonIcon fontSize="small" style={{ marginRight: 8 }} />
-              Unassigned
-            </Box>
-            {(tab === "department" ? filteredDepartments : filteredAgents).map(
-              (item) => (
+            {tab === "department" && (
+              <>
                 <Box
-                  key={item}
                   sx={{
                     px: 1,
                     py: 0.5,
                     borderRadius: 1,
                     cursor: "pointer",
-                    bgcolor: value === item ? "#f0f4ff" : "transparent",
-                    fontWeight: value === item ? 600 : 400,
-                    color: value === item ? "#1976d2" : "inherit",
+                    bgcolor:
+                      selectedDepartment === "Unassigned"
+                        ? "#f0f4ff"
+                        : "transparent",
+                    fontWeight: selectedDepartment === "Unassigned" ? 600 : 400,
+                    color:
+                      selectedDepartment === "Unassigned"
+                        ? "#1976d2"
+                        : "inherit",
                     fontSize: 15,
+                    mb: 0.5,
                     display: "flex",
                     alignItems: "center",
                     gap: 1,
                   }}
-                  onClick={() => handleSelect(item)}
+                  onClick={() => handleSelectDepartment("Unassigned")}
                 >
-                  {tab === "agent" ? (
+                  <PersonIcon fontSize="small" style={{ marginRight: 8 }} />
+                  Unassigned
+                </Box>
+                {filteredDepartments.map((item) => (
+                  <Box
+                    key={item}
+                    sx={{
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      cursor: "pointer",
+                      bgcolor:
+                        selectedDepartment === item ? "#f0f4ff" : "transparent",
+                      fontWeight: selectedDepartment === item ? 600 : 400,
+                      color:
+                        selectedDepartment === item ? "#1976d2" : "inherit",
+                      fontSize: 15,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                    onClick={() => handleSelectDepartment(item)}
+                  >
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: 160,
+                        display: "inline-block",
+                      }}
+                    >
+                      {item}
+                    </span>
+                  </Box>
+                ))}
+              </>
+            )}
+            {tab === "agent" && (
+              <>
+                <Box
+                  sx={{
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1,
+                    cursor: "pointer",
+                    bgcolor:
+                      selectedAgent === "Unassigned"
+                        ? "#f0f4ff"
+                        : "transparent",
+                    fontWeight: selectedAgent === "Unassigned" ? 600 : 400,
+                    color:
+                      selectedAgent === "Unassigned" ? "#1976d2" : "inherit",
+                    fontSize: 15,
+                    mb: 0.5,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                  onClick={() => handleSelectAgent("Unassigned")}
+                >
+                  <PersonIcon fontSize="small" style={{ marginRight: 8 }} />
+                  Unassigned
+                </Box>
+                {filteredAgents.map((item) => (
+                  <Box
+                    key={item}
+                    sx={{
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      cursor: "pointer",
+                      bgcolor:
+                        selectedAgent === item ? "#f0f4ff" : "transparent",
+                      fontWeight: selectedAgent === item ? 600 : 400,
+                      color: selectedAgent === item ? "#1976d2" : "inherit",
+                      fontSize: 15,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                    onClick={() => handleSelectAgent(item)}
+                  >
                     <Avatar
                       sx={{
                         width: 24,
@@ -163,10 +287,20 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
                     >
                       {item[0]}
                     </Avatar>
-                  ) : null}
-                  {item}
-                </Box>
-              )
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: 160,
+                        display: "inline-block",
+                      }}
+                    >
+                      {item}
+                    </span>
+                  </Box>
+                ))}
+              </>
             )}
           </Box>
         </Box>
