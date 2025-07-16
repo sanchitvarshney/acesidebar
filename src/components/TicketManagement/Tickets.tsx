@@ -192,7 +192,7 @@ const Tickets: React.FC = () => {
               </span>
             )}
             <span
-              className="font-semibold text-gray-800 truncate text-lg max-w-[220px] overflow-hidden whitespace-nowrap"
+              className="font-semibold text-gray-800 truncate text-lg max-w-[320px] overflow-hidden whitespace-nowrap"
               title={ticket?.subject}
             >
               {ticket?.subject}
@@ -217,7 +217,7 @@ const Tickets: React.FC = () => {
                   • Agent responded: {ticket?.stats?.agentRespondedAt?.timeAgo}
                 </span>
               )}
-              <span className="text-xs">• {ticket?.lastupdate?.timeAgo}</span>
+              <span className="text-xs"> {ticket?.lastupdate?.timeAgo}</span>
             </span>
           </div>
         </div>

@@ -65,7 +65,7 @@ const SearchDropdownPanel: React.FC<SearchDropdownPanelProps> = ({
   );
 console.log(searchResult)
   return (
-    <div className="absolute left-0 top-12 w-[480px] z-50 rounded-lg shadow-lg border border-gray-200 bg-white">
+    <div className="absolute left-0 top-full w-[480px] z-50 rounded-lg shadow-lg border border-gray-200 bg-white">
       {/* Filter bar */}
       <div className="px-4 pt-4 pb-2 select-none">
         <div className="flex items-center gap-2 mb-2">
@@ -114,90 +114,390 @@ console.log(searchResult)
               <span className="text-gray-700">Subject</span>
               <button
                 onClick={() => handleToggle("subject")}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
+                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-200 relative focus:outline-none ${
                   settings.subject ? "bg-blue-600" : "bg-gray-300"
                 }`}
+                style={{ minWidth: 40, minHeight: 24 }}
               >
                 <span
-                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 flex items-center justify-center ${
                     settings.subject ? "translate-x-4" : ""
                   }`}
-                ></span>
+                >
+                  {settings.subject ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M6 10.5L9 13.5L14 8.5"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M7 7L13 13M13 7L7 13"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </span>
               </button>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-gray-100 select-none">
               <span className="text-gray-700">Description</span>
               <button
                 onClick={() => handleToggle("description")}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
+                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-200 relative focus:outline-none ${
                   settings.description ? "bg-blue-600" : "bg-gray-300"
                 }`}
+                style={{ minWidth: 40, minHeight: 24 }}
               >
                 <span
-                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 flex items-center justify-center ${
                     settings.description ? "translate-x-4" : ""
                   }`}
-                ></span>
+                >
+                  {settings.description ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M6 10.5L9 13.5L14 8.5"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M7 7L13 13M13 7L7 13"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </span>
               </button>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-gray-100 select-none">
               <span className="text-gray-700">Ticket properties</span>
               <button
                 onClick={() => handleToggle("properties")}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
+                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-200 relative focus:outline-none ${
                   settings.properties ? "bg-blue-600" : "bg-gray-300"
                 }`}
+                style={{ minWidth: 40, minHeight: 24 }}
               >
                 <span
-                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 flex items-center justify-center ${
                     settings.properties ? "translate-x-4" : ""
                   }`}
-                ></span>
+                >
+                  {settings.properties ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M6 10.5L9 13.5L14 8.5"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M7 7L13 13M13 7L7 13"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </span>
               </button>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-gray-100 select-none">
               <span className="text-gray-700">Notes & replies</span>
               <button
                 onClick={() => handleToggle("notes")}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
+                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-200 relative focus:outline-none ${
                   settings.notes ? "bg-blue-600" : "bg-gray-300"
                 }`}
+                style={{ minWidth: 40, minHeight: 24 }}
               >
                 <span
-                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 flex items-center justify-center ${
                     settings.notes ? "translate-x-4" : ""
                   }`}
-                ></span>
+                >
+                  {settings.notes ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M6 10.5L9 13.5L14 8.5"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M7 7L13 13M13 7L7 13"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </span>
               </button>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-gray-100 select-none">
               <span className="text-gray-700">Attachments (File names)</span>
               <button
                 onClick={() => handleToggle("attachments")}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
+                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-200 relative focus:outline-none ${
                   settings.attachments ? "bg-blue-600" : "bg-gray-300"
                 }`}
+                style={{ minWidth: 40, minHeight: 24 }}
               >
                 <span
-                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 flex items-center justify-center ${
                     settings.attachments ? "translate-x-4" : ""
                   }`}
-                ></span>
+                >
+                  {settings.attachments ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M6 10.5L9 13.5L14 8.5"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M7 7L13 13M13 7L7 13"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </span>
               </button>
             </div>
-            <div className="bg-gray-50 rounded p-3 mt-4 flex items-center justify-between select-none">
+            <div className="bg-gray-50 rounded py-3 mt-4 flex items-center justify-between select-none">
               <span className="text-gray-700">Include spam tickets</span>
               <button
                 onClick={() => handleToggle("spam")}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
+                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-200 relative focus:outline-none ${
                   settings.spam ? "bg-blue-600" : "bg-gray-300"
                 }`}
+                style={{ minWidth: 40, minHeight: 24 }}
               >
                 <span
-                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                  className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 flex items-center justify-center ${
                     settings.spam ? "translate-x-4" : ""
                   }`}
-                ></span>
+                >
+                  {settings.spam ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M6 10.5L9 13.5L14 8.5"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="9"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        fill="white"
+                      />
+                      <path
+                        d="M7 7L13 13M13 7L7 13"
+                        stroke="#6b7280"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </span>
               </button>
             </div>
           </div>
