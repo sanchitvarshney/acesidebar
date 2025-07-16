@@ -134,90 +134,157 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           {criteriaArray.map((field: any) => (
             <Box className="mb-4" key={field.name}>
               {field.type === "dropdown" && (
-                <FormControl fullWidth size="small">
-                  <InputLabel>{field.label}</InputLabel>
-                  <Select
-                    name={field.name}
-                    value={filters[field.name]}
-                    onChange={handleSelectChange}
-                    label={field.label}
+                <div style={{ marginBottom: 16 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "#555",
+                      fontWeight: 500,
+                      marginBottom: 4,
+                    }}
                   >
-                    {field.choices?.map((opt: any) => (
-                      <MenuItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    {field.label}
+                  </div>
+                  <FormControl fullWidth size="small">
+                    <Select
+                      name={field.name}
+                      value={filters[field.name] ?? ""}
+                      onChange={handleSelectChange}
+                      displayEmpty
+                      renderValue={(selected) => {
+                        if (!selected || selected === "") {
+                          return <span style={{ color: "#aaa" }}></span>;
+                        }
+                        const selectedOption = field.choices?.find(
+                          (opt: { value: string; label: string }) =>
+                            opt.value === selected
+                        );
+                        return selectedOption ? selectedOption.label : selected;
+                      }}
+                    >
+                      {field.choices?.map(
+                        (opt: { value: string; label: string }) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        )
+                      )}
+                    </Select>
+                  </FormControl>
+                </div>
               )}
               {field.type === "text" && (
-                <TextField
-                  fullWidth
-                  size="small"
-                  label={field.label}
-                  name={field.name}
-                  value={filters[field.name]}
-                  onChange={handleChange}
-                  variant="outlined"
-                />
+                <div style={{ marginBottom: 16 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "#555",
+                      fontWeight: 500,
+                      marginBottom: 4,
+                    }}
+                  >
+                    {field.label}
+                  </div>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name={field.name}
+                    value={filters[field.name]}
+                    onChange={handleChange}
+                    variant="outlined"
+                    // No label or placeholder
+                  />
+                </div>
               )}
               {field.type === "date" && (
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label={field.label}
-                    value={filters[field.name] || null}
-                    onChange={(newValue: any) => {
-                      setFilters((prev) => ({
-                        ...prev,
-                        [field.name]: newValue,
-                      }));
+                <div style={{ marginBottom: 16 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "#555",
+                      fontWeight: 500,
+                      marginBottom: 4,
                     }}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        size: "small",
-                        variant: "outlined",
-                        name: field.name,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
+                  >
+                    {field.label}
+                  </div>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      value={filters[field.name] || null}
+                      onChange={(newValue: any) => {
+                        setFilters((prev) => ({
+                          ...prev,
+                          [field.name]: newValue,
+                        }));
+                      }}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          variant: "outlined",
+                          name: field.name,
+                          // No label or placeholder
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
               )}
               {field.type === "chip" && (
-                <FormControl fullWidth size="small">
-                  <InputLabel>{field.label}</InputLabel>
-                  <Select
-                    multiple
-                    name={field.name}
-                    value={
-                      Array.isArray(filters[field.name])
-                        ? filters[field.name]
-                        : []
-                    }
-                    onChange={(e) => handleChipChange(e, field.name)}
-                    label={field.label}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((value: string) => {
-                          const label =
-                            field.choices.find(
-                              (c: { value: string; label: string }) =>
-                                c.value === value
-                            )?.label || value;
-                          return (
-                            <Chip key={value} label={label} size="small" />
-                          );
-                        })}
-                      </Box>
-                    )}
+                <div style={{ marginBottom: 16 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "#555",
+                      fontWeight: 500,
+                      marginBottom: 4,
+                    }}
                   >
-                    {field.choices?.map((opt: any) => (
-                      <MenuItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    {field.label}
+                  </div>
+                  <FormControl fullWidth size="small">
+                    <Select
+                      multiple
+                      name={field.name}
+                      value={
+                        Array.isArray(filters[field.name])
+                          ? filters[field.name]
+                          : []
+                      }
+                      onChange={(e) => handleChipChange(e, field.name)}
+                      displayEmpty
+                      renderValue={(selected) => {
+                        if (!selected || selected.length === 0) {
+                          return <span style={{ color: "#aaa" }}></span>;
+                        }
+                        return (
+                          <Box
+                            sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
+                          >
+                            {selected.map((value: string) => {
+                              const label =
+                                field.choices.find(
+                                  (c: { value: string; label: string }) =>
+                                    c.value === value
+                                )?.label || value;
+                              return (
+                                <Chip key={value} label={label} size="small" />
+                              );
+                            })}
+                          </Box>
+                        );
+                      }}
+                    >
+                      {field.choices?.map(
+                        (opt: { value: string; label: string }) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        )
+                      )}
+                    </Select>
+                  </FormControl>
+                </div>
               )}
             </Box>
           ))}
@@ -258,6 +325,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       onChange={handleSelectChange}
                       displayEmpty
                     >
+                      <MenuItem value="">
+                        <span style={{ color: "#aaa" }}>
+                          {field.placeholder || field.label || "Select"}
+                        </span>
+                      </MenuItem>
                       {field.choices?.map((opt: any) => (
                         <MenuItem key={opt.value} value={opt.value}>
                           {opt.label}
@@ -270,17 +342,16 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   <TextField
                     fullWidth
                     size="small"
-                    label={field.label}
                     name={field.name}
                     value={filters[field.name]}
                     onChange={handleChange}
                     variant="outlined"
+                    placeholder={field.placeholder || field.label || ""}
                   />
                 )}
                 {field.type === "date" && (
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label={field.label}
                       value={filters[field.name] || null}
                       onChange={(newValue: any) => {
                         setFilters((prev) => ({
@@ -294,6 +365,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                           size: "small",
                           variant: "outlined",
                           name: field.name,
+                          placeholder: field.placeholder || field.label || "",
                         },
                       }}
                     />
@@ -310,23 +382,38 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                           : []
                       }
                       onChange={(e) => handleChipChange(e, field.name)}
-                      renderValue={(selected) => (
-                        <Box
-                          sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
-                        >
-                          {selected.map((value: string) => {
-                            const label =
-                              field.choices.find(
-                                (c: { value: string; label: string }) =>
-                                  c.value === value
-                              )?.label || value;
-                            return (
-                              <Chip key={value} label={label} size="small" />
-                            );
-                          })}
-                        </Box>
-                      )}
+                      displayEmpty
+                      renderValue={(selected) => {
+                        if (!selected || selected.length === 0) {
+                          return (
+                            <span style={{ color: "#aaa" }}>
+                              {field.placeholder || field.label || "Select"}
+                            </span>
+                          );
+                        }
+                        return (
+                          <Box
+                            sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
+                          >
+                            {selected.map((value: string) => {
+                              const label =
+                                field.choices.find(
+                                  (c: { value: string; label: string }) =>
+                                    c.value === value
+                                )?.label || value;
+                              return (
+                                <Chip key={value} label={label} size="small" />
+                              );
+                            })}
+                          </Box>
+                        );
+                      }}
                     >
+                      <MenuItem value="">
+                        <span style={{ color: "#aaa" }}>
+                          {field.placeholder || field.label || "Select"}
+                        </span>
+                      </MenuItem>
                       {field.choices?.map((opt: any) => (
                         <MenuItem key={opt.value} value={opt.value}>
                           {opt.label}

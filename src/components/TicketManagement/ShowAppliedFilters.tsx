@@ -4,6 +4,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 
 interface FilterField {
   name: string;
@@ -56,7 +57,25 @@ const ShowAppliedFilters: React.FC<ShowAppliedFiltersProps> = ({
               key={f.name}
               className="flex items-center justify-between py-1 border-b last:border-b-0"
             >
-              <span>{f.label}</span>
+              <div style={{ marginBottom: 8 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "#555",
+                    fontWeight: 500,
+                    marginBottom: 4,
+                  }}
+                >
+                  {f.label}
+                </div>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder=""
+                  value={stagedFilters.includes(f.name) ? f.name : ""}
+                  onChange={(e) => handleAdd(e.target.value)}
+                />
+              </div>
               {stagedFilters.includes(f.name) ? (
                 <Button
                   size="small"
