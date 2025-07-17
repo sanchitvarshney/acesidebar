@@ -22,6 +22,7 @@ import AgentAssignPopover from "../shared/AgentAssignPopover";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import TicketSubjectTooltip from "../shared/TicketSubjectTooltip";
 import TicketSubjectPopover from "../shared/TicketSubjectPopover";
+import UserPopover from "../shared/UserPopover";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -58,6 +59,12 @@ const Tickets: React.FC = () => {
   const [popoverTicket, setPopoverTicket] = useState<any>(null);
   const [popoverHovered, setPopoverHovered] = useState(false);
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
+
+  const [userPopoverAnchorEl, setUserPopoverAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const [userPopoverHovered, setUserPopoverHovered] = useState(false);
+  const userPopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const [userPopoverUser, setUserPopoverUser] = useState<any>(null);
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -180,6 +187,38 @@ const Tickets: React.FC = () => {
     }, 200);
   };
 
+  const handleUserPopoverOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    user: any
+  ) => {
+    if (userPopoverTimer.current) {
+      clearTimeout(userPopoverTimer.current);
+      userPopoverTimer.current = null;
+    }
+    setUserPopoverAnchorEl(event.currentTarget as HTMLElement);
+    setUserPopoverUser(user);
+    setUserPopoverHovered(true);
+  };
+  const handleUserPopoverClose = () => {
+    setUserPopoverAnchorEl(null);
+    setUserPopoverUser(null);
+    setUserPopoverHovered(false);
+  };
+  const handleUserPopoverEnter = () => {
+    if (userPopoverTimer.current) {
+      clearTimeout(userPopoverTimer.current);
+      userPopoverTimer.current = null;
+    }
+    setUserPopoverHovered(true);
+  };
+  const handleUserPopoverLeave = () => {
+    userPopoverTimer.current = setTimeout(() => {
+      setUserPopoverHovered(false);
+      setUserPopoverAnchorEl(null);
+      setUserPopoverUser(null);
+    }, 200);
+  };
+
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
     // Sentiment emoji logic
@@ -273,12 +312,34 @@ const Tickets: React.FC = () => {
               <span className="text-gray-800 text-base">
                 #{ticket?.ticketNumber} |{" "}
               </span>
-              <span
-                className="font-medium max-w-[120px] truncate overflow-hidden whitespace-nowrap"
-                title={ticket.fromUser?.name}
-              >
-                {ticket.fromUser?.name}
-              </span>
+              <UserPopover
+                anchorEl={userPopoverAnchorEl}
+                open={Boolean(userPopoverAnchorEl) && userPopoverHovered}
+                onClose={handleUserPopoverClose}
+                onPopoverEnter={handleUserPopoverEnter}
+                onPopoverLeave={handleUserPopoverLeave}
+                avatar={ticket.fromUser?.avatarUrl}
+                name={ticket.fromUser?.name || ""}
+                company={ticket.fromUser?.company}
+                email={ticket.fromUser?.email}
+                phone={ticket.fromUser?.phone}
+                children={({ onMouseEnter, onMouseLeave }) => (
+                  <span
+                    className="font-medium max-w-[120px] truncate overflow-hidden whitespace-nowrap cursor-pointer hover:underline"
+                    title={ticket.fromUser?.name}
+                    onMouseEnter={(e) => {
+                      onMouseEnter(e);
+                      handleUserPopoverOpen(e, ticket.fromUser);
+                    }}
+                    onMouseLeave={(e) => {
+                      onMouseLeave(e);
+                      handleUserPopoverLeave();
+                    }}
+                  >
+                    {ticket.fromUser?.name}
+                  </span>
+                )}
+              />
               <span className="text-xs">
                 • Created: {ticket?.createdDt?.timestamp}
               </span>
