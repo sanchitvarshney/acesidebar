@@ -20,6 +20,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import AgentAssignPopover from "../shared/AgentAssignPopover";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import TicketSubjectTooltip from "../shared/TicketSubjectTooltip";
+import TicketSubjectPopover from "../shared/TicketSubjectPopover";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -50,6 +52,10 @@ const Tickets: React.FC = () => {
 
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState<string | null>(null);
+  const [popoverAnchorEl, setPopoverAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
+  const [popoverTicket, setPopoverTicket] = useState<any>(null);
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -136,6 +142,19 @@ const Tickets: React.FC = () => {
         selectedTickets.length === ticketList.data.length
     );
   }, [selectedTickets, ticketList]);
+
+  const handlePopoverOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    ticket: any
+  ) => {
+    setPopoverAnchorEl(event.currentTarget as HTMLElement);
+    setPopoverTicket(ticket);
+  };
+  const handlePopoverClose = () => {
+    setPopoverAnchorEl(null);
+    setPopoverTicket(null);
+  };
+
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
     // Sentiment emoji logic
@@ -191,12 +210,39 @@ const Tickets: React.FC = () => {
                 Undelivered
               </span>
             )}
-            <span
-              className="font-semibold text-gray-800 truncate text-lg max-w-[320px] overflow-hidden whitespace-nowrap"
-              title={ticket?.subject}
-            >
-              {ticket?.subject}
-            </span>
+            <TicketSubjectPopover
+              anchorEl={popoverAnchorEl}
+              open={
+                popoverAnchorEl !== null &&
+                popoverTicket?.ticketNumber === ticket.ticketNumber
+              }
+              onClose={handlePopoverClose}
+              name={ticket.fromUser?.name || "Unknown"}
+              actionType={"forwarded"}
+              date={ticket.createdDt?.timestamp || ""}
+              message={
+                typeof ticket.description === "string"
+                  ? ticket.description
+                  : ticket.description?.name || ""
+              }
+              avatar={ticket.avatarUrl}
+              children={({ onMouseEnter, onMouseLeave }) => (
+                <span
+                  className="font-semibold text-gray-800 truncate text-lg max-w-[320px] overflow-hidden whitespace-nowrap cursor-pointer"
+                  title={ticket?.subject}
+                  onMouseEnter={(e) => {
+                    onMouseEnter(e);
+                    handlePopoverOpen(e, ticket);
+                  }}
+                  onMouseLeave={(e) => {
+                    onMouseLeave(e);
+                    handlePopoverClose();
+                  }}
+                >
+                  {ticket?.subject}
+                </span>
+              )}
+            />
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
             <span className="flex items-center gap-1">
