@@ -392,7 +392,7 @@ const Tickets: React.FC = () => {
         {/* Main Content: Tickets + Filters */}
         <div className="flex flex-1 h-0 min-h-0">
           {/* Ticket List */}
-          <div className="flex-1 p-6 h-full overflow-y-auto">
+          <div className="flex-1 p-3 h-full overflow-y-auto">
             {isTicketsFetching ? (
               <TicketSkeleton />
             ) : (
@@ -407,7 +407,7 @@ const Tickets: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="w-80 min-w-[320px] border-l bg-white flex flex-col h-full">
+          <div className="w-80 min-w-[300px] border-l bg-white flex flex-col h-full">
             <div className="flex-1 overflow-y-auto h-full">
               <TicketFilterPanel onApplyFilters={handleApplyFilters} />
             </div>

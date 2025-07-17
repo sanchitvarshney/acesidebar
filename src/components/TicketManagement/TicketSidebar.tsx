@@ -85,6 +85,17 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     console.log(filters);
   };
 
+  // Add a reset handler
+  const handleResetFilters = () => {
+    const cleared: Record<string, any> = {};
+    criteriaArray.forEach((field: any) => {
+      if (field.type === "chip") cleared[field.name] = [];
+      else cleared[field.name] = "";
+    });
+    setFilters(cleared);
+    onApplyFilters(cleared);
+  };
+
   if (isLoading) {
     return <TicketFilterSkeleton />;
   }
@@ -133,7 +144,91 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         <Box className="flex-1 overflow-y-auto">
           {criteriaArray.map((field: any) => (
             <Box className="mb-4" key={field.name}>
-              {field.type === "dropdown" && (
+              {field.type === "dropdown" && field.name === "priority" && (
+                <div style={{ marginBottom: 16 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "#555",
+                      fontWeight: 500,
+                      marginBottom: 4,
+                    }}
+                  >
+                    {field.label}
+                  </div>
+                  <FormControl fullWidth size="small">
+                    <Select
+                      name={field.name}
+                      value={filters[field.name] ?? ""}
+                      onChange={handleSelectChange}
+                      displayEmpty
+                      renderValue={(selected) => {
+                        if (!selected || selected === "") {
+                          return <span style={{ color: "#aaa" }}></span>;
+                        }
+                        const selectedOption = field.choices?.find(
+                          (opt: { value: string; label: string }) =>
+                            opt.value === selected
+                        );
+                        return selectedOption ? (
+                          <span
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: 12,
+                                height: 12,
+                                borderRadius: "50%",
+                                backgroundColor: selectedOption.color,
+                                marginRight: 6,
+                              }}
+                            ></span>
+                            {selectedOption.label}
+                          </span>
+                        ) : (
+                          selected
+                        );
+                      }}
+                    >
+                      {field.choices?.map(
+                        (opt: {
+                          value: string;
+                          label: string;
+                          color?: string;
+                        }) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: opt.color || "#ccc",
+                                  marginRight: 6,
+                                }}
+                              ></span>
+                              {opt.label}
+                            </span>
+                          </MenuItem>
+                        )
+                      )}
+                    </Select>
+                  </FormControl>
+                </div>
+              )}
+              {field.type === "dropdown" && field.name !== "priority" && (
                 <div style={{ marginBottom: 16 }}>
                   <div
                     style={{
@@ -317,7 +412,82 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                     <RemoveCircleOutlineIcon fontSize="small" />
                   </IconButton>
                 </Box>
-                {field.type === "dropdown" && (
+                {field.type === "dropdown" && field.name === "priority" && (
+                  <FormControl fullWidth size="small">
+                    <Select
+                      name={field.name}
+                      value={filters[field.name]}
+                      onChange={handleSelectChange}
+                      displayEmpty
+                      renderValue={(selected) => {
+                        if (!selected || selected === "") {
+                          return (
+                            <span style={{ color: "#aaa" }}>
+                              {field.placeholder || field.label || "Select"}
+                            </span>
+                          );
+                        }
+                        const selectedOption = field.choices?.find(
+                          (opt: { value: string; label: string }) =>
+                            opt.value === selected
+                        );
+                        return selectedOption ? (
+                          <span
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: 12,
+                                height: 12,
+                                borderRadius: "50%",
+                                backgroundColor: selectedOption.color,
+                                marginRight: 6,
+                              }}
+                            ></span>
+                            {selectedOption.label}
+                          </span>
+                        ) : (
+                          selected
+                        );
+                      }}
+                    >
+                      <MenuItem value="">
+                        <span style={{ color: "#aaa" }}>
+                          {field.placeholder || field.label || "Select"}
+                        </span>
+                      </MenuItem>
+                      {field.choices?.map((opt: any) => (
+                        <MenuItem key={opt.value} value={opt.value}>
+                          <span
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: 12,
+                                height: 12,
+                                borderRadius: "50%",
+                                backgroundColor: opt.color || "#ccc",
+                                marginRight: 6,
+                              }}
+                            ></span>
+                            {opt.label}
+                          </span>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+                {field.type === "dropdown" && field.name !== "priority" && (
                   <FormControl fullWidth size="small">
                     <Select
                       name={field.name}
@@ -489,10 +659,19 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           </Box>
         </Box>
       )}
-      {/* Fixed Apply button */}
-      <Box className="pt-2 pb-0 z-10 bg-white">
+      {/* Fixed Apply and Reset buttons */}
+      <Box className="pt-2 pb-0 z-10 bg-white flex gap-2">
+        {showCustomFilters && (
+          <button
+            className="w-full bg-gray-200 text-gray-700 font-semibold py-2 rounded disabled:opacity-50 hover:bg-gray-300"
+            onClick={handleResetFilters}
+            type="button"
+          >
+            Reset
+          </button>
+        )}
         <button
-          className="w-full bg-blue-600 text-white font-semibold py-2 rounded disabled:opacity-50"
+          className="w-full bg-blue-600 text-white font-semibold py-2 rounded disabled:opacity-50 hover:bg-blue-700"
           onClick={handleApply}
           type="button"
         >
