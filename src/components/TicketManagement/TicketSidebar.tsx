@@ -35,6 +35,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [filterSearch, setFilterSearch] = useState("");
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const topAnchorRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (searchCriteria && Array.isArray(searchCriteria)) {
@@ -124,7 +125,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       clearTimeout(closePopoverTimer.current);
       closePopoverTimer.current = null;
     }
-    setAnchorEl(event.currentTarget as HTMLElement);
+    if (activeFilters.length === 0 && topAnchorRef.current) {
+      setAnchorEl(topAnchorRef.current);
+    } else {
+      setAnchorEl(event.currentTarget as HTMLElement);
+    }
   };
 
   const handlePopoverClose = () => {
@@ -133,6 +138,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
   return (
     <Box className="w-72 min-w-72 shadow rounded-lg flex flex-col h-full p-4 relative bg-#f5f7f9">
+      <div ref={topAnchorRef} />
       {/* Header */}
       <Box className="flex items-center justify-between mb-2">
         <span className="font-semibold text-gray-700 text-sm">FILTERS</span>
