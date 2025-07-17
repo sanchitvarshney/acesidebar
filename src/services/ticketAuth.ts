@@ -103,6 +103,20 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.searchCriteria,
     }),
+    getDepartmentList: builder.query<any, void>({
+      query: () => ({
+        url: "department/list",
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
+    getStaffList: builder.query<any, void>({
+      query: () => ({
+        url: "staff/list",
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
 
     //  getuserdata: builder.mutation({
     //   query: (credentials) => ({
@@ -125,4 +139,7 @@ export const {
   useTicketSearchMutation,
   useGetAdvancedSearchQuery,
   useGetTicketListSortingQuery,
+  useGetDepartmentListQuery,
+  useGetStaffListQuery,
+
 } = extendedTicketApi;

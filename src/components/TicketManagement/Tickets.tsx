@@ -32,12 +32,6 @@ const STATUS_OPTIONS = [
   { label: "Closed", value: "closed" },
   { label: "Waiting on Third Party", value: "waiting" },
 ];
-const AGENT_OPTIONS = [
-  { label: "Unassigned", value: "" },
-  { label: "Admin", value: "admin" },
-  { label: "Agent 1", value: "agent1" },
-  { label: "Agent 2", value: "agent2" },
-];
 const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
 const Tickets: React.FC = () => {
@@ -415,7 +409,7 @@ const Tickets: React.FC = () => {
     <>
       <div className="flex flex-col bg-gray-50 h-[calc(100vh-160px)]">
         {/* Main Header Bar */}
-        <div className="flex items-center justify-between px-6 pb-2 border-b bg-white w-full">
+        <div className="flex items-center justify-between px-6 pb-2 border-b w-full bg-#f5f7f9">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <input
@@ -523,7 +517,7 @@ const Tickets: React.FC = () => {
         {/* Main Content: Tickets + Filters */}
         <div className="flex flex-1 h-0 min-h-0">
           {/* Ticket List */}
-          <div className="flex-1 p-3 h-full overflow-y-auto">
+          <div className="flex-1 p-3 h-full overflow-y-auto bg-white">
             {isTicketsFetching ? (
               <TicketSkeleton />
             ) : (

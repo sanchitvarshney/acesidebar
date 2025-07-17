@@ -9,6 +9,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import PersonIcon from "@mui/icons-material/Person";
+import { useGetDepartmentListQuery, useGetStaffListQuery } from "../../services/ticketAuth";
 
 interface AgentAssignPopoverProps {
   value: string;
@@ -101,8 +102,14 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
   } else if (typeof value === "string" && value) {
     triggerContent = value;
   }
+  const { data: staffList, isLoading: isStaffListLoading } =
+  useGetStaffListQuery();
+
+  const { data: departmentList2, isLoading: isDepartmentListLoading } =
+  useGetDepartmentListQuery();
 
   return (
+    
     <>
       <span
         onClick={handleOpen}
