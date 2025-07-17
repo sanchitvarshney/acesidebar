@@ -34,6 +34,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [filterSearch, setFilterSearch] = useState("");
+  const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (searchCriteria && Array.isArray(searchCriteria)) {
@@ -117,6 +118,19 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const filteredAvailableFilters = availableFilters.filter((field: any) =>
     field.label.toLowerCase().includes(filterSearch.toLowerCase())
   );
+
+  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+    if (closePopoverTimer.current) {
+      clearTimeout(closePopoverTimer.current);
+      closePopoverTimer.current = null;
+    }
+    setAnchorEl(event.currentTarget as HTMLElement);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
 
   return (
     <Box className="w-72 min-w-72 bg-white shadow rounded-lg flex flex-col h-full p-4 relative">
@@ -321,6 +335,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                           // No label or placeholder
                         },
                       }}
+                      format="DD/MM/YYYY"
                     />
                   </LocalizationProvider>
                 </div>
@@ -391,7 +406,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           <Box className="mb-2">
             <Button
               startIcon={<AddIcon />}
-              onClick={(e) => setAnchorEl(e.currentTarget)}
+              onClick={handlePopoverOpen}
               sx={{
                 color: "#2563eb",
                 fontWeight: 500,
@@ -404,11 +419,17 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
             <Popover
               open={Boolean(anchorEl)}
               anchorEl={anchorEl}
-              onClose={() => {
-                setAnchorEl(null);
-                setFilterSearch("");
-              }}
+              onClose={handlePopoverClose}
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              PaperProps={{
+                sx: {
+                  p: 0,
+                  minWidth: 220,
+                  maxWidth: 400,
+                  boxShadow: 3,
+                  borderRadius: 2,
+                },
+              }}
             >
               <Box sx={{ p: 1, minWidth: 220 }}>
                 <TextField
@@ -437,7 +458,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         key={field.name}
                         onClick={() => {
                           setActiveFilters((prev) => [...prev, field.name]);
-                          setAnchorEl(null);
+                          handlePopoverClose(); // Close popover after adding filter
                           setFilterSearch("");
                         }}
                       >
@@ -614,6 +635,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                             placeholder: field.placeholder || field.label || "",
                           },
                         }}
+                        format="DD/MM/YYYY"
                       />
                     </LocalizationProvider>
                   )}

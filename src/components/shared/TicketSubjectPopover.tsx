@@ -9,6 +9,8 @@ interface TicketSubjectPopoverProps {
   anchorEl: HTMLElement | null;
   open: boolean;
   onClose: () => void;
+  onPopoverEnter?: () => void;
+  onPopoverLeave?: () => void;
   name: string;
   actionType: string;
   date: string;
@@ -24,6 +26,8 @@ const TicketSubjectPopover: React.FC<TicketSubjectPopoverProps> = ({
   anchorEl,
   open,
   onClose,
+  onPopoverEnter,
+  onPopoverLeave,
   name,
   actionType,
   date,
@@ -44,6 +48,8 @@ const TicketSubjectPopover: React.FC<TicketSubjectPopoverProps> = ({
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
         PaperProps={{
+          onMouseEnter: onPopoverEnter,
+          onMouseLeave: onPopoverLeave,
           sx: {
             p: 0,
             minWidth: 340,

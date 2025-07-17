@@ -56,6 +56,8 @@ const Tickets: React.FC = () => {
     null
   );
   const [popoverTicket, setPopoverTicket] = useState<any>(null);
+  const [popoverHovered, setPopoverHovered] = useState(false);
+  const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -147,12 +149,35 @@ const Tickets: React.FC = () => {
     event: React.MouseEvent<HTMLElement>,
     ticket: any
   ) => {
+    if (closePopoverTimer.current) {
+      clearTimeout(closePopoverTimer.current);
+      closePopoverTimer.current = null;
+    }
     setPopoverAnchorEl(event.currentTarget as HTMLElement);
     setPopoverTicket(ticket);
+    setPopoverHovered(true);
   };
+
   const handlePopoverClose = () => {
     setPopoverAnchorEl(null);
     setPopoverTicket(null);
+    setPopoverHovered(false);
+  };
+
+  const handlePopoverEnter = () => {
+    if (closePopoverTimer.current) {
+      clearTimeout(closePopoverTimer.current);
+      closePopoverTimer.current = null;
+    }
+    setPopoverHovered(true);
+  };
+
+  const handlePopoverLeave = () => {
+    closePopoverTimer.current = setTimeout(() => {
+      setPopoverHovered(false);
+      setPopoverAnchorEl(null);
+      setPopoverTicket(null);
+    }, 200);
   };
 
   // Card-style ticket rendering
@@ -212,11 +237,10 @@ const Tickets: React.FC = () => {
             )}
             <TicketSubjectPopover
               anchorEl={popoverAnchorEl}
-              open={
-                popoverAnchorEl !== null &&
-                popoverTicket?.ticketNumber === ticket.ticketNumber
-              }
+              open={Boolean(popoverAnchorEl) && popoverHovered}
               onClose={handlePopoverClose}
+              onPopoverEnter={handlePopoverEnter}
+              onPopoverLeave={handlePopoverLeave}
               name={ticket.fromUser?.name || "Unknown"}
               actionType={"forwarded"}
               date={ticket.createdDt?.timestamp || ""}
@@ -236,7 +260,7 @@ const Tickets: React.FC = () => {
                   }}
                   onMouseLeave={(e) => {
                     onMouseLeave(e);
-                    handlePopoverClose();
+                    handlePopoverLeave();
                   }}
                 >
                   {ticket?.subject}
