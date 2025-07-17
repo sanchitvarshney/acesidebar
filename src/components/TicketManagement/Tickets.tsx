@@ -23,6 +23,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import TicketSubjectTooltip from "../shared/TicketSubjectTooltip";
 import TicketSubjectPopover from "../shared/TicketSubjectPopover";
 import UserPopover from "../shared/UserPopover";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -59,6 +60,8 @@ const Tickets: React.FC = () => {
   const [userPopoverHovered, setUserPopoverHovered] = useState(false);
   const userPopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
   const [userPopoverUser, setUserPopoverUser] = useState<any>(null);
+
+  const [filtersOpen, setFiltersOpen] = useState(true);
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -485,10 +488,6 @@ const Tickets: React.FC = () => {
 
           {/* Right: Controls */}
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Export */}
-            <button className="px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium hover:bg-gray-100">
-              Export
-            </button>
             {/* Pagination */}
             {ticketList?.pagination && (
               <TablePagination
@@ -512,6 +511,15 @@ const Tickets: React.FC = () => {
             >
               + New
             </button>
+            {/* Filters Icon Button */}
+            <button
+              className="flex items-center gap-2 px-3 py-1 border border-gray-300 rounded bg-white text-base font-semibold text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              onClick={() => setFiltersOpen((prev) => !prev)}
+              aria-label="Toggle Filters"
+            >
+              <FilterListIcon fontSize="small" />
+              Filters
+            </button>
           </div>
         </div>
         {/* Main Content: Tickets + Filters */}
@@ -532,11 +540,13 @@ const Tickets: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="w-80 min-w-[300px] border-l bg-white flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto h-full">
-              <TicketFilterPanel onApplyFilters={handleApplyFilters} />
+          {filtersOpen && (
+            <div className="w-80 min-w-[300px] border-l bg-white flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto h-full">
+                <TicketFilterPanel onApplyFilters={handleApplyFilters} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
       {createDialogOpen && (
