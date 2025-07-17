@@ -123,7 +123,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     if (closePopoverTimer.current) {
       clearTimeout(closePopoverTimer.current);
-      closePopoverTimer.current = null;
+      closePopoverTimer.current = null; 
     }
     if (activeFilters.length === 0 && topAnchorRef.current) {
       setAnchorEl(topAnchorRef.current);
