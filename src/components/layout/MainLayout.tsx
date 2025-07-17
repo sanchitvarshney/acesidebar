@@ -30,10 +30,10 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
 
 const MainContent = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(8),
-  padding: theme.spacing(3),
+  padding: theme.spacing(0),
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[1],
+  // boxShadow: theme.shadows[1],
 }));
 
 const MainLayout = ({}) => {

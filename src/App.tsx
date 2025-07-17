@@ -8,10 +8,6 @@ import {
 } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import MainLayout from "./components/layout/MainLayout";
-import Tickets from "./components/TicketManagement/Tickets";
-import LoginScreen from "./screens/LoginScreen";
-import SignupScreen from "./screens/SignupScreen";
 import { router } from "./routes/Routing";
 import { ToastContext } from "./contextApi/ToastContext";
 import { AuthProvider } from "./contextApi/AuthContext";
