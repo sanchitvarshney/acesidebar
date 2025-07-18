@@ -15,7 +15,6 @@ import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CallMergeIcon from "@mui/icons-material/CallMerge";
 import BlockIcon from "@mui/icons-material/Block";
-import DeleteIcon from "@mui/icons-material/Delete";
 import CustomDropdown from "../shared/CustomDropdown";
 import PersonIcon from "@mui/icons-material/Person";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
@@ -26,6 +25,8 @@ import TicketSortingPopover from "../shared/TicketSortingPopover";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import TicketDetailTemplate from "./TicketDetailTemplate";
 import { useGetTicketDetailStaffViewQuery } from "../../services/ticketDetailAuth";
+import DeleteIcon from "@mui/icons-material/Delete";
+import TicketDetailSkeleton from "../skeleton/TicketDetailSkeleton";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -261,11 +262,10 @@ const Tickets: React.FC = () => {
   };
 
   const handleTicketSubjectClick = (ticketNumber: string) => {
-    console.log(ticketNumber)
     setOpenTicketNumber(ticketNumber);
   };
 
-  const { data: ticketDetailData, isLoading: isTicketDetailLoading } =
+  const { data: ticketDetailData, isFetching: isTicketDetailLoading } =
     useGetTicketDetailStaffViewQuery(
       openTicketNumber
         ? { ticketNumber: openTicketNumber }
@@ -474,7 +474,9 @@ const Tickets: React.FC = () => {
 
   return (
     <>
-      {openTicketNumber && ticketDetailData ? (
+      { isTicketDetailLoading ? (
+        <TicketDetailSkeleton />
+      ) : openTicketNumber && ticketDetailData ? (
         <TicketDetailTemplate
           ticket={ticketDetailData}
           onBack={() => setOpenTicketNumber(null)}

@@ -63,7 +63,7 @@ const SearchDropdownPanel: React.FC<SearchDropdownPanelProps> = ({
       </div>
     </div>
   );
-console.log(searchResult)
+
   return (
     <div className="absolute left-0 top-full w-[480px] z-50 rounded-lg shadow-lg border border-gray-200 bg-white">
       {/* Filter bar */}

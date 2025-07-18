@@ -24,7 +24,6 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   children,
 }) => {
   if (!ticket) return null;
-  console.log(ticket)
   return (
     <Box sx={{ display: "flex" }}>
       <Sidebar open={false} handleDrawerToggle={() => {}} />
