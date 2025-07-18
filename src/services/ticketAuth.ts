@@ -72,6 +72,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       },
     }),
 
+    getTicketSortingOptions: builder.query<any, void>({
+      query: () => ({
+        url: "/ticket/list-sorting?q=ask",
+        method: "GET",
+      }),
+    }),
+
     getTagList: builder.query<any, void>({
       query: () => ({
         url: "/tag/list",
@@ -139,7 +146,7 @@ export const {
   useTicketSearchMutation,
   useGetAdvancedSearchQuery,
   useGetTicketListSortingQuery,
+  useGetTicketSortingOptionsQuery,
   useGetDepartmentListQuery,
   useGetStaffListQuery,
-
 } = extendedTicketApi;

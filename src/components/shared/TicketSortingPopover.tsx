@@ -1,0 +1,103 @@
+import React from "react";
+import Popover from "@mui/material/Popover";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import Box from "@mui/material/Box";
+import CheckIcon from "@mui/icons-material/Check";
+
+interface SortField {
+  text: string;
+  key: string;
+  position?: number;
+}
+
+interface SortMode {
+  text: string;
+  key: string;
+}
+
+interface TicketSortingPopoverProps {
+  anchorEl: HTMLElement | null;
+  open: boolean;
+  onClose: () => void;
+  fields: SortField[];
+  modes: SortMode[];
+  selectedField: string;
+  selectedMode: string;
+  onFieldChange: (field: string) => void;
+  onModeChange: (mode: string) => void;
+}
+
+const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
+  anchorEl,
+  open,
+  onClose,
+  fields,
+  modes,
+  selectedField,
+  selectedMode,
+  onFieldChange,
+  onModeChange,
+}) => {
+  return (
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      transformOrigin={{ vertical: "top", horizontal: "left" }}
+      PaperProps={{
+        sx: {
+          minWidth: 220,
+          maxWidth: 260,
+          boxShadow: 3,
+          borderRadius: 2,
+          p: 0,
+        },
+      }}
+    >
+      <List sx={{ py: 1, px: 0 }}>
+        {fields.map((field) => (
+          <ListItem key={field.key} disablePadding>
+            <ListItemButton
+              selected={selectedField === field.key}
+              onClick={() => onFieldChange(field.key)}
+              sx={{
+                borderRadius: 0,
+                justifyContent: "space-between",
+                color: selectedField === field.key ? "#1976d2" : undefined,
+                fontWeight: selectedField === field.key ? 600 : 400,
+              }}
+            >
+              <span>{field.text}</span>
+              {selectedField === field.key && <CheckIcon fontSize="small" />}
+            </ListItemButton>
+          </ListItem>
+        ))}
+        <Divider sx={{ my: 1 }} />
+        {modes.map((mode) => (
+          <ListItem key={mode.key} disablePadding>
+            <ListItemButton
+              selected={selectedMode === mode.key}
+              onClick={() => onModeChange(mode.key)}
+              sx={{
+                borderRadius: 0,
+                justifyContent: "space-between",
+                color: selectedMode === mode.key ? "#1976d2" : undefined,
+                fontWeight: selectedMode === mode.key ? 600 : 400,
+              }}
+            >
+              <span>{mode.text}</span>
+              {selectedMode === mode.key && <CheckIcon fontSize="small" />}
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Popover>
+  );
+};
+
+export default TicketSortingPopover;

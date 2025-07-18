@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
-import { Avatar, Select, MenuItem } from "@mui/material";
+import { Avatar } from "@mui/material";
 import {
   useGetTicketListQuery,
   useGetPriorityListQuery,
   useGetTicketListSortingQuery,
+  useGetTicketSortingOptionsQuery,
 } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
 import CreateTicketDialog from "./CreateTicketDialog";
@@ -20,9 +21,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 import AgentAssignPopover from "../shared/AgentAssignPopover";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import TicketSubjectTooltip from "../shared/TicketSubjectTooltip";
 import TicketSubjectPopover from "../shared/TicketSubjectPopover";
-import UserPopover from "../shared/UserPopover";
+import TicketSortingPopover from "../shared/TicketSortingPopover";
 import FilterListIcon from "@mui/icons-material/FilterList";
 
 // Priority/Status/Agent dropdown options
@@ -63,9 +63,18 @@ const Tickets: React.FC = () => {
 
   const [filtersOpen, setFiltersOpen] = useState(true);
 
+  // Sorting popover state
+  const [sortingPopoverAnchorEl, setSortingPopoverAnchorEl] =
+    useState<HTMLElement | null>(null);
+  const [sortingPopoverOpen, setSortingPopoverOpen] = useState(false);
+
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
     useGetPriorityListQuery();
+
+  // Fetch sorting options
+  const { data: sortingOptions, isLoading: isSortingOptionsLoading } =
+    useGetTicketSortingOptionsQuery();
 
   // Map API priorities to dropdown options
   const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
@@ -74,6 +83,35 @@ const Tickets: React.FC = () => {
     color: item.color,
     key: item?.key,
   }));
+
+  // Handle sorting popover open
+  const handleSortingPopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setSortingPopoverAnchorEl(event.currentTarget);
+    setSortingPopoverOpen(true);
+  };
+
+  // Handle sorting popover close
+  const handleSortingPopoverClose = () => {
+    setSortingPopoverOpen(false);
+    setSortingPopoverAnchorEl(null);
+  };
+
+  // Handle field change
+  const handleFieldChange = (field: string) => {
+    setSortType(field);
+    setSortBy(
+      sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
+        "Date created"
+    );
+    setSortOrder("desc"); // Reset to default order
+    setPage(1); // Reset to first page
+  };
+
+  // Handle mode change
+  const handleModeChange = (mode: string) => {
+    setSortOrder(mode);
+    setPage(1); // Reset to first page
+  };
   // Restore getApiParams for ticket list API
   const getApiParams = () => {
     return {
@@ -477,25 +515,38 @@ const Tickets: React.FC = () => {
             {selectedTickets.length === 0 && (
               <div className="flex items-center gap-2 ml-4">
                 <span className="text-sm text-gray-600">Sort by:</span>
-                <Select
-                  size="small"
-                  value={sortBy}
-                  onChange={(e) => {
-                    setSortBy(e.target.value);
-                    let type = "createdAt";
-                    if (e.target.value === "Priority") type = "priority";
-                    else if (e.target.value === "Status") type = "status";
-                    else if (e.target.value === "Date created")
-                      type = "createdAt";
-                    setSortType(type);
-                    setSortOrder("desc");
+                <button
+                  className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100"
+                  onClick={handleSortingPopoverOpen}
+                  style={{
+                    border: "1px solid #1976d2",
+                    color: "#1976d2",
+                    background: "#fff",
+                    borderRadius: 4,
+                    minWidth: 140,
+                    justifyContent: "space-between",
                   }}
-                  sx={{ minWidth: 140, background: "#fff" }}
                 >
-                  <MenuItem value="Date created">Date created</MenuItem>
-                  <MenuItem value="Priority">Priority</MenuItem>
-                  <MenuItem value="Status">Status</MenuItem>
-                </Select>
+                  {sortBy}
+                  <ArrowDropDownIcon fontSize="small" />
+                </button>
+                {isSortingOptionsLoading ? (
+                  <div className="text-gray-400 text-center py-8">
+                    Loading sorting options...
+                  </div>
+                ) : (
+                  <TicketSortingPopover
+                    anchorEl={sortingPopoverAnchorEl}
+                    open={sortingPopoverOpen}
+                    onClose={handleSortingPopoverClose}
+                    fields={sortingOptions?.sort?.type || []}
+                    modes={sortingOptions?.sort?.mode || []}
+                    selectedField={sortType || ""}
+                    selectedMode={sortOrder}
+                    onFieldChange={handleFieldChange}
+                    onModeChange={handleModeChange}
+                  />
+                )}
               </div>
             )}
           </div>
