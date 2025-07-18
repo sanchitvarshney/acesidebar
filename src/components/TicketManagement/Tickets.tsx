@@ -290,14 +290,14 @@ const Tickets: React.FC = () => {
                 <span
                   className="font-semibold text-gray-800 truncate text-lg max-w-[320px] overflow-hidden whitespace-nowrap cursor-pointer"
                   title={ticket?.subject}
-                  onMouseEnter={(e) => {
-                    onMouseEnter(e);
-                    handlePopoverOpen(e, ticket);
-                  }}
-                  onMouseLeave={(e) => {
-                    onMouseLeave(e);
-                    handlePopoverLeave();
-                  }}
+                  // onMouseEnter={(e) => {
+                  //   onMouseEnter(e);
+                  //   handlePopoverOpen(e, ticket);
+                  // }}
+                  // onMouseLeave={(e) => {
+                  //   onMouseLeave(e);
+                  //   handlePopoverLeave();
+                  // }}
                 >
                   {ticket?.subject}
                 </span>
@@ -309,7 +309,7 @@ const Tickets: React.FC = () => {
               <span className="text-gray-800 text-base">
                 #{ticket?.ticketNumber} |{" "}
               </span>
-              <UserPopover
+              {/* <UserPopover
                 anchorEl={userPopoverAnchorEl}
                 open={Boolean(userPopoverAnchorEl) && userPopoverHovered}
                 onClose={handleUserPopoverClose}
@@ -336,7 +336,21 @@ const Tickets: React.FC = () => {
                     {ticket.fromUser?.name}
                   </span>
                 )}
-              />
+              /> */}
+              <span
+                className="font-medium max-w-[120px] truncate overflow-hidden whitespace-nowrap cursor-pointer hover:underline"
+                title={ticket.fromUser?.name}
+                // onMouseEnter={(e) => {
+                //   onMouseEnter(e);
+                //   handleUserPopoverOpen(e, ticket.fromUser);
+                // }}
+                // onMouseLeave={(e) => {
+                //   onMouseLeave(e);
+                //   handleUserPopoverLeave();
+                // }}
+              >
+                {ticket.fromUser?.name}
+              </span>
               <span className="text-xs">
                 • Created: {ticket?.createdDt?.timestamp}
               </span>
