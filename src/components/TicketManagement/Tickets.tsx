@@ -417,7 +417,7 @@ const Tickets: React.FC = () => {
           </div>
         </div>
         {/* Right: Priority, Agent, Status dropdowns */}
-        <div className="flex flex-col gap-1 min-w-[140px] ml-4">
+        <div className="flex flex-col gap-1 w-[140px] ml-4 flex-shrink-0">
           <div className="flex items-center w-full">
             <CustomDropdown
               value={dropdownState.priority}
@@ -444,16 +444,19 @@ const Tickets: React.FC = () => {
               agentList={["Admin", "Agent 1", "Agent 2"]}
               departmentList={["Support", "Sales", "Billing"]}
               trigger={
-                <div className="flex items-center w-full px-2 py-1 min-h-[25px] cursor-pointer">
-                  <PersonIcon fontSize="small" className="mr-2 text-gray-500" />
-                  <span className="truncate flex-1 text-sm font-medium leading-5 text-left text-gray-600">
+                <button className="flex items-center w-full px-2 py-1 min-h-[25px]">
+                  <PersonIcon
+                    fontSize="small"
+                    className="mr-2 text-gray-500 flex-shrink-0"
+                  />
+                  <span className="truncate flex-1 text-sm font-medium leading-5 text-left max-w-[80px]">
                     {dropdownState.agent || "Unassigned"}
                   </span>
                   <ArrowDropDownIcon
                     fontSize="small"
                     className="ml-2 flex-shrink-0"
                   />
-                </div>
+                </button>
               }
             />
           </div>

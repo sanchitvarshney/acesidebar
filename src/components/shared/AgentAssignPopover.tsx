@@ -79,8 +79,11 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
     // Create a new trigger with the updated text but keep the same structure
     triggerContent = (
       <div className="flex items-center w-full px-2 py-1 min-h-[25px] cursor-pointer">
-        <PersonIcon fontSize="small" className="mr-2 text-gray-500" />
-        <span className="truncate flex-1 text-sm font-medium leading-5 text-left text-gray-600">
+        <PersonIcon
+          fontSize="small"
+          className="mr-2 text-gray-500 flex-shrink-0"
+        />
+        <span className="truncate flex-1 text-sm font-medium leading-5 text-left text-gray-600 max-w-[80px]">
           {selectedDepartment}/{selectedAgent}
         </span>
         <ArrowDropDownIcon fontSize="small" className="ml-2 flex-shrink-0" />
@@ -90,8 +93,11 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
     // Create a new trigger with the updated text but keep the same structure
     triggerContent = (
       <div className="flex items-center w-full px-2 py-1 min-h-[25px] cursor-pointer">
-        <PersonIcon fontSize="small" className="mr-2 text-gray-500" />
-        <span className="truncate flex-1 text-sm font-medium leading-5 text-left text-gray-600">
+        <PersonIcon
+          fontSize="small"
+          className="mr-2 text-gray-500 flex-shrink-0"
+        />
+        <span className="truncate flex-1 text-sm font-medium leading-5 text-left text-gray-600 max-w-[80px]">
           {value}
         </span>
         <ArrowDropDownIcon fontSize="small" className="ml-2 flex-shrink-0" />
