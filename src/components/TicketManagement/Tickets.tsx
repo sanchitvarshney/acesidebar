@@ -282,7 +282,10 @@ const Tickets: React.FC = () => {
     const dropdownState = ticketDropdowns[ticket.ticketNumber] || {
       priority: ticket.priority?.value || ticket.priority?.name || "low",
       agent: ticket.assignedTo?.name || "",
-      status: ticket.status || "open",
+      status:
+        typeof ticket.status === "object" && ticket.status !== null
+          ? (ticket.status as any).name || ticket.status
+          : ticket.status || "open",
     };
     return (
       <div
@@ -414,7 +417,7 @@ const Tickets: React.FC = () => {
           </div>
         </div>
         {/* Right: Priority, Agent, Status dropdowns */}
-        <div className="flex flex-col items-end gap-1 min-w-[140px] ml-4">
+        <div className="flex flex-col gap-1 min-w-[140px] ml-4">
           <div className="flex items-center w-full">
             <CustomDropdown
               value={dropdownState.priority}
@@ -441,21 +444,27 @@ const Tickets: React.FC = () => {
               agentList={["Admin", "Agent 1", "Agent 2"]}
               departmentList={["Support", "Sales", "Billing"]}
               trigger={
-                <span
-                  className="flex items-center gap-1 text-gray-600 text-sm cursor-pointer max-w-[120px] truncate overflow-hidden whitespace-nowrap"
-                  title={dropdownState.agent || "Unassigned"}
-                >
-                  <PersonIcon fontSize="small" />
-                  <span>{dropdownState.agent || "Unassigned"}</span>
-                  <ArrowDropDownIcon fontSize="small" />
-                </span>
+                <div className="flex items-center w-full px-2 py-1 min-h-[25px] cursor-pointer">
+                  <PersonIcon fontSize="small" className="mr-2 text-gray-500" />
+                  <span className="truncate flex-1 text-sm font-medium leading-5 text-left text-gray-600">
+                    {dropdownState.agent || "Unassigned"}
+                  </span>
+                  <ArrowDropDownIcon
+                    fontSize="small"
+                    className="ml-2 flex-shrink-0"
+                  />
+                </div>
               }
             />
           </div>
           <div className="flex items-center w-full">
-            <MonitorHeartIcon fontSize="small" className="mr-1 text-gray-500" />
             <CustomDropdown
-              value={dropdownState.status}
+              value={
+                typeof dropdownState.status === "object" &&
+                dropdownState.status !== null
+                  ? (dropdownState.status as any).name || dropdownState.status
+                  : dropdownState.status
+              }
               onChange={(val) =>
                 setTicketDropdowns((prev) => ({
                   ...prev,
@@ -465,6 +474,9 @@ const Tickets: React.FC = () => {
               options={STATUS_OPTIONS}
               colorDot={false}
               width={110}
+              icon={
+                <MonitorHeartIcon fontSize="small" className="text-gray-500" />
+              }
             />
           </div>
         </div>

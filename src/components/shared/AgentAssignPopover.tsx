@@ -9,7 +9,11 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import PersonIcon from "@mui/icons-material/Person";
-import { useGetDepartmentListQuery, useGetStaffListQuery } from "../../services/ticketAuth";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import {
+  useGetDepartmentListQuery,
+  useGetStaffListQuery,
+} from "../../services/ticketAuth";
 
 interface AgentAssignPopoverProps {
   value: string;
@@ -72,44 +76,35 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
   // The trigger displays Department/Agent if both selected, else fallback
   let triggerContent: React.ReactNode = trigger;
   if (selectedDepartment && selectedAgent) {
+    // Create a new trigger with the updated text but keep the same structure
     triggerContent = (
-      <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <span
-          style={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            maxWidth:60,
-            display: "inline-block",
-          }}
-        >
-          {selectedDepartment}
+      <div className="flex items-center w-full px-2 py-1 min-h-[25px] cursor-pointer">
+        <PersonIcon fontSize="small" className="mr-2 text-gray-500" />
+        <span className="truncate flex-1 text-sm font-medium leading-5 text-left text-gray-600">
+          {selectedDepartment}/{selectedAgent}
         </span>
-        <span style={{ margin: "0 2px" }}>/</span>
-        <span
-          style={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            maxWidth: 60,
-            display: "inline-block",
-          }}
-        >
-          {selectedAgent}
-        </span>
+        <ArrowDropDownIcon fontSize="small" className="ml-2 flex-shrink-0" />
       </div>
     );
-  } else if (typeof value === "string" && value) {
-    triggerContent = value;
+  } else if (typeof value === "string" && value && value !== "Unassigned") {
+    // Create a new trigger with the updated text but keep the same structure
+    triggerContent = (
+      <div className="flex items-center w-full px-2 py-1 min-h-[25px] cursor-pointer">
+        <PersonIcon fontSize="small" className="mr-2 text-gray-500" />
+        <span className="truncate flex-1 text-sm font-medium leading-5 text-left text-gray-600">
+          {value}
+        </span>
+        <ArrowDropDownIcon fontSize="small" className="ml-2 flex-shrink-0" />
+      </div>
+    );
   }
   const { data: staffList, isLoading: isStaffListLoading } =
-  useGetStaffListQuery();
+    useGetStaffListQuery();
 
   const { data: departmentList2, isLoading: isDepartmentListLoading } =
-  useGetDepartmentListQuery();
+    useGetDepartmentListQuery();
 
   return (
-    
     <>
       <span
         onClick={handleOpen}

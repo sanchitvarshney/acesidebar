@@ -18,6 +18,7 @@ export interface CustomDropdownProps {
   onChange: (value: string) => void;
   colorDot?: boolean;
   width?: number;
+  icon?: React.ReactNode;
 }
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({
@@ -26,6 +27,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   onChange,
   colorDot,
   width = 120,
+  icon,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -43,14 +45,17 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         className="flex items-center w-full px-2 py-1 min-h-[25px]"
         onClick={handleClick}
       >
-        <span
-          className="inline-block w-4 h-4 rounded-full mr-2 flex-shrink-0"
-          style={{ background: selected.color }}
-        ></span>
-        <span className="truncate w-16 text-sm font-medium leading-5">
+        {icon && <span className="mr-2 flex-shrink-0">{icon}</span>}
+        {colorDot && (
+          <span
+            className="inline-block w-4 h-4 rounded-full mr-2 flex-shrink-0"
+            style={{ background: selected.color }}
+          ></span>
+        )}
+        <span className="truncate flex-1 text-sm font-medium leading-5 text-left">
           {selected.label}
         </span>
-        <ArrowDropDownIcon fontSize="small" className="ml-auto self-center" />
+        <ArrowDropDownIcon fontSize="small" className="ml-2 flex-shrink-0" />
       </button>
       <Popover
         open={Boolean(anchorEl)}
