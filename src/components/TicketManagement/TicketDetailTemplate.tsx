@@ -34,6 +34,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
             <TicketThreadSection
               thread={ticket.response}
               header={ticket.header}
+              onSendReply={onSendReply}
             />
           </Box>
           <TicketPropertiesSidebar ticket={ticket.header} />

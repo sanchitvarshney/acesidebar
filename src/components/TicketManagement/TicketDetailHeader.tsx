@@ -25,12 +25,12 @@ const TicketDetailHeader = ({ ticket, onBack }: any) => {
     <div className="flex items-center w-full px-6 py-2 border-b bg-white z-10">
       {/* Breadcrumb */}
       <nav className="flex items-center text-xs text-gray-500 font-medium gap-1 min-w-[180px]">
-        <button onClick={onBack} className="hover:underline">
+        <button onClick={onBack} className="hover:underline text-xl">
           All tickets
         </button>
         <span className="mx-1">&gt;</span>
-        <span className="text-blue-700 font-semibold">
-          {ticket?.ticketNumber || "6"}
+        <span className="text-blue-700 font-semibold text-md">
+          {ticket?.ticketId || "6"}
         </span>
       </nav>
       {/* Action buttons */}

@@ -6,20 +6,53 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 const TicketSubjectBar = ({ header }: any) => (
   <div className="flex items-center gap-2 mb-2">
-    <span className="text-2xl">{header?.sentiment ? JSON.parse(header.sentiment).emoji : '🙂'}</span>
-    <span className="font-semibold text-xl text-gray-800">{header?.subject || 'Ticket Subject'}</span>
-    <input className="ml-4 flex-1 px-3 py-1 border rounded bg-gray-50 text-sm outline-none" placeholder="Add summary" />
+    <span className="text-2xl">
+      {header?.sentiment ? JSON.parse(header.sentiment).emoji : "🙂"}
+    </span>
+    <span className="font-semibold text-xl text-gray-800">
+      {header?.subject || "Ticket Subject"}
+    </span>
+    <input
+      className="ml-4 flex-1 px-3 py-1 border rounded bg-gray-50 text-sm outline-none"
+      placeholder="Add summary"
+    />
   </div>
 );
 
-const ThreadItem = ({ item }: any) => {
+const ThreadItem = ({
+  item,
+  onReplyClick,
+  replyText,
+  onReplyTextChange,
+  onSendReply,
+}: any) => {
   const [open, setOpen] = useState(false);
+  const [showReplyEditor, setShowReplyEditor] = useState(false);
+  const [localReplyText, setLocalReplyText] = useState("");
+
+  const handleReplyClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowReplyEditor(true);
+  };
+
+  const handleSendReply = () => {
+    if (localReplyText.trim()) {
+      onReplyClick(item, localReplyText);
+      setLocalReplyText("");
+      setShowReplyEditor(false);
+    }
+  };
+
   return (
-    <div className="flex gap-3 mb-6 cursor-pointer" onClick={() => setOpen(o => !o)}>
+    <div className="flex gap-3 mb-6">
       {/* Avatar */}
       <div className="flex-shrink-0">
         {item.repliedBy?.avatarUrl ? (
-          <img src={item.repliedBy.avatarUrl} alt={item.repliedBy.name} className="w-10 h-10 rounded-full object-cover" />
+          <img
+            src={item.repliedBy.avatarUrl}
+            alt={item.repliedBy.name}
+            className="w-10 h-10 rounded-full object-cover"
+          />
         ) : (
           <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-lg font-bold text-green-700">
             {item.repliedBy?.name?.[0] || "?"}
@@ -27,46 +60,120 @@ const ThreadItem = ({ item }: any) => {
         )}
       </div>
       {/* Email content */}
-      <div className="flex-1 bg-orange-50 rounded shadow p-4 border border-gray-100">
-        <div className="flex items-center justify-between mb-1">
-          <div>
-            <span className="font-semibold text-blue-700">{item.repliedBy?.name || "User"}</span>
-            <span className="ml-2 text-xs text-gray-500">added a private note</span>
+      <div className="flex-1">
+        <div
+          className="bg-orange-50 rounded shadow p-4 border border-gray-100 cursor-pointer"
+          onClick={() => setOpen((o) => !o)}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <div>
+              <span className="font-semibold text-blue-700">
+                {item.repliedBy?.name || "User"}
+              </span>
+              <span className="ml-2 text-xs text-gray-500">
+                added a private note
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">
+                {item.repliedAt?.timestamp}
+              </span>
+              {open && (
+                <div className="flex items-center bg-white rounded-full shadow border ml-2 overflow-hidden">
+                  <button
+                    className="px-3 py-2 hover:bg-gray-100 focus:outline-none"
+                    onClick={handleReplyClick}
+                  >
+                    <ReplyIcon fontSize="small" />
+                  </button>
+                  <div className="w-px h-6 bg-gray-200" />
+                  <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none">
+                    <EditIcon fontSize="small" />
+                  </button>
+                  <div className="w-px h-6 bg-gray-200" />
+                  <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none">
+                    <CommentIcon fontSize="small" />
+                  </button>
+                  <div className="w-px h-6 bg-gray-200" />
+                  <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none text-red-600">
+                    <DeleteIcon fontSize="small" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">{item.repliedAt?.timestamp}</span>
-            {open && (
-              <div className="flex items-center bg-white rounded-full shadow border ml-2 overflow-hidden">
-                <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none"><ReplyIcon fontSize="small" /></button>
-                <div className="w-px h-6 bg-gray-200" />
-                <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none"><EditIcon fontSize="small" /></button>
-                <div className="w-px h-6 bg-gray-200" />
-                <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none"><CommentIcon fontSize="small" /></button>
-                <div className="w-px h-6 bg-gray-200" />
-                <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none text-red-600"><DeleteIcon fontSize="small" /></button>
-              </div>
-            )}
-          </div>
+          {open && (
+            <div
+              className="text-sm text-gray-800 whitespace-pre-line mb-2"
+              dangerouslySetInnerHTML={{ __html: item.message }}
+            />
+          )}
         </div>
-        {open && (
-          <div className="text-sm text-gray-800 whitespace-pre-line mb-2" dangerouslySetInnerHTML={{ __html: item.message }} />
+
+        {/* Inline Reply Editor */}
+        {showReplyEditor && (
+          <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
+            <textarea
+              className="w-full min-h-[60px] border rounded p-2 text-sm"
+              placeholder="Type your reply..."
+              value={localReplyText}
+              onChange={(e) => setLocalReplyText(e.target.value)}
+              autoFocus
+            />
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <button className="text-gray-500 hover:text-blue-600 text-sm">
+                  B
+                </button>
+                <button className="text-gray-500 hover:text-blue-600 text-sm">
+                  I
+                </button>
+                <button className="text-gray-500 hover:text-blue-600 text-sm">
+                  A
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                  onClick={() => setShowReplyEditor(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="bg-blue-600 text-white px-3 py-1 rounded font-semibold text-sm hover:bg-blue-700"
+                  onClick={handleSendReply}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-const ThreadList = ({ thread }: any) => (
+const ThreadList = ({ thread, onReplyClick }: any) => (
   <div>
-    {thread && thread.length > 0
-      ? thread.map((item: any, idx: number) => <ThreadItem key={idx} item={item} />)
-      : <div className="text-gray-400">No thread items.</div>}
+    {thread && thread.length > 0 ? (
+      thread.map((item: any, idx: number) => (
+        <ThreadItem key={idx} item={item} onReplyClick={onReplyClick} />
+      ))
+    ) : (
+      <div className="text-gray-400">No thread items.</div>
+    )}
   </div>
 );
 
-const EditorBar = () => (
+const EditorBar = ({ replyText, onReplyTextChange, onSendReply }: any) => (
   <div className="border rounded bg-white p-3 flex flex-col gap-2">
-    <textarea className="w-full min-h-[80px] border rounded p-2 text-sm" placeholder="Type your reply..." />
+    <textarea
+      className="w-full min-h-[80px] border rounded p-2 text-sm"
+      placeholder="Type your reply..."
+      value={replyText}
+      onChange={(e) => onReplyTextChange(e.target.value)}
+    />
     <div className="flex items-center justify-between">
       <div className="flex gap-2">
         {/* Toolbar icons placeholder */}
@@ -74,17 +181,27 @@ const EditorBar = () => (
         <button className="text-gray-500 hover:text-blue-600">I</button>
         <button className="text-gray-500 hover:text-blue-600">A</button>
       </div>
-      <button className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm">Send</button>
+      <button
+        className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-blue-700"
+        onClick={onSendReply}
+      >
+        Send
+      </button>
     </div>
   </div>
 );
 
-const TicketThreadSection = ({ thread, header }: any) => (
-  <div className="flex flex-col gap-4 p-4 bg-gray-50 min-h-[600px]">
-    <TicketSubjectBar header={header} />
-    <ThreadList thread={thread} />
-    <EditorBar />
-  </div>
-);
+const TicketThreadSection = ({ thread, header, onSendReply }: any) => {
+  const handleReplyClick = (item: any, replyText: string) => {
+    onSendReply(replyText, item);
+  };
+
+  return (
+    <div className="flex flex-col gap-4 p-4 bg-gray-50 min-h-[600px]">
+      <TicketSubjectBar header={header} />
+      <ThreadList thread={thread} onReplyClick={handleReplyClick} />
+    </div>
+  );
+};
 
 export default TicketThreadSection;

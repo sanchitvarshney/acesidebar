@@ -54,7 +54,7 @@ const Tickets: React.FC = () => {
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<null | HTMLElement>(
     null
   );
-  const [popoverTicket, setPopoverTicket] = useState<any>(null);
+
   const [popoverHovered, setPopoverHovered] = useState(false);
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -70,10 +70,8 @@ const Tickets: React.FC = () => {
   const [sortingPopoverAnchorEl, setSortingPopoverAnchorEl] =
     useState<HTMLElement | null>(null);
   const [sortingPopoverOpen, setSortingPopoverOpen] = useState(false);
-
-  const [openTicket, setOpenTicket] = useState<any>(null);
-  const [openTicketDetail, setOpenTicketDetail] = useState<any>(null);
   const [openTicketNumber, setOpenTicketNumber] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState<string>("");
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -203,13 +201,11 @@ const Tickets: React.FC = () => {
       closePopoverTimer.current = null;
     }
     setPopoverAnchorEl(event.currentTarget as HTMLElement);
-    setPopoverTicket(ticket);
     setPopoverHovered(true);
   };
 
   const handlePopoverClose = () => {
     setPopoverAnchorEl(null);
-    setPopoverTicket(null);
     setPopoverHovered(false);
   };
 
@@ -225,7 +221,6 @@ const Tickets: React.FC = () => {
     closePopoverTimer.current = setTimeout(() => {
       setPopoverHovered(false);
       setPopoverAnchorEl(null);
-      setPopoverTicket(null);
     }, 200);
   };
 
@@ -263,6 +258,20 @@ const Tickets: React.FC = () => {
 
   const handleTicketSubjectClick = (ticketNumber: string) => {
     setOpenTicketNumber(ticketNumber);
+  };
+
+  const handleReplyTextChange = (text: string) => {
+    setReplyText(text);
+  };
+
+  const handleSendReply = (replyText: string, threadItem?: any) => {
+    if (replyText.trim()) {
+      // TODO: Implement API call to send reply
+      console.log("Sending reply:", replyText, threadItem);
+      showToast("Reply sent successfully!", "success");
+    } else {
+      showToast("Please enter a reply message", "error");
+    }
   };
 
   const { data: ticketDetailData, isFetching: isTicketDetailLoading } =
@@ -495,9 +504,9 @@ const Tickets: React.FC = () => {
         <TicketDetailTemplate
           ticket={ticketDetailData}
           onBack={() => setOpenTicketNumber(null)}
-          replyText={""}
-          onReplyTextChange={() => {}}
-          onSendReply={() => {}}
+          replyText={replyText}
+          onReplyTextChange={handleReplyTextChange}
+          onSendReply={() => handleSendReply(replyText)}
         />
       ) : (
         <div className="flex flex-col bg-gray-50 h-[calc(100vh-115px)]">

@@ -49,7 +49,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         {colorDot && (
           <span
             className="inline-block w-4 h-4 rounded-full mr-2 flex-shrink-0"
-            style={{ background: selected.color }}
+            style={{ background: selected?.color }}
           ></span>
         )}
         <span className="truncate flex-1 text-sm font-medium leading-5 text-left max-w-[80px]">
