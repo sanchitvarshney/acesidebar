@@ -40,19 +40,17 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   return (
     <>
       <button
-        className="flex items-center gap-1 px-0 py-0 bg-transparent border-none text-gray-600 text-sm font-normal hover:text-gray-800 focus:outline-none min-w-0"
-        style={{ width, boxShadow: "none" }}
+        className="flex items-center w-full px-2 py-1 min-h-[25px]"
         onClick={handleClick}
-        type="button"
       >
-        {colorDot && (
-          <span
-            className="w-3 h-3 rounded-sm inline-block"
-            style={{ background: selected.color }}
-          ></span>
-        )}
-        <span className="truncate">{selected.label}</span>
-        <ArrowDropDownIcon fontSize="small" className="-ml-1" />
+        <span
+          className="inline-block w-4 h-4 rounded-full mr-2 flex-shrink-0"
+          style={{ background: selected.color }}
+        ></span>
+        <span className="truncate w-16 text-sm font-medium leading-5">
+          {selected.label}
+        </span>
+        <ArrowDropDownIcon fontSize="small" className="ml-auto self-center" />
       </button>
       <Popover
         open={Boolean(anchorEl)}

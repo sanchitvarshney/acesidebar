@@ -6,7 +6,7 @@ const TicketSkeleton: React.FC<{ rows?: number }> = ({ rows = 5 }) => {
       {Array.from({ length: rows }).map((_, idx) => (
         <div
           key={idx}
-          className="bg-white rounded border border-gray-200 flex flex-col md:flex-row items-start md:items-center px-4 py-3 shadow-sm animate-pulse"
+          className="bg-white rounded border border-gray-200 flex flex-col md:flex-row items-start md:items-center px-4 py-2 shadow-sm animate-pulse"
         >
           {/* Checkbox and Avatar */}
           <div className="flex items-center mr-4 mb-2 md:mb-0">

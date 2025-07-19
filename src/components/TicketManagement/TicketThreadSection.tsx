@@ -1,35 +1,25 @@
 import React, { useState } from "react";
+import ReplyIcon from "@mui/icons-material/Reply";
+import EditIcon from "@mui/icons-material/Edit";
+import CommentIcon from "@mui/icons-material/Comment";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const TicketSubjectBar = ({ header }: any) => (
   <div className="flex items-center gap-2 mb-2">
-    <span className="text-2xl">
-      {header?.sentiment ? JSON.parse(header.sentiment).emoji : "🙂"}
-    </span>
-    <span className="font-semibold text-xl text-gray-800">
-      {header?.subject || "Ticket Subject"}
-    </span>
-    <input
-      className="ml-4 flex-1 px-3 py-1 border rounded bg-gray-50 text-sm outline-none"
-      placeholder="Add summary"
-    />
+    <span className="text-2xl">{header?.sentiment ? JSON.parse(header.sentiment).emoji : '🙂'}</span>
+    <span className="font-semibold text-xl text-gray-800">{header?.subject || 'Ticket Subject'}</span>
+    <input className="ml-4 flex-1 px-3 py-1 border rounded bg-gray-50 text-sm outline-none" placeholder="Add summary" />
   </div>
 );
 
 const ThreadItem = ({ item }: any) => {
   const [open, setOpen] = useState(false);
   return (
-    <div
-      className="flex gap-3 mb-6 cursor-pointer"
-      onClick={() => setOpen((o) => !o)}
-    >
+    <div className="flex gap-3 mb-6 cursor-pointer" onClick={() => setOpen(o => !o)}>
       {/* Avatar */}
       <div className="flex-shrink-0">
         {item.repliedBy?.avatarUrl ? (
-          <img
-            src={item.repliedBy.avatarUrl}
-            alt={item.repliedBy.name}
-            className="w-10 h-10 rounded-full object-cover"
-          />
+          <img src={item.repliedBy.avatarUrl} alt={item.repliedBy.name} className="w-10 h-10 rounded-full object-cover" />
         ) : (
           <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-lg font-bold text-green-700">
             {item.repliedBy?.name?.[0] || "?"}
@@ -37,29 +27,30 @@ const ThreadItem = ({ item }: any) => {
         )}
       </div>
       {/* Email content */}
-      <div className="flex-1 bg-white rounded shadow p-4 border border-gray-100">
+      <div className="flex-1 bg-orange-50 rounded shadow p-4 border border-gray-100">
         <div className="flex items-center justify-between mb-1">
           <div>
-            <span className="font-semibold text-gray-800">
-              {item.repliedBy?.name || "User"}
-            </span>
-            {item.repliedBy?.email && (
-              <span className="ml-2 text-xs text-gray-500">
-                {item.repliedBy.email}
-              </span>
+            <span className="font-semibold text-blue-700">{item.repliedBy?.name || "User"}</span>
+            <span className="ml-2 text-xs text-gray-500">added a private note</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">{item.repliedAt?.timestamp}</span>
+            {open && (
+              <div className="flex items-center bg-white rounded-full shadow border ml-2 overflow-hidden">
+                <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none"><ReplyIcon fontSize="small" /></button>
+                <div className="w-px h-6 bg-gray-200" />
+                <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none"><EditIcon fontSize="small" /></button>
+                <div className="w-px h-6 bg-gray-200" />
+                <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none"><CommentIcon fontSize="small" /></button>
+                <div className="w-px h-6 bg-gray-200" />
+                <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none text-red-600"><DeleteIcon fontSize="small" /></button>
+              </div>
             )}
           </div>
-          <span className="text-xs text-gray-400">
-            {item.repliedAt?.timestamp}
-          </span>
         </div>
         {open && (
-          <div
-            className="text-sm text-gray-800 whitespace-pre-line mb-2"
-            dangerouslySetInnerHTML={{ __html: item.message }}
-          />
+          <div className="text-sm text-gray-800 whitespace-pre-line mb-2" dangerouslySetInnerHTML={{ __html: item.message }} />
         )}
-        {/* Attachments, actions, etc. can go here */}
       </div>
     </div>
   );
@@ -67,22 +58,15 @@ const ThreadItem = ({ item }: any) => {
 
 const ThreadList = ({ thread }: any) => (
   <div>
-    {thread && thread.length > 0 ? (
-      thread.map((item: any, idx: number) => (
-        <ThreadItem key={idx} item={item} />
-      ))
-    ) : (
-      <div className="text-gray-400">No thread items.</div>
-    )}
+    {thread && thread.length > 0
+      ? thread.map((item: any, idx: number) => <ThreadItem key={idx} item={item} />)
+      : <div className="text-gray-400">No thread items.</div>}
   </div>
 );
 
 const EditorBar = () => (
   <div className="border rounded bg-white p-3 flex flex-col gap-2">
-    <textarea
-      className="w-full min-h-[80px] border rounded p-2 text-sm"
-      placeholder="Type your reply..."
-    />
+    <textarea className="w-full min-h-[80px] border rounded p-2 text-sm" placeholder="Type your reply..." />
     <div className="flex items-center justify-between">
       <div className="flex gap-2">
         {/* Toolbar icons placeholder */}
@@ -90,9 +74,7 @@ const EditorBar = () => (
         <button className="text-gray-500 hover:text-blue-600">I</button>
         <button className="text-gray-500 hover:text-blue-600">A</button>
       </div>
-      <button className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm">
-        Send
-      </button>
+      <button className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm">Send</button>
     </div>
   </div>
 );

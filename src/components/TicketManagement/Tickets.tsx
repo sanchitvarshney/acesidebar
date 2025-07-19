@@ -287,7 +287,7 @@ const Tickets: React.FC = () => {
     return (
       <div
         key={ticket?.ticketNumber}
-        className="bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-3 shadow-sm hover:shadow transition relative"
+        className="bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-2 shadow-sm hover:shadow transition relative"
       >
         {/* Left: Checkbox, Avatar, Sentiment */}
         <div className="flex items-center mr-4 min-w-[60px]">
@@ -474,7 +474,7 @@ const Tickets: React.FC = () => {
 
   return (
     <>
-      { isTicketDetailLoading ? (
+      {isTicketDetailLoading ? (
         <TicketDetailSkeleton />
       ) : openTicketNumber && ticketDetailData ? (
         <TicketDetailTemplate
@@ -557,23 +557,18 @@ const Tickets: React.FC = () => {
                     {sortBy}
                     <ArrowDropDownIcon fontSize="small" />
                   </button>
-                  {isSortingOptionsLoading ? (
-                    <div className="text-gray-400 text-center py-8">
-                      Loading sorting options...
-                    </div>
-                  ) : (
-                    <TicketSortingPopover
-                      anchorEl={sortingPopoverAnchorEl}
-                      open={sortingPopoverOpen}
-                      onClose={handleSortingPopoverClose}
-                      fields={sortingOptions?.sort?.type || []}
-                      modes={sortingOptions?.sort?.mode || []}
-                      selectedField={sortType || ""}
-                      selectedMode={sortOrder}
-                      onFieldChange={handleFieldChange}
-                      onModeChange={handleModeChange}
-                    />
-                  )}
+
+                  <TicketSortingPopover
+                    anchorEl={sortingPopoverAnchorEl}
+                    open={sortingPopoverOpen}
+                    onClose={handleSortingPopoverClose}
+                    fields={sortingOptions?.sort?.type || []}
+                    modes={sortingOptions?.sort?.mode || []}
+                    selectedField={sortType || ""}
+                    selectedMode={sortOrder}
+                    onFieldChange={handleFieldChange}
+                    onModeChange={handleModeChange}
+                  />
                 </div>
               )}
             </div>
