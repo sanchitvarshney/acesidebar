@@ -1,7 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+  ],
   prefix: "",
   theme: {
     container: {
@@ -13,7 +18,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        ember: ["MsCorpres EmberFont", "sans-serif"],
+        ember: ['MsCorpres EmberFont', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {
@@ -24,28 +29,14 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "shake": {
-          "10%, 90%": {
-            transform: "translate3d(-1px, 0, 0)",
-          },
-          "20%, 80%": {
-            transform: "translate3d(2px, 0, 0)",
-          },
-          "30%, 50%, 70%": {
-            transform: "translate3d(-4px, 0, 0)",
-          },
-          "40%, 60%": {
-            transform: "translate3d(4px, 0, 0)",
-          },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       colors: {
-        hbg: "#e0f2f1",
-        maincolor: "#1faaa8",
+        hbg:"#e0f2f1",
+        maincolor:"#1faaa8",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -94,30 +85,15 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "shake": {
-          "10%, 90%": {
-            transform: "translate3d(-1px, 0, 0)",
-          },
-          "20%, 80%": {
-            transform: "translate3d(2px, 0, 0)",
-          },
-          "30%, 50%, 70%": {
-            transform: "translate3d(-4px, 0, 0)",
-          },
-          "40%, 60%": {
-            transform: "translate3d(4px, 0, 0)",
-          },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "shake": "shake 0.2s ease-out",
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
+  plugins: [require("tailwindcss-animate"),require('tailwind-scrollbar')],
   variants: {
-    scrollbar: ["rounded"],
+    scrollbar: ['rounded']
   },
-};
+}

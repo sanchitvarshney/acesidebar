@@ -1,44 +1,13 @@
-import React from "react";
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
   RouterProvider,
 } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { router } from "./routes/Routing";
 import { ToastContext } from "./contextApi/ToastContext";
 import { AuthProvider } from "./contextApi/AuthContext";
-
-// Create a theme instance
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#1976d2",
-      dark: "#0d47a1",
-      light: "#42a5f5",
-    },
-    secondary: {
-      main: "#dc004e",
-    },
-    background: {
-      default: "#f5f5f5",
-    },
-  },
-  typography: {
-    fontFamily: [
-      "-apple-system",
-      "BlinkMacSystemFont",
-      '"Segoe UI"',
-      "Roboto",
-      '"Helvetica Neue"',
-      "Arial",
-      "sans-serif",
-    ].join(","),
-  },
-});
+import theme from "./theme";
+import "./font.css"
 
 // Placeholder components for routes
 

@@ -1,22 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import ReplyContext from './contextApi/ReplyContext';
-import { Provider } from 'react-redux';
-import { store } from './reduxStore/Store';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import "./font.css"
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import ReplyContext from "./contextApi/ReplyContext";
+import { Provider } from "react-redux";
+import { store } from "./reduxStore/Store";
+import theme from "./theme";
+import { ThemeProvider } from "@mui/material";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-       <Provider store={store}>
-    <ReplyContext>
-    <App />
-    </ReplyContext>
-    </Provider>
+    <ThemeProvider theme={theme}>
+      <Provider store={store}>
+        <ReplyContext>
+          <App />
+        </ReplyContext>
+      </Provider>
+    </ThemeProvider>
   </React.StrictMode>
 );
 

@@ -193,7 +193,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           component="div"
           sx={{ display: { xs: "block", sm: "block" } }}
         >
-          Application
+          Ticket Management System
         </Typography>
         {/* Expanding Search Bar */}
         <div
