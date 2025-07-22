@@ -8,8 +8,8 @@ import { ToastContext } from "./contextApi/ToastContext";
 import { AuthProvider } from "./contextApi/AuthContext";
 import theme from "./theme";
 import "./font.css"
-import "@stackoverflow/stacks-editor/dist/styles.css";
-import "@stackoverflow/stacks/dist/css/stacks.css";
+
+
 
 
 // Placeholder components for routes
