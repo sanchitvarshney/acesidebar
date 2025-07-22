@@ -3,6 +3,7 @@ import ReplyIcon from "@mui/icons-material/Reply";
 import EditIcon from "@mui/icons-material/Edit";
 import CommentIcon from "@mui/icons-material/Comment";
 import DeleteIcon from "@mui/icons-material/Delete";
+import StackEditor from "../Editor";
 
 const TicketSubjectBar = ({ header }: any) => (
   <div className="flex items-center gap-2 mb-2">
@@ -29,7 +30,8 @@ const ThreadItem = ({
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [localReplyText, setLocalReplyText] = useState("");
-
+  const [markdown, setMarkdown] = useState("**Hello Stack Overflow Editor!**");
+  
   const handleReplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowReplyEditor(true);
@@ -111,40 +113,10 @@ const ThreadItem = ({
         {/* Inline Reply Editor */}
         {showReplyEditor && (
           <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
-            <textarea
-              className="w-full min-h-[60px] border rounded p-2 text-sm"
-              placeholder="Type your reply..."
-              value={localReplyText}
-              onChange={(e) => setLocalReplyText(e.target.value)}
-              autoFocus
-            />
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <button className="text-gray-500 hover:text-blue-600 text-sm">
-                  B
-                </button>
-                <button className="text-gray-500 hover:text-blue-600 text-sm">
-                  I
-                </button>
-                <button className="text-gray-500 hover:text-blue-600 text-sm">
-                  A
-                </button>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
-                  onClick={() => setShowReplyEditor(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="bg-blue-600 text-white px-3 py-1 rounded font-semibold text-sm hover:bg-blue-700"
-                  onClick={handleSendReply}
-                >
-                  Send
-                </button>
-              </div>
-            </div>
+           <h2>Editor Demo</h2>
+      <StackEditor initialContent={markdown} onChange={setMarkdown} />
+      <h3>Markdown Output:</h3>
+      <pre>{markdown}</pre>
           </div>
         )}
       </div>
