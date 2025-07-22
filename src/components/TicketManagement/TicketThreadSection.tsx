@@ -62,7 +62,7 @@ const ThreadItem = ({
       {/* Email content */}
       <div className="flex-1">
         <div
-          className="bg-orange-50 rounded shadow p-4 border border-gray-100 cursor-pointer"
+          className="bg-orange-50 rounded shadow p-4 border border-gray-100 cursor-pointer group"
           onClick={() => setOpen((o) => !o)}
         >
           <div className="flex items-center justify-between mb-1">
@@ -78,28 +78,26 @@ const ThreadItem = ({
               <span className="text-xs text-gray-400">
                 {item.repliedAt?.timestamp}
               </span>
-              {open && (
-                <div className="flex items-center bg-white rounded-full shadow border ml-2 overflow-hidden">
-                  <button
-                    className="px-3 py-2 hover:bg-gray-100 focus:outline-none"
-                    onClick={handleReplyClick}
-                  >
-                    <ReplyIcon fontSize="small" />
-                  </button>
-                  <div className="w-px h-6 bg-gray-200" />
-                  <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none">
-                    <EditIcon fontSize="small" />
-                  </button>
-                  <div className="w-px h-6 bg-gray-200" />
-                  <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none">
-                    <CommentIcon fontSize="small" />
-                  </button>
-                  <div className="w-px h-6 bg-gray-200" />
-                  <button className="px-3 py-2 hover:bg-gray-100 focus:outline-none text-red-600">
-                    <DeleteIcon fontSize="small" />
-                  </button>
-                </div>
-              )}
+              <div className="hidden group-hover:flex items-center bg-white rounded-full shadow border ml-2 overflow-hidden">
+                <button
+                  className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none"
+                  onClick={handleReplyClick}
+                >
+                  <ReplyIcon sx={{ fontSize: 18 }} />
+                </button>
+                <div className="w-px h-5 bg-gray-200" />
+                <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
+                   <EditIcon sx={{ fontSize: 18 }} />
+                 </button>
+                 <div className="w-px h-5 bg-gray-200" />
+                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
+                   <CommentIcon sx={{ fontSize: 18 }} />
+                 </button>
+                 <div className="w-px h-5 bg-gray-200" />
+                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none text-red-600">
+                   <DeleteIcon sx={{ fontSize: 18 }} />
+                 </button>
+              </div>
             </div>
           </div>
           {open && (
