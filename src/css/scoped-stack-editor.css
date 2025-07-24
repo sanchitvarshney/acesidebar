@@ -4,3 +4,31 @@
   visibility: visible !important;
   z-index: 9999;
 }
+
+.wysiwyg-wrapper {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: 180px;
+  background: #fff;
+}
+
+/* .wysiwyg-editor {
+  min-height: 140px;
+  max-height: 140px;
+  height: 140px;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-all;
+} */
+
+.wysiwyg-toolbar {
+  width: 100%;
+  box-sizing: border-box;
+  /* Remove height and overflow-x */
+}

@@ -7,6 +7,8 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import CheckBoxOutlinedIcon from "@mui/icons-material/CheckBoxOutlined";
+import TicketMetaSidebar from "./TicketMetaSidebar";
+import { Box } from "@mui/material";
 
 const ContactDetails = ({ name, email }: any) => (
   <div className="flex items-center gap-3 mb-2">
@@ -63,72 +65,131 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
       setExpanded(isExpanded ? panel : "");
     };
   return (
-    <aside className="w-80 min-w-[300px] bg-transparent flex flex-col h-full p-2">
-      <Accordion
-        expanded={expanded === "panel1"}
-        onChange={handleChange("panel1")}
-        sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        width: 400,
+        minWidth: 400,
+        height: "100vh",
+        overflow: "hidden",
+        bgcolor: "white",
+        boxShadow: 1,
+      }}
+    >
+      <Box
+        sx={{
+          width: 200,
+          minWidth: 200,
+          bgcolor: "white",
+          p: 0,
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          boxShadow: 1,
+          borderRight: 1,
+          borderColor: "divider",
+        }}
       >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <InfoOutlinedIcon fontSize="small" sx={{ mr: 1, color: "gray" }} />{" "}
-          CONTACT DETAILS
-        </AccordionSummary>
-        <AccordionDetails>
-          <ContactDetails
-            name={ticket?.requester || "Developer Account"}
-            email={ticket?.email || "postmanreply@gmail.com"}
-          />
-        </AccordionDetails>
-      </Accordion>
-      <Accordion
-        expanded={expanded === "panel2"}
-        onChange={handleChange("panel2")}
-        sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
+        <TicketMetaSidebar ticket={ticket} />
+      </Box>
+      <Box
+        sx={{
+          width: 200,
+          minWidth: 200,
+          bgcolor: "white",
+          p: 0,
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          boxShadow: 1,
+        }}
       >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <ConfirmationNumberOutlinedIcon
-            fontSize="small"
-            sx={{ mr: 1, color: "gray" }}
-          />{" "}
-          RECENT TICKETS
-        </AccordionSummary>
-        <AccordionDetails>
-          <RecentTickets />
-        </AccordionDetails>
-      </Accordion>
-      <Accordion
-        expanded={expanded === "panel3"}
-        onChange={handleChange("panel3")}
-        sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
-      >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <AccessTimeOutlinedIcon
-            fontSize="small"
-            sx={{ mr: 1, color: "gray" }}
-          />{" "}
-          TIME LOGS
-        </AccordionSummary>
-        <AccordionDetails>
-          <TimeLogs />
-        </AccordionDetails>
-      </Accordion>
-      <Accordion
-        expanded={expanded === "panel4"}
-        onChange={handleChange("panel4")}
-        sx={{ borderRadius: 2, boxShadow: 1 }}
-      >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <CheckBoxOutlinedIcon
-            fontSize="small"
-            sx={{ mr: 1, color: "gray" }}
-          />{" "}
-          TO-DO
-        </AccordionSummary>
-        <AccordionDetails>
-          <ToDoSection />
-        </AccordionDetails>
-      </Accordion>
-    </aside>
+        <aside
+          style={{
+            width: "100%",
+            minWidth: 0,
+            background: "transparent",
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            padding: 8,
+          }}
+        >
+          <Accordion
+            expanded={expanded === "panel1"}
+            onChange={handleChange("panel1")}
+            sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              {" "}
+              <InfoOutlinedIcon
+                fontSize="small"
+                sx={{ mr: 1, color: "gray" }}
+              />{" "}
+              CONTACT DETAILS{" "}
+            </AccordionSummary>
+            <AccordionDetails>
+              <ContactDetails
+                name={ticket?.requester || "Developer Account"}
+                email={ticket?.email || "postmanreply@gmail.com"}
+              />
+            </AccordionDetails>
+          </Accordion>
+          <Accordion
+            expanded={expanded === "panel2"}
+            onChange={handleChange("panel2")}
+            sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              {" "}
+              <ConfirmationNumberOutlinedIcon
+                fontSize="small"
+                sx={{ mr: 1, color: "gray" }}
+              />{" "}
+              RECENT TICKETS{" "}
+            </AccordionSummary>
+            <AccordionDetails>
+              <RecentTickets />
+            </AccordionDetails>
+          </Accordion>
+          <Accordion
+            expanded={expanded === "panel3"}
+            onChange={handleChange("panel3")}
+            sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              {" "}
+              <AccessTimeOutlinedIcon
+                fontSize="small"
+                sx={{ mr: 1, color: "gray" }}
+              />{" "}
+              TIME LOGS{" "}
+            </AccordionSummary>
+            <AccordionDetails>
+              <TimeLogs />
+            </AccordionDetails>
+          </Accordion>
+          <Accordion
+            expanded={expanded === "panel4"}
+            onChange={handleChange("panel4")}
+            sx={{ borderRadius: 2, boxShadow: 1 }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              {" "}
+              <CheckBoxOutlinedIcon
+                fontSize="small"
+                sx={{ mr: 1, color: "gray" }}
+              />{" "}
+              TO-DO{" "}
+            </AccordionSummary>
+            <AccordionDetails>
+              <ToDoSection />
+            </AccordionDetails>
+          </Accordion>
+        </aside>
+      </Box>
+    </Box>
   );
 };
 
