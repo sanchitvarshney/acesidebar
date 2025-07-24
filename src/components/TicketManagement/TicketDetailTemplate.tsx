@@ -40,7 +40,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           <div className="">
           <TicketPropertiesSidebar ticket={ticket.header} /></div>
         </Box>
-        <TicketDetailAccordion ticket={ticket} />
+        {/* <TicketDetailAccordion ticket={ticket} /> */}
       </Box>
     </Box>
   );

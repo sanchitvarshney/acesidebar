@@ -11,7 +11,7 @@ import TicketMetaSidebar from "./TicketMetaSidebar";
 import { Box } from "@mui/material";
 
 const ContactDetails = ({ name, email }: any) => (
-  <div className="flex items-center gap-3 mb-2">
+  <div className="flex items-center mb-2">
     <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
       {name?.[0] || "?"}
     </div>

@@ -127,8 +127,20 @@ const ThreadItem = ({
             >
               <StackEditor initialContent={markdown} onChange={setMarkdown} />
             </div>
-            {/* <h3>Markdown Output:</h3>
-      <pre>{markdown}</pre> */}
+            <div className="flex items-center justify-end gap-2 mt-2">
+              <button
+                className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
+                onClick={() => setShowReplyEditor(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-blue-700"
+                onClick={handleSendReply}
+              >
+                Save
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -219,18 +231,18 @@ const TicketThreadSection = ({ thread, header, onSendReply }: any) => {
       {showEditor && (
         <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
           <div
-              style={{
-                height: 250,
-                width: 990,
-                overflow: "auto",
-                background: "#fff",
-                borderRadius: 8,
-                border: "1px solid #e5e7eb",
-                padding: 8,
-              }}
-            >
-              <StackEditor initialContent={markdown} onChange={setMarkdown} />
-            </div>
+            style={{
+              height: 250,
+              width: 990,
+              overflow: "auto",
+              background: "#fff",
+              borderRadius: 8,
+              border: "1px solid #e5e7eb",
+              padding: 8,
+            }}
+          >
+            <StackEditor initialContent={markdown} onChange={setMarkdown} />
+          </div>
           <div className="flex items-center justify-end gap-2 mt-2">
             <button
               className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
