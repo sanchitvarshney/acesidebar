@@ -117,7 +117,7 @@ const ThreadItem = ({
             <div
               style={{
                 height: 250,
-                width: 1024,
+                width: 940,
                 overflow: "auto",
                 background: "#fff",
                 borderRadius: 8,
@@ -221,7 +221,7 @@ const TicketThreadSection = ({ thread, header, onSendReply }: any) => {
           <div
               style={{
                 height: 250,
-                width: 1024,
+                width: 990,
                 overflow: "auto",
                 background: "#fff",
                 borderRadius: 8,
