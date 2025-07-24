@@ -65,46 +65,11 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
       setExpanded(isExpanded ? panel : "");
     };
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        width: 400,
-        minWidth: 400,
-        height: "100vh",
-        overflow: "hidden",
-        bgcolor: "white",
-        boxShadow: 1,
-      }}
-    >
-      <Box
-        sx={{
-          width: 200,
-          minWidth: 200,
-          bgcolor: "white",
-          p: 0,
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          boxShadow: 1,
-          borderRight: 1,
-          borderColor: "divider",
-        }}
-      >
+    <Box className="flex flex-row w-[400px] min-w-[400px] h-screen overflow-hidden bg-white shadow">
+      <Box className="w-[200px] min-w-[200px] bg-white p-0 flex flex-col h-screen shadow border-r border-gray-200">
         <TicketMetaSidebar ticket={ticket} />
       </Box>
-      <Box
-        sx={{
-          width: 200,
-          minWidth: 200,
-          bgcolor: "white",
-          p: 0,
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          boxShadow: 1,
-        }}
-      >
+      <Box className="w-[200px] min-w-[200px] bg-white p-0 flex flex-col h-screen shadow">
         <aside
           style={{
             width: "100%",
@@ -119,13 +84,13 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           <Accordion
             expanded={expanded === "panel1"}
             onChange={handleChange("panel1")}
-            sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
+            className="rounded-md shadow mb-2"
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               {" "}
               <InfoOutlinedIcon
                 fontSize="small"
-                sx={{ mr: 1, color: "gray" }}
+                className="mr-2 text-gray-500"
               />{" "}
               CONTACT DETAILS{" "}
             </AccordionSummary>
@@ -139,13 +104,13 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           <Accordion
             expanded={expanded === "panel2"}
             onChange={handleChange("panel2")}
-            sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
+            className="rounded-md shadow mb-2"
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               {" "}
               <ConfirmationNumberOutlinedIcon
                 fontSize="small"
-                sx={{ mr: 1, color: "gray" }}
+                className="mr-2 text-gray-500"
               />{" "}
               RECENT TICKETS{" "}
             </AccordionSummary>
@@ -156,13 +121,13 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           <Accordion
             expanded={expanded === "panel3"}
             onChange={handleChange("panel3")}
-            sx={{ borderRadius: 2, boxShadow: 1, mb: 1 }}
+            className="rounded-md shadow mb-2"
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               {" "}
               <AccessTimeOutlinedIcon
                 fontSize="small"
-                sx={{ mr: 1, color: "gray" }}
+                className="mr-2 text-gray-500"
               />{" "}
               TIME LOGS{" "}
             </AccordionSummary>
@@ -173,13 +138,13 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           <Accordion
             expanded={expanded === "panel4"}
             onChange={handleChange("panel4")}
-            sx={{ borderRadius: 2, boxShadow: 1 }}
+            className="rounded-md shadow"
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               {" "}
               <CheckBoxOutlinedIcon
                 fontSize="small"
-                sx={{ mr: 1, color: "gray" }}
+                className="mr-2 text-gray-500"
               />{" "}
               TO-DO{" "}
             </AccordionSummary>
