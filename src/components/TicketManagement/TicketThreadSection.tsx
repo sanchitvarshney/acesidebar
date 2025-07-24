@@ -114,7 +114,17 @@ const ThreadItem = ({
         {showReplyEditor && (
           <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
             <h2> Write your Reply here</h2>
-            <div style={{ minHeight: 250 }}>
+            <div
+              style={{
+                height: 250,
+                width: 1024,
+                overflow: "auto",
+                background: "#fff",
+                borderRadius: 8,
+                border: "1px solid #e5e7eb",
+                padding: 8,
+              }}
+            >
               <StackEditor initialContent={markdown} onChange={setMarkdown} />
             </div>
             {/* <h3>Markdown Output:</h3>
@@ -208,7 +218,19 @@ const TicketThreadSection = ({ thread, header, onSendReply }: any) => {
       {/* Rich editor below reply bar */}
       {showEditor && (
         <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
-          <StackEditor initialContent={markdown} onChange={setMarkdown} />
+          <div
+              style={{
+                height: 250,
+                width: 1024,
+                overflow: "auto",
+                background: "#fff",
+                borderRadius: 8,
+                border: "1px solid #e5e7eb",
+                padding: 8,
+              }}
+            >
+              <StackEditor initialContent={markdown} onChange={setMarkdown} />
+            </div>
           <div className="flex items-center justify-end gap-2 mt-2">
             <button
               className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
