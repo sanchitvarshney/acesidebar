@@ -30,8 +30,8 @@ const ThreadItem = ({
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [localReplyText, setLocalReplyText] = useState("");
-  const [markdown, setMarkdown] = useState("**Hello Stack Overflow Editor!**");
-  
+  const [markdown, setMarkdown] = useState("");
+
   const handleReplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowReplyEditor(true);
@@ -89,16 +89,16 @@ const ThreadItem = ({
                 </button>
                 <div className="w-px h-5 bg-gray-200" />
                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
-                   <EditIcon sx={{ fontSize: 18 }} />
-                 </button>
-                 <div className="w-px h-5 bg-gray-200" />
-                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
-                   <CommentIcon sx={{ fontSize: 18 }} />
-                 </button>
-                 <div className="w-px h-5 bg-gray-200" />
-                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none text-red-600">
-                   <DeleteIcon sx={{ fontSize: 18 }} />
-                 </button>
+                  <EditIcon sx={{ fontSize: 18 }} />
+                </button>
+                <div className="w-px h-5 bg-gray-200" />
+                <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
+                  <CommentIcon sx={{ fontSize: 18 }} />
+                </button>
+                <div className="w-px h-5 bg-gray-200" />
+                <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none text-red-600">
+                  <DeleteIcon sx={{ fontSize: 18 }} />
+                </button>
               </div>
             </div>
           </div>
@@ -113,10 +113,12 @@ const ThreadItem = ({
         {/* Inline Reply Editor */}
         {showReplyEditor && (
           <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
-           <h2>Editor Demo</h2>
-      <StackEditor initialContent={markdown} onChange={setMarkdown} />
-      <h3>Markdown Output:</h3>
-      <pre>{markdown}</pre>
+            <h2> Write your Reply here</h2>
+            <div style={{ minHeight: 250 }}>
+              <StackEditor initialContent={markdown} onChange={setMarkdown} />
+            </div>
+            {/* <h3>Markdown Output:</h3>
+      <pre>{markdown}</pre> */}
           </div>
         )}
       </div>
@@ -162,14 +164,67 @@ const EditorBar = ({ replyText, onReplyTextChange, onSendReply }: any) => (
 );
 
 const TicketThreadSection = ({ thread, header, onSendReply }: any) => {
-  const handleReplyClick = (item: any, replyText: string) => {
-    onSendReply(replyText, item);
+  const [ticketStatus, setTicketStatus] = useState(header?.status || "open");
+  const [showEditor, setShowEditor] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [markdown, setMarkdown] = useState("");
+
+  // Handler for Reply button
+  const handleReplyButton = () => {
+    setShowEditor(true);
+  };
+
+  // Handler for Save button
+  const handleSave = () => {
+    if (markdown && markdown.trim()) {
+      onSendReply(markdown);
+      setMarkdown("");
+      setShowEditor(false);
+    }
   };
 
   return (
     <div className="flex flex-col gap-4 p-4 bg-gray-50 min-h-[600px]">
       <TicketSubjectBar header={header} />
-      <ThreadList thread={thread} onReplyClick={handleReplyClick} />
+      <ThreadList thread={thread} />
+      {/* Reply bar below thread */}
+      <div className="flex items-center gap-2 mt-4 mb-2">
+        <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
+          D
+        </div>
+        <button
+          className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition"
+          onClick={handleReplyButton}
+        >
+          <span>&#8592;</span> Reply
+        </button>
+        <button className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition">
+          <span>&#128221;</span> Add note
+        </button>
+        <button className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition">
+          <span>&#8594;</span> Forward
+        </button>
+      </div>
+      {/* Rich editor below reply bar */}
+      {showEditor && (
+        <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
+          <StackEditor initialContent={markdown} onChange={setMarkdown} />
+          <div className="flex items-center justify-end gap-2 mt-2">
+            <button
+              className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
+              onClick={() => setShowEditor(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-blue-700"
+              onClick={handleSave}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
