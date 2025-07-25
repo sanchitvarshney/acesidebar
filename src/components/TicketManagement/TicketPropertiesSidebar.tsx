@@ -7,19 +7,51 @@ import PersonIcon from "@mui/icons-material/Person";
 import ShareIcon from "@mui/icons-material/Share";
 import InfoIcon from "@mui/icons-material/Info";
 import DescriptionIcon from "@mui/icons-material/Description";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import ContentCutIcon from "@mui/icons-material/ContentCut";
+import HistoryIcon from "@mui/icons-material/History";
+import OpenInFullIcon from "@mui/icons-material/OpenInFull";
+import CloseIcon from "@mui/icons-material/Close";
 import AboutTab from "./AboutTab";
 import SharingTab from "./SharingTab";
 import InfoTab from "./InfoTab";
 import NotesTab from "./NotesTab";
 
-const tabList = [
+// Placeholder components for new top-level tabs
+const KnowledgeBaseTab = () => (
+  <div className="p-4">
+    <div className="font-semibold text-base mb-2">Knowledge Base</div>
+    <div className="text-xs text-gray-500">No articles found</div>
+  </div>
+);
+const ShortcutsTab = () => (
+  <div className="p-4">
+    <div className="font-semibold text-base mb-2">Shortcuts</div>
+    <div className="text-xs text-gray-500">No shortcuts found</div>
+  </div>
+);
+const HistoryTab = () => (
+  <div className="p-4">
+    <div className="font-semibold text-base mb-2">History</div>
+    <div className="text-xs text-gray-500">No history found</div>
+  </div>
+);
+
+const topTabs = [
+  { key: "profile", icon: <PersonIcon />, label: "Profile" },
+  { key: "knowledge", icon: <MenuBookIcon />, label: "Knowledge Base" },
+  { key: "shortcuts", icon: <ContentCutIcon />, label: "Shortcuts" },
+  { key: "history", icon: <HistoryIcon />, label: "History" },
+];
+
+const profileTabs = [
   { key: "about", icon: <PersonIcon />, label: "About" },
   { key: "share", icon: <ShareIcon />, label: "Sharing" },
   { key: "info", icon: <InfoIcon />, label: "Info" },
   { key: "notes", icon: <DescriptionIcon />, label: "Notes" },
 ];
 
-const TicketPropertiesSidebar = ({ ticket }: any) => {
+const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   // Example data, replace with real ticket/user data as needed
   const name = ticket?.name || "shiv kumar";
   const email = ticket?.email || "postmanreply@gmail.com";
@@ -27,96 +59,160 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
   const jobTitle = ticket?.jobTitle || "";
 
   const [attribute, setAttribute] = React.useState("");
-  const [activeTab, setActiveTab] = React.useState("about");
+  const [activeTopTab, setActiveTopTab] = React.useState("profile");
+  const [activeProfileTab, setActiveProfileTab] = React.useState("about");
   const handleAttributeChange = (event: any) => {
     setAttribute(event.target.value);
   };
+
+  // Top-level tab content
+  let mainContent = null;
+  if (activeTopTab === "profile") {
+    mainContent = (
+      <>
+        {/* Details label */}
+        <div className="text-xs font-medium text-gray-600 mb-2">Details</div>
+        {/* Avatar and name/email */}
+        <div className="flex items-center gap-3 mb-4">
+          <Avatar
+            sx={{
+              bgcolor: "#FFC107",
+              width: 48,
+              height: 48,
+              fontWeight: "bold",
+              fontSize: 24,
+            }}
+          >
+            {name?.[0]?.toUpperCase() || "?"}
+          </Avatar>
+          <div>
+            <div className="font-semibold text-base text-gray-800">{name}</div>
+          </div>
+        </div>
+        {/* Profile tab bar */}
+        <div className="flex items-center justify-between bg-gray-50 rounded px-2 py-1 mb-4 border border-gray-200">
+          {profileTabs.map((tab) => (
+            <button
+              key={tab.key}
+              className={`flex-1 flex justify-center items-center py-1 rounded transition-colors ${
+                activeProfileTab === tab.key ? "bg-white" : ""
+              }`}
+              style={{
+                borderBottom:
+                  activeProfileTab === tab.key
+                    ? "2px solid #22c55e"
+                    : "2px solid transparent",
+              }}
+              onClick={() => setActiveProfileTab(tab.key)}
+              aria-label={tab.label}
+              type="button"
+            >
+              {React.cloneElement(tab.icon, {
+                className:
+                  activeProfileTab === tab.key
+                    ? "text-green-600"
+                    : "text-gray-400",
+              })}
+            </button>
+          ))}
+        </div>
+        {/* Profile tab content */}
+        {activeProfileTab === "about" && (
+          <AboutTab
+            name={name}
+            email={email}
+            phone={phone}
+            jobTitle={jobTitle}
+            attribute={attribute}
+            handleAttributeChange={handleAttributeChange}
+          />
+        )}
+        {activeProfileTab === "share" && <SharingTab />}
+        {activeProfileTab === "info" && <InfoTab />}
+        {activeProfileTab === "notes" && <NotesTab />}
+        {/* Organization section */}
+        <div className="bg-white rounded border border-gray-200 p-3 flex flex-col items-center">
+          <div className="flex items-center gap-2 mb-2">
+            <GroupIcon className="text-gray-500" />
+            <span className="text-sm text-gray-700 font-medium">
+              Organization
+            </span>
+          </div>
+          <Button
+            variant="contained"
+            color="success"
+            className="w-full"
+            sx={{
+              textTransform: "none",
+              fontWeight: 500,
+              fontSize: 14,
+              borderRadius: 2,
+            }}
+          >
+            + New Organization
+          </Button>
+        </div>
+      </>
+    );
+  } else if (activeTopTab === "knowledge") {
+    mainContent = <KnowledgeBaseTab />;
+  } else if (activeTopTab === "shortcuts") {
+    mainContent = <ShortcutsTab />;
+  } else if (activeTopTab === "history") {
+    mainContent = <HistoryTab />;
+  }
 
   return (
     <Box
       className="p-2"
       style={{ background: "#fff", borderRadius: 8, width: 350, minWidth: 350 }}
     >
-      {/* Details label */}
-      <div className="text-xs font-medium text-gray-600 mb-2">Details</div>
-      {/* Avatar and name/email */}
-      <div className="flex items-center gap-3 mb-4">
-        <Avatar
-          sx={{
-            bgcolor: "#FFC107",
-            width: 48,
-            height: 48,
-            fontWeight: "bold",
-            fontSize: 24,
-          }}
-        >
-          {name?.[0]?.toUpperCase() || "?"}
-        </Avatar>
-        <div>
-          <div className="font-semibold text-base text-gray-800">{name}</div>
-        </div>
-      </div>
-      {/* Icon tab bar */}
-      <div className="flex items-center justify-between bg-gray-50 rounded px-2 py-1 mb-4 border border-gray-200">
-        {tabList.map((tab) => (
+      {/* Top-level tab bar */}
+      <div className="flex items-center justify-between bg-white rounded px-2 py-1 mb-2 border border-gray-200">
+        {topTabs.map((tab) => (
           <button
             key={tab.key}
             className={`flex-1 flex justify-center items-center py-1 rounded transition-colors ${
-              activeTab === tab.key ? "bg-white" : ""
+              activeTopTab === tab.key ? "bg-white" : ""
             }`}
             style={{
               borderBottom:
-                activeTab === tab.key
+                activeTopTab === tab.key
                   ? "2px solid #22c55e"
                   : "2px solid transparent",
             }}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => setActiveTopTab(tab.key)}
             aria-label={tab.label}
             type="button"
           >
             {React.cloneElement(tab.icon, {
               className:
-                activeTab === tab.key ? "text-green-600" : "text-gray-400",
+                activeTopTab === tab.key ? "text-green-600" : "text-gray-400",
             })}
           </button>
         ))}
-      </div>
-      {/* Tab content */}
-      {activeTab === "about" && (
-        <AboutTab
-          name={name}
-          email={email}
-          phone={phone}
-          jobTitle={jobTitle}
-          attribute={attribute}
-          handleAttributeChange={handleAttributeChange}
-        />
-      )}
-      {activeTab === "share" && <SharingTab />}
-      {activeTab === "info" && <InfoTab />}
-      {activeTab === "notes" && <NotesTab />}
-      {/* Organization section */}
-      <div className="bg-white rounded border border-gray-200 p-3 flex flex-col items-center">
-        <div className="flex items-center gap-2 mb-2">
-          <GroupIcon className="text-gray-500" />
-          <span className="text-sm text-gray-700 font-medium">
-            Organization
-          </span>
-        </div>
-        <Button
-          variant="contained"
-          color="success"
-          className="w-full"
-          sx={{
-            textTransform: "none",
-            fontWeight: 500,
-            fontSize: 14,
-            borderRadius: 2,
-          }}
+        {/* Expand and Close buttons */}
+        <button
+          className="flex justify-center items-center ml-2"
+          style={{ minWidth: 32, minHeight: 32 }}
+          onClick={onExpand}
+          aria-label="Expand"
+          type="button"
         >
-          + New Organization
-        </Button>
+          <OpenInFullIcon className="text-gray-400" />
+        </button>
+        <button
+          className="flex justify-center items-center ml-1"
+          style={{ minWidth: 32, minHeight: 32 }}
+          onClick={onClose}
+          aria-label="Close"
+          type="button"
+        >
+          <CloseIcon className="text-gray-400" />
+        </button>
       </div>
+      {/* Main content below top tabs */}
+      {mainContent}
     </Box>
   );
 };
