@@ -149,19 +149,26 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   );
 
   if (expand) {
-    // Fullscreen modal overlay
     return (
       <Modal open={open} onClose={onClose}>
         <MuiBox
           sx={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
+            // top: "50%",
+            // left: "50%",
+            top:0,
+            left:0,
+            transform: "translate(-50%, -50%)",
+            width: 900,
+            maxWidth: "98vw",
+            maxHeight: "90vh",
             bgcolor: "#fff",
             boxShadow: 24,
             outline: "none",
+            p: 0,
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {panelContent}

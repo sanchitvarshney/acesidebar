@@ -20,7 +20,14 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-
+        element: <Tickets />,
+      },
+      {
+        path: "tickets",
+        element: <Tickets />,
+      },
+      {
+        path: "tickets/:id",
         element: <Tickets />,
       },
     ],

@@ -27,6 +27,7 @@ import TicketDetailTemplate from "./TicketDetailTemplate";
 import { useGetTicketDetailStaffViewQuery } from "../../services/ticketDetailAuth";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TicketDetailSkeleton from "../skeleton/TicketDetailSkeleton";
+import { useParams, useNavigate } from "react-router-dom";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -256,9 +257,27 @@ const Tickets: React.FC = () => {
     }, 200);
   };
 
+  const { id: routeTicketId } = useParams();
+  const navigate = useNavigate();
+
+  // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
     setOpenTicketNumber(ticketNumber);
+    navigate(`/tickets/${ticketNumber}`);
   };
+
+  // When closing a ticket, go back to /tickets
+  const handleBack = () => {
+    setOpenTicketNumber(null);
+    navigate("/tickets");
+  };
+
+  // On mount, if there is an id param, open that ticket
+  React.useEffect(() => {
+    if (routeTicketId) {
+      setOpenTicketNumber(routeTicketId);
+    }
+  }, [routeTicketId]);
 
   const handleReplyTextChange = (text: string) => {
     setReplyText(text);
@@ -503,7 +522,7 @@ const Tickets: React.FC = () => {
       ) : openTicketNumber && ticketDetailData ? (
         <TicketDetailTemplate
           ticket={ticketDetailData}
-          onBack={() => setOpenTicketNumber(null)}
+          onBack={handleBack}
           replyText={replyText}
           onReplyTextChange={handleReplyTextChange}
           onSendReply={() => handleSendReply(replyText)}

@@ -103,22 +103,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
             />
           </Box>
           <div className="">
-            {!expandForward && forwardOpen ? (
-              <ForwardPanel
-                open={true}
-                onClose={() => {
-                  setExpandForward(false);
-                  handleCloseForward();
-                }}
-                fields={forwardFields}
-                onFieldChange={handleForwardFieldChange}
-                onSend={handleForwardSend}
-                expand={false}
-                onExpandToggle={() => setExpandForward((prev) => !prev)}
-              />
-            ) : !forwardOpen ? (
-              <TicketPropertiesSidebar ticket={ticket.header} />
-            ) : null}
+            <TicketPropertiesSidebar ticket={ticket.header} />
           </div>
         </Box>
       </Box>
