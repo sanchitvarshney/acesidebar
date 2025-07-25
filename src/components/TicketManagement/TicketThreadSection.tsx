@@ -4,6 +4,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import CommentIcon from "@mui/icons-material/Comment";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StackEditor from "../Editor";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+} from "@mui/material";
 
 const TicketSubjectBar = ({ header }: any) => (
   <div className="flex items-center gap-2 mb-2">
@@ -185,7 +193,12 @@ const EditorBar = ({ replyText, onReplyTextChange, onSendReply }: any) => (
   </div>
 );
 
-const TicketThreadSection = ({ thread, header, onSendReply }: any) => {
+const TicketThreadSection = ({
+  thread,
+  header,
+  onSendReply,
+  onForward,
+}: any) => {
   const [ticketStatus, setTicketStatus] = useState(header?.status || "open");
   const [showEditor, setShowEditor] = useState(false);
   const [replyText, setReplyText] = useState("");
@@ -223,7 +236,10 @@ const TicketThreadSection = ({ thread, header, onSendReply }: any) => {
         <button className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition">
           <span>&#128221;</span> Add note
         </button>
-        <button className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition">
+        <button
+          className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition"
+          onClick={onForward}
+        >
           <span>&#8594;</span> Forward
         </button>
       </div>
