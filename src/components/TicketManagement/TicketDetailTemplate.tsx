@@ -46,6 +46,8 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
     bcc: "",
     message: ticket?.header?.description || "",
   });
+  const [showReplyEditor, setShowReplyEditor] = React.useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
 
   // Pass this to children to allow opening the forward panel
   const handleOpenForward = () => setForwardOpen(true);
@@ -67,6 +69,15 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
       message: ticket?.header?.description || "",
     });
   };
+  const handleReply = () => setShowReplyEditor(true);
+  const handleCloseReply = () => setShowReplyEditor(false);
+  const handleDelete = () => setDeleteModalOpen(true);
+  const handleCloseDelete = () => setDeleteModalOpen(false);
+  const handleConfirmDelete = () => {
+    // TODO: Implement delete logic
+    setDeleteModalOpen(false);
+    onBack(); // After delete, go back to dashboard
+  };
 
   if (!ticket) return null;
   return (
@@ -77,6 +88,8 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           ticket={ticket.header}
           onBack={onBack}
           onForward={handleOpenForward}
+          onReply={handleReply}
+          onDelete={handleDelete}
         />
         <Box sx={{ display: "flex" }}>
           <Box sx={{ flex: 1 }}>
@@ -85,6 +98,8 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               header={ticket.header}
               onSendReply={onSendReply}
               onForward={handleOpenForward}
+              showReplyEditor={showReplyEditor}
+              onCloseReply={handleCloseReply}
             />
           </Box>
           <div className="">
@@ -121,6 +136,56 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           onExpandToggle={() => setExpandForward((prev) => !prev)}
         />
       )}
+      {/* Delete Modal */}
+      <MuiBox>
+        <Button
+          onClick={handleCloseDelete}
+          style={{
+            display: deleteModalOpen ? "block" : "none",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 2000,
+            background: "rgba(0,0,0,0.3)",
+          }}
+        />
+        {deleteModalOpen && (
+          <MuiBox
+            sx={{
+              position: "fixed",
+              top: "40%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              bgcolor: "#fff",
+              p: 4,
+              borderRadius: 2,
+              boxShadow: 24,
+              zIndex: 2100,
+            }}
+          >
+            <Typography variant="h6">Confirm Delete</Typography>
+            <Typography sx={{ mb: 2 }}>
+              Are you sure you want to delete this ticket?
+            </Typography>
+            <Button
+              onClick={handleCloseDelete}
+              variant="outlined"
+              sx={{ mr: 2 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmDelete}
+              variant="contained"
+              color="error"
+            >
+              Delete
+            </Button>
+          </MuiBox>
+        )}
+      </MuiBox>
     </Box>
   );
 };

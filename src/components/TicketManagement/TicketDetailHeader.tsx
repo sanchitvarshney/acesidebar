@@ -10,17 +10,22 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 const ActionButton = ({
   icon,
   label,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
+  onClick?: () => void;
 }) => (
-  <button className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition">
+  <button
+    className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition"
+    onClick={onClick}
+  >
     {icon}
     <span>{label}</span>
   </button>
 );
 
-const TicketDetailHeader = ({ ticket, onBack }: any) => {
+const TicketDetailHeader = ({ ticket, onBack, onForward,onReply }: any) => {
   return (
     <div className="flex items-center w-full px-6 py-2 border-b bg-white z-10">
       {/* Breadcrumb */}
@@ -35,7 +40,7 @@ const TicketDetailHeader = ({ ticket, onBack }: any) => {
       </nav>
       {/* Action buttons */}
       <div className="flex gap-2 ml-8">
-        <ActionButton icon={<ReplyIcon fontSize="small" />} label="Reply" />
+        <ActionButton icon={<ReplyIcon fontSize="small" />} label="Reply" onClick={onReply} />
         <ActionButton
           icon={<NoteAddIcon fontSize="small" />}
           label="Add note"
@@ -43,6 +48,7 @@ const TicketDetailHeader = ({ ticket, onBack }: any) => {
         <ActionButton
           icon={<ForwardToInboxIcon fontSize="small" />}
           label="Forward"
+          onClick={onForward}
         />
         <ActionButton icon={<CloseIcon fontSize="small" />} label="Close" />
         <ActionButton icon={<MergeTypeIcon fontSize="small" />} label="Merge" />

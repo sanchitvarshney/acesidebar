@@ -198,6 +198,8 @@ const TicketThreadSection = ({
   header,
   onSendReply,
   onForward,
+  showReplyEditor = false,
+  onCloseReply,
 }: any) => {
   const [ticketStatus, setTicketStatus] = useState(header?.status || "open");
   const [showEditor, setShowEditor] = useState(false);
@@ -215,6 +217,7 @@ const TicketThreadSection = ({
       onSendReply(markdown);
       setMarkdown("");
       setShowEditor(false);
+      if (onCloseReply) onCloseReply();
     }
   };
 
@@ -244,7 +247,7 @@ const TicketThreadSection = ({
         </button>
       </div>
       {/* Rich editor below reply bar */}
-      {showEditor && (
+      {(showEditor || showReplyEditor) && (
         <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
           <div
             style={{
@@ -262,7 +265,10 @@ const TicketThreadSection = ({
           <div className="flex items-center justify-end gap-2 mt-2">
             <button
               className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
-              onClick={() => setShowEditor(false)}
+              onClick={() => {
+                setShowEditor(false);
+                if (onCloseReply) onCloseReply();
+              }}
             >
               Cancel
             </button>
