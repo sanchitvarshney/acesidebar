@@ -38,17 +38,19 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   expand = false,
   onExpandToggle,
 }) => {
+   console.log(fields)
+
   // Sidebar style panel (not modal) when expand is false
   const panelContent = (
     <MuiBox
       sx={{
         p: 0,
         bgcolor: "#fff",
-        height: "100vh",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
-        width: expand ? "100vw" : 400,
-        maxWidth: "100vw",
+        width: expand ? "100%" : 400,
+        // maxWidth: "100vw",
         boxShadow: expand ? 24 : 1,
         position: "relative",
       }}
@@ -154,14 +156,15 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         <MuiBox
           sx={{
             position: "absolute",
-            // top: "50%",
-            // left: "50%",
-            top:0,
-            left:0,
+            top: "50%",
+            left: "50%",
+            // top:0,
+            // left:0,
             transform: "translate(-50%, -50%)",
-            width: 900,
-            maxWidth: "98vw",
-            maxHeight: "90vh",
+            width: "60vw",
+            maxWidth: "60vw",
+            maxHeight: "80vh",
+            height: "80vh",
             bgcolor: "#fff",
             boxShadow: 24,
             outline: "none",
@@ -183,7 +186,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
       sx={{
         width: 400,
         minWidth: 400,
-        height: "100vh",
+        height: "87vh",
         boxShadow: 1,
         bgcolor: "#fff",
         position: "relative",

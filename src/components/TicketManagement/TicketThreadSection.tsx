@@ -222,7 +222,7 @@ const TicketThreadSection = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-gray-50 min-h-[600px]">
+    <div className="flex flex-col gap-4 p-4 bg-gray-50 min-h-[575px]">
       <TicketSubjectBar header={header} />
       <ThreadList thread={thread} />
       {/* Reply bar below thread */}

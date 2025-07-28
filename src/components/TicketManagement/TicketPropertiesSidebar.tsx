@@ -2,7 +2,7 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import GroupIcon from "@mui/icons-material/Group";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PersonIcon from "@mui/icons-material/Person";
 import ShareIcon from "@mui/icons-material/Share";
 import InfoIcon from "@mui/icons-material/Info";
@@ -16,6 +16,8 @@ import AboutTab from "./AboutTab";
 import SharingTab from "./SharingTab";
 import InfoTab from "./InfoTab";
 import NotesTab from "./NotesTab";
+import { useGetTagListQuery } from "../../services/ticketAuth";
+import { Chip, MenuItem } from "@mui/material";
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
@@ -61,6 +63,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   const [attribute, setAttribute] = React.useState("");
   const [activeTopTab, setActiveTopTab] = React.useState("profile");
   const [activeProfileTab, setActiveProfileTab] = React.useState("about");
+  const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
   const handleAttributeChange = (event: any) => {
     setAttribute(event.target.value);
   };
@@ -131,26 +134,22 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         {activeProfileTab === "info" && <InfoTab />}
         {activeProfileTab === "notes" && <NotesTab />}
         {/* Organization section */}
-        <div className="bg-white rounded border border-gray-200 p-3 flex flex-col items-center">
+        <div className="bg-white rounded border border-gray-200 p-2 flex flex-col  ">
           <div className="flex items-center gap-2 mb-2">
-            <GroupIcon className="text-gray-500" />
-            <span className="text-sm text-gray-700 font-medium">
-              Organization
-            </span>
+            <LocalOfferIcon className="text-gray-500" />
+            <span className="text-sm text-gray-700 font-medium">Tags</span>
           </div>
-          <Button
-            variant="contained"
-            color="success"
-            className="w-full"
-            sx={{
-              textTransform: "none",
-              fontWeight: 500,
-              fontSize: 14,
-              borderRadius: 2,
-            }}
-          >
-            + New Organization
-          </Button>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+            {isTagListLoading ? (
+              <div>Loading...</div>
+            ) : (
+              <>
+                {tagList?.map((item: any, tagID: any) => {
+                  return <Chip key={tagID} label={item.tagName} />;
+                })}
+              </>
+            )}
+          </Box>
         </div>
       </>
     );
@@ -164,7 +163,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
 
   return (
     <Box
-      className="p-2"
+      className="p-2  max-h-[calc(100vh-200px)] "
       style={{ background: "#fff", borderRadius: 8, width: 350, minWidth: 350 }}
     >
       {/* Top-level tab bar */}
@@ -192,7 +191,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
           </button>
         ))}
         {/* Expand and Close buttons */}
-        <button
+        {/* <button
           className="flex justify-center items-center ml-2"
           style={{ minWidth: 32, minHeight: 32 }}
           onClick={onExpand}
@@ -209,10 +208,13 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
           type="button"
         >
           <CloseIcon className="text-gray-400" />
-        </button>
+        </button> */}
       </div>
       {/* Main content below top tabs */}
+      <div className="w-full max-h-[calc(100vh-200px)]  overflow-y-auto will-change-transform">
       {mainContent}
+      </div>
+
     </Box>
   );
 };

@@ -56,7 +56,7 @@ const TicketDetailHeader = ({ ticket, onBack, onForward,onReply }: any) => {
         <ActionButton icon={<MoreHorizIcon fontSize="small" />} label="" />
       </div>
       {/* Tabs */}
-      <div className="flex gap-2 ml-auto">
+      {/* <div className="flex gap-2 ml-auto">
         <button className="px-3 py-1 text-sm font-semibold text-blue-700 bg-blue-50 rounded hover:bg-blue-100">
           Threads
         </button>
@@ -66,7 +66,7 @@ const TicketDetailHeader = ({ ticket, onBack, onForward,onReply }: any) => {
         <button className="px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded">
           ...
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

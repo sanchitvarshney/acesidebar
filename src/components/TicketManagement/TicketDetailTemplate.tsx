@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ForwardPanel from "./ForwardPanel";
+import { useAuth } from "../../contextApi/AuthContext";
 
 interface TicketDetailTemplateProps {
   ticket: any; // expects { header, response, other }
@@ -81,7 +82,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
 
   if (!ticket) return null;
   return (
-    <Box sx={{ display: "flex", position: "relative" }}>
+    <Box sx={{ display: "flex", position: "relative", height: "80vh" }}>
       <Sidebar open={false} handleDrawerToggle={() => {}} />
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <TicketDetailHeader
@@ -91,8 +92,8 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           onReply={handleReply}
           onDelete={handleDelete}
         />
-        <Box sx={{ display: "flex" }}>
-          <Box sx={{ flex: 1 }}>
+        <Box sx={{ display: "flex", height: "80vh" }}>
+          <Box sx={{ flex: 1, height: "80vh", overflow: "auto" }}>
             <TicketThreadSection
               thread={ticket.response}
               header={ticket.header}
@@ -107,19 +108,23 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           </div>
         </Box>
       </Box>
-      {expandForward && forwardOpen && (
-        <ForwardPanel
-          open={true}
-          onClose={() => {
-            setExpandForward(false);
-            handleCloseForward();
-          }}
-          fields={forwardFields}
-          onFieldChange={handleForwardFieldChange}
-          onSend={handleForwardSend}
-          expand={true}
-          onExpandToggle={() => setExpandForward((prev) => !prev)}
-        />
+      {(expandForward || forwardOpen) && (
+        <div
+          className={`${expandForward ? "w-full h-full" : "absolute top-0 right-0"}`}
+        >
+          <ForwardPanel
+            open={forwardOpen}
+            onClose={() => {
+              setExpandForward(false);
+              handleCloseForward();
+            }}
+            fields={forwardFields}
+            onFieldChange={handleForwardFieldChange}
+            onSend={handleForwardSend}
+            expand={expandForward}
+            onExpandToggle={() => setExpandForward((prev) => !prev)}
+          />
+        </div>
       )}
       {/* Delete Modal */}
       <MuiBox>
