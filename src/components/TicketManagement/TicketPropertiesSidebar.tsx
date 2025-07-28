@@ -18,6 +18,7 @@ import InfoTab from "./InfoTab";
 import NotesTab from "./NotesTab";
 import { useGetTagListQuery } from "../../services/ticketAuth";
 import { Chip, MenuItem } from "@mui/material";
+import ShortcutsTab from "../ShortcitsTab";
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
@@ -26,12 +27,7 @@ const KnowledgeBaseTab = () => (
     <div className="text-xs text-gray-500">No articles found</div>
   </div>
 );
-const ShortcutsTab = () => (
-  <div className="p-4">
-    <div className="font-semibold text-base mb-2">Shortcuts</div>
-    <div className="text-xs text-gray-500">No shortcuts found</div>
-  </div>
-);
+
 const HistoryTab = () => (
   <div className="p-4">
     <div className="font-semibold text-base mb-2">History</div>
@@ -211,7 +207,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         </button> */}
       </div>
       {/* Main content below top tabs */}
-      <div className="w-full max-h-[calc(100vh-200px)]  overflow-y-auto will-change-transform">
+      <div className="w-full max-h-[calc(100vh-200px)] overflow-y-auto will-change-transform">
       {mainContent}
       </div>
 

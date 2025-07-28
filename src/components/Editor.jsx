@@ -66,6 +66,7 @@ const StackEditor = ({ initialContent = "", onChange }) => {
 
   return (
     <Editor
+    
       editorState={editorState}
       onEditorStateChange={safeSetEditorState}
       wrapperClassName="wysiwyg-wrapper"
