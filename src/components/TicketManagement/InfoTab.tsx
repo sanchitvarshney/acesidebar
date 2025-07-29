@@ -93,50 +93,8 @@ const InfoTab = () => (
       value="browser name"
     />
     <Divider sx={{ my: 1 }} />
-    <span className="text-sm font-semibold text-gray-500">Web Sessions</span>
-    <InfoContent
-      icon={<AccessTimeIcon fontSize="small" />}
-      label="First Web Session"
-      value="date or time"
-    />
-    <InfoContent
-      icon={<AccessTimeIcon fontSize="small" />}
-      label="Latest Web Session"
-      value="date or time"
-    />
-    <InfoContent
-      icon={<AccessTimeIcon fontSize="small" />}
-      label="Total Web Sessions"
-      value={1}
-    />
-    <InfoContent
-      icon={<PageviewIcon fontSize="small" />}
-      label="Page Views"
-      value={1}
-    />
-    <InfoContent
-      icon={<AccessTimeIcon fontSize="small" />}
-      label="Time Spent"
-      value="time"
-    />
-    <Divider sx={{ my: 1 }} />
-    <span className="text-sm font-semibold text-gray-500">Live Chat</span>
-    <InfoContent
-      icon={<ChatBubbleOutlineIcon fontSize="small" />}
-      label="First Live Chat"
-      value="date or time"
-    />
-    <InfoContent
-      icon={<ChatBubbleOutlineIcon fontSize="small" />}
-      label="Latest Live Chat"
-      value="date or time"
-    />
-    <InfoContent
-      icon={<ChatBubbleOutlineIcon fontSize="small" />}
-      label="Total Live Chats"
-      value={1}
-    />
-    <Divider sx={{ my: 1 }} />
+  
+
     <span className="text-sm font-semibold text-gray-500">Ticket</span>
     <InfoContent
       icon={<ConfirmationNumberIcon fontSize="small" />}

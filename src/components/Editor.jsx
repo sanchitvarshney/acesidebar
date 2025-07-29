@@ -1,23 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Editor } from "react-draft-wysiwyg";
-import {
-  EditorState,
-  convertToRaw,
-  convertFromRaw,
-  ContentState,
-} from "draft-js";
-import draftToMarkdown from "draftjs-to-markdown";
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import "../css/scoped-stack-editor.css";
+
+import { Editor } from 'primereact/editor';
 
 const StackEditor = ({ initialContent = "", onChange }) => {
-  const [editorState, setEditorState] = useState(() =>
-    initialContent
-      ? EditorState.createWithContent(
-          ContentState.createFromText(initialContent)
-        )
-      : EditorState.createEmpty()
-  );
+
 
   const isMounted = React.useRef(true);
 
@@ -52,52 +38,23 @@ const StackEditor = ({ initialContent = "", onChange }) => {
     });
   };
 
-  const safeSetEditorState = (state) => {
-    if (isMounted.current) {
-      setEditorState(state);
-    }
-  };
+  
+ const renderHeader = () => {
+        return (
+            <span className="ql-formats">
+                <button className="ql-bold" aria-label="Bold"></button>
+                <button className="ql-italic" aria-label="Italic"></button>
+                <button className="ql-underline" aria-label="Underline"></button>
+                <button className="ql-link" aria-label="Link"></button>
+                <button className="ql-image" aria-label="Image"></button>
+            </span>
+        );
+    };
 
-  useEffect(() => {
-    const raw = convertToRaw(editorState.getCurrentContent());
-    const markdown = draftToMarkdown(raw);
-    onChange?.(markdown);
-  }, [editorState, onChange]);
+    const header = renderHeader();
 
   return (
-    <Editor
-    
-      editorState={editorState}
-      onEditorStateChange={safeSetEditorState}
-      wrapperClassName="wysiwyg-wrapper"
-      editorClassName="wysiwyg-editor"
-      toolbarClassName="wysiwyg-toolbar"
-      toolbar={{
-        options: [
-          "inline",
-          // 'blockType',
-          // 'fontSize',
-          "list",
-          "textAlign",
-          // 'colorPicker',
-          // 'link',
-          // 'embedded',
-          // 'emoji',
-          "image",
-          // 'remove',
-        ],
-        image: {
-          urlEnabled: true,
-          uploadEnabled: true,
-          uploadCallback: uploadImageCallback,
-          previewImage: true,
-          alt: { present: true, mandatory: false },
-        },
-        inline: {
-          options: ["bold", "italic", "underline", "strikethrough"],
-        },
-      }}
-    />
+     <Editor value={initialContent} onTextChange={(e) => onChange(e.htmlValue)} style={{ height: '180px' }} headerTemplate={header} />
   );
 };
 

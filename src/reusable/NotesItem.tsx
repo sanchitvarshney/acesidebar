@@ -29,19 +29,23 @@ const NoteItem: FC<NoteItemProps> = ({
 }) => {
   return (
     <Paper
-      elevation={1}
-      sx={{
-        p: 2,
-        borderRadius: 2,
-        mb: 2,
-      }}
+      elevation={0}
+         sx={{
+          mb:2,
+          p:1,
+          "&:hover": {
+            cursor: "pointer",
+            backgroundColor: "#ccc",
+          },
+        }}
     >
       {/* Header Section */}
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        mb={1}
+        mb={0.5}
+    
       >
         <Typography variant="caption" sx={{ color: "#000" }}>
           {data?.createdBy}
@@ -52,7 +56,7 @@ const NoteItem: FC<NoteItemProps> = ({
       </Box>
 
       {/* Content Section */}
-      <Typography variant="body2" sx={{ mb: 1 }}>
+      <Typography variant="body2" sx={{ mb: 0.5 }}>
         {data?.note}
       </Typography>
       {isEdit && editNoteId === data.id && (
@@ -67,10 +71,10 @@ const NoteItem: FC<NoteItemProps> = ({
       {/* Action Buttons */}
       <Box display="flex" justifyContent="flex-end" gap={1}>
         <IconButton size="small" color="primary" onClick={handleEdit}>
-          <EditIcon fontSize="small" />
+          <EditIcon sx={{ fontSize: "16px" }} />
         </IconButton>
         <IconButton size="small" color="error" onClick={handleDelete}>
-          <DeleteIcon fontSize="small" />
+          <DeleteIcon sx={{ fontSize: "16px" }} />
         </IconButton>
       </Box>
     </Paper>

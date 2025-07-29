@@ -3,34 +3,34 @@ import React from "react";
 import StyledTextField from "../../reusable/AddNotes";
 import NotesItem from "../../reusable/NotesItem";
 
-// import emptyImg from "../../../public/image/empty.svg";
-
 const NotesTab = () => {
   const [isNotes, setIsNotes] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [note, setNote] = React.useState("");
-  const [noteList, setNoteList] = React.useState<any>([]);
+  const [noteList, setNoteList] = React.useState<any[]>([]);
   const [editNoteId, setEditNoteId] = React.useState<number | null>(null);
+
   const handleInputText = (text: string) => {
     if (text.length <= 500) {
       setNote(text);
     }
   };
+
   const handleSave = () => {
-    if (editNoteId) {
-      setNoteList((prev: any) =>
-        prev.map((item: any) =>
+    if (editNoteId !== null) {
+      setNoteList((prev) =>
+        prev.map((item) =>
           item.id === editNoteId ? { ...item, note } : item
         )
       );
       setEditNoteId(null);
       setIsEdit(false);
     } else {
-      setNoteList((prev: any) => [
+      setNoteList((prev) => [
         ...prev,
         {
-          id: new Date().getTime(),
-          note: note,
+          id: Date.now(),
+          note,
           createdBy: "Current User",
           createdAt: new Date().toLocaleString(),
         },
@@ -40,52 +40,54 @@ const NotesTab = () => {
     setNote("");
   };
 
-  const handleDelete = (id: any) => {
-    setNoteList(noteList.filter((item: any) => item.id !== id));
+  const handleDelete = (id: number) => {
+    setNoteList((prev) => prev.filter((item) => item.id !== id));
   };
 
   const handleEdit = (id: number) => {
-    const noteToEdit = noteList.find((item: any) => item.id === id);
+    const noteToEdit = noteList.find((item) => item.id === id);
     if (noteToEdit) {
       setNote(noteToEdit.note);
       setEditNoteId(id);
       setIsEdit(true);
+      setIsNotes(true); // show editor when editing
     }
   };
 
-  const renderContent = (
-    <div>
-      {isNotes ? (
-        <div>
-          {" "}
-          <StyledTextField
-            placeholder="Write your note here"
-            inputText={handleInputText}
-            note={note}
-            onCancel={()=>setIsNotes(false)}
-            handleSave={handleSave}
-          />
-        </div>
-      ) : (
-        <span
-          className="text-sm text-green-600 cursor-pointer p-2"
-          onClick={() => setIsNotes(true)}
-        >
-          + Add note
-        </span>
-      )}
-    </div>
-  );
+  const handleCancel = () => {
+    setIsNotes(false);
+    setIsEdit(false);
+    setEditNoteId(null);
+    setNote("");
+  };
+
   return (
     <div className="bg-white rounded border border-gray-200 p-3 mb-4">
-      <div className="font-semibold text-sm text-gray-700 mb-2">Notes</div>
-
-      {renderContent}
+      {isNotes && (
+        <StyledTextField
+          placeholder="Write your note here"
+          inputText={handleInputText}
+          note={note}
+          onCancel={handleCancel}
+          handleSave={handleSave}
+        />
+      )}
 
       {noteList.length > 0 ? (
-        <div className="mt-4">
-          {noteList.map((item: any) => (
+        <div className="mt-0">
+          {!isNotes && (
+            <div className="flex items-center justify-end mb-2">
+              <span
+                className="text-sm text-green-600 cursor-pointer p-2"
+                onClick={() => setIsNotes(true)}
+              >
+                + Add note
+              </span>
+            </div>
+          )}
+          {noteList.map((item) => (
             <NotesItem
+              key={item.id} // ✅ Added key
               data={item}
               handleDelete={() => handleDelete(item.id)}
               handleEdit={() => handleEdit(item.id)}
@@ -94,21 +96,26 @@ const NotesTab = () => {
               note={note}
               inputText={handleInputText}
               editNoteId={editNoteId}
-              onEdit={()=>setIsEdit(false)}
+              onEdit={() => setIsEdit(false)}
             />
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center mt-4">
-          <img
-            src={"/image/empty.svg"}
-            alt="notes"
-            className="mx-auto w-40 h-30 "
-          />
-          <span className="text-sm text-gray-600 text-center">
-            List is empty
-          </span>
-        </div>
+        !isNotes && (
+          <div className="flex flex-col items-center mt-4">
+            <img
+              src={"/image/empty.svg"}
+              alt="notes"
+              className="mx-auto w-40 h-30"
+            />
+            <span
+              className="text-sm text-green-600 cursor-pointer p-2"
+              onClick={() => setIsNotes(true)}
+            >
+              + Add note
+            </span>
+          </div>
+        )
       )}
     </div>
   );

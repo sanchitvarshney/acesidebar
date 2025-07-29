@@ -15,9 +15,11 @@ import { RootState } from "../reduxStore/Store";
 const ShotCutContent = ({
   onChange,
   onClose,
+  stateChangeKey
 }: {
   onChange: any;
   onClose: any;
+  stateChangeKey: any;
 }) => {
   const { shotcutData } = useSelector((state: RootState) => state.shotcut);
 
@@ -62,6 +64,7 @@ const ShotCutContent = ({
                 tabIndex={0}
                 onClick={() => {
                   onChange(item.message);
+                  stateChangeKey()
                   onClose();
                 }}
               >

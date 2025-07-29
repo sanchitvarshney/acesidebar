@@ -11,7 +11,7 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import HistoryIcon from "@mui/icons-material/History";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import CloseIcon from "@mui/icons-material/Close";
+// import CloseIcon from "@mui/icons-material/Close";
 import AboutTab from "./AboutTab";
 import SharingTab from "./SharingTab";
 import InfoTab from "./InfoTab";
@@ -19,6 +19,7 @@ import NotesTab from "./NotesTab";
 import { useGetTagListQuery } from "../../services/ticketAuth";
 import { Chip, MenuItem } from "@mui/material";
 import ShortcutsTab from "../ShortcitsTab";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
@@ -69,9 +70,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   if (activeTopTab === "profile") {
     mainContent = (
       <>
-        {/* Details label */}
-        <div className="text-xs font-medium text-gray-600 mb-2">Details</div>
-        {/* Avatar and name/email */}
+       
         <div className="flex items-center gap-3 mb-4">
           <Avatar
             sx={{
@@ -99,7 +98,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
               style={{
                 borderBottom:
                   activeProfileTab === tab.key
-                    ? "2px solid #22c55e"
+                    ? "2px solid #0891b2"
                     : "2px solid transparent",
               }}
               onClick={() => setActiveProfileTab(tab.key)}
@@ -109,7 +108,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
               {React.cloneElement(tab.icon, {
                 className:
                   activeProfileTab === tab.key
-                    ? "text-green-600"
+                    ? "text-[#0891b2]"
                     : "text-gray-400",
               })}
             </button>
@@ -141,7 +140,19 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             ) : (
               <>
                 {tagList?.map((item: any, tagID: any) => {
-                  return <Chip key={tagID} label={item.tagName} />;
+                  return (
+                    <Chip
+                      key={tagID}
+                      label={item.tagName}
+                      onDelete={() => {}}
+                      deleteIcon={<CloseIcon />}
+                      sx={{
+                        "& .MuiChip-deleteIcon": {
+                          fontSize: 18, // controls icon size
+                        },
+                      }}
+                    />
+                  );
                 })}
               </>
             )}
@@ -173,7 +184,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             style={{
               borderBottom:
                 activeTopTab === tab.key
-                  ? "2px solid #22c55e"
+                  ? "2px solid #0891b2"
                   : "2px solid transparent",
             }}
             onClick={() => setActiveTopTab(tab.key)}
@@ -182,7 +193,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
           >
             {React.cloneElement(tab.icon, {
               className:
-                activeTopTab === tab.key ? "text-green-600" : "text-gray-400",
+                activeTopTab === tab.key ? "text-[#0891b2]" : "text-gray-400",
             })}
           </button>
         ))}
@@ -208,9 +219,8 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
       </div>
       {/* Main content below top tabs */}
       <div className="w-full max-h-[calc(100vh-200px)] overflow-y-auto will-change-transform">
-      {mainContent}
+        {mainContent}
       </div>
-
     </Box>
   );
 };

@@ -13,13 +13,15 @@ import {
   Typography,
 } from "@mui/material";
 import CustomSearch from "./common/CustomSearch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { AppDispatch, RootState } from "../reduxStore/Store";
 import { useDispatch, useSelector } from "react-redux";
 import { setShotcuts } from "../reduxStore/Slices/shotcutSlices";
+import { set } from "react-hook-form";
+import LoadingCheck from "./reusable/LoadingCheck";
 
 const elementValue = [
   {
@@ -46,10 +48,13 @@ const elementValue = [
 
 const ShortcutsTab = () => {
   const [isAddShortcutOpen, setIsAddShortcutOpen] = useState(false);
+  const [isEditShortCut, setIsEditShortCut] = useState(false);
   const [selectedElement, setSelectedElement] = useState<any>([]);
   const [shortcutName, setShortcutName] = useState<any>("");
+  const [shortcutId, setShortcutId] = useState<any>("");
   const [message, setMessage] = useState<any>("");
   const { shotcutData } = useSelector((state: RootState) => state.shotcut);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -75,24 +80,56 @@ const ShortcutsTab = () => {
   };
 
   const handleSubmit = () => {
-    dispatch(
-      setShotcuts([
-        ...shotcutData,
-        {
-          id: Date.now(),
-          shortcutName: "/" + shortcutName,
-          message: message,
-        },
-      ])
-    );
-    setIsAddShortcutOpen(false);
+    if (isEditShortCut) {
+      dispatch(
+        setShotcuts(
+          shotcutData.map((item: any) => {
+            if (item.id === shortcutId) {
+              return {
+                ...item,
+                shortcutName: "/" + shortcutName,
+                message: message,
+              };
+            }
+            return item;
+          })
+        )
+      );
+      setIsEditShortCut(false);
+    } else {
+      dispatch(
+        setShotcuts([
+          ...shotcutData,
+          {
+            id: Date.now(),
+            shortcutName: "/" + shortcutName,
+            message: message,
+          },
+        ])
+      );
+      setIsAddShortcutOpen(false);
+    }
   };
 
-  const handleEditShortcut = (item: any) => {
-    setShortcutName(item.shortcutName);
+  const handleEditShortcut = (id: any) => {
+    const item = shotcutData.find((item: any) => item.id === id);
+    const removeSlash = item.shortcutName.replace("/", "");
+    setShortcutName(removeSlash);
     setMessage(item.message);
-    setIsAddShortcutOpen(true);
-  }
+    setShortcutId(id);
+    setIsEditShortCut(true);
+  };
+
+  useEffect(() => {
+    if (!loading) {
+      return
+    }
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    
+  }, [loading])
+  
 
   return (
     <div className="p-2 h-[calc(100vh-200px)] w-full">
@@ -101,7 +138,7 @@ const ShortcutsTab = () => {
       <CustomSearch width="100%" placeholder="Search" onChange={() => {}} />
 
       <div className="my-3 wi-full h-[calc(100vh-345px)] overflow-y-auto">
-        {isAddShortcutOpen ? (
+        {isAddShortcutOpen || isEditShortCut ? (
           <div className="flex flex-col gap-3">
             <div>
               {" "}
@@ -277,17 +314,23 @@ const ShortcutsTab = () => {
                       <Box display="flex" gap={1}>
                         <IconButton
                           size="small"
-                          onClick={() => handleEditShortcut(item)}
+                          onClick={() => handleEditShortcut(item.id)}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
-
-                        <IconButton
-                          size="small"
-                          //   disableRipple
-                        >
-                          <ContentCopyIcon fontSize="small" />
-                        </IconButton>
+                        {loading ? (
+                          <LoadingCheck />
+                        ) : (
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.message);
+                              setLoading(true);
+                            }}
+                          >
+                            <ContentCopyIcon fontSize="small" />
+                          </IconButton>
+                        )}
                       </Box>
                     </Box>
                   </ListItem>
@@ -301,13 +344,19 @@ const ShortcutsTab = () => {
       </div>
 
       <div className="py-2 shadow-2xl/30  ">
-        {isAddShortcutOpen ? (
+        {isAddShortcutOpen || isEditShortCut ? (
           <div className="flex gap-2 ">
             <Button
               variant="contained"
               color="inherit"
               fullWidth
-              onClick={() => setIsAddShortcutOpen(false)}
+              onClick={() => {
+                if (isEditShortCut) {
+                  setIsEditShortCut(false);
+                } else {
+                  setIsAddShortcutOpen(false);
+                }
+              }}
             >
               Cancel
             </Button>
@@ -317,7 +366,7 @@ const ShortcutsTab = () => {
               fullWidth
               onClick={handleSubmit}
             >
-              save
+              {isEditShortCut ? "Update" : "Save"}
             </Button>
           </div>
         ) : (

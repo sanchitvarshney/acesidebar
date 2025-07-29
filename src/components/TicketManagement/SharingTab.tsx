@@ -2,16 +2,18 @@ import { Label } from "@mui/icons-material";
 import {
   Avatar,
   Box,
+  IconButton,
   ListItem,
   ListItemButton,
   Typography,
 } from "@mui/material";
 
-import  { JSX } from "react";
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import XIcon from '@mui/icons-material/X';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import { JSX } from "react";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import XIcon from "@mui/icons-material/X";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 
 interface sharingadatatypes {
   id: string;
@@ -49,7 +51,14 @@ const SharingData: sharingadatatypes[] = [
 
 const SharingTab = () => (
   <div className="bg-white rounded border border-gray-200 p-3 mb-4">
-    <div className="font-semibold text-sm text-gray-700 mb-2">Social Media</div>
+    <div className="flex items-center justify-between mb-2">
+      <div className="font-semibold text-sm text-gray-700 ">
+        Social Media
+      </div>
+      <IconButton size="small">
+        <ModeEditIcon sx={{ fontSize: 20 }} />
+      </IconButton>
+    </div>
 
     <div>
       {SharingData.map((item: sharingadatatypes, index) => (
@@ -60,7 +69,6 @@ const SharingTab = () => (
           sx={{
             backgroundColor: "#fff",
             transition: "background-color 0.2s ease",
-          
           }}
         >
           <ListItemButton
@@ -73,13 +81,12 @@ const SharingTab = () => (
               "&:hover, &:focus": {
                 backgroundColor: "#b7facfad",
                 boxShadow: "0 2px 8px rgba(25, 118, 210, 0.08)",
-               
               },
             }}
             tabIndex={0}
           >
             <Box display="flex" gap={2} width="100%" alignItems="flex-start">
-              < div className="flex  items-center">{item.icon}</div>
+              <div className="flex  items-center">{item.icon}</div>
               <Box flex={1} minWidth={0}>
                 <Box display="flex" gap={1}>
                   {/* <div className="flex  justify-between w-full items-center"> */}

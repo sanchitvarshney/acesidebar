@@ -38,7 +38,7 @@ const ThreadItem = ({
   replyText,
   onReplyTextChange,
   onSendReply,
-  onForward
+  onForward,
 }: any) => {
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
@@ -47,7 +47,7 @@ const ThreadItem = ({
 
   const handleReplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onForward()
+    onForward();
   };
 
   const handleSendReply = () => {
@@ -149,11 +149,16 @@ const ThreadItem = ({
   );
 };
 
-const ThreadList = ({ thread, onReplyClick,onForward }: any) => (
+const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
   <div>
     {thread && thread.length > 0 ? (
       thread.map((item: any, idx: number) => (
-        <ThreadItem key={idx} item={item} onReplyClick={onReplyClick} onForward={onForward} />
+        <ThreadItem
+          key={idx}
+          item={item}
+          onReplyClick={onReplyClick}
+          onForward={onForward}
+        />
       ))
     ) : (
       <div className="text-gray-400">No thread items.</div>
@@ -201,20 +206,26 @@ const TicketThreadSection = ({
   const [showShotcut, setShowShotcut] = useState(false);
   const [slashTriggered, setSlashTriggered] = useState(false);
   const shotcutRef = React.useRef(null);
+  const [stateChangeKey, setStateChangeKey] = useState(0);
 
   const handleEditorChange = (value: string) => {
-    // Trigger only when new "/" is typed
-    if (!slashTriggered && value.includes("/")) {
+     if (value === null) {
+      return
+    }
+    const text: any = value?.replace(/<[^>]*>/g, "");
+   
+
+    if (!slashTriggered && text?.includes("/")) {
       setShowShotcut(true);
-      setSlashTriggered(true); // prevent retriggering
+      setSlashTriggered(true);
     }
 
     // Reset trigger if "/" is removed
-    if (!value.includes("/")) {
+    if (!text.includes("/")) {
       setSlashTriggered(false);
     }
 
-    setMarkdown(value);
+    setMarkdown(text);
   };
 
   // Handler for Reply button
@@ -238,7 +249,7 @@ const TicketThreadSection = ({
   return (
     <div className="flex flex-col gap-4 p-4 bg-gray-50 min-h-[575px]">
       <TicketSubjectBar header={header} />
-      <ThreadList thread={thread}  onForward={onForward}/>
+      <ThreadList thread={thread} onForward={onForward} />
       {/* Reply bar below thread */}
       <div className="flex items-center gap-2 mt-4 mb-2">
         <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
@@ -266,19 +277,19 @@ const TicketThreadSection = ({
           <div
             ref={shotcutRef}
             style={{
-              height: 250,
-              width: 985,
+              // height: 250,
+              // width: 985,
               overflow: "auto",
               background: "#fff",
-              borderRadius: 8,
-              border: "1px solid #e5e7eb",
+              // borderRadius: 8,
+              // border: "1px solid #e5e7eb",
               padding: 8,
             }}
           >
             <StackEditor
               initialContent={markdown}
               onChange={handleEditorChange}
-              // key={markdown}
+              key={stateChangeKey}
             />
           </div>
           {showShotcut && (
@@ -292,16 +303,18 @@ const TicketThreadSection = ({
             >
               <ShotCutContent
                 onChange={(e: any) => {
-                  setMarkdown((prev) => {
-                    // Replace only the last slash typed
-                    return prev.replace(/\/$/, e);
+                  setMarkdown((prev:any) => {
+                  
+                    
+                    return prev?.replace(/\/$/, e);
                   });
-                  // onClose(); // close modal if needed
+              
                 }}
                 onClose={() => {
                   // setSlashTriggered(false);
                   setShowShotcut(false);
                 }}
+                stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
               />
             </ShortCutPopover>
           )}
