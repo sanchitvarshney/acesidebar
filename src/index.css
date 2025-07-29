@@ -141,3 +141,34 @@
   src: url(./fonts/MsCamz/2SazJx$EeTHfhMN.woff2) format("woff2"),
     url(./fonts/MsCamz/CjbL$jCCegyfqZ7.woff) format("woff");
 }
+
+
+.ql-toolbar .ql-formats button:hover {
+  background: rgba(0, 0, 0, 0.05); /* hover background */
+}
+.ql-toolbar .ql-formats button {
+  margin-right: 10px; /* space between buttons */
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.editor-fullscreen {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: white;
+  z-index: 9999;
+  padding: 10px;
+}
+
+.editor-fullscreen .p-editor-container {
+  height: 100% !important;
+}
+
+.editor-fullscreen .p-editor-content {
+  height: calc(100% - 50px) !important; /* Adjust for toolbar height */
+}
+
+

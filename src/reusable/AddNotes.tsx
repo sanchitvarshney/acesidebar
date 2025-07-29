@@ -64,7 +64,7 @@ const AddNotes = ({ label = "Write your note here", rows = 4, ...props }) => {
         >
           Cancel
         </Button>
-        <Button variant="contained" color="success" onClick={handleSave}>
+        <Button variant="contained" sx={{bgcolor:"#0891b2", color:"white"}} onClick={handleSave}>
           Save
         </Button>
       </div>

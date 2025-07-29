@@ -177,8 +177,9 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         }),
       }}
     >
-      <Toolbar>
-        <IconButton
+      <Toolbar className="flex justify-between">
+        <div className="flex items-center">
+          <IconButton
           color="inherit"
           aria-label="open drawer"
           edge="start"
@@ -195,11 +196,14 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         >
           Ticket Management System
         </Typography>
+        </div>
         {/* Expanding Search Bar */}
-        <div
+        <div>
+
+             <div
           ref={dropdownRef}
-          className={`transition-all duration-200 ml-4 ${
-            searchExpanded ? "w-[480px]" : "w-[240px]"
+          className={` transition-all duration-200 ml-30 ${
+            searchExpanded ? "w-[480px]" : "w-[340px]"
           } relative`}
         >
           <div className="flex items-center w-full bg-white border border-gray-300 rounded px-2 py-1 shadow-sm">
@@ -228,7 +232,10 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             />
           )}
         </div>
-        <Box sx={{ flexGrow: 1 }} />
+        </div>
+
+        <Box sx={{ flexGrow: 0,  }} />
+        
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton
             onClick={() => setNotificationOpen(true)}

@@ -31,6 +31,7 @@ const NoteItem: FC<NoteItemProps> = ({
     <Paper
       elevation={0}
          sx={{
+          mt:1,
           mb:2,
           p:1,
           "&:hover": {

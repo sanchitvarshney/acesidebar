@@ -122,14 +122,12 @@ const ShortcutsTab = () => {
 
   useEffect(() => {
     if (!loading) {
-      return
+      return;
     }
     setTimeout(() => {
       setLoading(false);
     }, 1000);
-    
-  }, [loading])
-  
+  }, [loading]);
 
   return (
     <div className="p-2 h-[calc(100vh-200px)] w-full">
@@ -337,7 +335,13 @@ const ShortcutsTab = () => {
                 ))}
               </>
             ) : (
-              <Typography variant="h6">No Shortcuts Found</Typography>
+              <div className="flex flex-col items-center mt-4">
+                <img
+                  src={"/image/empty.svg"}
+                  alt="notes"
+                  className="mx-auto w-40 h-40"
+                />
+              </div>
             )}
           </div>
         )}
@@ -362,7 +366,7 @@ const ShortcutsTab = () => {
             </Button>
             <Button
               variant="contained"
-              color="success"
+              sx={{ bgcolor: "#0891b2", color: "white" }}
               fullWidth
               onClick={handleSubmit}
             >
@@ -372,7 +376,7 @@ const ShortcutsTab = () => {
         ) : (
           <Button
             variant="contained"
-            color="success"
+            sx={{ bgcolor: "#0891b2", color: "white" }}
             fullWidth
             onClick={() => {
               setIsAddShortcutOpen(true);

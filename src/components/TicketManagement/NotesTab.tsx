@@ -74,11 +74,11 @@ const NotesTab = () => {
       )}
 
       {noteList.length > 0 ? (
-        <div className="mt-0">
+        <div className="mb-0">
           {!isNotes && (
             <div className="flex items-center justify-end mb-2">
               <span
-                className="text-sm text-green-600 cursor-pointer p-2"
+                className="text-sm text-[#0891b2] cursor-pointer p-2"
                 onClick={() => setIsNotes(true)}
               >
                 + Add note
@@ -109,7 +109,7 @@ const NotesTab = () => {
               className="mx-auto w-40 h-30"
             />
             <span
-              className="text-sm text-green-600 cursor-pointer p-2"
+              className="text-sm text-[#0891b2] cursor-pointer p-2"
               onClick={() => setIsNotes(true)}
             >
               + Add note

@@ -4,18 +4,37 @@ import EditIcon from "@mui/icons-material/Edit";
 import CommentIcon from "@mui/icons-material/Comment";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StackEditor from "../Editor";
+import Radio from "@mui/material/Radio";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
 } from "@mui/material";
 import { set } from "react-hook-form";
 import ShortCutPopover from "../shared/ShortCutPopover";
 import ShotCutContent from "../ShotCutContent";
 import ForwardPanel from "./ForwardPanel";
+import ShortcutIcon from "@mui/icons-material/Shortcut";
+import { id } from "zod/v4/locales";
+
+const signatureValues: any = [
+  {
+    id: 1,
+    name: "Signature",
+    value: "Signature",
+  },
+  {
+    id: 2,
+    name: "Signature",
+    value: "Signature",
+  },
+  {
+    id: 3,
+    name: "Signature",
+    value: "Signature",
+  },
+];
 
 const TicketSubjectBar = ({ header }: any) => (
   <div className="flex items-center gap-2 mb-2">
@@ -102,7 +121,7 @@ const ThreadItem = ({
                   className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none"
                   onClick={handleReplyClick}
                 >
-                  <ReplyIcon sx={{ fontSize: 18 }} />
+                  <ShortcutIcon sx={{ fontSize: 18 }} />
                 </button>
                 <div className="w-px h-5 bg-gray-200" />
                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
@@ -207,13 +226,13 @@ const TicketThreadSection = ({
   const [slashTriggered, setSlashTriggered] = useState(false);
   const shotcutRef = React.useRef(null);
   const [stateChangeKey, setStateChangeKey] = useState(0);
+  const [isEditorExpended, setIsEditorExpended] = useState(false);
 
   const handleEditorChange = (value: string) => {
-     if (value === null) {
-      return
+    if (value === null) {
+      return;
     }
     const text: any = value?.replace(/<[^>]*>/g, "");
-   
 
     if (!slashTriggered && text?.includes("/")) {
       setShowShotcut(true);
@@ -247,11 +266,13 @@ const TicketThreadSection = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-gray-50 min-h-[575px]">
+    <div className="flex flex-col gap-2 p-4 bg-gray-50 min-h-[560px] relative">
       <TicketSubjectBar header={header} />
-      <ThreadList thread={thread} onForward={onForward} />
+      <div className="flex flex-col gap-2  overflow-y-auto ">
+        <ThreadList thread={thread} onForward={onForward} />
+      </div>
       {/* Reply bar below thread */}
-      <div className="flex items-center gap-2 mt-4 mb-2">
+      {/* <div className="flex items-center gap-2 mt-4 mb-2">
         <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
           D
         </div>
@@ -270,55 +291,96 @@ const TicketThreadSection = ({
         >
           <span>&#8594;</span> Forward
         </button>
-      </div>
+      </div> */}
       {/* Rich editor below reply bar */}
-      {(showEditor || showReplyEditor) && (
-        <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
-          <div
-            ref={shotcutRef}
-            style={{
-              // height: 250,
-              // width: 985,
-              overflow: "auto",
-              background: "#fff",
-              // borderRadius: 8,
-              // border: "1px solid #e5e7eb",
-              padding: 8,
-            }}
+      {/* {(showEditor || showReplyEditor) && ( */}
+      <div className="mt-2 border rounded bg-white p-2 flex flex-col  bg-red-200 w-[calc(100%-16px)]   absolute bottom-0  ">
+        <div
+          ref={shotcutRef}
+          style={{
+            // height: 250,
+            // width: 985,
+            overflow: "auto",
+            background: "#fff",
+            // borderRadius: 8,
+            // border: "1px solid #e5e7eb",
+            padding: 0,
+          }}
+        >
+          <StackEditor
+            initialContent={markdown}
+            onChange={handleEditorChange}
+            key={stateChangeKey}
+            isEditorExpended={isEditorExpended}
+            isExpended={() => setIsEditorExpended(!isEditorExpended)}
+          />
+        </div>
+        {showShotcut && (
+          <ShortCutPopover
+            open={showShotcut}
+            close={() => setShowShotcut(false)}
+            //@ts-ignore
+            anchorEl={shotcutRef}
+            width={600}
+            // height={360}
           >
-            <StackEditor
-              initialContent={markdown}
-              onChange={handleEditorChange}
-              key={stateChangeKey}
+            <ShotCutContent
+              onChange={(e: any) => {
+                setMarkdown((prev: any) => {
+                  return prev?.replace(/\/$/, e);
+                });
+              }}
+              onClose={() => {
+                // setSlashTriggered(false);
+                setShowShotcut(false);
+              }}
+              stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
             />
-          </div>
-          {showShotcut && (
-            <ShortCutPopover
-              open={showShotcut}
-              close={() => setShowShotcut(false)}
-              //@ts-ignore
-              anchorEl={shotcutRef}
-              width={600}
-              // height={360}
+          </ShortCutPopover>
+        )}
+        <div className="flex items-center justify-between gap-2 mt-2">
+          <div className="flex items-center  gap-2">
+            <FormControl
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
             >
-              <ShotCutContent
-                onChange={(e: any) => {
-                  setMarkdown((prev:any) => {
-                  
-                    
-                    return prev?.replace(/\/$/, e);
-                  });
-              
+              <FormLabel
+                id="demo-radio-buttons-group-label"
+                sx={{ mr: 2, fontSize: "16px",fontWeight: "bold" }} // Label font size
+              >
+                Signature:
+              </FormLabel>
+
+              <RadioGroup
+                aria-labelledby="demo-radio-buttons-group-label"
+                defaultValue="female"
+                name="radio-buttons-group"
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  "& .MuiFormControlLabel-label": {
+                    fontSize: "13px", // Radio label font size
+                  },
+                  "& .MuiSvgIcon-root": {
+                    fontSize: 22, // Radio icon size
+                  },
                 }}
-                onClose={() => {
-                  // setSlashTriggered(false);
-                  setShowShotcut(false);
-                }}
-                stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
-              />
-            </ShortCutPopover>
-          )}
-          <div className="flex items-center justify-end gap-2 mt-2">
+              >
+                {signatureValues.map((item: any) => (
+                  <FormControlLabel
+                    key={item.value}
+                    value={item.value}
+                    control={<Radio />}
+                    label={item.name}
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
+          </div>
+          <div className="flex items-center gap-2">
             <button
               className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
               onClick={() => {
@@ -329,14 +391,15 @@ const TicketThreadSection = ({
               Cancel
             </button>
             <button
-              className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-blue-700"
+              className="bg-[#0891b2] text-white px-4 py-1.5 rounded font-semibold text-sm "
               onClick={handleSave}
             >
               Save
             </button>
           </div>
         </div>
-      )}
+      </div>
+      {/* )} */}
     </div>
   );
 };

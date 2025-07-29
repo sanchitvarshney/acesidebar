@@ -11,6 +11,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface ForwardPanelProps {
   open: boolean;
@@ -38,7 +39,8 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   expand = false,
   onExpandToggle,
 }) => {
-   console.log(fields)
+  const [showCc, setShowCc] = React.useState(false);
+  const [showBcc, setShowBcc] = React.useState(false);
 
   // Sidebar style panel (not modal) when expand is false
   const panelContent = (
@@ -63,7 +65,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           borderBottom: "1px solid #eee",
         }}
       >
-        <Typography variant="h6" sx={{ flex: 1 }}>
+        <Typography sx={{ flex: 1, fontSize: "17px" }}>
           Forward
         </Typography>
         {onExpandToggle && (
@@ -85,6 +87,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         <TextField
           label="Subject"
           fullWidth
+          size="small"
           margin="dense"
           value={fields.subject}
           onChange={(e) => onFieldChange("subject", e.target.value)}
@@ -93,6 +96,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         />
         <TextField
           label="To"
+          size="medium"
           fullWidth
           margin="dense"
           value={fields.to}
@@ -100,22 +104,62 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           required
           sx={{ mb: 1 }}
         />
-        <TextField
-          label="Cc"
-          fullWidth
-          margin="dense"
-          value={fields.cc}
-          onChange={(e) => onFieldChange("cc", e.target.value)}
-          sx={{ mb: 1 }}
-        />
-        <TextField
-          label="Bcc"
-          fullWidth
-          margin="dense"
-          value={fields.bcc}
-          onChange={(e) => onFieldChange("bcc", e.target.value)}
-          sx={{ mb: 1 }}
-        />
+
+        <div className="flex gap-2 justify-end  mr-1 mb-1">
+          <p
+            className="text-xs text-gray-500 cursor-pointer hover:underline  "
+            onClick={() => setShowCc((prev) => !prev)}
+          >
+            Cc
+          </p>
+          <p
+            className="text-xs text-gray-500 cursor-pointer hover:underline  "
+            onClick={() => setShowBcc((prev) => !prev)}
+          >
+            Bcc
+          </p>
+        </div>
+
+        <AnimatePresence>
+          {showCc && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, y: -10 }}
+              animate={{ height: "auto", opacity: 1, y: 0 }}
+              exit={{ height: 0, opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <TextField
+                label="Cc"
+                fullWidth
+                size="small"
+                margin="dense"
+                value={fields.cc}
+                onChange={(e) => onFieldChange("cc", e.target.value)}
+                sx={{ mb: 1 }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {showBcc && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, y: -10 }}
+              animate={{ height: "auto", opacity: 1, y: 0 }}
+              exit={{ height: 0, opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <TextField
+                label="Bcc"
+                fullWidth
+                size="small"
+                margin="dense"
+                value={fields.bcc}
+                onChange={(e) => onFieldChange("bcc", e.target.value)}
+                sx={{ mb: 1 }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <TextField
           label="Message"
           fullWidth
