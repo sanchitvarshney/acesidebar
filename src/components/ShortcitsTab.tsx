@@ -17,6 +17,9 @@ import { useState } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { AppDispatch, RootState } from "../reduxStore/Store";
+import { useDispatch, useSelector } from "react-redux";
+import { setShotcuts } from "../reduxStore/Slices/shotcutSlices";
 
 const elementValue = [
   {
@@ -46,7 +49,9 @@ const ShortcutsTab = () => {
   const [selectedElement, setSelectedElement] = useState<any>([]);
   const [shortcutName, setShortcutName] = useState<any>("");
   const [message, setMessage] = useState<any>("");
-  const [shortcut, setShortcut] = useState<any>([]);
+  const { shotcutData } = useSelector((state: RootState) => state.shotcut);
+
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleChangeValue = (event: any) => {
     setSelectedElement((prev: any) => {
@@ -70,16 +75,25 @@ const ShortcutsTab = () => {
   };
 
   const handleSubmit = () => {
-    setShortcut((prev: any) => [
-      ...prev,
-      {
-        id: new Date().getTime(),
-        shortcutName: "/" + shortcutName,
-        message: message,
-      },
-    ]);
+    dispatch(
+      setShotcuts([
+        ...shotcutData,
+        {
+          id: Date.now(),
+          shortcutName: "/" + shortcutName,
+          message: message,
+        },
+      ])
+    );
     setIsAddShortcutOpen(false);
   };
+
+  const handleEditShortcut = (item: any) => {
+    setShortcutName(item.shortcutName);
+    setMessage(item.message);
+    setIsAddShortcutOpen(true);
+  }
+
   return (
     <div className="p-2 h-[calc(100vh-200px)] w-full">
       <div className="font-semibold text-xs mb-2 text-gray-500">Shortcuts</div>
@@ -216,9 +230,9 @@ const ShortcutsTab = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-3 my-2">
-            {shortcut?.length > 0 ? (
+            {shotcutData?.length > 0 ? (
               <>
-                {shortcut.map((item: any) => (
+                {(shotcutData ?? [])?.map((item: any) => (
                   <ListItem
                     key={item.id}
                     disablePadding
@@ -263,7 +277,7 @@ const ShortcutsTab = () => {
                       <Box display="flex" gap={1}>
                         <IconButton
                           size="small"
-                          //   disableRipple
+                          onClick={() => handleEditShortcut(item)}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
@@ -311,7 +325,11 @@ const ShortcutsTab = () => {
             variant="contained"
             color="success"
             fullWidth
-            onClick={() => setIsAddShortcutOpen(true)}
+            onClick={() => {
+              setIsAddShortcutOpen(true);
+              setShortcutName("");
+              setMessage("");
+            }}
           >
             Add New Shortcut
           </Button>

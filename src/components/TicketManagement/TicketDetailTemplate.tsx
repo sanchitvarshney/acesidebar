@@ -23,7 +23,7 @@ interface TicketDetailTemplateProps {
   onBack: () => void;
   replyText: string;
   onReplyTextChange: (val: string) => void;
-  onSendReply: () => void;
+  onSendReply: any;
   children?: React.ReactNode;
 }
 
@@ -101,6 +101,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               onForward={handleOpenForward}
               showReplyEditor={showReplyEditor}
               onCloseReply={handleCloseReply}
+
             />
           </Box>
           <div className="">
@@ -108,7 +109,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           </div>
         </Box>
       </Box>
-      {(expandForward || forwardOpen) && (
+      {(expandForward || forwardOpen || showReplyEditor) && (
         <div
           className={`${expandForward ? "w-full h-full" : "absolute top-0 right-0"}`}
         >

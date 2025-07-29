@@ -284,6 +284,8 @@ const Tickets: React.FC = () => {
   };
 
   const handleSendReply = (replyText: string, threadItem?: any) => {
+    
+    console.log(replyText)
     if (replyText.trim()) {
       // TODO: Implement API call to send reply
       console.log("Sending reply:", replyText, threadItem);
@@ -525,7 +527,7 @@ const Tickets: React.FC = () => {
           onBack={handleBack}
           replyText={replyText}
           onReplyTextChange={handleReplyTextChange}
-          onSendReply={() => handleSendReply(replyText)}
+          onSendReply={(text:any) => handleSendReply(text)}
         />
       ) : (
         <div className="flex flex-col bg-gray-50 h-[calc(100vh-115px)]">

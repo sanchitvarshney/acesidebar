@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
 import EditIcon from "@mui/icons-material/Edit";
 import CommentIcon from "@mui/icons-material/Comment";
@@ -12,6 +12,10 @@ import {
   TextField,
   Button,
 } from "@mui/material";
+import { set } from "react-hook-form";
+import ShortCutPopover from "../shared/ShortCutPopover";
+import ShotCutContent from "../ShotCutContent";
+import ForwardPanel from "./ForwardPanel";
 
 const TicketSubjectBar = ({ header }: any) => (
   <div className="flex items-center gap-2 mb-2">
@@ -34,6 +38,7 @@ const ThreadItem = ({
   replyText,
   onReplyTextChange,
   onSendReply,
+  onForward
 }: any) => {
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
@@ -42,7 +47,7 @@ const ThreadItem = ({
 
   const handleReplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowReplyEditor(true);
+    onForward()
   };
 
   const handleSendReply = () => {
@@ -51,6 +56,10 @@ const ThreadItem = ({
       setLocalReplyText("");
       setShowReplyEditor(false);
     }
+  };
+
+  const handleEditorChange = (value: string) => {
+    setMarkdown(value);
   };
 
   return (
@@ -119,48 +128,32 @@ const ThreadItem = ({
         </div>
 
         {/* Inline Reply Editor */}
-        {showReplyEditor && (
+        {/* {showReplyEditor && (
           <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
-            <h2> Write your Reply here</h2>
-            <div
-              style={{
-                height: 250,
-                width: 900,
-                overflow: "auto",
-                background: "#fff",
-                borderRadius: 8,
-                border: "1px solid #e5e7eb",
-                padding: 8,
-              }}
-            >
-              <StackEditor initialContent={markdown} onChange={setMarkdown} />
-            </div>
-            <div className="flex items-center justify-end gap-2 mt-2">
-              <button
-                className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
-                onClick={() => setShowReplyEditor(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-blue-700"
-                onClick={handleSendReply}
-              >
-                Save
-              </button>
-            </div>
+             <ForwardPanel
+            open={showReplyEditor}
+            onClose={() => {
+              setShowReplyEditor(false);
+           
+            }}
+            fields={forwardFields}
+            onFieldChange={handleForwardFieldChange}
+            onSend={handleForwardSend}
+            expand={expandForward}
+            onExpandToggle={() => setExpandForward((prev) => !prev)}
+          />
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
 };
 
-const ThreadList = ({ thread, onReplyClick }: any) => (
+const ThreadList = ({ thread, onReplyClick,onForward }: any) => (
   <div>
     {thread && thread.length > 0 ? (
       thread.map((item: any, idx: number) => (
-        <ThreadItem key={idx} item={item} onReplyClick={onReplyClick} />
+        <ThreadItem key={idx} item={item} onReplyClick={onReplyClick} onForward={onForward} />
       ))
     ) : (
       <div className="text-gray-400">No thread items.</div>
@@ -205,15 +198,36 @@ const TicketThreadSection = ({
   const [showEditor, setShowEditor] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [markdown, setMarkdown] = useState("");
+  const [showShotcut, setShowShotcut] = useState(false);
+  const [slashTriggered, setSlashTriggered] = useState(false);
+  const shotcutRef = React.useRef(null);
+
+  const handleEditorChange = (value: string) => {
+    // Trigger only when new "/" is typed
+    if (!slashTriggered && value.includes("/")) {
+      setShowShotcut(true);
+      setSlashTriggered(true); // prevent retriggering
+    }
+
+    // Reset trigger if "/" is removed
+    if (!value.includes("/")) {
+      setSlashTriggered(false);
+    }
+
+    setMarkdown(value);
+  };
 
   // Handler for Reply button
   const handleReplyButton = () => {
     setShowEditor(true);
   };
 
+  console.log(markdown);
+
   // Handler for Save button
   const handleSave = () => {
     if (markdown && markdown.trim()) {
+      // console.log("Saving reply:", markdown);
       onSendReply(markdown);
       setMarkdown("");
       setShowEditor(false);
@@ -224,7 +238,7 @@ const TicketThreadSection = ({
   return (
     <div className="flex flex-col gap-4 p-4 bg-gray-50 min-h-[575px]">
       <TicketSubjectBar header={header} />
-      <ThreadList thread={thread} />
+      <ThreadList thread={thread}  onForward={onForward}/>
       {/* Reply bar below thread */}
       <div className="flex items-center gap-2 mt-4 mb-2">
         <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
@@ -250,6 +264,7 @@ const TicketThreadSection = ({
       {(showEditor || showReplyEditor) && (
         <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
           <div
+            ref={shotcutRef}
             style={{
               height: 250,
               width: 985,
@@ -260,8 +275,36 @@ const TicketThreadSection = ({
               padding: 8,
             }}
           >
-            <StackEditor initialContent={markdown} onChange={setMarkdown} />
+            <StackEditor
+              initialContent={markdown}
+              onChange={handleEditorChange}
+              // key={markdown}
+            />
           </div>
+          {showShotcut && (
+            <ShortCutPopover
+              open={showShotcut}
+              close={() => setShowShotcut(false)}
+              //@ts-ignore
+              anchorEl={shotcutRef}
+              width={600}
+              // height={360}
+            >
+              <ShotCutContent
+                onChange={(e: any) => {
+                  setMarkdown((prev) => {
+                    // Replace only the last slash typed
+                    return prev.replace(/\/$/, e);
+                  });
+                  // onClose(); // close modal if needed
+                }}
+                onClose={() => {
+                  // setSlashTriggered(false);
+                  setShowShotcut(false);
+                }}
+              />
+            </ShortCutPopover>
+          )}
           <div className="flex items-center justify-end gap-2 mt-2">
             <button
               className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
