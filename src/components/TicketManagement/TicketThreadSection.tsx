@@ -1,38 +1,47 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
 import EditIcon from "@mui/icons-material/Edit";
 import CommentIcon from "@mui/icons-material/Comment";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StackEditor from "../Editor";
-import Radio from "@mui/material/Radio";
+
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import {
   FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  CircularProgress,
 } from "@mui/material";
-import { set } from "react-hook-form";
+
 import ShortCutPopover from "../shared/ShortCutPopover";
 import ShotCutContent from "../ShotCutContent";
-import ForwardPanel from "./ForwardPanel";
+
 import ShortcutIcon from "@mui/icons-material/Shortcut";
-import { id } from "zod/v4/locales";
+import { AnimatePresence, motion } from "framer-motion";
+import { set } from "react-hook-form";
 
 const signatureValues: any = [
   {
     id: 1,
-    name: "Signature",
-    value: "Signature",
+    name: "None",
+    value: "1",
   },
   {
     id: 2,
-    name: "Signature",
-    value: "Signature",
+    name: "My Signature",
+    value: "2",
   },
   {
     id: 3,
-    name: "Signature",
-    value: "Signature",
+    name: "Department Signature (Support)",
+    value: "3",
   },
 ];
 
@@ -44,10 +53,6 @@ const TicketSubjectBar = ({ header }: any) => (
     <span className="font-semibold text-xl text-gray-800">
       {header?.subject || "Ticket Subject"}
     </span>
-    <input
-      className="ml-4 flex-1 px-3 py-1 border rounded bg-gray-50 text-sm outline-none"
-      placeholder="Add summary"
-    />
   </div>
 );
 
@@ -169,7 +174,7 @@ const ThreadItem = ({
 };
 
 const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
-  <div>
+  <div className="">
     {thread && thread.length > 0 ? (
       thread.map((item: any, idx: number) => (
         <ThreadItem
@@ -227,6 +232,23 @@ const TicketThreadSection = ({
   const shotcutRef = React.useRef(null);
   const [stateChangeKey, setStateChangeKey] = useState(0);
   const [isEditorExpended, setIsEditorExpended] = useState(false);
+  const [selectedOptionValue, setSelectedOptionValue] = useState("1");
+  const [editorLoading, setEditorLoading] = useState(false);
+
+  const handleChangeValue = (event: any) => {
+    setSelectedOptionValue(event);
+  };
+
+  useEffect(() => {
+   if (editorLoading) {
+    setTimeout(() => {
+        setEditorLoading(false);
+      setShowEditor(true);
+    
+    }, 500);
+   }
+  }, [editorLoading])
+  
 
   const handleEditorChange = (value: string) => {
     if (value === null) {
@@ -246,16 +268,24 @@ const TicketThreadSection = ({
 
     setMarkdown(text);
   };
+  useEffect(() => {
+    if (slashTriggered || !markdown) return;
+    setShowShotcut(false);
+  }, [slashTriggered, markdown]);
 
   // Handler for Reply button
   const handleReplyButton = () => {
-    setShowEditor(true);
+    setEditorLoading(true);
+   
   };
 
   console.log(markdown);
 
   // Handler for Save button
   const handleSave = () => {
+    if (markdown === null || !markdown) {
+      return;
+    }
     if (markdown && markdown.trim()) {
       // console.log("Saving reply:", markdown);
       onSendReply(markdown);
@@ -266,10 +296,12 @@ const TicketThreadSection = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 p-4 bg-gray-50 min-h-[560px] relative">
-      <TicketSubjectBar header={header} />
-      <div className="flex flex-col gap-2  overflow-y-auto ">
-        <ThreadList thread={thread} onForward={onForward} />
+    <div className="flex flex-col gap-2   min-h-[570px] relative">
+      <div className="p-2">
+        <TicketSubjectBar header={header} />
+        <div className="flex flex-col gap-2   overflow-y-auto  ">
+          <ThreadList thread={thread} onForward={onForward} />
+        </div>
       </div>
       {/* Reply bar below thread */}
       {/* <div className="flex items-center gap-2 mt-4 mb-2">
@@ -294,111 +326,176 @@ const TicketThreadSection = ({
       </div> */}
       {/* Rich editor below reply bar */}
       {/* {(showEditor || showReplyEditor) && ( */}
-      <div className="mt-2 border rounded bg-white p-2 flex flex-col  bg-red-200 w-[calc(100%-16px)]   absolute bottom-0  ">
-        <div
-          ref={shotcutRef}
-          style={{
-            // height: 250,
-            // width: 985,
-            overflow: "auto",
-            background: "#fff",
-            // borderRadius: 8,
-            // border: "1px solid #e5e7eb",
-            padding: 0,
-          }}
-        >
-          <StackEditor
-            initialContent={markdown}
-            onChange={handleEditorChange}
-            key={stateChangeKey}
-            isEditorExpended={isEditorExpended}
-            isExpended={() => setIsEditorExpended(!isEditorExpended)}
-          />
-        </div>
-        {showShotcut && (
-          <ShortCutPopover
-            open={showShotcut}
-            close={() => setShowShotcut(false)}
-            //@ts-ignore
-            anchorEl={shotcutRef}
-            width={600}
-            // height={360}
-          >
-            <ShotCutContent
-              onChange={(e: any) => {
-                setMarkdown((prev: any) => {
-                  return prev?.replace(/\/$/, e);
-                });
-              }}
-              onClose={() => {
-                // setSlashTriggered(false);
-                setShowShotcut(false);
-              }}
-              stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
-            />
-          </ShortCutPopover>
-        )}
-        <div className="flex items-center justify-between gap-2 mt-2">
-          <div className="flex items-center  gap-2">
-            <FormControl
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <FormLabel
-                id="demo-radio-buttons-group-label"
-                sx={{ mr: 2, fontSize: "16px",fontWeight: "bold" }} // Label font size
-              >
-                Signature:
-              </FormLabel>
 
-              <RadioGroup
-                aria-labelledby="demo-radio-buttons-group-label"
-                defaultValue="female"
-                name="radio-buttons-group"
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  "& .MuiFormControlLabel-label": {
-                    fontSize: "13px", // Radio label font size
-                  },
-                  "& .MuiSvgIcon-root": {
-                    fontSize: 22, // Radio icon size
-                  },
+      {!showEditor ? (
+        <div className="rounded w-full   px-4 flex flex-col   absolute bottom-0  ">
+          <span
+            contentEditable
+            suppressContentEditableWarning
+            className="flex-1 border px-4 py-1 rounded bg-gray-50 text-sm outline-none focus:ring-1 focus:ring-cyan-400"
+            onClick={handleReplyButton}
+          >
+            Reply
+          </span>
+        </div>
+      ) : (
+        <AnimatePresence>
+          <motion.div
+            initial={{ y: "-100%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{
+              duration: 0.5,
+              ease: [0.25, 0.1, 0.25, 1],
+            }}
+            className="w-full h-full z-99"
+          >
+            <div className=" rounded   p-0 flex flex-col bg-red-100  w-full h-full   absolute bottom-0  ">
+              <div
+                ref={shotcutRef}
+                style={{
+                  // height: 250,
+                  // width: 985,
+                  overflow: "auto",
+                  background: "#fff",
+                  // borderRadius: 8,
+                  // border: "1px solid #e5e7eb",
+                  padding: 0,
                 }}
               >
-                {signatureValues.map((item: any) => (
-                  <FormControlLabel
-                    key={item.value}
-                    value={item.value}
-                    control={<Radio />}
-                    label={item.name}
+                <StackEditor
+                  initialContent={markdown}
+                  onChange={handleEditorChange}
+                  key={stateChangeKey}
+                  isEditorExpended={isEditorExpended}
+                  isExpended={() => setIsEditorExpended(!isEditorExpended)}
+                  onCloseReply={() => setShowEditor(false)}
+                />
+              </div>
+              {showShotcut && (
+                <ShortCutPopover
+                  open={showShotcut}
+                  close={() => setShowShotcut(false)}
+                  //@ts-ignore
+                  anchorEl={shotcutRef}
+                  width={600}
+                  // height={360}
+                >
+                  <ShotCutContent
+                    onChange={(e: any) => {
+                      setMarkdown((prev: any) => {
+                        return prev?.replace(/\/$/, e);
+                      });
+                    }}
+                    onClose={() => {
+                      // setSlashTriggered(false);
+                      setShowShotcut(false);
+                    }}
+                    stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
                   />
-                ))}
-              </RadioGroup>
-            </FormControl>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
-              onClick={() => {
-                setShowEditor(false);
-                if (onCloseReply) onCloseReply();
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              className="bg-[#0891b2] text-white px-4 py-1.5 rounded font-semibold text-sm "
-              onClick={handleSave}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
+                </ShortCutPopover>
+              )}
+              <div className="w-full flex items-center justify-between gap-2 mt-2">
+                <div className="flex items-center  gap-2">
+                  <FormControl fullWidth>
+                    {/* <InputLabel id="demo-simple-select-label">Add Element</InputLabel> */}
+                    <Select
+                      id="demo-simple-select"
+                      value={selectedOptionValue}
+                      onChange={(e) => handleChangeValue(e.target.value)}
+                      size="small"
+                      sx={{
+                        width: 300,
+                        "& fieldset": { border: "none" }, // Removes the outline border
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        }, // Another safe way
+                      }}
+                    >
+                      {signatureValues.map((item: any) => (
+                        <MenuItem
+                          key={item?.id}
+                          value={item?.value}
+                          sx={{ width: 300 }}
+                        >
+                          {item?.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <div className="flex items-center gap-2">
+                    <Divider orientation="vertical" flexItem />
+                    <IconButton size="small">
+                      <AttachFileIcon fontSize="small" />
+                    </IconButton>
+                    <Divider orientation="vertical" flexItem />
+                    <IconButton size="small">
+                      <PublishedWithChangesIcon fontSize="small" />
+                    </IconButton>
+                    <Divider orientation="vertical" flexItem />
+                    <IconButton size="small">
+                      <MenuBookIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
+                    onClick={() => {
+                      setMarkdown("");
+                      setStateChangeKey((prev) => prev + 1);
+                    }}
+                  >
+                    Reset
+                  </button>
+                  <button
+                    className="bg-[#0891b2] text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-[#0ca5c9] "
+                    onClick={handleSave}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>{" "}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      )}
+    <Dialog
+      open={editorLoading}
+      // onClose={close}
+      BackdropProps={{
+        sx: {
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          // backdropFilter: "blur(1px)",
+          // WebkitBackdropFilter: "blur(1px)",
+        },
+      }}
+      PaperProps={{
+        sx: {
+          overflow: "visible",
+          borderRadius: 3,
+          p: 3,
+          pt: 6,
+          minWidth: 500,
+          border: "3px solid #1b8fbdff",
+          background: "#fefff4ff",
+        },
+      }}
+      // className=" bg-gradient-to-br from-[#d7f1f3] to-[#d7f1f3]"
+    >
+      
+      <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
+        Please Wait ......
+      </DialogTitle>
+
+      <DialogContent
+        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+      >
+        <CircularProgress color="primary" />
+      </DialogContent>
+
+    </Dialog>
       {/* )} */}
     </div>
   );

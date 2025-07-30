@@ -45,6 +45,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
     to: "",
     cc: "",
     bcc: "",
+
     message: ticket?.header?.description || "",
   });
   const [showReplyEditor, setShowReplyEditor] = React.useState(false);
@@ -92,8 +93,8 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           onReply={handleReply}
           onDelete={handleDelete}
         />
-        <Box sx={{ display: "flex", height: "80vh" }}>
-          <Box sx={{ flex: 1, height: "80vh", overflow: "auto" }}>
+        <div className="w-full grid grid-cols-[3fr_1fr]">
+          <div style={{width: "100%", height: "100%", overflow: "auto" }}>
             <TicketThreadSection
               thread={ticket.response}
               header={ticket.header}
@@ -101,32 +102,39 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               onForward={handleOpenForward}
               showReplyEditor={showReplyEditor}
               onCloseReply={handleCloseReply}
-
             />
-          </Box>
-          <div className="">
-            <TicketPropertiesSidebar ticket={ticket.header} />
           </div>
-        </Box>
-      </Box>
-      {(expandForward || forwardOpen || showReplyEditor) && (
-        <div
-          className={`${expandForward ? "w-full h-full" : "absolute top-0 right-0"}`}
-        >
-          <ForwardPanel
-            open={forwardOpen}
-            onClose={() => {
-              setExpandForward(false);
-              handleCloseForward();
-            }}
-            fields={forwardFields}
-            onFieldChange={handleForwardFieldChange}
-            onSend={handleForwardSend}
-            expand={expandForward}
-            onExpandToggle={() => setExpandForward((prev) => !prev)}
-          />
+          <div className="w-full relative overflow-y-auto">
+            <TicketPropertiesSidebar ticket={ticket.header} />
+            
+            {/* Forward Panel positioned inside the right column */}
+            {(expandForward || forwardOpen || showReplyEditor) && (
+              <div
+                className="absolute top-0 left-0 w-full h-full z-10"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  overflow: "hidden"
+                }}
+              >
+                <ForwardPanel
+                  open={forwardOpen}
+                  onClose={() => {
+                    setExpandForward(false);
+                    handleCloseForward();
+                  }}
+                  fields={forwardFields}
+                  onFieldChange={handleForwardFieldChange}
+                  onSend={handleForwardSend}
+                  expand={expandForward}
+                  onExpandToggle={() => setExpandForward((prev) => !prev)}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </Box> 
+
       {/* Delete Modal */}
       <MuiBox>
         <Button

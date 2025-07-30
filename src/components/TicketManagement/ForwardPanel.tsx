@@ -51,10 +51,11 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        width: expand ? "100%" : 400,
-        // maxWidth: "100vw",
+        width: "100%",
+        maxWidth: "100%",
         boxShadow: expand ? 24 : 1,
         position: "relative",
+        m: 0
       }}
     >
       <MuiBox
@@ -226,11 +227,18 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
 
   // Sidebar panel (not modal)
   return open ? (
+      <AnimatePresence>
+     <motion.div
+            initial={{ x: "100%", opacity: 0 }}
+  animate={{ x: 0, opacity: 1 }}
+  exit={{ x: "100%", opacity: 0 }}
+  transition={{ duration: 0.2,   ease: [0.25, 0.1, 0.25, 1] }}
+  className="w-full h-full"
+        >
     <MuiBox
       sx={{
-        width: 400,
-        minWidth: 400,
-        height: "87vh",
+        width: "100%",
+        height: "100%",
         boxShadow: 1,
         bgcolor: "#fff",
         position: "relative",
@@ -239,6 +247,8 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     >
       {panelContent}
     </MuiBox>
+    </motion.div>
+    </AnimatePresence>
   ) : null;
 };
 

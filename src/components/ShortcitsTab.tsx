@@ -130,12 +130,12 @@ const ShortcutsTab = () => {
   }, [loading]);
 
   return (
-    <div className="p-2 h-[calc(100vh-200px)] w-full">
+    <div className="p-2 w-full">
       <div className="font-semibold text-xs mb-2 text-gray-500">Shortcuts</div>
       {/* <div className="text-xs text-gray-500">No shortcuts found</div> */}
       <CustomSearch width="100%" placeholder="Search" onChange={() => {}} />
 
-      <div className="my-3 wi-full h-[calc(100vh-345px)] overflow-y-auto">
+      <div className="my-3 wi-full h-[calc(100vh-375px)] overflow-y-auto">
         {isAddShortcutOpen || isEditShortCut ? (
           <div className="flex flex-col gap-3">
             <div>
@@ -347,7 +347,7 @@ const ShortcutsTab = () => {
         )}
       </div>
 
-      <div className="py-2 shadow-2xl/30  ">
+      <div className="py-1 shadow-2xl/30  ">
         {isAddShortcutOpen || isEditShortCut ? (
           <div className="flex gap-2 ">
             <Button
