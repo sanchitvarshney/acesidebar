@@ -366,6 +366,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
           </div>
         )}
       </div>
+      
 
       <Editor
         ref={editorRef}
@@ -373,7 +374,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         value={initialContent}
         onTextChange={(e) => onChange(e.htmlValue)}
         style={{
-          height: isFullscreen ? "100vh" : isEditorExpended ? "300px" : "120px",
+          height: isFullscreen ? "100vh" : isEditorExpended ? "500px" : "52vh",
         }}
         headerTemplate={header}
         placeholder={

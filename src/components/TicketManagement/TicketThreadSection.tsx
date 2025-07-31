@@ -18,7 +18,13 @@ import {
   DialogTitle,
   DialogContent,
   CircularProgress,
+  Typography,
 } from "@mui/material";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import ShortCutPopover from "../shared/ShortCutPopover";
 import ShotCutContent from "../ShotCutContent";
@@ -239,16 +245,14 @@ const TicketThreadSection = ({
     setSelectedOptionValue(event);
   };
 
-  useEffect(() => {
-   if (editorLoading) {
-    setTimeout(() => {
-        setEditorLoading(false);
-      setShowEditor(true);
-    
-    }, 500);
-   }
-  }, [editorLoading])
-  
+  // useEffect(() => {
+  //   if (editorLoading) {
+  //     setTimeout(() => {
+  //       setEditorLoading(false);
+  //       setShowEditor(true);
+  //     }, 500);
+  //   }
+  // }, [editorLoading]);
 
   const handleEditorChange = (value: string) => {
     if (value === null) {
@@ -275,8 +279,7 @@ const TicketThreadSection = ({
 
   // Handler for Reply button
   const handleReplyButton = () => {
-    setEditorLoading(true);
-   
+    setShowEditor(!showEditor);
   };
 
   console.log(markdown);
@@ -296,7 +299,7 @@ const TicketThreadSection = ({
   };
 
   return (
-    <div className="flex flex-col gap-2   min-h-[570px] relative">
+    <div className="flex flex-col gap-2   min-h-[100%] relative">
       <div className="p-2">
         <TicketSubjectBar header={header} />
         <div className="flex flex-col gap-2   overflow-y-auto  ">
@@ -326,177 +329,167 @@ const TicketThreadSection = ({
       </div> */}
       {/* Rich editor below reply bar */}
       {/* {(showEditor || showReplyEditor) && ( */}
-
-      {!showEditor ? (
-        <div className="rounded w-full   px-4 flex flex-col   absolute bottom-0  ">
-          <span
-            contentEditable
-            suppressContentEditableWarning
-            className="flex-1 border px-4 py-1 rounded bg-gray-50 text-sm outline-none focus:ring-1 focus:ring-cyan-400"
-            onClick={handleReplyButton}
-          >
-            Reply
-          </span>
-        </div>
-      ) : (
-        <AnimatePresence>
-          <motion.div
-            initial={{ y: "-100%", opacity: 0 }}
-            animate={{ y: "0%", opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{
-              duration: 0.5,
-              ease: [0.25, 0.1, 0.25, 1],
+      <div className="rounded w-full   flex flex-col absolute bottom-0 overflow-hidden">
+        <Accordion
+          elevation={0}
+          expanded={showEditor}
+          onChange={handleReplyButton}
+          sx={{
+            position: "relative",
+            background: "transparent",
+            boxShadow: "none",
+            "&:before": { display: "none" },
+          }}
+        >
+          {/* {!showEditor && ( */}
+          <AccordionSummary
+            expandIcon={showEditor ? null : <ExpandMoreIcon />}
+            aria-controls="panel2-content"
+            id="panel2-header"
+            sx={{
+              backgroundColor: showEditor ? "transparent" : "#f9fafb",
+              border: showEditor ? "none" : "1px solid #d1d5db",
+              borderRadius: "4px",
+              padding: "4px 12px",
+              minHeight: "40px !important",
+              display: "flex",
+              alignItems: "center",
+              cursor: "text !important",
+              "&:hover": {
+                borderColor: showEditor ? "transparent" : "#9ca3af",
+                backgroundColor: showEditor ? "transparent" : "#f3f4f6",
+              },
+              "& .MuiAccordionSummary-content": {
+                margin: 0,
+              },
             }}
-            className="w-full h-full z-99"
           >
-            <div className=" rounded   p-0 flex flex-col bg-red-100  w-full h-full   absolute bottom-0  ">
-              <div
-                ref={shotcutRef}
-                style={{
-                  // height: 250,
-                  // width: 985,
-                  overflow: "auto",
-                  background: "#fff",
-                  // borderRadius: 8,
-                  // border: "1px solid #e5e7eb",
-                  padding: 0,
-                }}
+            {!showEditor && (
+              <Typography
+                component="span"
+                sx={{ fontSize: "14px", color: "#374151", fontStyle: "italic" }}
               >
-                <StackEditor
-                  initialContent={markdown}
-                  onChange={handleEditorChange}
-                  key={stateChangeKey}
-                  isEditorExpended={isEditorExpended}
-                  isExpended={() => setIsEditorExpended(!isEditorExpended)}
-                  onCloseReply={() => setShowEditor(false)}
-                />
-              </div>
-              {showShotcut && (
-                <ShortCutPopover
-                  open={showShotcut}
-                  close={() => setShowShotcut(false)}
-                  //@ts-ignore
-                  anchorEl={shotcutRef}
-                  width={600}
-                  // height={360}
-                >
-                  <ShotCutContent
-                    onChange={(e: any) => {
-                      setMarkdown((prev: any) => {
-                        return prev?.replace(/\/$/, e);
-                      });
-                    }}
-                    onClose={() => {
-                      // setSlashTriggered(false);
-                      setShowShotcut(false);
-                    }}
-                    stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
-                  />
-                </ShortCutPopover>
-              )}
-              <div className="w-full flex items-center justify-between gap-2 mt-2">
-                <div className="flex items-center  gap-2">
-                  <FormControl fullWidth>
-                    {/* <InputLabel id="demo-simple-select-label">Add Element</InputLabel> */}
-                    <Select
-                      id="demo-simple-select"
-                      value={selectedOptionValue}
-                      onChange={(e) => handleChangeValue(e.target.value)}
-                      size="small"
-                      sx={{
-                        width: 300,
-                        "& fieldset": { border: "none" }, // Removes the outline border
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          border: "none",
-                        }, // Another safe way
-                      }}
-                    >
-                      {signatureValues.map((item: any) => (
-                        <MenuItem
-                          key={item?.id}
-                          value={item?.value}
-                          sx={{ width: 300 }}
-                        >
-                          {item?.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                Reply....
+              </Typography>
+            )}
+          </AccordionSummary>
+          {/* // )} */}
 
-                  <div className="flex items-center gap-2">
-                    <Divider orientation="vertical" flexItem />
-                    <IconButton size="small">
-                      <AttachFileIcon fontSize="small" />
-                    </IconButton>
-                    <Divider orientation="vertical" flexItem />
-                    <IconButton size="small">
-                      <PublishedWithChangesIcon fontSize="small" />
-                    </IconButton>
-                    <Divider orientation="vertical" flexItem />
-                    <IconButton size="small">
-                      <MenuBookIcon fontSize="small" />
-                    </IconButton>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
-                    onClick={() => {
-                      setMarkdown("");
-                      setStateChangeKey((prev) => prev + 1);
-                    }}
-                  >
-                    Reset
-                  </button>
-                  <button
-                    className="bg-[#0891b2] text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-[#0ca5c9] "
-                    onClick={handleSave}
-                  >
-                    Save
-                  </button>
-                </div>
-              </div>{" "}
+          <AccordionDetails sx={{ p: 0 , height:"100%"}}>
+            {/* <AnimatePresence>
+              {showEditor && (
+                <motion.div
+                  key="editor-container"
+                  initial={{ y: 200, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 200, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="rounded p-0 flex flex-col overflow-hidden w-full h-full"
+                > */}
+            <div
+              ref={shotcutRef}
+              style={{
+                overflow: "auto",
+                background: "#fff",
+                padding: 0,
+              }}
+            >
+              <StackEditor
+                initialContent={markdown}
+                onChange={handleEditorChange}
+                key={stateChangeKey}
+                isEditorExpended={isEditorExpended}
+                isExpended={() => setIsEditorExpended(!isEditorExpended)}
+                onCloseReply={() => setShowEditor(false)}
+              />
             </div>
-          </motion.div>
-        </AnimatePresence>
-      )}
-    <Dialog
-      open={editorLoading}
-      // onClose={close}
-      BackdropProps={{
-        sx: {
-          backgroundColor: "rgba(0, 0, 0, 0.4)",
-          // backdropFilter: "blur(1px)",
-          // WebkitBackdropFilter: "blur(1px)",
-        },
-      }}
-      PaperProps={{
-        sx: {
-          overflow: "visible",
-          borderRadius: 3,
-          p: 3,
-          pt: 6,
-          minWidth: 500,
-          border: "3px solid #1b8fbdff",
-          background: "#fefff4ff",
-        },
-      }}
-      // className=" bg-gradient-to-br from-[#d7f1f3] to-[#d7f1f3]"
-    >
-      
-      <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
-        Please Wait ......
-      </DialogTitle>
 
-      <DialogContent
-        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-      >
-        <CircularProgress color="primary" />
-      </DialogContent>
+            {showShotcut && (
+              <ShortCutPopover
+                open={showShotcut}
+                close={() => setShowShotcut(false)}
+                anchorEl={shotcutRef}
+                width={600}
+              >
+                <ShotCutContent
+                  onChange={(e: any) => {
+                    setMarkdown((prev) => prev?.replace(/\/$/, e));
+                  }}
+                  onClose={() => setShowShotcut(false)}
+                  stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
+                />
+              </ShortCutPopover>
+            )}
 
-    </Dialog>
-      {/* )} */}
+            <div className="w-full flex items-center justify-between gap-2 mt-2">
+              <div className="flex items-center gap-2">
+                <FormControl fullWidth>
+                  <Select
+                    value={selectedOptionValue}
+                    onChange={(e) => handleChangeValue(e.target.value)}
+                    size="small"
+                    sx={{
+                      width: 300,
+                      "& fieldset": { border: "none" },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+                    }}
+                  >
+                    {signatureValues.map((item: any) => (
+                      <MenuItem
+                        key={item?.id}
+                        value={item?.value}
+                        sx={{ width: 300 }}
+                      >
+                        {item?.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <div className="flex items-center gap-2">
+                  <Divider orientation="vertical" flexItem />
+                  <IconButton size="small">
+                    <AttachFileIcon fontSize="small" />
+                  </IconButton>
+                  <Divider orientation="vertical" flexItem />
+                  <IconButton size="small">
+                    <PublishedWithChangesIcon fontSize="small" />
+                  </IconButton>
+                  <Divider orientation="vertical" flexItem />
+                  <IconButton size="small">
+                    <MenuBookIcon fontSize="small" />
+                  </IconButton>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
+                  onClick={() => {
+                    setMarkdown("");
+                    setStateChangeKey((prev) => prev + 1);
+                  }}
+                >
+                  Reset
+                </button>
+                <button
+                  className="bg-[#0891b2] text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-[#0ca5c9]"
+                  onClick={handleSave}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+            {/* </motion.div> */}
+            {/* )} */}
+            {/* </AnimatePresence> */}
+          </AccordionDetails>
+        </Accordion>
+      </div>
+
+   
     </div>
   );
 };
