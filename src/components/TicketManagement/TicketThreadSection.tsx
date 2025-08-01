@@ -277,31 +277,39 @@ const TicketThreadSection = ({
   const { shotcutData } = useSelector((state: RootState) => state.shotcut);
   const [signature,setSignature] =useState("");
 
-  const handleChangeValue = (event: any) => {
-    setSelectedOptionValue(event);
-    
-    // Get the selected signature
-    const selectedSignature = signatureValues.find((sig: any) => sig.value === event);
-    
-    if (selectedSignature) {
-      // If "None" is selected, remove any existing signature
-      if (selectedSignature.value === "1") {
-        setSignature("");
-        // Remove signature if it exists in the markdown
-        const signaturePattern = /\n\nBest regards,.*$/;
-        setSignature((prev) => prev.replace(signaturePattern, ""));
-      } else {
-           setSignature("");
-        // Remove any existing signature first
-        const signaturePattern = /\n\nBest regards,.*$/;
-        let cleanMarkdown = signature.replace(signaturePattern, "");
-        
-        // Add the new signature at the end
-        const newContent = cleanMarkdown + selectedSignature.signature;
-        setSignature(newContent);
-      }
+ const handleSignatureChange = (event: string) => {
+  setSelectedOptionValue(event);
+
+  // Get selected signature object
+  const selectedSignature = signatureValues.find((sig: any) => sig.value === event);
+
+  if (selectedSignature) {
+    const signatureHTML = selectedSignature.signature; // Already in HTML format
+
+    // Remove old signature pattern (anything after <div id="signature">)
+    const signaturePattern = /<div id="signature">[\s\S]*<\/div>/;
+
+    let updatedContent = signature; // `signature` here should be the editor content
+
+    // Remove old signature if exists
+    updatedContent = updatedContent.replace(signaturePattern, "");
+
+    if (selectedSignature.value === "1") {
+      // "None" → just save cleaned content (no signature)
+      setSignature(updatedContent);
+    } else {
+      // Append new signature
+      const newSignatureBlock = `
+        <div id="signature" style="margin-top:12px;">
+          ${signatureHTML}
+        </div>
+      `;
+      setSignature(updatedContent + newSignatureBlock);
     }
-  };
+  }
+};
+
+console.log(signature,"Signature Value");
 
   // Function to check if current content has a signature
   const hasSignature = (content: string) => {
@@ -313,6 +321,7 @@ const TicketThreadSection = ({
     const currentSignature = signatureValues.find((sig: any) => sig.value === selectedOptionValue);
     return currentSignature?.name || "None";
   };
+ 
 
 
 
@@ -521,7 +530,7 @@ const TicketThreadSection = ({
                   <Select
                     value={selectedOptionValue}
                     onChange={(e) =>  {
-                      handleChangeValue(e.target.value)
+                      handleSignatureChange(e.target.value)
 
                     }}
                     size="small"

@@ -61,9 +61,10 @@ const optionsofPrivate = [
 ];
 
 const StackEditor = ({ initialContent = "", onChange, ...props }) => {
-  const { isEditorExpended, isExpended, onCloseReply, signatureValue  } = props;
+ 
+  const { isEditorExpended, isExpended, onCloseReply, signatureValue } = props;
   const isMounted = React.useRef(true);
-  const [editorContent, setEditorContent] = useState(initialContent || "");
+  const [editorContent, setEditorContent] = useState("");
   const [notifyValue, setNotifyValue] = React.useState("--");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const editorRef = useRef(null);
@@ -76,7 +77,13 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   const [optionChangeKey, setOptionChangeKey] = useState(0);
   const [notifyTag, setNotifyTag] = useState([]);
 
-// console.log(initialContent, 'initialContent');
+  useEffect(() => {
+    setEditorContent(initialContent);
+  }, [initialContent]);
+
+   console.log(editorContent);
+
+  // console.log(initialContent, 'initialContent');
   useEffect(() => {
     if (editorRef.current) {
       const quill = editorRef.current.getQuill();
@@ -201,8 +208,8 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
             onChange={(e) => handleChangeValue(e.target.value)}
             MenuProps={{
               sx: {
-                zIndex: isFullscreen ? 10001 : 1
-              }
+                zIndex: isFullscreen ? 10001 : 1,
+              },
             }}
             sx={{
               height: 40,
@@ -231,63 +238,61 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     </div>
   );
   const renderToolTipComponent = (
-   
-        <Paper
-          elevation={0}
-          sx={{
-            backgroundColor: "transparent",
-          }}
+    <Paper
+      elevation={0}
+      sx={{
+        backgroundColor: "transparent",
+      }}
+    >
+      <ClickAwayListener onClickAway={handleClose}>
+        <MenuList
+          autoFocusItem={isOptionsOpen}
+          id="composition-menu"
+          aria-labelledby="composition-button"
+          onKeyDown={handleListKeyDown}
         >
-          <ClickAwayListener onClickAway={handleClose}>
-            <MenuList
-              autoFocusItem={isOptionsOpen}
-              id="composition-menu"
-              aria-labelledby="composition-button"
-              onKeyDown={handleListKeyDown}
-            >
-              {selectionsOptions.map((item, index) => {
-                const isSelected = selectedIndex === item.value;
-                return (
-                  <MenuItem
-                    key={index}
-                    onClick={() => handleSelect(item.value)}
-                    selected={isSelected}
-                    sx={{
-                      mb: 0.5,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      width: "100%",
-                      borderRadius: "0px",
-                      // px: 2,
-                      // py: 1,
-                      backgroundColor: isSelected ? "#000" : "transparent",
-                      color: isSelected ? "#000" : "#000",
-                      transition: "all 0.2s ease",
-                      "&:hover": {
-                        backgroundColor: isSelected ? "#d2d3d4a6" : "#d2d3d4a6",
-                        color: isSelected ? "" : "#000",
-                      },
-                      "&.Mui-selected": {
-                        backgroundColor: "#e6e7e7bd !important",
-                        color: "#000 !important",
-                        "&:hover": {
-                          backgroundColor: "#b4b4b4a6 !important",
-                        },
-                      },
-                    }}
-                  >
-                    <span>{item.name}</span>
-                    {isSelected && (
-                      <CheckIcon sx={{ color: "#000", fontSize: 18, ml: 2 }} />
-                    )}
-                  </MenuItem>
-                );
-              })}
-            </MenuList>
-          </ClickAwayListener>
-        </Paper>
-    
+          {selectionsOptions.map((item, index) => {
+            const isSelected = selectedIndex === item.value;
+            return (
+              <MenuItem
+                key={index}
+                onClick={() => handleSelect(item.value)}
+                selected={isSelected}
+                sx={{
+                  mb: 0.5,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                  borderRadius: "0px",
+                  // px: 2,
+                  // py: 1,
+                  backgroundColor: isSelected ? "#000" : "transparent",
+                  color: isSelected ? "#000" : "#000",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: isSelected ? "#d2d3d4a6" : "#d2d3d4a6",
+                    color: isSelected ? "" : "#000",
+                  },
+                  "&.Mui-selected": {
+                    backgroundColor: "#e6e7e7bd !important",
+                    color: "#000 !important",
+                    "&:hover": {
+                      backgroundColor: "#b4b4b4a6 !important",
+                    },
+                  },
+                }}
+              >
+                <span>{item.name}</span>
+                {isSelected && (
+                  <CheckIcon sx={{ color: "#000", fontSize: 18, ml: 2 }} />
+                )}
+              </MenuItem>
+            );
+          })}
+        </MenuList>
+      </ClickAwayListener>
+    </Paper>
   );
 
   const renderComponentBasedOnOptions = (
@@ -334,9 +339,9 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
             slotProps={{
               popper: {
                 sx: {
-                  zIndex: isFullscreen ? 10001 : 1
-                }
-              }
+                  zIndex: isFullscreen ? 10001 : 1,
+                },
+              },
             }}
             renderTags={(tagValue, getTagProps) =>
               tagValue.map((option, index) => (
@@ -379,25 +384,30 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     </div>
   );
 
+ 
 
-useEffect(() => {
+ useEffect(() => {
   if (!signatureValue) return;
 
-  // Defer to next render so editorContent is updated
-  setTimeout(() => {
-    setEditorContent(prevContent => {
-      if (!prevContent.includes(signatureValue)) {
-        return `${prevContent}<br/><br/>${signatureValue}`;
-      }
-      return prevContent;
-    });
-  }, 0);
+  setEditorContent((prevContent) => {
+    // Remove old signature block by ID or marker
+    const cleanedContent = prevContent.replace(
+      /<div id="signature">[\s\S]*<\/div>/,
+      ""
+    );
+
+    // Append new signature
+    return `${cleanedContent}<div id="signature"><br/>${signatureValue}</div>`;
+  });
 }, [signatureValue]);
 
 
   return (
     <div className={isFullscreen ? "editor-fullscreen " : " w-full h-full"}>
-      <div className="flex items-center justify-between p-2 mb-2" style={isFullscreen ? { position: 'relative', zIndex: 10000 } : {}}>
+      <div
+        className="flex items-center justify-between p-2 mb-2"
+        style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
+      >
         <div className="flex items-center gap-2 z-[10000]">
           <Avatar
             src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
@@ -425,19 +435,20 @@ useEffect(() => {
         <div>
           {!isFullscreen && (
             <IconButton onClick={onCloseReply} size="small">
-              <KeyboardArrowUpIcon
-              sx={{ transform:  "rotate(180deg)"  }}
-              />
+              <KeyboardArrowUpIcon sx={{ transform: "rotate(180deg)" }} />
             </IconButton>
           )}
         </div>
       </div>
 
-      <div style={isFullscreen ? { position: 'relative', zIndex: 10000 } : {}}>
+      <div style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}>
         {renderComponentBasedOnOptions}
       </div>
 
-      <div className="flex items-center gap-4 mb-2 px-2" style={isFullscreen ? { position: 'relative', zIndex: 10000 } : {}}>
+      <div
+        className="flex items-center gap-4 mb-2 px-2"
+        style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
+      >
         {showCc && (
           <div>
             <TextField
@@ -471,7 +482,11 @@ useEffect(() => {
         value={editorContent}
         onTextChange={(e) => onChange(e.htmlValue)}
         style={{
-          height: isFullscreen ? "100vh" : isEditorExpended ? "450px" : "calc(100vh - 355px)",
+          height: isFullscreen
+            ? "100vh"
+            : isEditorExpended
+            ? "450px"
+            : "calc(100vh - 355px)",
         }}
         headerTemplate={header}
         placeholder={
