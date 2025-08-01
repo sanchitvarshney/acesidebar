@@ -67,6 +67,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   const [notifyValue, setNotifyValue] = React.useState("--");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const editorRef = useRef(null);
+  const signatureEditorRef = useRef(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const optionsRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = useState("1");
@@ -75,34 +76,38 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   const [showBcc, setShowBcc] = React.useState(false);
   const [optionChangeKey, setOptionChangeKey] = useState(0);
   const [notifyTag, setNotifyTag] = useState([]);
+  const [currentSignature, setCurrentSignature] = useState("");
 
-  useEffect(() => {
-    setEditorContent(initialContent);
-  }, [initialContent]);
-
-  // Update editor content when initialContent changes
-  useEffect(() => {
-    if (initialContent !== editorContent) {
-      setEditorContent(initialContent);
-    }
-  }, [initialContent]);
-
-  // Force editor update when content changes significantly
   // useEffect(() => {
-  //   if (editorRef.current && initialContent) {
-  //     const quill = editorRef.current.getQuill();
-  //     if (quill) {
-  //       // Only update if content is significantly different
-  //       if (quill.root.innerHTML !== initialContent) {
-  //         quill.root.innerHTML = initialContent;
-  //       }
-  //     }
-  //   }
+  //   setEditorContent(initialContent);
   // }, [initialContent]);
 
-  // console.log(editorContent);
+  // Handle signature changes from parent component
+  useEffect(() => {
+    if (signatureValue) {
+      setCurrentSignature(signatureValue);
+    } else {
+      setCurrentSignature("");
+    }
+  }, [signatureValue]);
 
-  // console.log(initialContent, 'initialContent');
+  // Enhanced text change handler
+  // const handleTextChange = (e) => {
+  //   const htmlValue = e.htmlValue;
+
+  //   // Update editor content
+  //   setEditorContent(htmlValue);
+
+  //   // Call parent onChange with content + signature
+  //   const fullContent = currentSignature
+  //     ? htmlValue +
+  //       `<div class="signature-section" contenteditable="false">${currentSignature}</div>`
+  //     : htmlValue;
+
+  //   onChange(fullContent);
+  // };
+
+  // Initialize main editor
   useEffect(() => {
     if (editorRef.current) {
       const quill = editorRef.current.getQuill();
@@ -119,25 +124,73 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     }
   }, []);
 
+  // Initialize signature editor
+  useEffect(() => {
+    if (signatureEditorRef.current) {
+      const quill = signatureEditorRef.current.getQuill();
+      if (!quill) return;
+
+      // Make signature editor read-only
+      quill.enable(false);
+
+      // Add custom styles to signature editor
+      const styleElement = document.createElement("style");
+      styleElement.textContent = `
+        .ql-editor {
+          min-height: 100px !important;
+          max-height: 150px !important;
+          overflow-y: auto !important;
+          background-color: #f9fafb !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 6px !important;
+          padding: 12px !important;
+          color: #6b7280 !important;
+          font-style: italic !important;
+        }
+        
+        .ql-editor:focus {
+          outline: none !important;
+          border-color: #d1d5db !important;
+        }
+        
+        .ql-editor p {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
+        .ql-editor strong {
+          color: #374151 !important;
+        }
+      `;
+      quill.root.appendChild(styleElement);
+    }
+  }, []);
+
+  // Update signature editor when signature changes
+  useEffect(() => {
+    if (signatureEditorRef.current) {
+      const quill = signatureEditorRef.current.getQuill();
+      if (!quill) return;
+
+      // Update signature content
+      quill.root.innerHTML =
+        currentSignature ||
+        '<p style="color: #9ca3af; font-style: italic;">No signature selected</p>';
+    }
+  }, [currentSignature]);
+
+  // Debug function to test signature
+  // const testSignature = () => {
+  //   const testSignature = `<p>Best regards,</p><p><strong>John Doe</strong><br>Senior Support Engineer<br>Email: john.doe@company.com</p>`;
+  //   setCurrentSignature(testSignature);
+  // };
+
   useEffect(() => {
     isMounted.current = true;
     return () => {
       isMounted.current = false;
     };
   }, []);
-
-  // useEffect(() => {
-  //   if (editorRef.current) {
-  //     const quill = editorRef.current.getQuill();
-
-  //     // Set placeholder text
-  //     quill.root.dataset.placeholder = "Add a note, @mention";
-
-  //     // Optional: style the placeholder text
-  //     quill.root.style.fontStyle = "italic";
-  //     quill.root.style.color = "#999";
-  //   }
-  // }, []);
 
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
@@ -148,6 +201,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     setIsOptionsOpen(false); // Close after selection
     setOptionChangeKey((prevKey) => prevKey + 1);
   };
+
   const renderHeader = () => {
     return (
       <div className="w-full flex justify-between items-center p-0 ">
@@ -167,6 +221,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         </div>
 
         <div className="space-x-2 flex items-center">
+       
           <button
             className="ql-fullscreen"
             aria-label="Full Screen"
@@ -187,10 +242,6 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
 
     setIsOptionsOpen(false);
   };
-
-  // const handleChange = (eventy, newValue) => {
-  //   setValue(newValue);
-  // };
 
   const handleChangeValue = (event) => {
     // console.log(event);
@@ -403,27 +454,14 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     </div>
   );
 
-  // Signature handling is now done in the parent component
-  // useEffect(() => {
-  //   if (!signatureValue) return;
-
-  //   setEditorContent((prevContent) => {
-  //     // Remove old signature block by ID or marker
-  //     const cleanedContent = prevContent.replace(
-  //       /<div id="signature">[\s\S]*<\/div>/,
-  //       ""
-  //     );
-
-  //     // Append new signature
-  //     return `${cleanedContent}<div id="signature"><br/>${signatureValue}</div>`;
-  //   });
-  // }, [signatureValue]);
   const editorHeight = isFullscreen
     ? "100vh"
     : isEditorExpended
     ? "450px"
     : showCc || showBcc
-    ? "calc(100vh - 400px)"
+    ? "calc(100vh - 570px)"
+    : currentSignature
+    ? "calc(100vh - 520px)"
     : "calc(100vh - 358px)";
 
   return (
@@ -499,19 +537,38 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
           </div>
         )}
       </div>
+{/* <div className="flex flex-col h-full w-full overflow-y-scroll"> */}
 
-      <Editor
-        ref={editorRef}
-        key={optionChangeKey}
-        value={editorContent}
-        onTextChange={(e) => onChange(e.htmlValue)}
-        style={{ height: editorHeight }}
-        headerTemplate={header}
-        placeholder={
-          selectedIndex === "1" ? "Reply..." : "Add a note, @mention"
-        }
-      />
+      {/* Main Editor for Message */}
+      <div className="mb-0">
+        <Editor
+          ref={editorRef}
+          key={optionChangeKey}
+          value={initialContent}
+          onTextChange={(text) => onChange(text.htmlValue)}
+          style={{ height: editorHeight }}
+          headerTemplate={header}
+          placeholder={
+            selectedIndex === "1" ? "Reply..." : "Add a note, @mention"
+          }
+        />
+      </div>
+
+      {/* Signature Editor (Read-only) */}
+      {currentSignature && (
+        <Editor
+          ref={signatureEditorRef}
+          value={currentSignature}
+          readOnly={true}
+          style={{ height: "175px",borderTop:"none" }}
+          placeholder="No signature selected"
+          showHeader={false}
+
+        />
+      )}
     </div>
+      
+// </div>
   );
 };
 

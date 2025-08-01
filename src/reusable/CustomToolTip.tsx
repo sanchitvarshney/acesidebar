@@ -57,7 +57,7 @@ const CustomToolTip: FC<CustomizedTooltipProps> = ({
         }
       }}
     >
-      {children}
+      {children }
     </BootstrapTooltip>
   );
 };

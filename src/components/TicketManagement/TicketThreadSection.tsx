@@ -186,23 +186,7 @@ const ThreadItem = ({
           )}
         </div>
 
-        {/* Inline Reply Editor */}
-        {/* {showReplyEditor && (
-          <div className="mt-3 border rounded bg-white p-3 flex flex-col gap-2">
-             <ForwardPanel
-            open={showReplyEditor}
-            onClose={() => {
-              setShowReplyEditor(false);
-           
-            }}
-            fields={forwardFields}
-            onFieldChange={handleForwardFieldChange}
-            onSend={handleForwardSend}
-            expand={expandForward}
-            onExpandToggle={() => setExpandForward((prev) => !prev)}
-          />
-          </div>
-        )} */}
+     
       </div>
     </div>
   );
@@ -286,24 +270,11 @@ const TicketThreadSection = ({
     );
 
     if (selectedSignature) {
-      // Remove old signature pattern from current markdown content
-      const signaturePattern = /<div id="signature">[\s\S]*<\/div>/;
-      let updatedContent = markdown || ""; // Use current editor content instead of signature state
-
-      // Remove old signature if exists
-      updatedContent = updatedContent.replace(signaturePattern, "");
-
       if (selectedSignature.value === "1") {
-        // "None" → just save cleaned content (no signature)
-        setMarkdown(updatedContent);
+        // "None" → clear signature
         setSignature(""); // Clear signature state
       } else {
-        // Append new signature at the end with proper formatting
-        const newSignatureBlock = `<div id="signature" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-${selectedSignature.signature}
-</div>`;
-        const contentWithSignature = updatedContent + newSignatureBlock;
-        setMarkdown(contentWithSignature);
+        // Set new signature content
         setSignature(selectedSignature.signature); // Update signature state
       }
 
@@ -345,7 +316,7 @@ ${selectedSignature.signature}
       setSlashTriggered(false);
     }
 
-    // Store the full HTML content including signatures
+    // Store the full HTML content (Editor component now handles signature separation)
     setMarkdown(value);
   };
   useEffect(() => {
