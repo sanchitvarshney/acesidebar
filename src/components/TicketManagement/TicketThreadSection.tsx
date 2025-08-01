@@ -25,6 +25,7 @@ import {
   Box,
   Paper,
   ListItem,
+  Alert,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -50,34 +51,32 @@ const signatureValues: any = [
     id: 1,
     name: "None",
     value: "1",
-    signature: ""
+    signature: "",
   },
   {
     id: 2,
     name: "My Signature",
     value: "2",
-    signature: `
-Best regards,
-John Doe
-Senior Support Engineer
-Email: john.doe@company.com
-Phone: +1 (555) 123-4567
-Company Name
-www.company.com`
+    signature: `<p>Best regards,</p>
+<p><strong>John Doe</strong><br>
+Senior Support Engineer<br>
+Email: john.doe@company.com<br>
+Phone: +1 (555) 123-4567<br>
+Company Name<br>
+www.company.com</p>`,
   },
   {
     id: 3,
     name: "Department Signature (Support)",
     value: "3",
-    signature: `
-Best regards,
-Support Team
-Technical Support Department
-Email: support@company.com
-Phone: +1 (555) 987-6543
-Company Name
-www.company.com
-Working Hours: Mon-Fri 9AM-6PM EST`
+    signature: `<p>Best regards,</p>
+<p><strong>Support Team</strong><br>
+Technical Support Department<br>
+Email: support@company.com<br>
+Phone: +1 (555) 987-6543<br>
+Company Name<br>
+www.company.com<br>
+Working Hours: Mon-Fri 9AM-6PM EST</p>`,
   },
 ];
 
@@ -275,41 +274,45 @@ const TicketThreadSection = ({
   const [canned, setCanned] = useState(false);
   const [suggest, setSuggest] = useState(false);
   const { shotcutData } = useSelector((state: RootState) => state.shotcut);
-  const [signature,setSignature] =useState("");
+  const [signature, setSignature] = useState("");
+  const [signatureUpdateKey, setSignatureUpdateKey] = useState(0);
 
- const handleSignatureChange = (event: string) => {
-  setSelectedOptionValue(event);
+  const handleSignatureChange = (event: string) => {
+    setSelectedOptionValue(event);
 
-  // Get selected signature object
-  const selectedSignature = signatureValues.find((sig: any) => sig.value === event);
+    // Get selected signature object
+    const selectedSignature = signatureValues.find(
+      (sig: any) => sig.value === event
+    );
 
-  if (selectedSignature) {
-    const signatureHTML = selectedSignature.signature; // Already in HTML format
+    if (selectedSignature) {
+      // Remove old signature pattern from current markdown content
+      const signaturePattern = /<div id="signature">[\s\S]*<\/div>/;
+      let updatedContent = markdown || ""; // Use current editor content instead of signature state
 
-    // Remove old signature pattern (anything after <div id="signature">)
-    const signaturePattern = /<div id="signature">[\s\S]*<\/div>/;
+      // Remove old signature if exists
+      updatedContent = updatedContent.replace(signaturePattern, "");
 
-    let updatedContent = signature; // `signature` here should be the editor content
+      if (selectedSignature.value === "1") {
+        // "None" → just save cleaned content (no signature)
+        setMarkdown(updatedContent);
+        setSignature(""); // Clear signature state
+      } else {
+        // Append new signature at the end with proper formatting
+        const newSignatureBlock = `<div id="signature" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+${selectedSignature.signature}
+</div>`;
+        const contentWithSignature = updatedContent + newSignatureBlock;
+        setMarkdown(contentWithSignature);
+        setSignature(selectedSignature.signature); // Update signature state
+      }
 
-    // Remove old signature if exists
-    updatedContent = updatedContent.replace(signaturePattern, "");
-
-    if (selectedSignature.value === "1") {
-      // "None" → just save cleaned content (no signature)
-      setSignature(updatedContent);
-    } else {
-      // Append new signature
-      const newSignatureBlock = `
-        <div id="signature" style="margin-top:12px;">
-          ${signatureHTML}
-        </div>
-      `;
-      setSignature(updatedContent + newSignatureBlock);
+      // Force editor re-render
+      setSignatureUpdateKey((prev) => prev + 1);
     }
-  }
-};
+  };
 
-console.log(signature,"Signature Value");
+  // console.log(signature,"Signature Value");
 
   // Function to check if current content has a signature
   const hasSignature = (content: string) => {
@@ -318,30 +321,32 @@ console.log(signature,"Signature Value");
 
   // Function to get current signature name
   const getCurrentSignatureName = () => {
-    const currentSignature = signatureValues.find((sig: any) => sig.value === selectedOptionValue);
+    const currentSignature = signatureValues.find(
+      (sig: any) => sig.value === selectedOptionValue
+    );
     return currentSignature?.name || "None";
   };
- 
-
-
 
   const handleEditorChange = (value: string) => {
     if (value === null) {
       return;
     }
-    const text: any = value?.replace(/<[^>]*>/g, "");
 
-    if (!slashTriggered && text?.includes("/")) {
+    // Check for slash commands without stripping HTML
+    const textForSlashCheck = value?.replace(/<[^>]*>/g, "");
+
+    if (!slashTriggered && textForSlashCheck?.includes("/")) {
       setShowShotcut(true);
       setSlashTriggered(true);
     }
 
     // Reset trigger if "/" is removed
-    if (!text.includes("/")) {
+    if (!textForSlashCheck.includes("/")) {
       setSlashTriggered(false);
     }
 
-    setMarkdown(text);
+    // Store the full HTML content including signatures
+    setMarkdown(value);
   };
   useEffect(() => {
     if (slashTriggered || !markdown) return;
@@ -354,22 +359,29 @@ console.log(signature,"Signature Value");
   };
 
   const handleIconClick = () => {
+    if (images.length > 3) {
+      alert("You can upload a maximum of 4 images");
+      return;
+    }
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files;
-    if (file) {
-      const newImages = Array.from(file).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setImages((prev) => [...prev, ...newImages]); // Append new images
+    const files = event.target.files;
+
+    if (files) {
+      const newFiles = Array.from(files);
+      setImages((prev: any[]) => {
+        const combined = [...prev, ...newFiles];
+        if (combined.length > 4) {
+          return combined.slice(0, 4); // Keep only first 4
+        }
+        return combined;
+      });
     }
   };
-
-
 
   // Handler for Save button
   const handleSave = () => {
@@ -380,6 +392,9 @@ console.log(signature,"Signature Value");
       // console.log("Saving reply:", markdown);
       onSendReply(markdown);
       setMarkdown("");
+      setSignature(""); // Clear signature state
+      setSelectedOptionValue("1"); // Reset to "None"
+      setSignatureUpdateKey(0); // Reset signature update key
       setShowEditor(false);
       if (onCloseReply) onCloseReply();
     }
@@ -479,8 +494,7 @@ console.log(signature,"Signature Value");
                 overflow: "hidden",
                 backgroundColor: "#fff",
                 padding: 0,
-               maxHeight: "100%",
-          
+                maxHeight: "100%",
               }}
             >
               {/* Signature indicator */}
@@ -497,10 +511,10 @@ console.log(signature,"Signature Value");
                 </div>
               )} */}
               <StackEditor
-                initialContent={markdown }
-                signatureValue = {signature}
+                initialContent={markdown}
+                signatureValue={signature}
                 onChange={handleEditorChange}
-                key={stateChangeKey}
+                key={`editor-${stateChangeKey}-${signatureUpdateKey}`}
                 isEditorExpended={isEditorExpended}
                 isExpended={() => setIsEditorExpended(!isEditorExpended)}
                 onCloseReply={() => setShowEditor(false)}
@@ -529,9 +543,8 @@ console.log(signature,"Signature Value");
                 <FormControl fullWidth>
                   <Select
                     value={selectedOptionValue}
-                    onChange={(e) =>  {
-                      handleSignatureChange(e.target.value)
-
+                    onChange={(e) => {
+                      handleSignatureChange(e.target.value);
                     }}
                     size="small"
                     sx={{
@@ -550,14 +563,16 @@ console.log(signature,"Signature Value");
                       >
                         <div className="flex items-center justify-between w-full">
                           <span>{item?.name}</span>
-                          {hasSignature(markdown) && item.value === selectedOptionValue && item.value !== "1" && (
-                            <Chip 
-                              label="Active" 
-                              size="small" 
-                              color="success" 
-                              sx={{ fontSize: '0.7rem', height: '20px' }}
-                            />
-                          )}
+                          {hasSignature(markdown) &&
+                            item.value === selectedOptionValue &&
+                            item.value !== "1" && (
+                              <Chip
+                                label="Active"
+                                size="small"
+                                color="success"
+                                sx={{ fontSize: "0.7rem", height: "20px" }}
+                              />
+                            )}
                         </div>
                       </MenuItem>
                     ))}
@@ -635,7 +650,9 @@ console.log(signature,"Signature Value");
                   onClick={() => {
                     setMarkdown("");
                     setSignature("");
+                    setSelectedOptionValue("1"); // Reset to "None"
                     setStateChangeKey((prev) => prev + 1);
+                    setSignatureUpdateKey(0); // Reset signature update key
                   }}
                 >
                   Reset

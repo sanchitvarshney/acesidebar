@@ -1,49 +1,62 @@
-import React, { useState } from "react";
-import { IconButton } from "@mui/material";
+import React from "react";
+import {
+  List,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const ImageViewComponent= ({ images }: { images: any }) => {
-  //   const handleRemove = (index: number) => {
-  //     setImages((prev) => prev.filter((_, i) => i !== index));
-  //   };
+interface ImageViewComponentProps {
+  images: any; // Array of uploaded image files
+  onRemove?: (index: number) => void;
+}
 
+const formatFileSize = (size: number) => {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const ImageViewComponent: React.FC<ImageViewComponentProps> = ({
+  images,
+  onRemove,
+}) => {
   return (
-    <div style={{ width:400}}>
-    
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-        {images?.map((src: any,index:any) => (
-          <div
+    <div style={{ }}>
+      <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
+        Attached Files
+      </Typography>
+      <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+        {images?.map((file: any, index: number) => (
+          <ListItem
             key={index}
-            style={{
-              position: "relative",
-              width: "100px",
-              height: "100px",
-              borderRadius: "8px",
-              overflow: "hidden",
-              border: "1px solid #ccc",
+            secondaryAction={
+              onRemove && (
+                <IconButton edge="end" onClick={() => onRemove(index)}>
+                  <DeleteIcon />
+                </IconButton>
+              )
+            }
+            sx={{
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor: "#f5f5f5",
+              },
             }}
           >
-            <img
-              src={src}
-              alt={`attachment-${index}`}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            <ListItemText
+              primary={file.name}
+              secondary={`${file.type || "Unknown"} • ${formatFileSize(
+                file.size
+              )}`}
             />
-            {/* <IconButton
-              size="small"
-              onClick={() => handleRemove(index)}
-              style={{
-                position: "absolute",
-                top: 2,
-                right: 2,
-                background: "rgba(0,0,0,0.5)",
-                color: "#fff",
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton> */}
-          </div>
+          </ListItem>
         ))}
-      </div>
+      </List>
     </div>
   );
 };

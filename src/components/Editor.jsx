@@ -61,7 +61,6 @@ const optionsofPrivate = [
 ];
 
 const StackEditor = ({ initialContent = "", onChange, ...props }) => {
- 
   const { isEditorExpended, isExpended, onCloseReply, signatureValue } = props;
   const isMounted = React.useRef(true);
   const [editorContent, setEditorContent] = useState("");
@@ -81,7 +80,27 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     setEditorContent(initialContent);
   }, [initialContent]);
 
-   console.log(editorContent);
+  // Update editor content when initialContent changes
+  useEffect(() => {
+    if (initialContent !== editorContent) {
+      setEditorContent(initialContent);
+    }
+  }, [initialContent]);
+
+  // Force editor update when content changes significantly
+  // useEffect(() => {
+  //   if (editorRef.current && initialContent) {
+  //     const quill = editorRef.current.getQuill();
+  //     if (quill) {
+  //       // Only update if content is significantly different
+  //       if (quill.root.innerHTML !== initialContent) {
+  //         quill.root.innerHTML = initialContent;
+  //       }
+  //     }
+  //   }
+  // }, [initialContent]);
+
+  // console.log(editorContent);
 
   // console.log(initialContent, 'initialContent');
   useEffect(() => {
@@ -141,7 +160,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
             <button className="ql-underline" aria-label="Underline"></button>
             <button className="ql-link" aria-label="Link"></button>
             <button className="ql-image" aria-label="Image"></button>
-            <button className="ql-video" aria-label="Video"></button>
+            {/* <button className="ql-video" aria-label="Video"></button> */}
 
             <select className="ql-color " aria-label="Font Color"></select>
           </span>
@@ -384,23 +403,28 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     </div>
   );
 
- 
+  // Signature handling is now done in the parent component
+  // useEffect(() => {
+  //   if (!signatureValue) return;
 
- useEffect(() => {
-  if (!signatureValue) return;
+  //   setEditorContent((prevContent) => {
+  //     // Remove old signature block by ID or marker
+  //     const cleanedContent = prevContent.replace(
+  //       /<div id="signature">[\s\S]*<\/div>/,
+  //       ""
+  //     );
 
-  setEditorContent((prevContent) => {
-    // Remove old signature block by ID or marker
-    const cleanedContent = prevContent.replace(
-      /<div id="signature">[\s\S]*<\/div>/,
-      ""
-    );
-
-    // Append new signature
-    return `${cleanedContent}<div id="signature"><br/>${signatureValue}</div>`;
-  });
-}, [signatureValue]);
-
+  //     // Append new signature
+  //     return `${cleanedContent}<div id="signature"><br/>${signatureValue}</div>`;
+  //   });
+  // }, [signatureValue]);
+  const editorHeight = isFullscreen
+    ? "100vh"
+    : isEditorExpended
+    ? "450px"
+    : showCc || showBcc
+    ? "calc(100vh - 400px)"
+    : "calc(100vh - 358px)";
 
   return (
     <div className={isFullscreen ? "editor-fullscreen " : " w-full h-full"}>
@@ -481,13 +505,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         key={optionChangeKey}
         value={editorContent}
         onTextChange={(e) => onChange(e.htmlValue)}
-        style={{
-          height: isFullscreen
-            ? "100vh"
-            : isEditorExpended
-            ? "450px"
-            : "calc(100vh - 355px)",
-        }}
+        style={{ height: editorHeight }}
         headerTemplate={header}
         placeholder={
           selectedIndex === "1" ? "Reply..." : "Add a note, @mention"
