@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
 import EditIcon from "@mui/icons-material/Edit";
 import CommentIcon from "@mui/icons-material/Comment";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StackEditor from "../Editor";
+import AddBoxIcon from "@mui/icons-material/AddBox";
 
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
@@ -19,6 +20,11 @@ import {
   DialogContent,
   CircularProgress,
   Typography,
+  Chip,
+  ClickAwayListener,
+  Box,
+  Paper,
+  ListItem,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -30,24 +36,48 @@ import ShortCutPopover from "../shared/ShortCutPopover";
 import ShotCutContent from "../ShotCutContent";
 
 import ShortcutIcon from "@mui/icons-material/Shortcut";
-import { AnimatePresence, motion } from "framer-motion";
+
+import CustomToolTip from "../../reusable/CustomToolTip";
+import CustomSideBarPanel from "../reusable/CustomSideBarPanel";
 import { set } from "react-hook-form";
+import { Add } from "@mui/icons-material";
+import { useSelector } from "react-redux";
+import { RootState } from "../../reduxStore/Store";
+import ImageViewComponent from "../ImageViewComponent";
 
 const signatureValues: any = [
   {
     id: 1,
     name: "None",
     value: "1",
+    signature: ""
   },
   {
     id: 2,
     name: "My Signature",
     value: "2",
+    signature: `
+Best regards,
+John Doe
+Senior Support Engineer
+Email: john.doe@company.com
+Phone: +1 (555) 123-4567
+Company Name
+www.company.com`
   },
   {
     id: 3,
     name: "Department Signature (Support)",
     value: "3",
+    signature: `
+Best regards,
+Support Team
+Technical Support Department
+Email: support@company.com
+Phone: +1 (555) 987-6543
+Company Name
+www.company.com
+Working Hours: Mon-Fri 9AM-6PM EST`
   },
 ];
 
@@ -229,9 +259,9 @@ const TicketThreadSection = ({
   showReplyEditor = false,
   onCloseReply,
 }: any) => {
-  const [ticketStatus, setTicketStatus] = useState(header?.status || "open");
+  // const [ticketStatus, setTicketStatus] = useState(header?.status || "open");
   const [showEditor, setShowEditor] = useState(false);
-  const [replyText, setReplyText] = useState("");
+  // const [replyText, setReplyText] = useState("");
   const [markdown, setMarkdown] = useState("");
   const [showShotcut, setShowShotcut] = useState(false);
   const [slashTriggered, setSlashTriggered] = useState(false);
@@ -239,20 +269,52 @@ const TicketThreadSection = ({
   const [stateChangeKey, setStateChangeKey] = useState(0);
   const [isEditorExpended, setIsEditorExpended] = useState(false);
   const [selectedOptionValue, setSelectedOptionValue] = useState("1");
-  const [editorLoading, setEditorLoading] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showImagesModal, setShowImagesModal] = useState(false);
+  const [canned, setCanned] = useState(false);
+  const [suggest, setSuggest] = useState(false);
+  const { shotcutData } = useSelector((state: RootState) => state.shotcut);
+  const [signature,setSignature] =useState("");
 
   const handleChangeValue = (event: any) => {
     setSelectedOptionValue(event);
+    
+    // Get the selected signature
+    const selectedSignature = signatureValues.find((sig: any) => sig.value === event);
+    
+    if (selectedSignature) {
+      // If "None" is selected, remove any existing signature
+      if (selectedSignature.value === "1") {
+        setSignature("");
+        // Remove signature if it exists in the markdown
+        const signaturePattern = /\n\nBest regards,.*$/;
+        setSignature((prev) => prev.replace(signaturePattern, ""));
+      } else {
+           setSignature("");
+        // Remove any existing signature first
+        const signaturePattern = /\n\nBest regards,.*$/;
+        let cleanMarkdown = signature.replace(signaturePattern, "");
+        
+        // Add the new signature at the end
+        const newContent = cleanMarkdown + selectedSignature.signature;
+        setSignature(newContent);
+      }
+    }
   };
 
-  // useEffect(() => {
-  //   if (editorLoading) {
-  //     setTimeout(() => {
-  //       setEditorLoading(false);
-  //       setShowEditor(true);
-  //     }, 500);
-  //   }
-  // }, [editorLoading]);
+  // Function to check if current content has a signature
+  const hasSignature = (content: string) => {
+    return content.includes("Best regards,") && selectedOptionValue !== "1";
+  };
+
+  // Function to get current signature name
+  const getCurrentSignatureName = () => {
+    const currentSignature = signatureValues.find((sig: any) => sig.value === selectedOptionValue);
+    return currentSignature?.name || "None";
+  };
+
+
 
   const handleEditorChange = (value: string) => {
     if (value === null) {
@@ -282,7 +344,23 @@ const TicketThreadSection = ({
     setShowEditor(!showEditor);
   };
 
-  console.log(markdown);
+  const handleIconClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files;
+    if (file) {
+      const newImages = Array.from(file).map((file) =>
+        URL.createObjectURL(file)
+      );
+      setImages((prev) => [...prev, ...newImages]); // Append new images
+    }
+  };
+
+
 
   // Handler for Save button
   const handleSave = () => {
@@ -375,7 +453,7 @@ const TicketThreadSection = ({
           </AccordionSummary>
           {/* // )} */}
 
-          <AccordionDetails sx={{ p: 0 , height:"100%"}}>
+          <AccordionDetails sx={{ p: 0, height: "100%" }}>
             {/* <AnimatePresence>
               {showEditor && (
                 <motion.div
@@ -389,13 +467,29 @@ const TicketThreadSection = ({
             <div
               ref={shotcutRef}
               style={{
-                overflow: "auto",
-                background: "#fff",
+                overflow: "hidden",
+                backgroundColor: "#fff",
                 padding: 0,
+               maxHeight: "100%",
+          
               }}
             >
+              {/* Signature indicator */}
+              {/* {hasSignature(signature) && selectedOptionValue !== "1" && (
+                <div className="bg-green-50 border-l-4 border-green-400 p-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-600 text-sm font-medium">
+                      ✓ Signature Active
+                    </span>
+                    <span className="text-green-500 text-xs">
+                      {getCurrentSignatureName()}
+                    </span>
+                  </div>
+                </div>
+              )} */}
               <StackEditor
-                initialContent={markdown}
+                initialContent={markdown }
+                signatureValue = {signature}
                 onChange={handleEditorChange}
                 key={stateChangeKey}
                 isEditorExpended={isEditorExpended}
@@ -426,7 +520,10 @@ const TicketThreadSection = ({
                 <FormControl fullWidth>
                   <Select
                     value={selectedOptionValue}
-                    onChange={(e) => handleChangeValue(e.target.value)}
+                    onChange={(e) =>  {
+                      handleChangeValue(e.target.value)
+
+                    }}
                     size="small"
                     sx={{
                       width: 300,
@@ -442,25 +539,84 @@ const TicketThreadSection = ({
                         value={item?.value}
                         sx={{ width: 300 }}
                       >
-                        {item?.name}
+                        <div className="flex items-center justify-between w-full">
+                          <span>{item?.name}</span>
+                          {hasSignature(markdown) && item.value === selectedOptionValue && item.value !== "1" && (
+                            <Chip 
+                              label="Active" 
+                              size="small" 
+                              color="success" 
+                              sx={{ fontSize: '0.7rem', height: '20px' }}
+                            />
+                          )}
+                        </div>
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
 
                 <div className="flex items-center gap-2">
+                  {images?.length > 0 && (
+                    <CustomToolTip
+                      title={<ImageViewComponent images={images} />}
+                      open={showImagesModal}
+                      close={() => setShowImagesModal(false)}
+                      placement={"top"}
+                    >
+                      <span
+                        className="bg-[#0891b2] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
+                        onClick={() => setShowImagesModal(true)}
+                      >
+                        {images.length}
+                      </span>
+                    </CustomToolTip>
+                  )}
                   <Divider orientation="vertical" flexItem />
-                  <IconButton size="small">
-                    <AttachFileIcon fontSize="small" />
-                  </IconButton>
+                  <CustomToolTip
+                    title={"Attach file < 10MB"}
+                    placement={"top-start"}
+                  >
+                    <div className="flex items-center gap-1">
+                      {" "}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        style={{ display: "none" }}
+                        onChange={handleFileChange}
+                      />
+                      <IconButton size="small" onClick={handleIconClick}>
+                        <AttachFileIcon
+                          fontSize="small"
+                          sx={{ transform: "rotate(45deg)" }}
+                        />
+                      </IconButton>
+                    </div>
+                  </CustomToolTip>
                   <Divider orientation="vertical" flexItem />
-                  <IconButton size="small">
-                    <PublishedWithChangesIcon fontSize="small" />
-                  </IconButton>
+                  <CustomToolTip title={"Canned Responses"}>
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setSuggest(false);
+                        setCanned(!canned);
+                      }}
+                    >
+                      <PublishedWithChangesIcon fontSize="small" />
+                    </IconButton>
+                  </CustomToolTip>
                   <Divider orientation="vertical" flexItem />
-                  <IconButton size="small">
-                    <MenuBookIcon fontSize="small" />
-                  </IconButton>
+                  <CustomToolTip title={"Suggested Solutions"}>
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setCanned(false);
+                        setSuggest(!suggest);
+                      }}
+                    >
+                      <MenuBookIcon fontSize="small" />
+                    </IconButton>
+                  </CustomToolTip>
                 </div>
               </div>
 
@@ -469,6 +625,7 @@ const TicketThreadSection = ({
                   className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
                   onClick={() => {
                     setMarkdown("");
+                    setSignature("");
                     setStateChangeKey((prev) => prev + 1);
                   }}
                 >
@@ -489,7 +646,148 @@ const TicketThreadSection = ({
         </Accordion>
       </div>
 
-   
+      <CustomSideBarPanel
+        open={canned}
+        close={() => setCanned(false)}
+        title={
+          <span>
+            {" "}
+            <PublishedWithChangesIcon fontSize="small" /> Canned Responses
+          </span>
+        }
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            gap: 2,
+          }}
+        >
+          {/* Accordion Item 1 */}
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              sx={{
+                "& .MuiAccordionSummary-content": {
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                },
+              }}
+            >
+              {/* Left Section (Expand Icon + Title) */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography>Section 1</Typography>
+              </Box>
+
+              {/* Right Section (Custom Add Icon) */}
+              <IconButton
+                size="small"
+                onClick={(e: any) => {
+                  e.stopPropagation(); // Prevent accordion toggle
+                  setMarkdown(
+                    (prevMarkdown) =>
+                      prevMarkdown + "Content for section 1 inside the drawer."
+                  );
+                }}
+              >
+                <AddBoxIcon />
+              </IconButton>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>Content for section 1 inside the drawer.</Typography>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+        {/* </div> */}
+      </CustomSideBarPanel>
+
+      <CustomSideBarPanel
+        open={suggest}
+        close={() => setSuggest(false)}
+        title={
+          <span>
+            {" "}
+            <MenuBookIcon fontSize="small" /> Solution
+          </span>
+        }
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            gap: 2,
+          }}
+        >
+          {shotcutData?.length > 0 ? (
+            <>
+              {(shotcutData ?? [])?.map((item: any) => (
+                <ListItem
+                  key={item.id}
+                  disablePadding
+                  sx={{
+                    backgroundColor: "#fff",
+                    borderBottom: "1px solid #e5e7eb", // Tailwind border-gray-200
+                    px: 2,
+                    py: 1,
+                  }}
+                >
+                  <Box display="flex" gap={2} width="100%" alignItems="center">
+                    <Box flex={1}>
+                      <Typography
+                        variant="subtitle2"
+                        fontWeight={600}
+                        sx={{
+                          color: "#2c3e50",
+                          fontSize: "0.9rem",
+                          lineHeight: 1.2,
+                          mb: 0.5,
+                        }}
+                      >
+                        {item.shortcutName}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#4b5563", // Tailwind text-gray-600
+                          fontSize: "0.85rem",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {item.message}
+                      </Typography>
+                    </Box>
+
+                    <Box display="flex" gap={1}>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          setMarkdown(
+                            (prevMarkdown) => prevMarkdown + ` ${item.message}`
+                          );
+                        }}
+                      >
+                        <AddBoxIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </ListItem>
+              ))}
+            </>
+          ) : (
+            <div className="flex flex-col items-center mt-4">
+              <img
+                src={"/image/empty.svg"}
+                alt="notes"
+                className="mx-auto w-40 h-40"
+              />
+            </div>
+          )}
+        </Box>
+      </CustomSideBarPanel>
     </div>
   );
 };

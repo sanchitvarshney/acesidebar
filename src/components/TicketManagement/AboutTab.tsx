@@ -15,7 +15,7 @@ const AboutTab = ({
   attribute,
   handleAttributeChange,
 }: any) => (
-  <div className="bg-white rounded border border-gray-200 p-3 mb-4">
+  <div className="bg-white rounded border border-gray-200 p-3 mb-4 ">
     <div className="flex items-center justify-between mb-2">
       <div className="font-semibold text-sm text-gray-700 ">About</div>
       <IconButton size="small">

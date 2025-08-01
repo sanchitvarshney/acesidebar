@@ -170,8 +170,8 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
 
   return (
     <Box
-      className="p-2 bg-red-800"
-      style={{ background: "#fff", borderRadius: 0, width: 350, minWidth: 350 }}
+      className="p-2 bg-red-800  "
+      style={{ background: "#fff", borderRadius: 0, width: 350, minWidth: 350, }}
     >
       {/* Top-level tab bar */}
       <div className="flex items-center justify-between bg-white rounded px-2 py-1 mb-2 border border-gray-200">

@@ -3,8 +3,9 @@ import { Editor } from "primereact/editor";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CheckIcon from "@mui/icons-material/Check";
 import ReplyIcon from "@mui/icons-material/Reply";
-import PrivateConnectivityIcon from '@mui/icons-material/PrivateConnectivity';
-import PublicIcon from '@mui/icons-material/Public';
+import PrivateConnectivityIcon from "@mui/icons-material/PrivateConnectivity";
+import PublicIcon from "@mui/icons-material/Public";
+import Slide from "@mui/material/Slide";
 import {
   Avatar,
   IconButton,
@@ -18,11 +19,12 @@ import {
   Autocomplete,
   FormControl,
   Select,
-  Chip
+  Chip,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ShortcutIcon from "@mui/icons-material/Shortcut";
 import { set } from "react-hook-form";
+import CustomToolTip from "../reusable/CustomToolTip";
 
 const selectionsOptions = [
   {
@@ -44,24 +46,24 @@ const selectionsOptions = [
 const optionsofPrivate = [
   {
     id: 1,
-    icon:<PrivateConnectivityIcon fontSize="small" />,
+    icon: <PrivateConnectivityIcon fontSize="small" />,
     title: "Private",
-    subTitle:"Only visible to you",
+    subTitle: "Only visible to you",
     value: "1",
   },
   {
     id: 2,
-    icon:<PublicIcon fontSize="small" />,
+    icon: <PublicIcon fontSize="small" />,
     title: "Public",
-    subTitle:"Visible to everyone",
+    subTitle: "Visible to everyone",
     value: "2",
   },
 ];
 
 const StackEditor = ({ initialContent = "", onChange, ...props }) => {
-  const { isEditorExpended, isExpended,onCloseReply } = props;
+  const { isEditorExpended, isExpended, onCloseReply, signatureValue  } = props;
   const isMounted = React.useRef(true);
-  const [value, setValue] = React.useState("1");
+  const [editorContent, setEditorContent] = useState(initialContent || "");
   const [notifyValue, setNotifyValue] = React.useState("--");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const editorRef = useRef(null);
@@ -72,9 +74,9 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   const [showCc, setShowCc] = React.useState(false);
   const [showBcc, setShowBcc] = React.useState(false);
   const [optionChangeKey, setOptionChangeKey] = useState(0);
-  const[notifyTag, setNotifyTag] = useState([]);
+  const [notifyTag, setNotifyTag] = useState([]);
 
-
+// console.log(initialContent, 'initialContent');
   useEffect(() => {
     if (editorRef.current) {
       const quill = editorRef.current.getQuill();
@@ -151,9 +153,6 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     );
   };
 
-
-  
-
   const header = renderHeader();
   const handleClose = (event) => {
     if (optionsRef.current && optionsRef.current.contains(event.target)) {
@@ -168,7 +167,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   // };
 
   const handleChangeValue = (event) => {
-    console.log(event);
+    // console.log(event);
     setSelectedOptionValue(event);
   };
 
@@ -200,20 +199,27 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
             id="demo-simple-select"
             value={selectedOptionValue}
             onChange={(e) => handleChangeValue(e.target.value)}
-            size="small"
+            MenuProps={{
+              sx: {
+                zIndex: isFullscreen ? 10001 : 1
+              }
+            }}
             sx={{
+              height: 40,
               width: 300,
               "& fieldset": { border: "none" }, // Removes the outline border
               "& .MuiOutlinedInput-notchedOutline": { border: "none" }, // Another safe way
             }}
           >
             {optionsofPrivate.map((item) => (
-              <MenuItem key={item?.id} value={item?.value} sx={{width: 300}}>
+              <MenuItem key={item?.id} value={item?.value} sx={{ width: 300 }}>
                 <div className="flex items-center gap-2">
                   <div>{item?.icon}</div>
                   <div className="flex flex-col ">
                     <span>{item?.title}</span>
-                    <span className="text-xs text-gray-500">{item?.subTitle}</span>
+                    <span className="text-xs text-gray-500">
+                      {item?.subTitle}
+                    </span>
                   </div>
                 </div>
               </MenuItem>
@@ -223,6 +229,65 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         // </Box>
       )}
     </div>
+  );
+  const renderToolTipComponent = (
+   
+        <Paper
+          elevation={0}
+          sx={{
+            backgroundColor: "transparent",
+          }}
+        >
+          <ClickAwayListener onClickAway={handleClose}>
+            <MenuList
+              autoFocusItem={isOptionsOpen}
+              id="composition-menu"
+              aria-labelledby="composition-button"
+              onKeyDown={handleListKeyDown}
+            >
+              {selectionsOptions.map((item, index) => {
+                const isSelected = selectedIndex === item.value;
+                return (
+                  <MenuItem
+                    key={index}
+                    onClick={() => handleSelect(item.value)}
+                    selected={isSelected}
+                    sx={{
+                      mb: 0.5,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                      borderRadius: "0px",
+                      // px: 2,
+                      // py: 1,
+                      backgroundColor: isSelected ? "#000" : "transparent",
+                      color: isSelected ? "#000" : "#000",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: isSelected ? "#d2d3d4a6" : "#d2d3d4a6",
+                        color: isSelected ? "" : "#000",
+                      },
+                      "&.Mui-selected": {
+                        backgroundColor: "#e6e7e7bd !important",
+                        color: "#000 !important",
+                        "&:hover": {
+                          backgroundColor: "#b4b4b4a6 !important",
+                        },
+                      },
+                    }}
+                  >
+                    <span>{item.name}</span>
+                    {isSelected && (
+                      <CheckIcon sx={{ color: "#000", fontSize: 18, ml: 2 }} />
+                    )}
+                  </MenuItem>
+                );
+              })}
+            </MenuList>
+          </ClickAwayListener>
+        </Paper>
+    
   );
 
   const renderComponentBasedOnOptions = (
@@ -257,14 +322,21 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
             options={["--", "Option 1", "Option 2", "Option 3"]}
             value={notifyTag}
             onChange={(event, newValue, reason) => {
-              if (reason === 'createOption' || reason === 'selectOption') {
+              if (reason === "createOption" || reason === "selectOption") {
                 setNotifyTag(newValue);
-              } else if (reason === 'removeOption') {
+              } else if (reason === "removeOption") {
                 setNotifyTag(newValue);
               }
             }}
             onInputChange={(event, newInputValue) => {
               setNotifyValue(newInputValue);
+            }}
+            slotProps={{
+              popper: {
+                sx: {
+                  zIndex: isFullscreen ? 10001 : 1
+                }
+              }
             }}
             renderTags={(tagValue, getTagProps) =>
               tagValue.map((option, index) => (
@@ -307,39 +379,65 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
     </div>
   );
 
+
+useEffect(() => {
+  if (!signatureValue) return;
+
+  // Defer to next render so editorContent is updated
+  setTimeout(() => {
+    setEditorContent(prevContent => {
+      if (!prevContent.includes(signatureValue)) {
+        return `${prevContent}<br/><br/>${signatureValue}`;
+      }
+      return prevContent;
+    });
+  }, 0);
+}, [signatureValue]);
+
+
   return (
-    <div className={isFullscreen ? "editor-fullscreen" : ""}>
-      <div className="flex items-center justify-between p-2 mb-2">
-        <div className="flex items-center gap-2">
+    <div className={isFullscreen ? "editor-fullscreen " : " w-full h-full"}>
+      <div className="flex items-center justify-between p-2 mb-2" style={isFullscreen ? { position: 'relative', zIndex: 10000 } : {}}>
+        <div className="flex items-center gap-2 z-[10000]">
           <Avatar
             src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
             sx={{ width: 25, height: 25 }}
           />
 
-          <span
-            onClick={() => setIsOptionsOpen(true)}
-            className="cursor-pointer "
-            ref={optionsRef}
+          <CustomToolTip
+            title={renderToolTipComponent}
+            placement="bottom-start"
+            open={isOptionsOpen}
+            // close={() => setIsOptionsOpen(false)}
           >
-            {renderIcon}
-            <KeyboardArrowDownIcon fontSize="small" />
-          </span>
+            <span
+              onClick={() => setIsOptionsOpen(true)}
+              className="cursor-pointer  relative z-[10000]"
+              ref={optionsRef}
+            >
+              {renderIcon}
+              <KeyboardArrowDownIcon fontSize="small" />
+            </span>
+          </CustomToolTip>
+
           {renderComponentBasedOnSelection}
         </div>
         <div>
           {!isFullscreen && (
             <IconButton onClick={onCloseReply} size="small">
               <KeyboardArrowUpIcon
-                // sx={{ transform: isEditorExpended ? "rotate(180deg)" : "" }}
+              sx={{ transform:  "rotate(180deg)"  }}
               />
             </IconButton>
           )}
         </div>
       </div>
 
-      {renderComponentBasedOnOptions}
+      <div style={isFullscreen ? { position: 'relative', zIndex: 10000 } : {}}>
+        {renderComponentBasedOnOptions}
+      </div>
 
-      <div className="flex items-center gap-4 mb-2 px-2">
+      <div className="flex items-center gap-4 mb-2 px-2" style={isFullscreen ? { position: 'relative', zIndex: 10000 } : {}}>
         {showCc && (
           <div>
             <TextField
@@ -366,106 +464,20 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
           </div>
         )}
       </div>
-      
 
       <Editor
         ref={editorRef}
         key={optionChangeKey}
-        value={initialContent}
+        value={editorContent}
         onTextChange={(e) => onChange(e.htmlValue)}
         style={{
-          height: isFullscreen ? "100vh" : isEditorExpended ? "500px" : "52vh",
+          height: isFullscreen ? "100vh" : isEditorExpended ? "450px" : "calc(100vh - 355px)",
         }}
         headerTemplate={header}
         placeholder={
           selectedIndex === "1" ? "Reply..." : "Add a note, @mention"
         }
       />
-      <Popper
-      
-        open={isOptionsOpen}
-        anchorEl={optionsRef.current}
-        onClose={() => setIsOptionsOpen(false)}
-        role={undefined}
-        placement="bottom-start"
-        transition
-        disablePortal
-        sx={{ zIndex: 9999,boxShadow:6 }}
-      >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin:
-                placement === "bottom-start" ? "left top" : "left bottom",
-            }}
-          >
-            <Paper
-            elevation={0}
-              sx={{
-                p: 1,
-                border: "1px solid #ccc",
-              }}
-            >
-              {/* <div
-                style={{
-                  position: "absolute",
-                  top: "-6px",
-                  left: "8px", // Arrow aligned to right
-                  width: 0,
-                  height: 0,
-                  borderLeft: "7px solid transparent",
-                  borderRight: "7px solid transparent",
-                  borderBottom: "7px solid #ccc",
-                  zIndex: 999,
-                }}
-              /> */}
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList
-                  autoFocusItem={isOptionsOpen}
-                  id="composition-menu"
-                  aria-labelledby="composition-button"
-                  onKeyDown={handleListKeyDown}
-                >
-                  {selectionsOptions.map((item, index) => (
-                    <div
-                      className={`flex justify-between items-center px-2 py-1 cursor-pointer ${
-                        selectedIndex === item.value
-                          ? "bg-gray-100"
-                          : "bg-transparent"
-                      } hover:bg-gray-200`}
-                    >
-                      <MenuItem
-                        key={index}
-                        onClick={() => handleSelect(item.value)}
-                        selected={selectedIndex === item.value} // MUI built-in selected style
-                        sx={{
-                          width: "100%",
-                          "&.Mui-selected": {
-                            backgroundColor: "transparent !important", // Remove selected background
-                            color: "inherit",
-                            "&:hover": {
-                              backgroundColor: "transparent !important", // Remove hover when selected
-                            },
-                          },
-                          "&:hover": {
-                            backgroundColor: "transparent !important", // Remove hover when unselected
-                          },
-                        }}
-                      >
-                        {item.name}
-                      </MenuItem>
-                      {selectedIndex === item.value && (
-                        <CheckIcon fontSize="small" sx={{ color: "#0891b2" }} />
-                      )}
-                    </div>
-                  ))}
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
     </div>
   );
 };

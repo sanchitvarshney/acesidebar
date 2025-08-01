@@ -160,14 +160,39 @@
   background: white;
   z-index: 9999;
   padding: 10px;
+  
 }
 
 .editor-fullscreen .p-editor-container {
   height: 100% !important;
- 
 }
 
 .editor-fullscreen .p-editor-content {
   height: calc(100% - 50px) !important; /* Adjust for toolbar height */
+}
+
+/* Ensure form elements are interactive in fullscreen mode */
+.editor-fullscreen .MuiAutocomplete-root,
+.editor-fullscreen .MuiTextField-root,
+.editor-fullscreen .MuiSelect-root,
+.editor-fullscreen .MuiFormControl-root {
+  z-index: 10000 !important;
+  position: relative;
+}
+
+.editor-fullscreen .MuiPopper-root {
+  z-index: 10001 !important;
+}
+
+.editor-fullscreen .MuiMenu-root {
+  z-index: 10001 !important;
+}
+
+.editor-fullscreen .MuiTooltip-popper {
+  z-index: 10002 !important;
+}
+
+.editor-fullscreen .MuiTooltip-tooltip {
+  z-index: 10002 !important;
 }
 

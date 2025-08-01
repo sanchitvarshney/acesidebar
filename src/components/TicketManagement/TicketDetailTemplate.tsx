@@ -104,7 +104,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               onCloseReply={handleCloseReply}
             />
           </div>
-          <div className="w-full relative overflow-y-auto">
+           <div style={{width: "100%", height: "100%", overflow: "auto" }}>
             <TicketPropertiesSidebar ticket={ticket.header} />
             
             {/* Forward Panel positioned inside the right column */}
