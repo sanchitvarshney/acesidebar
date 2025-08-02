@@ -5,7 +5,8 @@ import CommentIcon from "@mui/icons-material/Comment";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StackEditor from "../Editor";
 import AddBoxIcon from "@mui/icons-material/AddBox";
-
+import StarIcon from "@mui/icons-material/Star";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -26,6 +27,7 @@ import {
   Paper,
   ListItem,
   Alert,
+  MenuList,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -91,6 +93,27 @@ const TicketSubjectBar = ({ header }: any) => (
   </div>
 );
 
+const replyOptions = [
+  {
+    id: 1,
+    name: "Reply",
+    value: "1",
+    icon: <ShortcutIcon sx={{ fontSize: 18 }} />,
+  },
+  {
+    id: 2,
+    name: "Edit",
+    value: "2",
+    icon: <EditIcon sx={{ fontSize: 18 }} />,
+  },
+  {
+    id: 3,
+    name: "Delete",
+    value: "3",
+    icon: <DeleteIcon sx={{ fontSize: 18 }} />,
+  },
+];
+
 const ThreadItem = ({
   item,
   onReplyClick,
@@ -104,8 +127,11 @@ const ThreadItem = ({
   const [localReplyText, setLocalReplyText] = useState("");
   const [markdown, setMarkdown] = useState("");
 
-  const handleReplyClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const optionsRef = React.useRef<any>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [selected, setSelected] = useState<number>(0);
+
+  const handleReplyClick = (e: any) => {
     onForward();
   };
 
@@ -121,51 +147,168 @@ const ThreadItem = ({
     setMarkdown(value);
   };
 
+  function handleListKeyDown(event: any) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      setOpen(false);
+    } else if (event.key === "Escape") {
+      setOpen(false);
+    }
+  }
+
+  const handleClose = (event: any) => {
+    if (optionsRef.current && optionsRef.current.contains(event.target)) {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const handleSelect = (value: string) => {
+    if (value === "1") {
+      handleReplyClick(null);
+      setOpen(false);
+    } else if (value === "2") {
+    } else {
+    }
+  };
+
+  const renderReplyOption = (
+    <Paper
+      elevation={0}
+      sx={{
+        width: 100,
+        backgroundColor: "transparent",
+      }}
+    >
+      <ClickAwayListener onClickAway={handleClose}>
+        <MenuList
+          autoFocusItem={open}
+          id="composition-menu"
+          aria-labelledby="composition-button"
+          onKeyDown={handleListKeyDown}
+        >
+          {replyOptions.map((item, index) => {
+            // const isSelected = selectedIndex === item.value;
+            return (
+              <MenuItem
+                key={index}
+                onClick={() => handleSelect(item.value)}
+                // selected={isSelected}
+                sx={{
+                  mb: 0.5,
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  width: "100%",
+                  borderRadius: "0px",
+                  // px: 2,
+                  // py: 1,
+                  backgroundColor: "transparent",
+                  color: "#000",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "#d2d3d4a6",
+                    color: "#000",
+                  },
+                  "&.Mui-selected": {
+                    backgroundColor: "#e6e7e7bd !important",
+                    color: "#000 !important",
+                    "&:hover": {
+                      backgroundColor: "#b4b4b4a6 !important",
+                    },
+                  },
+                }}
+              >
+                {/* <CheckIcon sx={{ color: "#000", fontSize: 18, ml: 2 }} /> */}
+                {item.icon}
+                <span className="ml-2">{item.name}</span>
+              </MenuItem>
+            );
+          })}
+        </MenuList>
+      </ClickAwayListener>
+    </Paper>
+  );
   return (
-    <div className="flex gap-3 mb-6">
+    <div className="flex  border p-2 overflow-auto gap-3 mb-6">
       {/* Avatar */}
-      <div className="flex-shrink-0">
-        {item.repliedBy?.avatarUrl ? (
-          <img
-            src={item.repliedBy.avatarUrl}
-            alt={item.repliedBy.name}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-lg font-bold text-green-700">
-            {item.repliedBy?.name?.[0] || "?"}
-          </div>
-        )}
-      </div>
+
       {/* Email content */}
       <div className="flex-1">
         <div
-          className="bg-orange-50 rounded shadow p-4 border border-gray-100 cursor-pointer group"
-          onClick={() => setOpen((o) => !o)}
+          className="rounded   flex"
+          // onClick={() => setOpen((o) => !o)}
         >
-          <div className="flex items-center justify-between mb-1">
-            <div>
-              <span className="font-semibold text-blue-700">
-                {item.repliedBy?.name || "User"}
-              </span>
-              <span className="ml-2 text-xs text-gray-500">
-                added a private note
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">
-                {item.repliedAt?.timestamp}
-              </span>
-              <div className="hidden group-hover:flex items-center bg-white rounded-full shadow border ml-2 overflow-hidden">
+          <div className=" w-20 relative flex   px-4 py-2">
+            <div
+              style={{
+                position: "absolute",
+                top: "15px",
+                right: `0px`,
+                width: 0,
+                height: 0,
+                borderTop: "10px solid transparent",
+                borderBottom: "10px solid transparent",
+                borderRight: "12px solid #ebebebff ",
+                // zIndex: 5,
+              }}
+            />
+            {item.repliedBy?.avatarUrl ? (
+              <img
+                src={item.repliedBy.avatarUrl}
+                alt={item.repliedBy.name}
+                className="w-20 h-20 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-lg font-bold text-green-700">
+                {item.repliedBy?.name?.[0] || "?"}
+              </div>
+            )}
+          </div>
+          <div className="w-full flex flex-col  items-center justify-between   bg-[#ebebebff]">
+            <div className="flex items-center justify-between w-full px-4  py-2">
+              <div className="w-full flex flex-col">
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-semibold text-[#0891b2]">
+                    {item.repliedBy?.name || "User"}
+                  </span>
+                  <div>
+                    <span className="text-xs text-gray-400">
+                      {item.repliedAt?.timestamp}
+                    </span>{" "}
+                    <CustomToolTip
+                      title={renderReplyOption}
+                      open={open}
+                      // close={() => setOpen(false)}
+                      placement={"bottom-end"}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={() => setOpen(true)}
+                        ref={optionsRef}
+                      >
+                        <ArrowDropDownIcon />
+                      </IconButton>
+                    </CustomToolTip>
+                  </div>
+                </div>
+
+                <span className="w-4/5 text-xs text-gray-500 ">
+                  added a private note
+                </span>
+              </div>
+              {/* <div className="w-64 flex flex-row justify-start items-start gap-2  bg-red-300 "> */}
+              {/* <div className="hidden group-hover:flex items-center bg-white rounded-full shadow border ml-2 overflow-hidden">
                 <button
                   className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none"
                   onClick={handleReplyClick}
                 >
-                  <ShortcutIcon sx={{ fontSize: 18 }} />
+                 
                 </button>
                 <div className="w-px h-5 bg-gray-200" />
                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
-                  <EditIcon sx={{ fontSize: 18 }} />
+                 
                 </button>
                 <div className="w-px h-5 bg-gray-200" />
                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
@@ -173,20 +316,41 @@ const ThreadItem = ({
                 </button>
                 <div className="w-px h-5 bg-gray-200" />
                 <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none text-red-600">
-                  <DeleteIcon sx={{ fontSize: 18 }} />
+                
                 </button>
-              </div>
+              </div> */}
+              {/* </div> */}
+            </div>
+            <div className="flex items-center justify-between w-full py-3 px-4 bg-white border-t border-gray-200">
+              <span></span>
+              <span className="flex gap-1">
+                {Array.from({ length: 5 }).map((_, idx) => {
+                  const isActive =
+                    hovered !== null ? idx <= hovered : idx < selected;
+
+                  return (
+                    <StarIcon
+                      key={idx}
+                      sx={{
+                        color: isActive ? "gold" : "lightgray",
+                        cursor: "pointer",
+                      }}
+                      onMouseEnter={() => setHovered(idx)}
+                      onMouseLeave={() => setHovered(null)}
+                      onClick={() => setSelected(idx + 1)}
+                    />
+                  );
+                })}
+              </span>
             </div>
           </div>
-          {open && (
+          {/* {open && (
             <div
-              className="text-sm text-gray-800 whitespace-pre-line mb-2"
+              className="text-sm text-red-600 whitespace-pre-line mb-2"
               dangerouslySetInnerHTML={{ __html: item.message }}
             />
-          )}
+          )} */}
         </div>
-
-     
       </div>
     </div>
   );
@@ -372,10 +536,10 @@ const TicketThreadSection = ({
   };
 
   return (
-    <div className="flex flex-col gap-2   min-h-[100%] relative">
+    <div className="flex flex-col gap-2   min-h-[100%] overflow-y-auto relative">
       <div className="p-2">
         <TicketSubjectBar header={header} />
-        <div className="flex flex-col gap-2   overflow-y-auto  ">
+        <div className="flex flex-col gap-2  h-[calc(100vh-260px)] overflow-y-auto   ">
           <ThreadList thread={thread} onForward={onForward} />
         </div>
       </div>

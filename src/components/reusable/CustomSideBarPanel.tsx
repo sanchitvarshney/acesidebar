@@ -7,12 +7,16 @@ interface CustomSideBarPanelProps {
   close: () => void;
   title: any;
   children: React.ReactNode;
+  isHeader?: boolean
+  width?: number
 }
 const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   open,
   close,
   title,
   children,
+  isHeader=true,
+  width=380
 }) => {
   return (
     <Drawer
@@ -30,7 +34,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
       sx={{
         pointerEvents: "none",
         "& .MuiDrawer-paper": {
-          width: 380,
+          width:  width ,
 
           position: "absolute",
           top: 64,
@@ -41,7 +45,8 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
         },
       }}
     >
-      <Box
+    {isHeader && (
+        <Box
         sx={{
           display: "flex",
           alignItems: "center",
@@ -56,6 +61,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           <CloseIcon  fontSize="small"/>
         </IconButton>
       </Box>
+    )}
       <div
         className="w-full h-full overflow-y-auto my-2 "
         style={{

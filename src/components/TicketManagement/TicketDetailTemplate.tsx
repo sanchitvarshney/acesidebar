@@ -5,6 +5,8 @@ import TicketDetailHeader from "./TicketDetailHeader";
 import TicketThreadSection from "./TicketThreadSection";
 import TicketPropertiesSidebar from "./TicketPropertiesSidebar";
 import TicketDetailAccordion from "./TicketDetailAccordion";
+import OpenInFullIcon from "@mui/icons-material/OpenInFull";
+import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import {
   Drawer,
   IconButton,
@@ -17,6 +19,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import ForwardPanel from "./ForwardPanel";
 import { useAuth } from "../../contextApi/AuthContext";
+import CustomSideBarPanel from "../reusable/CustomSideBarPanel";
+import { set } from "react-hook-form";
 
 interface TicketDetailTemplateProps {
   ticket: any; // expects { header, response, other }
@@ -94,7 +98,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           onDelete={handleDelete}
         />
         <div className="w-full grid grid-cols-[3fr_1fr]">
-          <div style={{width: "100%", height: "100%", overflow: "auto" }}>
+          <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
             <TicketThreadSection
               thread={ticket.response}
               header={ticket.header}
@@ -104,37 +108,40 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               onCloseReply={handleCloseReply}
             />
           </div>
-           <div style={{width: "100%", height: "100%", overflow: "auto" }}>
+          <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
             <TicketPropertiesSidebar ticket={ticket.header} />
-            
+
             {/* Forward Panel positioned inside the right column */}
-            {(expandForward || forwardOpen || showReplyEditor) && (
-              <div
-                className="absolute top-0 left-0 w-full h-full z-10"
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  overflow: "hidden"
-                }}
-              >
-                <ForwardPanel
-                  open={forwardOpen}
-                  onClose={() => {
-                    setExpandForward(false);
-                    handleCloseForward();
-                  }}
-                  fields={forwardFields}
-                  onFieldChange={handleForwardFieldChange}
-                  onSend={handleForwardSend}
-                  expand={expandForward}
-                  onExpandToggle={() => setExpandForward((prev) => !prev)}
-                />
-              </div>
-            )}
           </div>
         </div>
-      </Box> 
-
+      </Box>
+      {/* {(expandForward || forwardOpen || showReplyEditor) && ( */}
+        <CustomSideBarPanel
+          open={forwardOpen}
+          close={() => {
+            setExpandForward(false);
+            handleCloseForward();
+          }}
+          title={undefined}
+          isHeader={false}
+          width={600}
+        >
+          <ForwardPanel
+            open={forwardOpen}
+            onClose={() => {
+              setExpandForward(false);
+              handleCloseForward();
+            }}
+            fields={forwardFields}
+            onFieldChange={handleForwardFieldChange}
+            onSend={handleForwardSend}
+            expand={expandForward}
+            onExpandToggle={() => {
+              setExpandForward((prev) => !prev);
+            }}
+          />
+        </CustomSideBarPanel>
+      {/* )} */}
       {/* Delete Modal */}
       <MuiBox>
         <Button

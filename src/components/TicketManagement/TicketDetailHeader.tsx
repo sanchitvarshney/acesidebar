@@ -6,26 +6,80 @@ import CloseIcon from "@mui/icons-material/Close";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+const buttonStyles: Record<
+  string,
+  { text: string; border: string; hover: string }
+> = {
+  Reply: {
+    text: "text-blue-600",
+    border: "border-blue-600",
+    hover: "hover:bg-blue-50",
+  },
+  "Add note": {
+    text: "text-green-600",
+    border: "border-green-600",
+    hover: "hover:bg-green-50",
+  },
+  Forward: {
+    text: "text-orange-600",
+    border: "border-orange-600",
+    hover: "hover:bg-orange-50",
+  },
+  Close: {
+    text: "text-purple-600",
+    border: "border-purple-600",
+    hover: "hover:bg-purple-50",
+  },
+  Merge: {
+    text: "text-cyan-600",
+    border: "border-cyan-600",
+    hover: "hover:bg-cyan-50",
+  },
+  Delete: {
+    text: "text-red-600",
+    border: "border-red-600",
+    hover: "hover:bg-red-50",
+  },
+  More: {
+    text: "text-gray-600",
+    border: "border-gray-600",
+    hover: "hover:bg-gray-50",
+  },
+};
 
 const ActionButton = ({
   icon,
   label,
   onClick,
+  className,
 }: {
   icon: React.ReactNode;
   label: string;
   onClick?: () => void;
-}) => (
-  <button
-    className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition"
-    onClick={onClick}
-  >
-    {icon}
-    <span>{label}</span>
-  </button>
-);
+  className?: string;
+}) => {
+  const styles = buttonStyles[label] || {
+    text: "text-gray-700",
+    border: "border-gray-300",
+    hover: "hover:bg-gray-50",
+  };
 
-const TicketDetailHeader = ({ ticket, onBack, onForward,onReply }: any) => {
+  return (
+    <button
+      className={`flex items-center gap-1 px-3 py-1 rounded bg-white text-sm font-medium 
+                  border transition 
+                  ${styles.text} ${styles.border} ${styles.hover} ${
+        className || ""
+      }`}
+      onClick={onClick}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+};
+
+const TicketDetailHeader = ({ ticket, onBack, onForward, onReply }: any) => {
   return (
     <div className="flex items-center w-full px-6 py-2 border-b bg-white z-10">
       {/* Breadcrumb */}
@@ -34,13 +88,17 @@ const TicketDetailHeader = ({ ticket, onBack, onForward,onReply }: any) => {
           All tickets
         </button>
         <span className="mx-1">&gt;</span>
-        <span className="text-blue-700 font-semibold text-md">
+        <span className="text-[#0891b2] font-semibold text-md">
           {ticket?.ticketId || "6"}
         </span>
       </nav>
       {/* Action buttons */}
       <div className="flex gap-2 ml-8">
-        <ActionButton icon={<ReplyIcon fontSize="small" />} label="Reply" onClick={onReply} />
+        <ActionButton
+          icon={<ReplyIcon fontSize="small" />}
+          label="Reply"
+          onClick={onReply}
+        />
         <ActionButton
           icon={<NoteAddIcon fontSize="small" />}
           label="Add note"
@@ -53,7 +111,7 @@ const TicketDetailHeader = ({ ticket, onBack, onForward,onReply }: any) => {
         <ActionButton icon={<CloseIcon fontSize="small" />} label="Close" />
         <ActionButton icon={<MergeTypeIcon fontSize="small" />} label="Merge" />
         <ActionButton icon={<DeleteIcon fontSize="small" />} label="Delete" />
-        <ActionButton icon={<MoreHorizIcon fontSize="small" />} label="" />
+        <ActionButton icon={<MoreHorizIcon fontSize="small" />} label="More" />
       </div>
       {/* Tabs */}
       {/* <div className="flex gap-2 ml-auto">

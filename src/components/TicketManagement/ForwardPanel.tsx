@@ -55,7 +55,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         maxWidth: "100%",
         boxShadow: expand ? 24 : 1,
         position: "relative",
-        m: 0
+        m: 0,
       }}
     >
       <MuiBox
@@ -66,9 +66,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           borderBottom: "1px solid #eee",
         }}
       >
-        <Typography sx={{ flex: 1, fontSize: "17px" }}>
-          Forward
-        </Typography>
+        <Typography sx={{ flex: 1, fontSize: "17px" }}>Forward</Typography>
         {onExpandToggle && (
           <IconButton onClick={onExpandToggle} size="small">
             {expand ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
@@ -197,7 +195,16 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
 
   if (expand) {
     return (
-      <Modal open={open} onClose={onClose}>
+      <Modal
+        open={open}
+        onClose={onClose}
+        BackdropProps={{
+          sx: {
+            backdropFilter: "blur(4px)",
+            backgroundColor: "rgba(0, 0, 0, 0.4)", // semi-transparent dark overlay
+          },
+        }}
+      >
         <MuiBox
           sx={{
             position: "absolute",
@@ -226,15 +233,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   }
 
   // Sidebar panel (not modal)
-  return open ? (
-      <AnimatePresence>
-     <motion.div
-            initial={{ x: "100%", opacity: 0 }}
-  animate={{ x: 0, opacity: 1 }}
-  exit={{ x: "100%", opacity: 0 }}
-  transition={{ duration: 0.2,   ease: [0.25, 0.1, 0.25, 1] }}
-  className="w-full h-full"
-        >
+  return (
     <MuiBox
       sx={{
         width: "100%",
@@ -247,9 +246,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     >
       {panelContent}
     </MuiBox>
-    </motion.div>
-    </AnimatePresence>
-  ) : null;
+  );
 };
 
 export default ForwardPanel;
