@@ -154,9 +154,14 @@ const ShortcutsTab = () => {
                   startAdornment: (
                     <InputAdornment
                       position="start"
-                      sx={{ backgroundColor: "gray", p: 2 }}
+                      sx={{ 
+                        color: "#6366f1",
+                        px: 1,
+                        py: 0.5,
+                        mr: 1
+                      }}
                     >
-                      <span className="text-white text-xl">/</span>
+                      /
                     </InputAdornment>
                   ),
                 }}
@@ -170,7 +175,7 @@ const ShortcutsTab = () => {
                       borderColor: "#ccc", // border color on hover
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#2eacb3", // border color on focus
+                      borderColor: "#1a73e8", // border color on focus
                       // backgroundColor: "#fff",
                     },
                   },
@@ -208,7 +213,7 @@ const ShortcutsTab = () => {
                     borderColor: "#ccc", // border color on hover
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "#2eacb3", // border color on focus
+                    borderColor: "#1a73e8", // border color on focus
                     // backgroundColor: "#fff",
                   },
                 },

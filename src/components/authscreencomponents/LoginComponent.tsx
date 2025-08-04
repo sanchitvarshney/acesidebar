@@ -90,6 +90,10 @@ const LoginComponent = () => {
         alignItems: "center",
         p: { xs: 0, sm: 2, md: 4 },
         minWidth: { xs: "100%", md: 350 },
+        borderRadius: 3,
+        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05)",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(255, 255, 255, 0.2)",
       }}
     >
       <PersonIcon sx={{ fontSize: 80, color: "#1c5fba", mb: 1 }} />
