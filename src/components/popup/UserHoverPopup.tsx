@@ -1,5 +1,5 @@
 import React from "react";
-import { Popper, Paper, Box, Avatar, Typography, IconButton } from "@mui/material";
+import { Popper, Paper, Box, Avatar, Typography, IconButton, Zoom } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -97,9 +97,9 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
       style={{ zIndex: 1300 }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-
     >
-      <StyledPaper>
+      <Zoom in={open} timeout={200} style={{ transformOrigin: '0 0 0' }} mountOnEnter unmountOnExit>
+        <StyledPaper>
         {/* Dynamic Arrow */}
         <Box
           sx={{
@@ -129,7 +129,7 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, pb: 1.5, borderBottom: "1px solid #e0e0e0" }}>
             <Avatar
               sx={{
-                width: 60,
+                width: 50,
                 height: 50,
                 bgcolor: "#fce4ec",
                 color: "#e91e63",
@@ -207,8 +207,9 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
                )}
              </IconButton>
            </Box>
-        </Box>
-      </StyledPaper>
+                 </Box>
+        </StyledPaper>
+      </Zoom>
     </Popper>
   );
 };
