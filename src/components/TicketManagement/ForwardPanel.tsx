@@ -59,16 +59,18 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
       }}
     >
       <MuiBox
+      
         sx={{
           display: "flex",
           alignItems: "center",
           p: 2,
           borderBottom: "1px solid #eee",
+            backgroundColor: "#e8f0fe",
         }}
       >
         <Typography sx={{ flex: 1, fontSize: "17px" }}>Forward</Typography>
         {onExpandToggle && (
-          <IconButton onClick={onExpandToggle} size="small">
+          <IconButton onClick={onExpandToggle} size="small" sx={{ marginRight: 2 }}> 
             {expand ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
           </IconButton>
         )}

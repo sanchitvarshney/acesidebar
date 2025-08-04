@@ -53,7 +53,9 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
     message: ticket?.header?.description || "",
   });
   const [showReplyEditor, setShowReplyEditor] = React.useState(false);
+  const [showEditorNote, setShowEditorNote] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
 
   // Pass this to children to allow opening the forward panel
   const handleOpenForward = () => setForwardOpen(true);
@@ -75,8 +77,16 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
       message: ticket?.header?.description || "",
     });
   };
-  const handleReply = () => setShowReplyEditor(true);
+  const handleReply = () => {
+    setShowReplyEditor(true);
+    setValue("Reply");
+  };
   const handleCloseReply = () => setShowReplyEditor(false);
+  const handleAddNote = () => {
+    setShowEditorNote(true);
+    setValue("Note");
+  };
+  const handleAddNoteClose = () => setShowReplyEditor(false);
   const handleDelete = () => setDeleteModalOpen(true);
   const handleCloseDelete = () => setDeleteModalOpen(false);
   const handleConfirmDelete = () => {
@@ -87,7 +97,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
 
   if (!ticket) return null;
   return (
-    <Box sx={{ display: "flex", position: "relative", height: "80vh" }}>
+    <Box sx={{ display: "flex", position: "relative"  }}>
       <Sidebar open={false} handleDrawerToggle={() => {}} />
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <TicketDetailHeader
@@ -96,8 +106,9 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           onForward={handleOpenForward}
           onReply={handleReply}
           onDelete={handleDelete}
+          onNote={handleAddNote}
         />
-        <div className="w-full grid grid-cols-[3fr_1fr]">
+        <div className="w-full  grid grid-cols-[3fr_1fr] ">
           <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
             <TicketThreadSection
               thread={ticket.response}
@@ -106,6 +117,9 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               onForward={handleOpenForward}
               showReplyEditor={showReplyEditor}
               onCloseReply={handleCloseReply}
+              showEditorNote={showEditorNote}
+              onCloseEditorNote={handleAddNoteClose}
+              value={value}
             />
           </div>
           <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
@@ -116,31 +130,31 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
         </div>
       </Box>
       {/* {(expandForward || forwardOpen || showReplyEditor) && ( */}
-        <CustomSideBarPanel
+      <CustomSideBarPanel
+        open={forwardOpen}
+        close={() => {
+          setExpandForward(false);
+          handleCloseForward();
+        }}
+        // title={undefined}
+        isHeader={false}
+        width={600}
+      >
+        <ForwardPanel
           open={forwardOpen}
-          close={() => {
+          onClose={() => {
             setExpandForward(false);
             handleCloseForward();
           }}
-          title={undefined}
-          isHeader={false}
-          width={600}
-        >
-          <ForwardPanel
-            open={forwardOpen}
-            onClose={() => {
-              setExpandForward(false);
-              handleCloseForward();
-            }}
-            fields={forwardFields}
-            onFieldChange={handleForwardFieldChange}
-            onSend={handleForwardSend}
-            expand={expandForward}
-            onExpandToggle={() => {
-              setExpandForward((prev) => !prev);
-            }}
-          />
-        </CustomSideBarPanel>
+          fields={forwardFields}
+          onFieldChange={handleForwardFieldChange}
+          onSend={handleForwardSend}
+          expand={expandForward}
+          onExpandToggle={() => {
+            setExpandForward((prev) => !prev);
+          }}
+        />
+      </CustomSideBarPanel>
       {/* )} */}
       {/* Delete Modal */}
       <MuiBox>

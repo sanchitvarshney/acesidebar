@@ -17,7 +17,7 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
     duration: theme.transitions.duration.leavingScreen,
   }),
   marginLeft: `-${drawerWidth}px`,
-  backgroundColor: theme.palette.background.default,
+  backgroundColor: "#f0f4f9",
   minHeight: "80vh",
   ...(open && {
     transition: theme.transitions.create("margin", {
@@ -45,7 +45,7 @@ const MainLayout = ({}) => {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", }}>
       <CssBaseline />
       <TopBar open={open} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar open={open} handleDrawerToggle={handleDrawerToggle} />

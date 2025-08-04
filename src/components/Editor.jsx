@@ -61,7 +61,7 @@ const optionsofPrivate = [
 ];
 
 const StackEditor = ({ initialContent = "", onChange, ...props }) => {
-  const { isEditorExpended, isExpended, onCloseReply, signatureValue } = props;
+  const { isEditorExpended, isExpended, onCloseReply, signatureValue, isValues } = props;
   const isMounted = React.useRef(true);
   const [editorContent, setEditorContent] = useState("");
   const [notifyValue, setNotifyValue] = React.useState("--");
@@ -78,9 +78,18 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   const [notifyTag, setNotifyTag] = useState([]);
   const [currentSignature, setCurrentSignature] = useState("");
 
-  // useEffect(() => {
-  //   setEditorContent(initialContent);
-  // }, [initialContent]);
+
+  useEffect(() => {
+    if (!isValues) return;
+    if (isValues === "Reply") {
+ 
+      setSelectedIndex("1");
+    }
+    else {
+      onCloseReply(true)
+      setSelectedIndex("2");
+    }
+  }, [isValues]);
 
   // Handle signature changes from parent component
   useEffect(() => {
@@ -438,7 +447,6 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "4px",
                     backgroundColor: "#f9fafb",
-                    "& fieldset": { borderColor: "#000" },
                     "&:hover fieldset": { borderColor: "#9ca3af" },
                     "&.Mui-focused fieldset": { borderColor: "#2eacb3" },
                   },
@@ -498,7 +506,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         </div>
         <div>
           {!isFullscreen && (
-            <IconButton onClick={onCloseReply} size="small">
+            <IconButton onClick={()=>onCloseReply(false)} size="small">
               <KeyboardArrowUpIcon sx={{ transform: "rotate(180deg)" }} />
             </IconButton>
           )}

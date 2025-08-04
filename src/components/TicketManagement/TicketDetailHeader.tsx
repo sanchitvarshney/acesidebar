@@ -6,46 +6,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-const buttonStyles: Record<
-  string,
-  { text: string; border: string; hover: string }
-> = {
-  Reply: {
-    text: "text-blue-600",
-    border: "border-blue-600",
-    hover: "hover:bg-blue-50",
-  },
-  "Add note": {
-    text: "text-green-600",
-    border: "border-green-600",
-    hover: "hover:bg-green-50",
-  },
-  Forward: {
-    text: "text-orange-600",
-    border: "border-orange-600",
-    hover: "hover:bg-orange-50",
-  },
-  Close: {
-    text: "text-purple-600",
-    border: "border-purple-600",
-    hover: "hover:bg-purple-50",
-  },
-  Merge: {
-    text: "text-cyan-600",
-    border: "border-cyan-600",
-    hover: "hover:bg-cyan-50",
-  },
-  Delete: {
-    text: "text-red-600",
-    border: "border-red-600",
-    hover: "hover:bg-red-50",
-  },
-  More: {
-    text: "text-gray-600",
-    border: "border-gray-600",
-    hover: "hover:bg-gray-50",
-  },
-};
+
 
 const ActionButton = ({
   icon,
@@ -58,19 +19,13 @@ const ActionButton = ({
   onClick?: () => void;
   className?: string;
 }) => {
-  const styles = buttonStyles[label] || {
-    text: "text-gray-700",
-    border: "border-gray-300",
-    hover: "hover:bg-gray-50",
-  };
+
 
   return (
     <button
-      className={`flex items-center gap-1 px-3 py-1 rounded bg-white text-sm font-medium 
-                  border transition 
-                  ${styles.text} ${styles.border} ${styles.hover} ${
-        className || ""
-      }`}
+      className="flex items-center gap-1 px-3 py-1 rounded bg-white text-sm font-medium 
+                  border transition  text-gray-700 border-gray-300 hover:bg-gray-50
+             "
       onClick={onClick}
     >
       {icon}
@@ -79,9 +34,10 @@ const ActionButton = ({
   );
 };
 
-const TicketDetailHeader = ({ ticket, onBack, onForward, onReply }: any) => {
+const TicketDetailHeader = ({ ticket, onBack, onForward, onReply,onNote }: any) => {
   return (
-    <div className="flex items-center w-full px-6 py-2 border-b bg-white z-10">
+    <div className="flex items-center w-full px-6 py-2 border border-[#dce1ff]  bg-[#e8f0fe] z-10">
+
       {/* Breadcrumb */}
       <nav className="flex items-center text-xs text-gray-500 font-medium gap-1 min-w-[180px]">
         <button onClick={onBack} className="hover:underline text-xl">
@@ -95,23 +51,24 @@ const TicketDetailHeader = ({ ticket, onBack, onForward, onReply }: any) => {
       {/* Action buttons */}
       <div className="flex gap-2 ml-8">
         <ActionButton
-          icon={<ReplyIcon fontSize="small" />}
+          icon={<ReplyIcon fontSize="small"  sx={{color :"#2563eb"}} />}
           label="Reply"
           onClick={onReply}
         />
         <ActionButton
-          icon={<NoteAddIcon fontSize="small" />}
+          icon={<NoteAddIcon fontSize="small" color="success" />}
           label="Add note"
+          onClick={onNote}
         />
         <ActionButton
-          icon={<ForwardToInboxIcon fontSize="small" />}
+          icon={<ForwardToInboxIcon fontSize="small" sx={{color:"#ea580c"}} />}
           label="Forward"
           onClick={onForward}
         />
-        <ActionButton icon={<CloseIcon fontSize="small" />} label="Close" />
-        <ActionButton icon={<MergeTypeIcon fontSize="small" />} label="Merge" />
-        <ActionButton icon={<DeleteIcon fontSize="small" />} label="Delete" />
-        <ActionButton icon={<MoreHorizIcon fontSize="small" />} label="More" />
+        <ActionButton icon={<CloseIcon fontSize="small" sx={{color:"#9333ea"}} />} label="Close" />
+        <ActionButton icon={<MergeTypeIcon fontSize="small"  sx={{color:"#0891b2"}}/>} label="Merge" />
+        <ActionButton icon={<DeleteIcon fontSize="small"  color="error"/>} label="Delete" />
+        {/* <ActionButton icon={<MoreHorizIcon fontSize="small"  sx={{color}}/>} label="More" /> */}
       </div>
       {/* Tabs */}
       {/* <div className="flex gap-2 ml-auto">

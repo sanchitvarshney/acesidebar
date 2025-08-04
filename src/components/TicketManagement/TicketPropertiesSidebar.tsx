@@ -20,6 +20,7 @@ import { useGetTagListQuery } from "../../services/ticketAuth";
 import { Chip, MenuItem } from "@mui/material";
 import ShortcutsTab from "../ShortcitsTab";
 import CloseIcon from "@mui/icons-material/Close";
+import { Height } from "@mui/icons-material";
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
@@ -71,7 +72,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
     mainContent = (
       <>
        
-        <div className="flex items-center gap-3 mb-4">
+        <div className=" flex items-center gap-3 mb-4">
           <Avatar
             sx={{
               bgcolor: "#FFC107",
@@ -170,8 +171,8 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
 
   return (
     <Box
-      className="p-2 bg-red-800  "
-      style={{ background: "#fff", borderRadius: 0, width: 350, minWidth: 350, }}
+      className="p-2 bg-white "
+      style={{ borderRadius: 0, height: "100%" }}
     >
       {/* Top-level tab bar */}
       <div className="flex items-center justify-between bg-white rounded px-2 py-1 mb-2 border border-gray-200">
@@ -218,7 +219,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         </button> */}
       </div>
       {/* Main content below top tabs */}
-     <div className="w-full h-[calc(100vh-230px)] overflow-y-auto will-change-transform">
+     <div className="w-full  overflow-y-auto will-change-transform">
         {mainContent}
       </div>
     </Box>

@@ -23,52 +23,7 @@ const NotificationDropDown = () => {
         message={"This is dummy msg"}
         time={"9:23 am"}
       />
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
 
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
-      <NotificationContent
-        title={"name"}
-        message={"This is dummy msg"}
-        time={"9:23 am"}
-      />
     </div>
   );
 };

@@ -530,7 +530,7 @@ const Tickets: React.FC = () => {
           onSendReply={(text:any) => handleSendReply(text)}
         />
       ) : (
-        <div className="flex flex-col bg-gray-50 h-[calc(100vh-115px)]">
+        <div className="flex flex-col bg-red-50 h-[calc(100vh-115px)]">
           {/* Main Header Bar */}
           <div className="flex items-center justify-between px-6 py-2 pb-2 border-b w-full bg-#f5f7f9">
             {/* Left: Title, master checkbox, count, and action buttons (inline) */}
@@ -657,7 +657,7 @@ const Tickets: React.FC = () => {
           {/* Main Content: Tickets + Filters */}
           <div className="flex flex-1 h-0 min-h-0">
             {/* Ticket List */}
-            <div className="flex-1 p-3 h-full overflow-y-auto bg-white">
+            <div className="flex-1 p-3 h-full overflow-y-auto bg-[#f0f4f9]">
               {isTicketsFetching ? (
                 <TicketSkeleton />
               ) : (
