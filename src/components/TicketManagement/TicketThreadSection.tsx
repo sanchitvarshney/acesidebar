@@ -349,12 +349,80 @@ const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
   <div className="">
     {thread && thread.length > 0 ? (
       thread.map((item: any, idx: number) => (
-        <ThreadItem
-          key={idx}
-          item={item}
-          onReplyClick={onReplyClick}
-          onForward={onForward}
-        />
+        <>
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />{" "}
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+          />
+        </>
       ))
     ) : (
       <div className="text-gray-400">No thread items.</div>
@@ -543,83 +611,89 @@ const TicketThreadSection = ({
   console.log(showEditor);
 
   return (
-    <div className="flex flex-col gap-2    overflow-y-auto ">
-      <div className="p-2">
-        <TicketSubjectBar header={header} />
-        <div className="flex flex-col gap-2  h-[100vh] overflow-y-auto relative  ">
+    <div className="flex flex-col gap-2  w-full h-[100%]  overflow-hidden ">
+      <div className="w-full p-2 ">
+        <div className="sticky top-0 z-[99]">
+          <TicketSubjectBar header={header} />
+        </div>
+        <div className="flex flex-col gap-0  h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
           <ThreadList thread={thread} onForward={onForward} />
-          <div className="rounded  w-full  flex flex-col absolute bottom-0 overflow-hidden">
-            <Accordion
-              elevation={0}
-              expanded={showEditor || showReplyEditor || showEditorNote}
-              onChange={handleReplyButton}
+          </div>
+          <div className="rounded   p-1 w-[75%]  bg-white  flex z-[999] absolute bottom-0 ">
+          <Accordion
+            elevation={0}
+            expanded={showEditor || showReplyEditor || showEditorNote}
+            onChange={handleReplyButton}
+            sx={{
+              width: "100%",
+              position: "relative",
+              background: "transparent",
+              boxShadow: "none",
+              "&:before": { display: "none" },
+            }}
+          >
+            {!showEditor && !showReplyEditor && !showEditorNote && (
+            <AccordionSummary
+              expandIcon={
+                showEditor || showReplyEditor || showEditorNote ? null : (
+                  <ExpandMoreIcon sx={{ transform: "rotate(180deg)" }} />
+                )
+              }
+              aria-controls="panel2-content"
+              id="panel2-header"
               sx={{
-                position: "relative",
-                background: "transparent",
-                boxShadow: "none",
-                "&:before": { display: "none" },
-              }}
-            >
-              {/* {!showEditor && ( */}
-              <AccordionSummary
-                expandIcon={
-                  showEditor || showReplyEditor || showEditorNote ? null : (
-                    <ExpandMoreIcon sx={{ transform: "rotate(180deg)" }} />
-                  )
-                }
-                aria-controls="panel2-content"
-                id="panel2-header"
-                sx={{
-                  // mx: 1,
+                // mx: 1,
+                
+                backgroundColor:
+                  showEditor || showReplyEditor || showEditorNote
+                    ? "transparent"
+                    : "#f9fafb",
+                border:
+                  showEditor || showReplyEditor || showEditorNote
+                    ? "none"
+                    : "1px solid #d1d5db",
+                borderRadius: "50px",
+                padding: "0px 25px",
+                // width: "100% !important",
+                minHeight: "55px !important",
+                display: "flex",
+                alignItems: "center",
+                cursor: "text !important",
+                "&:hover": {
+                  borderColor:
+                    showEditor || showReplyEditor || showEditorNote
+                      ? "transparent"
+                      : "#9ca3af",
                   backgroundColor:
                     showEditor || showReplyEditor || showEditorNote
                       ? "transparent"
-                      : "#f9fafb",
-                  border:
-                    showEditor || showReplyEditor || showEditorNote
-                      ? "none"
-                      : "1px solid #d1d5db",
-                  borderRadius: "50px",
-                  padding: "4px 25px",
-                  // width: "100% !important",
-                  minHeight: "55px !important",
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "text !important",
-                  "&:hover": {
-                    borderColor:
-                      showEditor || showReplyEditor || showEditorNote
-                        ? "transparent"
-                        : "#9ca3af",
-                    backgroundColor:
-                      showEditor || showReplyEditor || showEditorNote
-                        ? "transparent"
-                        : "#f3f4f6",
-                  },
-                  "& .MuiAccordionSummary-content": {
-                    margin: 0,
+                      : "#f3f4f6",
+                },
+                "& .MuiAccordionSummary-content": {
+                  margin: 0,
+                  borderRadius: "none",
+                },
+              }}
+            >
+           
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: "14px",
+                    color: "#374151",
+                    fontStyle: "italic",
                     borderRadius: "none",
-                  },
-                }}
-              >
-                {!showEditor && !showReplyEditor && !showEditorNote && (
-                  <Typography
-                    component="span"
-                    sx={{
-                      fontSize: "14px",
-                      color: "#374151",
-                      fontStyle: "italic",
-                      borderRadius: "none",
-                    }}
-                  >
-                    Reply....
-                  </Typography>
-                )}
-              </AccordionSummary>
-              {/* // )} */}
+                  }}
+                >
+                  Reply....
+                </Typography>
+         
+            </AccordionSummary>
+                 )}
+            {/* // )} */}
 
-              <AccordionDetails sx={{ p: 0, height: "100%" }}>
-                {/* <AnimatePresence>
+            <AccordionDetails sx={{ p: 0, height: "100%" }}>
+              {/* <AnimatePresence>
               {showEditor && (
                 <motion.div
                   key="editor-container"
@@ -629,16 +703,16 @@ const TicketThreadSection = ({
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="rounded p-0 flex flex-col overflow-hidden w-full h-full"
                 > */}
-                <div
-                  ref={shotcutRef}
-                  style={{
-                    overflow: "hidden",
-                    padding: 0,
-                    maxHeight: "100%",
-                  }}
-                >
-                  {/* Signature indicator */}
-                  {/* {hasSignature(signature) && selectedOptionValue !== "1" && (
+              <div
+                ref={shotcutRef}
+                style={{
+                  overflow: "hidden",
+                  padding: 0,
+                  maxHeight: "100%",
+                }}
+              >
+                {/* Signature indicator */}
+                {/* {hasSignature(signature) && selectedOptionValue !== "1" && (
                 <div className="bg-green-50 border-l-4 border-green-400 p-2 mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-green-600 text-sm font-medium">
@@ -650,176 +724,174 @@ const TicketThreadSection = ({
                   </div>
                 </div>
               )} */}
-                  <StackEditor
-                    initialContent={markdown}
-                    signatureValue={signature}
-                    onChange={handleEditorChange}
-                    key={`editor-${stateChangeKey}-${signatureUpdateKey}`}
-                    isEditorExpended={isEditorExpended}
-                    isExpended={() => setIsEditorExpended(!isEditorExpended)}
-                    onCloseReply={() => onReplyClose(false)}
-                    isValues={value}
+                <StackEditor
+                  initialContent={markdown}
+                  signatureValue={signature}
+                  onChange={handleEditorChange}
+                  key={`editor-${stateChangeKey}-${signatureUpdateKey}`}
+                  isEditorExpended={isEditorExpended}
+                  isExpended={() => setIsEditorExpended(!isEditorExpended)}
+                  onCloseReply={() => onReplyClose(false)}
+                  isValues={value}
+                />
+              </div>
+
+              {showShotcut && (
+                <ShortCutPopover
+                  open={showShotcut}
+                  close={() => setShowShotcut(false)}
+                  anchorEl={shotcutRef}
+                  width={600}
+                >
+                  <ShotCutContent
+                    onChange={(e: any) => {
+                      setMarkdown((prev) => prev?.replace(/\/$/, e));
+                    }}
+                    onClose={() => setShowShotcut(false)}
+                    stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
                   />
-                </div>
+                </ShortCutPopover>
+              )}
 
-                {showShotcut && (
-                  <ShortCutPopover
-                    open={showShotcut}
-                    close={() => setShowShotcut(false)}
-                    anchorEl={shotcutRef}
-                    width={600}
-                  >
-                    <ShotCutContent
-                      onChange={(e: any) => {
-                        setMarkdown((prev) => prev?.replace(/\/$/, e));
+              <div className="w-full flex items-center justify-between gap-2 mt-2">
+                <div className="flex items-center gap-2">
+                  <FormControl fullWidth>
+                    <Select
+                      value={selectedOptionValue}
+                      onChange={(e) => {
+                        handleSignatureChange(e.target.value);
                       }}
-                      onClose={() => setShowShotcut(false)}
-                      stateChangeKey={() =>
-                        setStateChangeKey((prev) => prev + 1)
-                      }
-                    />
-                  </ShortCutPopover>
-                )}
-
-                <div className="w-full flex items-center justify-between gap-2 mt-2">
-                  <div className="flex items-center gap-2">
-                    <FormControl fullWidth>
-                      <Select
-                        value={selectedOptionValue}
-                        onChange={(e) => {
-                          handleSignatureChange(e.target.value);
-                        }}
-                        size="small"
-                        sx={{
-                          width: 300,
-                          "& fieldset": { border: "none" },
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none",
-                          },
-                        }}
-                      >
-                        {signatureValues.map((item: any) => (
-                          <MenuItem
-                            key={item?.id}
-                            value={item?.value}
-                            sx={{ width: 300 }}
-                          >
-                            <div className="flex items-center justify-between w-full">
-                              <span>{item?.name}</span>
-                              {hasSignature(markdown) &&
-                                item.value === selectedOptionValue &&
-                                item.value !== "1" && (
-                                  <Chip
-                                    label="Active"
-                                    size="small"
-                                    color="success"
-                                    sx={{ fontSize: "0.7rem", height: "20px" }}
-                                  />
-                                )}
-                            </div>
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-
-                    <div className="flex items-center gap-2">
-                      {images?.length > 0 && (
-                        <CustomToolTip
-                          title={
-                            <ImageViewComponent
-                              images={images}
-                              onRemove={handleRemoveImage}
-                            />
-                          }
-                          open={showImagesModal}
-                          close={() => setShowImagesModal(false)}
-                          placement={"top"}
+                      size="small"
+                      sx={{
+                        width: 300,
+                        "& fieldset": { border: "none" },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        },
+                      }}
+                    >
+                      {signatureValues.map((item: any) => (
+                        <MenuItem
+                          key={item?.id}
+                          value={item?.value}
+                          sx={{ width: 300 }}
                         >
-                          <span
-                            className="bg-[#0891b2] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
-                            onClick={() => setShowImagesModal(true)}
-                          >
-                            {images.length}
-                          </span>
-                        </CustomToolTip>
-                      )}
-                      <Divider orientation="vertical" flexItem />
+                          <div className="flex items-center justify-between w-full">
+                            <span>{item?.name}</span>
+                            {hasSignature(markdown) &&
+                              item.value === selectedOptionValue &&
+                              item.value !== "1" && (
+                                <Chip
+                                  label="Active"
+                                  size="small"
+                                  color="success"
+                                  sx={{ fontSize: "0.7rem", height: "20px" }}
+                                />
+                              )}
+                          </div>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <div className="flex items-center gap-2">
+                    {images?.length > 0 && (
                       <CustomToolTip
-                        title={"Attach file < 10MB"}
-                        placement={"top-start"}
-                      >
-                        <div className="flex items-center gap-1">
-                          {" "}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleFileChange}
+                        title={
+                          <ImageViewComponent
+                            images={images}
+                            onRemove={handleRemoveImage}
                           />
-                          <IconButton size="small" onClick={handleIconClick}>
-                            <AttachFileIcon
-                              fontSize="small"
-                              sx={{ transform: "rotate(45deg)" }}
-                            />
-                          </IconButton>
-                        </div>
-                      </CustomToolTip>
-                      <Divider orientation="vertical" flexItem />
-                      <CustomToolTip title={"Canned Responses"}>
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            setSuggest(false);
-                            setCanned(!canned);
-                          }}
+                        }
+                        open={showImagesModal}
+                        close={() => setShowImagesModal(false)}
+                        placement={"top"}
+                      >
+                        <span
+                          className="bg-[#0891b2] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
+                          onClick={() => setShowImagesModal(true)}
                         >
-                          <PublishedWithChangesIcon fontSize="small" />
-                        </IconButton>
+                          {images.length}
+                        </span>
                       </CustomToolTip>
-                      <Divider orientation="vertical" flexItem />
-                      <CustomToolTip title={"Suggested Solutions"}>
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            setCanned(false);
-                            setSuggest(!suggest);
-                          }}
-                        >
-                          <MenuBookIcon fontSize="small" />
+                    )}
+                    <Divider orientation="vertical" flexItem />
+                    <CustomToolTip
+                      title={"Attach file < 10MB"}
+                      placement={"top-start"}
+                    >
+                      <div className="flex items-center gap-1">
+                        {" "}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          ref={fileInputRef}
+                          style={{ display: "none" }}
+                          onChange={handleFileChange}
+                        />
+                        <IconButton size="small" onClick={handleIconClick}>
+                          <AttachFileIcon
+                            fontSize="small"
+                            sx={{ transform: "rotate(45deg)" }}
+                          />
                         </IconButton>
-                      </CustomToolTip>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
-                      onClick={() => {
-                        setMarkdown("");
-                        setSignature("");
-                        setSelectedOptionValue("1"); // Reset to "None"
-                        setStateChangeKey((prev) => prev + 1);
-                        setSignatureUpdateKey(0); // Reset signature update key
-                      }}
-                    >
-                      Reset
-                    </button>
-                    <button
-                      className="bg-[#0891b2] text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-[#0ca5c9]"
-                      onClick={handleSave}
-                    >
-                      Save
-                    </button>
+                      </div>
+                    </CustomToolTip>
+                    <Divider orientation="vertical" flexItem />
+                    <CustomToolTip title={"Canned Responses"}>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setSuggest(false);
+                          setCanned(!canned);
+                        }}
+                      >
+                        <PublishedWithChangesIcon fontSize="small" />
+                      </IconButton>
+                    </CustomToolTip>
+                    <Divider orientation="vertical" flexItem />
+                    <CustomToolTip title={"Suggested Solutions"}>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setCanned(false);
+                          setSuggest(!suggest);
+                        }}
+                      >
+                        <MenuBookIcon fontSize="small" />
+                      </IconButton>
+                    </CustomToolTip>
                   </div>
                 </div>
-                {/* </motion.div> */}
-                {/* )} */}
-                {/* </AnimatePresence> */}
-              </AccordionDetails>
-            </Accordion>
-          </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
+                    onClick={() => {
+                      setMarkdown("");
+                      setSignature("");
+                      setSelectedOptionValue("1"); // Reset to "None"
+                      setStateChangeKey((prev) => prev + 1);
+                      setSignatureUpdateKey(0); // Reset signature update key
+                    }}
+                  >
+                    Reset
+                  </button>
+                  <button
+                    className="bg-[#0891b2] text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-[#0ca5c9]"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+              {/* </motion.div> */}
+              {/* )} */}
+              {/* </AnimatePresence> */}
+            </AccordionDetails>
+          </Accordion>
         </div>
+          
       </div>
       {/* Reply bar below thread */}
       {/* <div className="flex items-center gap-2 mt-4 mb-2">

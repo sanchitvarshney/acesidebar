@@ -97,10 +97,11 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
 
   if (!ticket) return null;
   return (
-    <Box sx={{ display: "flex", position: "relative"  }}>
+    <Box sx={{ display: "flex", position: "relative", overflow:"hidden", height: "calc(100vh - 112px)" }}>
       <Sidebar open={false} handleDrawerToggle={() => {}} />
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <TicketDetailHeader
+      <Box id="ticket-header" sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div className="sticky top-0 z-[99]">
+          <TicketDetailHeader
           ticket={ticket.header}
           onBack={onBack}
           onForward={handleOpenForward}
@@ -108,8 +109,9 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           onDelete={handleDelete}
           onNote={handleAddNote}
         />
+      </div>
         <div className="w-full  grid grid-cols-[3fr_1fr] ">
-          <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
+          <div style={{ width: "100%", height: "100%", overflow: "auto" }} id="ticket-thread">
             <TicketThreadSection
               thread={ticket.response}
               header={ticket.header}
@@ -122,7 +124,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               value={value}
             />
           </div>
-          <div style={{ width: "100%", height: "100%", overflow: "auto" }}>
+          <div style={{ width: "100%", height: "100%", overflow: "auto" }} id="ticket-properties">
             <TicketPropertiesSidebar ticket={ticket.header} />
 
             {/* Forward Panel positioned inside the right column */}
