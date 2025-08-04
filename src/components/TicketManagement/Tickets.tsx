@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
-import { Avatar } from "@mui/material";
+import { Avatar, IconButton } from "@mui/material";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import {
   useGetTicketListQuery,
   useGetPriorityListQuery,
@@ -28,6 +30,7 @@ import { useGetTicketDetailStaffViewQuery } from "../../services/ticketDetailAut
 import DeleteIcon from "@mui/icons-material/Delete";
 import TicketDetailSkeleton from "../skeleton/TicketDetailSkeleton";
 import { useParams, useNavigate } from "react-router-dom";
+import UserHoverPopup from "../popup/UserHoverPopup";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -73,6 +76,10 @@ const Tickets: React.FC = () => {
   const [sortingPopoverOpen, setSortingPopoverOpen] = useState(false);
   const [openTicketNumber, setOpenTicketNumber] = useState<string | null>(null);
   const [replyText, setReplyText] = useState<string>("");
+  const [userPopupAnchorEl, setUserPopupAnchorEl] = useState<HTMLElement | null>(null);
+  const [userPopupUser, setUserPopupUser] = useState<any>(null);
+  const userPopupTimer = React.useRef<NodeJS.Timeout | null>(null);
+  const [copiedTicketNumber, setCopiedTicketNumber] = useState<string | null>(null);
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -257,6 +264,45 @@ const Tickets: React.FC = () => {
     }, 200);
   };
 
+  // Handle user popup hover with delay
+  const handleUserHover = (event: React.MouseEvent<HTMLElement>, user: any) => {
+    if (userPopupTimer.current) {
+      clearTimeout(userPopupTimer.current);
+      userPopupTimer.current = null;
+    }
+    setUserPopupAnchorEl(event.currentTarget);
+    setUserPopupUser(user);
+  };
+
+  const handleUserLeave = () => {
+    userPopupTimer.current = setTimeout(() => {
+      setUserPopupAnchorEl(null);
+      setUserPopupUser(null);
+    }, 500); // 0.5 second delay
+  };
+
+  const handlePopupEnter = () => {
+    if (userPopupTimer.current) {
+      clearTimeout(userPopupTimer.current);
+      userPopupTimer.current = null;
+    }
+  };
+
+  const handlePopupLeave = () => {
+    setUserPopupAnchorEl(null);
+    setUserPopupUser(null);
+  };
+
+  const handleCopyTicketNumber = async (ticketNumber: string) => {
+    try {
+      await navigator.clipboard.writeText(ticketNumber);
+      setCopiedTicketNumber(ticketNumber);
+      setTimeout(() => setCopiedTicketNumber(null), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy ticket number:', err);
+    }
+  };
+
   const { id: routeTicketId } = useParams();
   const navigate = useNavigate();
 
@@ -278,6 +324,15 @@ const Tickets: React.FC = () => {
       setOpenTicketNumber(routeTicketId);
     }
   }, [routeTicketId]);
+
+  // Cleanup timer on unmount
+  React.useEffect(() => {
+    return () => {
+      if (userPopupTimer.current) {
+        clearTimeout(userPopupTimer.current);
+      }
+    };
+  }, []);
 
   const handleReplyTextChange = (text: string) => {
     setReplyText(text);
@@ -391,8 +446,28 @@ const Tickets: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
             <span className="flex items-center gap-1">
-              <span className="text-gray-800 text-base">
-                #{ticket?.ticketNumber} |{" "}
+              <span className="flex items-center gap-1">
+                <span className="text-xs text-gray-800 text-base">
+                  #{ticket?.ticketNumber}
+                </span>
+                <IconButton
+                  size="small"
+                  onClick={() => handleCopyTicketNumber(ticket?.ticketNumber)}
+                  sx={{
+                    p: 0.5,
+                    color: copiedTicketNumber === ticket?.ticketNumber ? "#4caf50" : "#666",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.04)",
+                    },
+                  }}
+                >
+                  {copiedTicketNumber === ticket?.ticketNumber ? (
+                    <CheckCircleOutlineIcon sx={{ fontSize: 14 }} />
+                  ) : (
+                    <ContentCopyIcon sx={{ fontSize: 14 }} />
+                  )}
+                </IconButton>
+                <span className="text-xs text-gray-800"></span>•
               </span>
               {/* <UserPopover
                 anchorEl={userPopoverAnchorEl}
@@ -422,21 +497,14 @@ const Tickets: React.FC = () => {
                   </span>
                 )}
               /> */}
-              <span
-                className="font-medium max-w-[120px] truncate overflow-hidden whitespace-nowrap cursor-pointer hover:underline"
-                title={ticket.fromUser?.name}
-                // onMouseEnter={(e) => {
-                //   onMouseEnter(e);
-                //   handleUserPopoverOpen(e, ticket.fromUser);
-                // }}
-                // onMouseLeave={(e) => {
-                //   onMouseLeave(e);
-                //   handleUserPopoverLeave();
-                // }}
+                                            <span
+                className="text-xs max-w-[120px] truncate overflow-hidden whitespace-nowrap cursor-pointer hover:underline"
+                onMouseEnter={(e) => handleUserHover(e, ticket.fromUser)}
+                onMouseLeave={handleUserLeave}
               >
                 {ticket.fromUser?.name}
               </span>
-              <span className="text-xs">
+              <span className="text-xs text-gray-500">
                 • Created: {ticket?.createdDt?.timestamp}
               </span>
               {ticket.updatedAt && (
@@ -693,6 +761,16 @@ const Tickets: React.FC = () => {
           }}
         />
       )}
+      
+      {/* User Hover Popup */}
+      <UserHoverPopup
+        open={Boolean(userPopupAnchorEl)}
+        anchorEl={userPopupAnchorEl}
+        onClose={handlePopupLeave}
+        onMouseEnter={handlePopupEnter}
+        onMouseLeave={handlePopupLeave}
+        user={userPopupUser}
+      />
     </>
   );
 };
