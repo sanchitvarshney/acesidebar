@@ -2,6 +2,7 @@ import { Button, TextField } from "@mui/material";
 import React from "react";
 import StyledTextField from "../../reusable/AddNotes";
 import NotesItem from "../../reusable/NotesItem";
+import { set } from "react-hook-form";
 
 const NotesTab = () => {
   const [isNotes, setIsNotes] = React.useState(false);
@@ -45,6 +46,7 @@ const NotesTab = () => {
   };
 
   const handleEdit = (id: number) => {
+    setIsNotes(false);
     const noteToEdit = noteList.find((item) => item.id === id);
     if (noteToEdit) {
       setNote(noteToEdit.note);
@@ -63,7 +65,7 @@ const NotesTab = () => {
 
   return (
     <div className="bg-white rounded border border-gray-200 p-3 mb-4">
-      {isNotes && (
+      {(isNotes && !isEdit) && (
         <StyledTextField
           placeholder="Write your note here"
           inputText={handleInputText}

@@ -230,35 +230,38 @@ const ThreadItem = ({
       </ClickAwayListener>
     </Paper>
   );
-  return (
-    <div className="flex  border p-2 overflow-auto gap-3 mb-6">
-      {/* Avatar */}
+  // Check if this is the current user's message or someone else's
+  const isCurrentUser = 
+    item.repliedBy?.name === "Current User" || item.repliedBy?.name === "You"; // Adjust this condition based on your user identification logic
 
+  return (
+    <div className="flex border p-2 overflow-auto gap-3 mb-6">
       {/* Email content */}
       <div className="flex-1">
         <div
-          className="rounded   flex"
-          // onClick={() => setOpen((o) => !o)}
+          className={`rounded flex ${
+            isCurrentUser ? " flex-row-reverse" : "flex-row "
+          }`}
         >
-          <div className=" w-20 relative flex   px-4 py-2">
+          <div className="w-20 relative flex px-4 py-2">
             <div
               style={{
                 position: "absolute",
                 top: "15px",
-                right: `0px`,
+                [isCurrentUser ? "left" : "right"]: `0px`,
                 width: 0,
                 height: 0,
                 borderTop: "10px solid transparent",
                 borderBottom: "10px solid transparent",
-                borderRight: "12px solid #ebebebff ",
-                // zIndex: 5,
+                [isCurrentUser ? "borderLeft" : "borderRight"]:
+                  "12px solid #ebebebff",
               }}
             />
             {item.repliedBy?.avatarUrl ? (
               <img
                 src={item.repliedBy.avatarUrl}
                 alt={item.repliedBy.name}
-                className="w-20 h-20 rounded-full object-cover"
+                className="w-10 h-10 rounded-full object-cover"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-lg font-bold text-green-700">
@@ -266,8 +269,8 @@ const ThreadItem = ({
               </div>
             )}
           </div>
-          <div className="w-full flex flex-col  items-center justify-between   bg-[#ebebebff]">
-            <div className="flex items-center justify-between w-full px-4  py-2">
+          <div className="w-full flex flex-col items-center justify-between bg-[#ebebebff]">
+            <div className="flex items-center justify-between w-full px-4 py-2">
               <div className="w-full flex flex-col">
                 <div className="flex items-center justify-between w-full">
                   <span className="font-semibold text-[#0891b2]">
@@ -280,7 +283,6 @@ const ThreadItem = ({
                     <CustomToolTip
                       title={renderReplyOption}
                       open={open}
-                      // close={() => setOpen(false)}
                       placement={"bottom-end"}
                     >
                       <IconButton
@@ -294,35 +296,13 @@ const ThreadItem = ({
                   </div>
                 </div>
 
-                <span className="w-4/5 text-xs text-gray-500 ">
+                <span className="w-4/5 text-xs text-gray-500">
                   added a private note
                 </span>
               </div>
-              {/* <div className="w-64 flex flex-row justify-start items-start gap-2  bg-red-300 "> */}
-              {/* <div className="hidden group-hover:flex items-center bg-white rounded-full shadow border ml-2 overflow-hidden">
-                <button
-                  className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none"
-                  onClick={handleReplyClick}
-                >
-                 
-                </button>
-                <div className="w-px h-5 bg-gray-200" />
-                <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
-                 
-                </button>
-                <div className="w-px h-5 bg-gray-200" />
-                <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none">
-                  <CommentIcon sx={{ fontSize: 18 }} />
-                </button>
-                <div className="w-px h-5 bg-gray-200" />
-                <button className="px-2 py-1.5 hover:bg-gray-100 focus:outline-none text-red-600">
-                
-                </button>
-              </div> */}
-              {/* </div> */}
             </div>
             <div className="flex items-center justify-between w-full py-3 px-4 bg-white border-t border-gray-200">
-              <span></span>
+              <span className="text-xs text-gray-500">Rate this response</span>
               <span className="flex gap-1">
                 {Array.from({ length: 5 }).map((_, idx) => {
                   const isActive =
@@ -332,24 +312,33 @@ const ThreadItem = ({
                     <StarIcon
                       key={idx}
                       sx={{
-                        color: isActive ? "gold" : "lightgray",
+                        color: isActive ? "#fbbf24" : "#d1d5db",
                         cursor: "pointer",
+                        fontSize: "18px",
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          color: "#fbbf24",
+                          transform: "scale(1.1)",
+                        },
                       }}
                       onMouseEnter={() => setHovered(idx)}
                       onMouseLeave={() => setHovered(null)}
-                      onClick={() => setSelected(idx + 1)}
+                      onClick={() => {
+                        setSelected(idx + 1);
+                        // You can add API call here to save the rating
+                        console.log(`Rated ${idx + 1} stars`);
+                      }}
                     />
                   );
                 })}
+                {selected > 0 && (
+                  <span className="ml-2 text-xs text-gray-600">
+                    {selected} star{selected > 1 ? "s" : ""}
+                  </span>
+                )}
               </span>
             </div>
           </div>
-          {/* {open && (
-            <div
-              className="text-sm text-red-600 whitespace-pre-line mb-2"
-              dangerouslySetInnerHTML={{ __html: item.message }}
-            />
-          )} */}
         </div>
       </div>
     </div>

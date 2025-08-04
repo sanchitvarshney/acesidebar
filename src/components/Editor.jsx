@@ -221,7 +221,6 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         </div>
 
         <div className="space-x-2 flex items-center">
-       
           <button
             className="ql-fullscreen"
             aria-label="Full Screen"
@@ -455,14 +454,17 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   );
 
   const editorHeight = isFullscreen
-    ? "100vh"
-    : isEditorExpended
-    ? "450px"
-    : showCc || showBcc
-    ? "calc(100vh - 570px)"
-    : currentSignature
-    ? "calc(100vh - 520px)"
-    : "calc(100vh - 358px)";
+  ? "100vh"
+  : isEditorExpended
+  ? "450px"
+  : (showCc || showBcc) && currentSignature
+  ? "calc(100vh - 580px)"
+  : showCc || showBcc
+  ? "calc(100vh - 405px)"
+  : currentSignature
+  ? "calc(100vh - 530px)"
+  : "calc(100vh - 358px)";
+
 
   return (
     <div className={isFullscreen ? "editor-fullscreen " : " w-full h-full"}>
@@ -537,7 +539,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
           </div>
         )}
       </div>
-{/* <div className="flex flex-col h-full w-full overflow-y-scroll"> */}
+      {/* <div className="flex flex-col h-full w-full overflow-y-scroll"> */}
 
       {/* Main Editor for Message */}
       <div className="mb-0">
@@ -560,15 +562,14 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
           ref={signatureEditorRef}
           value={currentSignature}
           readOnly={true}
-          style={{ height: "175px",borderTop:"none" }}
+          style={{ height: "175px", borderTop: "none" }}
           placeholder="No signature selected"
           showHeader={false}
-
         />
       )}
     </div>
-      
-// </div>
+
+    // </div>
   );
 };
 

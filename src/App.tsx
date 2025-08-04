@@ -8,6 +8,8 @@ import { ToastContext } from "./contextApi/ToastContext";
 import { AuthProvider } from "./contextApi/AuthContext";
 import theme from "./theme";
 import "./font.css"
+import CustomTextInputDemo from "./components/common/CustomTextInputDemo";
+
 
 
 
@@ -24,6 +26,7 @@ function App() {
        </ToastContext>
        </AuthProvider>
     </ThemeProvider>
+  
   );
 }
 
