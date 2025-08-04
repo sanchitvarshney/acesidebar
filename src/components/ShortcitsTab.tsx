@@ -20,7 +20,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { AppDispatch, RootState } from "../reduxStore/Store";
 import { useDispatch, useSelector } from "react-redux";
 import { setShotcuts } from "../reduxStore/Slices/shotcutSlices";
-import { set } from "react-hook-form";
+import emptyimg from "../assets/image/overview-empty-state.svg"
 import LoadingCheck from "./reusable/LoadingCheck";
 
 const elementValue = [
@@ -170,7 +170,7 @@ const ShortcutsTab = () => {
                       borderColor: "#ccc", // border color on hover
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#000", // border color on focus
+                      borderColor: "#2eacb3", // border color on focus
                       // backgroundColor: "#fff",
                     },
                   },
@@ -208,7 +208,7 @@ const ShortcutsTab = () => {
                     borderColor: "#ccc", // border color on hover
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "#000", // border color on focus
+                    borderColor: "#2eacb3", // border color on focus
                     // backgroundColor: "#fff",
                   },
                 },
@@ -337,7 +337,7 @@ const ShortcutsTab = () => {
             ) : (
               <div className="flex flex-col items-center mt-4">
                 <img
-                  src={"/image/empty.svg"}
+                  src={emptyimg}
                   alt="notes"
                   className="mx-auto w-40 h-40"
                 />

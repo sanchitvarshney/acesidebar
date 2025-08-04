@@ -10,6 +10,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import emptyimg from "../../assets/image/overview-empty-state.svg"
 import {
   FormControl,
   Select,
@@ -47,6 +48,7 @@ import { Add } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../reduxStore/Store";
 import ImageViewComponent from "../ImageViewComponent";
+import DynamicallyThread from "../DynamicallyThread";
 
 const signatureValues: any = [
   {
@@ -235,7 +237,7 @@ const ThreadItem = ({
     item.repliedBy?.name === "Current User" || item.repliedBy?.name === "You"; // Adjust this condition based on your user identification logic
 
   return (
-    <div className="flex p-2 overflow-auto gap-3 mb-6">
+    <div className="flex p-2 overflow-auto  mb-2">
       {/* Email content */}
       <div className="flex-1">
         <div
@@ -349,80 +351,12 @@ const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
   <div className="">
     {thread && thread.length > 0 ? (
       thread.map((item: any, idx: number) => (
-        <>
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />{" "}
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-          />
-        </>
+        <ThreadItem
+          key={idx}
+          item={item}
+          onReplyClick={onReplyClick}
+          onForward={onForward}
+        />
       ))
     ) : (
       <div className="text-gray-400">No thread items.</div>
@@ -616,10 +550,29 @@ const TicketThreadSection = ({
         <div className="sticky top-0 z-[99]">
           <TicketSubjectBar header={header} />
         </div>
-        <div className="flex flex-col gap-0  h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
+        <div className="flex flex-col gap-0 w-full h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
           <ThreadList thread={thread} onForward={onForward} />
+            {/* <Divider
+            orientation="vertical"
+            sx={{
+              height:25,
+              borderRight: "1px dashed rgba(0,0,0,0.3)", // dashed style
+              mx: "auto", // spacing
+            }}
+          />
+          <div className="w-4/5  mx-auto px-2 py-3 flex justify-center items-center border-dashed">
+            <DynamicallyThread />
           </div>
-          <div className="rounded   p-1 w-[75%]  bg-white  flex z-[999] absolute bottom-0 ">
+          <Divider
+            orientation="vertical"
+            sx={{
+              height:25,
+              borderRight: "1px dashed rgba(0,0,0,0.3)", // dashed style
+              mx: "auto", // spacing
+            }}
+          /> */}
+        </div>
+        <div className="rounded   p-1 w-[75%]  bg-white  flex z-[999] absolute bottom-0 ">
           <Accordion
             elevation={0}
             expanded={showEditor || showReplyEditor || showEditorNote}
@@ -633,49 +586,48 @@ const TicketThreadSection = ({
             }}
           >
             {!showEditor && !showReplyEditor && !showEditorNote && (
-            <AccordionSummary
-              expandIcon={
-                showEditor || showReplyEditor || showEditorNote ? null : (
-                  <ExpandMoreIcon sx={{ transform: "rotate(180deg)" }} />
-                )
-              }
-              aria-controls="panel2-content"
-              id="panel2-header"
-              sx={{
-                // mx: 1,
-                
-                backgroundColor:
-                  showEditor || showReplyEditor || showEditorNote
-                    ? "transparent"
-                    : "#f9fafb",
-                border:
-                  showEditor || showReplyEditor || showEditorNote
-                    ? "none"
-                    : "1px solid #d1d5db",
-                borderRadius: "50px",
-                padding: "0px 25px",
-                // width: "100% !important",
-                minHeight: "55px !important",
-                display: "flex",
-                alignItems: "center",
-                cursor: "text !important",
-                "&:hover": {
-                  borderColor:
-                    showEditor || showReplyEditor || showEditorNote
-                      ? "transparent"
-                      : "#9ca3af",
+              <AccordionSummary
+                expandIcon={
+                  showEditor || showReplyEditor || showEditorNote ? null : (
+                    <ExpandMoreIcon sx={{ transform: "rotate(180deg)" }} />
+                  )
+                }
+                aria-controls="panel2-content"
+                id="panel2-header"
+                sx={{
+                  // mx: 1,
+
                   backgroundColor:
                     showEditor || showReplyEditor || showEditorNote
                       ? "transparent"
-                      : "#f3f4f6",
-                },
-                "& .MuiAccordionSummary-content": {
-                  margin: 0,
-                  borderRadius: "none",
-                },
-              }}
-            >
-           
+                      : "#f9fafb",
+                  border:
+                    showEditor || showReplyEditor || showEditorNote
+                      ? "none"
+                      : "1px solid #d1d5db",
+                  borderRadius: "50px",
+                  padding: "0px 25px",
+                  // width: "100% !important",
+                  minHeight: "55px !important",
+                  display: "flex",
+                  alignItems: "center",
+                  cursor: "text !important",
+                  "&:hover": {
+                    borderColor:
+                      showEditor || showReplyEditor || showEditorNote
+                        ? "transparent"
+                        : "#9ca3af",
+                    backgroundColor:
+                      showEditor || showReplyEditor || showEditorNote
+                        ? "transparent"
+                        : "#f3f4f6",
+                  },
+                  "& .MuiAccordionSummary-content": {
+                    margin: 0,
+                    borderRadius: "none",
+                  },
+                }}
+              >
                 <Typography
                   component="span"
                   sx={{
@@ -687,9 +639,8 @@ const TicketThreadSection = ({
                 >
                   Reply....
                 </Typography>
-         
-            </AccordionSummary>
-                 )}
+              </AccordionSummary>
+            )}
             {/* // )} */}
 
             <AccordionDetails sx={{ p: 0, height: "100%" }}>
@@ -891,7 +842,6 @@ const TicketThreadSection = ({
             </AccordionDetails>
           </Accordion>
         </div>
-          
       </div>
       {/* Reply bar below thread */}
       {/* <div className="flex items-center gap-2 mt-4 mb-2">
@@ -1051,7 +1001,7 @@ const TicketThreadSection = ({
           ) : (
             <div className="flex flex-col items-center mt-4">
               <img
-                src={"/image/empty.svg"}
+                src={ emptyimg}
                 alt="notes"
                 className="mx-auto w-40 h-40"
               />

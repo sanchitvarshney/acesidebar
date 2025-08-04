@@ -2,7 +2,7 @@ import { Button, TextField } from "@mui/material";
 import React from "react";
 import StyledTextField from "../../reusable/AddNotes";
 import NotesItem from "../../reusable/NotesItem";
-import { set } from "react-hook-form";
+import emptyimg from "../../assets/image/overview-empty-state.svg"
 
 const NotesTab = () => {
   const [isNotes, setIsNotes] = React.useState(false);
@@ -106,7 +106,7 @@ const NotesTab = () => {
         !isNotes && (
           <div className="flex flex-col items-center mt-4">
             <img
-              src={"/image/empty.svg"}
+              src={emptyimg}
               alt="notes"
               className="mx-auto w-40 h-30"
             />

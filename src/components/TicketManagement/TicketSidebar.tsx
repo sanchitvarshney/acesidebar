@@ -466,7 +466,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           {activeFilters.length === 0 ? (
             <Box className="flex flex-col items-center justify-center py-12">
               <img
-                src="/image/empty.svg"
+                src="/image/overview-empty-state.svg"
                 alt="No filters"
                 style={{ width: 120, height: 120, marginBottom: 16 }}
               />

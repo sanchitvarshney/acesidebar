@@ -21,17 +21,20 @@ import { Chip, MenuItem } from "@mui/material";
 import ShortcutsTab from "../ShortcitsTab";
 import CloseIcon from "@mui/icons-material/Close";
 import { Height } from "@mui/icons-material";
+import emptyimg from "../../assets/image/overview-empty-state.svg"
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
-  <div className="p-4">
+  <div className="p-4 flex flex-col justify-center items-center w-full h-full">
+      <img src={emptyimg} alt="No Knowledge" className="mb-4" />
     <div className="font-semibold text-base mb-2">Knowledge Base</div>
     <div className="text-xs text-gray-500">No articles found</div>
   </div>
 );
 
 const HistoryTab = () => (
-  <div className="p-4">
+  <div className="p-4 flex flex-col justify-center items-center w-full h-full">
+    <img src={emptyimg} alt="No History" className="mb-4" />
     <div className="font-semibold text-base mb-2">History</div>
     <div className="text-xs text-gray-500">No history found</div>
   </div>
@@ -228,7 +231,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
       </div>
       {/* Main content below top tabs */}
       <div 
-        className="flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto will-change-transform"
         style={{ 
           minHeight: 0,
           maxHeight: "calc(100% - 60px)" // Account for tab bar height
