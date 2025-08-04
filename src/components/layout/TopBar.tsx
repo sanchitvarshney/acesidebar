@@ -18,13 +18,19 @@ import {
   Settings,
   Help,
   ExitToApp,
+  HourglassEmpty as HourglassEmptyIcon,
 } from "@mui/icons-material";
 
 import NotificationDropDown from "../notificationmodal/NotificationDropDown";
 import CustomPopover from "../../reusable/CustomPopover";
+import AccountPopup from "../popup/AccountPopup";
+import NotificationPopup from "../popup/NotificationPopup";
+import TasksPopup from "../popup/TasksPopup";
 import { useNavigate } from "react-router-dom";
 import SearchDropdownPanel from "../common/SearchDropdownPanel";
 import { useTicketSearchMutation } from "../../services/ticketAuth";
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -39,14 +45,58 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [accountPopupOpen, setAccountPopupOpen] = useState(false);
+  const [tasksPopupOpen, setTasksPopupOpen] = useState(false);
   const notificationRef = React.useRef(null);
+  const accountButtonRef = React.useRef<HTMLButtonElement>(null);
+  const tasksButtonRef = React.useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
+
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleAccountButtonClick = () => {
+    setAccountPopupOpen(!accountPopupOpen);
+    // Close other popups if account popup is being opened
+    if (!accountPopupOpen) {
+      setNotificationOpen(false);
+      setTasksPopupOpen(false);
+    }
+  };
+
+  const handleAccountPopupClose = () => {
+    setAccountPopupOpen(false);
+  };
+
+  const handleNotificationButtonClick = () => {
+    setNotificationOpen(!notificationOpen);
+    // Close other popups if notification popup is being opened
+    if (!notificationOpen) {
+      setAccountPopupOpen(false);
+      setTasksPopupOpen(false);
+    }
+  };
+
+  const handleNotificationPopupClose = () => {
+    setNotificationOpen(false);
+  };
+
+  const handleTasksButtonClick = () => {
+    setTasksPopupOpen(!tasksPopupOpen);
+    // Close other popups if tasks popup is being opened
+    if (!tasksPopupOpen) {
+      setAccountPopupOpen(false);
+      setNotificationOpen(false);
+    }
+  };
+
+  const handleTasksPopupClose = () => {
+    setTasksPopupOpen(false);
   };
 
   const handleLogout = () => {
@@ -203,10 +253,10 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           <div
             ref={dropdownRef}
             className={` transition-all duration-200 ml-30 ${
-              searchExpanded ? "w-[480px]" : "w-[340px]"
+              searchExpanded ? "w-[500px]" : "w-[380px]"
             } relative`}
           >
-            <div className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
+            <div className="flex items-center w-full bg-[#f5f5f5] border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
               <SearchIcon className="text-gray-500 mr-3" />
               <input
                 ref={searchInputRef}
@@ -239,43 +289,70 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton
-            onClick={() => setNotificationOpen(true)}
             size="large"
-            aria-label="show 17 new notifications"
-            sx={{color: "#3f4346"}}
+            sx={{color: "#3f4346"  , mr: 2}}
+          >
+            <DarkModeIcon />
+          </IconButton>
+          
+          <IconButton
+            ref={notificationRef}
+            onClick={handleNotificationButtonClick}
+            size="large"
+            aria-label="show notifications"
+            sx={{color: "#3f4346" , mr: 2}}
           >
             <Badge badgeContent={17} color="error">
-              <NotificationsIcon ref={notificationRef} />
+              <NotificationsIcon />
             </Badge>
           </IconButton>
 
           <IconButton
+            ref={tasksButtonRef}
+            onClick={handleTasksButtonClick}
+            size="large"
+            aria-label="show tasks"
+            sx={{color: "#3f4346" , mr: 2}}
+          >
+            <HourglassEmptyIcon />
+          </IconButton>
+
+          <IconButton
+            ref={accountButtonRef}
             size="large"
             edge="end"
             aria-label="account of current user"
             aria-controls={menuId}
             aria-haspopup="true"
-            onClick={handleProfileMenuOpen}
-            sx={{color: "#3f4346"}}
+            onClick={handleAccountButtonClick}
+            sx={{color: "#3f4346" , mr: 2}}
           >
             <AccountCircle />
           </IconButton>
         </Box>
       </Toolbar>
       {renderMenu}
-      {notificationOpen && (
-        <CustomPopover
-          open={notificationOpen}
-          close={() => setNotificationOpen(false)}
-          //@ts-ignore
-          anchorEl={notificationRef}
-          width={400}
-          height={360}
-          isCone={true}
-        >
-          <NotificationDropDown />
-        </CustomPopover>
-      )}
+      
+      {/* Notification Popup */}
+      <NotificationPopup
+        open={notificationOpen}
+        onClose={handleNotificationPopupClose}
+        anchorEl={notificationRef.current}
+      />
+      
+      {/* Account Popup */}
+      <AccountPopup
+        open={accountPopupOpen}
+        onClose={handleAccountPopupClose}
+        anchorEl={accountButtonRef.current}
+      />
+      
+      {/* Tasks Popup */}
+      <TasksPopup
+        open={tasksPopupOpen}
+        onClose={handleTasksPopupClose}
+        anchorEl={tasksButtonRef.current}
+      />
     </AppBar>
   );
 };
