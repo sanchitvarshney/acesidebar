@@ -322,7 +322,7 @@ const Tickets: React.FC = () => {
   key={ticket?.ticketNumber}
   className="relative bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-2 shadow-sm transition-shadow
     hover:shadow-[inset_1px_0_0_rgb(218,220,224),inset_-1px_0_0_rgb(218,220,224),0_1px_2px_0_rgba(60,64,67,0.3),0_1px_3px_1px_rgba(60,64,67,0.15)]
-    before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:bg-[#bad0ff] before:rounded-l"
+    before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:bg-[#1a73e8] before:rounded-l"
 >
         {/* Left: Checkbox, Avatar, Sentiment */}
         <div className="flex items-center mr-4 min-w-[60px]">

@@ -6,12 +6,15 @@ import {
   TextField,
   Typography,
   useTheme,
+  IconButton,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import PersonIcon from "@mui/icons-material/Person";
 import CircularProgress from "@mui/material/CircularProgress";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -89,7 +92,7 @@ const LoginComponent = () => {
         minWidth: { xs: "100%", md: 350 },
       }}
     >
-      <PersonIcon sx={{ fontSize: 80, color: "#6366f1", mb: 1 }} />
+      <PersonIcon sx={{ fontSize: 80, color: "#1c5fba", mb: 1 }} />
       <Typography variant="h6" sx={{ mt: 1, mb: 2, fontWeight: 600 }}>
         Account Login
       </Typography>
@@ -131,6 +134,18 @@ const LoginComponent = () => {
                 <LockIcon />
               </InputAdornment>
             ),
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleToggleVisibility}
+                  edge="end"
+                  sx={{ color: "#6366f1" }}
+                >
+                  {showPassword ? <VisibilityOffIcon sx={{color: "#1a73e8"}}/> : <VisibilityIcon sx={{color: "#1a73e8"}}/>}
+                </IconButton>
+              </InputAdornment>
+            ),
           }}
           autoComplete="current-password"
           error={
@@ -142,23 +157,6 @@ const LoginComponent = () => {
               : ""
           }
         />
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            mt: 1,
-            alignSelf: "flex-end",
-            gap: 1,
-            cursor: "pointer",
-            userSelect: "none",
-          }}
-          onClick={handleToggleVisibility}
-        >
-          <Checkbox color="success" checked={showPassword} sx={{ p: 0.5 }} />
-          <Typography sx={{ fontSize: 14, color: "#6366f1", fontWeight: 500 }}>
-            {showPassword ? "Hide" : "Show"} Password
-          </Typography>
-        </Box>
       </Box>
       {isLoading ? (
         <div className="flex items-center justify-center">
@@ -177,7 +175,7 @@ const LoginComponent = () => {
             borderRadius: 2,
             boxShadow: "0 2px 8px rgba(99,102,241,0.10)",
             transition: "background 0.2s",
-            "&:hover": { background: "#6366f1" },
+            "&:hover": { background: "#1c5fba" },
           }}
           size="large"
           type="submit"
@@ -190,7 +188,7 @@ const LoginComponent = () => {
         variant="text"
         sx={{
           mt: 1,
-          color: "#6366f1",
+          color: "#1a73e8",
           fontWeight: 500,
           fontSize: 15,
           textTransform: "none",

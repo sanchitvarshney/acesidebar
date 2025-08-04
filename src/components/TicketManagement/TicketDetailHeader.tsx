@@ -6,6 +6,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { IconButton } from "@mui/material";
 
 
 const ActionButton = ({
@@ -34,20 +38,40 @@ const ActionButton = ({
   );
 };
 
-const TicketDetailHeader = ({ ticket, onBack, onForward, onReply,onNote }: any) => {
+const TicketDetailHeader = ({ 
+  ticket, 
+  onBack, 
+  onForward, 
+  onReply, 
+  onNote, 
+  onPreviousTicket, 
+  onNextTicket,
+  hasPreviousTicket = true,
+  hasNextTicket = true 
+}: any) => {
   return (
     <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
 
       {/* Breadcrumb */}
       <nav className="flex items-center text-xs text-gray-500 font-medium gap-1 min-w-[180px]">
-        <button onClick={onBack} className="hover:underline text-xl">
-          All tickets
-        </button>
-        <span className="mx-1">&gt;</span>
+        <IconButton 
+          onClick={onBack} 
+          size="small"
+          sx={{ 
+            color: "#1a73e8",
+            '&:hover': {
+              backgroundColor: 'rgba(26, 115, 232, 0.08)',
+              color: "#1a73e8"
+            }
+          }}
+        >
+          <ArrowBackIcon fontSize="small" />
+        </IconButton>
         <span className="text-[#1a73e8] font-semibold text-md">
           {ticket?.ticketId || "6"}
         </span>
       </nav>
+      
       {/* Action buttons */}
       <div className="flex gap-2 ml-8">
         <ActionButton
@@ -68,20 +92,45 @@ const TicketDetailHeader = ({ ticket, onBack, onForward, onReply,onNote }: any) 
         <ActionButton icon={<CloseIcon fontSize="small"  color="error" />} label="Close" />
         <ActionButton icon={<MergeTypeIcon fontSize="small"  sx={{color:"#1a73e8"}}/>} label="Merge" />
         <ActionButton icon={<DeleteIcon fontSize="small"  color="error"/>} label="Delete" />
-        {/* <ActionButton icon={<MoreHorizIcon fontSize="small"  sx={{color}}/>} label="More" /> */}
       </div>
-      {/* Tabs */}
-      {/* <div className="flex gap-2 ml-auto">
-        <button className="px-3 py-1 text-sm font-semibold text-blue-700 bg-blue-50 rounded hover:bg-blue-100">
-          Threads
-        </button>
-        <button className="px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded">
-          Show activities
-        </button>
-        <button className="px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded">
-          ...
-        </button>
-      </div> */}
+
+      {/* Navigation buttons - Right side */}
+      <div className="flex gap-1 ml-auto">
+        <IconButton 
+          onClick={onPreviousTicket} 
+          disabled={!hasPreviousTicket}
+          size="small"
+          sx={{ 
+            color: hasPreviousTicket ? "#1a73e8" : "#ccc",
+            '&:hover': {
+              backgroundColor: hasPreviousTicket ? 'rgba(26, 115, 232, 0.08)' : 'transparent',
+              color: hasPreviousTicket ? "#1a73e8" : "#ccc"
+            },
+            '&.Mui-disabled': {
+              color: '#ccc'
+            }
+          }}
+        >
+          <ArrowBackIosIcon fontSize="small" />
+        </IconButton>
+        <IconButton 
+          onClick={onNextTicket} 
+          disabled={!hasNextTicket}
+          size="small"
+          sx={{ 
+            color: hasNextTicket ? "#1a73e8" : "#ccc",
+            '&:hover': {
+              backgroundColor: hasNextTicket ? 'rgba(26, 115, 232, 0.08)' : 'transparent',
+              color: hasNextTicket ? "#1a73e8" : "#ccc"
+            },
+            '&.Mui-disabled': {
+              color: '#ccc'
+            }
+          }}
+        >
+          <ArrowForwardIosIcon fontSize="small" />
+        </IconButton>
+      </div>
     </div>
   );
 };
