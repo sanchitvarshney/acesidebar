@@ -19,6 +19,7 @@ import {
   Help,
   ExitToApp,
   HourglassEmpty as HourglassEmptyIcon,
+  ArrowDropDown as ArrowDropDownIcon,
 } from "@mui/icons-material";
 
 import NotificationDropDown from "../notificationmodal/NotificationDropDown";
@@ -26,11 +27,11 @@ import CustomPopover from "../../reusable/CustomPopover";
 import AccountPopup from "../popup/AccountPopup";
 import NotificationPopup from "../popup/NotificationPopup";
 import TasksPopup from "../popup/TasksPopup";
+import AdvancedSearchPopup from "../popup/AdvancedSearchPopup";
 import { useNavigate } from "react-router-dom";
-import SearchDropdownPanel from "../common/SearchDropdownPanel";
-import { useTicketSearchMutation } from "../../services/ticketAuth";
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { usePopupContext } from "../../contextApi/PopupContext";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -47,10 +48,19 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [accountPopupOpen, setAccountPopupOpen] = useState(false);
   const [tasksPopupOpen, setTasksPopupOpen] = useState(false);
+  const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false);
   const notificationRef = React.useRef(null);
   const accountButtonRef = React.useRef<HTMLButtonElement>(null);
   const tasksButtonRef = React.useRef<HTMLButtonElement>(null);
+  const advancedSearchRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { setIsAnyPopupOpen } = usePopupContext();
+
+  // Update global popup state whenever any popup state changes
+  useEffect(() => {
+    const isAnyOpen = notificationOpen || accountPopupOpen || tasksPopupOpen || advancedSearchOpen;
+    setIsAnyPopupOpen(isAnyOpen);
+  }, [notificationOpen, accountPopupOpen, tasksPopupOpen, advancedSearchOpen, setIsAnyPopupOpen]);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -66,6 +76,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     if (!accountPopupOpen) {
       setNotificationOpen(false);
       setTasksPopupOpen(false);
+      setAdvancedSearchOpen(false);
     }
   };
 
@@ -79,6 +90,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     if (!notificationOpen) {
       setAccountPopupOpen(false);
       setTasksPopupOpen(false);
+      setAdvancedSearchOpen(false);
     }
   };
 
@@ -92,11 +104,26 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     if (!tasksPopupOpen) {
       setAccountPopupOpen(false);
       setNotificationOpen(false);
+      setAdvancedSearchOpen(false);
     }
   };
 
   const handleTasksPopupClose = () => {
     setTasksPopupOpen(false);
+  };
+
+  const handleAdvancedSearchClick = () => {
+    setAdvancedSearchOpen(!advancedSearchOpen);
+    // Close other popups if advanced search popup is being opened
+    if (!advancedSearchOpen) {
+      setAccountPopupOpen(false);
+      setNotificationOpen(false);
+      setTasksPopupOpen(false);
+    }
+  };
+
+  const handleAdvancedSearchClose = () => {
+    setAdvancedSearchOpen(false);
   };
 
   const handleLogout = () => {
@@ -144,75 +171,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     </Menu>
   );
 
-  const [searchExpanded, setSearchExpanded] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [recentSearched, setRecentSearched] = useState<string[]>([
-    "12",
-    "test",
-  ]);
-  const [recentViewed, setRecentViewed] = useState([
-    { title: "Testing 2", id: 6 },
-    { title: "Testing Email", id: 5 },
-    { title: "TEST MAIL", id: 4 },
-    { title: "Issues with reports", id: 3 },
-    { title: "Authentication failure", id: 2 },
-  ]);
-
-  // Ticket search mutation
-  const [
-    ticketSearch,
-    { data: searchResult, isLoading: isSearching, reset: resetSearch },
-  ] = useTicketSearchMutation();
-
-  // Debounced search effect
-  useEffect(() => {
-    if (searchQuery.trim().length >= 3) {
-      const handler = setTimeout(() => {
-        ticketSearch(searchQuery.trim());
-        if (!recentSearched.includes(searchQuery.trim())) {
-          setRecentSearched(
-            [searchQuery.trim(), ...recentSearched].slice(0, 5)
-          );
-        }
-      }, 400);
-      return () => clearTimeout(handler);
-    } else {
-      resetSearch && resetSearch();
-    }
-    // eslint-disable-next-line
-  }, [searchQuery]);
-
-  // Clear search result if input is cleared (keep this for safety)
-  useEffect(() => {
-    if (!searchQuery) {
-      resetSearch && resetSearch();
-    }
-  }, [searchQuery, resetSearch]);
-
-  // Collapse search bar when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        searchInputRef.current &&
-        !searchInputRef.current.contains(event.target as Node) &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setSearchExpanded(false);
-      }
-    }
-    if (searchExpanded) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [searchExpanded]);
-
   return (
     <AppBar
       position="fixed"
@@ -251,37 +209,20 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         {/* Expanding Search Bar */}
         <div>
           <div
-            ref={dropdownRef}
-            className={` transition-all duration-200 ml-30 ${
-              searchExpanded ? "w-[500px]" : "w-[380px]"
-            } relative`}
+            className={` transition-all duration-200 ml-30 w-[340px] relative`}
           >
-            <div className="flex items-center w-full bg-[#f5f5f5] border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
+            <div 
+              ref={advancedSearchRef}
+              className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] "
+            >
               <SearchIcon className="text-gray-500 mr-3" />
               <input
-                ref={searchInputRef}
                 type="text"
                 placeholder="Search…"
                 className="flex-1 bg-transparent outline-none text-gray-800 text-[15px] leading-tight placeholder-gray-500"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setSearchExpanded(true)}
-                onClick={() => setSearchExpanded(true)}
+                onFocus={handleAdvancedSearchClick}
               />
             </div>
-
-            {/* Dropdown panel */}
-            {searchExpanded && (
-              <SearchDropdownPanel
-                recentSearched={recentSearched}
-                setRecentSearched={setRecentSearched}
-                recentViewed={recentViewed}
-                setRecentViewed={setRecentViewed}
-                isSearching={isSearching}
-                searchResult={searchResult}
-                searchQuery={searchQuery}
-              />
-            )}
           </div>
         </div>
 
@@ -352,6 +293,13 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         open={tasksPopupOpen}
         onClose={handleTasksPopupClose}
         anchorEl={tasksButtonRef.current}
+      />
+      
+      {/* Advanced Search Popup */}
+      <AdvancedSearchPopup
+        open={advancedSearchOpen}
+        onClose={handleAdvancedSearchClose}
+        anchorEl={advancedSearchRef.current}
       />
     </AppBar>
   );

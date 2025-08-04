@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Popper, Paper, Box, Typography, IconButton, Tabs, Tab, Chip, List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
-import { Close as CloseIcon, CheckCircle as CheckCircleIcon, HourglassEmpty as HourglassEmptyIcon, Download as DownloadIcon, Upload as UploadIcon, Description as DescriptionIcon } from '@mui/icons-material';
+import { 
+  Close as CloseIcon, 
+  CheckCircle as CheckCircleIcon,
+  HourglassEmpty as HourglassEmptyIcon,
+  Download as DownloadIcon,
+  Upload as UploadIcon,
+  Description as DescriptionIcon,
+  InfoOutline as InfoOutlineIcon
+} from '@mui/icons-material';
 
 interface TasksPopupProps {
   open: boolean;
@@ -293,11 +301,14 @@ const TasksPopup: React.FC<TasksPopupProps> = ({ open, onClose, anchorEl }) => {
         elevation={8}
         sx={{
           width: 380,
+          maxHeight: 500,
           borderRadius: 2,
           overflow: 'visible',
           backgroundColor: '#fff',
           border: '1px solid #e0e0e0',
           position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
           // Arrow tip border (larger, behind)
           '&::before': {
             content: '""',
@@ -371,16 +382,42 @@ const TasksPopup: React.FC<TasksPopupProps> = ({ open, onClose, anchorEl }) => {
         </Box>
 
         {/* Content */}
-        <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
+        <Box sx={{ 
+          maxHeight: 400, 
+          overflowY: 'auto',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
           {activeTab === 0 ? renderTasks(yourTasks) : renderTasks(othersTasks)}
         </Box>
 
         {/* Footer */}
-        <Box sx={{ p: 2, pt: 1, borderTop: '1px solid #e0e0e0' }}>
-          <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem' }}>
-            Activities beyond 15 days get cleared from this list
-          </Typography>
-        </Box>
+                  <Box sx={{
+            p: 2,
+            pt: 1,
+            borderTop: '1px solid #e0e0e0',
+            backgroundColor: '#fff',
+            position: 'sticky',
+            bottom: 0,
+            borderRadius: '0 0 8px 8px'
+          }}>
+            <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem' }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 0.5,
+                border: "1px solid #ef7918",
+                backgroundColor: '#fff4e5',
+                borderRadius: '12px',
+                px: 1.5,
+                py: 0.5
+              }}>
+                <InfoOutlineIcon sx={{ fontSize: 16, color: '#ef7918' }} />
+                Activities beyond 15 days get cleared from this list
+              </Box>
+            </Typography>
+          </Box>
       </Paper>
     </Popper>
   );

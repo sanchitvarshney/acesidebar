@@ -101,7 +101,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
         elevation={8}
         sx={{
           width: 400,
-          maxHeight: 500,
+          maxHeight: 550,
           borderRadius: 2,
           overflow: 'visible',
           backgroundColor: '#fff',

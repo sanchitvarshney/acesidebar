@@ -4,12 +4,14 @@ import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { Outlet } from "react-router-dom";
 import BottomBar from "./BottomBar";
+import { usePopupContext } from "../../contextApi/PopupContext";
 
 const drawerWidth = 0;
 
-const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" && prop !== "isPopupOpen" })<{
   open?: boolean;
-}>(({ theme, open }) => ({
+  isPopupOpen?: boolean;
+}>(({ theme, open, isPopupOpen }) => ({
   flexGrow: 1,
   padding: theme.spacing(2),
   transition: theme.transitions.create("margin", {
@@ -26,6 +28,11 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
     }),
     marginLeft: 0,
   }),
+  ...(isPopupOpen && {
+    WebkitFilter: "blur(2.5px)",
+    filter: "blur(2.5px)",
+    overflow: "hidden",
+  }),
 }));
 
 const MainContent = styled(Box)(({ theme }) => ({
@@ -35,9 +42,10 @@ const MainContent = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius
 }));
 
-const MainLayout = ({}) => {
+const MainLayout = () => {
   const [open, setOpen] = useState(true);
   const theme = useTheme();
+  const { isAnyPopupOpen } = usePopupContext();
 
   const handleDrawerToggle = () => {
     setOpen(!open);
@@ -48,7 +56,7 @@ const MainLayout = ({}) => {
       <CssBaseline />
       <TopBar open={open} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Main open={open}>
+      <Main open={open} isPopupOpen={isAnyPopupOpen}>
         <MainContent>
           <Outlet />
         </MainContent>
