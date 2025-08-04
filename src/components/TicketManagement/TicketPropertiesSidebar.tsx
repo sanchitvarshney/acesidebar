@@ -70,9 +70,9 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   let mainContent = null;
   if (activeTopTab === "profile") {
     mainContent = (
-      <>
+      <div className="w-full">
        
-        <div className=" flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-4 shrink-0">
           <Avatar
             sx={{
               bgcolor: "#FFC107",
@@ -159,7 +159,9 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             )}
           </Box>
         </div>
-      </>
+        
+     
+      </div>
     );
   } else if (activeTopTab === "knowledge") {
     mainContent = <KnowledgeBaseTab />;
@@ -171,11 +173,17 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
 
   return (
     <Box
-     sx={{ height:"100%", width:"100%", overflow:"auto", p:2}}
-     
+      sx={{ 
+        height: "100%", 
+        width: "100%", 
+        display: "flex", 
+        flexDirection: "column",
+        p: 2,
+        overflow: "hidden" // Prevent the main container from scrolling
+      }}
     >
       {/* Top-level tab bar */}
-      <div className="flex items-center justify-between bg-white rounded px-2 py-1 mb-2 border border-gray-200">
+      <div className="flex items-center justify-between bg-white rounded px-2 py-1 mb-2 border border-gray-200 shrink-0">
         {topTabs.map((tab) => (
           <button
             key={tab.key}
@@ -219,7 +227,13 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         </button> */}
       </div>
       {/* Main content below top tabs */}
-     <div className="w-full  overflow-y-auto will-change-transform">
+      <div 
+        className="flex-1 overflow-y-auto"
+        style={{ 
+          minHeight: 0,
+          maxHeight: "calc(100% - 60px)" // Account for tab bar height
+        }}
+      >
         {mainContent}
       </div>
     </Box>
