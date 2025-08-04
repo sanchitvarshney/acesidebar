@@ -85,7 +85,7 @@ const SearchBox = styled("div")(({ theme }) => ({
 
 const iconColors = [
   "#4caf50", // green
-  "#2196f3", // blue
+  "#2563eb", // blue
   "#ff9800", // orange
   "#e74c3c", // red
 ];
@@ -344,6 +344,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
           flexDirection: "column",
           alignItems: "center",
           height: "100vh",
+          borderRight: "1px solid #e0e0e0",
           py: 2,
         }}
       >

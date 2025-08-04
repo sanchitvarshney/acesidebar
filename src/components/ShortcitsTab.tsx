@@ -366,7 +366,7 @@ const ShortcutsTab = () => {
             </Button>
             <Button
               variant="contained"
-              sx={{ bgcolor: "#0891b2", color: "white" }}
+              sx={{ bgcolor: "#1a73e8", color: "white" }}
               fullWidth
               onClick={handleSubmit}
             >
@@ -376,7 +376,7 @@ const ShortcutsTab = () => {
         ) : (
           <Button
             variant="contained"
-            sx={{ bgcolor: "#0891b2", color: "white" }}
+            sx={{ bgcolor: "#1a73e8", color: "white" }}
             fullWidth
             onClick={() => {
               setIsAddShortcutOpen(true);

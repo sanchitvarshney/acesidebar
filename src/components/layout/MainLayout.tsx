@@ -11,13 +11,13 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
   open?: boolean;
 }>(({ theme, open }) => ({
   flexGrow: 1,
-  padding: theme.spacing(3),
+  padding: theme.spacing(2),
   transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   marginLeft: `-${drawerWidth}px`,
-  backgroundColor: "#f0f4f9",
+  backgroundColor: "#fafafa",
   minHeight: "80vh",
   ...(open && {
     transition: theme.transitions.create("margin", {
@@ -32,8 +32,7 @@ const MainContent = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(8),
   padding: theme.spacing(0),
   backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius,
-  // boxShadow: theme.shadows[1],
+  borderRadius: theme.shape.borderRadius
 }));
 
 const MainLayout = ({}) => {

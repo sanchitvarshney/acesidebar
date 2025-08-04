@@ -21,12 +21,12 @@ import { Chip, MenuItem } from "@mui/material";
 import ShortcutsTab from "../ShortcitsTab";
 import CloseIcon from "@mui/icons-material/Close";
 import { Height } from "@mui/icons-material";
-import emptyimg from "../../assets/image/overview-empty-state.svg"
+import emptyimg from "../../assets/image/overview-empty-state.svg";
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
   <div className="p-4 flex flex-col justify-center items-center w-full h-full">
-      <img src={emptyimg} alt="No Knowledge" className="mb-4" />
+    <img src={emptyimg} alt="No Knowledge" className="mb-4" />
     <div className="font-semibold text-base mb-2">Knowledge Base</div>
     <div className="text-xs text-gray-500">No articles found</div>
   </div>
@@ -74,7 +74,6 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   if (activeTopTab === "profile") {
     mainContent = (
       <div className="w-full">
-       
         <div className="flex items-center gap-3 mb-4 shrink-0">
           <Avatar
             sx={{
@@ -102,7 +101,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
               style={{
                 borderBottom:
                   activeProfileTab === tab.key
-                    ? "2px solid #0891b2"
+                    ? "2px solid #1a73e8"
                     : "2px solid transparent",
               }}
               onClick={() => setActiveProfileTab(tab.key)}
@@ -112,7 +111,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
               {React.cloneElement(tab.icon, {
                 className:
                   activeProfileTab === tab.key
-                    ? "text-[#0891b2]"
+                    ? "text-[#1a73e8]"
                     : "text-gray-400",
               })}
             </button>
@@ -149,10 +148,19 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
                       key={tagID}
                       label={item.tagName}
                       onDelete={() => {}}
-                      deleteIcon={<CloseIcon />}
+                      deleteIcon={
+                        <CloseIcon
+                          sx={{
+                            transition: "color 0.2s",
+                          }}
+                        />
+                      }
                       sx={{
+                        "&:hover .MuiChip-deleteIcon": {
+                          color: "error.main"
+                        },
                         "& .MuiChip-deleteIcon": {
-                          fontSize: 18, // controls icon size
+                          fontSize: 18,
                         },
                       }}
                     />
@@ -162,8 +170,6 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             )}
           </Box>
         </div>
-        
-     
       </div>
     );
   } else if (activeTopTab === "knowledge") {
@@ -176,13 +182,13 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
 
   return (
     <Box
-      sx={{ 
-        height: "100%", 
-        width: "100%", 
-        display: "flex", 
+      sx={{
+        height: "100%",
+        width: "100%",
+        display: "flex",
         flexDirection: "column",
         p: 2,
-        overflow: "hidden" // Prevent the main container from scrolling
+        overflow: "hidden", // Prevent the main container from scrolling
       }}
     >
       {/* Top-level tab bar */}
@@ -196,7 +202,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             style={{
               borderBottom:
                 activeTopTab === tab.key
-                  ? "2px solid #0891b2"
+                  ? "2px solid #1a73e8"
                   : "2px solid transparent",
             }}
             onClick={() => setActiveTopTab(tab.key)}
@@ -205,7 +211,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
           >
             {React.cloneElement(tab.icon, {
               className:
-                activeTopTab === tab.key ? "text-[#0891b2]" : "text-gray-400",
+                activeTopTab === tab.key ? "text-[#1a73e8]" : "text-gray-400",
             })}
           </button>
         ))}
@@ -230,11 +236,11 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         </button> */}
       </div>
       {/* Main content below top tabs */}
-      <div 
+      <div
         className="flex-1 overflow-y-auto will-change-transform"
-        style={{ 
+        style={{
           minHeight: 0,
-          maxHeight: "calc(100% - 60px)" // Account for tab bar height
+          maxHeight: "calc(100% - 60px)", // Account for tab bar height
         }}
       >
         {mainContent}

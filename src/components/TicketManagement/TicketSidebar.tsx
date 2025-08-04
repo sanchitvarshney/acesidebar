@@ -4,6 +4,7 @@ import TicketFilterSkeleton from "../skeleton/TicketFilterSkeleton";
 import TextField from "@mui/material/TextField";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import emptyimg from "../../assets/image/overview-empty-state.svg"
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Chip from "@mui/material/Chip";
@@ -137,7 +138,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   };
 
   return (
-    <Box className="w-72 min-w-72 shadow rounded-lg flex flex-col h-full p-4 relative bg-#f5f7f9">
+    <Box className="w-100 min-w-100 shadow rounded-lg flex flex-col h-full p-4 relative bg-#f5f7f9">
       <div ref={topAnchorRef} />
       {/* Header */}
       <Box className="flex items-center justify-between mb-2">
@@ -417,14 +418,14 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
               PaperProps={{
                 sx: {
                   p: 0,
-                  minWidth: 220,
-                  maxWidth: 400,
+                  minWidth: 290,
+                  maxWidth: 290,
                   boxShadow: 3,
                   borderRadius: 2,
                 },
               }}
             >
-              <Box sx={{ p: 1, minWidth: 220 }}>
+              <Box sx={{ p: 1, minWidth: 290 }}>
                 <TextField
                   size="small"
                   placeholder="Search..."
@@ -466,7 +467,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           {activeFilters.length === 0 ? (
             <Box className="flex flex-col items-center justify-center py-12">
               <img
-                src="/image/overview-empty-state.svg"
+                src={emptyimg}
                 alt="No filters"
                 style={{ width: 120, height: 120, marginBottom: 16 }}
               />
@@ -478,7 +479,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   startIcon={<AddIcon />}
                   onClick={handlePopoverOpen}
                   sx={{
-                    color: "#2563eb",
+                    color: "#1a73e8",
                     fontWeight: 500,
                     textTransform: "none",
                     pl: 0,
@@ -714,7 +715,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 startIcon={<AddIcon />}
                 onClick={handlePopoverOpen}
                 sx={{
-                  color: "#2563eb",
+                  color: "#1a73e8",
                   fontWeight: 500,
                   textTransform: "none",
                   pl: 0,
@@ -731,14 +732,14 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 PaperProps={{
                   sx: {
                     p: 0,
-                    minWidth: 220,
-                    maxWidth: 400,
+                    minWidth: 290,
+                    maxWidth: 290,
                     boxShadow: 3,
                     borderRadius: 2,
                   },
                 }}
               >
-                <Box sx={{ p: 1, minWidth: 220 }}>
+                <Box sx={{ p: 1, minWidth: 290 }}>
                   <TextField
                     size="small"
                     placeholder="Search..."

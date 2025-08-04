@@ -57,7 +57,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           <Typography sx={{ flex: 1, fontSize: "16px" }}>{title}</Typography>
 
           <IconButton onClick={close}>
-            <CloseIcon fontSize="small" />
+            <CloseIcon fontSize="small"  />
           </IconButton>
         </Box>
       )}

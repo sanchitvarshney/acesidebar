@@ -36,7 +36,7 @@ const ActionButton = ({
 
 const TicketDetailHeader = ({ ticket, onBack, onForward, onReply,onNote }: any) => {
   return (
-    <div className="flex items-center w-full px-6 py-2 border border-[#dce1ff]  bg-[#e8f0fe] z-10">
+    <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
 
       {/* Breadcrumb */}
       <nav className="flex items-center text-xs text-gray-500 font-medium gap-1 min-w-[180px]">
@@ -44,14 +44,14 @@ const TicketDetailHeader = ({ ticket, onBack, onForward, onReply,onNote }: any) 
           All tickets
         </button>
         <span className="mx-1">&gt;</span>
-        <span className="text-[#0891b2] font-semibold text-md">
+        <span className="text-[#1a73e8] font-semibold text-md">
           {ticket?.ticketId || "6"}
         </span>
       </nav>
       {/* Action buttons */}
       <div className="flex gap-2 ml-8">
         <ActionButton
-          icon={<ReplyIcon fontSize="small"  sx={{color :"#2563eb"}} />}
+          icon={<ReplyIcon fontSize="small"  sx={{color :"#1a73e8"}} />}
           label="Reply"
           onClick={onReply}
         />
@@ -65,8 +65,8 @@ const TicketDetailHeader = ({ ticket, onBack, onForward, onReply,onNote }: any) 
           label="Forward"
           onClick={onForward}
         />
-        <ActionButton icon={<CloseIcon fontSize="small" sx={{color:"#9333ea"}} />} label="Close" />
-        <ActionButton icon={<MergeTypeIcon fontSize="small"  sx={{color:"#0891b2"}}/>} label="Merge" />
+        <ActionButton icon={<CloseIcon fontSize="small"  color="error" />} label="Close" />
+        <ActionButton icon={<MergeTypeIcon fontSize="small"  sx={{color:"#1a73e8"}}/>} label="Merge" />
         <ActionButton icon={<DeleteIcon fontSize="small"  color="error"/>} label="Delete" />
         {/* <ActionButton icon={<MoreHorizIcon fontSize="small"  sx={{color}}/>} label="More" /> */}
       </div>

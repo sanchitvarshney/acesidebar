@@ -127,7 +127,7 @@ const Sidebar: React.FC = () => {
         >
           Tags
         </Typography>
-        <IconButton size="small" color="info" sx={{ ml: 1 }}>
+        <IconButton size="small" color="info" sx={{ ml: 1 } }>
           <AddIcon fontSize="small" />
         </IconButton>
       </Box>

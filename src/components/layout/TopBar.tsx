@@ -168,6 +168,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       position="fixed"
       sx={{
         width: {
+          backgroundColor: "#fff",
           sm: `calc(100% - ${open ? drawerWidth : collapsedDrawerWidth}px)`,
         },
         ml: { sm: `${open ? drawerWidth : collapsedDrawerWidth}px` },
@@ -180,68 +181,68 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       <Toolbar className="flex justify-between">
         <div className="flex items-center">
           <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          edge="start"
-          onClick={handleDrawerToggle}
-          sx={{ mr: 2 }}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
-          sx={{ display: { xs: "block", sm: "block" } }}
-        >
-          Ticket Management System
-        </Typography>
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, color: "#3f4346" }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ display: { xs: "block", sm: "block" }, color: "#3f4346" }}
+          >
+            Ticket Management System
+          </Typography>
         </div>
         {/* Expanding Search Bar */}
         <div>
+          <div
+            ref={dropdownRef}
+            className={` transition-all duration-200 ml-30 ${
+              searchExpanded ? "w-[480px]" : "w-[340px]"
+            } relative`}
+          >
+            <div className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
+              <SearchIcon className="text-gray-500 mr-3" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search…"
+                className="flex-1 bg-transparent outline-none text-gray-800 text-[15px] leading-tight placeholder-gray-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchExpanded(true)}
+                onClick={() => setSearchExpanded(true)}
+              />
+            </div>
 
-             <div
-          ref={dropdownRef}
-          className={` transition-all duration-200 ml-30 ${
-            searchExpanded ? "w-[480px]" : "w-[340px]"
-          } relative`}
-        >
-          <div className="flex items-center w-full bg-white border border-gray-300 rounded px-2 py-1 shadow-sm">
-            <SearchIcon className="text-gray-400 mr-2" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search…"
-              className="flex-1 bg-transparent outline-none text-gray-800 text-base"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setSearchExpanded(true)}
-              onClick={() => setSearchExpanded(true)}
-            />
+            {/* Dropdown panel */}
+            {searchExpanded && (
+              <SearchDropdownPanel
+                recentSearched={recentSearched}
+                setRecentSearched={setRecentSearched}
+                recentViewed={recentViewed}
+                setRecentViewed={setRecentViewed}
+                isSearching={isSearching}
+                searchResult={searchResult}
+                searchQuery={searchQuery}
+              />
+            )}
           </div>
-          {/* Dropdown panel */}
-          {searchExpanded && (
-            <SearchDropdownPanel
-              recentSearched={recentSearched}
-              setRecentSearched={setRecentSearched}
-              recentViewed={recentViewed}
-              setRecentViewed={setRecentViewed}
-              isSearching={isSearching}
-              searchResult={searchResult}
-              searchQuery={searchQuery}
-            />
-          )}
-        </div>
         </div>
 
-        <Box sx={{ flexGrow: 0,  }} />
-        
+        <Box sx={{ flexGrow: 0 }} />
+
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton
             onClick={() => setNotificationOpen(true)}
             size="large"
             aria-label="show 17 new notifications"
-            color="inherit"
+            sx={{color: "#3f4346"}}
           >
             <Badge badgeContent={17} color="error">
               <NotificationsIcon ref={notificationRef} />
@@ -255,7 +256,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             aria-controls={menuId}
             aria-haspopup="true"
             onClick={handleProfileMenuOpen}
-            color="inherit"
+            sx={{color: "#3f4346"}}
           >
             <AccountCircle />
           </IconButton>

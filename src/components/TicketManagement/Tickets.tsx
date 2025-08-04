@@ -319,9 +319,11 @@ const Tickets: React.FC = () => {
     };
     return (
       <div
-        key={ticket?.ticketNumber}
-        className="bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-2 shadow-sm hover:shadow transition relative"
-      >
+  key={ticket?.ticketNumber}
+  className="relative bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-2 shadow-sm transition-shadow
+    hover:shadow-[inset_1px_0_0_rgb(218,220,224),inset_-1px_0_0_rgb(218,220,224),0_1px_2px_0_rgba(60,64,67,0.3),0_1px_3px_1px_rgba(60,64,67,0.15)]
+    before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:bg-[#bad0ff] before:rounded-l"
+>
         {/* Left: Checkbox, Avatar, Sentiment */}
         <div className="flex items-center mr-4 min-w-[60px]">
           <input
@@ -479,7 +481,7 @@ const Tickets: React.FC = () => {
                     fontSize="small"
                     className="mr-2 text-gray-500 flex-shrink-0"
                   />
-                  <span className="truncate flex-1 text-sm font-medium leading-5 text-left max-w-[80px]">
+                  <span className="truncate flex-1 leading-5 font-medium text-left max-w-[80px]" style={{fontSize : "13px"}}>
                     {dropdownState.agent || "Unassigned"}
                   </span>
                   <ArrowDropDownIcon
@@ -530,9 +532,9 @@ const Tickets: React.FC = () => {
           onSendReply={(text:any) => handleSendReply(text)}
         />
       ) : (
-        <div className="flex flex-col bg-red-50 h-[calc(100vh-115px)]">
+        <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
           {/* Main Header Bar */}
-          <div className="flex items-center justify-between px-6 py-2 pb-2 border-b w-full bg-#f5f7f9">
+          <div className="flex items-center justify-between px-6 py-2 pb-2 border-b w-full bg-#f0f4f9">
             {/* Left: Title, master checkbox, count, and action buttons (inline) */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <input
@@ -545,7 +547,7 @@ const Tickets: React.FC = () => {
               <span className="text-xl font-semibold whitespace-nowrap">
                 All tickets
               </span>
-              <span className="bg-gray-200 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">
+              <span className="bg-[#f0f4f9] text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">
                 {ticketList?.data?.length}
               </span>
               {selectedTickets.length > 0 && (
@@ -657,7 +659,7 @@ const Tickets: React.FC = () => {
           {/* Main Content: Tickets + Filters */}
           <div className="flex flex-1 h-0 min-h-0">
             {/* Ticket List */}
-            <div className="flex-1 p-3 h-full overflow-y-auto bg-[#f0f4f9]">
+            <div className="flex-1 pt-4 h-full overflow-y-auto bg-[#fafafa]">
               {isTicketsFetching ? (
                 <TicketSkeleton />
               ) : (
