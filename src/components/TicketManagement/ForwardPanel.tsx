@@ -373,17 +373,19 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           p: 2,
           borderTop: "1px solid #eee",
           display: "flex",
-          justifyContent: "flex-end",
+          alignItems: "center",
+          justifyContent: "center",
           gap: 1,
           backgroundColor: '#fafafa',
         }}
       >
-        <Button onClick={onClose} variant="outlined" sx={{ minWidth: 80 }}>
+        <Button onClick={onClose} variant="outlined" color="inherit" sx={{ minWidth: 80 }}>
           Cancel
         </Button>
         <Button
           onClick={onSend}
           variant="contained"
+          color="primary"
           disabled={!fields.subject || !fields.to}
           sx={{ minWidth: 100 }}
         >

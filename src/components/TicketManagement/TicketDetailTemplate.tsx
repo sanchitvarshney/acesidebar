@@ -244,7 +244,8 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
             <Button
               onClick={handleCloseDelete}
-              variant="outlined"
+              variant="contained"
+              color="inherit"              
             >
               Cancel
             </Button>

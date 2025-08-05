@@ -155,6 +155,7 @@ const TicketDetailHeader = ({
                                {/* More dropdown popup */}
          <Popover
            open={moreOpen}
+           
            anchorEl={moreAnchorEl}
            onClose={handleMoreClose}
            anchorOrigin={{
@@ -164,13 +165,11 @@ const TicketDetailHeader = ({
            transformOrigin={{
              vertical: 'top',
              horizontal: 'left',
-           }}
-                                                                                               PaperProps={{
-                className: "min-w-[200px] max-w-[220px] shadow-lg rounded-lg mt-1 relative border border-gray-200"
+           }}                                                              PaperProps={{
+                className: "shadow-lg rounded-lg mt-1 relative border border-gray-200 w-56"
               }}
            >
-                           
-                                       <List className="py-1">
+            <List className="py-1">
              {moreOptions.map((option, index) => (
                <ListItem key={index} disablePadding>
                  <ListItemButton
@@ -180,12 +179,12 @@ const TicketDetailHeader = ({
                    }}
                    className="py-1.5 px-3 mx-1 rounded-md hover:bg-blue-50 active:bg-blue-100"
                  >
-                   <ListItemIcon className="max-w-[5px] text-gray-600">
+                   <ListItemIcon className=" text-gray-600" sx={{ minWidth: 35}}>
                      {option.icon}
                    </ListItemIcon>
                    <ListItemText 
                      primary={option.label} 
-                     className="text-sm font-medium text-gray-900 min-w-[30px]"
+                     className="text-sm font-medium text-gray-900"
                    />
                  </ListItemButton>
                </ListItem>

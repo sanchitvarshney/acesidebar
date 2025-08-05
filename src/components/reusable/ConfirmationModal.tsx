@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -7,9 +7,22 @@ import {
   Button,
   Box,
   Typography,
+  IconButton,
+  Slide,
 } from "@mui/material";
+import { TransitionProps } from "@mui/material/transitions";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CloseIcon from "@mui/icons-material/Close";
 import { motion } from "framer-motion";
+
+// Slide Transition
+const Transition = forwardRef(function Transition(
+  props: TransitionProps & { children: React.ReactElement },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 interface ConfirmationModalProps {
   open: boolean;
@@ -28,7 +41,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   useEffect(() => {
     if (open) {
-      setStep("confirm"); // reset to confirmation each time modal opens
+      setStep("confirm"); // Reset to initial state when modal opens
     }
   }, [open]);
 
@@ -42,124 +55,162 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       open={open}
       maxWidth="xs"
       fullWidth
+      onClose={onClose}
+      TransitionComponent={Transition}
+      keepMounted
       PaperProps={{
         sx: {
-          borderRadius: 3,
-          boxShadow: 24,
+          borderRadius: 4,
+          boxShadow: 6,
+          px: 1,
+          py: 0.5,
+          backgroundColor: step === "confirm" ? "#ffebee" : "#ffffff",
+          position: "relative",
         },
       }}
       BackdropProps={{
         sx: {
-          backdropFilter: "blur(4px)",
-          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          backdropFilter: "blur(3px)",
+          backgroundColor: "rgba(0, 0, 0, 0.2)",
         },
       }}
     >
+      {/* Close Icon */}
+      {step === "confirm" && (
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            top: 30,
+            right: 8,
+            color: "grey.600",
+            zIndex: 10,
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
+
+      {/* Delete Icon */}
+      {step === "confirm" && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            pt: 3,
+          }}
+        >
+          <DeleteForeverIcon sx={{ fontSize: 50, color: "error.main" }} />
+        </Box>
+      )}
+
       <DialogTitle
         sx={{
-          backgroundColor: bgColor,
-          color: bgColor === "white" ? "black" : "white",
-          fontWeight: "bold",
+          fontWeight: 600,
+          fontSize: "1.1rem",
+          textAlign: "center",
+          py: 2,
         }}
       >
-        {step === "confirm" ? "Confirm Deletion" : "Success"}
+        {step === "confirm" ? "Delete item?" : "Deleted"}
       </DialogTitle>
 
       <DialogContent
         dividers
         sx={{
-          minHeight: 120,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          px: 2
         }}
       >
         {step === "confirm" && (
-          <Typography variant="body1" textAlign="center">
-            Are you sure you want to delete this item?
-          </Typography>
+          <Typography variant="body2" color="text.secondary">
+          Are you absolutely sure you want to delete this item?<br />
+          This action is irreversible and will permanently remove the item from your records.<br />
+          Please confirm if you wish to continue.
+        </Typography>
+        
         )}
 
         {step === "success" && (
-        <motion.div
-  initial={{ scale: 0, opacity: 0 }}
-  animate={{ scale: 1, opacity: 1 }}
-  transition={{ duration: 0.5, ease: "easeOut" }}
-  style={{
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: "8px",
-  }}
->
-  <Typography variant="body1" fontWeight="bold">
-    Deleted Successfully
-  </Typography>
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginTop: "10px",
+            }}
+          >
+            <Typography variant="body1" fontWeight="bold">
+              Deleted successfully
+            </Typography>
 
-  {/* Animated Check Circle */}
-  <motion.svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="40"
-    height="40"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="green"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    initial="hidden"
-    animate="visible"
-  >
-    {/* Circle Animation */}
-    <motion.circle
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="green"
-      variants={{
-        hidden: { pathLength: 0 },
-        visible: {
-          pathLength: 1,
-          transition: { duration: 0.5 },
-        },
-      }}
-    />
-    {/* Check Mark Animation */}
-    <motion.path
-      d="M9 12l2 2l4-4"
-      stroke="green"
-      variants={{
-        hidden: { pathLength: 0 },
-        visible: {
-          pathLength: 1,
-          transition: { duration: 0.4, delay: 0.5 },
-        },
-      }}
-    />
-  </motion.svg>
-</motion.div>
-
-       
+            <motion.svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="green"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="green"
+                variants={{
+                  hidden: { pathLength: 0 },
+                  visible: {
+                    pathLength: 1,
+                    transition: { duration: 0.5 },
+                  },
+                }}
+              />
+              <motion.path
+                d="M9 12l2 2l4-4"
+                stroke="green"
+                variants={{
+                  hidden: { pathLength: 0 },
+                  visible: {
+                    pathLength: 1,
+                    transition: { duration: 0.4, delay: 0.5 },
+                  },
+                }}
+              />
+            </motion.svg>
+          </motion.div>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ justifyContent: "center", pb: 2, border: "none" }}>
+      <DialogActions sx={{ justifyContent: "center", p: 2, gap: 2 }}>
         {step === "confirm" ? (
-          <>
-            <Button variant="outlined" color="error" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button variant="contained" color="error" onClick={handleConfirm}>
-              Yes
-            </Button>
-          </>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleConfirm}
+            sx={{ borderRadius: 5, textTransform: "none", px: 3 }}
+          >
+            Please Delete
+          </Button>
         ) : (
-         
-            <Button variant="outlined" color="error" onClick={onClose}>
-              Okay
-            </Button>
-      
+          <Button
+            variant="outlined"
+            onClick={onClose}
+            sx={{ borderRadius: 5, textTransform: "none", px: 4 }}
+          >
+            Go Back
+          </Button>
         )}
       </DialogActions>
     </Dialog>
