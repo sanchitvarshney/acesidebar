@@ -8,6 +8,7 @@ import Protected from "../components/protected/Protected";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ProfilePage from "../components/layout/ProfilePage";
 import Settings from "../components/Settings";
+import SupportScreen from "../screens/SupportScreen";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
         element: <Tickets />,
       },
     ],
+  },
+  {
+    path: "/ticket/support",
+    element: <SupportScreen />,
   },
   {
     path: "/login",

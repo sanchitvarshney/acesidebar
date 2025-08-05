@@ -10,6 +10,7 @@ import { PopupProvider } from "./contextApi/PopupContext";
 import theme from "./theme";
 import "./font.css"
 import CustomTextInputDemo from "./components/common/CustomTextInputDemo";
+import SupportScreen from "./screens/SupportScreen";
 
 // Placeholder components for routes
 
@@ -25,6 +26,7 @@ function App() {
         </PopupProvider>
       </AuthProvider>
     </ThemeProvider>
+
   );
 }
 
