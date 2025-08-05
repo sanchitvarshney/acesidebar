@@ -40,6 +40,7 @@ import {
   Menu as MenuIcon,
   ConfirmationNumber as TicketIcon,
 } from "@mui/icons-material";
+import { useAuth } from "../../contextApi/AuthContext";
 
 const SIDEBAR_WIDTH = 80;
 const SIDEBAR_COLLAPSED_WIDTH = 0;
@@ -120,6 +121,7 @@ interface MenuItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
+  const { signOut } = useAuth() 
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -387,15 +389,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
             mb: 2,
           }}
         >
-          <Avatar
-            src="/assets/image/avatar/avatar3.jpg"
-            sx={{
-              width: 36,
-              height: 36,
-            }}
-          />
-          <IconButton size="small">
-            <ExitToAppIcon fontSize="small" />
+          
+          <IconButton size="medium" onClick={signOut}>
+            <ExitToAppIcon fontSize="medium" />
           </IconButton>
         </Box>
       </Box>

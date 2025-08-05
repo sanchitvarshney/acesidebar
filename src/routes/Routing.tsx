@@ -9,6 +9,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ProfilePage from "../components/layout/ProfilePage";
 import Settings from "../components/Settings";
 import SupportScreen from "../screens/SupportScreen";
+import SupportMainScreen from "../screens/SupportMainScreen";
 
 export const router = createBrowserRouter([
   {
@@ -35,7 +36,19 @@ export const router = createBrowserRouter([
   },
   {
     path: "/ticket/support",
-    element: <SupportScreen />,
+    element: (
+      <Protected>
+        <SupportMainScreen />
+      </Protected>
+    ),
+     children: [
+      {
+        index: true,
+        element: <SupportScreen />,
+      },
+  
+    
+    ],
   },
   {
     path: "/login",
