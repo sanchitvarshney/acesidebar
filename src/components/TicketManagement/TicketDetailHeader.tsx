@@ -97,7 +97,7 @@ const TicketDetailHeader = ({
       
       {/* Action buttons */}
       <div className="flex gap-2 ml-8">
-                 <ActionButton
+        <ActionButton
            icon={<ReplyIcon fontSize="small" className="text-blue-600" />}
            label="Reply"
            onClick={onReply}

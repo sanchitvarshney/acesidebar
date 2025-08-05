@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
-import { Avatar, IconButton } from "@mui/material";
+import { Avatar, IconButton, Button } from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import {
@@ -548,19 +548,29 @@ const Tickets: React.FC = () => {
               agentList={["Admin", "Agent 1", "Agent 2"]}
               departmentList={["Support", "Sales", "Billing"]}
               trigger={
-                <button className="flex items-center w-full px-2 py-1 min-h-[25px]">
-                  <PersonIcon
-                    fontSize="small"
-                    className="mr-2 text-gray-500 flex-shrink-0"
-                  />
-                  <span className="truncate flex-1 leading-5 font-medium text-left max-w-[80px]" style={{fontSize : "13px"}}>
+                <Button
+                  variant="text"
+                  size="small"
+                  fullWidth
+                  startIcon={<PersonIcon fontSize="small" sx={{ color: '#666' }} />}
+                  endIcon={<ArrowDropDownIcon fontSize="small" />}
+                  sx={{
+                    textTransform: 'none',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: '#333',
+                    justifyContent: 'flex-start',
+                    minHeight: '25px',
+                    padding: '4px 8px',
+                    '&:hover': {
+                      backgroundColor: '#f5f5f5',
+                    },
+                  }}
+                >
+                  <span style={{ fontSize: '13px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {dropdownState.agent || "Unassigned"}
                   </span>
-                  <ArrowDropDownIcon
-                    fontSize="small"
-                    className="ml-2 flex-shrink-0"
-                  />
-                </button>
+                </Button>
               }
             />
           </div>
@@ -624,58 +634,111 @@ const Tickets: React.FC = () => {
               </span>
               {selectedTickets.length > 0 && (
                 <div className="flex items-center gap-2 ml-4 flex-wrap">
-                  <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                    <PersonAddAltIcon
-                      fontSize="small"
-                      sx={{ color: "#1976d2" }}
-                    />{" "}
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<PersonAddAltIcon fontSize="small" />}
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      backgroundColor: '#1976d2',
+                      '&:hover': {
+                        backgroundColor: '#1565c0',
+                      },
+                    }}
+                  >
                     Assign
-                  </button>
-                  <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                    <CheckCircleIcon
-                      fontSize="small"
-                      sx={{ color: "#43a047" }}
-                    />{" "}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<CheckCircleIcon fontSize="small" />}
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      backgroundColor: '#43a047',
+                      '&:hover': {
+                        backgroundColor: '#388e3c',
+                      },
+                    }}
+                  >
                     Close
-                  </button>
-                  {/* <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                  <SyncAltIcon fontSize="small" /> Bulk update
-                </button> */}
-                  <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                    <CallMergeIcon fontSize="small" sx={{ color: "#ff9800" }} />{" "}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<CallMergeIcon fontSize="small" />}
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      backgroundColor: '#ff9800',
+                      '&:hover': {
+                        backgroundColor: '#f57c00',
+                      },
+                    }}
+                  >
                     Merge
-                  </button>
-                  {/* <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                  <AssignmentIcon fontSize="small" /> Scenarios
-                </button> */}
-                  <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                    <BlockIcon fontSize="small" sx={{ color: "#e53935" }} />{" "}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<BlockIcon fontSize="small" />}
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      backgroundColor: '#e53935',
+                      '&:hover': {
+                        backgroundColor: '#d32f2f',
+                      },
+                    }}
+                  >
                     Spam
-                  </button>
-                  <button className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100">
-                    <DeleteIcon fontSize="small" sx={{ color: "#6d4c41" }} />{" "}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<DeleteIcon fontSize="small" />}
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      backgroundColor: '#6d4c41',
+                      '&:hover': {
+                        backgroundColor: '#5d4037',
+                      },
+                    }}
+                  >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               )}
               {selectedTickets.length === 0 && (
                 <div className="flex items-center gap-2 ml-4">
                   <span className="text-sm text-gray-600">Sort by:</span>
-                  <button
-                    className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded bg-white text-sm font-medium shadow-sm hover:bg-gray-100"
+                  <Button
+                    variant="outlined"
+                    size="small"
                     onClick={handleSortingPopoverOpen}
-                    style={{
-                      border: "1px solid #1976d2",
-                      color: "#1976d2",
-                      background: "#fff",
-                      borderRadius: 4,
+                    endIcon={<ArrowDropDownIcon fontSize="small" />}
+                    sx={{
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      borderColor: '#1976d2',
+                      color: '#1976d2',
                       minWidth: 140,
-                      justifyContent: "space-between",
+                      '&:hover': {
+                        borderColor: '#1565c0',
+                        backgroundColor: '#f5f5f5',
+                      },
                     }}
                   >
                     {sortBy}
-                    <ArrowDropDownIcon fontSize="small" />
-                  </button>
+                  </Button>
 
                   <TicketSortingPopover
                     anchorEl={sortingPopoverAnchorEl}
@@ -711,21 +774,32 @@ const Tickets: React.FC = () => {
                 />
               )}
               {/* + New Button */}
-              <button
-                className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm"
+              <Button
+                variant="contained"
+                size="small"
                 onClick={() => setCreateDialogOpen(true)}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  backgroundColor: '#1976d2',
+                  '&:hover': {
+                    backgroundColor: '#1565c0',
+                  },
+                }}
               >
                 + New
-              </button>
+              </Button>
               {/* Filters Icon Button */}
-              <button
-                className="flex items-center gap-2 px-3 py-1 border border-gray-300 rounded bg-white text-base font-semibold text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                onClick={() => setFiltersOpen((prev) => !prev)}
-                aria-label="Toggle Filters"
-              >
-                <FilterListIcon fontSize="small" />
-                Filters
-              </button>
+              <Button
+  variant="contained" color="inherit"
+  size="small"
+  onClick={() => setFiltersOpen(prev => !prev)}
+  startIcon={<FilterListIcon fontSize="small" />}
+  aria-label="Toggle Filters"
+>
+  Filters
+</Button>
             </div>
           </div>
           {/* Main Content: Tickets + Filters */}

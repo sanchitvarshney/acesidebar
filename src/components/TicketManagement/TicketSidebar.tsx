@@ -144,19 +144,45 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       <Box className="flex items-center justify-between mb-2">
         <span className="font-semibold text-gray-700 text-sm">FILTERS</span>
         {!showCustomFilters ? (
-          <button
-            className="text-xs text-blue-600 hover:underline"
+          <Button
+            variant="text"
+            size="small"
             onClick={() => setShowCustomFilters(true)}
+            sx={{
+              textTransform: 'none',
+              fontSize: '0.75rem',
+              color: '#1976d2',
+              fontWeight: 400,
+              padding: 0,
+              minWidth: 'auto',
+              '&:hover': {
+                textDecoration: 'underline',
+                backgroundColor: 'transparent',
+              },
+            }}
           >
             Show applied filters
-          </button>
+          </Button>
         ) : (
-          <button
-            className="text-xs text-blue-600 hover:underline"
+          <Button
+            variant="text"
+            size="small"
             onClick={() => setShowCustomFilters(false)}
+            sx={{
+              textTransform: 'none',
+              fontSize: '0.75rem',
+              color: '#1976d2',
+              fontWeight: 400,
+              padding: 0,
+              minWidth: 'auto',
+              '&:hover': {
+                textDecoration: 'underline',
+                backgroundColor: 'transparent',
+              },
+            }}
           >
             Show All Filters
-          </button>
+          </Button>
         )}
       </Box>
       {/* Filter fields */}
@@ -784,22 +810,39 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       {/* Fixed Apply and Reset buttons */}
       <Box className="pt-2 pb-0 z-10 bg-white flex gap-2">
         {showCustomFilters && (
-          <button
-            className="w-full bg-gray-200 text-gray-700 font-semibold py-2 rounded disabled:opacity-50 hover:bg-gray-300"
+          <Button
+            variant="contained"
+            color="inherit"
+            fullWidth
             onClick={handleResetFilters}
-            type="button"
+            sx={{
+              fontSize: '0.875rem',
+              fontWeight: 600,              
+              '&:disabled': {
+                opacity: 0.5,
+              },
+            }}
           >
             Reset
-          </button>
+          </Button>
         )}
-        <button
-          className="w-full bg-blue-600 text-white font-semibold py-2 rounded disabled:opacity-50 hover:bg-blue-700"
+        <Button
+          variant="contained"
+          fullWidth
+          color="primary"
           onClick={handleApply}
-          type="button"
-          disabled={activeFilters.length == 0}
+          disabled={activeFilters.length === 0}
+          sx={{
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            '&:disabled': {
+              opacity: 0.5,
+              backgroundColor: '#9ca3af',
+            },
+          }}
         >
           Apply
-        </button>
+        </Button>
       </Box>
     </Box>
   );
