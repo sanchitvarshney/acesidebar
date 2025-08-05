@@ -25,7 +25,34 @@ const AboutTab = ({
   const toggleEdit = () => setIsEditing((prev) => !prev);
 
   return (
-    <div className="bg-white rounded border border-gray-200 p-3 mb-4">
+    <>
+      <style>
+        {`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+          }
+        `}
+      </style>
+      <div 
+        className="bg-white rounded border border-gray-200 p-3 mb-4 custom-scrollbar"
+        style={{
+          maxHeight: "300px",
+          overflow: "auto",
+          scrollbarWidth: "thin",
+          scrollbarColor: "#c1c1c1 #f1f1f1",
+        }}
+      >
       <div className="flex items-center justify-between mb-2">
         <div className="font-semibold text-sm text-gray-700 ">About</div>
         <IconButton size="small" onClick={toggleEdit}>
@@ -111,8 +138,9 @@ const AboutTab = ({
         </MenuItem>
         <MenuItem value={"Department"}>Department</MenuItem>
         <MenuItem value={"Location"}>Location</MenuItem>
-      </Select>
-    </div>
+              </Select>
+      </div>
+    </>
   );
 };
 

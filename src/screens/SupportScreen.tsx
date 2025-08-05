@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import SupportHeader from "../components/supportcomponents/SupportHeader";
-import { Typography } from "@mui/material";
+import { Typography, Tooltip } from "@mui/material";
 import CustomSearch from "../components/common/CustomSearch";
-import CustomToolTip from "../reusable/CustomToolTip";
 import SearchItems from "../components/supportcomponents/SearchItems";
 import TicketDetailCard from "../components/supportcomponents/TicketDetailCard";
 import LayersIcon from "@mui/icons-material/Layers";
@@ -74,10 +73,9 @@ const SupportScreen = () => {
       </Typography>
       <div className="w-1/2 flex bg-transparent mx-auto items-center justify-center  ">
         {/* <CustomSearch /> */}
-        <CustomToolTip
+        <Tooltip
           title={<SearchItems close={handleClose} searchQuery={searchQuery} />}
           open={isSearchOpen}
-          width={"80vh"}
           disableHoverListener
           placement={"bottom"}
         >
@@ -91,7 +89,7 @@ const SupportScreen = () => {
             bgOpacity={0}
             borderRadius={10}
           />
-        </CustomToolTip>
+        </Tooltip>
       </div>
 
       <div className="w-2/3 mx-auto grid grid-cols-3 gap-4  my-8">

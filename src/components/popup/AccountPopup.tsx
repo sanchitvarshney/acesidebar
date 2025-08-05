@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { Popper, Paper, Box, Typography, IconButton, Avatar, Button, Divider, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import { Close as CloseIcon, CameraAlt as CameraIcon, KeyboardArrowDown as KeyboardArrowDownIcon } from '@mui/icons-material';
+import { useAuth } from '../../contextApi/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface AccountPopupProps {
   open: boolean;
@@ -10,6 +12,8 @@ interface AccountPopupProps {
 
 const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) => {
   const popupRef = useRef<HTMLDivElement>(null);
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const userEmail = "shiv.kumar@mscorpres.in";
   const userName = "Shiv Kumar";
   const managedBy = "companyName";
@@ -161,8 +165,25 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
             fullWidth
             variant="outlined"
             onClick={() => {
-              localStorage.removeItem("token");
-              window.location.href = "/login";
+              // Clear all local storage
+              localStorage.clear();
+              sessionStorage.clear();
+              
+              // Clear all cookies
+              document.cookie.split(";").forEach((c) => {
+                document.cookie = c
+                  .replace(/^ +/, "")
+                  .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+              });
+              
+              // Close the popup
+              onClose();
+              
+              // Use the AuthContext signOut function
+              signOut();
+              
+              // Navigate to login page
+              navigate('/login');
             }}
             sx={{
               borderColor: '#dadce0',

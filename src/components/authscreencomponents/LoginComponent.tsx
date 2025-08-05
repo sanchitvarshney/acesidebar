@@ -32,13 +32,17 @@ const LoginComponent = () => {
   const { signIn } = useAuth();
   const navigation = useNavigate();
   const {
-    // setValue,
+    setValue,
     register,
     handleSubmit,
     formState: { errors, isSubmitted, touchedFields },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
+    defaultValues: {
+      email: "admin123",
+      password: "Shiv@123456",
+    },
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const { showToast } = useToast();

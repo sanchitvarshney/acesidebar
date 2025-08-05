@@ -15,11 +15,11 @@ import {
   Typography,
   Box as MuiBox,
   Avatar,
+  Modal,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ForwardPanel from "./ForwardPanel";
 import { useAuth } from "../../contextApi/AuthContext";
-import CustomSideBarPanel from "../reusable/CustomSideBarPanel";
 import { set } from "react-hook-form";
 
 interface TicketDetailTemplateProps {
@@ -133,70 +133,118 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           </div>
         </div>
       </Box>
-      {/* {(expandForward || forwardOpen || showReplyEditor) && ( */}
-      <CustomSideBarPanel
-        open={forwardOpen}
-        close={() => {
-          setExpandForward(false);
-          handleCloseForward();
-        }}
-        // title={undefined}
-        isHeader={false}
-        width={600}
-      >
-        <ForwardPanel
+      {/* Forward Drawer (MUI Slider) */}
+      {!expandForward && (
+        <Drawer
+          anchor="right"
           open={forwardOpen}
           onClose={() => {
             setExpandForward(false);
             handleCloseForward();
           }}
-          fields={forwardFields}
-          onFieldChange={handleForwardFieldChange}
-          onSend={handleForwardSend}
-          expand={expandForward}
-          onExpandToggle={() => {
-            setExpandForward((prev) => !prev);
-          }}
-        />
-      </CustomSideBarPanel>
-      {/* )} */}
-      {/* Delete Modal */}
-      <MuiBox>
-        <Button
-          onClick={handleCloseDelete}
-          style={{
-            display: deleteModalOpen ? "block" : "none",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            zIndex: 2000,
-            background: "rgba(0,0,0,0.3)",
-          }}
-        />
-        {deleteModalOpen && (
-          <MuiBox
-            sx={{
-              position: "fixed",
-              top: "40%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "#fff",
-              p: 4,
-              borderRadius: 2,
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: 600,
+              maxWidth: '100vw',
               boxShadow: 24,
-              zIndex: 2100,
+            },
+          }}
+        >
+          <ForwardPanel
+            open={forwardOpen}
+            onClose={() => {
+              setExpandForward(false);
+              handleCloseForward();
+            }}
+            fields={forwardFields}
+            onFieldChange={handleForwardFieldChange}
+            onSend={handleForwardSend}
+            expand={expandForward}
+            onExpandToggle={() => {
+              setExpandForward((prev) => !prev);
+            }}
+          />
+        </Drawer>
+      )}
+      {/* Forward Modal (centered) */}
+      {expandForward && (
+        <Modal
+          open={forwardOpen}
+          onClose={() => {
+            setExpandForward(false);
+            handleCloseForward();
+          }}
+          aria-labelledby="forward-modal-title"
+          aria-describedby="forward-modal-description"
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              bgcolor: 'background.paper',
+              boxShadow: 24,
+              borderRadius: 2,
+              p: 0,
+              width: { xs: '98vw', sm: '90vw', md: '70vw', lg: '60vw', xl: '900px' },
+              maxWidth: '98vw',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
             }}
           >
-            <Typography variant="h6">Confirm Delete</Typography>
-            <Typography sx={{ mb: 2 }}>
-              Are you sure you want to delete this ticket?
-            </Typography>
+            <Box sx={{ flex: 1, overflow: 'auto' }}>
+              <ForwardPanel
+                open={forwardOpen}
+                onClose={() => {
+                  setExpandForward(false);
+                  handleCloseForward();
+                }}
+                fields={forwardFields}
+                onFieldChange={handleForwardFieldChange}
+                onSend={handleForwardSend}
+                expand={expandForward}
+                onExpandToggle={() => {
+                  setExpandForward((prev) => !prev);
+                }}
+              />
+            </Box>
+          </Box>
+        </Modal>
+      )}
+      {/* Delete Modal */}
+      <Modal
+        open={deleteModalOpen}
+        onClose={handleCloseDelete}
+        aria-labelledby="delete-modal-title"
+        aria-describedby="delete-modal-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            borderRadius: 2,
+            p: 4,
+            width: { xs: '90vw', sm: '400px' },
+            maxWidth: '90vw',
+          }}
+        >
+          <Typography variant="h6" id="delete-modal-title" sx={{ mb: 2 }}>
+            Confirm Delete
+          </Typography>
+          <Typography id="delete-modal-description" sx={{ mb: 3 }}>
+            Are you sure you want to delete this ticket?
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
             <Button
               onClick={handleCloseDelete}
               variant="outlined"
-              sx={{ mr: 2 }}
             >
               Cancel
             </Button>
@@ -207,9 +255,9 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
             >
               Delete
             </Button>
-          </MuiBox>
-        )}
-      </MuiBox>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };

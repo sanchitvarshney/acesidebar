@@ -29,6 +29,8 @@ import {
   ListItem,
   Alert,
   MenuList,
+  Drawer,
+  Tooltip,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -41,8 +43,7 @@ import ShotCutContent from "../ShotCutContent";
 
 import ShortcutIcon from "@mui/icons-material/Shortcut";
 
-import CustomToolTip from "../../reusable/CustomToolTip";
-import CustomSideBarPanel from "../reusable/CustomSideBarPanel";
+
 import { set } from "react-hook-form";
 import { Add } from "@mui/icons-material";
 import { useSelector } from "react-redux";
@@ -282,7 +283,7 @@ const ThreadItem = ({
                     <span className="text-xs text-gray-400">
                       {item.repliedAt?.timestamp}
                     </span>{" "}
-                    <CustomToolTip
+                    <Tooltip
                       title={renderReplyOption}
                       open={open}
                       placement={"bottom-end"}
@@ -294,7 +295,7 @@ const ThreadItem = ({
                       >
                         <ArrowDropDownIcon />
                       </IconButton>
-                    </CustomToolTip>
+                    </Tooltip>
                   </div>
                 </div>
 
@@ -771,7 +772,7 @@ const TicketThreadSection = ({
 
                   <div className="flex items-center gap-2">
                     {images?.length > 0 && (
-                      <CustomToolTip
+                      <Tooltip
                         title={
                           <ImageViewComponent
                             images={images}
@@ -779,19 +780,19 @@ const TicketThreadSection = ({
                           />
                         }
                         open={showImagesModal}
-                        close={() => setShowImagesModal(false)}
+                        onClose={() => setShowImagesModal(false)}
                         placement={"top"}
-                      >
-                        <span
-                          className="bg-[#1a73e8] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
-                          onClick={() => setShowImagesModal(true)}
-                        >
-                          {images.length}
-                        </span>
-                      </CustomToolTip>
+                                              >
+                          <span
+                            className="bg-[#1a73e8] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
+                            onClick={() => setShowImagesModal(true)}
+                          >
+                            {images.length}
+                          </span>
+                        </Tooltip>
                     )}
                     <Divider orientation="vertical" flexItem />
-                    <CustomToolTip
+                    <Tooltip
                       title={"Attach file < 10MB"}
                       placement={"top-start"}
                     >
@@ -811,9 +812,9 @@ const TicketThreadSection = ({
                           />
                         </IconButton>
                       </div>
-                    </CustomToolTip>
+                    </Tooltip>
                     <Divider orientation="vertical" flexItem />
-                    <CustomToolTip title={"Canned Responses"}>
+                    <Tooltip title={"Canned Responses"}>
                       <IconButton
                         size="small"
                         onClick={() => {
@@ -823,9 +824,9 @@ const TicketThreadSection = ({
                       >
                         <PublishedWithChangesIcon fontSize="small" />
                       </IconButton>
-                    </CustomToolTip>
+                    </Tooltip>
                     <Divider orientation="vertical" flexItem />
-                    <CustomToolTip title={"Suggested Solutions"}>
+                    <Tooltip title={"Suggested Solutions"}>
                       <IconButton
                         size="small"
                         onClick={() => {
@@ -835,7 +836,7 @@ const TicketThreadSection = ({
                       >
                         <MenuBookIcon fontSize="small" />
                       </IconButton>
-                    </CustomToolTip>
+                    </Tooltip>
                   </div>
                 </div>
 
@@ -891,22 +892,43 @@ const TicketThreadSection = ({
       {/* Rich editor below reply bar */}
       {/* {(showEditor || showReplyEditor) && ( */}
 
-      <CustomSideBarPanel
+      <Drawer
+        anchor="right"
         open={canned}
-        close={() => setCanned(false)}
-        title={
-          <span>
-            {" "}
-            <PublishedWithChangesIcon fontSize="small" /> Canned Responses
-          </span>
-        }
+        onClose={() => setCanned(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: 600,
+            maxWidth: '100vw',
+            boxShadow: 24,
+          },
+        }}
       >
         <Box
           sx={{
             display: "flex",
+            alignItems: "center",
+            p: 2,
+            borderBottom: "1px solid #eee",
+            backgroundColor: "#e8f0fe",
+          }}
+        >
+          <PublishedWithChangesIcon fontSize="small" sx={{ mr: 1 }} />
+          <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
+            Canned Responses
+          </Typography>
+          <IconButton onClick={() => setCanned(false)} size="small">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
             flexDirection: "column",
-            height: "100%",
+            height: "calc(100% - 64px)",
             gap: 2,
+            p: 2,
+            overflow: "auto",
           }}
         >
           {/* Accordion Item 1 */}
@@ -946,25 +968,45 @@ const TicketThreadSection = ({
             </AccordionDetails>
           </Accordion>
         </Box>
-        {/* </div> */}
-      </CustomSideBarPanel>
+      </Drawer>
 
-      <CustomSideBarPanel
+      <Drawer
+        anchor="right"
         open={suggest}
-        close={() => setSuggest(false)}
-        title={
-          <span>
-            {" "}
-            <MenuBookIcon fontSize="small" /> Solution
-          </span>
-        }
+        onClose={() => setSuggest(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: 600,
+            maxWidth: '100vw',
+            boxShadow: 24,
+          },
+        }}
       >
         <Box
           sx={{
             display: "flex",
+            alignItems: "center",
+            p: 2,
+            borderBottom: "1px solid #eee",
+            backgroundColor: "#e8f0fe",
+          }}
+        >
+          <MenuBookIcon fontSize="small" sx={{ mr: 1 }} />
+          <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
+            Solution
+          </Typography>
+          <IconButton onClick={() => setSuggest(false)} size="small">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
             flexDirection: "column",
-            height: "100%",
+            height: "calc(100% - 64px)",
             gap: 2,
+            p: 2,
+            overflow: "auto",
           }}
         >
           {shotcutData?.length > 0 ? (
@@ -1028,7 +1070,7 @@ const TicketThreadSection = ({
             </div>
           )}
         </Box>
-      </CustomSideBarPanel>
+      </Drawer>
     </div>
   );
 };

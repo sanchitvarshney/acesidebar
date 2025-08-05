@@ -68,9 +68,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [signIn]);
 
   const signOut = useCallback(() => {
+    // Clear user state
     setUser(null);
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userData");
+    
+    // Clear all local storage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Clear all cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    
+    // Clear any Redux state if needed
+    // dispatch(clearUserState()); // Uncomment if you have Redux actions
+    
+    // Navigate to login page
     window.location.href = "/login";
   }, []);
 

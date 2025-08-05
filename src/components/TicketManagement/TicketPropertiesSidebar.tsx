@@ -2,6 +2,8 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PersonIcon from "@mui/icons-material/Person";
 import ShareIcon from "@mui/icons-material/Share";
@@ -11,7 +13,6 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import HistoryIcon from "@mui/icons-material/History";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-// import CloseIcon from "@mui/icons-material/Close";
 import AboutTab from "./AboutTab";
 import SharingTab from "./SharingTab";
 import InfoTab from "./InfoTab";
@@ -62,19 +63,28 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   const jobTitle = ticket?.jobTitle || "";
 
   const [attribute, setAttribute] = React.useState("");
-  const [activeTopTab, setActiveTopTab] = React.useState("profile");
-  const [activeProfileTab, setActiveProfileTab] = React.useState("about");
+  const [activeTopTab, setActiveTopTab] = React.useState(0);
+  const [activeProfileTab, setActiveProfileTab] = React.useState(0);
   const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
+  
   const handleAttributeChange = (event: any) => {
     setAttribute(event.target.value);
   };
 
+  const handleTopTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTopTab(newValue);
+  };
+
+  const handleProfileTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveProfileTab(newValue);
+  };
+
   // Top-level tab content
   let mainContent = null;
-  if (activeTopTab === "profile") {
+  if (activeTopTab === 0) { // profile
     mainContent = (
       <div className="w-full">
-        <div className="flex items-center gap-3 mb-4 shrink-0">
+        <div className="flex items-center gap-3 mb-4">
           <Avatar
             sx={{
               bgcolor: "#FFC107",
@@ -90,35 +100,41 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             <div className="font-semibold text-base text-gray-800">{name}</div>
           </div>
         </div>
-        {/* Profile tab bar */}
-        <div className="flex items-center justify-between bg-gray-50 rounded px-2 py-1 mb-4 border border-gray-200">
-          {profileTabs.map((tab) => (
-            <button
-              key={tab.key}
-              className={`flex-1 flex justify-center items-center py-1 rounded transition-colors ${
-                activeProfileTab === tab.key ? "bg-white" : ""
-              }`}
-              style={{
-                borderBottom:
-                  activeProfileTab === tab.key
-                    ? "2px solid #1a73e8"
-                    : "2px solid transparent",
-              }}
-              onClick={() => setActiveProfileTab(tab.key)}
-              aria-label={tab.label}
-              type="button"
-            >
-              {React.cloneElement(tab.icon, {
-                className:
-                  activeProfileTab === tab.key
-                    ? "text-[#1a73e8]"
-                    : "text-gray-400",
-              })}
-            </button>
-          ))}
-        </div>
+        
+        {/* Profile tab bar using MUI Tabs */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+          <Tabs 
+            value={activeProfileTab} 
+            onChange={handleProfileTabChange}
+            variant="fullWidth"
+            sx={{
+              '& .MuiTab-root': {
+                minHeight: 40,
+                color: '#6b7280',
+                '&.Mui-selected': {
+                  color: '#1a73e8',
+                },
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: '#1a73e8',
+                height: 2,
+              },
+            }}
+          >
+            {profileTabs.map((tab, index) => (
+              <Tab
+                key={tab.key}
+                icon={tab.icon}
+                id={`profile-tab-${index}`}
+                aria-controls={`profile-tabpanel-${index}`}
+                aria-label={tab.label}
+              />
+            ))}
+          </Tabs>
+        </Box>
+        
         {/* Profile tab content */}
-        {activeProfileTab === "about" && (
+        {activeProfileTab === 0 && (
           <AboutTab
             name={name}
             email={email}
@@ -128,11 +144,12 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             handleAttributeChange={handleAttributeChange}
           />
         )}
-        {activeProfileTab === "share" && <SharingTab />}
-        {activeProfileTab === "info" && <InfoTab />}
-        {activeProfileTab === "notes" && <NotesTab />}
+        {activeProfileTab === 1 && <SharingTab />}
+        {activeProfileTab === 2 && <InfoTab />}
+        {activeProfileTab === 3 && <NotesTab />}
+        
         {/* Organization section */}
-        <div className="bg-white rounded border border-gray-200 p-2 flex flex-col  ">
+        <div className="bg-white rounded border border-gray-200 p-2 flex flex-col">
           <div className="flex items-center gap-2 mb-2">
             <LocalOfferIcon className="text-gray-500" />
             <span className="text-sm text-gray-700 font-medium">Tags</span>
@@ -172,11 +189,11 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         </div>
       </div>
     );
-  } else if (activeTopTab === "knowledge") {
+  } else if (activeTopTab === 1) { // knowledge
     mainContent = <KnowledgeBaseTab />;
-  } else if (activeTopTab === "shortcuts") {
+  } else if (activeTopTab === 2) { // shortcuts
     mainContent = <ShortcutsTab />;
-  } else if (activeTopTab === "history") {
+  } else if (activeTopTab === 3) { // history
     mainContent = <HistoryTab />;
   }
 
@@ -187,64 +204,75 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         width: "100%",
         display: "flex",
         flexDirection: "column",
-        p: 2,
-        overflow: "hidden", // Prevent the main container from scrolling
+        backgroundColor: "#f8f9fa",
+        overflow: "hidden",
       }}
     >
-      {/* Top-level tab bar */}
-      <div className="flex items-center justify-between bg-white rounded px-2 py-1 mb-2 border border-gray-200 shrink-0">
-        {topTabs.map((tab) => (
-          <button
-            key={tab.key}
-            className={`flex-1 flex justify-center items-center py-1 rounded transition-colors ${
-              activeTopTab === tab.key ? "bg-white" : ""
-            }`}
-            style={{
-              borderBottom:
-                activeTopTab === tab.key
-                  ? "2px solid #1a73e8"
-                  : "2px solid transparent",
-            }}
-            onClick={() => setActiveTopTab(tab.key)}
-            aria-label={tab.label}
-            type="button"
-          >
-            {React.cloneElement(tab.icon, {
-              className:
-                activeTopTab === tab.key ? "text-[#1a73e8]" : "text-gray-400",
-            })}
-          </button>
-        ))}
-        {/* Expand and Close buttons */}
-        {/* <button
-          className="flex justify-center items-center ml-2"
-          style={{ minWidth: 32, minHeight: 32 }}
-          onClick={onExpand}
-          aria-label="Expand"
-          type="button"
+
+      {/* Top-level tab bar using MUI Tabs */}
+      <Box 
+        sx={{ 
+          borderBottom: 1, 
+          borderColor: 'divider', 
+          backgroundColor: "white",
+          flexShrink: 0,
+        }}
+      >
+        <Tabs 
+          value={activeTopTab} 
+          onChange={handleTopTabChange}
+          variant="fullWidth"
+          sx={{
+            '& .MuiTab-root': {
+              minHeight: 40,
+              color: '#6b7280',
+              '&.Mui-selected': {
+                color: '#1a73e8',
+              },
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: '#1a73e8',
+              height: 2,
+            },
+          }}
         >
-          <OpenInFullIcon className="text-gray-400" />
-        </button>
-        <button
-          className="flex justify-center items-center ml-1"
-          style={{ minWidth: 32, minHeight: 32 }}
-          onClick={onClose}
-          aria-label="Close"
-          type="button"
-        >
-          <CloseIcon className="text-gray-400" />
-        </button> */}
-      </div>
-      {/* Main content below top tabs */}
-      <div
-        className="flex-1 overflow-y-auto will-change-transform"
-        style={{
-          minHeight: 0,
-          maxHeight: "calc(100% - 60px)", // Account for tab bar height
+          {topTabs.map((tab, index) => (
+            <Tab
+              key={tab.key}
+              icon={tab.icon}
+              id={`top-tab-${index}`}
+              aria-controls={`top-tabpanel-${index}`}
+              aria-label={tab.label}
+            />
+          ))}
+        </Tabs>
+      </Box>
+      
+      {/* Scrollable content area */}
+      <Box
+        sx={{
+          flex: 1,
+          overflow: "auto",
+          backgroundColor: "#f8f9fa",
+          p: 2,
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "#f1f1f1",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#c1c1c1",
+            borderRadius: "4px",
+            "&:hover": {
+              backgroundColor: "#a8a8a8",
+            },
+          },
         }}
       >
         {mainContent}
-      </div>
+      </Box>
     </Box>
   );
 };
