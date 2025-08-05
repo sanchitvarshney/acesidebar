@@ -86,7 +86,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
       setSelectedIndex("1");
     }
     else {
-      onCloseReply(true)
+   
       setSelectedIndex("2");
     }
   }, [isValues]);

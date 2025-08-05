@@ -10,7 +10,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import emptyimg from "../../assets/image/overview-empty-state.svg"
+import emptyimg from "../../assets/image/overview-empty-state.svg";
 import {
   FormControl,
   Select,
@@ -486,10 +486,10 @@ const TicketThreadSection = ({
     setShowEditor(!showEditor);
   };
 
-  useEffect(() => {
-    if (!value) return;
-    handleReplyButton();
-  }, [value]);
+  // useEffect(() => {
+  //   if (!value) return;
+  //   handleReplyButton();
+  // }, [value]);
 
   const handleIconClick = () => {
     if (images.length > 3) {
@@ -552,23 +552,23 @@ const TicketThreadSection = ({
         </div>
         <div className="flex flex-col gap-0 w-full h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
           <ThreadList thread={thread} onForward={onForward} />
-            {/* <Divider
+          {/* <Divider
             orientation="vertical"
             sx={{
               height:25,
-              borderRight: "1px dashed rgba(0,0,0,0.3)", // dashed style
-              mx: "auto", // spacing
+              borderLeft: "1px dashed rgba(0,0,0,0.3)", // dashed style
+              // mx: "auto", // spacing
             }}
           />
-          <div className="w-4/5  mx-auto px-2 py-3 flex justify-center items-center border-dashed">
+          <div className="w-4/5 px-2 py-3  border-dashed">
             <DynamicallyThread />
           </div>
           <Divider
             orientation="vertical"
             sx={{
               height:25,
-              borderRight: "1px dashed rgba(0,0,0,0.3)", // dashed style
-              mx: "auto", // spacing
+              borderLeft: "1px dashed rgba(0,0,0,0.3)", // dashed style
+              // mx: "auto", // spacing
             }}
           /> */}
         </div>
@@ -1000,11 +1000,7 @@ const TicketThreadSection = ({
             </>
           ) : (
             <div className="flex flex-col items-center mt-4">
-              <img
-                src={ emptyimg}
-                alt="notes"
-                className="mx-auto w-40 h-40"
-              />
+              <img src={emptyimg} alt="notes" className="mx-auto w-40 h-40" />
             </div>
           )}
         </Box>
