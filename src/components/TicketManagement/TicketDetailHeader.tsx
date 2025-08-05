@@ -10,6 +10,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { IconButton } from "@mui/material";
+import CustomModal from "../layout/CustomModal";
+import ConfirmationModal from "../reusable/ConfirmationModal";
 
 
 const ActionButton = ({
@@ -49,6 +51,7 @@ const TicketDetailHeader = ({
   hasPreviousTicket = true,
   hasNextTicket = true 
 }: any) => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   return (
     <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
 
@@ -91,7 +94,7 @@ const TicketDetailHeader = ({
         />
         <ActionButton icon={<CloseIcon fontSize="small"  color="error" />} label="Close" />
         <ActionButton icon={<MergeTypeIcon fontSize="small"  sx={{color:"#1a73e8"}}/>} label="Merge" />
-        <ActionButton icon={<DeleteIcon fontSize="small"  color="error"/>} label="Delete" />
+        <ActionButton icon={<DeleteIcon fontSize="small"  color="error"/>} label="Delete"  onClick={() => setIsDeleteModalOpen(true)}/>
       </div>
 
       {/* Navigation buttons - Right side */}
@@ -131,6 +134,8 @@ const TicketDetailHeader = ({
           <ArrowForwardIosIcon fontSize="small" />
         </IconButton>
       </div>
+      <ConfirmationModal bgColor="rgba(244, 67, 54, 1)" open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false) } onConfirm={()=>{} }   />
+      
     </div>
   );
 };

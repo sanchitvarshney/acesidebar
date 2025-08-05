@@ -31,6 +31,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import TicketDetailSkeleton from "../skeleton/TicketDetailSkeleton";
 import { useParams, useNavigate } from "react-router-dom";
 import UserHoverPopup from "../popup/UserHoverPopup";
+import CustomModal from "../layout/CustomModal";
+import { set } from "react-hook-form";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -80,6 +82,7 @@ const Tickets: React.FC = () => {
   const [userPopupUser, setUserPopupUser] = useState<any>(null);
   const userPopupTimer = React.useRef<NodeJS.Timeout | null>(null);
   const [copiedTicketNumber, setCopiedTicketNumber] = useState<string | null>(null);
+  const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -344,7 +347,8 @@ const Tickets: React.FC = () => {
     if (replyText.trim()) {
       // TODO: Implement API call to send reply
       console.log("Sending reply:", replyText, threadItem);
-      showToast("Reply sent successfully!", "success");
+      setIsSuccessModal(true);
+      // showToast("Reply sent successfully!", "success");
     } else {
       showToast("Please enter a reply message", "error");
     }
@@ -771,6 +775,21 @@ const Tickets: React.FC = () => {
         onMouseLeave={handlePopupLeave}
         user={userPopupUser}
       />
+
+      {
+        isSuccessModal && (
+         <CustomModal open={isSuccessModal} onClose={() => {
+          } } title={"Ticket Save"} msg="Ticket save successfully" primaryButton={{
+            title: "Go Next",
+            onClick: ()=>{},
+         
+          }} secondaryButton={{
+            title: "Ticket List",
+             onClick: ()=>{setIsSuccessModal(false)},
+        
+          }} />
+        )
+      }
     </>
   );
 };

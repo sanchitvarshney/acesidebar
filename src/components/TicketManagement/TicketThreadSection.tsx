@@ -271,7 +271,7 @@ const ThreadItem = ({
               </div>
             )}
           </div>
-          <div className="w-full flex flex-col items-center justify-between bg-[#fff] border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)]" >
+          <div className="w-full flex flex-col items-center justify-between bg-[#fff] border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)]">
             <div className="flex items-center justify-between w-full px-4 py-2">
               <div className="w-full flex flex-col">
                 <div className="flex items-center justify-between w-full">
@@ -397,10 +397,11 @@ const TicketThreadSection = ({
   showReplyEditor,
   showEditorNote,
   onCloseReply,
+  onCloseEditorNote,
   value,
 }: any) => {
   // const [ticketStatus, setTicketStatus] = useState(header?.status || "open");
-  const [showEditor, setShowEditor] = useState(false);
+  const [showEditor, setShowEditor] = useState<any>(false);
   // const [replyText, setReplyText] = useState("");
   const [markdown, setMarkdown] = useState("");
   const [showShotcut, setShowShotcut] = useState(false);
@@ -414,9 +415,11 @@ const TicketThreadSection = ({
   const [showImagesModal, setShowImagesModal] = useState(false);
   const [canned, setCanned] = useState(false);
   const [suggest, setSuggest] = useState(false);
+  //@ts-ignore
   const { shotcutData } = useSelector((state: RootState) => state.shotcut);
   const [signature, setSignature] = useState("");
   const [signatureUpdateKey, setSignatureUpdateKey] = useState(0);
+  const [shouldFocusEditor, setShouldFocusEditor] = useState(false);
 
   const handleSignatureChange = (event: string) => {
     setSelectedOptionValue(event);
@@ -483,13 +486,19 @@ const TicketThreadSection = ({
 
   // Handler for Reply button
   const handleReplyButton = () => {
-    setShowEditor(!showEditor);
+    const newShowEditor = !showEditor;
+    console.log('handleReplyButton called:', { currentShowEditor: showEditor, newShowEditor });
+    setShowEditor(newShowEditor);
+    if (newShowEditor) {
+      console.log('Setting shouldFocusEditor to true from handleReplyButton');
+      setShouldFocusEditor(true);
+    }
   };
 
-  // useEffect(() => {
-  //   if (!value) return;
-  //   handleReplyButton();
-  // }, [value]);
+  useEffect(() => {
+    if (!value) return;
+    handleReplyButton();
+  }, [value]);
 
   const handleIconClick = () => {
     if (images.length > 3) {
@@ -538,11 +547,21 @@ const TicketThreadSection = ({
     updatedImages.splice(index, 1);
     setImages(updatedImages);
   };
-  const onReplyClose = (value: boolean) => {
-    setShowEditor(value);
+  const onReplyClose = () => {
+    setShowEditor(false);
+    setShouldFocusEditor(false);
+    onCloseReply();
+    onCloseEditorNote();
   };
 
-  console.log(showEditor);
+  useEffect(() => {
+    console.log('TicketThreadSection useEffect triggered:', { showReplyEditor, showEditorNote });
+    if (showReplyEditor || showEditorNote) {
+      console.log('Setting showEditor to true and shouldFocusEditor to true');
+      setShowEditor(true);
+      setShouldFocusEditor(true);
+    }
+  }, [showEditorNote, showReplyEditor]);
 
   return (
     <div className="flex flex-col gap-2  w-full h-[100%]  overflow-hidden ">
@@ -679,11 +698,16 @@ const TicketThreadSection = ({
                   initialContent={markdown}
                   signatureValue={signature}
                   onChange={handleEditorChange}
-                  key={`editor-${stateChangeKey}-${signatureUpdateKey}`}
                   isEditorExpended={isEditorExpended}
                   isExpended={() => setIsEditorExpended(!isEditorExpended)}
-                  onCloseReply={() => onReplyClose(false)}
+                  onCloseReply={onReplyClose}
                   isValues={value}
+                  onForward={onForward}
+                  shouldFocus={shouldFocusEditor}
+                  onFocus={() => {
+                    console.log('onFocus callback called, setting shouldFocusEditor to false');
+                    setShouldFocusEditor(false);
+                  }}
                 />
               </div>
 

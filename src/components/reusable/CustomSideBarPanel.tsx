@@ -62,7 +62,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
         </Box>
       )}
       <div
-        className="w-full p-1 h-full overflow-y-auto"
+        className="w-full  h-[calc(100vh-64px)] overflow-y-auto"
         style={{
           pointerEvents: "auto", // 👈 Re-enable interactions inside Drawer content
         }}

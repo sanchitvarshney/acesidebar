@@ -5,7 +5,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import ContactsIcon from "@mui/icons-material/Contacts";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
-import CustomModal from "./CustomModal";
+// import CustomModal from "./CustomModal";
 
 const BottomBar = () => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -63,7 +63,7 @@ const BottomBar = () => {
           </IconButton>
         </Box>
       </Box>
-      <CustomModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      {/* <CustomModal open={modalOpen} onClose={() => setModalOpen(false)} /> */}
     </>
   );
 };

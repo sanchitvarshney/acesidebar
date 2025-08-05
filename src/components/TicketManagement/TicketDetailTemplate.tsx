@@ -81,12 +81,14 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
     setShowReplyEditor(true);
     setValue("Reply");
   };
+
+ 
   const handleCloseReply = () => setShowReplyEditor(false);
   const handleAddNote = () => {
     setShowEditorNote(true);
     setValue("Note");
   };
-  const handleAddNoteClose = () => setShowReplyEditor(false);
+  const handleAddNoteClose = () => setShowEditorNote(false);
   const handleDelete = () => setDeleteModalOpen(true);
   const handleCloseDelete = () => setDeleteModalOpen(false);
   const handleConfirmDelete = () => {

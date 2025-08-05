@@ -60,13 +60,14 @@ const optionsofPrivate = [
   },
 ];
 
-const StackEditor = ({ initialContent = "", onChange, ...props }) => {
+const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFocus, ...props }) => {
   const {
     isEditorExpended,
     isExpended,
     onCloseReply,
     signatureValue,
     isValues,
+    onForward
   } = props;
   const isMounted = React.useRef(true);
   const [editorContent, setEditorContent] = useState("");
@@ -84,6 +85,81 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   const [notifyTag, setNotifyTag] = useState([]);
   const [currentSignature, setCurrentSignature] = useState("");
 
+  // Focus the editor when it opens
+  useEffect(() => {
+    console.log('StackEditor focus useEffect triggered:', { shouldFocus, editorRef: !!editorRef.current });
+    
+    if (editorRef.current && shouldFocus) {
+      const quill = editorRef.current.getQuill();
+      console.log('Quill instance found:', !!quill);
+      
+      if (quill) {
+        // Longer delay to ensure the editor is fully rendered and initialized
+        setTimeout(() => {
+          console.log('Attempting to focus quill editor...');
+          try {
+            quill.focus();
+            // Move cursor to the end of the content
+            const length = quill.getLength();
+            quill.setSelection(length, 0);
+            console.log('Focus applied, cursor moved to position:', length);
+            // Call onFocus callback if provided
+            if (onFocus) {
+              onFocus();
+            }
+          } catch (error) {
+            console.error('Error focusing quill editor:', error);
+          }
+        }, 300);
+      } else {
+        // If quill is not available, try again after a short delay
+        setTimeout(() => {
+          const quill = editorRef.current?.getQuill();
+          if (quill && shouldFocus) {
+            console.log('Quill instance found on retry, attempting to focus...');
+            try {
+              quill.focus();
+              const length = quill.getLength();
+              quill.setSelection(length, 0);
+              console.log('Focus applied on retry, cursor moved to position:', length);
+              if (onFocus) {
+                onFocus();
+              }
+            } catch (error) {
+              console.error('Error focusing quill editor on retry:', error);
+            }
+          }
+        }, 500);
+      }
+    }
+  }, [shouldFocus, onFocus]);
+
+  // Additional effect to handle focus when editor becomes visible
+  useEffect(() => {
+    if (shouldFocus && editorRef.current) {
+      // Try to focus after a longer delay to ensure everything is ready
+      const timeoutId = setTimeout(() => {
+        const quill = editorRef.current?.getQuill();
+        if (quill && shouldFocus) {
+          console.log('Additional focus attempt for visible editor...');
+          try {
+            quill.focus();
+            const length = quill.getLength();
+            quill.setSelection(length, 0);
+            console.log('Additional focus applied, cursor moved to position:', length);
+            if (onFocus) {
+              onFocus();
+            }
+          } catch (error) {
+            console.error('Error in additional focus attempt:', error);
+          }
+        }
+      }, 800);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [shouldFocus, onFocus]);
+
   useEffect(() => {
     if (!isValues) return;
     if (isValues === "Reply") {
@@ -92,6 +168,8 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
       setSelectedIndex("2");
     }
   }, [isValues]);
+
+ 
 
   // Handle signature changes from parent component
   useEffect(() => {
@@ -208,6 +286,9 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   };
 
   const handleSelect = (index) => {
+    if (index === "3") {
+      onForward();
+    }
     setSelectedIndex(index);
     setIsOptionsOpen(false); // Close after selection
     setOptionChangeKey((prevKey) => prevKey + 1);
@@ -254,8 +335,10 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   };
 
   const handleChangeValue = (event) => {
-    // console.log(event);
+   
     setSelectedOptionValue(event);
+    // setShowBcc(false);
+
   };
 
   function handleListKeyDown(event) {
@@ -288,7 +371,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
             onChange={(e) => handleChangeValue(e.target.value)}
             MenuProps={{
               sx: {
-                zIndex: isFullscreen ? 10001 : 1,
+                zIndex: isFullscreen ? 10001 : 9999,
               },
             }}
             sx={{
@@ -419,7 +502,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
             slotProps={{
               popper: {
                 sx: {
-                  zIndex: isFullscreen ? 10001 : 1,
+                  zIndex: isFullscreen ? 10001 : 9999,
                 },
               },
             }}
@@ -509,7 +592,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         </div>
         <div>
           {!isFullscreen && (
-            <IconButton onClick={() => onCloseReply(false)} size="small">
+            <IconButton onClick={onCloseReply} size="small">
               <KeyboardArrowUpIcon sx={{ transform: "rotate(180deg)" }} />
             </IconButton>
           )}
@@ -520,7 +603,8 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         {renderComponentBasedOnOptions}
       </div>
 
-      <div
+     {selectedIndex === "1" && (
+        <div
         className="flex items-center gap-4 mb-2 px-2"
         style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
       >
@@ -550,6 +634,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
           </div>
         )}
       </div>
+     )}
       {/* <div className="flex flex-col h-full w-full overflow-y-scroll"> */}
 
       {/* Main Editor for Message */}
