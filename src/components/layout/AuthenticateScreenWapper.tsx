@@ -32,7 +32,7 @@ const AuthenticateScreenWapper: FC<AuthenticateScreenWapperProps> = ({
     <Box
       sx={{
         minHeight: "75vh",
-        // width: "100vw",
+        boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)", 
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -65,7 +65,7 @@ const AuthenticateScreenWapper: FC<AuthenticateScreenWapperProps> = ({
             justifyContent: "center",
             background: {
               xs: "none",
-              md: "linear-gradient(135deg, #6366f1 0%, #818cf8 100%)",
+              md: "linear-gradient(135deg, #3187e2 0%, #4c86e8 100%)",
             },
             color: { md: "white" },
             borderRadius: { md: 3 },

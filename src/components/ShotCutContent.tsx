@@ -26,7 +26,7 @@ const ShotCutContent = ({
   return (
     <div className="w-full  bg-white rounded-[6px] shadow-2xl  overflow-hidden">
       {/* Header */}
-      <div className="bg-[#0891b2] p-2 text-white">
+      <div className="bg-[#1a73e8] p-2 text-white">
         <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
           Shortcut's
         </Typography>

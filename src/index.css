@@ -196,3 +196,25 @@
   z-index: 10002 !important;
 }
 
+
+/* Scrollbar track */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background-color: #c6c7c8;
+  border-radius: 2px;
+}
+
+/* Scrollbar thumb on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a6a7a8;
+}
+
+/* Scrollbar track background (optional) */
+::-webkit-scrollbar-track {
+  background: transparent;
+}

@@ -52,7 +52,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             style={{ background: selected?.color }}
           ></span>
         )}
-        <span className="truncate flex-1 text-sm font-medium leading-5 text-left max-w-[80px]">
+        <span className="truncate flex-1 text-sm font-medium leading-5 text-left max-w-[80px]" style={{fontSize : "13px"}}>
           {selected.label}
         </span>
         <ArrowDropDownIcon fontSize="small" className="ml-2 flex-shrink-0" />

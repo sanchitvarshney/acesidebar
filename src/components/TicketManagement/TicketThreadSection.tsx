@@ -271,11 +271,11 @@ const ThreadItem = ({
               </div>
             )}
           </div>
-          <div className="w-full flex flex-col items-center justify-between bg-[#fff] border border-gray-200">
+          <div className="w-full flex flex-col items-center justify-between bg-[#fff] border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)]" >
             <div className="flex items-center justify-between w-full px-4 py-2">
               <div className="w-full flex flex-col">
                 <div className="flex items-center justify-between w-full">
-                  <span className="font-semibold text-[#0891b2]">
+                  <span className="font-semibold text-[#1a73e8]">
                     {item.repliedBy?.name || "User"}
                   </span>
                   <div>
@@ -303,7 +303,7 @@ const ThreadItem = ({
                 </span>
               </div>
             </div>
-            <div className="flex items-center justify-between w-full py-3 px-4 bg-white border-t-2 border-[#c3d9ff] bg-[#f4f8ff]">
+            <div className="flex items-center justify-between w-full py-3 px-4 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd]">
               <span className="text-xs text-gray-500">Rate this response</span>
               <span className="flex gap-1">
                 {Array.from({ length: 5 }).map((_, idx) => {
@@ -572,7 +572,7 @@ const TicketThreadSection = ({
             }}
           /> */}
         </div>
-        <div className="rounded   p-1 w-[75%]  bg-white  flex z-[999] absolute bottom-0 ">
+        <div className="rounded   p-1 w-[75%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
           <Accordion
             elevation={0}
             expanded={showEditor || showReplyEditor || showEditorNote}
@@ -759,7 +759,7 @@ const TicketThreadSection = ({
                         placement={"top"}
                       >
                         <span
-                          className="bg-[#0891b2] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
+                          className="bg-[#1a73e8] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
                           onClick={() => setShowImagesModal(true)}
                         >
                           {images.length}
@@ -829,7 +829,7 @@ const TicketThreadSection = ({
                     Reset
                   </button>
                   <button
-                    className="bg-[#0891b2] text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-[#0ca5c9]"
+                    className="bg-[#1a73e8] text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-[#1b66c9]"
                     onClick={handleSave}
                   >
                     Save

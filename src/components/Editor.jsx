@@ -448,9 +448,9 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
                     borderRadius: "4px",
                     backgroundColor: "#f9fafb",
                     "&:hover fieldset": { borderColor: "#9ca3af" },
-                    "&.Mui-focused fieldset": { borderColor: "#2eacb3" },
+                    "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
                   },
-                  "& label.Mui-focused": { color: "#2eacb3" },
+                  "& label.Mui-focused": { color: "#1a73e8" },
                   "& label": { fontWeight: "bold" },
                 }}
               />
