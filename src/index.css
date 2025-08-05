@@ -153,12 +153,12 @@
 
 .editor-fullscreen {
   position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100vw !important;
-  height: 100vh !important;
+  top: 10vh !important;
+  left: 12vh !important;
+  width: calc(100% - 15vh) !important;
+  height: calc(100% - 12vh) !important;
   background: white;
-  z-index: 9999;
+  z-index: 9999 !important;
   padding: 10px;
   
 }

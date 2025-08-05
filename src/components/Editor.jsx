@@ -61,7 +61,13 @@ const optionsofPrivate = [
 ];
 
 const StackEditor = ({ initialContent = "", onChange, ...props }) => {
-  const { isEditorExpended, isExpended, onCloseReply, signatureValue, isValues } = props;
+  const {
+    isEditorExpended,
+    isExpended,
+    onCloseReply,
+    signatureValue,
+    isValues,
+  } = props;
   const isMounted = React.useRef(true);
   const [editorContent, setEditorContent] = useState("");
   const [notifyValue, setNotifyValue] = React.useState("--");
@@ -78,15 +84,11 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   const [notifyTag, setNotifyTag] = useState([]);
   const [currentSignature, setCurrentSignature] = useState("");
 
-
   useEffect(() => {
     if (!isValues) return;
     if (isValues === "Reply") {
- 
       setSelectedIndex("1");
-    }
-    else {
-   
+    } else {
       setSelectedIndex("2");
     }
   }, [isValues]);
@@ -462,23 +464,24 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
   );
 
   const editorHeight = isFullscreen
-  ? "100vh"
-  : isEditorExpended
-  ? "450px"
-  : (showCc || showBcc) && currentSignature
-  ? "calc(100vh - 580px)"
-  : showCc || showBcc
-  ? "calc(100vh - 405px)"
-  : currentSignature
-  ? "calc(100vh - 530px)"
-  : "calc(100vh - 358px)";
-
+    ? "100vh"
+    : isEditorExpended
+    ? "450px"
+    : (showCc || showBcc) && currentSignature
+    ? "calc(100vh - 580px)"
+    : showCc || showBcc
+    ? "calc(100vh - 405px)"
+    : currentSignature
+    ? "calc(100vh - 530px)"
+    : "calc(100vh - 370px)";
 
   return (
-    <div className={isFullscreen ? "editor-fullscreen " : " w-full h-full"}>
+    <div className={isFullscreen ? "editor-fullscreen relative " : " w-full h-full"}>
       <div
         className="flex items-center justify-between p-2 mb-2"
-        style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
+        style={
+          isFullscreen ? { position: "relative", zIndex: 10000 } : {}
+        }
       >
         <div className="flex items-center gap-2 z-[10000]">
           <Avatar
@@ -506,7 +509,7 @@ const StackEditor = ({ initialContent = "", onChange, ...props }) => {
         </div>
         <div>
           {!isFullscreen && (
-            <IconButton onClick={()=>onCloseReply(false)} size="small">
+            <IconButton onClick={() => onCloseReply(false)} size="small">
               <KeyboardArrowUpIcon sx={{ transform: "rotate(180deg)" }} />
             </IconButton>
           )}

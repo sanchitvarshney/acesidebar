@@ -326,11 +326,11 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
           </Box>
 
           {/* Filter Rows */}
-          <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
+          <Box sx={{ maxHeight: 300, overflowY: 'auto',  }}>
             {filters.map((filter, index) => (
-              <Box key={filter.id} sx={{ mb: 2, display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+              <Box key={filter.id} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                 {/* Field Dropdown */}
-                <FormControl size="small" sx={{ minWidth: 120 }}>
+                <FormControl  sx={{ minWidth: 120 }}>
                   <Select
                     value={filter.field}
                     onChange={(e) => handleFilterChange(filter.id, 'field', e.target.value)}
@@ -348,7 +348,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
                 </FormControl>
 
                 {/* Operator Dropdown */}
-                <FormControl size="small" sx={{ minWidth: 120 }}>
+                <FormControl  sx={{ minWidth: 120 }}>
                   <Select
                     value={filter.operator}
                     onChange={(e) => handleFilterChange(filter.id, 'operator', e.target.value)}
