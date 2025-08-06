@@ -57,7 +57,7 @@ const ViewExistingTicket = () => {
           <TextField
             label="Enter Ticket ID"
             variant="outlined"
-            size="small"
+            size="medium"
             sx={{
               width: { sm: 250, md: 350, lg: 400 },
               "& .MuiOutlinedInput-root": {
@@ -71,7 +71,7 @@ const ViewExistingTicket = () => {
             }}
           />
 
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" size="large">
             <Typography variant="body2" sx={{ fontWeight: "bold" }}>
               View Ticket
             </Typography>
