@@ -20,14 +20,14 @@ const ticketDetailsData = [
     title: "Browse articles",
     description:
       "Explore How-To's and learn best practices from our knowledge base",
-      path:""
+    
   },
   {
     id: 2,
     icon: submitIcon,
     title: "Submit a ticket",
     description: "Describe your issue by filling out the support ticket form",
-    path:""
+
   },
   {
     id: 3,
@@ -35,7 +35,7 @@ const ticketDetailsData = [
     title: "View existing tickets",
     description:
       "Track all your ticket's progress and your interaction with the support team",
-      path:"/ticket/support/view-existing-ticket"
+   
   }
 ];
 const ticketFaqData = [
@@ -110,7 +110,7 @@ const SupportScreen = () => {
             icon={item.icon}
             title={item.title}
             desc={item.description}
-            path={item.path}
+          
           />
         ))}
       </div>

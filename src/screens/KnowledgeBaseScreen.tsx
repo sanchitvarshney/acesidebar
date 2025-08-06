@@ -16,22 +16,22 @@ import {
   Layers as CategoryIcon,
 } from "@mui/icons-material";
 import { knowledgeBaseData } from "../data/instractions";
+import { useNavigate } from "react-router-dom";
 
 const KnowledgeBaseScreen = () => {
-
-
+    const navigate = useNavigate();
   return (
     <Box
       sx={{
         width: "100%",
-    
+
         padding: 3,
       }}
     >
       <Typography
         variant="h5"
         component="h1"
-        sx={{ mb: 3, fontWeight: 600, color: "#2c3e50",textAlign:"center" }}
+        sx={{ mb: 3, fontWeight: 600, color: "#2c3e50", textAlign: "center" }}
       >
         Knowledge Base
       </Typography>
@@ -49,6 +49,7 @@ const KnowledgeBaseScreen = () => {
       >
         {knowledgeBaseData.map((category) => (
           <Card
+          onClick={() => navigate(`/ticket/support/knowledge-base/${category.title}`)}
             sx={{
               height: "100%",
               borderRadius: 3,
