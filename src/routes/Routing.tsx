@@ -10,6 +10,7 @@ import ProfilePage from "../components/layout/ProfilePage";
 import Settings from "../components/Settings";
 import SupportScreen from "../screens/SupportScreen";
 import SupportMainScreen from "../screens/SupportMainScreen";
+import KnowledgeBaseScreen from "../screens/KnowledgeBaseScreen";
 
 export const router = createBrowserRouter([
   {
@@ -41,13 +42,15 @@ export const router = createBrowserRouter([
         <SupportMainScreen />
       </Protected>
     ),
-     children: [
+    children: [
       {
         index: true,
         element: <SupportScreen />,
       },
-  
-    
+      {
+        path:"knowledge-base",
+        element: <KnowledgeBaseScreen />,
+      },
     ],
   },
   {

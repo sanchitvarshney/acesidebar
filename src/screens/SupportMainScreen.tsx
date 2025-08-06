@@ -8,15 +8,20 @@ import SupportHeader from "../components/supportcomponents/SupportHeader";
 const drawerWidth = 0;
 
 const MainContent = styled(Box)(({ theme }) => ({
+  width: "100%",
+  height:"calc(100vh - 125px)",
   padding: theme.spacing(0),
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
+  overflow:"hidden"
 }));
 
 const SupportMainScreen = () => {
   return (
     <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
-      <SupportHeader />
+      <Box sx={{ width: "100%", height: 125,  }}>
+        <SupportHeader />
+      </Box>
 
       <MainContent>
         <Outlet />

@@ -10,6 +10,8 @@ import browseIcon from "../assets/image/idea.png";
 import ticketsIcon from "../assets/image/ready.png";
 import submitIcon from "../assets/image/analysis.png";
 import SupportCard from "../components/supportcomponents/SupportCard";
+import { SearchIcon } from "lucide-react";
+import CustomToolTip from "../components/reusable/CustomToolTip";
 
 const ticketDetailsData = [
   {
@@ -21,17 +23,17 @@ const ticketDetailsData = [
   },
   {
     id: 2,
-    icon: ticketsIcon,
-    title: "View all tickets",
-    description:
-      "Track all your ticket's progress and your interaction with the support team",
-  },
-  {
-    id: 3,
     icon: submitIcon,
     title: "Submit a ticket",
     description: "Describe your issue by filling out the support ticket form",
   },
+  {
+    id: 3,
+    icon: ticketsIcon,
+    title: "View existing tickets",
+    description:
+      "Track all your ticket's progress and your interaction with the support team",
+  }
 ];
 const ticketFaqData = [
   {
@@ -66,30 +68,36 @@ const SupportScreen = () => {
   }, [searchQuery]);
 
   return (
-    <div className="w-full h-full">
- 
+    <div className="w-full h-full overflow-auto will-change-transform">
       <Typography variant="h5" sx={{ textAlign: "center", py: 4 }}>
         Hello, how can we help you?
       </Typography>
       <div className="w-1/2 flex bg-transparent mx-auto items-center justify-center  ">
-        {/* <CustomSearch /> */}
-        <Tooltip
+        <CustomToolTip
           title={<SearchItems close={handleClose} searchQuery={searchQuery} />}
           open={isSearchOpen}
           disableHoverListener
           placement={"bottom"}
+          width={500}
         >
-          <CustomSearch
-            width={"80ch"}
-            placeholder={"Seach for articals"}
-            onChange={(e) => {
+          <div>
+            <div
+              className={` transition-all duration-200 ml-30 w-[500px] relative`}
+            >
+              <div className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
+                <SearchIcon className="text-gray-500 mr-3" />
+                <input
+                  onChange={(e) => {
               setSearchQuery(e.target.value);
             }}
-            bgColor="#fff"
-            bgOpacity={0}
-            borderRadius={10}
-          />
-        </Tooltip>
+                  type="text"
+                  placeholder="Search…"
+                  className="flex-1 bg-transparent outline-none text-gray-800 text-[15px] leading-tight placeholder-gray-500"
+                />
+              </div>
+            </div>
+          </div>
+        </CustomToolTip>
       </div>
 
       <div className="w-2/3 mx-auto grid grid-cols-3 gap-4  my-8">
@@ -106,7 +114,6 @@ const SupportScreen = () => {
         <Typography variant="h5" gutterBottom>
           Knowledge Base
         </Typography>
-        <span className="text-blue-600 cursor-pointer">View all articles</span>
       </div>
 
       <div className="w-2/3 mx-auto grid grid-cols-3 gap-4  my-8">
