@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { Box, CssBaseline, useTheme, styled } from "@mui/material";
 
 import { Outlet } from "react-router-dom";
-
 import SupportHeader from "../components/supportcomponents/SupportHeader";
 import SupportFooter from "../components/supportcomponents/SupportFooter";
-
-
 
 const MainContent = styled(Box)(({ theme }) => ({
   width: "100%",
@@ -16,7 +13,6 @@ const MainContent = styled(Box)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   overflow: "auto",
   height: `calc(100vh - 125px)`,
-
 }));
 
 const SupportMainScreen = () => {
@@ -27,7 +23,6 @@ const SupportMainScreen = () => {
         display: "flex",
         flexDirection: "column",
         height: "100vh",
- 
       }}
     >
       <Box
