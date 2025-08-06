@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { navItems } from "../../data/instractions";
 import { useLocation, useNavigate } from "react-router-dom";
+import LoginDialog from "../../components/supportcomponents/LoginDialog";
 
 const SupportHeader = () => {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const SupportHeader = () => {
     currentNavItem ? currentNavItem.label : navItems[0].label
   );
   const [tabs, setTabs] = useState<string[]>([activeTab]);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const activeIndex = navItems.findIndex((item) => item.label === activeTab);
@@ -136,6 +138,11 @@ const SupportHeader = () => {
                   <Button
                     key={index}
                     color="inherit"
+                    onClick={() => {
+                      if (btn === "Login") {
+                        setShowLoginModal(true);
+                      }
+                    }}
                     disableRipple
                     disableFocusRipple
                     sx={{
@@ -163,6 +170,7 @@ const SupportHeader = () => {
                   >
                     {btn}
                   </Button>
+
                   {index === 0 && (
                     <Divider
                       orientation="vertical"
@@ -219,6 +227,11 @@ const SupportHeader = () => {
           );
         })}
       </Box>
+      <LoginDialog
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={function () {}}
+      />
     </Box>
   );
 };
