@@ -6,7 +6,7 @@ import { Outlet } from "react-router-dom";
 import SupportHeader from "../components/supportcomponents/SupportHeader";
 import SupportFooter from "../components/supportcomponents/SupportFooter";
 
-const drawerWidth = 0;
+
 
 const MainContent = styled(Box)(({ theme }) => ({
   width: "100%",
