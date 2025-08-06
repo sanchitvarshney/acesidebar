@@ -11,6 +11,7 @@ import Settings from "../components/Settings";
 import SupportScreen from "../screens/SupportScreen";
 import SupportMainScreen from "../screens/SupportMainScreen";
 import KnowledgeBaseScreen from "../screens/KnowledgeBaseScreen";
+import ViewExistingTicket from "../pages/supportpages/ViewExistingTicket";
 
 export const router = createBrowserRouter([
   {
@@ -48,8 +49,12 @@ export const router = createBrowserRouter([
         element: <SupportScreen />,
       },
       {
-        path:"knowledge-base",
+        path: "knowledge-base",
         element: <KnowledgeBaseScreen />,
+      },
+      {
+        path: "view-existing-ticket",
+        element: <ViewExistingTicket />,
       },
     ],
   },

@@ -14,6 +14,7 @@
     "@mui/material": "^7.1.0",
     "@mui/x-data-grid": "^8.7.0",
     "@mui/x-date-pickers": "^8.8.0",
+    "@react-spring/web": "^10.0.1",
     "@reduxjs/toolkit": "^2.8.2",
     "@stackoverflow/stacks": "^2.8.0",
     "@stackoverflow/stacks-editor": "^0.15.2",
