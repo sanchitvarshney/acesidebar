@@ -2,10 +2,8 @@ import React from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import DeleteIcon from "@mui/icons-material/Delete";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -16,9 +14,10 @@ import BlockIcon from '@mui/icons-material/Block';
 import ListIcon from '@mui/icons-material/List';
 import AddAlarmIcon from '@mui/icons-material/AddAlarm';
 import { IconButton, Popover, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box } from "@mui/material";
-import CustomModal from "../layout/CustomModal";
 import ConfirmationModal from "../reusable/ConfirmationModal";
 
+
+import { Button } from "@mui/material";
 
 const ActionButton = ({
   icon,
@@ -31,30 +30,35 @@ const ActionButton = ({
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   className?: string;
 }) => {
-
-
   return (
-    <button
-      className={`flex items-center gap-1 px-3 py-1 rounded bg-white text-sm font-medium 
-                  border transition text-gray-700 border-gray-300 hover:bg-gray-50 ${className || ''}`}
+    <Button
+      variant="contained"
+      color="inherit"
       onClick={onClick}
+      size="small"
+      className={`flex items-center gap-1 normal-case shadow-none px-3 py-1 text-sm ${className || ""}`}
+      sx={{
+        fontSize: '0.875rem',
+        fontWeight: 500,
+      }}
     >
       {icon}
       <span>{label}</span>
-    </button>
+    </Button>
   );
 };
 
-const TicketDetailHeader = ({ 
-  ticket, 
-  onBack, 
-  onForward, 
-  onReply, 
-  onNote, 
-  onPreviousTicket, 
+
+const TicketDetailHeader = ({
+  ticket,
+  onBack,
+  onForward,
+  onReply,
+  onNote,
+  onPreviousTicket,
   onNextTicket,
   hasPreviousTicket = true,
-  hasNextTicket = true 
+  hasNextTicket = true
 }: any) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [moreAnchorEl, setMoreAnchorEl] = React.useState<HTMLElement | null>(null);
@@ -83,116 +87,114 @@ const TicketDetailHeader = ({
 
       {/* Breadcrumb */}
       <nav className="flex items-center text-xs text-gray-500 font-medium gap-1 min-w-[180px]">
-                 <IconButton 
-           onClick={onBack} 
-           size="small"
-           className="text-blue-600 hover:bg-blue-50 hover:text-blue-600"
-         >
+        <IconButton
+          onClick={onBack}
+          size="small"
+          className="text-blue-600 hover:bg-blue-50 hover:text-blue-600"
+        >
           <ArrowBackIcon fontSize="small" />
         </IconButton>
         <span className="text-[#1a73e8] font-semibold text-md">
           {ticket?.ticketId || "6"}
         </span>
       </nav>
-      
+
       {/* Action buttons */}
       <div className="flex gap-2 ml-8">
         <ActionButton
-           icon={<ReplyIcon fontSize="small" className="text-blue-600" />}
-           label="Reply"
-           onClick={onReply}
-         />
-         <ActionButton
-           icon={<NoteAddIcon fontSize="small" className="text-green-600" />}
-           label="Add note"
-           onClick={onNote}
-         />
-         <ActionButton
-           icon={<ForwardToInboxIcon fontSize="small" className="text-orange-600" />}
-           label="Forward"
-           onClick={onForward}
-         />
-                  <ActionButton icon={<MergeTypeIcon fontSize="small" className="text-blue-600"/>} label="Merge" />
-          <ActionButton icon={<DeleteIcon fontSize="small" className="text-red-600"/>} label="Delete"  onClick={() => setIsDeleteModalOpen(true)}/>
-         
-         {/* Divider line */}
-         <div className="w-px h-7 bg-gray-300 mx-2"></div>
+          icon={<ReplyIcon fontSize="small" className="text-blue-600" />}
+          label="Reply"
+          onClick={onReply}
+        />
+        <ActionButton
+          icon={<NoteAddIcon fontSize="small" className="text-green-600" />}
+          label="Add note"
+          onClick={onNote}
+        />
+        <ActionButton
+          icon={<ForwardToInboxIcon fontSize="small" className="text-orange-600" />}
+          label="Forward"
+          onClick={onForward}
+        />
+        <ActionButton icon={<MergeTypeIcon fontSize="small" className="text-purple-600" />} label="Merge" />
+        <ActionButton icon={<DeleteIcon fontSize="small" className="text-red-600" />} label="Delete" onClick={() => setIsDeleteModalOpen(true)} />
 
-                                       <ActionButton 
-             icon={
-               <div className="flex items-center gap-1">
-                 <MoreVertIcon fontSize="small" className="text-blue-600" />
-                 <ArrowDropDownIcon fontSize="small" className="text-blue-600" />
-               </div>
-             } 
-             label="More"
-             onClick={handleMoreClick}
-           />
+        {/* Divider line */}
+        <div className="w-px h-7 bg-gray-300 mx-2"></div>
+
+        <ActionButton
+          icon={
+            <div className="flex items-center gap-1">
+              <ArrowDropDownIcon fontSize="small" className="text-blue-600" />
+            </div>
+          }
+          label="More"
+          onClick={handleMoreClick}
+        />
       </div>
 
       {/* Navigation buttons - Right side */}
-      
+
       <div className="flex gap-1 ml-auto">
-                 <IconButton 
-           onClick={onPreviousTicket} 
-           disabled={!hasPreviousTicket}
-           size="small"
-           className={`${hasPreviousTicket ? 'text-blue-600 hover:bg-blue-50 hover:text-blue-600' : 'text-gray-400'} disabled:text-gray-400`}
-         >
-           <ArrowBackIosIcon fontSize="small" />
-         </IconButton>
-         <IconButton 
-           onClick={onNextTicket} 
-           disabled={!hasNextTicket}
-           size="small"
-           className={`${hasNextTicket ? 'text-blue-600 hover:bg-blue-50 hover:text-blue-600' : 'text-gray-400'} disabled:text-gray-400`}
-         >
+        <IconButton
+          onClick={onPreviousTicket}
+          disabled={!hasPreviousTicket}
+          size="small"
+          className={`${hasPreviousTicket ? 'text-blue-600 hover:bg-blue-50 hover:text-blue-600' : 'text-gray-400'} disabled:text-gray-400`}
+        >
+          <ArrowBackIosIcon fontSize="small" />
+        </IconButton>
+        <IconButton
+          onClick={onNextTicket}
+          disabled={!hasNextTicket}
+          size="small"
+          className={`${hasNextTicket ? 'text-blue-600 hover:bg-blue-50 hover:text-blue-600' : 'text-gray-400'} disabled:text-gray-400`}
+        >
           <ArrowForwardIosIcon fontSize="small" />
         </IconButton>
       </div>
-             <ConfirmationModal bgColor="rgba(244, 67, 54, 1)" open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false) } onConfirm={()=>{} }   />
-      
-                               {/* More dropdown popup */}
-         <Popover
-           open={moreOpen}
-           
-           anchorEl={moreAnchorEl}
-           onClose={handleMoreClose}
-           anchorOrigin={{
-             vertical: 'bottom',
-             horizontal: 'left',
-           }}
-           transformOrigin={{
-             vertical: 'top',
-             horizontal: 'left',
-           }}                                                              PaperProps={{
-                className: "shadow-lg rounded-lg mt-1 relative border border-gray-200 w-56"
-              }}
-           >
-            <List className="py-1">
-             {moreOptions.map((option, index) => (
-               <ListItem key={index} disablePadding>
-                 <ListItemButton
-                   onClick={() => {
-                     option.action();
-                     handleMoreClose();
-                   }}
-                   className="py-1.5 px-3 mx-1 rounded-md hover:bg-blue-50 active:bg-blue-100"
-                 >
-                   <ListItemIcon className=" text-gray-600" sx={{ minWidth: 35}}>
-                     {option.icon}
-                   </ListItemIcon>
-                   <ListItemText 
-                     primary={option.label} 
-                     className="text-sm font-medium text-gray-900"
-                   />
-                 </ListItemButton>
-               </ListItem>
-             ))}
-           </List>
-       </Popover>
-     </div>
-   );
- };
+      <ConfirmationModal bgColor="rgba(244, 67, 54, 1)" open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={() => { }} />
+
+      {/* More dropdown popup */}
+      <Popover
+        open={moreOpen}
+
+        anchorEl={moreAnchorEl}
+        onClose={handleMoreClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }} PaperProps={{
+          className: "shadow-lg rounded-lg mt-1 relative border border-gray-200 w-56"
+        }}
+      >
+        <List className="py-1">
+          {moreOptions.map((option, index) => (
+            <ListItem key={index} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  option.action();
+                  handleMoreClose();
+                }}
+                className="py-1.5 px-3 mx-1 rounded-md hover:bg-blue-50 active:bg-blue-100"
+              >
+                <ListItemIcon sx={{ minWidth: 35 }}>
+                  {option.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={option.label}
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Popover>
+    </div>
+  );
+};
 
 export default TicketDetailHeader;

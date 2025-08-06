@@ -3,6 +3,7 @@ import TicketFilterPanel from "./TicketSidebar";
 import { Avatar, IconButton, Button, Checkbox } from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import {
   useGetTicketListQuery,
   useGetPriorityListQuery,
@@ -45,7 +46,7 @@ const STATUS_OPTIONS = [
 const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
 const Tickets: React.FC = () => {
-  const [sortBy, setSortBy] = useState("Date created");
+  const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -712,23 +713,15 @@ const Tickets: React.FC = () => {
               )}
               {selectedTickets.length === 0 && (
                 <div className="flex items-center gap-2 ml-4">
-                  <span className="text-sm text-gray-600">Sort by:</span>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     size="small"
+                    color="inherit"
                     onClick={handleSortingPopoverOpen}
-                    endIcon={<ArrowDropDownIcon fontSize="small" />}
+                    endIcon={<FilterAltOutlinedIcon fontSize="small" />}
                     sx={{
-                      textTransform: 'none',
                       fontSize: '0.875rem',
-                      fontWeight: 500,
-                      borderColor: '#1976d2',
-                      color: '#1976d2',
-                      minWidth: 140,
-                      '&:hover': {
-                        borderColor: '#1565c0',
-                        backgroundColor: '#f5f5f5',
-                      },
+                      fontWeight: 500
                     }}
                   >
                     {sortBy}
