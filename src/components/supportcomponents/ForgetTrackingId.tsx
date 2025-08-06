@@ -11,12 +11,10 @@ import {
   Button,
   DialogContentText,
   Box,
-  IconButton,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 interface ForgetTrackingIdProps {
   open: boolean;
@@ -84,54 +82,54 @@ const ForgetTrackingId: React.FC<ForgetTrackingIdProps> = ({
         sx={{ px: 3, pt: 2 }}
       >
         <Box display="flex" alignItems="center">
-          <ConfirmationNumberIcon color="primary" sx={{ mr: 1 }} />
-          <DialogTitle sx={{ p: 0, fontSize: 18 }}>
-            Forgot tracking ID?
+          <HelpOutlineIcon color="primary" sx={{ mr: 1 }} />
+          <DialogTitle sx={{ p: 0, fontSize: 16 }}>
+            Forgot tracking ID ?
           </DialogTitle>
         </Box>
-        <IconButton onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
       </Box>
 
       {/* Content */}
       <DialogContent>
-        <DialogContentText sx={{ mb: 2, fontSize: 15 }}>
-          No worries! Enter your email address and we’ll send you your tracking ID right away:
+        <DialogContentText sx={{ mb: 5, fontSize: 13 }}>
+          No worries! Enter your email address and we’ll send you your tracking
+          ID right away:
         </DialogContentText>
 
         <TextField
           label="Email Address"
           fullWidth
-          variant="outlined"
+          variant="standard"
           type="email"
           inputRef={emailInputRef}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          inputProps={{ autoFocus: true }} 
+          inputProps={{ autoFocus: true }}
+          sx={{
+            "& .MuiInputBase-input": {
+              fontSize: "16px", 
+            },
+            "& .MuiInputLabel-root": {
+              fontSize: "14px",
+            },
+          }}
         />
 
         <RadioGroup
           value={ticketType}
           onChange={(e) => setTicketType(e.target.value as "all" | "open")}
-          sx={{ mt: 2 }}
+          sx={{ mt: 4 }}
         >
           <FormControlLabel
             value="all"
             control={<Radio />}
-            label={
-              <span style={{ fontSize: 15 }}>
-                Send me all my tickets
-              </span>
-            }
+            label={<span style={{ fontSize: 14 }}>Send me all my tickets</span>}
           />
           <FormControlLabel
             value="open"
             control={<Radio />}
             label={
-              <span style={{ fontSize: 15 }}>
-                Send me only open tickets
-              </span>
+              <span style={{ fontSize: 14 }}>Send me only open tickets</span>
             }
           />
         </RadioGroup>
@@ -145,7 +143,7 @@ const ForgetTrackingId: React.FC<ForgetTrackingIdProps> = ({
           onClick={handleSubmit}
           disabled={!isValidEmail(email)}
         >
-          Send On Email
+          Send
         </Button>
       </DialogActions>
     </Dialog>
