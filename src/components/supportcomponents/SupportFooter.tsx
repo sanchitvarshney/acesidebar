@@ -1,10 +1,9 @@
 const SupportFooter = () => {
   return (
-    <div className="w-full shadow-[0_-4px_10px_rgba(0,0,0,0.2)] py-4 flex items-center justify-center flex-col">
+    <div className="w-full border-t border-[#e0e0e0] py-6 flex items-center justify-center flex-col bg-[#fff]">
       <p>
-        Powered by <span>Help Desk Software </span> <span>HESK</span>
+        Powered by <span>Help Desk</span>
       </p>
-      <p>More IT firepower? Try <span>SysAid</span></p>
     </div>
   );
 };

@@ -86,9 +86,9 @@ const SupportScreen = () => {
         >
           <div>
             <div
-              className={` transition-all duration-200 ml-30 w-[500px] relative`}
+              className={` transition-all duration-200 ml-30 w-[800px] relative`}
             >
-              <div className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
+              <div className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 h-[60px] shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
                 <SearchIcon className="text-gray-500 mr-3" />
                 <input
                   onChange={(e) => {

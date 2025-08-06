@@ -97,6 +97,13 @@ export const theme = createTheme({
         root: {
           fontSize: "12px", // Global font size for buttons
         },
+        containedInherit: {
+          backgroundColor: "#fff",
+          color: "#1976d2",
+          '&:hover': {
+            backgroundColor: '#f5f5f5',
+          },
+        },
       },
     },
     MuiSelect: {
@@ -106,6 +113,13 @@ export const theme = createTheme({
           "&:focus-within": {
             backgroundColor: "#fffbebs", // Background color on focus
           },
+        },
+      },
+    },
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#ffffff80 !important",
         },
       },
     },

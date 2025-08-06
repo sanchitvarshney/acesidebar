@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import ReplyIcon from "@mui/icons-material/Reply";
 import EditIcon from "@mui/icons-material/Edit";
-import CommentIcon from "@mui/icons-material/Comment";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 import StackEditor from "../Editor";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import StarIcon from "@mui/icons-material/Star";
@@ -918,7 +917,7 @@ const TicketThreadSection = ({
             Canned Responses
           </Typography>
           <IconButton onClick={() => setCanned(false)} size="small">
-            <DeleteIcon fontSize="small" />
+            <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
         <Box
@@ -996,7 +995,7 @@ const TicketThreadSection = ({
             Solution
           </Typography>
           <IconButton onClick={() => setSuggest(false)} size="small">
-            <DeleteIcon fontSize="small" />
+            <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
         <Box
