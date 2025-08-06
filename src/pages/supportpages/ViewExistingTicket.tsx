@@ -21,7 +21,7 @@ const ViewExistingTicket = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", padding: 3 }}>
+    <Box sx={{ width: "100%", minHeight: "calc(100vh - 205px)", padding: 3 }}>
       <Typography
         variant="h5"
         component="h1"

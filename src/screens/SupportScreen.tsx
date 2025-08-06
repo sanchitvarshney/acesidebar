@@ -12,6 +12,7 @@ import submitIcon from "../assets/image/analysis.png";
 import SupportCard from "../components/supportcomponents/SupportCard";
 import { SearchIcon } from "lucide-react";
 import CustomToolTip from "../components/reusable/CustomToolTip";
+import SupportFooter from "../components/supportcomponents/SupportFooter";
 
 const ticketDetailsData = [
   {
@@ -71,7 +72,7 @@ const SupportScreen = () => {
   }, [searchQuery]);
 
   return (
-    <div className="w-full h-full overflow-auto will-change-transform">
+    <div className="w-full h-full  will-change-transform">
       <Typography variant="h5" sx={{ textAlign: "center", py: 4 }}>
         Hello, how can we help you?
       </Typography>
@@ -130,6 +131,7 @@ const SupportScreen = () => {
           />
         ))}
       </div>
+   
     </div>
   );
 };

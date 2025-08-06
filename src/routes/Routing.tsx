@@ -39,11 +39,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/ticket/support",
-    element: (
-      <Protected>
-        <SupportMainScreen />
-      </Protected>
-    ),
+    element: <SupportMainScreen />,
     children: [
       {
         index: true,

@@ -24,6 +24,8 @@ const KnowledgeBaseScreen = () => {
     <Box
       sx={{
         width: "100%",
+        minHeight: "calc(100vh - 205px)",
+        
 
         padding: 3,
       }}
