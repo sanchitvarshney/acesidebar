@@ -9,18 +9,18 @@ type TicketDetailCardProps = {
   icon: any;
   title: string;
   desc: string;
-  path: string;
+
 };
 const TicketDetailCard: React.FC<TicketDetailCardProps> = ({
   icon,
   title,
   desc,
-  path
+
 }) => {
   const navigate = useNavigate();
   return (
     <Card
-      onClick={() => navigate(path)}
+      onClick={() => navigate(`/ticket/support/${title}`)}
       sx={{
         transition: "transform 0.3s ease, box-shadow 0.3s ease",
         borderRadius: "12px",

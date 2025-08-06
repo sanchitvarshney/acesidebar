@@ -12,6 +12,7 @@ import SupportScreen from "../screens/SupportScreen";
 import SupportMainScreen from "../screens/SupportMainScreen";
 import KnowledgeBaseScreen from "../screens/KnowledgeBaseScreen";
 import ViewExistingTicket from "../pages/supportpages/ViewExistingTicket";
+import ArticalViewPage from "../pages/supportpages/ArticalViewPage";
 
 export const router = createBrowserRouter([
   {
@@ -53,8 +54,12 @@ export const router = createBrowserRouter([
         element: <KnowledgeBaseScreen />,
       },
       {
-        path: "view-existing-ticket",
+        path: ":id",
         element: <ViewExistingTicket />,
+      },
+      {
+        path: "knowledge-base/:id",
+        element: <ArticalViewPage />,
       },
     ],
   },

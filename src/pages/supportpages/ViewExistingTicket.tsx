@@ -93,12 +93,14 @@ const ViewExistingTicket = () => {
         </CardContent>
       </Card>
 
-      {/* Dialog Component */}
-      <ForgetTrackingId
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        onSubmit={handleForgetSubmit}
-      />
+    
+     
+        <ForgetTrackingId
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          onSubmit={handleForgetSubmit}
+        />
+
     </Box>
   );
 };

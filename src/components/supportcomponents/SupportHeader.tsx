@@ -35,10 +35,23 @@ const SupportHeader = () => {
       setTabs(navItems.slice(0, activeIndex + 1).map((item) => item.label));
     }
   }, [activeTab]);
+
   useEffect(() => {
     if (currentNavItem) {
       setActiveTab(currentNavItem.label);
     }
+    // else {
+    //   const activeUrl = window.location.pathname.toUpperCase();
+    //   let lastSegment = activeUrl.substring(activeUrl.lastIndexOf("/") + 1);
+    //   lastSegment = decodeURIComponent(lastSegment);
+    //   const formatted = lastSegment
+    //     .toLowerCase()
+    //     .split(" ")
+    //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    //     .join("-");
+    //     console.log(formatted);
+
+    // }
   }, [window.location.pathname]);
 
   return (
