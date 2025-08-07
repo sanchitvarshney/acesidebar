@@ -60,14 +60,22 @@ const optionsofPrivate = [
   },
 ];
 
-const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFocus, ...props }) => {
+const StackEditor = ({
+  initialContent = "",
+  onChange,
+  isFull = true,
+  shouldFocus = false,
+  onFocus,
+  ...props
+}) => {
   const {
     isEditorExpended,
     isExpended,
     onCloseReply,
     signatureValue,
     isValues,
-    onForward
+    onForward,
+    customHeight = "calc(100vh - 370px)",
   } = props;
   const isMounted = React.useRef(true);
   const [editorContent, setEditorContent] = useState("");
@@ -87,28 +95,28 @@ const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFoc
 
   // Focus the editor when it opens
   useEffect(() => {
-    console.log('StackEditor focus useEffect triggered:', { shouldFocus, editorRef: !!editorRef.current });
-    
+  
+
     if (editorRef.current && shouldFocus) {
       const quill = editorRef.current.getQuill();
-      console.log('Quill instance found:', !!quill);
-      
+  
+
       if (quill) {
         // Longer delay to ensure the editor is fully rendered and initialized
         setTimeout(() => {
-          console.log('Attempting to focus quill editor...');
+       
           try {
             quill.focus();
             // Move cursor to the end of the content
             const length = quill.getLength();
             quill.setSelection(length, 0);
-            console.log('Focus applied, cursor moved to position:', length);
+       
             // Call onFocus callback if provided
             if (onFocus) {
               onFocus();
             }
           } catch (error) {
-            console.error('Error focusing quill editor:', error);
+            console.error("Error focusing quill editor:", error);
           }
         }, 300);
       } else {
@@ -116,17 +124,17 @@ const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFoc
         setTimeout(() => {
           const quill = editorRef.current?.getQuill();
           if (quill && shouldFocus) {
-            console.log('Quill instance found on retry, attempting to focus...');
+           
             try {
               quill.focus();
               const length = quill.getLength();
               quill.setSelection(length, 0);
-              console.log('Focus applied on retry, cursor moved to position:', length);
+            
               if (onFocus) {
                 onFocus();
               }
             } catch (error) {
-              console.error('Error focusing quill editor on retry:', error);
+              console.error("Error focusing quill editor on retry:", error);
             }
           }
         }, 500);
@@ -141,17 +149,17 @@ const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFoc
       const timeoutId = setTimeout(() => {
         const quill = editorRef.current?.getQuill();
         if (quill && shouldFocus) {
-          console.log('Additional focus attempt for visible editor...');
+          
           try {
             quill.focus();
             const length = quill.getLength();
             quill.setSelection(length, 0);
-            console.log('Additional focus applied, cursor moved to position:', length);
+         
             if (onFocus) {
               onFocus();
             }
           } catch (error) {
-            console.error('Error in additional focus attempt:', error);
+            console.error("Error in additional focus attempt:", error);
           }
         }
       }, 800);
@@ -168,8 +176,6 @@ const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFoc
       setSelectedIndex("2");
     }
   }, [isValues]);
-
- 
 
   // Handle signature changes from parent component
   useEffect(() => {
@@ -312,15 +318,17 @@ const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFoc
           </span>
         </div>
 
-        <div className="space-x-2 flex items-center">
-          <button
-            className="ql-fullscreen"
-            aria-label="Full Screen"
-            onClick={toggleFullscreen}
-          >
-            ⛶
-          </button>
-        </div>
+        {isFull && (
+          <div className="space-x-2 flex items-center">
+            <button
+              className="ql-fullscreen"
+              aria-label="Full Screen"
+              onClick={toggleFullscreen}
+            >
+              ⛶
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -335,10 +343,8 @@ const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFoc
   };
 
   const handleChangeValue = (event) => {
-   
     setSelectedOptionValue(event);
     // setShowBcc(false);
-
   };
 
   function handleListKeyDown(event) {
@@ -556,85 +562,93 @@ const StackEditor = ({ initialContent = "", onChange, shouldFocus = false, onFoc
     ? "calc(100vh - 405px)"
     : currentSignature
     ? "calc(100vh - 530px)"
-    : "calc(100vh - 370px)";
+    : customHeight;
 
   return (
-    <div className={isFullscreen ? "editor-fullscreen relative " : " w-full h-full"}>
-      <div
-        className="flex items-center justify-between p-2 mb-2"
-        style={
-          isFullscreen ? { position: "relative", zIndex: 10000 } : {}
-        }
-      >
-        <div className="flex items-center gap-2 z-[10000]">
-          <Avatar
-            src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-            sx={{ width: 25, height: 25 }}
-          />
-
-          <CustomToolTip
-            title={renderToolTipComponent}
-            placement="bottom-start"
-            open={isOptionsOpen}
-            // close={() => setIsOptionsOpen(false)}
+    <div
+      className={
+        isFullscreen ? "editor-fullscreen relative " : " w-full h-full"
+      }
+    >
+      {isFull && (
+        <>
+          <div
+            className="flex items-center justify-between p-2 mb-2"
+            style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
           >
-            <span
-              onClick={() => setIsOptionsOpen(true)}
-              className="cursor-pointer  relative z-[10000]"
-              ref={optionsRef}
-            >
-              {renderIcon}
-              <KeyboardArrowDownIcon fontSize="small" />
-            </span>
-          </CustomToolTip>
+            <div className="flex items-center gap-2 z-[10000]">
+              <Avatar
+                src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                sx={{ width: 25, height: 25 }}
+              />
 
-          {renderComponentBasedOnSelection}
-        </div>
-        <div>
-          {!isFullscreen && (
-            <IconButton onClick={onCloseReply} size="small">
-              <KeyboardArrowUpIcon sx={{ transform: "rotate(180deg)" }} />
-            </IconButton>
+              <CustomToolTip
+                title={renderToolTipComponent}
+                placement="bottom-start"
+                open={isOptionsOpen}
+                // close={() => setIsOptionsOpen(false)}
+              >
+                <span
+                  onClick={() => setIsOptionsOpen(true)}
+                  className="cursor-pointer  relative z-[10000]"
+                  ref={optionsRef}
+                >
+                  {renderIcon}
+                  <KeyboardArrowDownIcon fontSize="small" />
+                </span>
+              </CustomToolTip>
+
+              {renderComponentBasedOnSelection}
+            </div>
+            <div>
+              {!isFullscreen && (
+                <IconButton onClick={onCloseReply} size="small">
+                  <KeyboardArrowUpIcon sx={{ transform: "rotate(180deg)" }} />
+                </IconButton>
+              )}
+            </div>
+          </div>
+
+          <div
+            style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
+          >
+            {renderComponentBasedOnOptions}
+          </div>
+        </>
+      )}
+
+      {selectedIndex === "1" && (
+        <div
+          className="flex items-center gap-4 mb-2 px-2"
+          style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
+        >
+          {showCc && (
+            <div>
+              <TextField
+                label="Cc"
+                size="small"
+                margin="dense"
+                // value={fields.cc}
+                onChange={(e) => {}}
+                sx={{ width: 400 }}
+              />
+            </div>
+          )}
+
+          {showBcc && (
+            <div>
+              <TextField
+                label="Bcc"
+                size="small"
+                margin="dense"
+                // value={fields.bcc}
+                onChange={(e) => {}}
+                sx={{ width: 400 }}
+              />
+            </div>
           )}
         </div>
-      </div>
-
-      <div style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}>
-        {renderComponentBasedOnOptions}
-      </div>
-
-     {selectedIndex === "1" && (
-        <div
-        className="flex items-center gap-4 mb-2 px-2"
-        style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
-      >
-        {showCc && (
-          <div>
-            <TextField
-              label="Cc"
-              size="small"
-              margin="dense"
-              // value={fields.cc}
-              onChange={(e) => {}}
-              sx={{ width: 400 }}
-            />
-          </div>
-        )}
-
-        {showBcc && (
-          <div>
-            <TextField
-              label="Bcc"
-              size="small"
-              margin="dense"
-              // value={fields.bcc}
-              onChange={(e) => {}}
-              sx={{ width: 400 }}
-            />
-          </div>
-        )}
-      </div>
-     )}
+      )}
       {/* <div className="flex flex-col h-full w-full overflow-y-scroll"> */}
 
       {/* Main Editor for Message */}

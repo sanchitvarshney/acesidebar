@@ -28,6 +28,7 @@ import {
 import { useToast } from "../../hooks/useToast";
 import CustomDropdown from "../shared/CustomDropdown";
 import CustomSideBarPanel from "../reusable/CustomSideBarPanel";
+import StackEditor from "../Editor";
 
 interface Ticket {
   id: string;
@@ -130,174 +131,173 @@ const CreateTicketDialog = () => {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Fill in the details below to create a new ticket.
         </Typography>
-<Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-  
-        <TextField
-          label="Name"
-          fullWidth
-          value={newTicket.user_name}
-          onChange={(e) =>
-            setNewTicket((prev) => ({
-              ...prev,
-              user_name: e.target.value,
-            }))
-          }
-        />
-
-        <TextField
-          label="Email"
-          fullWidth
-          value={newTicket.user_email}
-          onChange={(e) =>
-            setNewTicket((prev) => ({
-              ...prev,
-              user_email: e.target.value,
-            }))
-          }
-        />
-
-        <TextField
-          label="Phone"
-          fullWidth
-          value={newTicket.user_phone}
-          onChange={(e) =>
-            setNewTicket((prev) => ({
-              ...prev,
-              user_phone: e.target.value,
-            }))
-          }
-        />
-
-        <TextField
-          label="Subject"
-          fullWidth
-          value={newTicket.subject}
-          onChange={(e) =>
-            setNewTicket((prev) => ({
-              ...prev,
-              subject: e.target.value,
-            }))
-          }
-        />
-
-        <TextField
-          label="Recipients"
-          fullWidth
-          value={newTicket.recipients}
-          onChange={(e) =>
-            setNewTicket((prev) => ({
-              ...prev,
-              recipients: e.target.value,
-            }))
-          }
-        />
-
-        <FormControl fullWidth>
-          <InputLabel>Priority</InputLabel>
-          <Select
-            value={newTicket.priority}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <TextField
+            label="Name"
+            fullWidth
+            value={newTicket.user_name}
             onChange={(e) =>
               setNewTicket((prev) => ({
                 ...prev,
-                priority: e.target.value,
+                user_name: e.target.value,
               }))
             }
-            input={<OutlinedInput label="Priority" />}
-          >
-            {priorityList?.map((item: any) => (
-              <MenuItem key={item.key} value={item.key}>
-                {item.specification}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          />
 
-        <FormControl fullWidth>
-          <InputLabel>Assign To</InputLabel>
-          <Select
-            value={newTicket.assignee}
+          <TextField
+            label="Email"
+            fullWidth
+            value={newTicket.user_email}
             onChange={(e) =>
               setNewTicket((prev) => ({
                 ...prev,
-                assignee: e.target.value,
+                user_email: e.target.value,
               }))
             }
-            input={<OutlinedInput label="Assign To" />}
-          >
-            {agentOptions.map((agent) => (
-              <MenuItem key={agent} value={agent}>
-                {agent}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          />
 
-        <FormControl fullWidth>
-          <InputLabel>Tags</InputLabel>
-          <Select
-            multiple
-            value={selectedTags}
-            onChange={(e) => {
-              const value =
-                typeof e.target.value === "string"
-                  ? e.target.value.split(",")
-                  : e.target.value;
-              if (value.length <= 5) {
-                setSelectedTags(value);
+          <TextField
+            label="Phone"
+            fullWidth
+            value={newTicket.user_phone}
+            onChange={(e) =>
+              setNewTicket((prev) => ({
+                ...prev,
+                user_phone: e.target.value,
+              }))
+            }
+          />
+
+          <TextField
+            label="Subject"
+            fullWidth
+            value={newTicket.subject}
+            onChange={(e) =>
+              setNewTicket((prev) => ({
+                ...prev,
+                subject: e.target.value,
+              }))
+            }
+          />
+
+          <TextField
+            label="Recipients"
+            fullWidth
+            value={newTicket.recipients}
+            onChange={(e) =>
+              setNewTicket((prev) => ({
+                ...prev,
+                recipients: e.target.value,
+              }))
+            }
+          />
+
+          <FormControl fullWidth>
+            <InputLabel>Priority</InputLabel>
+            <Select
+              value={newTicket.priority}
+              onChange={(e) =>
+                setNewTicket((prev) => ({
+                  ...prev,
+                  priority: e.target.value,
+                }))
               }
-            }}
-            input={<OutlinedInput label="Tags" />}
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.map((tagID) => {
-                  const tagObj = tagList?.find(
-                    (tag: any) => tag.tagID === tagID
-                  );
-                  return (
-                    <Chip
-                      key={tagID}
-                      label={tagObj ? tagObj.tagName : tagID}
-                      onDelete={(e) => {
-                        e.stopPropagation();
-                        setSelectedTags((prev) =>
-                          prev.filter((id) => id !== tagID)
-                        );
-                      }}
-                    />
-                  );
-                })}
-              </Box>
-            )}
-          >
-            {isTagListLoading ? (
-              <MenuItem disabled>
-                <span>Loading...</span>
-              </MenuItem>
-            ) : (
-              tagList?.map((tag: any) => (
-                <MenuItem
-                  key={tag.tagID}
-                  value={tag.tagID}
-                  disabled={
-                    selectedTags.length >= 5 &&
-                    !selectedTags.includes(tag.tagID)
-                  }
-                >
-                  {tag.tagName}
+              input={<OutlinedInput label="Priority" />}
+            >
+              {priorityList?.map((item: any) => (
+                <MenuItem key={item.key} value={item.key}>
+                  {item.specification}
                 </MenuItem>
-              ))
-            )}
-          </Select>
-          <Typography variant="caption" color="text.secondary">
-            Maximum 5 tags can be selected.
-          </Typography>
-        </FormControl>
-</Box>
+              ))}
+            </Select>
+          </FormControl>
 
-        <Typography variant="body1" sx={{ fontWeight: 600, pb: 1 }}>
+          <FormControl fullWidth>
+            <InputLabel>Assign To</InputLabel>
+            <Select
+              value={newTicket.assignee}
+              onChange={(e) =>
+                setNewTicket((prev) => ({
+                  ...prev,
+                  assignee: e.target.value,
+                }))
+              }
+              input={<OutlinedInput label="Assign To" />}
+            >
+              {agentOptions.map((agent) => (
+                <MenuItem key={agent} value={agent}>
+                  {agent}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel>Tags</InputLabel>
+            <Select
+              multiple
+              value={selectedTags}
+              onChange={(e) => {
+                const value =
+                  typeof e.target.value === "string"
+                    ? e.target.value.split(",")
+                    : e.target.value;
+                if (value.length <= 5) {
+                  setSelectedTags(value);
+                }
+              }}
+              input={<OutlinedInput label="Tags" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((tagID) => {
+                    const tagObj = tagList?.find(
+                      (tag: any) => tag.tagID === tagID
+                    );
+                    return (
+                      <Chip
+                        key={tagID}
+                        label={tagObj ? tagObj.tagName : tagID}
+                        onDelete={(e) => {
+                          e.stopPropagation();
+                          setSelectedTags((prev) =>
+                            prev.filter((id) => id !== tagID)
+                          );
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
+            >
+              {isTagListLoading ? (
+                <MenuItem disabled>
+                  <span>Loading...</span>
+                </MenuItem>
+              ) : (
+                tagList?.map((tag: any) => (
+                  <MenuItem
+                    key={tag.tagID}
+                    value={tag.tagID}
+                    disabled={
+                      selectedTags.length >= 5 &&
+                      !selectedTags.includes(tag.tagID)
+                    }
+                  >
+                    {tag.tagName}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+            <Typography variant="caption" color="text.secondary">
+              Maximum 5 tags can be selected.
+            </Typography>
+          </FormControl>
+        </Box>
+
+        <Typography variant="body1" sx={{ fontWeight: 600, py: 1 }}>
           Body
         </Typography>
-        <ReactSimpleWysiwyg
+        {/* <ReactSimpleWysiwyg
           value={newTicket.body}
           onChange={(e) =>
             setNewTicket((prev) => ({
@@ -311,24 +311,38 @@ const CreateTicketDialog = () => {
             padding: 8,
             boxSizing: "border-box",
           }}
+        /> */}
+        <StackEditor
+          onChange={(e: any) => {
+            console.log(e);
+            setNewTicket((prev) => ({
+              ...prev,
+              body: e,
+            }));
+          }}
+          onFocus={undefined}
+          initialContent={newTicket.body}
+          isFull={false}
+       customHeight="calc(100vh - 550px)" 
         />
 
-        <Box sx={{ flexGrow: 1 }} />
-        <Divider sx={{ my: 2 }} />
+        
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "center",
             gap: 1,
-            paddingBottom: 4,
+          py:2
           }}
         >
-          <Button onClick={() => {}} variant="outlined">
+          {/* <Button onClick={() => {}} variant="outlined">
             Cancel
-          </Button>
+          </Button> */}
           <Button
             variant="contained"
+            color="primary"
             onClick={handleCreateTicketSubmit}
+            sx={{"&:hover": {backgroundColor: "#0080ffff"}}}
             disabled={
               isCreating ||
               !newTicket.user_name ||
