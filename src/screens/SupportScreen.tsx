@@ -107,7 +107,7 @@ const SupportScreen = () => {
       <div className="w-2/3 mx-auto grid grid-cols-3 gap-4  my-8">
         {ticketDetailsData.map((item: any) => (
           <TicketDetailCard
-            key={item.id}
+            id={item.id}
             icon={item.icon}
             title={item.title}
             desc={item.description}

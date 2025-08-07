@@ -38,7 +38,15 @@ const SupportMainScreen = () => {
       </Box>
 
       <MainContent>
-        <Outlet />
+        <Box
+          sx={{
+            minHeight: "calc(100vh - 198px)",
+            overflowY: "auto",
+            willChange: "transform",
+          }}
+        >
+          <Outlet />
+        </Box>
 
         <SupportFooter />
       </MainContent>

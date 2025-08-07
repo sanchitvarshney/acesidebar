@@ -13,6 +13,7 @@ import SupportMainScreen from "../screens/SupportMainScreen";
 import KnowledgeBaseScreen from "../screens/KnowledgeBaseScreen";
 import ViewExistingTicket from "../pages/supportpages/ViewExistingTicket";
 import ArticalViewPage from "../pages/supportpages/ArticalViewPage";
+import SubmitTicketPage from "../pages/supportpages/SubmitTicketPage";
 
 export const router = createBrowserRouter([
   {
@@ -50,8 +51,12 @@ export const router = createBrowserRouter([
         element: <KnowledgeBaseScreen />,
       },
       {
-        path: ":id",
+        path: "view-existing-ticket",
         element: <ViewExistingTicket />,
+      },
+         {
+        path: "submit-ticket",
+        element: <SubmitTicketPage />,
       },
       {
         path: "knowledge-base/:id",

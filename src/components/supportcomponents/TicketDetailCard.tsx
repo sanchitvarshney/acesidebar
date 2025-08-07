@@ -9,18 +9,29 @@ type TicketDetailCardProps = {
   icon: any;
   title: string;
   desc: string;
-
+  id: number;
 };
 const TicketDetailCard: React.FC<TicketDetailCardProps> = ({
   icon,
   title,
   desc,
-
+  id,
 }) => {
   const navigate = useNavigate();
+
+  const handleNavigation = (id: number) => {
+    if (id === 1) {
+    } else if (id === 2) {
+      navigate(`/ticket/support/submit-ticket`);
+    } else if (id === 3) {
+      navigate(`/ticket/support/view-existing-ticket`);
+    }
+  };
+
   return (
     <Card
-      onClick={() => navigate(`/ticket/support/${title}`)}
+      key={id}
+      onClick={() => handleNavigation(id)}
       sx={{
         transition: "transform 0.3s ease, box-shadow 0.3s ease",
         borderRadius: "12px",
