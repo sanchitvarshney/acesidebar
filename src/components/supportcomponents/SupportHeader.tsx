@@ -133,16 +133,16 @@ const SupportHeader = () => {
               })}
             </List>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", flexDirection: "row", gap: 1 }}>
               {["Sign up", "Login"].map((btn, index) => (
-                <div  key={index}>
+                <div  key={index} className="flex items-center gap-2">
                   <Button
                    
                     onClick={() => {
                       if (btn === "Login") {
                         setShowLoginModal(true);
                       }
-                    }}
+                    }}  
                     disableRipple
                     disableFocusRipple
                     sx={{
