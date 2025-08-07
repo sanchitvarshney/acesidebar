@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
 import { Avatar, IconButton, Button } from "@mui/material";
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {
   useGetTicketListQuery,
   useGetPriorityListQuery,
@@ -33,6 +33,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import UserHoverPopup from "../popup/UserHoverPopup";
 import CustomModal from "../layout/CustomModal";
 import { set } from "react-hook-form";
+import CustomSideBarPanel from "../reusable/CustomSideBarPanel";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -78,10 +79,13 @@ const Tickets: React.FC = () => {
   const [sortingPopoverOpen, setSortingPopoverOpen] = useState(false);
   const [openTicketNumber, setOpenTicketNumber] = useState<string | null>(null);
   const [replyText, setReplyText] = useState<string>("");
-  const [userPopupAnchorEl, setUserPopupAnchorEl] = useState<HTMLElement | null>(null);
+  const [userPopupAnchorEl, setUserPopupAnchorEl] =
+    useState<HTMLElement | null>(null);
   const [userPopupUser, setUserPopupUser] = useState<any>(null);
   const userPopupTimer = React.useRef<NodeJS.Timeout | null>(null);
-  const [copiedTicketNumber, setCopiedTicketNumber] = useState<string | null>(null);
+  const [copiedTicketNumber, setCopiedTicketNumber] = useState<string | null>(
+    null
+  );
   const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
 
   // Fetch live priority list
@@ -302,7 +306,7 @@ const Tickets: React.FC = () => {
       setCopiedTicketNumber(ticketNumber);
       setTimeout(() => setCopiedTicketNumber(null), 2000); // Reset after 2 seconds
     } catch (err) {
-      console.error('Failed to copy ticket number:', err);
+      console.error("Failed to copy ticket number:", err);
     }
   };
 
@@ -342,8 +346,7 @@ const Tickets: React.FC = () => {
   };
 
   const handleSendReply = (replyText: string, threadItem?: any) => {
-    
-    console.log(replyText)
+    console.log(replyText);
     if (replyText.trim()) {
       // TODO: Implement API call to send reply
       console.log("Sending reply:", replyText, threadItem);
@@ -378,11 +381,11 @@ const Tickets: React.FC = () => {
     };
     return (
       <div
-  key={ticket?.ticketNumber}
-  className="relative bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-2 shadow-sm transition-shadow
+        key={ticket?.ticketNumber}
+        className="relative bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-2 shadow-sm transition-shadow
     hover:shadow-[inset_1px_0_0_rgb(218,220,224),inset_-1px_0_0_rgb(218,220,224),0_1px_2px_0_rgba(60,64,67,0.3),0_1px_3px_1px_rgba(60,64,67,0.15)]
     before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:bg-[#1a73e8] before:rounded-l"
->
+      >
         {/* Left: Checkbox, Avatar, Sentiment */}
         <div className="flex items-center mr-4 min-w-[60px]">
           <input
@@ -459,7 +462,10 @@ const Tickets: React.FC = () => {
                   onClick={() => handleCopyTicketNumber(ticket?.ticketNumber)}
                   sx={{
                     p: 0.5,
-                    color: copiedTicketNumber === ticket?.ticketNumber ? "#4caf50" : "#666",
+                    color:
+                      copiedTicketNumber === ticket?.ticketNumber
+                        ? "#4caf50"
+                        : "#666",
                     "&:hover": {
                       backgroundColor: "rgba(0, 0, 0, 0.04)",
                     },
@@ -501,7 +507,7 @@ const Tickets: React.FC = () => {
                   </span>
                 )}
               /> */}
-                                            <span
+              <span
                 className="text-xs max-w-[120px] truncate overflow-hidden whitespace-nowrap cursor-pointer hover:underline"
                 onMouseEnter={(e) => handleUserHover(e, ticket.fromUser)}
                 onMouseLeave={handleUserLeave}
@@ -552,22 +558,32 @@ const Tickets: React.FC = () => {
                   variant="text"
                   size="small"
                   fullWidth
-                  startIcon={<PersonIcon fontSize="small" sx={{ color: '#666' }} />}
+                  startIcon={
+                    <PersonIcon fontSize="small" sx={{ color: "#666" }} />
+                  }
                   endIcon={<ArrowDropDownIcon fontSize="small" />}
                   sx={{
-                    textTransform: 'none',
-                    fontSize: '13px',
+                    textTransform: "none",
+                    fontSize: "13px",
                     fontWeight: 500,
-                    color: '#333',
-                    justifyContent: 'flex-start',
-                    minHeight: '25px',
-                    padding: '4px 8px',
-                    '&:hover': {
-                      backgroundColor: '#f5f5f5',
+                    color: "#333",
+                    justifyContent: "flex-start",
+                    minHeight: "25px",
+                    padding: "4px 8px",
+                    "&:hover": {
+                      backgroundColor: "#f5f5f5",
                     },
                   }}
                 >
-                  <span style={{ fontSize: '13px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span
+                    style={{
+                      fontSize: "13px",
+                      maxWidth: "80px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {dropdownState.agent || "Unassigned"}
                   </span>
                 </Button>
@@ -611,7 +627,7 @@ const Tickets: React.FC = () => {
           onBack={handleBack}
           replyText={replyText}
           onReplyTextChange={handleReplyTextChange}
-          onSendReply={(text:any) => handleSendReply(text)}
+          onSendReply={(text: any) => handleSendReply(text)}
         />
       ) : (
         <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
@@ -639,12 +655,12 @@ const Tickets: React.FC = () => {
                     size="small"
                     startIcon={<PersonAddAltIcon fontSize="small" />}
                     sx={{
-                      textTransform: 'none',
-                      fontSize: '0.875rem',
+                      textTransform: "none",
+                      fontSize: "0.875rem",
                       fontWeight: 500,
-                      backgroundColor: '#1976d2',
-                      '&:hover': {
-                        backgroundColor: '#1565c0',
+                      backgroundColor: "#1976d2",
+                      "&:hover": {
+                        backgroundColor: "#1565c0",
                       },
                     }}
                   >
@@ -655,12 +671,12 @@ const Tickets: React.FC = () => {
                     size="small"
                     startIcon={<CheckCircleIcon fontSize="small" />}
                     sx={{
-                      textTransform: 'none',
-                      fontSize: '0.875rem',
+                      textTransform: "none",
+                      fontSize: "0.875rem",
                       fontWeight: 500,
-                      backgroundColor: '#43a047',
-                      '&:hover': {
-                        backgroundColor: '#388e3c',
+                      backgroundColor: "#43a047",
+                      "&:hover": {
+                        backgroundColor: "#388e3c",
                       },
                     }}
                   >
@@ -671,12 +687,12 @@ const Tickets: React.FC = () => {
                     size="small"
                     startIcon={<CallMergeIcon fontSize="small" />}
                     sx={{
-                      textTransform: 'none',
-                      fontSize: '0.875rem',
+                      textTransform: "none",
+                      fontSize: "0.875rem",
                       fontWeight: 500,
-                      backgroundColor: '#ff9800',
-                      '&:hover': {
-                        backgroundColor: '#f57c00',
+                      backgroundColor: "#ff9800",
+                      "&:hover": {
+                        backgroundColor: "#f57c00",
                       },
                     }}
                   >
@@ -687,12 +703,12 @@ const Tickets: React.FC = () => {
                     size="small"
                     startIcon={<BlockIcon fontSize="small" />}
                     sx={{
-                      textTransform: 'none',
-                      fontSize: '0.875rem',
+                      textTransform: "none",
+                      fontSize: "0.875rem",
                       fontWeight: 500,
-                      backgroundColor: '#e53935',
-                      '&:hover': {
-                        backgroundColor: '#d32f2f',
+                      backgroundColor: "#e53935",
+                      "&:hover": {
+                        backgroundColor: "#d32f2f",
                       },
                     }}
                   >
@@ -703,12 +719,12 @@ const Tickets: React.FC = () => {
                     size="small"
                     startIcon={<DeleteIcon fontSize="small" />}
                     sx={{
-                      textTransform: 'none',
-                      fontSize: '0.875rem',
+                      textTransform: "none",
+                      fontSize: "0.875rem",
                       fontWeight: 500,
-                      backgroundColor: '#6d4c41',
-                      '&:hover': {
-                        backgroundColor: '#5d4037',
+                      backgroundColor: "#6d4c41",
+                      "&:hover": {
+                        backgroundColor: "#5d4037",
                       },
                     }}
                   >
@@ -725,15 +741,15 @@ const Tickets: React.FC = () => {
                     onClick={handleSortingPopoverOpen}
                     endIcon={<ArrowDropDownIcon fontSize="small" />}
                     sx={{
-                      textTransform: 'none',
-                      fontSize: '0.875rem',
+                      textTransform: "none",
+                      fontSize: "0.875rem",
                       fontWeight: 500,
-                      borderColor: '#1976d2',
-                      color: '#1976d2',
+                      borderColor: "#1976d2",
+                      color: "#1976d2",
                       minWidth: 140,
-                      '&:hover': {
-                        borderColor: '#1565c0',
-                        backgroundColor: '#f5f5f5',
+                      "&:hover": {
+                        borderColor: "#1565c0",
+                        backgroundColor: "#f5f5f5",
                       },
                     }}
                   >
@@ -779,12 +795,12 @@ const Tickets: React.FC = () => {
                 size="small"
                 onClick={() => setCreateDialogOpen(true)}
                 sx={{
-                  textTransform: 'none',
-                  fontSize: '0.875rem',
+                  textTransform: "none",
+                  fontSize: "0.875rem",
                   fontWeight: 600,
-                  backgroundColor: '#1976d2',
-                  '&:hover': {
-                    backgroundColor: '#1565c0',
+                  backgroundColor: "#1976d2",
+                  "&:hover": {
+                    backgroundColor: "#1565c0",
                   },
                 }}
               >
@@ -792,14 +808,15 @@ const Tickets: React.FC = () => {
               </Button>
               {/* Filters Icon Button */}
               <Button
-  variant="contained" color="inherit"
-  size="small"
-  onClick={() => setFiltersOpen(prev => !prev)}
-  startIcon={<FilterListIcon fontSize="small" />}
-  aria-label="Toggle Filters"
->
-  Filters
-</Button>
+                variant="contained"
+                color="inherit"
+                size="small"
+                onClick={() => setFiltersOpen((prev) => !prev)}
+                startIcon={<FilterListIcon fontSize="small" />}
+                aria-label="Toggle Filters"
+              >
+                Filters
+              </Button>
             </div>
           </div>
           {/* Main Content: Tickets + Filters */}
@@ -830,16 +847,19 @@ const Tickets: React.FC = () => {
           </div>
         </div>
       )}
-      {createDialogOpen && (
-        <CreateTicketDialog
-          open={createDialogOpen}
-          onClose={() => {
-            setCreateDialogOpen(false);
-            refetch();
-          }}
-        />
-      )}
-      
+
+      <CustomSideBarPanel
+        open={createDialogOpen}
+        close={() => {
+          setCreateDialogOpen(false);
+        }}
+        isHeader={true}
+        title={"Create Ticket"}
+        width={600}
+      >
+        <CreateTicketDialog />
+      </CustomSideBarPanel>
+
       {/* User Hover Popup */}
       <UserHoverPopup
         open={Boolean(userPopupAnchorEl)}
@@ -850,20 +870,24 @@ const Tickets: React.FC = () => {
         user={userPopupUser}
       />
 
-      {
-        isSuccessModal && (
-         <CustomModal open={isSuccessModal} onClose={() => {
-          } } title={"Ticket Save"} msg="Ticket save successfully" primaryButton={{
+      {isSuccessModal && (
+        <CustomModal
+          open={isSuccessModal}
+          onClose={() => {}}
+          title={"Ticket Save"}
+          msg="Ticket save successfully"
+          primaryButton={{
             title: "Go Next",
-            onClick: ()=>{},
-         
-          }} secondaryButton={{
+            onClick: () => {},
+          }}
+          secondaryButton={{
             title: "Ticket List",
-             onClick: ()=>{setIsSuccessModal(false)},
-        
-          }} />
-        )
-      }
+            onClick: () => {
+              setIsSuccessModal(false);
+            },
+          }}
+        />
+      )}
     </>
   );
 };

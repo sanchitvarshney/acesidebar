@@ -27,7 +27,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
       ModalProps={{
         keepMounted: true,
         BackdropProps: {
-          style: { backgroundColor: "rgba(0, 0, 0, 0.5), ",cursor:"none" }, // visually transparent
+          style: { backgroundColor: "rgba(0, 0, 0, 0.5), ", cursor: "none" }, // visually transparent
         },
       }}
       // hideBackdrop
@@ -36,7 +36,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
         "& .MuiDrawer-paper": {
           width: width,
           position: "absolute",
-          top: 64,
+          top: 0,
           backgroundColor: "#f9fafb",
           zIndex: 0,
           pointerEvents: "none",
@@ -57,12 +57,12 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           <Typography sx={{ flex: 1, fontSize: "16px" }}>{title}</Typography>
 
           <IconButton onClick={close}>
-            <CloseIcon fontSize="small"  />
+            <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
       )}
       <div
-        className="w-full  h-[calc(100vh-64px)] overflow-y-auto"
+        className="w-full  h-[calc(100vh-0px)] overflow-y-auto"
         style={{
           pointerEvents: "auto", // 👈 Re-enable interactions inside Drawer content
         }}
