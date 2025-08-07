@@ -135,9 +135,9 @@ const SupportHeader = () => {
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {["Sign up", "Login"].map((btn, index) => (
-                <>
+                <div  key={index}>
                   <Button
-                    key={index}
+                   
                     onClick={() => {
                       if (btn === "Login") {
                         setShowLoginModal(true);
@@ -176,7 +176,7 @@ const SupportHeader = () => {
                       sx={{ height: "1.5rem", bgcolor: "white" }}
                     />
                   )}
-                </>
+                </div>
               ))}
             </Box>
           </Box>

@@ -77,7 +77,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                 style={{ background: option.color }}
               ></span>
             )}
-            {option.label}
+            {option?.label}
           </MenuItem>
         ))}
       </Popover>

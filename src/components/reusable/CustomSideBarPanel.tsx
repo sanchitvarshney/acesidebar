@@ -20,14 +20,14 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
 }) => {
   return (
     <Drawer
-      elevation={1}
+      // elevation={0}
       anchor="right"
       open={open}
       // onClose={close}
       ModalProps={{
         keepMounted: true,
         BackdropProps: {
-          style: { backgroundColor: "rgba(255, 255, 255, 0.5), ",cursor:"none" }, // visually transparent
+          style: { backgroundColor: "rgba(0, 0, 0, 0.5), ", cursor: "none" }, // visually transparent
         },
       }}
       // hideBackdrop

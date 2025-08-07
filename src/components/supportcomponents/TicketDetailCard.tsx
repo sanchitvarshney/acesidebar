@@ -30,7 +30,7 @@ const TicketDetailCard: React.FC<TicketDetailCardProps> = ({
 
   return (
     <Card
-      key={id}
+    
       onClick={() => handleNavigation(id)}
       sx={{
         transition: "transform 0.3s ease, box-shadow 0.3s ease",

@@ -1,6 +1,7 @@
 import { Card, CardContent, Typography } from "@mui/material";
 import React from "react";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { useNavigate } from "react-router-dom";
 
 const submitTicketTitle = [
   {
@@ -30,6 +31,8 @@ const submitTicketTitle = [
 ];
 
 const SubmitTicketPage = () => {
+
+    const navigate = useNavigate();
   return (
     <div className="w-full flex flex-col">
       <Typography variant="h5" sx={{ textAlign: "center", py: 4 }}>
@@ -39,7 +42,9 @@ const SubmitTicketPage = () => {
         {submitTicketTitle.map((item) => (
           <Card
             key={item.id}
-            onClick={() => {}}
+            onClick={() =>  {
+                const title = item.title.toLowerCase();
+                navigate(`/ticket/support/submit-ticket/${title}/${item.id}`)}}
             sx={{
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
               borderRadius: "8px",
@@ -51,6 +56,7 @@ const SubmitTicketPage = () => {
                 boxShadow: 6,
               },
             }}
+            
           >
             <CardContent 
               sx={{ 
