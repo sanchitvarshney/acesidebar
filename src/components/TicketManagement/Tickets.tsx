@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
-import { Avatar, IconButton, Button } from "@mui/material";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import { Avatar, IconButton, Button, Checkbox } from "@mui/material";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import {
   useGetTicketListQuery,
   useGetPriorityListQuery,
@@ -46,7 +47,7 @@ const STATUS_OPTIONS = [
 const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
 const Tickets: React.FC = () => {
-  const [sortBy, setSortBy] = useState("Date created");
+  const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -121,7 +122,7 @@ const Tickets: React.FC = () => {
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-        "Date created"
+      "Date created"
     );
     setSortOrder("desc"); // Reset to default order
     setPage(1); // Reset to first page
@@ -203,7 +204,7 @@ const Tickets: React.FC = () => {
     if (!ticketList?.data) return;
     setMasterChecked(
       ticketList.data.length > 0 &&
-        selectedTickets.length === ticketList.data.length
+      selectedTickets.length === ticketList.data.length
     );
   }, [selectedTickets, ticketList]);
 
@@ -346,7 +347,8 @@ const Tickets: React.FC = () => {
   };
 
   const handleSendReply = (replyText: string, threadItem?: any) => {
-    console.log(replyText);
+
+    console.log(replyText)
     if (replyText.trim()) {
       // TODO: Implement API call to send reply
       console.log("Sending reply:", replyText, threadItem);
@@ -382,18 +384,25 @@ const Tickets: React.FC = () => {
     return (
       <div
         key={ticket?.ticketNumber}
-        className="relative bg-white rounded border border-gray-200 mb-3 flex items-center px-4 py-2 shadow-sm transition-shadow
+        className="relative bg-white rounded border border-blue-200 mb-3 flex items-center px-4 py-2 shadow-sm transition-shadow
     hover:shadow-[inset_1px_0_0_rgb(218,220,224),inset_-1px_0_0_rgb(218,220,224),0_1px_2px_0_rgba(60,64,67,0.3),0_1px_3px_1px_rgba(60,64,67,0.15)]
     before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:bg-[#1a73e8] before:rounded-l"
       >
         {/* Left: Checkbox, Avatar, Sentiment */}
         <div className="flex items-center mr-4 min-w-[60px]">
-          <input
-            type="checkbox"
-            // className="mr-3"
-            className="mr-2 w-4 h-4 accent-blue-600"
+          <Checkbox
             checked={selectedTickets.includes(ticket.ticketNumber)}
             onChange={() => handleTicketCheckbox(ticket.ticketNumber)}
+            sx={{
+              mr: 1,
+              color: '#666',
+              '&.Mui-checked': {
+                color: '#1a73e8',
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(26, 115, 232, 0.04)',
+              },
+            }}
           />
           <div className="relative">
             {ticket?.avatarUrl ? (
@@ -594,7 +603,7 @@ const Tickets: React.FC = () => {
             <CustomDropdown
               value={
                 typeof dropdownState.status === "object" &&
-                dropdownState.status !== null
+                  dropdownState.status !== null
                   ? (dropdownState.status as any).name || dropdownState.status
                   : dropdownState.status
               }
@@ -632,15 +641,23 @@ const Tickets: React.FC = () => {
       ) : (
         <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
           {/* Main Header Bar */}
-          <div className="flex items-center justify-between px-6 py-2 pb-2 border-b w-full bg-#f0f4f9">
+          <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-#f0f4f9">
             {/* Left: Title, master checkbox, count, and action buttons (inline) */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <input
-                type="checkbox"
-                className="mr-2 w-5 h-5 accent-blue-600"
+              <Checkbox
                 checked={masterChecked}
                 onChange={handleMasterCheckbox}
                 aria-label="Select all tickets"
+                sx={{
+                  mr: 1,
+                  color: '#666',
+                  '&.Mui-checked': {
+                    color: '#1a73e8',
+                  },
+                  '&:hover': {
+                    backgroundColor: 'rgba(26, 115, 232, 0.04)',
+                  },
+                }}
               />
               <span className="text-xl font-semibold whitespace-nowrap">
                 All tickets
@@ -653,47 +670,35 @@ const Tickets: React.FC = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    startIcon={<PersonAddAltIcon fontSize="small" />}
+                    color="inherit"
+                    startIcon={<PersonAddAltIcon fontSize="small" sx={{ color: '#1a73e8' }}/>}
                     sx={{
-                      textTransform: "none",
-                      fontSize: "0.875rem",
+                      fontSize: '0.875rem',
                       fontWeight: 500,
-                      backgroundColor: "#1976d2",
-                      "&:hover": {
-                        backgroundColor: "#1565c0",
-                      },
                     }}
                   >
                     Assign
                   </Button>
                   <Button
                     variant="contained"
+                    color="inherit"
                     size="small"
-                    startIcon={<CheckCircleIcon fontSize="small" />}
+                    startIcon={<CheckCircleIcon fontSize="small"sx={{ color: '#43a047' }} />}
                     sx={{
-                      textTransform: "none",
-                      fontSize: "0.875rem",
+                      fontSize: '0.875rem',
                       fontWeight: 500,
-                      backgroundColor: "#43a047",
-                      "&:hover": {
-                        backgroundColor: "#388e3c",
-                      },
                     }}
                   >
                     Close
                   </Button>
                   <Button
                     variant="contained"
+                    color="inherit"
                     size="small"
-                    startIcon={<CallMergeIcon fontSize="small" />}
+                    startIcon={<CallMergeIcon fontSize="small" sx={{ color: '#ff9800' }}/>}
                     sx={{
-                      textTransform: "none",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      backgroundColor: "#ff9800",
-                      "&:hover": {
-                        backgroundColor: "#f57c00",
-                      },
+                      fontSize: '0.875rem',
+                      fontWeight: 500
                     }}
                   >
                     Merge
@@ -701,15 +706,11 @@ const Tickets: React.FC = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    startIcon={<BlockIcon fontSize="small" />}
+                    color="inherit"
+                    startIcon={<BlockIcon fontSize="small"sx={{ color: '#d32f2f' }} />}
                     sx={{
-                      textTransform: "none",
-                      fontSize: "0.875rem",
+                      fontSize: '0.875rem',
                       fontWeight: 500,
-                      backgroundColor: "#e53935",
-                      "&:hover": {
-                        backgroundColor: "#d32f2f",
-                      },
                     }}
                   >
                     Spam
@@ -717,15 +718,10 @@ const Tickets: React.FC = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    startIcon={<DeleteIcon fontSize="small" />}
+                    color="inherit" startIcon={<DeleteIcon fontSize="small" sx={{ color: '#d32f2f' }} />}
                     sx={{
-                      textTransform: "none",
-                      fontSize: "0.875rem",
+                      fontSize: '0.875rem',
                       fontWeight: 500,
-                      backgroundColor: "#6d4c41",
-                      "&:hover": {
-                        backgroundColor: "#5d4037",
-                      },
                     }}
                   >
                     Delete
@@ -734,23 +730,15 @@ const Tickets: React.FC = () => {
               )}
               {selectedTickets.length === 0 && (
                 <div className="flex items-center gap-2 ml-4">
-                  <span className="text-sm text-gray-600">Sort by:</span>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     size="small"
+                    color="inherit"
                     onClick={handleSortingPopoverOpen}
-                    endIcon={<ArrowDropDownIcon fontSize="small" />}
+                    endIcon={<FilterAltOutlinedIcon fontSize="small" />}
                     sx={{
-                      textTransform: "none",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      borderColor: "#1976d2",
-                      color: "#1976d2",
-                      minWidth: 140,
-                      "&:hover": {
-                        borderColor: "#1565c0",
-                        backgroundColor: "#f5f5f5",
-                      },
+                      fontSize: '0.875rem',
+                      fontWeight: 500
                     }}
                   >
                     {sortBy}
@@ -808,10 +796,9 @@ const Tickets: React.FC = () => {
               </Button>
               {/* Filters Icon Button */}
               <Button
-                variant="contained"
-                color="inherit"
+                variant="contained" color="inherit"
                 size="small"
-                onClick={() => setFiltersOpen((prev) => !prev)}
+                onClick={() => setFiltersOpen(prev => !prev)}
                 startIcon={<FilterListIcon fontSize="small" />}
                 aria-label="Toggle Filters"
               >

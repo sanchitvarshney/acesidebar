@@ -19,6 +19,7 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import InputAdornment from "@mui/material/InputAdornment";
 import Popover from "@mui/material/Popover";
 import SearchIcon from "@mui/icons-material/Search";
+import { Bold } from "lucide-react";
 
 interface TicketFilterPanelProps {
   onApplyFilters: (filters: Record<string, any>) => void;
@@ -108,8 +109,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const criteriaArray = Array.isArray(searchCriteria)
     ? searchCriteria
     : Array.isArray(searchCriteria?.data)
-    ? searchCriteria.data
-    : [];
+      ? searchCriteria.data
+      : [];
   if (!criteriaArray || criteriaArray.length === 0) {
     return null;
   }
@@ -124,7 +125,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     if (closePopoverTimer.current) {
       clearTimeout(closePopoverTimer.current);
-      closePopoverTimer.current = null; 
+      closePopoverTimer.current = null;
     }
     if (activeFilters.length === 0 && topAnchorRef.current) {
       setAnchorEl(topAnchorRef.current);
@@ -138,28 +139,20 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   };
 
   return (
-    <Box className="w-100 min-w-100 shadow rounded-lg flex flex-col h-full p-4 relative bg-#f5f7f9">
+    <Box className="w-100 min-w-100 shadow rounded-lg flex flex-col h-full relative bg-#f5f7f9">
       <div ref={topAnchorRef} />
       {/* Header */}
-      <Box className="flex items-center justify-between mb-2">
+      <Box className="flex items-center justify-between mb-3 p-2" sx={{
+        borderBottom: "1px solid #eee",
+        backgroundColor: "#e8f0fe",
+      }}>
         <span className="font-semibold text-gray-700 text-sm">FILTERS</span>
         {!showCustomFilters ? (
           <Button
             variant="text"
             size="small"
+            sx={{ fontSize: 10, fontWeight: "Bold" }}
             onClick={() => setShowCustomFilters(true)}
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.75rem',
-              color: '#1976d2',
-              fontWeight: 400,
-              padding: 0,
-              minWidth: 'auto',
-              '&:hover': {
-                textDecoration: 'underline',
-                backgroundColor: 'transparent',
-              },
-            }}
           >
             Show applied filters
           </Button>
@@ -167,19 +160,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           <Button
             variant="text"
             size="small"
+            sx={{ fontSize: 10, fontWeight: "Bold" }}
             onClick={() => setShowCustomFilters(false)}
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.75rem',
-              color: '#1976d2',
-              fontWeight: 400,
-              padding: 0,
-              minWidth: 'auto',
-              '&:hover': {
-                textDecoration: 'underline',
-                backgroundColor: 'transparent',
-              },
-            }}
           >
             Show All Filters
           </Button>
@@ -189,15 +171,15 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       {!showCustomFilters ? (
         <Box className="flex-1 overflow-y-auto">
           {criteriaArray.map((field: any) => (
-            <Box className="mb-4" key={field.name}>
+            <Box  key={field.name}>
               {field.type === "dropdown" && field.name === "priority" && (
-                <div style={{ marginBottom: 16 }}>
+                <div style={{ padding: 10 }}>
                   <div
                     style={{
                       fontSize: 13,
                       color: "#555",
                       fontWeight: 500,
-                      marginBottom: 4,
+                      marginTop: 4,
                     }}
                   >
                     {field.label}
@@ -275,80 +257,44 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 </div>
               )}
               {field.type === "dropdown" && field.name !== "priority" && (
-                <div style={{ marginBottom: 16 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "#555",
-                      fontWeight: 500,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {field.label}
-                  </div>
+                <div style={{ padding: 10 }}>
                   <FormControl fullWidth size="small">
+                    <InputLabel id={field.name}>{field.label}</InputLabel>
                     <Select
                       name={field.name}
+                      labelId={field.name}
+                      id={field.name}
+                      label={field.label} // 🔸 This is necessary for floating behavior
                       value={filters[field.name] ?? ""}
                       onChange={handleSelectChange}
-                      displayEmpty
-                      renderValue={(selected) => {
-                        if (!selected || selected === "") {
-                          return <span style={{ color: "#aaa" }}></span>;
-                        }
-                        const selectedOption = field.choices?.find(
-                          (opt: { value: string; label: string }) =>
-                            opt.value === selected
-                        );
-                        return selectedOption ? selectedOption.label : selected;
-                      }}
                     >
-                      {field.choices?.map(
-                        (opt: { value: string; label: string }) => (
-                          <MenuItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </MenuItem>
-                        )
-                      )}
+                      {field.choices?.map((opt: { value: string; label: string }) => (
+                        <MenuItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
+
                 </div>
               )}
               {field.type === "text" && (
-                <div style={{ marginBottom: 16 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "#555",
-                      fontWeight: 500,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {field.label}
-                  </div>
+                <div style={{ padding: 10 }}>
                   <TextField
                     fullWidth
                     size="small"
                     name={field.name}
+                    label={field.label}
                     value={filters[field.name]}
                     onChange={handleChange}
-                    variant="outlined"
-                    // No label or placeholder
+                    variant="filled"
+                  // No label or placeholder
                   />
                 </div>
               )}
               {field.type === "date" && (
-                <div style={{ marginBottom: 16 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "#555",
-                      fontWeight: 500,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {field.label}
-                  </div>
+                <div style={{ padding: 10 }}>
+
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       value={filters[field.name] || null}
@@ -358,28 +304,28 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                           [field.name]: newValue,
                         }));
                       }}
+                      format="DD/MM/YYYY"
                       slotProps={{
                         textField: {
+                          label: field.label, // 🔸 floating label here
                           fullWidth: true,
                           size: "small",
                           variant: "outlined",
                           name: field.name,
-                          // No label or placeholder
                         },
                       }}
-                      format="DD/MM/YYYY"
                     />
                   </LocalizationProvider>
                 </div>
               )}
               {field.type === "chip" && (
-                <div style={{ marginBottom: 16 }}>
+                <div style={{ padding:10 }}>
                   <div
                     style={{
                       fontSize: 13,
                       color: "#555",
                       fontWeight: 500,
-                      marginBottom: 4,
+                      marginTop: 4,
                     }}
                   >
                     {field.label}
@@ -435,7 +381,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         // Custom dynamic filter panel (copied from previous dynamic logic)
         <Box className="flex-1 overflow-y-auto">
           {/* Add filters button and popover */}
-          <Box className="mb-2">
+          <Box >
             <Popover
               open={Boolean(anchorEl)}
               anchorEl={anchorEl}
@@ -444,14 +390,14 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
               PaperProps={{
                 sx: {
                   p: 0,
-                  minWidth: 290,
-                  maxWidth: 290,
+                  minWidth: 315,
+                  maxWidth: 315,
                   boxShadow: 3,
                   borderRadius: 2,
                 },
               }}
             >
-              <Box sx={{ p: 1, minWidth: 290 }}>
+              <Box sx={{ p: 1, minWidth: 315 }}>
                 <TextField
                   size="small"
                   placeholder="Search..."
@@ -495,7 +441,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
               <img
                 src={emptyimg}
                 alt="No filters"
-                style={{ width: 120, height: 120, marginBottom: 16 }}
+                style={{ width: 120, height: 120, marginTop: 18 }}
               />
               <span className="text-gray-400 text-base">
                 No filters applied
@@ -523,7 +469,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 );
                 if (!field) return null;
                 return (
-                  <Box className="mb-4" key={field.name}>
+                  <Box className="p-2" key={field.name}>
                     <Box className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium text-gray-700">
                         {field.label}
@@ -647,7 +593,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         name={field.name}
                         value={filters[field.name]}
                         onChange={handleChange}
-                        variant="outlined"
+                        variant="filled"
                         placeholder={field.placeholder || field.label || ""}
                       />
                     )}
@@ -744,7 +690,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   color: "#1a73e8",
                   fontWeight: 500,
                   textTransform: "none",
-                  pl: 0,
+                  pl: 2,
                   mt: 1, // margin top for spacing
                 }}
               >
@@ -758,14 +704,14 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 PaperProps={{
                   sx: {
                     p: 0,
-                    minWidth: 290,
-                    maxWidth: 290,
+                    minWidth: 315,
+                    maxWidth: 315,
                     boxShadow: 3,
                     borderRadius: 2,
                   },
                 }}
               >
-                <Box sx={{ p: 1, minWidth: 290 }}>
+                <Box sx={{ p: 1, minWidth: 315 }}>
                   <TextField
                     size="small"
                     placeholder="Search..."
@@ -808,7 +754,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         </Box>
       )}
       {/* Fixed Apply and Reset buttons */}
-      <Box className="pt-2 pb-0 z-10 bg-white flex gap-2">
+      <Box className="p-2 pb-2 pb-0 z-10 bg-white flex gap-2">
         {showCustomFilters && (
           <Button
             variant="contained"
@@ -817,7 +763,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
             onClick={handleResetFilters}
             sx={{
               fontSize: '0.875rem',
-              fontWeight: 600,              
+              fontWeight: 600,
               '&:disabled': {
                 opacity: 0.5,
               },

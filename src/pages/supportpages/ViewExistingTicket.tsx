@@ -16,12 +16,11 @@ const ViewExistingTicket = () => {
   const handleForgetSubmit = (email: string, ticketType: "all" | "open") => {
     console.log("Submitted Email:", email);
     console.log("Ticket Type:", ticketType);
-    // TODO: send request to backend
     setDialogOpen(false);
   };
 
   return (
-    <Box sx={{ width: "100%", minHeight: "calc(100vh - 205px)", padding: 3 }}>
+    <Box sx={{ width: "100%", minHeight: "calc(100vh - 210px)", padding: 3 }}>
       <Typography
         variant="h5"
         component="h1"
@@ -37,6 +36,7 @@ const ViewExistingTicket = () => {
 
       <Card
         sx={{
+          height: "auto",
           width: { sm: "100%", md: "50%", lg: "60%" },
           borderRadius: 3,
           boxShadow: "0 4px 12px rgba(0,0,0,0.3)",

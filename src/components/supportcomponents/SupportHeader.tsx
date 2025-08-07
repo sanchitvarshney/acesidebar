@@ -58,7 +58,7 @@ const SupportHeader = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ width: "100%" }} elevation={0}>
+      <AppBar position="static" sx={{ width: "100%", bgcolor: "white" }} elevation={0} >
         <Toolbar
           sx={{
             display: "flex",
@@ -71,11 +71,12 @@ const SupportHeader = () => {
             fontSize={"1.2rem"}
             fontWeight={600}
             component="span"
+            sx={{ color: "#1976d2" }}
           >
             Help Desk
           </Typography>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, color: "#1976d2" }}>
             <List
               sx={{
                 display: "flex",
@@ -95,14 +96,13 @@ const SupportHeader = () => {
                       navigate(item.path);
                     }}
                     sx={{
-                      color: "white",
                       position: "relative",
                       px: 2,
                       py: 1,
                       "&:hover": {
                         backgroundColor: "transparent",
                         transform: "scale(1.05)",
-                        color: "rgba(255, 255, 255, 0.9)",
+                        color: "#1976d2",
                         "&::after": {
                           width: "100%",
                         },
@@ -111,6 +111,7 @@ const SupportHeader = () => {
                         content: '""',
                         position: "absolute",
                         bottom: 0,
+                        color: "#1976d2",
                         left: 0,
                         width: isActive ? "100%" : "0%",
                         height: "2px",
@@ -137,7 +138,6 @@ const SupportHeader = () => {
                 <>
                   <Button
                     key={index}
-                    color="inherit"
                     onClick={() => {
                       if (btn === "Login") {
                         setShowLoginModal(true);
@@ -148,21 +148,20 @@ const SupportHeader = () => {
                     sx={{
                       position: "relative",
                       "&:hover": {
-                        backgroundColor: "transparent",
+                        backgroundColor: "#f2f4f6",
                         transform: "scale(1.05)",
                         "&::after": {
                           width: "100%",
-                        },
-                        color: "rgba(255, 255, 255, 0.9)",
+                        }
                       },
                       "&::after": {
                         content: '""',
                         position: "absolute",
                         bottom: "0",
                         left: "0",
+                        backgroundColor: "#1976d2",
                         width: "0%",
                         height: "2px",
-                        backgroundColor: "currentColor",
                         transition: "width 0.3s ease-in-out",
                       },
                       transition: "transform 0.2s ease, color 0.2s ease",
@@ -188,8 +187,10 @@ const SupportHeader = () => {
         sx={{
           display: "flex",
           alignItems: "center",
+          backgroundColor: "#1976d2",
           py: 2,
           px: 4,
+          color: "white",
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
         }}
       >
@@ -217,9 +218,9 @@ const SupportHeader = () => {
               {i < tabs.length - 1 && (
                 <ChevronRightIcon
                   sx={{
+                    color: "white",
                     mx: 1,
-                    fontSize: "1rem",
-                    color: "#000",
+                    fontSize: "1rem"
                   }}
                 />
               )}

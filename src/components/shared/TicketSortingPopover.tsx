@@ -51,9 +51,11 @@ const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
       transformOrigin={{ vertical: "top", horizontal: "left" }}
       PaperProps={{
         sx: {
-          minWidth: 220,
-          maxWidth: 260,
+          fontSize: 14,
+          minWidth: 240,
+          maxWidth: 250,
           boxShadow: 3,
+          marginTop:1,
           borderRadius: 2,
           p: 0,
         },
@@ -68,7 +70,7 @@ const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
               sx={{
                 borderRadius: 0,
                 justifyContent: "space-between",
-                color: selectedField === field.key ? "#1976d2" : undefined,
+                color: selectedField === field.key ? "#1976d2" : "1f2937",
                 fontWeight: selectedField === field.key ? 600 : 400,
               }}
             >
