@@ -9,6 +9,8 @@ import { AuthProvider } from "./contextApi/AuthContext";
 import { PopupProvider } from "./contextApi/PopupContext";
 import theme from "./theme";
 import "./font.css"
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 
 // Placeholder components for routes

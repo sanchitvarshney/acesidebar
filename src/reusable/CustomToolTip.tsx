@@ -9,7 +9,7 @@ interface CustomizedTooltipProps {
   children: React.ReactElement;
   placement?: any;
   open?: boolean;
-  close?: () => void;
+  close?: any;
   disableHoverListener?: boolean;
   width?: string | number
 }

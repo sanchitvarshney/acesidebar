@@ -121,7 +121,7 @@ interface MenuItem {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
-  const { signOut } = useAuth() 
+  const { signOut } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -235,6 +235,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
   };
 
   const handleNavigation = (path: string) => {
+    console.log(path,"path")
     navigate(path);
   };
 
@@ -370,7 +371,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
               onClick={() => handleNavigation("/tickets")}
             />
           </ColoredShortcutButton>
-          <ColoredShortcutButton bgcolor={iconColors[2]}>
+          <ColoredShortcutButton
+            bgcolor={iconColors[2]}
+            onClick={() => handleNavigation("/create-user")}
+          >
             <PeopleIcon fontSize="inherit" />
           </ColoredShortcutButton>
           <ColoredShortcutButton bgcolor={iconColors[3]}>
@@ -389,7 +393,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
             mb: 2,
           }}
         >
-          
           <IconButton size="medium" onClick={signOut}>
             <ExitToAppIcon fontSize="medium" />
           </IconButton>
