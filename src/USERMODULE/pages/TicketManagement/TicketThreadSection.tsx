@@ -30,6 +30,7 @@ import {
   MenuList,
   Drawer,
   Tooltip,
+  Button,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -41,7 +42,6 @@ import ShortCutPopover from "../../../components/shared/ShortCutPopover";
 import ShotCutContent from "../../components/ShotCutContent";
 
 import ShortcutIcon from "@mui/icons-material/Shortcut";
-
 
 import { set } from "react-hook-form";
 import { Add } from "@mui/icons-material";
@@ -364,30 +364,30 @@ const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
   </div>
 );
 
-const EditorBar = ({ replyText, onReplyTextChange, onSendReply }: any) => (
-  <div className="border rounded bg-white p-3 flex flex-col gap-2">
-    <textarea
-      className="w-full min-h-[80px] border rounded p-2 text-sm"
-      placeholder="Type your reply..."
-      value={replyText}
-      onChange={(e) => onReplyTextChange(e.target.value)}
-    />
-    <div className="flex items-center justify-between">
-      <div className="flex gap-2">
-        {/* Toolbar icons placeholder */}
-        <button className="text-gray-500 hover:text-blue-600">B</button>
-        <button className="text-gray-500 hover:text-blue-600">I</button>
-        <button className="text-gray-500 hover:text-blue-600">A</button>
-      </div>
-      <button
-        className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-blue-700"
-        onClick={onSendReply}
-      >
-        Send
-      </button>
-    </div>
-  </div>
-);
+// const EditorBar = ({ replyText, onReplyTextChange, onSendReply }: any) => (
+//   <div className="border rounded bg-white p-3 flex flex-col gap-2">
+//     <textarea
+//       className="w-full min-h-[80px] border rounded p-2 text-sm"
+//       placeholder="Type your reply..."
+//       value={replyText}
+//       onChange={(e) => onReplyTextChange(e.target.value)}
+//     />
+//     <div className="flex items-center justify-between">
+//       <div className="flex gap-2">
+//         {/* Toolbar icons placeholder */}
+//         <button className="text-gray-500 hover:text-blue-600">B</button>
+//         <button className="text-gray-500 hover:text-blue-600">I</button>
+//         <button className="text-gray-500 hover:text-blue-600">A</button>
+//       </div>
+//       <button
+//         className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-blue-700"
+//         onClick={onSendReply}
+//       >
+//         Send
+//       </button>
+//     </div>
+//   </div>
+// );
 
 const TicketThreadSection = ({
   thread,
@@ -487,10 +487,13 @@ const TicketThreadSection = ({
   // Handler for Reply button
   const handleReplyButton = () => {
     const newShowEditor = !showEditor;
-    console.log('handleReplyButton called:', { currentShowEditor: showEditor, newShowEditor });
+    console.log("handleReplyButton called:", {
+      currentShowEditor: showEditor,
+      newShowEditor,
+    });
     setShowEditor(newShowEditor);
     if (newShowEditor) {
-      console.log('Setting shouldFocusEditor to true from handleReplyButton');
+      console.log("Setting shouldFocusEditor to true from handleReplyButton");
       setShouldFocusEditor(true);
     }
   };
@@ -555,9 +558,12 @@ const TicketThreadSection = ({
   };
 
   useEffect(() => {
-    console.log('TicketThreadSection useEffect triggered:', { showReplyEditor, showEditorNote });
+    console.log("TicketThreadSection useEffect triggered:", {
+      showReplyEditor,
+      showEditorNote,
+    });
     if (showReplyEditor || showEditorNote) {
-      console.log('Setting showEditor to true and shouldFocusEditor to true');
+      console.log("Setting showEditor to true and shouldFocusEditor to true");
       setShowEditor(true);
       setShouldFocusEditor(true);
     }
@@ -705,7 +711,9 @@ const TicketThreadSection = ({
                   onForward={onForward}
                   shouldFocus={shouldFocusEditor}
                   onFocus={() => {
-                    console.log('onFocus callback called, setting shouldFocusEditor to false');
+                    console.log(
+                      "onFocus callback called, setting shouldFocusEditor to false"
+                    );
                     setShouldFocusEditor(false);
                   }}
                 />
@@ -781,14 +789,14 @@ const TicketThreadSection = ({
                         open={showImagesModal}
                         onClose={() => setShowImagesModal(false)}
                         placement={"top"}
-                                              >
-                          <span
-                            className="bg-[#1a73e8] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
-                            onClick={() => setShowImagesModal(true)}
-                          >
-                            {images.length}
-                          </span>
-                        </Tooltip>
+                      >
+                        <span
+                          className="bg-[#1a73e8] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
+                          onClick={() => setShowImagesModal(true)}
+                        >
+                          {images.length}
+                        </span>
+                      </Tooltip>
                     )}
                     <Divider orientation="vertical" flexItem />
                     <Tooltip
@@ -840,24 +848,47 @@ const TicketThreadSection = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded font-semibold text-sm hover:bg-gray-300"
+                  <Button
+                    variant="contained"
                     onClick={() => {
                       setMarkdown("");
                       setSignature("");
-                      setSelectedOptionValue("1"); // Reset to "None"
+                      setSelectedOptionValue("1");
                       setStateChangeKey((prev) => prev + 1);
-                      setSignatureUpdateKey(0); // Reset signature update key
+                      setSignatureUpdateKey(0);
+                    }}
+                    sx={{
+                      backgroundColor: "#e5e7eb", // Tailwind: bg-gray-200
+                      color: "#374151", // Tailwind: text-gray-700
+                      fontWeight: 600,
+                      fontSize: "0.875rem", // text-sm
+                      padding: "6px 16px", // py-1.5 px-4
+                      borderRadius: "0.375rem", // rounded
+                      "&:hover": {
+                        backgroundColor: "#d1d5db", // Tailwind: hover:bg-gray-300
+                      },
                     }}
                   >
                     Reset
-                  </button>
-                  <button
-                    className="bg-[#1a73e8] text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-[#1b66c9]"
+                  </Button>
+
+                  <Button
+                    variant="contained"
                     onClick={handleSave}
+                    sx={{
+                      backgroundColor: "#1a73e8",
+                      color: "white",
+                      fontWeight: 600,
+                      fontSize: "0.875rem",
+                      padding: "6px 16px",
+                      borderRadius: "0.375rem",
+                      "&:hover": {
+                        backgroundColor: "#1b66c9",
+                      },
+                    }}
                   >
                     Save
-                  </button>
+                  </Button>
                 </div>
               </div>
               {/* </motion.div> */}
@@ -896,9 +927,9 @@ const TicketThreadSection = ({
         open={canned}
         onClose={() => setCanned(false)}
         sx={{
-          '& .MuiDrawer-paper': {
+          "& .MuiDrawer-paper": {
             width: 600,
-            maxWidth: '100vw',
+            maxWidth: "100vw",
             boxShadow: 24,
           },
         }}
@@ -974,9 +1005,9 @@ const TicketThreadSection = ({
         open={suggest}
         onClose={() => setSuggest(false)}
         sx={{
-          '& .MuiDrawer-paper': {
+          "& .MuiDrawer-paper": {
             width: 600,
-            maxWidth: '100vw',
+            maxWidth: "100vw",
             boxShadow: 24,
           },
         }}

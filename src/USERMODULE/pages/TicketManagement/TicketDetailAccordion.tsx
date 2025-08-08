@@ -1,16 +1,32 @@
+import { Button } from "@mui/material";
 import React, { useState } from "react";
 
 const AccordionPanel = ({ title, children }: any) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="mb-2 border rounded bg-white">
-      <button
-        className="w-full flex justify-between items-center px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-        onClick={() => setOpen((o) => !o)}
-      >
-        <span>{title}</span>
-        <span>{open ? "-" : "+"}</span>
-      </button>
+  <Button
+  fullWidth
+  onClick={() => setOpen((o) => !o)}
+  sx={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    px: 2, // Equivalent to px-4
+    py: 1, // Equivalent to py-2
+    fontSize: "0.875rem", // text-sm
+    fontWeight: 600,
+    color: "#374151", // Tailwind text-gray-700
+    textTransform: "none", // Prevent uppercase transformation
+    backgroundColor: "transparent",
+    "&:hover": {
+      backgroundColor: "#f9fafb", // Tailwind hover:bg-gray-50
+    },
+  }}
+>
+  <span>{title}</span>
+  <span>{open ? "-" : "+"}</span>
+</Button>
       {open && (
         <div className="px-4 py-2 border-t text-xs text-gray-600">
           {children}

@@ -1,26 +1,18 @@
 import { Avatar, Checkbox, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useState } from "react";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
 
-const selectionsOptions = [
-    {
-        label: "Option 1",
-        value: 1,
-    },
-    {
-        label: "Option 2",
-        value: 2,
-    },
-    {
-        label: "Option 3",
-        value: 3,
-    },
-]
+
 
 const TextInputCellRenderer = (props: any) => {
   const { value, colDef, data, context } = props;
   const { isAllSelect } = context;
   const [checked, setChecked] = useState(false);
+   const [isEdit, setIsEdit] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(1);
 
@@ -102,7 +94,7 @@ const TextInputCellRenderer = (props: any) => {
                   filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
                   mt: 1.5,
                   '& .MuiAvatar-root': {
-                    width: 32,
+                    width: 30,
                     height: 32,
                     ml: -0.5,
                     mr: 1,
@@ -124,10 +116,24 @@ const TextInputCellRenderer = (props: any) => {
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              {selectionsOptions.map((item, index) => (
+         
                 <MenuItem
-                  key={index}
-                  onClick={() => handleSelect(item.value)}
+               
+                  onClick={() => setIsEdit(true)}
+                  sx={{
+                    minWidth: 80,
+                    py: 1,
+                    px: 2,
+                    '&:hover': {
+                      backgroundColor: '#f5f5f5',
+                    },
+                  }}
+                >
+                  <EditIcon fontSize="small"  sx={{mr:2}}/> Edit
+                </MenuItem>
+                   <MenuItem
+            
+                  onClick={() => setIsDelete(true)}
                   sx={{
                     minWidth: 150,
                     py: 1,
@@ -137,9 +143,9 @@ const TextInputCellRenderer = (props: any) => {
                     },
                   }}
                 >
-                  {item.label}
+                  <DeleteIcon fontSize="small" sx={{mr:2}}/> Delete
                 </MenuItem>
-              ))}
+   
             </Menu>
           </>
         );
@@ -148,7 +154,14 @@ const TextInputCellRenderer = (props: any) => {
     }
   };
 
-  return renderContent();
+  return (
+    <>
+    {renderContent()}
+    <CustomSideBarPanel open={isEdit} close={()=>setIsEdit(false)} width={500 } title={"Edit User"} >
+        <h1>Delete item</h1>
+    </CustomSideBarPanel>
+    </>
+  );
 };
 
 export default TextInputCellRenderer;
