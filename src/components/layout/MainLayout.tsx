@@ -32,6 +32,18 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" && pr
     WebkitFilter: "blur(2.5px)",
     filter: "blur(2.5px)",
     overflow: "hidden",
+    pointerEvents: "none",
+    userSelect: "none",
+    WebkitUserSelect: "none",
+    WebkitTouchCallout: "none",
+    WebkitTapHighlightColor: "transparent",
+    WebkitOverflowScrolling: "touch",
+    touchAction: "none",
+    msTouchAction: "none",
+    msOverflowStyle: "-ms-autohiding-scrollbar",
+    msContentZooming: "none",
+    msScrollChaining: "none",
+    msUserSelect: "none"
   }),
 }));
 
