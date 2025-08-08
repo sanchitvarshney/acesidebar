@@ -1,20 +1,20 @@
 import { createBrowserRouter } from "react-router";
-import Tickets from "../components/TicketManagement/Tickets";
+import Tickets from "../USERMODULE/pages/TicketManagement/Tickets";
 import MainLayout from "../components/layout/MainLayout";
-import LoginScreen from "../screens/LoginScreen";
-import SignupScreen from "../screens/SignupScreen";
+import LoginScreen from "../USERMODULE/screens/LoginScreen";
+import SignupScreen from "../USERMODULE/screens/SignupScreen";
 import NotFound from "../components/common/NotFound";
 import Protected from "../components/protected/Protected";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ProfilePage from "../components/layout/ProfilePage";
-import Settings from "../components/Settings";
-import SupportScreen from "../screens/SupportScreen";
-import SupportMainScreen from "../screens/SupportMainScreen";
-import KnowledgeBaseScreen from "../screens/KnowledgeBaseScreen";
-import ViewExistingTicket from "../pages/supportpages/ViewExistingTicket";
-import ArticalViewPage from "../pages/supportpages/ArticalViewPage";
-import SubmitTicketPage from "../pages/supportpages/SubmitTicketPage";
-import SupportForms from "../pages/supportpages/forms/SupportForms";
+import Settings from "../USERMODULE/components/Settings";
+import SupportMainScreen from "../ADMINMODULE/screens/SupportMainScreen";
+import SupportScreen from "../ADMINMODULE/screens/SupportScreen";
+import KnowledgeBaseScreen from "../ADMINMODULE/screens/KnowledgeBaseScreen";
+import ViewExistingTicket from "../ADMINMODULE/pages/ViewExistingTicket";
+import SubmitTicketPage from "../ADMINMODULE/pages/SubmitTicketPage";
+import SupportForms from "../ADMINMODULE/pages/forms/SupportForms";
+
 
 export const router = createBrowserRouter([
   {
