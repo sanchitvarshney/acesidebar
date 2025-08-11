@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 
-import { AgGridReact } from "ag-grid-react";
 import { columns } from "../../utils/create-user-columnDefs";
-import { OverlayNoRowsTemplate } from "../config/commanAgGridConfig";
-import { Button, Checkbox, Paper, Typography } from "@mui/material";
-import TextInputCellRenderer from "../components/TextInputCellRenderer";
+
+import { Button, Typography } from "@mui/material";
+
 import { SearchIcon } from "lucide-react";
 import PlayForWorkIcon from "@mui/icons-material/PlayForWork";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
+import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
+import ImportContact from "../components/ImportContact";
+import ExportContact from "../components/ExportContact";
 
 const rowData: any = [
   {
@@ -90,8 +92,8 @@ const rowData: any = [
 ];
 
 const CreateUser = () => {
-  // const gridRef = useRef<AgGridReact<any>>(null);
-  // const [isAllSelect, setIsAllSelect] = useState(false);
+  const [isExport, setIsExport] = useState(false);
+  const [isImport, setIsImport] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filterData = searchQuery
@@ -114,8 +116,8 @@ const CreateUser = () => {
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center ">
-          <div className={` transition-all duration-200  w-[300px] relative`}>
-            <div className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2  shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
+          <div className={` transition-all duration-200  w-[350px] relative`}>
+            <div className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-3  shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
               <SearchIcon className="text-gray-500 mr-3" size={18} />
               <input
                 onChange={(e) => {
@@ -133,6 +135,7 @@ const CreateUser = () => {
             variant="contained"
             size="small"
             sx={{ "&:hover": { bgcolor: "#1b66c9" } }}
+            onClick={() => setIsExport(true)}
           >
             <Typography variant="subtitle1">
               <PlayForWorkIcon
@@ -146,6 +149,7 @@ const CreateUser = () => {
             variant="contained"
             size="small"
             sx={{ "&:hover": { bgcolor: "#1b66c9" } }}
+            onClick={() => setIsImport(true)}
           >
             <Typography variant="subtitle1">
               <PlayForWorkIcon fontSize="small" /> Import
@@ -153,7 +157,7 @@ const CreateUser = () => {
           </Button>
         </div>
       </div>
-      <div className=" h-[calc(100vh-155px)] w-full ">
+      <div className=" h-[calc(100vh-160px)] w-full ">
         <DataGrid
           rows={filterData}
           columns={columns}
@@ -161,37 +165,30 @@ const CreateUser = () => {
           pageSizeOptions={[10, 20, 30, 100]}
           checkboxSelection
           //@ts-ignore
-          columnResizeMode="onChange" // ✅ correct prop name for controlling resize behavior
-          sx={{ border: 0, height: 600 }}
-          autoHeight={false} // ✅ keep fixed height
-          disableColumnResize={false} // ✅ allow resizing
+          columnResizeMode="onChange" 
+          sx={{ border: 0 }}
+          autoHeight={false}
+          disableColumnResize={false} 
         />
-
-        {/* <AgGridReact
-          ref={gridRef}
-          rowData={filterData}
-          columnDefs={columnDefs as any}
-          defaultColDef={{
-            filter: true,
-            sortable: true,
-            resizable: true,
-            suppressMovable: true,
-          }}
-          pagination={true}
-          paginationPageSize={20}
-          animateRows={true}
-          components={components}
-          // gridOptions={commonAgGridConfig}
-          suppressRowClickSelection={false}
-          suppressCellFocus={true}
-          overlayNoRowsTemplate={OverlayNoRowsTemplate}
-          rowHeight={60}
-          headerHeight={50}
-          context={{ isAllSelect }}
-          domLayout="normal"
-          className="contact-table"
-        /> */}
       </div>
+      <CustomSideBarPanel
+        open={isExport}
+        close={() => setIsExport(false)}
+        isHeader={true}
+        title={"Export Contact"}
+        width={600}
+      >
+      <ExportContact />
+      </CustomSideBarPanel>
+      <CustomSideBarPanel
+        open={isImport}
+        close={() => setIsImport(false)}
+        isHeader={true}
+        title={"Import Contact"}
+        width={600}
+      >
+        <ImportContact />
+      </CustomSideBarPanel>
     </div>
   );
 };
