@@ -1,132 +1,91 @@
-export const columnDefs = [
+import TextInputCellRenderer from "../USERMODULE/components/TextInputCellRenderer";
+
+export const columns = [
   {
-    headerName: "",
-    field: "checkbox",
-    maxWidth: 50,
-    cellRenderer: "textInputCellRenderer",
-    sortable: false,
-    filter: false,
-    resizable: false,
-    cellStyle: {
-      display: "flex",
-      justifyContent: "center",
-    },
-  },
-  {
-    headerName: "Contact",
     field: "contact",
-    minWidth: 200,
+    headerName: "Contact",
     flex: 1,
-    cellRenderer: "textInputCellRenderer",
+    minWidth: 200,
+    resizable: true ,
     sortable: false,
-    filter: false,
-    cellStyle: {
-      display: "flex",
-      justifyContent: "flex-start",
-    },
+    filterable: false,
+
+    renderCell: (params:any) => (
+      <TextInputCellRenderer {...params} />
+    ),
   },
   {
-    headerName: "Title",
     field: "title",
+    headerName: "Title",
+    flex: 1,
     minWidth: 150,
-    flex: 1,
-
-    cellRenderer: "textInputCellRenderer",
+    resizable: true ,
     sortable: false,
-    filter: false,
-    cellStyle: {
-      display: "flex",
-      justifyContent: "flex-start",
-      color: "#666",
-    },
+    filterable: false,
+  
+    renderCell: (params:any) => (
+      <span style={{ color: "#666" }}>{params.value}</span>
+    ),
   },
   {
-    headerName: "Company",
     field: "company",
+    headerName: "Company",
+    flex: 1,
     minWidth: 180,
-    flex: 1,
-
-    cellRenderer: "textInputCellRenderer",
-    sortable: false,
-    filter: false,
-    cellStyle: {
-      display: "flex",
-      justifyContent: "flex-start",
-      color: "#666",
-    },
+    resizable: true ,
+    renderCell: (params:any) => (
+      <span style={{ color: "#666" }}>{params.value}</span>
+    ),
   },
   {
-    headerName: "Email address",
     field: "email",
+    headerName: "Email address",
+    flex: 1,
     minWidth: 200,
-    flex: 1,
-
-    cellRenderer: "textInputCellRenderer",
-    sortable: false,
-    filter: false,
-    cellStyle: {
-      display: "flex",
-      justifyContent: "flex-start",
-      color: "#666",
-    },
+    resizable: true ,
+    renderCell: (params:any) => (
+      <span style={{ color: "#666" }}>{params.value}</span>
+    ),
   },
   {
-    headerName: "Work phone",
     field: "phone",
+    headerName: "Work phone",
+    flex: 1,
     minWidth: 140,
-    flex: 1,
-
-    cellRenderer: "textInputCellRenderer",
-    sortable: false,
-    filter: false,
-    cellStyle: {
-      display: "flex",
-      justifyContent: "flex-start",
-      color: "#666",
-    },
+    resizable: true ,
+    renderCell: (params:any) => (
+      <span style={{ color: "#666" }}>{params.value}</span>
+    ),
   },
   {
-    headerName: "Facebook",
     field: "facebook",
-    minWidth: 120,
+    headerName: "Facebook",
     flex: 1,
-
-    cellRenderer: "textInputCellRenderer",
-    sortable: false,
-    filter: false,
-    cellStyle: {
-      display: "flex",
-      justifyContent: "flex-start",
-      color: "#666",
-    },
+    minWidth: 120,
+    resizable: true ,
+    renderCell: (params:any) => (
+      <span style={{ color: "#666" }}>{params.value}</span>
+    ),
   },
   {
-    headerName: "Twitter",
     field: "twitter",
-    minWidth: 120,
+    headerName: "Twitter",
     flex: 1,
-
-    cellRenderer: "textInputCellRenderer",
-    sortable: false,
-    filter: false,
-    cellStyle: {
-      display: "flex",
-      justifyContent: "flex-start",
-      color: "#666",
-    },
+    minWidth: 120,
+    resizable: true ,
+    renderCell: (params:any) => (
+      <span style={{ color: "#666" }}>{params.value}</span>
+    ),
   },
   {
-    headerName: "",
     field: "actions",
-      maxWidth: 50,
-    cellRenderer: "textInputCellRenderer",
+    headerName: "",
+    width: 50,
     sortable: false,
-    filter: false,
-    resizable: false,
-       cellStyle: {
-      display: "flex",
-      justifyContent: "center",
-      color: "#666",
-    },
+    filterable: false,
+    resizable: true ,
+    renderCell: (params:any) => (
+      <TextInputCellRenderer {...params} />
+    ),
   },
 ];

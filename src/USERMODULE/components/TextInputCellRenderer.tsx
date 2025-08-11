@@ -1,18 +1,26 @@
-import { Avatar, Checkbox, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import {
+  Avatar,
+  Checkbox,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useState } from "react";
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
-
-
+import EditUser from "../pages/EditUser";
+import ConfirmationModal from "../../components/reusable/ConfirmationModal";
 
 const TextInputCellRenderer = (props: any) => {
-  const { value, colDef, data, context } = props;
-  const { isAllSelect } = context;
+  const { value, field, row } = props;
+  // const { isAllSelect } = context;
   const [checked, setChecked] = useState(false);
-   const [isEdit, setIsEdit] = useState(false);
-    const [isDelete, setIsDelete] = useState(false);
+    // const [isDelete, setIsDelete] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(1);
 
@@ -32,40 +40,31 @@ const TextInputCellRenderer = (props: any) => {
     handleClose();
   };
 
-  useEffect(() => {
-    setChecked(isAllSelect);
-  }, [isAllSelect]);
+  // useEffect(() => {
+  //   setChecked(isAllSelect);
+  // }, [isAllSelect]);
 
   const renderContent = () => {
-    switch (colDef.field) {
-      case "checkbox":
-        return (
-          <div className="flex items-center  ">
-            <Checkbox
-              checked={checked}
-              onClick={() => setChecked(!checked)}
-              size="small"
-            />
-          </div>
-        );
+    switch (field) {
+    
       case "contact":
         return (
           <div
-            className="flex items-center gap-3 cursor-pointer"
+            className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={(e) => {
               e.stopPropagation();
               console.log("clicked");
             }}
           >
-            {data?.avatar ? (
-              <Avatar alt={data?.name} src={data?.avatar} />
+            {row?.avatar ? (
+              <Avatar alt={row?.name} src={row?.avatar} />
             ) : (
               <Avatar>
-                {data?.name ? data?.name.charAt(0).toUpperCase() : "T"}
+                {row?.name ? row?.name.charAt(0).toUpperCase() : "T"}
               </Avatar>
             )}
             <Typography fontWeight={500} color="text.primary">
-              {data?.name}
+              {row?.name}
             </Typography>
           </div>
         );
@@ -75,9 +74,9 @@ const TextInputCellRenderer = (props: any) => {
             <IconButton
               size="small"
               onClick={handleClick}
-              aria-controls={open ? 'actions-menu' : undefined}
+              aria-controls={open ? "actions-menu" : undefined}
               aria-haspopup="true"
-              aria-expanded={open ? 'true' : undefined}
+              aria-expanded={open ? "true" : undefined}
             >
               <MoreVertIcon fontSize="small" />
             </IconButton>
@@ -90,62 +89,58 @@ const TextInputCellRenderer = (props: any) => {
               PaperProps={{
                 elevation: 3,
                 sx: {
-                  overflow: 'visible',
-                  filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                  overflow: "visible",
+                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
                   mt: 1.5,
-                  '& .MuiAvatar-root': {
+                  "& .MuiAvatar-root": {
                     width: 30,
                     height: 32,
                     ml: -0.5,
                     mr: 1,
                   },
-                  '&:before': {
+                  "&:before": {
                     content: '""',
-                    display: 'block',
-                    position: 'absolute',
+                    display: "block",
+                    position: "absolute",
                     top: 0,
                     right: 14,
                     width: 10,
                     height: 10,
-                    bgcolor: 'background.paper',
-                    transform: 'translateY(-50%) rotate(45deg)',
+                    bgcolor: "background.paper",
+                    transform: "translateY(-50%) rotate(45deg)",
                     zIndex: 0,
                   },
                 },
               }}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
-         
-                <MenuItem
-               
-                  onClick={() => setIsEdit(true)}
-                  sx={{
-                    minWidth: 80,
-                    py: 1,
-                    px: 2,
-                    '&:hover': {
-                      backgroundColor: '#f5f5f5',
-                    },
-                  }}
-                >
-                  <EditIcon fontSize="small"  sx={{mr:2}}/> Edit
-                </MenuItem>
-                   <MenuItem
-            
-                  onClick={() => setIsDelete(true)}
-                  sx={{
-                    minWidth: 150,
-                    py: 1,
-                    px: 2,
-                    '&:hover': {
-                      backgroundColor: '#f5f5f5',
-                    },
-                  }}
-                >
-                  <DeleteIcon fontSize="small" sx={{mr:2}}/> Delete
-                </MenuItem>
-   
+              <MenuItem
+                onClick={() => setIsEdit(true)}
+                sx={{
+                  minWidth: 80,
+                  py: 1,
+                  px: 2,
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5",
+                  },
+                }}
+              >
+                <EditIcon fontSize="small" sx={{ mr: 2 }} /> Edit
+              </MenuItem>
+              <MenuItem
+                onClick={() => setIsDelete(true)}
+                sx={{
+                  minWidth: 150,
+                  py: 1,
+                  px: 2,
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5",
+                  },
+                }}
+              >
+                <DeleteIcon fontSize="small" sx={{ mr: 2 }} /> Delete
+              </MenuItem>
             </Menu>
           </>
         );
@@ -156,10 +151,16 @@ const TextInputCellRenderer = (props: any) => {
 
   return (
     <>
-    {renderContent()}
-    <CustomSideBarPanel open={isEdit} close={()=>setIsEdit(false)} width={500 } title={"Edit User"} >
-        <h1>Delete item</h1>
-    </CustomSideBarPanel>
+      {renderContent()}
+      <CustomSideBarPanel
+        open={isEdit}
+        close={() => setIsEdit(false)}
+        width={500}
+        title={"Edit User"}
+      >
+        <EditUser />
+      </CustomSideBarPanel>
+      <ConfirmationModal open={isDelete} onClose={() => setIsDelete(false)} onConfirm={() => {}} />
     </>
   );
 };

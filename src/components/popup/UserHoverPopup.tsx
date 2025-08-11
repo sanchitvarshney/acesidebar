@@ -1,8 +1,17 @@
 import React from "react";
-import { Popper, Paper, Box, Avatar, Typography, IconButton, Zoom } from "@mui/material";
+import {
+  Popper,
+  Paper,
+  Box,
+  Avatar,
+  Typography,
+  IconButton,
+  Zoom,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
 
 interface UserHoverPopupProps {
   open: boolean;
@@ -37,13 +46,14 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
   const [placement, setPlacement] = React.useState<string>("bottom-start");
   const [copied, setCopied] = React.useState<boolean>(false);
 
-  // Monitor placement changes
   React.useEffect(() => {
     if (open) {
       const checkPlacement = () => {
-        const popperElement = document.querySelector('[data-popper-placement]');
+        const popperElement = document.querySelector("[data-popper-placement]");
         if (popperElement) {
-          const currentPlacement = popperElement.getAttribute('data-popper-placement');
+          const currentPlacement = popperElement.getAttribute(
+            "data-popper-placement"
+          );
           if (currentPlacement && currentPlacement !== placement) {
             setPlacement(currentPlacement);
           }
@@ -58,11 +68,13 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
 
   const handleCopyEmail = async () => {
     try {
-      await navigator.clipboard.writeText(user?.email || "postmanreply@gmail.com");
+      await navigator.clipboard.writeText(
+        user?.email || "postmanreply@gmail.com"
+      );
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
-      console.error('Failed to copy email:', err);
+      console.error("Failed to copy email:", err);
     }
   };
 
@@ -89,129 +101,163 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
         {
           name: "flip",
           options: {
-            fallbackPlacements: ["top-start", "bottom-start", "top-end", "bottom-end"],
+            fallbackPlacements: [
+              "top-start",
+              "bottom-start",
+              "top-end",
+              "bottom-end",
+            ],
           },
         },
-
       ]}
       style={{ zIndex: 1300 }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <Zoom in={open} timeout={200} style={{ transformOrigin: '0 0 0' }} mountOnEnter unmountOnExit>
+      <Zoom
+        in={open}
+        timeout={200}
+        style={{ transformOrigin: "0 0 0" }}
+        mountOnEnter
+        unmountOnExit
+      >
         <StyledPaper>
-        {/* Dynamic Arrow */}
-        <Box
-          sx={{
-            position: "absolute",
-            width: 16,
-            height: 16,
-            zIndex: 1,
-            left: 8, 
-            ...(placement.startsWith('top') ? {
-              bottom: -8,
-              backgroundColor: "white",
-              borderRight: "1px solid #e0e0e0",
-              borderBottom: "1px solid #e0e0e0",
-              transform: "rotate(45deg)",
-            } : {
-              top: -8,
-              backgroundColor: "white",
-              borderLeft: "1px solid #e0e0e0",
-              borderTop: "1px solid #e0e0e0",
-              transform: "rotate(45deg)",
-            }),
-          }}
-        />
-        
-        <Box sx={{ p: 2 }}>
-          {/* Top Section */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, pb: 1.5, borderBottom: "1px solid #e0e0e0" }}>
-            <Avatar
+          {/* Dynamic Arrow */}
+          <Box
+            sx={{
+              position: "absolute",
+              width: 16,
+              height: 16,
+              zIndex: 1,
+              left: 8,
+              ...(placement.startsWith("top")
+                ? {
+                    bottom: -8,
+                    backgroundColor: "white",
+                    borderRight: "1px solid #e0e0e0",
+                    borderBottom: "1px solid #e0e0e0",
+                    transform: "rotate(45deg)",
+                  }
+                : {
+                    top: -8,
+                    backgroundColor: "white",
+                    borderLeft: "1px solid #e0e0e0",
+                    borderTop: "1px solid #e0e0e0",
+                    transform: "rotate(45deg)",
+                  }),
+            }}
+          />
+
+          <Box sx={{ p: 2 }}>
+            {/* Top Section */}
+            <Box
               sx={{
-                width: 50,
-                height: 50,
-                bgcolor: "#fce4ec",
-                color: "#e91e63",
-                fontSize: "1.25rem",
-                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                pb: 1.5,
+                borderBottom: "1px solid #e0e0e0",
               }}
-              src={user.avatarUrl}
             >
-              {user.name[0] || "D"}
-            </Avatar>
-            <Box>
+              <Avatar
+                sx={{
+                  width: 50,
+                  height: 50,
+                  bgcolor: "#fce4ec",
+                  color: "#e91e63",
+                  fontSize: "1.25rem",
+                  fontWeight: "bold",
+                }}
+                src={user.avatarUrl}
+              >
+                {user.name[0] || "D"}
+              </Avatar>
+              <Box>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 600,
+                    color: "#1a1a1a",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  {user.name || "Developer Account"}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#1976d2",
+                    cursor: "pointer",
+                    fontSize: "0.75rem",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
+                >
+                  View tickets
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Bottom Section */}
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1, pt: 1.5 }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                style={{ color: "#666" }}
+              >
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+              </svg>
               <Typography
                 variant="body2"
                 sx={{
-                  fontWeight: 600,
-                  color: "#1a1a1a",
+                  color: "#666",
                   fontSize: "0.875rem",
+                  flex: 1,
                 }}
               >
-                {user.name || "Developer Account"}
+                {user.email || "postmanreply@gmail.com"}
               </Typography>
               <Typography
-                variant="caption"
+                variant="body2"
                 sx={{
-                  color: "#1976d2",
-                  cursor: "pointer",
-                  fontSize: "0.75rem",
+                  color: "#666",
+                  fontSize: "0.875rem",
+                  flex: 1,
+                }}
+              >
+                <PhoneAndroidIcon sx={{ fontSize: 16 }} />
+                {/* @ts-ignore */}
+                {user?.mobile || "1234567890"}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={handleCopyEmail}
+                sx={{
+                  p: 0.5,
+                  color: copied ? "#4caf50" : "#666",
                   "&:hover": {
-                    textDecoration: "underline",
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
                   },
                 }}
               >
-                View tickets
-              </Typography>
+                {copied ? (
+                  <CheckCircleOutlineIcon sx={{ fontSize: 16 }} />
+                ) : (
+                  <ContentCopyIcon sx={{ fontSize: 16 }} />
+                )}
+              </IconButton>
             </Box>
           </Box>
-
-                     {/* Bottom Section */}
-           <Box sx={{ display: "flex", alignItems: "center", gap: 1, pt: 1.5 }}>
-             <svg
-               width="16"
-               height="16"
-               viewBox="0 0 20 20"
-               fill="currentColor"
-               style={{ color: "#666" }}
-             >
-               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-               <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-             </svg>
-             <Typography
-               variant="body2"
-               sx={{
-                 color: "#666",
-                 fontSize: "0.875rem",
-                 flex: 1,
-               }}
-             >
-               {user.email || "postmanreply@gmail.com"}
-             </Typography>
-             <IconButton
-               size="small"
-               onClick={handleCopyEmail}
-               sx={{
-                 p: 0.5,
-                 color: copied ? "#4caf50" : "#666",
-                 "&:hover": {
-                   backgroundColor: "rgba(0, 0, 0, 0.04)",
-                 },
-               }}
-             >
-               {copied ? (
-                 <CheckCircleOutlineIcon sx={{ fontSize: 16 }} />
-               ) : (
-                 <ContentCopyIcon sx={{ fontSize: 16 }} />
-               )}
-             </IconButton>
-           </Box>
-                 </Box>
         </StyledPaper>
       </Zoom>
     </Popper>
   );
 };
 
-export default UserHoverPopup; 
+export default UserHoverPopup;
