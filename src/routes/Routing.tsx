@@ -3,13 +3,11 @@ import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import Protected from "../components/protected/Protected";
 
-
 import Tickets from "../USERMODULE/pages/TicketManagement/Tickets";
 import CreateUser from "../USERMODULE/pages/CreateUser";
 import LoginScreen from "../USERMODULE/screens/LoginScreen";
 import SignupScreen from "../USERMODULE/screens/SignupScreen";
 import Settings from "../USERMODULE/components/Settings";
-
 
 import SupportMainScreen from "../ADMINMODULE/screens/SupportMainScreen";
 import SupportScreen from "../ADMINMODULE/screens/SupportScreen";
@@ -19,9 +17,13 @@ import SubmitTicketPage from "../ADMINMODULE/pages/SubmitTicketPage";
 import SupportForms from "../ADMINMODULE/pages/forms/SupportForms";
 import ArticleViewPage from "../ADMINMODULE/pages/ArticalViewPage";
 
-
 import ProfilePage from "../components/layout/ProfilePage";
 import NotFound from "../components/common/NotFound";
+import RecentPage from "../USERMODULE/pages/settingPages/RecentPage";
+import AccountPage from "../USERMODULE/pages/settingPages/AccountPage";
+import WorkflowPage from "../USERMODULE/pages/settingPages/WorkflowPage";
+import AgentProductivityPage from "../USERMODULE/pages/settingPages/AgentProductivityPage";
+import SupportOperationsPage from "../USERMODULE/pages/settingPages/SupportOperationsPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -70,6 +72,13 @@ export const router = createBrowserRouter([
       {
         path: "settings",
         element: <Settings />,
+        children: [
+          { index: true, element: <RecentPage /> },
+          { path: "accounts", element: <AccountPage /> },
+          { path: "workflows", element: <WorkflowPage /> },
+          { path: "agent-productivity", element: <AgentProductivityPage /> },
+          { path: "support-operations", element: <SupportOperationsPage /> },
+        ],
       },
     ],
   },
@@ -109,7 +118,7 @@ export const router = createBrowserRouter([
         path: "submit-ticket/:title/:id",
         element: <SupportForms />,
       },
-     
+
       {
         path: "knowledge-base/:id",
         element: <ArticleViewPage />,

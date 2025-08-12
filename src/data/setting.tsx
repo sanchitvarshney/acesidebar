@@ -20,71 +20,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SecurityIcon from "@mui/icons-material/Security";
 import SettingsIcon from "@mui/icons-material/Settings";
 
-export const settingData = [
-  {
-    section: "Workflows",
-    items: [
-      {
-        title: "Ticket Fields",
-        description:
-          "Customize your ticket type to categorize, prioritize, and route tickets efficiently.",
-        icon: AssignmentIcon,
-      },
-      {
-        title: "SLA Policies",
-        description:
-          "Set up targets for agents to guarantee timely responses and resolutions to customers.",
-        icon: TimerIcon,
-      },
-      {
-        title: "Automations",
-        description:
-          "Eliminate repetitive tasks such as categorization and routing by creating rules",
-        icon: SettingsAutomationIcon,
-      },
-      {
-        title: "Email Notifications",
-        description:
-          "Keep agents and customers apprised on updates to new and older tickets.",
-        icon: EmailIcon,
-      },
-    ],
-  },
-  {
-    section: "Agent Productivity",
-    items: [
-      {
-        title: "Canned Responses",
-        description:
-          "Pre-create replies to quickly insert them in responses to customers",
-        icon: ChatBubbleIcon,
-      },
-      {
-        title: "Scenario Automations",
-        description:
-          "Perform a routine set of multiple actions on a ticket with a single click",
-        icon: ShareIcon,
-      },
-      {
-        title: "Arcade",
-        description:
-          "Have agents compete for points, trophies, and badges when they complete key support related activities.",
-        icon: EmojiEventsIcon,
-      },
-      {
-        title: "Tags",
-        description:
-          "Label your tickets, articles, and contacts for better organization and reporting",
-        icon: LabelIcon,
-      },
-      {
-        title: "Threads",
-        description:
-          "Cohesive communications approach to collaborate with anyone in a chat-like experience",
-        icon: ForumIcon,
-      },
-    ],
-  },
+export const settingSupportData = [
   {
     section: "Support Operations",
     items: [
@@ -126,6 +62,8 @@ export const settingData = [
       },
     ],
   },
+];
+export const settingAcountData = [
   {
     section: "Account",
     items: [
@@ -163,3 +101,82 @@ export const settingData = [
     ],
   },
 ];
+export const settingAgentProductivityData = [
+
+  {
+    section: "Agent Productivity",
+    items: [
+      {
+        title: "Canned Responses",
+        description:
+          "Pre-create replies to quickly insert them in responses to customers",
+        icon: ChatBubbleIcon,
+      },
+      {
+        title: "Scenario Automations",
+        description:
+          "Perform a routine set of multiple actions on a ticket with a single click",
+        icon: ShareIcon,
+      },
+      {
+        title: "Arcade",
+        description:
+          "Have agents compete for points, trophies, and badges when they complete key support related activities.",
+        icon: EmojiEventsIcon,
+      },
+      {
+        title: "Tags",
+        description:
+          "Label your tickets, articles, and contacts for better organization and reporting",
+        icon: LabelIcon,
+      },
+      {
+        title: "Threads",
+        description:
+          "Cohesive communications approach to collaborate with anyone in a chat-like experience",
+        icon: ForumIcon,
+      },
+    ],
+  },
+
+ 
+];
+
+
+
+  export const settingWorkflowData = [
+
+  {
+    section: "Workflows",
+    items: [
+      {
+        title: "Ticket Fields",
+        description:
+          "Customize your ticket type to categorize, prioritize, and route tickets efficiently.",
+        icon: AssignmentIcon,
+      },
+      {
+        title: "SLA Policies",
+        description:
+          "Set up targets for agents to guarantee timely responses and resolutions to customers.",
+        icon: TimerIcon,
+      },
+      {
+        title: "Automations",
+        description:
+          "Eliminate repetitive tasks such as categorization and routing by creating rules",
+        icon: SettingsAutomationIcon,
+      },
+      {
+        title: "Email Notifications",
+        description:
+          "Keep agents and customers apprised on updates to new and older tickets.",
+        icon: EmailIcon,
+      },
+    ],
+  },
+ 
+];
+  
+ 
+

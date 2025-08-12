@@ -32,20 +32,9 @@ const submitTicketTitle = [
 ];
 
 const SubmitTicketPage = () => {
+  const navigate = useNavigate();
+ const { addTab, setActiveTab } = useTabs();
 
-    const navigate = useNavigate();
-
-  
-      const path = window.location.pathname;
-        console.log(path)
-  
-      const { addTab, setActiveTab } = useTabs();
-        const lastSegment = path.split("/").filter(Boolean).pop();
-    
-      useEffect(() => {
-        addTab({ label: lastSegment || "", path: path });
-        setActiveTab(lastSegment || "");
-      }, []);
   return (
     <div className="w-full flex flex-col">
       <Typography variant="h5" sx={{ textAlign: "center", py: 4 }}>
@@ -55,9 +44,13 @@ const SubmitTicketPage = () => {
         {submitTicketTitle.map((item) => (
           <Card
             key={item.id}
-            onClick={() =>  {
-                const title = item.title.toLowerCase();
-                navigate(`/ticket/support/submit-ticket/${title}/${item.id}`)}}
+            onClick={() => {
+              const title = item.title.toLowerCase();
+              
+              navigate(`/ticket/support/submit-ticket/${title}/${item.id}`);
+              addTab({ label: item.title, path: `/ticket/support/submit-ticket/${title}/${item.id}` });
+              setActiveTab(item.title);
+            }}
             sx={{
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
               borderRadius: "8px",
@@ -69,14 +62,13 @@ const SubmitTicketPage = () => {
                 boxShadow: 6,
               },
             }}
-            
           >
-            <CardContent 
-              sx={{ 
+            <CardContent
+              sx={{
                 padding: "16px !important",
                 "&:last-child": {
-                  paddingBottom: "16px !important"
-                }
+                  paddingBottom: "16px !important",
+                },
               }}
             >
               <div className="flex items-center gap-3">

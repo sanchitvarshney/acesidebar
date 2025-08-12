@@ -4,6 +4,7 @@ import CardContent from "@mui/material/CardContent";
 
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
+import { useTabs } from "../../../contextApi/TabsContext";
 
 type TicketDetailCardProps = {
   icon: any;
@@ -18,19 +19,27 @@ const TicketDetailCard: React.FC<TicketDetailCardProps> = ({
   id,
 }) => {
   const navigate = useNavigate();
+  const { addTab, setActiveTab } = useTabs();
 
   const handleNavigation = (id: number) => {
     if (id === 1) {
     } else if (id === 2) {
+      addTab({ label: "Submit Ticket", path: "/ticket/support/submit-ticket" });
+      setActiveTab("Submit Ticket");
+
       navigate(`/ticket/support/submit-ticket`);
     } else if (id === 3) {
+      addTab({
+        label: "View Existing Ticket",
+        path: "/ticket/support/view-existing-ticket",
+      });
+      setActiveTab("View Existing Ticket");
       navigate(`/ticket/support/view-existing-ticket`);
     }
   };
 
   return (
     <Card
-    
       onClick={() => handleNavigation(id)}
       sx={{
         transition: "transform 0.3s ease, box-shadow 0.3s ease",

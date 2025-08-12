@@ -1,15 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
-  Autocomplete,
   Box,
   Button,
-  Chip,
-  MenuItem,
   TextField,
   Typography,
 } from "@mui/material";
-
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
@@ -58,8 +54,8 @@ const AddContact = () => {
       component="form"
       onSubmit={handleSubmit(onSubmit)}
       sx={{ paddingX: 3, paddingY: 0 }}
+      // className="h-[calc(100vh-150px)] "
     >
-        
       {/* Mandatory Fields Alert */}
       <Alert severity="info" sx={{ mt: 2 }}>
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -68,94 +64,96 @@ const AddContact = () => {
           mandatory
         </Typography>
       </Alert>
-      <Controller
-        name="email"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={
-              <Typography>
-                Email <span className="text-red-500 text-md">*</span>
-              </Typography>
-            }
-            fullWidth
-            margin="normal"
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-        )}
-      />
 
-      <Controller
-        name="workMobileNo"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={
-              <Typography>
-                Work Phone <span className="text-red-500 text-md">*</span>
-              </Typography>
-            }
-            fullWidth
-            margin="normal"
-            error={!!errors.workMobileNo}
-            helperText={errors.workMobileNo?.message}
-          />
-        )}
-      />
-      <Controller
-        name="mobileNo"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={
-              <Typography>
-                Mobile Phone <span className="text-red-500 text-md">*</span>
-              </Typography>
-            }
-            fullWidth
-            margin="normal"
-            error={!!errors.mobileNo}
-            helperText={errors.mobileNo?.message}
-          />
-        )}
-      />
-      <Controller
-        name="externalId"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={
-              <Typography>
-                Unique External ID
-                <span className="text-red-500 text-md">*</span>
-              </Typography>
-            }
-            fullWidth
-            margin="normal"
-            error={!!errors.externalId}
-            helperText={errors.externalId?.message}
-          />
-        )}
-      />
-      {/* <div>
-    <h6>Profile Detactor</h6>
-</div> */}
+      {/* Fixed height form container */}
+      <div className="w-full h-[calc(100vh-210px)]  overflow-y-auto p-2 rounded">
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label={
+                <Typography>
+                  Email <span className="text-red-500 text-md">*</span>
+                </Typography>
+              }
+              fullWidth
+              margin="normal"
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+          )}
+        />
 
-      <div className=" flex items-center justify-center ">
+        <Controller
+          name="workMobileNo"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label={
+                <Typography>
+                  Work Phone <span className="text-red-500 text-md">*</span>
+                </Typography>
+              }
+              fullWidth
+              margin="normal"
+              error={!!errors.workMobileNo}
+              helperText={errors.workMobileNo?.message}
+            />
+          )}
+        />
+
+        <Controller
+          name="mobileNo"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label={
+                <Typography>
+                  Mobile Phone <span className="text-red-500 text-md">*</span>
+                </Typography>
+              }
+              fullWidth
+              margin="normal"
+              error={!!errors.mobileNo}
+              helperText={errors.mobileNo?.message}
+            />
+          )}
+        />
+
+        <Controller
+          name="externalId"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label={
+                <Typography>
+                  Unique External ID
+                  <span className="text-red-500 text-md">*</span>
+                </Typography>
+              }
+              fullWidth
+              margin="normal"
+              error={!!errors.externalId}
+              helperText={errors.externalId?.message}
+            />
+          )}
+        />
+      </div>
+
+      {/* Submit button */}
+      <div className="flex items-center justify-center">
         <Button
-   
           type="submit"
           variant="contained"
           sx={{
             textTransform: "none",
             my: 2,
             "&:hover": { backgroundColor: "#0080ffff" },
-       
             fontSize: 15,
           }}
         >
