@@ -10,6 +10,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
 import ImportContact from "../components/ImportContact";
 import ExportContact from "../components/ExportContact";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import AddContact from "../components/AddContact";
 
 const rowData: any = [
   {
@@ -94,6 +96,7 @@ const rowData: any = [
 const CreateUser = () => {
   const [isExport, setIsExport] = useState(false);
   const [isImport, setIsImport] = useState(false);
+  const [isAdd, setIsAdd] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filterData = searchQuery
@@ -111,6 +114,7 @@ const CreateUser = () => {
   //   }, [])
 
   const paginationModel = { page: 0, pageSize: 10 };
+  
 
   return (
     <div className="w-full">
@@ -131,6 +135,16 @@ const CreateUser = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ "&:hover": { bgcolor: "#1b66c9" } }}
+            onClick={() => setIsAdd(true)}
+          >
+            <Typography variant="subtitle1">
+              <AddCircleOutlineIcon fontSize="small" /> Add User
+            </Typography>
+          </Button>
           <Button
             variant="contained"
             size="small"
@@ -165,10 +179,10 @@ const CreateUser = () => {
           pageSizeOptions={[10, 20, 30, 100]}
           checkboxSelection
           //@ts-ignore
-          columnResizeMode="onChange" 
+          columnResizeMode="onChange"
           sx={{ border: 0 }}
           autoHeight={false}
-          disableColumnResize={false} 
+          disableColumnResize={false}
         />
       </div>
       <CustomSideBarPanel
@@ -177,8 +191,9 @@ const CreateUser = () => {
         isHeader={true}
         title={"Export Contact"}
         width={600}
+        btn={{ main: "Export", secondary: "Cancel" }}
       >
-      <ExportContact />
+        <ExportContact />
       </CustomSideBarPanel>
       <CustomSideBarPanel
         open={isImport}
@@ -186,8 +201,19 @@ const CreateUser = () => {
         isHeader={true}
         title={"Import Contact"}
         width={600}
+        btn={{ primary: "Import", secondary: "Cancel" }}
       >
         <ImportContact />
+      </CustomSideBarPanel>
+      <CustomSideBarPanel
+        open={isAdd}
+        close={() => setIsAdd(false)}
+        isHeader={true}
+        title={"Add Contact"}
+        width={600}
+        btn={{ primary: "Create", secondary: "Cancel" }}
+      >
+        <AddContact />
       </CustomSideBarPanel>
     </div>
   );

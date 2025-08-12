@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, CssBaseline, useTheme, styled } from "@mui/material";
 
 import { Outlet } from "react-router-dom";
 import SupportHeader from "../components/supportcomponents/SupportHeader";
 import SupportFooter from "../components/supportcomponents/SupportFooter";
+import { useTabs } from "../../contextApi/TabsContext";
 
 const MainContent = styled(Box)(({ theme }) => ({
   width: "100%",
@@ -16,6 +17,7 @@ const MainContent = styled(Box)(({ theme }) => ({
 }));
 
 const SupportMainScreen = () => {
+
   return (
     <Box
       sx={{

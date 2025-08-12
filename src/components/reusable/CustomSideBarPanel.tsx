@@ -1,4 +1,4 @@
-import { Box, Drawer, IconButton, Typography } from "@mui/material";
+import { Box, Button, Drawer, IconButton, Typography } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -9,6 +9,7 @@ interface CustomSideBarPanelProps {
   children: React.ReactNode;
   isHeader?: boolean;
   width?: number;
+  btn?: any;
 }
 const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   open,
@@ -17,7 +18,10 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   children,
   isHeader = true,
   width = 380,
+  btn
 }) => {
+
+
   return (
     <Drawer
       // elevation={0}
@@ -54,7 +58,12 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
             backgroundColor: "#e8f0fe",
           }}
         >
-          <Typography sx={{ flex: 1, fontSize: "16px" }}>{title}</Typography>
+          <Typography
+            sx={{ flex: 1, fontSize: 20, fontWeight: "bold" }}
+            variant="subtitle1"
+          >
+            {title}
+          </Typography>
 
           <IconButton onClick={close}>
             <CloseIcon fontSize="small" />
@@ -69,6 +78,45 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
       >
         {children}
       </div>
+      {/* <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          p: 2,
+          justifyContent:"flex-end",
+          borderBottom: "1px solid #ccc",
+          pointerEvents: "auto",
+          backgroundColor: "#e8f0fe",
+          gap:2
+        }}
+      >
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{
+            textTransform: "none",
+            backgroundColor: "#ccc",
+            color: "#000",
+            "&:hover": { backgroundColor: "#dadadaff" },
+
+            fontSize: 15,
+          }}
+        >
+          {btn?.secondary}
+        </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{
+            textTransform: "none",
+            "&:hover": { backgroundColor: "#0080ffff" },
+
+            fontSize: 15,
+          }}
+        >
+         {btn?.primary}
+        </Button>
+      </Box> */}
     </Drawer>
   );
 };

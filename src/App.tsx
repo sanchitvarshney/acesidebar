@@ -9,6 +9,7 @@ import { AuthProvider } from "./contextApi/AuthContext";
 import { PopupProvider } from "./contextApi/PopupContext";
 import theme from "./theme";
 import "./font.css"
+import { TabsProvider } from "./contextApi/TabsContext";
 
 
 
@@ -17,6 +18,7 @@ import "./font.css"
 function App() {
   return (
     <ThemeProvider theme={theme}>
+      <TabsProvider>
       <AuthProvider>
         <PopupProvider>
           <ToastContext>
@@ -25,6 +27,7 @@ function App() {
           </ToastContext>
         </PopupProvider>
       </AuthProvider>
+      </TabsProvider>
     </ThemeProvider>
 
   );

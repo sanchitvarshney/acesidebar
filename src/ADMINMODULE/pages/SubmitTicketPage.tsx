@@ -1,7 +1,8 @@
 import { Card, CardContent, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useTabs } from "../../contextApi/TabsContext";
 
 const submitTicketTitle = [
   {
@@ -33,6 +34,18 @@ const submitTicketTitle = [
 const SubmitTicketPage = () => {
 
     const navigate = useNavigate();
+
+  
+      const path = window.location.pathname;
+        console.log(path)
+  
+      const { addTab, setActiveTab } = useTabs();
+        const lastSegment = path.split("/").filter(Boolean).pop();
+    
+      useEffect(() => {
+        addTab({ label: lastSegment || "", path: path });
+        setActiveTab(lastSegment || "");
+      }, []);
   return (
     <div className="w-full flex flex-col">
       <Typography variant="h5" sx={{ textAlign: "center", py: 4 }}>

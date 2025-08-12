@@ -3,8 +3,10 @@ import SettingsMenu from "../../components/Settings/SettingsMenu";
 import SettingsSearchBar from "../../components/Settings/SearchBar";
 import RecentSection from "../../components/Settings/RecentSection";
 import SettingsCards from "../../components/Settings/SettingsCards";
-import SettingCard from "./SettingCard";
+
 import { Typography } from "@mui/material";
+
+import SettingCard from "./SettingCard";
 import { settingData } from "../../data/setting";
 
 const Settings: React.FC = () => {

@@ -12,6 +12,8 @@ import submitIcon from "../../assets/image/analysis.png";
 import SupportCard from "../components/supportcomponents/SupportCard";
 import { SearchIcon } from "lucide-react";
 import CustomToolTip from "../../components/reusable/CustomToolTip";
+import { useNavigate, useParams } from "react-router-dom";
+import { useTabs } from "../../contextApi/TabsContext";
 
 const ticketDetailsData = [
   {
@@ -58,6 +60,7 @@ const ticketFaqData = [
 const SupportScreen = () => {
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+
   const handleClose = (event: any) => {
     setIsSearchOpen(false);
   };
@@ -85,7 +88,7 @@ const SupportScreen = () => {
               className={` transition-all duration-200 ml-30 w-[800px] relative`}
             >
               <div className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 h-[60px] shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] ">
-                <SearchIcon className="text-gray-500 mr-3"  />
+                <SearchIcon className="text-gray-500 mr-3" />
                 <input
                   onChange={(e) => {
                     setSearchQuery(e.target.value);

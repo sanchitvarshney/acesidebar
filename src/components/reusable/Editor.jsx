@@ -75,7 +75,7 @@ const StackEditor = ({
     signatureValue,
     isValues,
     onForward,
-    customHeight = "calc(100vh - 370px)",
+    customHeight = "calc(100vh - 365px)",
   } = props;
   const isMounted = React.useRef(true);
   const [editorContent, setEditorContent] = useState("");
@@ -561,8 +561,8 @@ const StackEditor = ({
     : showCc || showBcc
     ? "calc(100vh - 405px)"
     : currentSignature
-    ? "calc(100vh - 530px)"
-    : customHeight;
+    ? "calc(100vh - 530px)" : selectedIndex !== "1" ? "calc(100vh - 370px)" 
+    :  customHeight;
 
   return (
     <div

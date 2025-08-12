@@ -15,51 +15,41 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoginDialog from "./LoginDialog";
 import { navItems } from "../../../data/instractions";
+import { useTabs } from "../../../contextApi/TabsContext";
 
 const SupportHeader = () => {
-  const navigate = useNavigate();
-  const path = window.location.pathname;
-  const lastSegment = path.split("/").filter(Boolean).pop();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Find the navItem that matches the current path
+  const navigate = useNavigate();
+  const { activeTab, setActiveTab, tabs, setTabs, addTab } = useTabs();
+
+  const path = window.location.pathname;
+
+  const lastSegment = path.split("/").filter(Boolean).pop();
   const currentNavItem = navItems.find(
     (item: any) => item.path === lastSegment
   );
 
-  const [activeTab, setActiveTab] = useState(
-    currentNavItem ? currentNavItem.label : navItems[0].label
-  );
-  const [tabs, setTabs] = useState<string[]>([activeTab]);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
-  useEffect(() => {
-    const activeIndex = navItems.findIndex((item) => item.label === activeTab);
-    if (activeIndex >= 0) {
-      setTabs(navItems.slice(0, activeIndex + 1).map((item) => item.label));
-    }
-  }, [activeTab]);
-
   useEffect(() => {
     if (currentNavItem) {
       setActiveTab(currentNavItem.label);
+      setTabs(
+        navItems.slice(
+          0,
+          navItems.findIndex((item) => item.label === currentNavItem.label) + 1
+        )
+      );
     }
-    // else {
-    //   const activeUrl = window.location.pathname.toUpperCase();
-    //   let lastSegment = activeUrl.substring(activeUrl.lastIndexOf("/") + 1);
-    //   lastSegment = decodeURIComponent(lastSegment);
-    //   const formatted = lastSegment
-    //     .toLowerCase()
-    //     .split(" ")
-    //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    //     .join("-");
-    //     console.log(formatted);
+  }, [path]);
 
-    // }
-  }, [window.location.pathname]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ width: "100%", bgcolor: "white" }} elevation={0} >
+      <AppBar
+        position="static"
+        sx={{ width: "100%", bgcolor: "white" }}
+        elevation={0}
+      >
         <Toolbar
           sx={{
             display: "flex",
@@ -77,7 +67,14 @@ const SupportHeader = () => {
             Help Desk
           </Typography>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, color: "#1976d2" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              color: "#1976d2",
+            }}
+          >
             <List
               sx={{
                 display: "flex",
@@ -134,16 +131,22 @@ const SupportHeader = () => {
               })}
             </List>
 
-            <Box sx={{ display: "flex", alignItems: "center", flexDirection: "row", gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "row",
+                gap: 1,
+              }}
+            >
               {["Sign up", "Login"].map((btn, index) => (
-                <div  key={index} className="flex items-center gap-2">
+                <div key={index} className="flex items-center gap-2">
                   <Button
-                   
                     onClick={() => {
                       if (btn === "Login") {
                         setShowLoginModal(true);
                       }
-                    }}  
+                    }}
                     disableRipple
                     disableFocusRipple
                     sx={{
@@ -153,7 +156,7 @@ const SupportHeader = () => {
                         transform: "scale(1.05)",
                         "&::after": {
                           width: "100%",
-                        }
+                        },
                       },
                       "&::after": {
                         content: '""',
@@ -196,7 +199,7 @@ const SupportHeader = () => {
         }}
       >
         {tabs.map((tab, i) => {
-          const isActive = tab === activeTab;
+          const isActive = tab.label === activeTab;
           return (
             <Box key={i} sx={{ display: "flex", alignItems: "center" }}>
               <Typography
@@ -209,19 +212,20 @@ const SupportHeader = () => {
                   cursor: isActive ? "default" : "pointer",
                 }}
                 onClick={() => {
+                  navigate(tab?.path || "");
                   if (!isActive) {
-                    setActiveTab(tab);
+                    setActiveTab(tab.label);
                   }
                 }}
               >
-                {tab}
+                {tab.label}
               </Typography>
               {i < tabs.length - 1 && (
                 <ChevronRightIcon
                   sx={{
                     color: "white",
                     mx: 1,
-                    fontSize: "1rem"
+                    fontSize: "1rem",
                   }}
                 />
               )}

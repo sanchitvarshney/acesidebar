@@ -15,7 +15,7 @@ const SettingCard: FC<SettingCardProps> = ({
   subTitle,
 }) => {
   return (
-    <Card sx={{}} className="hover:shadow-md transition" >
+    <Card sx={{}} className="hover:shadow-md transition select-none" >
       <CardContent sx={{ display: "flex" }}>
         <span className="mr-2">{titleIcon}</span>
         <div>
