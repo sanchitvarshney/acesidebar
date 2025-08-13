@@ -126,7 +126,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               value={value}
             />
           </div>
-          <div style={{ width: "100%", height: "100%", overflow: "auto" }} >
+          <div style={{ width: "100%", height: "100%", overflow: "hidden" }} >
             <TicketPropertiesSidebar ticket={ticket.header} />
 
             {/* Forward Panel positioned inside the right column */}

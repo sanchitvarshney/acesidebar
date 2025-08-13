@@ -66,24 +66,31 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   const [activeTopTab, setActiveTopTab] = React.useState(0);
   const [activeProfileTab, setActiveProfileTab] = React.useState(0);
   const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
-  
+
   const handleAttributeChange = (event: any) => {
     setAttribute(event.target.value);
   };
 
-  const handleTopTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTopTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ) => {
     setActiveTopTab(newValue);
   };
 
-  const handleProfileTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleProfileTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ) => {
     setActiveProfileTab(newValue);
   };
 
   // Top-level tab content
   let mainContent = null;
-  if (activeTopTab === 0) { // profile
+  if (activeTopTab === 0) {
+    // profile
     mainContent = (
-      <div className="w-full">
+      <div className="w-full overflow-hidden ">
         <div className="flex items-center gap-3 mb-4">
           <Avatar
             sx={{
@@ -100,23 +107,23 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             <div className="font-semibold text-base text-gray-800">{name}</div>
           </div>
         </div>
-        
+
         {/* Profile tab bar using MUI Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-          <Tabs 
-            value={activeProfileTab} 
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={activeProfileTab}
             onChange={handleProfileTabChange}
             variant="fullWidth"
             sx={{
-              '& .MuiTab-root': {
+              "& .MuiTab-root": {
                 minHeight: 40,
-                color: '#6b7280',
-                '&.Mui-selected': {
-                  color: '#1a73e8',
+                color: "#6b7280",
+                "&.Mui-selected": {
+                  color: "#1a73e8",
                 },
               },
-              '& .MuiTabs-indicator': {
-                backgroundColor: '#1a73e8',
+              "& .MuiTabs-indicator": {
+                backgroundColor: "#1a73e8",
                 height: 2,
               },
             }}
@@ -132,24 +139,25 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             ))}
           </Tabs>
         </Box>
-        
-        {/* Profile tab content */}
-        {activeProfileTab === 0 && (
-          <AboutTab
-            name={name}
-            email={email}
-            phone={phone}
-            jobTitle={jobTitle}
-            attribute={attribute}
-            handleAttributeChange={handleAttributeChange}
-          />
-        )}
-        {activeProfileTab === 1 && <SharingTab />}
-        {activeProfileTab === 2 && <InfoTab />}
-        {activeProfileTab === 3 && <NotesTab />}
-        
-        {/* Organization section */}
-        <div className="bg-white rounded border border-gray-200 p-2 flex flex-col">
+
+        <div className="w-full h-[calc(100vh-365px)] overflow-y-scroll">
+          {/* Profile tab content */}
+          {activeProfileTab === 0 && (
+            <AboutTab
+              name={name}
+              email={email}
+              phone={phone}
+              jobTitle={jobTitle}
+              attribute={attribute}
+              handleAttributeChange={handleAttributeChange}
+            />
+          )}
+          {activeProfileTab === 1 && <SharingTab />}
+          {activeProfileTab === 2 && <InfoTab />}
+          {activeProfileTab === 3 && <NotesTab />}
+
+          {/* Organization section */}
+          <div className="bg-white rounded border border-gray-200 p-2 flex flex-col">
           <div className="flex items-center gap-2 mb-2">
             <LocalOfferIcon className="text-gray-500" />
             <span className="text-sm text-gray-700 font-medium">Tags</span>
@@ -187,13 +195,17 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             )}
           </Box>
         </div>
+        </div>
       </div>
     );
-  } else if (activeTopTab === 1) { // knowledge
+  } else if (activeTopTab === 1) {
+    // knowledge
     mainContent = <KnowledgeBaseTab />;
-  } else if (activeTopTab === 2) { // shortcuts
+  } else if (activeTopTab === 2) {
+    // shortcuts
     mainContent = <ShortcutsTab />;
-  } else if (activeTopTab === 3) { // history
+  } else if (activeTopTab === 3) {
+    // history
     mainContent = <HistoryTab />;
   }
 
@@ -205,33 +217,33 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#f8f9fa",
-        overflow: "hidden",
+        // overflow: "hidden",
       }}
     >
-
       {/* Top-level tab bar using MUI Tabs */}
-      <Box 
-        sx={{ 
-          borderBottom: 1, 
-          borderColor: 'divider', 
+      <Box
+        sx={{
+          borderBottom: 1,
+          borderColor: "divider",
           backgroundColor: "white",
           flexShrink: 0,
+          overflow: "hidden",
         }}
       >
-        <Tabs 
-          value={activeTopTab} 
+        <Tabs
+          value={activeTopTab}
           onChange={handleTopTabChange}
           variant="fullWidth"
           sx={{
-            '& .MuiTab-root': {
+            "& .MuiTab-root": {
               minHeight: 40,
-              color: '#6b7280',
-              '&.Mui-selected': {
-                color: '#1a73e8',
+              color: "#6b7280",
+              "&.Mui-selected": {
+                color: "#1a73e8",
               },
             },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#1a73e8',
+            "& .MuiTabs-indicator": {
+              backgroundColor: "#1a73e8",
               height: 2,
             },
           }}
@@ -247,28 +259,16 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
           ))}
         </Tabs>
       </Box>
-      
+
       {/* Scrollable content area */}
       <Box
         sx={{
-          flex: 1,
+          width: "100%",
           overflow: "auto",
+          height: "100%",
           backgroundColor: "#f8f9fa",
           p: 2,
-          "&::-webkit-scrollbar": {
-            width: "8px",
-          },
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#f1f1f1",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#c1c1c1",
-            borderRadius: "4px",
-            "&:hover": {
-              backgroundColor: "#a8a8a8",
-            },
-          },
+
         }}
       >
         {mainContent}

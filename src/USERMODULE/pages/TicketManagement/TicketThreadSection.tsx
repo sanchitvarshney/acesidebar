@@ -597,7 +597,7 @@ const TicketThreadSection = ({
             }}
           /> */}
         </div>
-        <div className="rounded   p-1 w-[75%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
+        <div className="rounded   p-1 w-[74%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
           <Accordion
             elevation={0}
             expanded={showEditor || showReplyEditor || showEditorNote}
@@ -711,9 +711,7 @@ const TicketThreadSection = ({
                   onForward={onForward}
                   shouldFocus={shouldFocusEditor}
                   onFocus={() => {
-                    console.log(
-                      "onFocus callback called, setting shouldFocusEditor to false"
-                    );
+                 
                     setShouldFocusEditor(false);
                   }}
                 />
