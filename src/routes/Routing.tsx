@@ -72,13 +72,7 @@ export const router = createBrowserRouter([
       {
         path: "settings",
         element: <Settings />,
-        children: [
-          { index: true, element: <RecentPage /> },
-          { path: "accounts", element: <AccountPage /> },
-          { path: "workflows", element: <WorkflowPage /> },
-          { path: "agent-productivity", element: <AgentProductivityPage /> },
-          { path: "support-operations", element: <SupportOperationsPage /> },
-        ],
+      
       },
     ],
   },
