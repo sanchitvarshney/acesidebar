@@ -235,7 +235,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
   };
 
   const handleNavigation = (path: string) => {
-    console.log(path, "path");
+   
     navigate(path);
   };
 

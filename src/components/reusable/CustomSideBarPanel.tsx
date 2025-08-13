@@ -8,8 +8,9 @@ interface CustomSideBarPanelProps {
   title?: any;
   children: React.ReactNode;
   isHeader?: boolean;
-  width?: number;
+  width?: number | string;
   btn?: any;
+  position?: any;
 }
 const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   open,
@@ -18,14 +19,15 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   children,
   isHeader = true,
   width = 380,
-  btn
+  btn,
+  position = "right"
 }) => {
 
 
   return (
     <Drawer
       // elevation={0}
-      anchor="right"
+      anchor={position}
       open={open}
       // onClose={close}
       ModalProps={{

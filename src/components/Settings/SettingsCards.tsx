@@ -21,7 +21,7 @@ const SettingsCards: React.FC = ({ cards }: any) => {
                   {item.icon && (
                     <span className="mr-2">
                       {React.createElement(item.icon, {
-                        sx: { fontSize: 24, color: "blue" },
+                        sx: { fontSize: 24, color: "#1b66c9" },
                       })}
                     </span>
                   )}

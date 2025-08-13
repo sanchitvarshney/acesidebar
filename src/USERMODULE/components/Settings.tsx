@@ -122,7 +122,7 @@ const Settings: React.FC = () => {
         activeId={activeId}
       />
       <main className="flex-1 p-4 overflow-y-auto">
-        <div className="mb-4">
+        <div className="mb-4 flex justify-end">
           <SettingsSearchBar
             onSearchResultSelect={handleSearchResultSelect}
             menuSections={menuSections}

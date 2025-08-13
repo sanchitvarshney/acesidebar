@@ -14,15 +14,17 @@ import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
 import EditUser from "../pages/EditUser";
 import ConfirmationModal from "../../components/reusable/ConfirmationModal";
 
+import { useNavigate } from "react-router-dom";
+
 const TextInputCellRenderer = (props: any) => {
   const { value, field, row } = props;
-  // const { isAllSelect } = context;
-  const [checked, setChecked] = useState(false);
-    // const [isDelete, setIsDelete] = useState(false);
+ 
   const [isEdit, setIsEdit] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
+  
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedIndex, setSelectedIndex] = useState(1);
+    const navigate = useNavigate();
+
 
   const open = Boolean(anchorEl);
 
@@ -35,14 +37,6 @@ const TextInputCellRenderer = (props: any) => {
     setAnchorEl(null);
   };
 
-  const handleSelect = (index: any) => {
-    setSelectedIndex(index);
-    handleClose();
-  };
-
-  // useEffect(() => {
-  //   setChecked(isAllSelect);
-  // }, [isAllSelect]);
 
   const renderContent = () => {
     switch (field) {
@@ -53,7 +47,7 @@ const TextInputCellRenderer = (props: any) => {
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={(e) => {
               e.stopPropagation();
-              console.log("clicked");
+            navigate(`${row?.id}`);
             }}
           >
             {row?.avatar ? (
@@ -155,12 +149,15 @@ const TextInputCellRenderer = (props: any) => {
       <CustomSideBarPanel
         open={isEdit}
         close={() => setIsEdit(false)}
-        width={650}
+        width={"45%"}
         title={"Edit User"}
       >
         <EditUser />
       </CustomSideBarPanel>
       <ConfirmationModal open={isDelete} onClose={() => setIsDelete(false)} onConfirm={() => {}} />
+        {/* <CustomSideBarPanel open={isProfile} close={() => setIsProfile(false)} title={"Profile"} width={"65%"}>
+          <h1>profile</h1>
+        </CustomSideBarPanel> */}
     </>
   );
 };

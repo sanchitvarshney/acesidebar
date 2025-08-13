@@ -842,7 +842,7 @@ const Tickets: React.FC = () => {
         }}
         isHeader={true}
         title={"Create Ticket"}
-        width={650}
+        width={"45%"}
       >
         <CreateTicketDialog />
       </CustomSideBarPanel>

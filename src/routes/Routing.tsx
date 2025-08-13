@@ -17,13 +17,13 @@ import SubmitTicketPage from "../ADMINMODULE/pages/SubmitTicketPage";
 import SupportForms from "../ADMINMODULE/pages/forms/SupportForms";
 import ArticleViewPage from "../ADMINMODULE/pages/ArticalViewPage";
 
-import ProfilePage from "../components/layout/ProfilePage";
+// import ProfilePage from "../USERMODULE/components/ProfilePage";
 import NotFound from "../components/common/NotFound";
-import RecentPage from "../USERMODULE/pages/settingPages/RecentPage";
-import AccountPage from "../USERMODULE/pages/settingPages/AccountPage";
-import WorkflowPage from "../USERMODULE/pages/settingPages/WorkflowPage";
-import AgentProductivityPage from "../USERMODULE/pages/settingPages/AgentProductivityPage";
-import SupportOperationsPage from "../USERMODULE/pages/settingPages/SupportOperationsPage";
+
+import React, { Suspense, lazy } from "react";
+
+const ContactList = lazy(() => import("../USERMODULE/components/ContactList"));
+const ProfilePage = lazy(() => import("../USERMODULE/components/ProfilePage"));
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -68,11 +68,28 @@ export const router = createBrowserRouter([
       {
         path: "create-user",
         element: <CreateUser />,
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={<div>Loading...</div>}>
+                <ContactList />
+              </Suspense>
+            ),
+          },
+          {
+            path: ":id",
+            element: (
+              <Suspense fallback={<div>Loading...</div>}>
+                <ProfilePage />
+              </Suspense>
+            ),
+          },
+        ],
       },
       {
         path: "settings",
         element: <Settings />,
-      
       },
     ],
   },
