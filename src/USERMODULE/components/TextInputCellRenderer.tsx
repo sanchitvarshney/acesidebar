@@ -155,7 +155,7 @@ const TextInputCellRenderer = (props: any) => {
       <CustomSideBarPanel
         open={isEdit}
         close={() => setIsEdit(false)}
-        width={500}
+        width={650}
         title={"Edit User"}
       >
         <EditUser />
