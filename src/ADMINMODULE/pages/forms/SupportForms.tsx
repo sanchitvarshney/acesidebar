@@ -1,13 +1,24 @@
 import { IconButton, Typography } from "@mui/material";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import GenralForm from "./GenralForm";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTabs } from "../../../contextApi/TabsContext";
+import { useEffect } from "react";
+import { useToast } from "../../../hooks/useToast";
 
 const SupportForms = () => {
-  const pageId: any = useParams().id;
- const { setActiveTab, setTabs,activeTab } =  useTabs();
+  const pageId: any = useParams();
+
+  // const { setActiveTab, setTabs, addTab } = useTabs();
+
+  // const path = window.location.pathname;
+  // console.log(path, "path");
+
+  // useEffect(() => {
+  //   addTab({ label: pageId.title || "", path: `${pageId.title}/${pageId.id}` });
+  //   setActiveTab(pageId.title || "");
+  // }, []);
 
   return (
     <div className="w-full flex flex-col justify-center items-center gap-6 py-6">
@@ -16,9 +27,7 @@ const SupportForms = () => {
           <NoteAddIcon fontSize="small" />
         </span>
         <div className="flex  flex-col ml-2 ">
-          <Typography variant="body1" >
-            Submit a Support Form
-          </Typography>
+          <Typography variant="body1">Submit a Support Form</Typography>
           <Typography variant="subtitle2">
             Required fields are marked with
             <span className="text-red-600">*</span>
@@ -26,14 +35,15 @@ const SupportForms = () => {
         </div>
       </div>
       <div className="w-1/2  mx-auto shadow-[0_0_10px_rgba(0,0,0,0.18)] p-4 ">
-      <IconButton size="small" onClick={() => { 
-        window.history.back()
-        setTabs((prev:any)=>prev.slice(0,prev.length-1))
-  setActiveTab("Submit Ticket");
-        }} >
-        <ArrowBackIcon fontSize="small" />
-      </IconButton>
-        <GenralForm pageId={pageId} />
+        <IconButton
+          size="small"
+          onClick={() => {
+            window.history.back();
+          }}
+        >
+          <ArrowBackIcon fontSize="small" />
+        </IconButton>
+        <GenralForm pageId={pageId.id} />
       </div>
     </div>
   );

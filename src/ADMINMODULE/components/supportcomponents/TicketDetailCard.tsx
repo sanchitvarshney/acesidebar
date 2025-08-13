@@ -19,15 +19,15 @@ const TicketDetailCard: React.FC<TicketDetailCardProps> = ({
   id,
 }) => {
   const navigate = useNavigate();
-  const { addTab, setActiveTab } = useTabs();
+  const { addTab, setActiveTab, setTabs } = useTabs();
 
   const handleNavigation = (id: number) => {
     if (id === 1) {
     } else if (id === 2) {
-      addTab({ label: "Submit Ticket", path: "/ticket/support/submit-ticket" });
+      addTab({ label: "Submit Ticket", path: "submit-ticket" });
       setActiveTab("Submit Ticket");
 
-      navigate(`/ticket/support/submit-ticket`);
+      navigate(`submit-ticket`);
     } else if (id === 3) {
       addTab({
         label: "View Existing Ticket",

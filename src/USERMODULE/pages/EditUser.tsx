@@ -1,8 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Autocomplete, Box, Button, Chip, MenuItem, TextField, Typography } from "@mui/material";
-
+import {
+  Alert,
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Container,
+  InputAdornment,
+} from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
+import { Email, Phone, Work, Person, Badge, Business, LocationOn, Description } from "@mui/icons-material";
 
 // Zod schema
 const schema = z.object({
@@ -45,214 +53,487 @@ const EditUser = () => {
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit(onSubmit)}
-      sx={{ paddingX: 3, paddingY: 0 }}
-    >
-              {/* Mandatory Fields Alert */}
-        <Alert severity="info" sx={{ mt: 2 }}>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            Fields marked with <span style={{ color: "#d32f2f",fontSize: 16 }}>*</span> are mandatory
-          </Typography>
-        </Alert>
-      <Controller
-        name="email"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={
-              <Typography>
-                Email <span className="text-red-500 text-md">*</span>
-              </Typography>
-            }
-            fullWidth
-            margin="normal"
-            error={!!errors.email}
-            helperText={errors.email?.message}
-          />
-        )}
-      />
-
-      <Controller
-        name="workMobileNo"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={
-              <Typography>
-                Work Phone <span className="text-red-500 text-md">*</span>
-              </Typography>
-            }
-            fullWidth
-            margin="normal"
-            error={!!errors.workMobileNo}
-            helperText={errors.workMobileNo?.message}
-          />
-        )}
-      />
-      <Controller
-        name="mobileNo"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={
-              <Typography>
-                Mobile Phone <span className="text-red-500 text-md">*</span>
-              </Typography>
-            }
-            fullWidth
-            margin="normal"
-            error={!!errors.mobileNo}
-            helperText={errors.mobileNo?.message}
-          />
-        )}
-      />
-      <Controller
-        name="externalId"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={
-              <Typography>
-                Unique External ID
-                <span className="text-red-500 text-md">*</span>
-              </Typography>
-            }
-            fullWidth
-            margin="normal"
-            error={!!errors.externalId}
-            helperText={errors.externalId?.message}
-          />
-        )}
-      />
-
-      <Controller
-        name="name"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={<Typography>Full Name</Typography>}
-            fullWidth
-            margin="normal"
-          />
-        )}
-      />
-      <Controller
-        name="title"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={<Typography>Title</Typography>}
-            fullWidth
-            margin="normal"
-          />
-        )}
-      />
-      <Controller
-        name="otherMobileNo"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={"Other Phone Number"}
-            fullWidth
-            margin="normal"
-          />
-        )}
-      />
-      <Controller
-        name="company"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={<Typography>Company</Typography>}
-            fullWidth
-            margin="normal"
-          />
-        )}
-      />
-      <Controller
-        name="address"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={<Typography>Address</Typography>}
-            fullWidth
-            margin="normal"
-          />
-        )}
-      />
-  <Controller
-  name="tags"
-  control={control}
-  render={({ field }) => (
-    <Autocomplete
-      {...field}
-      multiple
-      freeSolo
-      options={[].map((option:any) => option.label)}
-      //@ts-ignore
-      value={field?.value || []}
-      onChange={(_, newValue) => field.onChange(newValue)}
-      renderTags={(tagValue, getTagProps) =>
-        tagValue.map((option, index) => (
-          <Chip label={option} {...getTagProps({ index })} />
-        ))
-      }
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          fullWidth
-          margin="normal"
-          label={<Typography>Tags</Typography>}
-          placeholder="Search or press Enter"
-        />
-      )}
-    />
-  )}
-/>
-
-
-      <Controller
-        name="about"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            label={<Typography>About</Typography>}
-            fullWidth
-            margin="normal"
-            multiline
-            rows={6}
-          />
-        )}
-      />
-
-      <div className="flex justify-center">
-        <Button
-          type="submit"
-          variant="contained"
+    <Container maxWidth="md" sx={{py:2}}>
+      {/* Form Content */}
+      <Box sx={{ p: 0 }}>
+        {/* Mandatory Fields Alert */}
+        <Alert
+          severity="info"
           sx={{
-            my: 2,
-            "&:hover": { backgroundColor: "#0080ffff" },
-            p: 1,
-            px: 3,
-            fontSize: 15,
+            mb: 2,
+            borderRadius: 2,
+            "& .MuiAlert-icon": { color: "#1976d2" },
           }}
         >
-          Update User
-        </Button>
-      </div>
-    </Box>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            Fields marked with{" "}
+            <span
+              style={{ color: "#d32f2f", fontSize: 18, fontWeight: "bold" }}
+            >
+              *
+            </span>{" "}
+            are mandatory
+          </Typography>
+        </Alert>
+
+        {/* Form Fields */}
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            maxHeight: "calc(100vh - 180px)",
+            overflowY: "auto",
+            pr: 1,
+          }}
+        >
+          {/* Personal Information Section */}
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 2,
+                color: "#1976d2",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Person sx={{ fontSize: 20 }} />
+              Personal Information
+            </Typography>
+
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={
+                    <Typography>
+                      Full Name{" "}
+                      <span className="text-red-500 text-lg font-bold">*</span>
+                    </Typography>
+                  }
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Person color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#1976d2",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+
+            <Controller
+              name="title"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={<Typography>Title</Typography>}
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    mt: 2,
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#1976d2",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          {/* Contact Information Section */}
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 2,
+                color: "#1976d2",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Email sx={{ fontSize: 20 }} />
+              Contact Information
+            </Typography>
+
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={
+                    <Typography>
+                      Email Address{" "}
+                      <span className="text-red-500 text-lg font-bold">*</span>
+                    </Typography>
+                  }
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Email color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#1976d2",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          {/* Phone Numbers Section */}
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 2,
+                color: "#1976d2",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Phone sx={{ fontSize: 20 }} />
+              Phone Numbers
+            </Typography>
+
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                gap: 2,
+              }}
+            >
+              <Controller
+                name="workMobileNo"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label={
+                      <Typography>
+                        Work Phone{" "}
+                        <span className="text-red-500 text-lg font-bold">
+                          *
+                        </span>
+                      </Typography>
+                    }
+                    fullWidth
+                    variant="outlined"
+                    error={!!errors.workMobileNo}
+                    helperText={errors.workMobileNo?.message}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Work color="action" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "#1976d2",
+                        },
+                      },
+                    }}
+                  />
+                )}
+              />
+
+              <Controller
+                name="mobileNo"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label={
+                      <Typography>
+                        Mobile Phone{" "}
+                        <span className="text-red-500 text-lg font-bold">
+                          *
+                        </span>
+                      </Typography>
+                    }
+                    fullWidth
+                    variant="outlined"
+                    error={!!errors.mobileNo}
+                    helperText={errors.mobileNo?.message}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Phone color="action" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "#1976d2",
+                        },
+                      },
+                    }}
+                  />
+                )}
+              />
+            </Box>
+
+            <Controller
+              name="otherMobileNo"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={<Typography>Other Phone Number</Typography>}
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    mt: 2,
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#1976d2",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          {/* Identification Section */}
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 2,
+                color: "#1976d2",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Badge sx={{ fontSize: 20 }} />
+              Identification
+            </Typography>
+
+            <Controller
+              name="externalId"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={
+                    <Typography>
+                      Unique External ID{" "}
+                      <span className="text-red-500 text-lg font-bold">*</span>
+                    </Typography>
+                  }
+                  fullWidth
+                  variant="outlined"
+                  error={!!errors.externalId}
+                  helperText={errors.externalId?.message}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Badge color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#1976d2",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          {/* Company & Address Section */}
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 2,
+                color: "#1976d2",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Business sx={{ fontSize: 20 }} />
+              Company & Address
+            </Typography>
+
+            <Controller
+              name="company"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={<Typography>Company</Typography>}
+                  fullWidth
+                  variant="outlined"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Business color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#1976d2",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+
+            <Controller
+              name="address"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={<Typography>Address</Typography>}
+                  fullWidth
+                  variant="outlined"
+                  multiline
+                  rows={3}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOn color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    mt: 2,
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#1976d2",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          {/* Additional Information Section */}
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                mb: 2,
+                color: "#1976d2",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Description sx={{ fontSize: 20 }} />
+              Additional Information
+            </Typography>
+
+            <Controller
+              name="about"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={<Typography>About</Typography>}
+                  fullWidth
+                  variant="outlined"
+                  multiline
+                  rows={4}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Description color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#1976d2",
+                      },
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          {/* Submit Button Section */}
+          <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#0080ffff" },
+                fontSize: 15,
+              }}
+            >
+              Update User Profile
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 

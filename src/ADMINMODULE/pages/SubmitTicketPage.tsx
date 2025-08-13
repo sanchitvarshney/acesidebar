@@ -33,7 +33,10 @@ const submitTicketTitle = [
 
 const SubmitTicketPage = () => {
   const navigate = useNavigate();
- const { addTab, setActiveTab } = useTabs();
+
+ const { addTab, setActiveTab,setTabs } = useTabs();
+
+ 
 
   return (
     <div className="w-full flex flex-col">
@@ -47,9 +50,9 @@ const SubmitTicketPage = () => {
             onClick={() => {
               const title = item.title.toLowerCase();
               
-              navigate(`/ticket/support/submit-ticket/${title}/${item.id}`);
-              addTab({ label: item.title, path: `/ticket/support/submit-ticket/${title}/${item.id}` });
-              setActiveTab(item.title);
+              navigate(`${title}/${item.id}`);
+              // addTab({ label: item.title, path: `/ticket/support/submit-ticket/${title}/${item.id}` });
+              // setActiveTab(item.title);
             }}
             sx={{
               transition: "transform 0.3s ease, box-shadow 0.3s ease",

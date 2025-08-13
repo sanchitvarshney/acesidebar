@@ -31,6 +31,7 @@ const SupportHeader = () => {
   );
 
   useEffect(() => {
+
     if (currentNavItem) {
       setActiveTab(currentNavItem.label);
       setTabs(
@@ -41,7 +42,7 @@ const SupportHeader = () => {
       );
     }
   }, [path]);
-
+console.log(tabs)
 
   return (
     <Box sx={{ flexGrow: 1 }}>

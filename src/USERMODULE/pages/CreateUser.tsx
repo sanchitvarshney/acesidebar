@@ -174,15 +174,35 @@ const CreateUser = () => {
       <div className=" h-[calc(100vh-160px)] w-full ">
         <DataGrid
           rows={filterData}
-          columns={columns}
+     columns={columns.map(col => ({ ...col, editable: false }))}
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[10, 20, 30, 100]}
           checkboxSelection
           //@ts-ignore
           columnResizeMode="onChange"
-          sx={{ border: 0 }}
+          sx={{ 
+            border: 0,
+            '& .MuiDataGrid-cell:focus': {
+              outline: 'none !important',
+            },
+            '& .MuiDataGrid-cell:focus-within': {
+              outline: 'none !important',
+            },
+            '& .MuiDataGrid-cell.Mui-selected': {
+              backgroundColor: 'transparent !important',
+            },
+            '& .MuiDataGrid-cell.Mui-selected:hover': {
+              backgroundColor: 'transparent !important',
+            },
+            '& .MuiDataGrid-cell:focus-visible': {
+              outline: 'none !important',
+            }
+          }}
           autoHeight={false}
           disableColumnResize={false}
+          disableRowSelectionOnClick
+          disableCellSelection
+          disableColumnSelection
         />
       </div>
       <CustomSideBarPanel

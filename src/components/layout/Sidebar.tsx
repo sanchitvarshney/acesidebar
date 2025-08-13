@@ -235,7 +235,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
   };
 
   const handleNavigation = (path: string) => {
-    console.log(path,"path")
+    console.log(path, "path");
     navigate(path);
   };
 
@@ -365,11 +365,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
           <ColoredShortcutButton bgcolor={iconColors[0]}>
             <SignalIcon fontSize="inherit" />
           </ColoredShortcutButton>
-          <ColoredShortcutButton bgcolor={iconColors[1]}>
-            <EditIcon
-              fontSize="inherit"
-              onClick={() => handleNavigation("/tickets")}
-            />
+          <ColoredShortcutButton
+            bgcolor={iconColors[1]}
+            onClick={() => handleNavigation("/tickets")}
+          >
+            <EditIcon fontSize="inherit" />
           </ColoredShortcutButton>
           <ColoredShortcutButton
             bgcolor={iconColors[2]}
@@ -377,11 +377,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
           >
             <PeopleIcon fontSize="inherit" />
           </ColoredShortcutButton>
-          <ColoredShortcutButton bgcolor={iconColors[3]}>
-            <SettingsIcon
-              fontSize="inherit"
-              onClick={() => handleNavigation("/settings")}
-            />
+          <ColoredShortcutButton
+            bgcolor={iconColors[3]}
+            onClick={() => handleNavigation("/settings")}
+          >
+            <SettingsIcon fontSize="inherit" />
           </ColoredShortcutButton>
         </Box>
         <Box
