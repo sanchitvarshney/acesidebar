@@ -618,12 +618,12 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
       label: 'Build Query',
       content: (
         <Box sx={{ p: 2 }}>
-                     <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-             Advanced search query builder
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Advanced search query builder
            </Typography>
                        <Typography variant="body2" sx={{ mb: 2, color: '#666', fontSize: '0.875rem' }}>
               💡 Tip: Each field can only be used once to avoid duplicate criteria. Maximum 5 filters allowed. Available fields are shown in the dropdown.
-            </Typography>
+          </Typography>
           
           {/* Logic Operator */}
           <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -657,11 +657,11 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
                  Maximum reached
                </Typography>
              )}
-           </Box>
-           
-           {/* Filter Rows */}
+          </Box>
+
+          {/* Filter Rows */}
            <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
-                         {filters.map((filter, index) => (
+            {filters.map((filter, index) => (
                <Box 
                  key={filter.id} 
                  sx={{ 
@@ -675,29 +675,29 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
                    backgroundColor: isFilterComplete(filter) ? 'transparent' : '#fff5f5'
                  }}
                >
-                                 {/* Field Dropdown */}
-                 <FormControl  sx={{ minWidth: 120 }}>
-                   <Select
-                     value={filter.field}
-                     onChange={(e) => handleFilterChange(filter.id, 'field', e.target.value)}
-                     sx={{ 
-                       '& .MuiSelect-select': { 
-                         py: 0.5,
-                         fontSize: '0.875rem'
-                       } 
-                     }}
-                   >
+                {/* Field Dropdown */}
+                <FormControl  sx={{ minWidth: 120 }}>
+                  <Select
+                    value={filter.field}
+                    onChange={(e) => handleFilterChange(filter.id, 'field', e.target.value)}
+                    sx={{ 
+                      '& .MuiSelect-select': { 
+                        py: 0.5,
+                        fontSize: '0.875rem'
+                      } 
+                    }}
+                  >
                      {getAvailableFields(filter.id).map((option) => (
-                       <MenuItem key={option} value={option}>{option}</MenuItem>
-                     ))}
+                      <MenuItem key={option} value={option}>{option}</MenuItem>
+                    ))}
                      {/* Show current field even if it's not in available fields (for display purposes) */}
                      {!getAvailableFields(filter.id).includes(filter.field) && (
                        <MenuItem key={filter.field} value={filter.field} disabled>
                          {filter.field} (Selected)
                        </MenuItem>
                      )}
-                   </Select>
-                 </FormControl>
+                  </Select>
+                </FormControl>
 
                 {/* Operator Dropdown */}
                 <FormControl  sx={{ minWidth: 120 }}>
@@ -717,9 +717,9 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
                   </Select>
                 </FormControl>
 
-                                 {/* Value Input */}
-                 <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                   {renderValueInput(filter)}
+                {/* Value Input */}
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {renderValueInput(filter)}
                    
                    {/* Warning Icon for incomplete filters */}
                    {!isFilterComplete(filter) && (
@@ -731,44 +731,44 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
                        }} 
                      />
                    )}
-                   
-                   {/* Remove Button */}
-                   <IconButton
-                     size="small"
-                     onClick={() => removeFilter(filter.id)}
-                     sx={{ color: '#666', ml: 1 }}
-                   >
-                     <CloseIcon fontSize="small" />
-                   </IconButton>
-                 </Box>
+                  
+                  {/* Remove Button */}
+                  <IconButton
+                    size="small"
+                    onClick={() => removeFilter(filter.id)}
+                    sx={{ color: '#666', ml: 1 }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
               </Box>
             ))}
 
                          {/* Add Filter Button - Only show if less than 5 filters */}
              {filters.length < 5 && (
                <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                 <Button
-                   variant="outlined"
-                   startIcon={<AddIcon />}
-                   onClick={addFilter}
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={addFilter}
                    disabled={getAvailableFields('').length === 0}
-                   sx={{ 
-                     borderColor: '#dadce0',
-                     color: '#000',
-                     textTransform: 'none',
-                     '&:hover': {
-                       borderColor: '#dadce0',
-                       backgroundColor: '#f8f9fa'
+              sx={{ 
+                borderColor: '#dadce0',
+                color: '#000',
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#dadce0',
+                  backgroundColor: '#f8f9fa'
                      },
                      '&:disabled': {
                        borderColor: '#e0e0e0',
                        color: '#999',
                        cursor: 'not-allowed'
-                     }
-                   }}
-                 >
-                   Add Filter
-                 </Button>
+                }
+              }}
+            >
+              Add Filter
+            </Button>
                  {getAvailableFields('').length > 0 && (
                    <Typography 
                      variant="body2" 
