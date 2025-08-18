@@ -146,14 +146,14 @@ const TextInputCellRenderer = (props: any) => {
   return (
     <>
       {renderContent()}
-      <CustomSideBarPanel
+      {/* <CustomSideBarPanel
         open={isEdit}
         close={() => setIsEdit(false)}
         width={"45%"}
         title={"Edit User"}
-      >
-        <EditUser />
-      </CustomSideBarPanel>
+      > */}
+       { isEdit &&<EditUser isEdit={isEdit} close={() => setIsEdit(false)} />} 
+      {/* </CustomSideBarPanel> */}
       <ConfirmationModal open={isDelete} onClose={() => setIsDelete(false)} onConfirm={() => {}} />
         {/* <CustomSideBarPanel open={isProfile} close={() => setIsProfile(false)} title={"Profile"} width={"65%"}>
           <h1>profile</h1>

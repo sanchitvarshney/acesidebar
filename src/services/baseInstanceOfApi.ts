@@ -4,6 +4,7 @@ import {
   BaseQueryFn,
 } from "@reduxjs/toolkit/query/react";
 import { decrypt } from "../utils/encryption";
+import { v4 as uuidv4 } from "uuid";
 
 const baseUrl = process.env.REACT_APP_API_URL;
 
@@ -17,6 +18,8 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
+
+      headers.set("x-request-key", uuidv4());
       return headers;
     },
   });

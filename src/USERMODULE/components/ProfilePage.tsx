@@ -15,7 +15,16 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import { TimelineItem, TimelineSeparator, TimelineConnector, TimelineDot, TimelineContent } from "@mui/lab";
+import {
+  TimelineItem,
+  TimelineSeparator,
+  TimelineConnector,
+  TimelineDot,
+  TimelineContent,
+  timelineOppositeContentClasses,
+  Timeline,
+  TimelineOppositeContent,
+} from "@mui/lab";
 
 import MailOutlineIcon from "@mui/icons-material/MailOutline"; // mail icon
 import {
@@ -229,102 +238,119 @@ const ProfilePage = () => {
               </Tabs>
             </Paper>
 
-            <Paper elevation={0} sx={{ p: 0, flex: 1, overflowY: "auto" }}>
+            <Paper
+              elevation={0}
+              sx={{ p: 0, flex: "unset", overflowY: "auto" }}
+            >
               {tab === 0 && (
-                <TimelineItem>
-                  <TimelineSeparator>
-                    <TimelineConnector sx={{ bgcolor: "secondary.main" }} />
-                    <TimelineDot color="secondary">
-                      <MailOutlineIcon fontSize="small" />
-                    </TimelineDot>
-                    <TimelineConnector />
-                  </TimelineSeparator>
+                <Timeline
+                  sx={{
+                    [`& .${timelineOppositeContentClasses.root}`]: {
+                      flex: 0.2,
+                    },
+                  }}
+                >
+                  <TimelineItem
+                    sx={{
+                      "&::before": {
+                        display: "none",
+                      },
+                    }}
+                  >
+                    <TimelineSeparator>
+                      <TimelineConnector sx={{ bgcolor: "secondary.main" }} />
+                      <TimelineDot color="secondary">
+                        <MailOutlineIcon fontSize="small" />
+                      </TimelineDot>
+                      <TimelineConnector />
+                    </TimelineSeparator>
 
-                  <TimelineContent sx={{ py: "12px", px: 2 }}>
-                    <Box
-                      sx={{
-                        px: 2,
-                        py: 1.5,
-                        borderBottom: "1px solid #e5e7eb",
-                        color: "text.secondary",
-                      }}
-                    >
-                      Thu, 10 Jul, 2025
-                    </Box>
-
-                    <Box sx={{ p: 2 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        9:22 AM
-                      </Typography>
-
+                    <TimelineContent sx={{ py: "12px", px: 2 }}>
                       <Box
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mt: 0.5,
+                          px: 2,
+                          py: 1.5,
+                          borderBottom: "1px solid #e5e7eb",
+                          color: "text.secondary",
                         }}
                       >
+                        Thu, 10 Jul, 2025
+                      </Box>
+
+                      <Box sx={{ p: 2 }}>
+                        <Typography variant="caption" color="text.secondary">
+                          9:22 AM
+                        </Typography>
+
                         <Box
                           sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: 1,
-                            bgcolor: "#e5e7eb",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            mt: 0.5,
                           }}
-                        />
-                        <Typography
-                          variant="subtitle1"
-                          sx={{ fontWeight: 600 }}
                         >
-                          Issues with reports #3
-                        </Typography>
-                      </Box>
+                          <Box
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: 1,
+                              bgcolor: "#e5e7eb",
+                            }}
+                          />
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            Issues with reports #3
+                          </Typography>
+                        </Box>
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: 2,
-                          mt: 0.5,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <Typography variant="body2" color="text.secondary">
-                          Priority: Low
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Status: Open
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Group: Escalations
-                        </Typography>
-                      </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 2,
+                            mt: 0.5,
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            Priority: Low
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Status: Open
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Group: Escalations
+                          </Typography>
+                        </Box>
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          mt: 0.5,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <Typography variant="body2" color="text.secondary">
-                          Agent responded: a month ago
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Overdue by: a month
-                        </Typography>
-                        <Chip
-                          size="small"
-                          label="Overdue"
-                          color="error"
-                          variant="outlined"
-                        />
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            mt: 0.5,
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            Agent responded: a month ago
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Overdue by: a month
+                          </Typography>
+                          <Chip
+                            size="small"
+                            label="Overdue"
+                            color="error"
+                            variant="outlined"
+                          />
+                        </Box>
                       </Box>
-                    </Box>
-                  </TimelineContent>
-                </TimelineItem>
+                    </TimelineContent>
+                  </TimelineItem>
+                </Timeline>
               )}
               {tab === 1 && (
                 <Box sx={{ p: 2 }}>
@@ -421,27 +447,15 @@ const ProfilePage = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={() => {}}
       />
-      <CustomSideBarPanel
-        open={isEdit}
-        close={() => setIsEdit(false)}
-        width={"45%"}
-        title={"Edit User"}
-      >
-        <EditUser />
-      </CustomSideBarPanel>
+
+      {isEdit && <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />}
+
       <ConvertProfile
         open={isConvertProfile}
         onClose={() => setIsConvertProfile(false)}
         onConfirm={() => {}}
       />
-      {/* <CustomSideBarPanel
-        open={isChangePassword}
-        close={() => setIsChangePassword(false)}
-        width={"45%"}
-        title={"Change Password"}
-      >
-        <ChangePassword />
-      </CustomSideBarPanel> */}
+
       <ChangePassword
         open={isChangePassword}
         onClose={() => setIsChangePassword(false)}

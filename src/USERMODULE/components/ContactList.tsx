@@ -1,8 +1,18 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
 import { columns } from "../../utils/create-user-columnDefs";
 
-import { Button, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Modal,
+  Typography,
+} from "@mui/material";
 
 import { SearchIcon } from "lucide-react";
 import PlayForWorkIcon from "@mui/icons-material/PlayForWork";
@@ -12,12 +22,9 @@ import ImportContact from "../components/ImportContact";
 import ExportContact from "../components/ExportContact";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import AddContact from "../components/AddContact";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../reduxStore/Store";
-import ProfilePage from "../components/ProfilePage";
 import { useNavigate } from "react-router-dom";
-
-
+import CircularProgress from "@mui/material/CircularProgress";
+import { Close, Save } from "@mui/icons-material";
 
 const rowData: any = [
   {
@@ -100,29 +107,24 @@ const rowData: any = [
 ];
 
 const ContactList = () => {
-      const [isExport, setIsExport] = useState(false);
-      const [isImport, setIsImport] = useState(false);
-      const [isAdd, setIsAdd] = useState(false);
-      const [searchQuery, setSearchQuery] = useState("");
-        
-        const navigate = useNavigate();
-       
-      
-      
-    
-      const filterData = searchQuery
-        ? rowData.filter((row: any) =>
-            Object.values(row).some((value: any) =>
-              value?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-            )
-          )
-        : rowData;
-    
-    
-    
-      const paginationModel = { page: 0, pageSize: 10 };
+  const [isExport, setIsExport] = useState(false);
+  const [isImport, setIsImport] = useState(false);
+  const [isAdd, setIsAdd] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const navigate = useNavigate();
 
+  const filterData = searchQuery
+    ? rowData.filter((row: any) =>
+        Object.values(row).some((value: any) =>
+          value?.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      )
+    : rowData;
+
+  const paginationModel = { page: 0, pageSize: 10 };
+
+  console.log(filterData);
 
   return (
     <div className="w-full">
@@ -179,40 +181,46 @@ const ContactList = () => {
           </Button>
         </div>
       </div>
-      <div className=" h-[calc(100vh-160px)] w-full ">
-        <DataGrid
-          rows={filterData}
-          columns={columns.map((col) => ({ ...col, editable: false }))}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[10, 20, 30, 100]}
-          checkboxSelection
-          //@ts-ignore
-          columnResizeMode="onChange"
-          sx={{
-            border: 0,
-            "& .MuiDataGrid-cell:focus": {
-              outline: "none !important",
-            },
-            "& .MuiDataGrid-cell:focus-within": {
-              outline: "none !important",
-            },
-            "& .MuiDataGrid-cell.Mui-selected": {
-              backgroundColor: "transparent !important",
-            },
-            "& .MuiDataGrid-cell.Mui-selected:hover": {
-              backgroundColor: "transparent !important",
-            },
-            "& .MuiDataGrid-cell:focus-visible": {
-              outline: "none !important",
-            },
-          }}
-          autoHeight={false}
-          disableColumnResize={false}
-          disableRowSelectionOnClick
-          disableCellSelection
-          disableColumnSelection
-        />
-      </div>
+      {filterData && filterData.length > 0 ? (
+        <div className=" h-[calc(100vh-160px)] w-full ">
+          <DataGrid
+            rows={filterData}
+            columns={columns.map((col) => ({ ...col, editable: false }))}
+            initialState={{ pagination: { paginationModel } }}
+            pageSizeOptions={[10, 20, 30, 100]}
+            checkboxSelection
+            //@ts-ignore
+            columnResizeMode="onChange"
+            sx={{
+              border: 0,
+              "& .MuiDataGrid-cell:focus": {
+                outline: "none !important",
+              },
+              "& .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
+              },
+              "& .MuiDataGrid-cell.Mui-selected": {
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiDataGrid-cell.Mui-selected:hover": {
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiDataGrid-cell:focus-visible": {
+                outline: "none !important",
+              },
+            }}
+            autoHeight={false}
+            disableColumnResize={false}
+            disableRowSelectionOnClick
+            disableCellSelection
+            disableColumnSelection
+          />
+        </div>
+      ) : (
+        <div className="h-[calc(100vh-160px)] w-full flex justify-center items-center">
+          <CircularProgress />
+        </div>
+      )}
       <CustomSideBarPanel
         open={isExport}
         close={() => setIsExport(false)}
@@ -233,18 +241,10 @@ const ContactList = () => {
       >
         <ImportContact />
       </CustomSideBarPanel>
-      <CustomSideBarPanel
-        open={isAdd}
-        close={() => setIsAdd(false)}
-        isHeader={true}
-        title={"Add Contact"}
-        width={"45%"}
-        btn={{ primary: "Create", secondary: "Cancel" }}
-      >
-        <AddContact />
-      </CustomSideBarPanel>
-    </div>
-  )
-}
 
-export default ContactList
+      {isAdd && <AddContact isAdd={isAdd} close={() => setIsAdd(false)} />}
+    </div>
+  );
+};
+
+export default ContactList;
