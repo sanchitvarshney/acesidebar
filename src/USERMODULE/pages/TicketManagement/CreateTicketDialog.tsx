@@ -564,7 +564,7 @@ const CreateTicketDialog = () => {
               onFocus={undefined}
               initialContent={newTicket.body}
               isFull={false}
-              customHeight="calc(100vh - 650px)" 
+              customHeight={"250px"} 
             />
           </Box>
 

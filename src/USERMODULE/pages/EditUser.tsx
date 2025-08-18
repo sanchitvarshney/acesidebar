@@ -10,7 +10,16 @@ import {
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
-import { Email, Phone, Work, Person, Badge, Business, LocationOn, Description } from "@mui/icons-material";
+import {
+  Email,
+  Phone,
+  Work,
+  Person,
+  Badge,
+  Business,
+  LocationOn,
+  Description,
+} from "@mui/icons-material";
 
 // Zod schema
 const schema = z.object({
@@ -53,7 +62,7 @@ const EditUser = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{py:2}}>
+    <Container maxWidth="md" sx={{ py: 2 }}>
       {/* Form Content */}
       <Box sx={{ p: 0 }}>
         {/* Mandatory Fields Alert */}
@@ -61,6 +70,8 @@ const EditUser = () => {
           severity="info"
           sx={{
             mb: 2,
+            display: "flex",
+            alignItems: "center",
             borderRadius: 2,
             "& .MuiAlert-icon": { color: "#1976d2" },
           }}

@@ -88,6 +88,8 @@ const AddContact = () => {
           severity="info"
           sx={{
             mb: 2,
+            display: "flex",
+            alignItems: "center",
             borderRadius: 2,
             "& .MuiAlert-icon": { color: "#1976d2" },
           }}
