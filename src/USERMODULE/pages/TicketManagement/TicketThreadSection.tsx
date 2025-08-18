@@ -49,6 +49,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../reduxStore/Store";
 import ImageViewComponent from "../../components/ImageViewComponent";
 import DynamicallyThread from "../../components/DynamicallyThread";
+import { useAuth } from "../../../contextApi/AuthContext";
 
 const signatureValues: any = [
   {
@@ -124,6 +125,8 @@ const ThreadItem = ({
   onSendReply,
   onForward,
 }: any) => {
+  const { user } = useAuth();
+
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [localReplyText, setLocalReplyText] = useState("");
@@ -232,9 +235,9 @@ const ThreadItem = ({
       </ClickAwayListener>
     </Paper>
   );
-  // Check if this is the current user's message or someone else's
-  const isCurrentUser =
-    item.repliedBy?.name === "Current User" || item.repliedBy?.name === "You"; // Adjust this condition based on your user identification logic
+ //@ts-ignore
+  const isCurrentUser = item.repliedBy?.userID === user?.uid;
+ 
 
   return (
     <div className="flex p-2 overflow-auto  mb-2">
@@ -299,7 +302,7 @@ const ThreadItem = ({
                 </div>
 
                 <span className="w-4/5 text-xs text-gray-500">
-                  added a private note
+                  {item.message}
                 </span>
               </div>
             </div>
@@ -404,6 +407,7 @@ const TicketThreadSection = ({
   const [showEditor, setShowEditor] = useState<any>(false);
   // const [replyText, setReplyText] = useState("");
   const [markdown, setMarkdown] = useState("");
+
   const [showShotcut, setShowShotcut] = useState(false);
   const [slashTriggered, setSlashTriggered] = useState(false);
   const shotcutRef = React.useRef(null);
@@ -711,7 +715,6 @@ const TicketThreadSection = ({
                   onForward={onForward}
                   shouldFocus={shouldFocusEditor}
                   onFocus={() => {
-                 
                     setShouldFocusEditor(false);
                   }}
                 />

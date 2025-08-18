@@ -35,33 +35,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<any | null>(null);
 
   const signIn = useCallback(() => {
-    const encryptedToken = localStorage.getItem("userToken");
     const encryptedUserData = localStorage.getItem("userData");
 
-    if (encryptedToken && encryptedUserData) {
+    if (encryptedUserData) {
       try {
-        // Decrypt the token
-          const token = decrypt(encryptedToken);
-
         // Decrypt the user data
-        const userData = decrypt(encryptedUserData);
 
-        if (token && userData) {
-          const finalUserData = {
-            ...userData,
-            token: token,
-          };
-          setUser(finalUserData);
+        // Ensure parsed object
+        const userData =
+          typeof encryptedUserData === "string"
+            ? JSON.parse(encryptedUserData)
+            : encryptedUserData;
+
+        if (userData) {
+          setUser(userData);
         } else {
           setUser(null);
         }
       } catch (error) {
+        console.error("SignIn error:", error);
         setUser(null);
       }
     } else {
       setUser(null);
     }
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     signIn();
@@ -70,21 +68,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signOut = useCallback(() => {
     // Clear user state
     setUser(null);
-    
+
     // Clear all local storage
     localStorage.clear();
     sessionStorage.clear();
-    
+
     // Clear all cookies
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
-    
+
     // Clear any Redux state if needed
     // dispatch(clearUserState()); // Uncomment if you have Redux actions
-    
+
     // Navigate to login page
     window.location.href = "/login";
   }, []);
