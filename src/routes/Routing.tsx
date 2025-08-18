@@ -4,6 +4,7 @@ import MainLayout from "../components/layout/MainLayout";
 import Protected from "../components/protected/Protected";
 
 import Tickets from "../USERMODULE/pages/TicketManagement/Tickets";
+import CreateTicketPage from "../USERMODULE/pages/TicketManagement/CreateTicketPage";
 import CreateUser from "../USERMODULE/pages/CreateUser";
 import LoginScreen from "../USERMODULE/screens/LoginScreen";
 import SignupScreen from "../USERMODULE/screens/SignupScreen";
@@ -64,6 +65,10 @@ export const router = createBrowserRouter([
       {
         path: "tickets/:id",
         element: <Tickets />,
+      },
+      {
+        path: "create-ticket",
+        element: <CreateTicketPage />,
       },
       {
         path: "create-user",

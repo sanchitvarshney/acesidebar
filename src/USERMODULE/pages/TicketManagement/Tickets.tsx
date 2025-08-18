@@ -47,6 +47,7 @@ const STATUS_OPTIONS = [
 const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
 const Tickets: React.FC = () => {
+  const navigate = useNavigate();
   const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -312,7 +313,6 @@ const Tickets: React.FC = () => {
   };
 
   const { id: routeTicketId } = useParams();
-  const navigate = useNavigate();
 
   // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
@@ -781,7 +781,7 @@ const Tickets: React.FC = () => {
               <Button
                 variant="contained"
                 size="small"
-                onClick={() => setCreateDialogOpen(true)}
+                onClick={() => navigate("/create-ticket")}
                 sx={{
                   textTransform: "none",
                   fontSize: "0.875rem",

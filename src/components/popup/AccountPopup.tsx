@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { Popper, Paper, Box, Typography, IconButton, Avatar, Button, Divider, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import React, { useRef, useEffect, useState } from 'react';
+import { Popper, Paper, Box, Typography, IconButton, Avatar, Button, Divider, List, ListItem, ListItemAvatar, ListItemText, FormControl, Select, MenuItem } from '@mui/material';
 import { Close as CloseIcon, CameraAlt as CameraIcon, KeyboardArrowDown as KeyboardArrowDownIcon } from '@mui/icons-material';
 import { useAuth } from '../../contextApi/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -18,14 +18,32 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
   const userName = "Shiv Kumar";
   const managedBy = "companyName";
 
+  // Status state
+  const [currentStatus, setCurrentStatus] = useState<string>("available");
+
+  // Status options
+  const statusOptions = [
+    { label: "Available", value: "available", color: "#4caf50" },
+    { label: "Busy", value: "busy", color: "#ff9800" },
+    { label: "Away", value: "away", color: "#f44336" }
+  ];
+
   // Handle click outside to close popup
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Check if the click target is part of a MUI Select dropdown
+      const target = event.target as Element;
+      const isSelectDropdown = target.closest('.MuiPopover-root') || 
+                              target.closest('.MuiMenu-root') ||
+                              target.closest('[role="listbox"]') ||
+                              target.closest('[role="option"]');
+      
       if (
         popupRef.current &&
         !popupRef.current.contains(event.target as Node) &&
         anchorEl &&
-        !anchorEl.contains(event.target as Node)
+        !anchorEl.contains(event.target as Node) &&
+        !isSelectDropdown
       ) {
         onClose();
       }
@@ -99,9 +117,13 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
                 Managed by {managedBy}
               </Typography>
             </Box>
-            <IconButton size="small" onClick={onClose} sx={{ color: '#666' }}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+
+
+              <IconButton size="small" onClick={onClose} sx={{ color: '#666' }}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
         </Box>
 
@@ -138,6 +160,64 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
             Hi, {userName}!
           </Typography>
 
+          {/* Status Selector */}
+          <FormControl size="small" sx={{ minWidth: 120, mb: 2 }}>
+            <Select
+              value={currentStatus}
+              onChange={(e) => setCurrentStatus(e.target.value)}
+              sx={{
+                fontSize: '0.75rem',
+                height: 32,
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#dadce0',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#1976d2',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#1976d2',
+                },
+                backgroundColor: '#fff',
+              }}
+              renderValue={(selected) => {
+                const option = statusOptions.find(opt => opt.value === selected);
+                return (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box
+                      sx={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: '50%',
+                        backgroundColor: option?.color || '#4caf50',
+                        flexShrink: 0
+                      }}
+                    />
+                    <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
+                      {option?.label || 'Available'}
+                    </Typography>
+                  </Box>
+                );
+              }}
+            >
+              {statusOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value} sx={{ fontSize: '0.75rem' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: option.color,
+                        flexShrink: 0
+                      }}
+                    />
+                    {option.label}
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Divider orientation="vertical" flexItem />
           <Button
             variant="outlined"
             sx={{
@@ -155,6 +235,8 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
           >
             Manage your TMS Account
           </Button>
+
+
         </Box>
 
         <Divider />
@@ -168,20 +250,20 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
               // Clear all local storage
               localStorage.clear();
               sessionStorage.clear();
-              
+
               // Clear all cookies
               document.cookie.split(";").forEach((c) => {
                 document.cookie = c
                   .replace(/^ +/, "")
                   .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
               });
-              
+
               // Close the popup
               onClose();
-              
+
               // Use the AuthContext signOut function
               signOut();
-              
+
               // Navigate to login page
               navigate('/login');
             }}

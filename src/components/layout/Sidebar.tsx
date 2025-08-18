@@ -38,9 +38,10 @@ import {
   ChevronRight as ChevronRightIcon,
   ExitToApp as ExitToAppIcon,
   Menu as MenuIcon,
-  ConfirmationNumber as TicketIcon,
+  ConfirmationNumber as TicketIcon
 } from "@mui/icons-material";
 import { useAuth } from "../../contextApi/AuthContext";
+import AllInboxIcon from '@mui/icons-material/AllInbox';
 
 const SIDEBAR_WIDTH = 80;
 const SIDEBAR_COLLAPSED_WIDTH = 0;
@@ -235,7 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
   };
 
   const handleNavigation = (path: string) => {
-   
+
     navigate(path);
   };
 
@@ -255,8 +256,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
               item.children
                 ? handleItemClick(item.title)
                 : item.path
-                ? handleNavigation(item.path)
-                : undefined
+                  ? handleNavigation(item.path)
+                  : undefined
             }
             selected={active}
             sx={{
@@ -369,7 +370,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerToggle }) => {
             bgcolor={iconColors[1]}
             onClick={() => handleNavigation("/tickets")}
           >
-            <EditIcon fontSize="inherit" />
+            <AllInboxIcon fontSize="inherit" />
           </ColoredShortcutButton>
           <ColoredShortcutButton
             bgcolor={iconColors[2]}
