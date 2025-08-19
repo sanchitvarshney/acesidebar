@@ -124,8 +124,8 @@ const replyOptions = [
 const ThreadItem = ({
   item,
   onReplyClick,
-
   onForward,
+  marginBottomClass,
 }: any) => {
   const { user } = useAuth();
 
@@ -252,9 +252,38 @@ const ThreadItem = ({
   );
   //@ts-ignore
   const isCurrentUser =  item?.replyType === "S";
+  const bubbleBackgroundColor = isCurrentUser ? "#f7faff" : "#fafafa";
+  const bubbleFooter = isCurrentUser ? "IP: 127.0.0.1 | Location: India" : "Send From Web | IP: 127.0.0.1 | Location: India";
+  const isRatingDisabled = isCurrentUser;
+
+  const decodeHtmlEntities = (encoded: string) => {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.innerHTML = encoded ?? "";
+      return textarea.value;
+    } catch {
+      return encoded ?? "";
+    }
+  };
+
+  const sanitizeMessageHtml = (html: string) => {
+    if (!html) return "";
+    let out = html;
+    // Remove script tags and their content
+    out = out.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "");
+    // Remove event handler attributes like onclick, onerror, etc. (both quote styles)
+    out = out.replace(/on[a-z]+\s*=\s*"[^"]*"/gi, "");
+    out = out.replace(/on[a-z]+\s*=\s*'[^']*'/gi, "");
+    // Neutralize javascript: URLs
+    out = out.replace(/href\s*=\s*"javascript:[^"]*"/gi, 'href="#"');
+    out = out.replace(/href\s*=\s*'javascript:[^']*'/gi, "href='#'");
+    out = out.replace(/src\s*=\s*"javascript:[^"]*"/gi, 'src="#"');
+    out = out.replace(/src\s*=\s*'javascript:[^']*'/gi, "src='#'");
+    return out;
+  };
 
   return (
-    <div className="flex p-2 overflow-auto  mb-2">
+    <div className={`flex p-2 overflow-auto ${marginBottomClass}`}>
       {/* Email content */}
       <div className="flex-1">
         <div
@@ -272,8 +301,7 @@ const ThreadItem = ({
                 height: 0,
                 borderTop: "10px solid transparent",
                 borderBottom: "10px solid transparent",
-                [isCurrentUser ? "borderLeft" : "borderRight"]:
-                  "12px solid #ebebebff",
+                [isCurrentUser ? "borderLeft" : "borderRight"]: `12px solid ${bubbleBackgroundColor}`,
               }}
             />
             {item.repliedBy?.avatarUrl ? (
@@ -288,11 +316,14 @@ const ThreadItem = ({
               </div>
             )}
           </div>
-          <div className="w-full flex flex-col items-center justify-between bg-[#fff] border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)]">
+          <div
+            className="w-[90%] flex flex-col items-center justify-between border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)] rounded-lg"
+            style={{ backgroundColor: bubbleBackgroundColor }}
+          >
             <div className="flex items-center justify-between w-full px-4 py-2">
               <div className="w-full flex flex-col">
                 <div className="flex items-center justify-between w-full">
-                  <span className="font-semibold text-[#1a73e8]">
+                  <span className="font-semibold text-[#1a73e8] text-sm">
                     {item.repliedBy?.name || "User"}
                   </span>
                   <div>
@@ -315,13 +346,14 @@ const ThreadItem = ({
                   </div>
                 </div>
 
-                <span className="w-4/5 text-xs text-gray-500">
-                  {item.message}
-                </span>
+                <div
+                  className="w-4/5 text-xs text-gray-500"
+                  dangerouslySetInnerHTML={{ __html: sanitizeMessageHtml(decodeHtmlEntities(item?.message)) }}
+                />
               </div>
             </div>
-            <div className="flex items-center justify-between w-full py-3 px-4 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd]">
-              <span className="text-xs text-gray-500">Rate this response</span>
+            <div className="flex items-center justify-between w-full py-3 px-4 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg">
+              <span className="text-xs text-gray-500">{bubbleFooter}</span>
               <span className="flex gap-1">
                 {Array.from({ length: 5 }).map((_, idx) => {
                   const isActive =
@@ -332,21 +364,25 @@ const ThreadItem = ({
                       key={idx}
                       sx={{
                         color: isActive ? "#fbbf24" : "#a4a4a4ff",
-                        cursor: "pointer",
+                        cursor: isRatingDisabled ? "not-allowed" : "pointer",
+                        opacity: isRatingDisabled ? 0.5 : 1,
                         fontSize: "18px",
                         transition: "all 0.2s ease",
-                        "&:hover": {
-                          color: "#fbbf24",
-                          transform: "scale(1.1)",
-                        },
+                        pointerEvents: isRatingDisabled ? "none" : "auto",
+                        "&:hover": isRatingDisabled
+                          ? {}
+                          : {
+                              color: "#fbbf24",
+                              transform: "scale(1.1)",
+                            },
                       }}
-                      onMouseEnter={() => setHovered(idx)}
-                      onMouseLeave={() => setHovered(null)}
-                      onClick={() => handleReview(idx + 1)}
+                      onMouseEnter={isRatingDisabled ? undefined : () => setHovered(idx)}
+                      onMouseLeave={isRatingDisabled ? undefined : () => setHovered(null)}
+                      onClick={isRatingDisabled ? undefined : () => handleReview(idx + 1)}
                     />
                   );
                 })}
-                {selected > 0 && (
+                {!isRatingDisabled && selected > 0 && (
                   <span className="ml-2 text-xs text-gray-600">
                     {selected} star{selected > 1 ? "s" : ""}
                   </span>
@@ -363,14 +399,23 @@ const ThreadItem = ({
 const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
   <div className="">
     {thread && thread.length > 0 ? (
-      thread.map((item: any, idx: number) => (
-        <ThreadItem
-          key={idx}
-          item={item}
-          onReplyClick={onReplyClick}
-          onForward={onForward}
-        />
-      ))
+      thread.map((item: any, idx: number) => {
+        const next = thread[idx + 1];
+        const isCurrentStaff = item?.replyType === "S";
+        const isNextStaff = next ? next?.replyType === "S" : undefined;
+        const marginBottomClass =
+          next === undefined || isCurrentStaff !== isNextStaff ? "mb-10" : "mb-3";
+
+        return (
+          <ThreadItem
+            key={idx}
+            item={item}
+            onReplyClick={onReplyClick}
+            onForward={onForward}
+            marginBottomClass={marginBottomClass}
+          />
+        );
+      })
     ) : (
       <div className="text-gray-400">No thread items.</div>
     )}
