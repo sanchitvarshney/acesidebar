@@ -495,10 +495,15 @@ const StackEditor = ({
                   label={option}
                   {...getTagProps({ index })}
                   sx={{
+                    height: "20px",
                     backgroundColor: "#6EB4C9",
                     color: "white",
                     "& .MuiChip-deleteIcon": {
                       color: "white",
+                      width: "12px",
+                    },
+                    "& .MuiChip-deleteIcon:hover": {
+                      color: "#e87f8c",
                     },
                   }}
                 />
