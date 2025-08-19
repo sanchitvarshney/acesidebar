@@ -21,18 +21,16 @@ import CloseIcon from "@mui/icons-material/Close";
 import ForwardPanel from "./ForwardPanel";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { set } from "react-hook-form";
+import { useForwardThreadMutation } from "../../../services/threadsApi";
 
 interface TicketDetailTemplateProps {
   ticket: any; // expects { header, response, other }
   onBack: () => void;
-
 }
 
 const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   ticket,
   onBack,
-
-
 }) => {
   const [forwardOpen, setForwardOpen] = React.useState(false);
   const [expandForward, setExpandForward] = React.useState(false);
@@ -51,6 +49,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   const [showEditorNote, setShowEditorNote] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
+  const [forwardThread] = useForwardThreadMutation();
 
   // Pass this to children to allow opening the forward panel
   const handleOpenForward = () => setForwardOpen(true);
@@ -59,7 +58,36 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
     setForwardFields((prev) => ({ ...prev, [field]: value }));
   };
   const handleForwardSend = () => {
-    // TODO: Implement actual forward logic
+    if (!ticket) return;
+
+    // Example: building the payload
+    const payload = {
+      from:
+        ticket?.header?.requester ||
+        "MsCorpres Automation PvtLtd (support@postmanreply.com)",
+      to: ["recipient1@example.com"],
+      cc: ["ccperson@example.com"],
+      bcc: ["hiddenperson@example.com"],
+      subject: ticket?.header?.subject ? `FWD: ${ticket.header.subject}` : "",
+      message: ticket?.header?.description || "",
+      attachments: [
+        {
+          filename: "report.pdf",
+          base64_data: "JVBERi0xLjQKJc...", // encode your file as Base64
+        },
+      ],
+    };
+
+    console.log("Forward payload:", payload);
+
+    // Call your API
+    forwardThread(payload)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     setForwardOpen(false);
     setForwardFields({
       from:
@@ -72,12 +100,12 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
       message: ticket?.header?.description || "",
     });
   };
+
   const handleReply = () => {
     setShowReplyEditor(true);
     setValue("Reply");
   };
 
- 
   const handleCloseReply = () => setShowReplyEditor(false);
   const handleAddNote = () => {
     setShowEditorNote(true);
@@ -94,25 +122,37 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
 
   if (!ticket) return null;
   return (
-    <Box sx={{ display: "flex", position: "relative", overflow:"hidden", height: "calc(100vh - 112px)" }}>
+    <Box
+      sx={{
+        display: "flex",
+        position: "relative",
+        overflow: "hidden",
+        height: "calc(100vh - 112px)",
+      }}
+    >
       <Sidebar open={false} handleDrawerToggle={() => {}} />
-      <Box id="ticket-header" sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <div className="sticky top-0 z-[99]">
+      <Box
+        id="ticket-header"
+        sx={{ flex: 1, display: "flex", flexDirection: "column" }}
+      >
+        <div className="sticky top-0 z-[99]">
           <TicketDetailHeader
-          ticket={ticket.header}
-          onBack={onBack}
-          onForward={handleOpenForward}
-          onReply={handleReply}
-          onDelete={handleDelete}
-          onNote={handleAddNote}
-        />
-      </div>
+            ticket={ticket.header}
+            onBack={onBack}
+            onForward={handleOpenForward}
+            onReply={handleReply}
+            onDelete={handleDelete}
+            onNote={handleAddNote}
+          />
+        </div>
         <div className="w-full  grid grid-cols-[3fr_1fr] ">
-          <div style={{ width: "100%", height: "100%", overflow: "auto" }} id="ticket-thread">
+          <div
+            style={{ width: "100%", height: "100%", overflow: "auto" }}
+            id="ticket-thread"
+          >
             <TicketThreadSection
               thread={ticket.response}
               header={ticket.header}
-            
               onForward={handleOpenForward}
               showReplyEditor={showReplyEditor}
               onCloseReply={handleCloseReply}
@@ -121,7 +161,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
               value={value}
             />
           </div>
-          <div style={{ width: "100%", height: "100%", overflow: "hidden" }} >
+          <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
             <TicketPropertiesSidebar ticket={ticket.header} />
 
             {/* Forward Panel positioned inside the right column */}
@@ -138,9 +178,9 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
             handleCloseForward();
           }}
           sx={{
-            '& .MuiDrawer-paper': {
+            "& .MuiDrawer-paper": {
               width: 600,
-              maxWidth: '100vw',
+              maxWidth: "100vw",
               boxShadow: 24,
             },
           }}
@@ -174,23 +214,29 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
         >
           <Box
             sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              bgcolor: 'background.paper',
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              bgcolor: "background.paper",
               boxShadow: 24,
               borderRadius: 2,
               p: 0,
-              width: { xs: '98vw', sm: '90vw', md: '70vw', lg: '60vw', xl: '900px' },
-              maxWidth: '98vw',
-              maxHeight: '90vh',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
+              width: {
+                xs: "98vw",
+                sm: "90vw",
+                md: "70vw",
+                lg: "60vw",
+                xl: "900px",
+              },
+              maxWidth: "98vw",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
             }}
           >
-            <Box sx={{ flex: 1, overflow: 'auto' }}>
+            <Box sx={{ flex: 1, overflow: "auto" }}>
               <ForwardPanel
                 open={forwardOpen}
                 onClose={() => {
@@ -218,16 +264,16 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
       >
         <Box
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'background.paper',
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
             boxShadow: 24,
             borderRadius: 2,
             p: 4,
-            width: { xs: '90vw', sm: '400px' },
-            maxWidth: '90vw',
+            width: { xs: "90vw", sm: "400px" },
+            maxWidth: "90vw",
           }}
         >
           <Typography variant="h6" id="delete-modal-title" sx={{ mb: 2 }}>
@@ -236,11 +282,11 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           <Typography id="delete-modal-description" sx={{ mb: 3 }}>
             Are you sure you want to delete this ticket?
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
             <Button
               onClick={handleCloseDelete}
               variant="contained"
-              color="inherit"              
+              color="inherit"
             >
               Cancel
             </Button>

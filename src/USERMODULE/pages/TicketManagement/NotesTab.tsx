@@ -2,14 +2,18 @@ import { Button, TextField } from "@mui/material";
 import React from "react";
 import StyledTextField from "../../../reusable/AddNotes";
 import NotesItem from "../../../reusable/NotesItem";
-import emptyimg from "../../../assets/image/overview-empty-state.svg"
+import emptyimg from "../../../assets/image/overview-empty-state.svg";
+import { useAuth } from "../../../contextApi/AuthContext";
+import { useAddNoteMutation } from "../../../services/threadsApi";
 
 const NotesTab = () => {
+ const { user } =  useAuth();
   const [isNotes, setIsNotes] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [note, setNote] = React.useState("");
   const [noteList, setNoteList] = React.useState<any[]>([]);
   const [editNoteId, setEditNoteId] = React.useState<number | null>(null);
+ const [addNote] = useAddNoteMutation();
 
   const handleInputText = (text: string) => {
     if (text.length <= 500) {
@@ -17,26 +21,60 @@ const NotesTab = () => {
     }
   };
 
-  const handleSave = () => {
-    if (editNoteId !== null) {
-      setNoteList((prev) =>
-        prev.map((item) =>
-          item.id === editNoteId ? { ...item, note } : item
-        )
-      );
-      setEditNoteId(null);
-      setIsEdit(false);
-    } else {
-      setNoteList((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          note,
-          createdBy: "Current User",
-          createdAt: new Date().toLocaleString(),
-        },
-      ]);
+  const handleSave = async () => {
+    const payload = {
+      //@ts-ignore
+      userId: user?.id,
+      note,
+    };
+
+    try {
+      if (editNoteId !== null) {
+        // Update existing note
+        // await fetch(`/api/notes/${editNoteId}`, {
+        //   method: "PUT",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify(payload),
+        // });
+
+        setNoteList((prev) =>
+          prev.map((item) =>
+            item.id === editNoteId ? { ...item, note } : item
+          )
+        );
+
+        setEditNoteId(null);
+        setIsEdit(false);
+      } else {
+        // Create new note
+        addNote(payload).then((res) => {
+          console.log(res)
+        }).catch((err) => {
+          console.log(err)
+        })
+        // const response = await fetch("/api/notes", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify(payload),
+        // });
+
+        // const result = await response.json();
+
+        // setNoteList((prev) => [
+        //   ...prev,
+        //   {
+        //     id: result.id ?? Date.now(), // use API id if available
+        //     note,
+        //     createdBy: "Current User",
+        //     createdAt: new Date().toLocaleString(),
+        //     userId: payload.userId,
+        //   },
+        // ]);
+      }
+    } catch (err) {
+      console.error("Error saving note:", err);
     }
+
     setIsNotes(false);
     setNote("");
   };
@@ -65,7 +103,7 @@ const NotesTab = () => {
 
   return (
     <div className="bg-white rounded border border-gray-200 p-3 mb-4">
-      {(isNotes && !isEdit) && (
+      {isNotes && !isEdit && (
         <StyledTextField
           placeholder="Write your note here"
           inputText={handleInputText}
@@ -105,11 +143,7 @@ const NotesTab = () => {
       ) : (
         !isNotes && (
           <div className="flex flex-col items-center mt-4">
-            <img
-              src={emptyimg}
-              alt="notes"
-              className="mx-auto w-40 h-30"
-            />
+            <img src={emptyimg} alt="notes" className="mx-auto w-40 h-30" />
             <span
               className="text-sm text-[#1a73e8] cursor-pointer p-2"
               onClick={() => setIsNotes(true)}

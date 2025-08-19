@@ -19,9 +19,24 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
-        reviewThread: builder.mutation({
+    reviewThread: builder.mutation({
       query: (credentials) => ({
         url: "/ticket/staff/star",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+
+    addNote: builder.mutation({
+      query: (credentials) => ({
+        url: "/ticket/staff/add-note",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+      forwardThread: builder.mutation({
+      query: (credentials) => ({
+        url: "/ticket/staff/forward-thread",
         method: "POST",
         body: credentials,
       }),
@@ -34,14 +49,9 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     //   }),
     //   transformResponse: (response: any) => response?.data,
     // }),
-
- 
-
   }),
   overrideExisting: false,
 });
 
-export const {
-  useReplyTicketMutation,
-  useReviewThreadMutation
-} = extendedTicketApi;
+export const { useReplyTicketMutation, useReviewThreadMutation,useAddNoteMutation , useForwardThreadMutation} =
+  extendedTicketApi;
