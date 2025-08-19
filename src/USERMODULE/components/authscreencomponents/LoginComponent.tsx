@@ -5,17 +5,19 @@ import {
   InputAdornment,
   TextField,
   Typography,
-  useTheme,
   IconButton,
+  FormControlLabel,
+  Link,
+  Divider,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import PersonIcon from "@mui/icons-material/Person";
+import { useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useForm } from "react-hook-form";
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -23,7 +25,6 @@ import z from "zod";
 import { loginSchema } from "../../../zodSchema/AuthSchema";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { decrypt } from "../../../utils/encryption";
 import { useToast } from "../../../hooks/useToast";
 import { useLoginMutation } from "../../../services/auth";
 
@@ -50,7 +51,21 @@ const LoginComponent = () => {
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const { showToast } = useToast();
-  const [login, { isLoading, error, data }] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
+  const [isForgot, setIsForgot] = useState<boolean>(false);
+
+  const forgotSchema = z.object({
+    email: z.string().email("Invalid email"),
+  });
+  const {
+    register: registerForgot,
+    handleSubmit: handleForgotSubmit,
+    formState: { errors: forgotErrors, isSubmitted: isForgotSubmitted, touchedFields: forgotTouched },
+  } = useForm<{ email: string }>({
+    resolver: zodResolver(forgotSchema),
+    mode: "onChange",
+    defaultValues: { email: "" },
+  });
 
   const handleToggleVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -67,9 +82,8 @@ const LoginComponent = () => {
       if (result.data?.data?.token) {
         localStorage.setItem("userToken", result.data.data.token);
 
-        // Encrypt and store the full user data
-        const decryptedUserData = decrypt(result.data.data.user);
-        localStorage.setItem("userData", JSON.stringify(decryptedUserData));
+        // Store user data
+        localStorage.setItem("userData", JSON.stringify(result.data.data.user));
 
         // Update auth context
         signIn();
@@ -86,36 +100,64 @@ const LoginComponent = () => {
     }
   };
 
+  const onForgotSubmit = async ({ email }: { email: string }) => {
+    // TODO: wire with backend forgot-password endpoint
+    showToast(`Password reset instructions sent to ${email}`, "success");
+    setIsForgot(false);
+  };
+
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit(onSubmit)}
-      sx={{
-        flex: 0.5,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        p: { xs: 0, sm: 2, md: 4 },
-        minWidth: { xs: "100%", md: 350 },
-        borderRadius: 3,
-        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05)",
-        backdropFilter: "blur(10px)",
-        border: "1px solid rgba(255, 255, 255, 0.2)",
-      }}
-    >
-      <PersonIcon sx={{ fontSize: 80, color: "#1c5fba", mb: 1 }} />
-      <Typography variant="h6" sx={{ mt: 1, mb: 2, fontWeight: 600 }}>
-        Account Login
+    isForgot ? (
+      <Box component="form" onSubmit={handleForgotSubmit(onForgotSubmit)} noValidate sx={{ p: 0 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+          Forgot Password
+        </Typography>
+        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+          Give us your email address and instructions to reset your password will be emailed to you.
+        </Typography>
+        <TextField
+          {...registerForgot("email")}
+          fullWidth
+          variant="outlined"
+          label="Your e-mail address"
+          sx={{ mb: 2, borderRadius: 1 }}
+          error={isForgotSubmitted || forgotTouched.email ? !!forgotErrors.email : false}
+          helperText={(isForgotSubmitted || forgotTouched.email) ? forgotErrors.email?.message : ""}
+        />
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+          <Button
+            type="button"
+            variant="contained"
+            onClick={() => setIsForgot(false)}
+            sx={{ bgcolor: "#000", color: "#fff", textTransform: "none", px: 3, '&:hover': { bgcolor: "#111" } }}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ textTransform: "none", px: 3 }}
+          >
+            Reset my password
+          </Button>
+        </Box>
+      </Box>
+    ) : (
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ p: 0 }}>
+      <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+        Login to the support portal
       </Typography>
-      <Box sx={{ width: "100%" }}>
+      <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+        Enter the details below
+      </Typography>
+      <Box>
         <TextField
           {...register("email")}
           fullWidth
           id="standard-basic"
           variant="outlined"
-          label="Email"
-          sx={{ mt: 2, mb: 1, borderRadius: 2 }}
+          label="Your e-mail address"
+          sx={{ mb: 2, borderRadius: 1 }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -124,7 +166,6 @@ const LoginComponent = () => {
             ),
           }}
           autoComplete="email"
-          autoFocus
           error={isSubmitted || touchedFields.email ? !!errors.email : false}
           helperText={
             isSubmitted || touchedFields.email ? errors.email?.message : ""
@@ -139,7 +180,7 @@ const LoginComponent = () => {
           label="Password"
           variant="outlined"
           type={showPassword ? "text" : "password"}
-          sx={{ mt: 2, borderRadius: 2 }}
+          sx={{ mb: 1, borderRadius: 1 }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -152,7 +193,7 @@ const LoginComponent = () => {
                   aria-label="toggle password visibility"
                   onClick={handleToggleVisibility}
                   edge="end"
-                  sx={{ color: "#6366f1" }}
+                  sx={{ color: "#1a73e8" }}
                 >
                   {showPassword ? <VisibilityOffIcon sx={{color: "#1a73e8"}}/> : <VisibilityIcon sx={{color: "#1a73e8"}}/>}
                 </IconButton>
@@ -170,49 +211,43 @@ const LoginComponent = () => {
           }
         />
       </Box>
-      {isLoading ? (
-        <div className="flex items-center justify-center">
-          <CircularProgress color="success" size={"40px"} />
-        </div>
-      ) : (
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{
-            mt: 3,
-            py: 1.2,
-            fontWeight: 600,
-            fontSize: 17,
-            borderRadius: 2,
-            boxShadow: "0 2px 8px rgba(99,102,241,0.10)",
-            transition: "background 0.2s",
-            "&:hover": { background: "#1c5fba" },
-          }}
-          size="large"
-          type="submit"
-        >
-          Login
-        </Button>
-      )}
-
-      <Button
-        variant="text"
-        sx={{
-          mt: 1,
-          color: "#1a73e8",
-          fontWeight: 500,
-          fontSize: 15,
-          textTransform: "none",
-          "&:hover": {
-            bgcolor: "transparent",
-            textDecoration: "underline",
-          },
-        }}
-      >
-        Forgot Password?
-      </Button>
+      <FormControlLabel control={<Checkbox size="small" defaultChecked />} label={<Typography variant="body2">Remember me on this computer</Typography>} sx={{ my: 1 }} />
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+        <Link component="button" underline="hover" sx={{ color: "#1a73e8" }} onClick={() => setIsForgot(true)}>Forgot your password?</Link>
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <CircularProgress color="success" size={"28px"} />
+          </div>
+        ) : (
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ px: 3, py: 1, fontWeight: 600, fontSize: 15, borderRadius: 1.5, boxShadow: "0 2px 8px rgba(99,102,241,0.10)", "&:hover": { background: "#1c5fba" } }}
+            type="submit"
+          >
+            Login
+          </Button>
+        )}
+      </Box>
+      <Divider sx={{ my: 2 }} />
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <SupportAgentIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+        <Typography variant="body2">
+          Are you not an agent?{' '}
+          <Link
+            component="button"
+            underline="hover"
+            onClick={() => {
+              const baseUrl = process.env.REACT_APP_FRONTEND_URL || window.location.origin;
+              window.location.href = `${baseUrl}/ticket/support`;
+            }}
+          >
+            Login here
+          </Link>
+        </Typography>
+      </Box>
     </Box>
+    )
   );
 };
 
