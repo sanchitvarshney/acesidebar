@@ -19,6 +19,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
+        reviewThread: builder.mutation({
+      query: (credentials) => ({
+        url: "/ticket/staff/star",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
 
     // getPriorityList: builder.query<any, void>({
     //   query: () => ({
@@ -35,5 +42,6 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
 });
 
 export const {
-  useReplyTicketMutation
+  useReplyTicketMutation,
+  useReviewThreadMutation
 } = extendedTicketApi;

@@ -52,6 +52,7 @@ import DynamicallyThread from "../../components/DynamicallyThread";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { setReplyValue } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
+import { useReplyTicketMutation, useReviewThreadMutation } from "../../../services/threadsApi";
 
 const signatureValues: any = [
   {
@@ -122,13 +123,12 @@ const replyOptions = [
 const ThreadItem = ({
   item,
   onReplyClick,
-  replyText,
-  onReplyTextChange,
-  onSendReply,
+
   onForward,
 }: any) => {
   const { user } = useAuth();
 
+  const [reviewThread] = useReviewThreadMutation();
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [localReplyText, setLocalReplyText] = useState("");
@@ -173,6 +173,23 @@ const ThreadItem = ({
     } else if (value === "2") {
     } else {
     }
+  };
+
+  const handleReview = (value: any) => {
+    setSelected(value);
+    const payload = {
+      ticketId: "",
+      rating: value,
+    };
+
+    reviewThread(payload)
+    
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   const renderReplyOption = (
@@ -324,11 +341,7 @@ const ThreadItem = ({
                       }}
                       onMouseEnter={() => setHovered(idx)}
                       onMouseLeave={() => setHovered(null)}
-                      onClick={() => {
-                        setSelected(idx + 1);
-                        // You can add API call here to save the rating
-                        console.log(`Rated ${idx + 1} stars`);
-                      }}
+                      onClick={() => handleReview(idx + 1)}
                     />
                   );
                 })}
@@ -374,9 +387,8 @@ const TicketThreadSection = ({
   onCloseEditorNote,
   value,
 }: any) => {
-
   const dispatch = useDispatch();
-
+  const [replyTicket] = useReplyTicketMutation();
   const [showEditor, setShowEditor] = useState<any>(false);
 
   const [showShotcut, setShowShotcut] = useState(false);
@@ -519,7 +531,7 @@ const TicketThreadSection = ({
     }
 
     const payload = {
-      ticketId: header?.ticketId,
+      ticket: header?.ticketId,
 
       reply: {
         type: selectedValue,
@@ -539,17 +551,19 @@ const TicketThreadSection = ({
       },
     };
 
-   
-
- 
-
-    //   dispatch(setReplyValue(""));
-    //   setSignature("");
-    //   setSelectedOptionValue("1");
-    //   setSignatureUpdateKey(0);
-    //   setShowEditor(false);
-    //   if (onCloseReply) onCloseReply();
-   
+    replyTicket(payload)
+      .then((res: any) => {
+        console.log(res);
+        dispatch(setReplyValue(""));
+        setSignature("");
+        setSelectedOptionValue("1");
+        setSignatureUpdateKey(0);
+        setShowEditor(false);
+        if (onCloseReply) onCloseReply();
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
   };
 
   const handleRemoveImage = (index: number) => {
@@ -674,7 +688,7 @@ const TicketThreadSection = ({
                   }}
                   handleChangeValue={handleChangeValue}
                   selectedValue={selectedValue}
-                  changeNotify={(value: any) =>  setNotifyTag(value)}
+                  changeNotify={(value: any) => setNotifyTag(value)}
                   notifyTag={notifyTag}
                 />
               </div>
