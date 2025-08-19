@@ -25,19 +25,14 @@ import { set } from "react-hook-form";
 interface TicketDetailTemplateProps {
   ticket: any; // expects { header, response, other }
   onBack: () => void;
-  replyText: string;
-  onReplyTextChange: (val: string) => void;
-  onSendReply: any;
-  children?: React.ReactNode;
+
 }
 
 const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   ticket,
   onBack,
-  replyText,
-  onReplyTextChange,
-  onSendReply,
-  children,
+
+
 }) => {
   const [forwardOpen, setForwardOpen] = React.useState(false);
   const [expandForward, setExpandForward] = React.useState(false);
@@ -117,7 +112,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
             <TicketThreadSection
               thread={ticket.response}
               header={ticket.header}
-              onSendReply={onSendReply}
+            
               onForward={handleOpenForward}
               showReplyEditor={showReplyEditor}
               onCloseReply={handleCloseReply}

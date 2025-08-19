@@ -45,11 +45,13 @@ import ShortcutIcon from "@mui/icons-material/Shortcut";
 
 import { set } from "react-hook-form";
 import { Add } from "@mui/icons-material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reduxStore/Store";
 import ImageViewComponent from "../../components/ImageViewComponent";
 import DynamicallyThread from "../../components/DynamicallyThread";
 import { useAuth } from "../../../contextApi/AuthContext";
+import { setReplyValue } from "../../../reduxStore/Slices/shotcutSlices";
+import CustomModal from "../../../components/layout/CustomModal";
 
 const signatureValues: any = [
   {
@@ -130,7 +132,6 @@ const ThreadItem = ({
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [localReplyText, setLocalReplyText] = useState("");
-  const [markdown, setMarkdown] = useState("");
 
   const optionsRef = React.useRef<any>(null);
   const [hovered, setHovered] = useState<number | null>(null);
@@ -146,10 +147,6 @@ const ThreadItem = ({
       setLocalReplyText("");
       setShowReplyEditor(false);
     }
-  };
-
-  const handleEditorChange = (value: string) => {
-    setMarkdown(value);
   };
 
   function handleListKeyDown(event: any) {
@@ -235,9 +232,8 @@ const ThreadItem = ({
       </ClickAwayListener>
     </Paper>
   );
- //@ts-ignore
+  //@ts-ignore
   const isCurrentUser = item.repliedBy?.userID === user?.uid;
- 
 
   return (
     <div className="flex p-2 overflow-auto  mb-2">
@@ -367,35 +363,10 @@ const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
   </div>
 );
 
-// const EditorBar = ({ replyText, onReplyTextChange, onSendReply }: any) => (
-//   <div className="border rounded bg-white p-3 flex flex-col gap-2">
-//     <textarea
-//       className="w-full min-h-[80px] border rounded p-2 text-sm"
-//       placeholder="Type your reply..."
-//       value={replyText}
-//       onChange={(e) => onReplyTextChange(e.target.value)}
-//     />
-//     <div className="flex items-center justify-between">
-//       <div className="flex gap-2">
-//         {/* Toolbar icons placeholder */}
-//         <button className="text-gray-500 hover:text-blue-600">B</button>
-//         <button className="text-gray-500 hover:text-blue-600">I</button>
-//         <button className="text-gray-500 hover:text-blue-600">A</button>
-//       </div>
-//       <button
-//         className="bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm hover:bg-blue-700"
-//         onClick={onSendReply}
-//       >
-//         Send
-//       </button>
-//     </div>
-//   </div>
-// );
-
 const TicketThreadSection = ({
   thread,
   header,
-  onSendReply,
+
   onForward,
   showReplyEditor,
   showEditorNote,
@@ -403,10 +374,10 @@ const TicketThreadSection = ({
   onCloseEditorNote,
   value,
 }: any) => {
-  // const [ticketStatus, setTicketStatus] = useState(header?.status || "open");
+
+  const dispatch = useDispatch();
+
   const [showEditor, setShowEditor] = useState<any>(false);
-  // const [replyText, setReplyText] = useState("");
-  const [markdown, setMarkdown] = useState("");
 
   const [showShotcut, setShowShotcut] = useState(false);
   const [slashTriggered, setSlashTriggered] = useState(false);
@@ -419,11 +390,21 @@ const TicketThreadSection = ({
   const [showImagesModal, setShowImagesModal] = useState(false);
   const [canned, setCanned] = useState(false);
   const [suggest, setSuggest] = useState(false);
+  const [selectedValue, setSelectedValue] = useState("1");
   //@ts-ignore
-  const { shotcutData } = useSelector((state: RootState) => state.shotcut);
+  const { shotcutData, replyValue } = useSelector(
+    (state: RootState) => state.shotcut
+  );
   const [signature, setSignature] = useState("");
   const [signatureUpdateKey, setSignatureUpdateKey] = useState(0);
   const [shouldFocusEditor, setShouldFocusEditor] = useState(false);
+  const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
+  const [notifyTag, setNotifyTag] = useState([]);
+
+  const handleChangeValue = (event: any) => {
+    setSelectedValue(event);
+    // setShowBcc(false);
+  };
 
   const handleSignatureChange = (event: string) => {
     setSelectedOptionValue(event);
@@ -480,13 +461,12 @@ const TicketThreadSection = ({
       setSlashTriggered(false);
     }
 
-    // Store the full HTML content (Editor component now handles signature separation)
-    setMarkdown(value);
+    dispatch(setReplyValue(value));
   };
   useEffect(() => {
-    if (slashTriggered || !markdown) return;
+    if (slashTriggered || !replyValue) return;
     setShowShotcut(false);
-  }, [slashTriggered, markdown]);
+  }, [slashTriggered, replyValue]);
 
   // Handler for Reply button
   const handleReplyButton = () => {
@@ -534,19 +514,42 @@ const TicketThreadSection = ({
 
   // Handler for Save button
   const handleSave = () => {
-    if (markdown === null || !markdown) {
+    if (replyValue === null || !replyValue) {
       return;
     }
-    if (markdown && markdown.trim()) {
-      // console.log("Saving reply:", markdown);
-      onSendReply(markdown);
-      setMarkdown("");
-      setSignature(""); // Clear signature state
-      setSelectedOptionValue("1"); // Reset to "None"
-      setSignatureUpdateKey(0); // Reset signature update key
-      setShowEditor(false);
-      if (onCloseReply) onCloseReply();
-    }
+
+    const payload = {
+      ticketId: header?.ticketId,
+
+      reply: {
+        type: selectedValue,
+        to: "example@example.com",
+        cc: [],
+        bcc: [],
+        message: replyValue,
+        signatureKey: signature,
+        attachments: [
+          {
+            filename: "image.jpg",
+            base64_data: images,
+          },
+        ],
+        note: notifyTag,
+        statusKey: "",
+      },
+    };
+
+   
+
+ 
+
+    //   dispatch(setReplyValue(""));
+    //   setSignature("");
+    //   setSelectedOptionValue("1");
+    //   setSignatureUpdateKey(0);
+    //   setShowEditor(false);
+    //   if (onCloseReply) onCloseReply();
+   
   };
 
   const handleRemoveImage = (index: number) => {
@@ -562,12 +565,7 @@ const TicketThreadSection = ({
   };
 
   useEffect(() => {
-    console.log("TicketThreadSection useEffect triggered:", {
-      showReplyEditor,
-      showEditorNote,
-    });
     if (showReplyEditor || showEditorNote) {
-      console.log("Setting showEditor to true and shouldFocusEditor to true");
       setShowEditor(true);
       setShouldFocusEditor(true);
     }
@@ -581,25 +579,6 @@ const TicketThreadSection = ({
         </div>
         <div className="flex flex-col gap-0 w-full h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
           <ThreadList thread={thread} onForward={onForward} />
-          {/* <Divider
-            orientation="vertical"
-            sx={{
-              height:25,
-              borderLeft: "1px dashed rgba(0,0,0,0.3)", // dashed style
-              // mx: "auto", // spacing
-            }}
-          />
-          <div className="w-4/5 px-2 py-3  border-dashed">
-            <DynamicallyThread />
-          </div>
-          <Divider
-            orientation="vertical"
-            sx={{
-              height:25,
-              borderLeft: "1px dashed rgba(0,0,0,0.3)", // dashed style
-              // mx: "auto", // spacing
-            }}
-          /> */}
         </div>
         <div className="rounded   p-1 w-[74%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
           <Accordion
@@ -670,19 +649,8 @@ const TicketThreadSection = ({
                 </Typography>
               </AccordionSummary>
             )}
-            {/* // )} */}
 
             <AccordionDetails sx={{ p: 0, height: "100%" }}>
-              {/* <AnimatePresence>
-              {showEditor && (
-                <motion.div
-                  key="editor-container"
-                  initial={{ y: 200, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 200, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="rounded p-0 flex flex-col overflow-hidden w-full h-full"
-                > */}
               <div
                 ref={shotcutRef}
                 style={{
@@ -691,23 +659,10 @@ const TicketThreadSection = ({
                   maxHeight: "100%",
                 }}
               >
-                {/* Signature indicator */}
-                {/* {hasSignature(signature) && selectedOptionValue !== "1" && (
-                <div className="bg-green-50 border-l-4 border-green-400 p-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-600 text-sm font-medium">
-                      ✓ Signature Active
-                    </span>
-                    <span className="text-green-500 text-xs">
-                      {getCurrentSignatureName()}
-                    </span>
-                  </div>
-                </div>
-              )} */}
                 <StackEditor
-                  initialContent={markdown}
+                  initialContent={replyValue}
                   signatureValue={signature}
-                  onChange={handleEditorChange}
+                  onChange={(value: any) => handleEditorChange(value)}
                   isEditorExpended={isEditorExpended}
                   isExpended={() => setIsEditorExpended(!isEditorExpended)}
                   onCloseReply={onReplyClose}
@@ -717,6 +672,10 @@ const TicketThreadSection = ({
                   onFocus={() => {
                     setShouldFocusEditor(false);
                   }}
+                  handleChangeValue={handleChangeValue}
+                  selectedValue={selectedValue}
+                  changeNotify={(value: any) =>  setNotifyTag(value)}
+                  notifyTag={notifyTag}
                 />
               </div>
 
@@ -729,7 +688,9 @@ const TicketThreadSection = ({
                 >
                   <ShotCutContent
                     onChange={(e: any) => {
-                      setMarkdown((prev) => prev?.replace(/\/$/, e));
+                      dispatch(
+                        setReplyValue((prev: any) => prev?.replace(/\/$/, e))
+                      );
                     }}
                     onClose={() => setShowShotcut(false)}
                     stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
@@ -762,7 +723,7 @@ const TicketThreadSection = ({
                         >
                           <div className="flex items-center justify-between w-full">
                             <span>{item?.name}</span>
-                            {hasSignature(markdown) &&
+                            {hasSignature(replyValue) &&
                               item.value === selectedOptionValue &&
                               item.value !== "1" && (
                                 <Chip
@@ -852,7 +813,7 @@ const TicketThreadSection = ({
                   <Button
                     variant="contained"
                     onClick={() => {
-                      setMarkdown("");
+                      dispatch(setReplyValue(""));
                       setSignature("");
                       setSelectedOptionValue("1");
                       setStateChangeKey((prev) => prev + 1);
@@ -985,9 +946,13 @@ const TicketThreadSection = ({
                 size="small"
                 onClick={(e: any) => {
                   e.stopPropagation(); // Prevent accordion toggle
-                  setMarkdown(
-                    (prevMarkdown) =>
-                      prevMarkdown + "Content for section 1 inside the drawer."
+
+                  dispatch(
+                    setReplyValue(
+                      (prevMarkdown: any) =>
+                        prevMarkdown +
+                        "Content for section 1 inside the drawer."
+                    )
                   );
                 }}
               >
@@ -1083,8 +1048,10 @@ const TicketThreadSection = ({
                       <IconButton
                         size="small"
                         onClick={(e) => {
-                          setMarkdown(
-                            (prevMarkdown) => prevMarkdown + ` ${item.message}`
+                          dispatch(
+                            setReplyValue(
+                              (prev: any) => prev + ` ${item.message}`
+                            )
                           );
                         }}
                       >
@@ -1102,6 +1069,25 @@ const TicketThreadSection = ({
           )}
         </Box>
       </Drawer>
+
+      {isSuccessModal && (
+        <CustomModal
+          open={isSuccessModal}
+          onClose={() => {}}
+          title={"Ticket Save"}
+          msg="Ticket save successfully"
+          primaryButton={{
+            title: "Go Next",
+            onClick: () => {},
+          }}
+          secondaryButton={{
+            title: "Ticket List",
+            onClick: () => {
+              setIsSuccessModal(false);
+            },
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -76,6 +76,10 @@ const StackEditor = ({
     isValues,
     onForward,
     customHeight = "calc(100vh - 365px)",
+    handleChangeValue,
+    selectedValue,
+    changeNotify,
+    notifyTag
   } = props;
   const isMounted = React.useRef(true);
   const [editorContent, setEditorContent] = useState("");
@@ -86,31 +90,27 @@ const StackEditor = ({
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const optionsRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = useState("1");
-  const [selectedOptionValue, setSelectedOptionValue] = useState("1");
+
   const [showCc, setShowCc] = React.useState(false);
   const [showBcc, setShowBcc] = React.useState(false);
   const [optionChangeKey, setOptionChangeKey] = useState(0);
-  const [notifyTag, setNotifyTag] = useState([]);
+  
   const [currentSignature, setCurrentSignature] = useState("");
 
   // Focus the editor when it opens
   useEffect(() => {
-  
-
     if (editorRef.current && shouldFocus) {
       const quill = editorRef.current.getQuill();
-  
 
       if (quill) {
         // Longer delay to ensure the editor is fully rendered and initialized
         setTimeout(() => {
-       
           try {
             quill.focus();
             // Move cursor to the end of the content
             const length = quill.getLength();
             quill.setSelection(length, 0);
-       
+
             // Call onFocus callback if provided
             if (onFocus) {
               onFocus();
@@ -124,12 +124,11 @@ const StackEditor = ({
         setTimeout(() => {
           const quill = editorRef.current?.getQuill();
           if (quill && shouldFocus) {
-           
             try {
               quill.focus();
               const length = quill.getLength();
               quill.setSelection(length, 0);
-            
+
               if (onFocus) {
                 onFocus();
               }
@@ -149,12 +148,11 @@ const StackEditor = ({
       const timeoutId = setTimeout(() => {
         const quill = editorRef.current?.getQuill();
         if (quill && shouldFocus) {
-          
           try {
             quill.focus();
             const length = quill.getLength();
             quill.setSelection(length, 0);
-         
+
             if (onFocus) {
               onFocus();
             }
@@ -185,22 +183,6 @@ const StackEditor = ({
       setCurrentSignature("");
     }
   }, [signatureValue]);
-
-  // Enhanced text change handler
-  // const handleTextChange = (e) => {
-  //   const htmlValue = e.htmlValue;
-
-  //   // Update editor content
-  //   setEditorContent(htmlValue);
-
-  //   // Call parent onChange with content + signature
-  //   const fullContent = currentSignature
-  //     ? htmlValue +
-  //       `<div class="signature-section" contenteditable="false">${currentSignature}</div>`
-  //     : htmlValue;
-
-  //   onChange(fullContent);
-  // };
 
   // Initialize main editor
   useEffect(() => {
@@ -342,11 +324,6 @@ const StackEditor = ({
     setIsOptionsOpen(false);
   };
 
-  const handleChangeValue = (event) => {
-    setSelectedOptionValue(event);
-    // setShowBcc(false);
-  };
-
   function handleListKeyDown(event) {
     if (event.key === "Tab") {
       event.preventDefault();
@@ -373,7 +350,7 @@ const StackEditor = ({
           {/* <InputLabel id="demo-simple-select-label">Add Element</InputLabel> */}
           <Select
             id="demo-simple-select"
-            value={selectedOptionValue}
+            value={selectedValue}
             onChange={(e) => handleChangeValue(e.target.value)}
             MenuProps={{
               sx: {
@@ -497,9 +474,9 @@ const StackEditor = ({
             value={notifyTag}
             onChange={(event, newValue, reason) => {
               if (reason === "createOption" || reason === "selectOption") {
-                setNotifyTag(newValue);
+                changeNotify(newValue);
               } else if (reason === "removeOption") {
-                setNotifyTag(newValue);
+                changeNotify(newValue);
               }
             }}
             onInputChange={(event, newInputValue) => {
@@ -561,8 +538,10 @@ const StackEditor = ({
     : showCc || showBcc
     ? "calc(100vh - 405px)"
     : currentSignature
-    ? "calc(100vh - 530px)" : selectedIndex !== "1" ? "calc(100vh - 370px)" 
-    :  customHeight;
+    ? "calc(100vh - 530px)"
+    : selectedIndex !== "1"
+    ? "calc(100vh - 370px)"
+    : customHeight;
 
   return (
     <div

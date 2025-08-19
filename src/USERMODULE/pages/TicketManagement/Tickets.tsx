@@ -80,7 +80,7 @@ const Tickets: React.FC = () => {
     useState<HTMLElement | null>(null);
   const [sortingPopoverOpen, setSortingPopoverOpen] = useState(false);
   const [openTicketNumber, setOpenTicketNumber] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState<string>("");
+
   const [userPopupAnchorEl, setUserPopupAnchorEl] =
     useState<HTMLElement | null>(null);
   const [userPopupUser, setUserPopupUser] = useState<any>(null);
@@ -88,7 +88,7 @@ const Tickets: React.FC = () => {
   const [copiedTicketNumber, setCopiedTicketNumber] = useState<string | null>(
     null
   );
-  const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
+ 
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -342,22 +342,20 @@ const Tickets: React.FC = () => {
     };
   }, []);
 
-  const handleReplyTextChange = (text: string) => {
-    setReplyText(text);
-  };
 
-  const handleSendReply = (replyText: string, threadItem?: any) => {
 
-    console.log(replyText)
-    if (replyText.trim()) {
-      // TODO: Implement API call to send reply
-      console.log("Sending reply:", replyText, threadItem);
-      setIsSuccessModal(true);
-      // showToast("Reply sent successfully!", "success");
-    } else {
-      showToast("Please enter a reply message", "error");
-    }
-  };
+  // const handleSendReply = (replyText: string, threadItem?: any) => {
+
+  
+  //   if (replyText.trim()) {
+   
+  //     console.log("Sending reply:", replyText, threadItem);
+  //     setIsSuccessModal(true);
+
+  //   } else {
+  //     showToast("Please enter a reply message", "error");
+  //   }
+  // };
 
   const { data: ticketDetailData, isFetching: isTicketDetailLoading } =
     useGetTicketDetailStaffViewQuery(
@@ -634,9 +632,8 @@ const Tickets: React.FC = () => {
         <TicketDetailTemplate
           ticket={ticketDetailData}
           onBack={handleBack}
-          replyText={replyText}
-          onReplyTextChange={handleReplyTextChange}
-          onSendReply={(text: any) => handleSendReply(text)}
+         
+
         />
       ) : (
         <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
@@ -857,7 +854,7 @@ const Tickets: React.FC = () => {
         user={userPopupUser}
       />
 
-      {isSuccessModal && (
+      {/* {isSuccessModal && (
         <CustomModal
           open={isSuccessModal}
           onClose={() => {}}
@@ -874,7 +871,7 @@ const Tickets: React.FC = () => {
             },
           }}
         />
-      )}
+      )} */}
     </>
   );
 };

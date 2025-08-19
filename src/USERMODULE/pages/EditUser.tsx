@@ -9,10 +9,10 @@ import {
   InputAdornment,
   Dialog,
   DialogContent,
-  DialogTitle,
   IconButton,
-  Fade,
-  Grow,
+  AppBar,
+  Toolbar,
+  Slide,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
@@ -32,10 +32,12 @@ import { TransitionProps } from "@mui/material/transitions";
 import { forwardRef } from "react";
 
 export const Transition = forwardRef(function Transition(
-  props: TransitionProps & { children: React.ReactElement },
+  props: TransitionProps & {
+    children: React.ReactElement<unknown>;
+  },
   ref: React.Ref<unknown>
 ) {
-  return <Grow  ref={ref} {...props} />;
+  return <Slide direction="up" ref={ref} {...props} />;
 });
 
 // Zod schema
@@ -79,52 +81,39 @@ const EditUser = ({ isEdit, close }: { isEdit: boolean; close: any }) => {
   };
 
   return (
+  
     <Dialog
       open={isEdit}
       onClose={close}
-      fullWidth
-            TransitionComponent={Transition}
-                keepMounted
-      transitionDuration={{ enter: 500, exit: 500 }}
-      maxWidth="md"
+      fullScreen
+      slots={{
+        transition: Transition,
+      }}
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 0,
           overflow: "hidden",
         },
       }}
     >
-      {/* Header with Close & Save buttons */}
-      <DialogTitle
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          bgcolor: "#f5f7fa",
-          borderBottom: "1px solid #ddd",
-          py: 2,
-          px: 3,
-          backgroundColor: "#e8f0fe",
-        }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: 600, color: "#1976d2" }}>
-          Edit User
-        </Typography>
-
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            onClick={handleSubmit(onSubmit)}
-            variant="contained"
-            startIcon={<Save fontSize="small" />}
-            sx={{ textTransform: "none" }}
+      <AppBar sx={{ position: "relative" }}>
+        <Toolbar>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={close}
+            aria-label="close"
           >
-            Save
-          </Button>
-          <IconButton onClick={close} color="error" size="small">
             <Close fontSize="small" />
           </IconButton>
-        </Box>
-      </DialogTitle>
+          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+            Edit User
+          </Typography>
+          <Button autoFocus color="inherit" onClick={handleSubmit(onSubmit)}>
+            Save
+          </Button>
+        </Toolbar>
+      </AppBar>
       {/* Form Content */}
       <DialogContent dividers sx={{ backgroundColor: "white" }}>
         <Box
