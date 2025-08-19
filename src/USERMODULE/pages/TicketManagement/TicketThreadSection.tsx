@@ -321,7 +321,7 @@ const ThreadItem = ({
               </div>
             </div>
             <div className="flex items-center justify-between w-full py-3 px-4 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd]">
-              <span className="text-xs text-gray-500">Rate this response</span>
+              <span className="text-xs text-gray-500"></span>
               <span className="flex gap-1">
                 {Array.from({ length: 5 }).map((_, idx) => {
                   const isActive =

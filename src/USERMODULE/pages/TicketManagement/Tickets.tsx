@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
 import { Avatar, IconButton, Button, Checkbox } from "@mui/material";
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import {
   useGetTicketListQuery,
   useGetPriorityListQuery,
@@ -11,7 +11,7 @@ import {
   useGetTicketSortingOptionsQuery,
 } from "../../../services/ticketAuth";
 import { useToast } from "../../../hooks/useToast";
-import CreateTicketDialog from "./CreateTicketDialog";
+
 import TicketSkeleton from "../../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
@@ -32,9 +32,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
 import { useParams, useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
-import CustomModal from "../../../components/layout/CustomModal";
-import { set } from "react-hook-form";
-import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+
+import { useTicketStatusChangeMutation } from "../../../services/threadsApi";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -88,7 +87,8 @@ const Tickets: React.FC = () => {
   const [copiedTicketNumber, setCopiedTicketNumber] = useState<string | null>(
     null
   );
- 
+
+  const [ticketStatusChange] = useTicketStatusChangeMutation();
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -123,7 +123,7 @@ const Tickets: React.FC = () => {
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-      "Date created"
+        "Date created"
     );
     setSortOrder("desc"); // Reset to default order
     setPage(1); // Reset to first page
@@ -205,7 +205,7 @@ const Tickets: React.FC = () => {
     if (!ticketList?.data) return;
     setMasterChecked(
       ticketList.data.length > 0 &&
-      selectedTickets.length === ticketList.data.length
+        selectedTickets.length === ticketList.data.length
     );
   }, [selectedTickets, ticketList]);
 
@@ -342,13 +342,10 @@ const Tickets: React.FC = () => {
     };
   }, []);
 
-
-
   // const handleSendReply = (replyText: string, threadItem?: any) => {
 
-  
   //   if (replyText.trim()) {
-   
+
   //     console.log("Sending reply:", replyText, threadItem);
   //     setIsSuccessModal(true);
 
@@ -356,6 +353,19 @@ const Tickets: React.FC = () => {
   //     showToast("Please enter a reply message", "error");
   //   }
   // };
+
+  const handleDropdownChange = (value: any, ticket: any, type: any) => {
+    const payload = {
+      type,
+      body: { ticketId: ticket.ticketNumber, priority: value },
+    };
+    ticketStatusChange(payload);
+
+    // setTicketDropdowns((prev) => ({
+    //   ...prev,
+    //   [ticket.ticketNumber]: { ...dropdownState, priority: value },
+    // }));
+  };
 
   const { data: ticketDetailData, isFetching: isTicketDetailLoading } =
     useGetTicketDetailStaffViewQuery(
@@ -393,12 +403,12 @@ const Tickets: React.FC = () => {
             onChange={() => handleTicketCheckbox(ticket.ticketNumber)}
             sx={{
               mr: 1,
-              color: '#666',
-              '&.Mui-checked': {
-                color: '#1a73e8',
+              color: "#666",
+              "&.Mui-checked": {
+                color: "#1a73e8",
               },
-              '&:hover': {
-                backgroundColor: 'rgba(26, 115, 232, 0.04)',
+              "&:hover": {
+                backgroundColor: "rgba(26, 115, 232, 0.04)",
               },
             }}
           />
@@ -538,12 +548,7 @@ const Tickets: React.FC = () => {
           <div className="flex items-center w-full">
             <CustomDropdown
               value={dropdownState.priority}
-              onChange={(val) =>
-                setTicketDropdowns((prev) => ({
-                  ...prev,
-                  [ticket.ticketNumber]: { ...dropdownState, priority: val },
-                }))
-              }
+              onChange={(val) => handleDropdownChange(val, ticket, "priority")}
               options={PRIORITY_OPTIONS}
               colorDot={true}
               width={90}
@@ -552,12 +557,13 @@ const Tickets: React.FC = () => {
           <div className="flex items-center w-full">
             <AgentAssignPopover
               value={dropdownState.agent || "Unassigned"}
-              onChange={(val) =>
-                setTicketDropdowns((prev) => ({
-                  ...prev,
-                  [ticket.ticketNumber]: { ...dropdownState, agent: val },
-                }))
-              }
+              onChange={(val) => handleDropdownChange(val, ticket, "agent")}
+              // onChange={(val) =>
+              //   setTicketDropdowns((prev) => ({
+              //     ...prev,
+              //     [ticket.ticketNumber]: { ...dropdownState, agent: val },
+              //   }))
+              // }
               agentList={["Admin", "Agent 1", "Agent 2"]}
               departmentList={["Support", "Sales", "Billing"]}
               trigger={
@@ -601,15 +607,16 @@ const Tickets: React.FC = () => {
             <CustomDropdown
               value={
                 typeof dropdownState.status === "object" &&
-                  dropdownState.status !== null
+                dropdownState.status !== null
                   ? (dropdownState.status as any).name || dropdownState.status
                   : dropdownState.status
               }
-              onChange={(val) =>
-                setTicketDropdowns((prev) => ({
-                  ...prev,
-                  [ticket.ticketNumber]: { ...dropdownState, status: val },
-                }))
+              onChange={
+                (val) => handleDropdownChange(val, ticket, "status")
+                // setTicketDropdowns((prev) => ({
+                //   ...prev,
+                //   [ticket.ticketNumber]: { ...dropdownState, status: val },
+                // }))
               }
               options={STATUS_OPTIONS}
               colorDot={false}
@@ -629,12 +636,7 @@ const Tickets: React.FC = () => {
       {isTicketDetailLoading ? (
         <TicketDetailSkeleton />
       ) : openTicketNumber && ticketDetailData ? (
-        <TicketDetailTemplate
-          ticket={ticketDetailData}
-          onBack={handleBack}
-         
-
-        />
+        <TicketDetailTemplate ticket={ticketDetailData} onBack={handleBack} />
       ) : (
         <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
           {/* Main Header Bar */}
@@ -647,12 +649,12 @@ const Tickets: React.FC = () => {
                 aria-label="Select all tickets"
                 sx={{
                   mr: 1,
-                  color: '#666',
-                  '&.Mui-checked': {
-                    color: '#1a73e8',
+                  color: "#666",
+                  "&.Mui-checked": {
+                    color: "#1a73e8",
                   },
-                  '&:hover': {
-                    backgroundColor: 'rgba(26, 115, 232, 0.04)',
+                  "&:hover": {
+                    backgroundColor: "rgba(26, 115, 232, 0.04)",
                   },
                 }}
               />
@@ -668,9 +670,14 @@ const Tickets: React.FC = () => {
                     variant="contained"
                     size="small"
                     color="inherit"
-                    startIcon={<PersonAddAltIcon fontSize="small" sx={{ color: '#1a73e8' }}/>}
+                    startIcon={
+                      <PersonAddAltIcon
+                        fontSize="small"
+                        sx={{ color: "#1a73e8" }}
+                      />
+                    }
                     sx={{
-                      fontSize: '0.875rem',
+                      fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
                   >
@@ -680,9 +687,14 @@ const Tickets: React.FC = () => {
                     variant="contained"
                     color="inherit"
                     size="small"
-                    startIcon={<CheckCircleIcon fontSize="small"sx={{ color: '#43a047' }} />}
+                    startIcon={
+                      <CheckCircleIcon
+                        fontSize="small"
+                        sx={{ color: "#43a047" }}
+                      />
+                    }
                     sx={{
-                      fontSize: '0.875rem',
+                      fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
                   >
@@ -692,10 +704,15 @@ const Tickets: React.FC = () => {
                     variant="contained"
                     color="inherit"
                     size="small"
-                    startIcon={<CallMergeIcon fontSize="small" sx={{ color: '#ff9800' }}/>}
+                    startIcon={
+                      <CallMergeIcon
+                        fontSize="small"
+                        sx={{ color: "#ff9800" }}
+                      />
+                    }
                     sx={{
-                      fontSize: '0.875rem',
-                      fontWeight: 500
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
                     }}
                   >
                     Merge
@@ -704,9 +721,11 @@ const Tickets: React.FC = () => {
                     variant="contained"
                     size="small"
                     color="inherit"
-                    startIcon={<BlockIcon fontSize="small"sx={{ color: '#d32f2f' }} />}
+                    startIcon={
+                      <BlockIcon fontSize="small" sx={{ color: "#d32f2f" }} />
+                    }
                     sx={{
-                      fontSize: '0.875rem',
+                      fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
                   >
@@ -715,9 +734,12 @@ const Tickets: React.FC = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    color="inherit" startIcon={<DeleteIcon fontSize="small" sx={{ color: '#d32f2f' }} />}
+                    color="inherit"
+                    startIcon={
+                      <DeleteIcon fontSize="small" sx={{ color: "#d32f2f" }} />
+                    }
                     sx={{
-                      fontSize: '0.875rem',
+                      fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
                   >
@@ -734,8 +756,8 @@ const Tickets: React.FC = () => {
                     onClick={handleSortingPopoverOpen}
                     endIcon={<FilterAltOutlinedIcon fontSize="small" />}
                     sx={{
-                      fontSize: '0.875rem',
-                      fontWeight: 500
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
                     }}
                   >
                     {sortBy}
@@ -793,9 +815,10 @@ const Tickets: React.FC = () => {
               </Button>
               {/* Filters Icon Button */}
               <Button
-                variant="contained" color="inherit"
+                variant="contained"
+                color="inherit"
                 size="small"
-                onClick={() => setFiltersOpen(prev => !prev)}
+                onClick={() => setFiltersOpen((prev) => !prev)}
                 startIcon={<FilterListIcon fontSize="small" />}
                 aria-label="Toggle Filters"
               >
@@ -831,18 +854,6 @@ const Tickets: React.FC = () => {
           </div>
         </div>
       )}
-
-      <CustomSideBarPanel
-        open={createDialogOpen}
-        close={() => {
-          setCreateDialogOpen(false);
-        }}
-        isHeader={true}
-        title={"Create Ticket"}
-        width={"45%"}
-      >
-        <CreateTicketDialog />
-      </CustomSideBarPanel>
 
       {/* User Hover Popup */}
       <UserHoverPopup
