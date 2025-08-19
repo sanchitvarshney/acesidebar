@@ -18,13 +18,12 @@ import { useNavigate } from "react-router-dom";
 
 const TextInputCellRenderer = (props: any) => {
   const { value, field, row } = props;
- 
+
   const [isEdit, setIsEdit] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
-  
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const navigate = useNavigate();
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
 
   const open = Boolean(anchorEl);
 
@@ -37,17 +36,15 @@ const TextInputCellRenderer = (props: any) => {
     setAnchorEl(null);
   };
 
-
   const renderContent = () => {
     switch (field) {
-    
       case "contact":
         return (
           <div
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={(e) => {
               e.stopPropagation();
-            navigate(`${row?.id}`);
+              navigate(`${row?.id}`);
             }}
           >
             {row?.avatar ? (
@@ -152,10 +149,14 @@ const TextInputCellRenderer = (props: any) => {
         width={"45%"}
         title={"Edit User"}
       > */}
-       { isEdit &&<EditUser isEdit={isEdit} close={() => setIsEdit(false)} />} 
+      <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />
       {/* </CustomSideBarPanel> */}
-      <ConfirmationModal open={isDelete} onClose={() => setIsDelete(false)} onConfirm={() => {}} />
-        {/* <CustomSideBarPanel open={isProfile} close={() => setIsProfile(false)} title={"Profile"} width={"65%"}>
+      <ConfirmationModal
+        open={isDelete}
+        onClose={() => setIsDelete(false)}
+        onConfirm={() => {}}
+      />
+      {/* <CustomSideBarPanel open={isProfile} close={() => setIsProfile(false)} title={"Profile"} width={"65%"}>
           <h1>profile</h1>
         </CustomSideBarPanel> */}
     </>

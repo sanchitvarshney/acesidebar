@@ -242,7 +242,7 @@ const ContactList = () => {
         <ImportContact />
       </CustomSideBarPanel>
 
-      {isAdd && <AddContact isAdd={isAdd} close={() => setIsAdd(false)} />}
+      <AddContact isAdd={isAdd} close={() => setIsAdd(false)} />
     </div>
   );
 };

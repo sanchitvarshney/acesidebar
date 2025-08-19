@@ -448,7 +448,7 @@ const ProfilePage = () => {
         onConfirm={() => {}}
       />
 
-      {isEdit && <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />}
+     <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />
 
       <ConvertProfile
         open={isConvertProfile}
