@@ -53,6 +53,7 @@ import { useAuth } from "../../../contextApi/AuthContext";
 import { setReplyValue } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
 import { useReplyTicketMutation, useReviewThreadMutation } from "../../../services/threadsApi";
+import CustomToolTip from "../../../reusable/CustomToolTip";
 
 const signatureValues: any = [
   {
@@ -250,7 +251,7 @@ const ThreadItem = ({
     </Paper>
   );
   //@ts-ignore
-  const isCurrentUser = item.repliedBy?.userID === user?.uid;
+  const isCurrentUser =  item?.replyType === "S";
 
   return (
     <div className="flex p-2 overflow-auto  mb-2">
@@ -298,7 +299,7 @@ const ThreadItem = ({
                     <span className="text-xs text-gray-400">
                       {item.repliedAt?.timestamp}
                     </span>{" "}
-                    <Tooltip
+                    <CustomToolTip
                       title={renderReplyOption}
                       open={open}
                       placement={"bottom-end"}
@@ -310,7 +311,7 @@ const ThreadItem = ({
                       >
                         <ArrowDropDownIcon />
                       </IconButton>
-                    </Tooltip>
+                    </CustomToolTip>
                   </div>
                 </div>
 
@@ -755,7 +756,7 @@ const TicketThreadSection = ({
 
                   <div className="flex items-center gap-2">
                     {images?.length > 0 && (
-                      <Tooltip
+                      <CustomToolTip
                         title={
                           <ImageViewComponent
                             images={images}
@@ -763,8 +764,9 @@ const TicketThreadSection = ({
                           />
                         }
                         open={showImagesModal}
-                        onClose={() => setShowImagesModal(false)}
+                        close={() => setShowImagesModal(false)}
                         placement={"top"}
+                        width={400}
                       >
                         <span
                           className="bg-[#1a73e8] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
@@ -772,7 +774,7 @@ const TicketThreadSection = ({
                         >
                           {images.length}
                         </span>
-                      </Tooltip>
+                      </CustomToolTip>
                     )}
                     <Divider orientation="vertical" flexItem />
                     <Tooltip

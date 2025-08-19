@@ -14,6 +14,7 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemSecondaryAction,
+  Autocomplete,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
@@ -30,14 +31,7 @@ import { useToast } from "../../../hooks/useToast";
 interface ForwardPanelProps {
   open: boolean;
   onClose: () => void;
-  fields: {
-    from: string;
-    subject: string;
-    to: string;
-    cc: string;
-    bcc: string;
-    message: string;
-  };
+  fields: any;
   onFieldChange: (field: string, value: string) => void;
   onSend: () => void;
   expand?: boolean;
@@ -69,19 +63,28 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   const [isDragOver, setIsDragOver] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
+  const [ccValue, setCcValue] = React.useState([]);
+  const [bccValue, setBccValue] = React.useState([]);
+  const [ccChangeValue, setCcChangeValue] = React.useState("");
+  const [bccChangeValue, setBccChangeValue] = React.useState("");
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files) return;
-    
+
     const currentFileCount = attachedFiles.length;
     const newFileCount = files.length;
     const totalFiles = currentFileCount + newFileCount;
-    
+
     if (totalFiles > MAX_FILES) {
-      showToast(`Maximum ${MAX_FILES} files allowed. You can only upload ${MAX_FILES - currentFileCount} more file(s).`, "error");
+      showToast(
+        `Maximum ${MAX_FILES} files allowed. You can only upload ${
+          MAX_FILES - currentFileCount
+        } more file(s).`,
+        "error"
+      );
       return;
     }
-    
+
     const newFiles: AttachedFile[] = Array.from(files).map((file) => ({
       id: Math.random().toString(36).substr(2, 9),
       name: file.name,
@@ -89,9 +92,9 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
       type: file.type,
       file: file,
     }));
-    
-    setAttachedFiles(prev => [...prev, ...newFiles]);
-    
+
+    setAttachedFiles((prev) => [...prev, ...newFiles]);
+
     if (newFileCount > 1) {
       showToast(`${newFileCount} files attached successfully!`, "success");
     } else {
@@ -100,7 +103,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   };
 
   const handleFileRemove = (fileId: string) => {
-    setAttachedFiles(prev => prev.filter(file => file.id !== fileId));
+    setAttachedFiles((prev) => prev.filter((file) => file.id !== fileId));
     showToast("File removed successfully!", "success");
   };
 
@@ -121,17 +124,17 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) return <ImageIcon />;
-    if (type === 'application/pdf') return <PictureAsPdfIcon />;
-    if (type.startsWith('text/')) return <DescriptionIcon />;
+    if (type.startsWith("image/")) return <ImageIcon />;
+    if (type === "application/pdf") return <PictureAsPdfIcon />;
+    if (type.startsWith("text/")) return <DescriptionIcon />;
     return <InsertDriveFileIcon />;
   };
 
@@ -162,9 +165,15 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           backgroundColor: "#e8f0fe",
         }}
       >
-        <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>Forward</Typography>
+        <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
+          Forward
+        </Typography>
         {onExpandToggle && (
-          <IconButton onClick={onExpandToggle} size="small" sx={{ marginRight: 2 }}> 
+          <IconButton
+            onClick={onExpandToggle}
+            size="small"
+            sx={{ marginRight: 2 }}
+          >
             {expand ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
           </IconButton>
         )}
@@ -172,7 +181,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           <CloseIcon />
         </IconButton>
       </MuiBox>
-      
+
       <MuiBox sx={{ p: 2, flex: 1, overflowY: "auto" }}>
         <MuiBox sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <Avatar sx={{ mr: 1, bgcolor: "primary.main" }}>D</Avatar>
@@ -180,7 +189,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
             {fields.from}
           </Typography>
         </MuiBox>
-        
+
         <TextField
           label="Subject"
           fullWidth
@@ -191,7 +200,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           required
           sx={{ mb: 1 }}
         />
-        
+
         <TextField
           label="To"
           size="medium"
@@ -226,19 +235,68 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <TextField
-                label="Cc"
-                fullWidth
-                size="small"
-                margin="dense"
+              <Autocomplete
+                multiple
+                freeSolo
+                options={["--", "Option 1", "Option 2", "Option 3"]}
                 value={fields.cc}
-                onChange={(e) => onFieldChange("cc", e.target.value)}
-                sx={{ mb: 1 }}
+                onChange={(event, newValue: any, reason) => {
+                  if (reason === "createOption" || reason === "selectOption") {
+                    setCcValue(newValue);
+                  } else if (reason === "removeOption") {
+                    setCcValue(newValue);
+                  }
+                }}
+                onInputChange={(event, newInputValue) => {
+                  setCcChangeValue(newInputValue);
+                }}
+                slotProps={{
+                  popper: {
+                    sx: {
+                      // zIndex: isFullscreen ? 10001 : 9999,
+                    },
+                  },
+                }}
+                renderTags={(tagValue, getTagProps) =>
+                  tagValue.map((option, index) => (
+                    <Chip
+                      label={option}
+                      {...getTagProps({ index })}
+                      sx={{
+                        backgroundColor: "#6EB4C9",
+                        color: "white",
+                        "& .MuiChip-deleteIcon": {
+                          color: "white",
+                        },
+                      }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    // InputLabelProps={{ shrink: true }}
+                    label="CC"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      width: 400,
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
               />
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         <AnimatePresence>
           {showBcc && (
             <motion.div
@@ -247,19 +305,73 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <TextField
-                label="Bcc"
-                fullWidth
-                size="small"
-                margin="dense"
-                value={fields.bcc}
-                onChange={(e) => onFieldChange("bcc", e.target.value)}
-                sx={{ mb: 1 }}
-              />
+              <div className="w-full flex flex-col items-center gap-2">
+                <span className="font-semibold text-gray-600 text-sm">CC:</span>
+                <Autocomplete
+                  multiple
+                  freeSolo
+                  options={["--", "Option 1", "Option 2", "Option 3"]}
+                  value={fields.bcc}
+                  onChange={(event, newValue: any, reason) => {
+                    if (
+                      reason === "createOption" ||
+                      reason === "selectOption"
+                    ) {
+                      setBccValue(newValue);
+                    } else if (reason === "removeOption") {
+                      setBccValue(newValue);
+                    }
+                  }}
+                  onInputChange={(event, newInputValue) => {
+                    setBccChangeValue(newInputValue);
+                  }}
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        // zIndex: isFullscreen ? 10001 : 9999,
+                      },
+                    },
+                  }}
+                  renderTags={(tagValue, getTagProps) =>
+                    tagValue.map((option, index) => (
+                      <Chip
+                        label={option}
+                        {...getTagProps({ index })}
+                        sx={{
+                          backgroundColor: "#6EB4C9",
+                          color: "white",
+                          "& .MuiChip-deleteIcon": {
+                            color: "white",
+                          },
+                        }}
+                      />
+                    ))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="BCC"
+                      variant="outlined"
+                      size="small"
+                      sx={{
+                        width: 400,
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "4px",
+                          backgroundColor: "#f9fafb",
+                          "&:hover fieldset": { borderColor: "#9ca3af" },
+                          "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                        },
+                        "& label.Mui-focused": { color: "#1a73e8" },
+                        "& label": { fontWeight: "bold" },
+                      }}
+                    />
+                  )}
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         <TextField
           label="Message"
           fullWidth
@@ -273,54 +385,69 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
 
         {/* File Attachment Section */}
         <MuiBox sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: '#666' }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ mb: 1, fontWeight: 600, color: "#666" }}
+          >
             Attachments ({attachedFiles.length}/{MAX_FILES})
           </Typography>
-          
+
           {/* Drag & Drop Area */}
           <Paper
-          elevation={0}
+            elevation={0}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             sx={{
               p: 1,
-              border: isDragOver ? '2px dashed #1976d2' : '2px dashed #e0e0e0',
+              border: isDragOver ? "2px dashed #1976d2" : "2px dashed #e0e0e0",
               borderRadius: 2,
-              backgroundColor: isDragOver ? '#f3f8ff' : '#fafafa',
-              textAlign: 'center',
-              cursor: canAddMoreFiles ? 'pointer' : 'not-allowed',
-              transition: 'all 0.2s ease',
+              backgroundColor: isDragOver ? "#f3f8ff" : "#fafafa",
+              textAlign: "center",
+              cursor: canAddMoreFiles ? "pointer" : "not-allowed",
+              transition: "all 0.2s ease",
               opacity: canAddMoreFiles ? 1 : 0.6,
-              '&:hover': canAddMoreFiles ? {
-                borderColor: '#1976d2',
-                backgroundColor: '#f3f8ff',
-              } : {},
+              "&:hover": canAddMoreFiles
+                ? {
+                    borderColor: "#1976d2",
+                    backgroundColor: "#f3f8ff",
+                  }
+                : {},
             }}
             onClick={() => canAddMoreFiles && fileInputRef.current?.click()}
           >
-            <AttachFileIcon sx={{ fontSize: 35, color: canAddMoreFiles ? '#666' : '#ccc', mb: 1 }} />
-            <Typography variant="body2" sx={{ color: canAddMoreFiles ? '#666' : '#ccc', mb: 1 }}>
-              {!canAddMoreFiles 
-                ? `Maximum ${MAX_FILES} files reached` 
-                : isDragOver 
-                  ? 'Drop files here' 
-                  : 'Drag & drop files here or click to browse'
-              }
+            <AttachFileIcon
+              sx={{
+                fontSize: 35,
+                color: canAddMoreFiles ? "#666" : "#ccc",
+                mb: 1,
+              }}
+            />
+            <Typography
+              variant="body2"
+              sx={{ color: canAddMoreFiles ? "#666" : "#ccc", mb: 1 }}
+            >
+              {!canAddMoreFiles
+                ? `Maximum ${MAX_FILES} files reached`
+                : isDragOver
+                ? "Drop files here"
+                : "Drag & drop files here or click to browse"}
             </Typography>
-            <Typography variant="caption" sx={{ color: canAddMoreFiles ? '#999' : '#ccc' }}>
-              {canAddMoreFiles 
+            <Typography
+              variant="caption"
+              sx={{ color: canAddMoreFiles ? "#999" : "#ccc" }}
+            >
+              {canAddMoreFiles
                 ? `Supported formats: PDF, Images, Documents (Max ${MAX_FILES} files)`
-                : 'Remove some files to add more'
-              }
+                : "Remove some files to add more"}
             </Typography>
           </Paper>
-          
+
           <input
             ref={fileInputRef}
             type="file"
             multiple
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
             onChange={(e) => handleFileSelect(e.target.files)}
             disabled={!canAddMoreFiles}
           />
@@ -329,16 +456,19 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         {/* Attached Files List */}
         {attachedFiles.length > 0 && (
           <MuiBox sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: '#666' }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 1, fontWeight: 600, color: "#666" }}
+            >
               Attached Files ({attachedFiles.length})
             </Typography>
-            <List sx={{ p: 0, bgcolor: '#f8f9fa', borderRadius: 1 }}>
+            <List sx={{ p: 0, bgcolor: "#f8f9fa", borderRadius: 1 }}>
               {attachedFiles.map((file) => (
                 <ListItem
                   key={file.id}
                   sx={{
-                    borderBottom: '1px solid #e0e0e0',
-                    '&:last-child': { borderBottom: 'none' },
+                    borderBottom: "1px solid #e0e0e0",
+                    "&:last-child": { borderBottom: "none" },
                     py: 1,
                   }}
                 >
@@ -348,15 +478,18 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                   <ListItemText
                     primary={file.name}
                     secondary={formatFileSize(file.size)}
-                    primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 500 }}
-                    secondaryTypographyProps={{ fontSize: '0.75rem' }}
+                    primaryTypographyProps={{
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                    }}
+                    secondaryTypographyProps={{ fontSize: "0.75rem" }}
                   />
                   <ListItemSecondaryAction>
                     <IconButton
                       edge="end"
                       size="small"
                       onClick={() => handleFileRemove(file.id)}
-                      sx={{ color: '#f44336' }}
+                      sx={{ color: "#f44336" }}
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
@@ -367,7 +500,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           </MuiBox>
         )}
       </MuiBox>
-      
+
       <MuiBox
         sx={{
           p: 2,
@@ -376,10 +509,15 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           alignItems: "center",
           justifyContent: "center",
           gap: 1,
-          backgroundColor: '#fafafa',
+          backgroundColor: "#fafafa",
         }}
       >
-        <Button onClick={onClose} variant="outlined" color="inherit" sx={{ minWidth: 80 }}>
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          color="inherit"
+          sx={{ minWidth: 80 }}
+        >
           Cancel
         </Button>
         <Button

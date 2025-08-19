@@ -26,11 +26,11 @@ const ImageViewComponent: React.FC<ImageViewComponentProps> = ({
   onRemove,
 }) => {
   return (
-    <div style={{}}>
+    <div style={{padding:"6px"}}>
       <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
         Attached Files
       </Typography>
-      <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+      <List sx={{ width: "100%", bgcolor: "background.paper" }}>
         {images?.map((file: any, index: number) => (
           <ListItem
             key={index}
