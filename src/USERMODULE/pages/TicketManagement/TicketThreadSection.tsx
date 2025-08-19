@@ -6,6 +6,7 @@ import StackEditor from "../../../components/reusable/Editor";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import StarIcon from "@mui/icons-material/Star";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import EmojiFlagsIcon from '@mui/icons-material/EmojiFlags';
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -133,6 +134,7 @@ const ThreadItem = ({
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [localReplyText, setLocalReplyText] = useState("");
+  const [isReported, setIsReported] = useState<boolean>(false);
 
   const optionsRef = React.useRef<any>(null);
   const [hovered, setHovered] = useState<number | null>(null);
@@ -252,7 +254,7 @@ const ThreadItem = ({
   );
   //@ts-ignore
   const isCurrentUser =  item?.replyType === "S";
-  const bubbleBackgroundColor = isCurrentUser ? "#f7faff" : "#fafafa";
+  const bubbleBackgroundColor = isReported ? "#fee2e2" : (isCurrentUser ? "#f7faff" : "#fafafa");
   const bubbleFooter = isCurrentUser ? "IP: 127.0.0.1 | Location: India" : "Send From Web | IP: 127.0.0.1 | Location: India";
   const isRatingDisabled = isCurrentUser;
 
@@ -291,7 +293,7 @@ const ThreadItem = ({
             isCurrentUser ? " flex-row-reverse" : "flex-row "
           }`}
         >
-          <div className="w-20 relative flex px-4 py-2">
+          <div className="w-20 relative flex px-4 py-2 flex-col items-center">
             <div
               style={{
                 position: "absolute",
@@ -314,6 +316,15 @@ const ThreadItem = ({
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
                 {item.repliedBy?.name?.[0] || "?"}
               </div>
+            )}
+            {!isCurrentUser && (
+              <IconButton
+                size="small"
+                onClick={() => setIsReported((v) => !v)}
+                sx={{ mt: 1 }}
+              >
+                <EmojiFlagsIcon sx={{ color: isReported ? '#ef4444' : '#9ca3af' }} fontSize="small" />
+              </IconButton>
             )}
           </div>
           <div
@@ -352,7 +363,10 @@ const ThreadItem = ({
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between w-full py-3 px-4 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg">
+            <div
+              className="flex items-center justify-between w-full py-3 px-4 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
+              style={{ borderTopColor: isReported ? "#ffb6b6" : "#c3d9ff" }}
+            >
               <span className="text-xs text-gray-500">{bubbleFooter}</span>
               <span className="flex gap-1">
                 {Array.from({ length: 5 }).map((_, idx) => {
