@@ -25,7 +25,7 @@ import {
   Timeline,
   TimelineOppositeContent,
 } from "@mui/lab";
-
+import EmailIcon from "@mui/icons-material/Email";
 import MailOutlineIcon from "@mui/icons-material/MailOutline"; // mail icon
 import {
   Edit as EditIcon,
@@ -45,6 +45,31 @@ import EditUser from "../pages/EditUser";
 import ConvertProfile from "./ConvertProfile";
 import ChangePassword from "./ChangePassword";
 import MergeContact from "./MergeContact";
+import CustomToolTip from "../../reusable/CustomToolTip";
+
+const ticketData: any = [
+  {
+    id: 2,
+    title: "Authentication failure #2",
+    description:
+      "Hello, We're receiving authentication failure errors while attempting to use your APIs. Can someone please help?",
+    status: "Open",
+    group: "Escalations",
+    created: "a month ago",
+    overdue: true,
+    overdue_by: "a month",
+  },
+  {
+    id: 1,
+    title: "404 error when on a specific page #1",
+    description:
+      "Hi there, I tried to access my sales data in my account today but it showed a 404 error. Can you please help me fix this?",
+    status: "Closed",
+    group: "Escalations",
+    closed: "17 days ago",
+    resolved_late: true,
+  },
+];
 
 const getUserData = () => {
   try {
@@ -187,20 +212,30 @@ const ProfilePage = () => {
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 2,
+                    gap: 4,
                     minWidth: 0,
                   }}
                 >
-                  <Avatar
-                    sx={{
-                      width: 64,
-                      height: 64,
-                      bgcolor: "#1976d2",
-                      fontSize: 28,
-                    }}
-                  >
-                    {initials}
-                  </Avatar>
+                  {/* <div className="flex flex-col  items-center"> */}
+                    <Avatar
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        bgcolor: "#1976d2",
+                        fontSize: 28,
+                      }}
+                    >
+                      {initials}
+                    </Avatar>
+                    {/* <Box sx={{ display: "flex", mt: 1 }}>
+                      <Button size="small" variant="text">
+                        Change
+                      </Button>
+                      <Button size="small" variant="text" color="error">
+                        Remove
+                      </Button>
+                    </Box> */}
+                  {/* </div> */}
                   <Box sx={{ minWidth: 0 }}>
                     <Typography
                       variant="h6"
@@ -224,17 +259,9 @@ const ProfilePage = () => {
                     >
                       {company}
                     </Typography>
-                    <Box sx={{ display: "flex", gap: 2, mt: 0.5 }}>
-                      <Button size="small" variant="text">
-                        Change
-                      </Button>
-                      <Button size="small" variant="text" color="error">
-                        Remove
-                      </Button>
-                    </Box>
                   </Box>
                 </Box>
-                <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
+                {/* <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
                   <Button
                     size="small"
                     startIcon={<PhoneIcon />}
@@ -242,7 +269,7 @@ const ProfilePage = () => {
                   >
                     Call
                   </Button>
-                </Box>
+                </Box> */}
               </Box>
 
               <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mt: 2 }}>
@@ -366,11 +393,94 @@ const ProfilePage = () => {
                 </Timeline>
               )}
               {tab === 1 && (
-                <Box sx={{ p: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    No tickets to show.
-                  </Typography>
-                </Box>
+                <List
+                  sx={{ width: "100%", p: 1, backgroundColor: "transparent" }}
+                >
+                  {ticketData?.map((item: any) => (
+                    <ListItem
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+
+                        gap: 2,
+                      }}
+                    >
+                      <EmailIcon fontSize="medium" />
+
+                      <ListItemText
+                        primary={
+                          <div className="flex flex-col gap-2">
+                            <div>
+                              {item?.overdue && (
+                                <Chip
+                                  label="Overdue"
+                                  color="error"
+                                  variant="outlined"
+                                  size="small"
+                                />
+                              )}
+                            </div>
+                            <div className="w-full flex justify-between">
+                              <div>
+                                <CustomToolTip
+                                  title={
+                                    <Typography
+                                      variant="subtitle2"
+                                      sx={{
+                                        p: 0.5,
+                                        maxWidth: { sm: 300, xs: 200, md: 500 },
+                                      }}
+                                    >
+                                      {item?.description}
+                                    </Typography>
+                                  }
+                                >
+                                  <Typography
+                                    variant="subtitle1"
+                                    fontWeight={600}
+                                    sx={{ cursor: "pointer" }}
+                                  >
+                                    {item?.title}
+                                  </Typography>
+                                </CustomToolTip>
+                                <div className="flex gap-2 items-center">
+                                  <p className="text-xs">
+                                    Status: {item?.status}
+                                  </p>
+                                  <p>-</p>
+                                  <p className="text-xs">
+                                    {" "}
+                                    Group: {item?.group}
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                {item?.created ? (
+                                  <p className="text-xs">
+                                    Created:{item?.created}
+                                  </p>
+                                ) : (
+                                  <p className="text-xs">
+                                    Closed: {item?.closed}
+                                  </p>
+                                )}
+                                {item?.resolved_late ? (
+                                  <p className="text-xs">Resolved late</p>
+                                ) : (
+                                  <p className="text-xs text-red-600">
+                                    Overdue by: {item?.overdue_by}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        }
+                        sx={{}}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
               )}
             </Paper>
           </Box>
