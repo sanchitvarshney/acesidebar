@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   IconButton,
   TextField,
@@ -15,6 +15,7 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Autocomplete,
+  Stack,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
@@ -63,10 +64,13 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   const [isDragOver, setIsDragOver] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
-  const [ccValue, setCcValue] = React.useState([]);
-  const [bccValue, setBccValue] = React.useState([]);
+  const [ccValue, setCcValue] = React.useState<any>([]);
+  const [bccValue, setBccValue] = React.useState<any>([]);
   const [ccChangeValue, setCcChangeValue] = React.useState("");
   const [bccChangeValue, setBccChangeValue] = React.useState("");
+  const [options, setOptions] = useState<any[]>([]);
+  const [openCcfield, setOpenCcfield] = useState(false);
+  const [openBccfield, setOpenBccfield] = useState(false);
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files) return;
@@ -123,6 +127,69 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     handleFileSelect(e.dataTransfer.files);
   };
 
+  // simulate API call
+  const fetchOptions = async (query: string) => {
+    if (!query) {
+      setOptions([]);
+      return;
+    }
+    const allData = [
+      { userName: "abc", userEmail: "abc@gmail.com" },
+      { userName: "xyz", userEmail: "xyz@gmail.com" },
+      {
+        userName: "abcde",
+        userEmail: " abcde@ReportGmailerrorred.com,",
+      },
+    ];
+    const filtered = allData?.filter((opt) =>
+      opt?.userName.toLowerCase().includes(query.toLowerCase())
+    );
+    setOptions(filtered);
+  };
+
+  useEffect(() => {
+    fetchOptions(ccChangeValue || bccChangeValue);
+  }, [ccChangeValue, bccChangeValue]);
+  const handleSelectedOption = (
+    _: React.SyntheticEvent,
+    value: any,
+    type: string
+  ) => {
+    if (!value) return;
+
+    const dataValue = { email: value.userEmail };
+
+    if (type === "cc") {
+      if (ccValue.some((item: any) => item.email === value.userEmail)) {
+        showToast("Email already Exist", "error");
+        return;
+      }
+      if (ccValue.length >= 3) {
+        showToast("Maximum 3 cc allowed", "error");
+        return;
+      }
+      setCcValue((prev: any) => [...prev, dataValue]);
+    } else {
+      if (bccValue.some((item: any) => item.email === value.userEmail)) {
+        showToast("Email already Exist", "error");
+        return;
+      }
+      if (bccValue.length >= 3) {
+        showToast("Maximum 3 bcc allowed", "error");
+        return;
+      }
+      setBccValue((prev: any) => [...prev, dataValue]);
+    }
+  };
+
+  const handleDelete = (type: string, item: any) => {
+    if (type === "cc") {
+      setCcValue((prev: any) => prev.filter((i: any) => i.email !== item));
+    } else {
+      setBccValue((prev: any) => prev.filter((i: any) => i.email !== item));
+    }
+  };
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -137,6 +204,8 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     if (type.startsWith("text/")) return <DescriptionIcon />;
     return <InsertDriveFileIcon />;
   };
+  const displayCCOptions: any = ccChangeValue ? options : [];
+  const displayBCCOptions: any = bccChangeValue ? options : [];
 
   const canAddMoreFiles = attachedFiles.length < MAX_FILES;
 
@@ -182,7 +251,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         </IconButton>
       </MuiBox>
 
-      <MuiBox sx={{ p: 2, flex: 1, overflowY: "auto" }}>
+      <MuiBox sx={{ p: 2, flex: 1, overflowY: "auto", width: "100%" }}>
         <MuiBox sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <Avatar sx={{ mr: 1, bgcolor: "primary.main" }}>D</Avatar>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -234,44 +303,62 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
               animate={{ height: "auto", opacity: 1, y: 0 }}
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
+              style={{ marginTop: "10px", marginBottom: "8px" }}
             >
               <Autocomplete
-                multiple
-                freeSolo
-                options={["--", "Option 1", "Option 2", "Option 3"]}
-                value={fields.cc}
-                onChange={(event, newValue: any, reason) => {
-                  if (reason === "createOption" || reason === "selectOption") {
-                    setCcValue(newValue);
-                  } else if (reason === "removeOption") {
-                    setCcValue(newValue);
-                  }
+                size="small"
+                fullWidth
+                disablePortal
+                value={null}
+                options={displayCCOptions}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return "";
                 }}
-                onInputChange={(event, newInputValue) => {
-                  setCcChangeValue(newInputValue);
-                }}
-                slotProps={{
-                  popper: {
-                    sx: {
-                      // zIndex: isFullscreen ? 10001 : 9999,
-                    },
-                  },
-                }}
-                renderTags={(tagValue, getTagProps) =>
-                  tagValue.map((option, index) => (
-                    <Chip
-                      label={option}
-                      {...getTagProps({ index })}
-                      sx={{
-                        backgroundColor: "#6EB4C9",
-                        color: "white",
-                        "& .MuiChip-deleteIcon": {
-                          color: "white",
-                        },
-                      }}
-                    />
-                  ))
+                renderOption={(props, option: any) => (
+                  <li {...props}>
+                    {typeof option === "string" ? (
+                      option
+                    ) : (
+                      <div
+                        className="flex items-center gap-3 p-2 rounded-md w-full"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            backgroundColor: "primary.main",
+                          }}
+                        >
+                          {option.userName?.charAt(0).toUpperCase()}
+                        </Avatar>
+
+                        <div className="flex flex-col">
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {option.userName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {option.userEmail}
+                          </Typography>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                )}
+                open={openCcfield}
+                onOpen={() => setOpenCcfield(true)}
+                onClose={() => setOpenCcfield(false)}
+                inputValue={ccChangeValue}
+                onInputChange={(_, value) => setCcChangeValue(value)}
+                onChange={(event, newValue) =>
+                  handleSelectedOption(event, newValue, "cc")
                 }
+                filterOptions={(x) => x} // disable default filtering
+                getOptionDisabled={(option) => option === "Type to search"}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -280,7 +367,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                     variant="outlined"
                     size="small"
                     sx={{
-                      width: 400,
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "4px",
                         backgroundColor: "#f9fafb",
@@ -293,6 +379,22 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                   />
                 )}
               />
+              {ccValue.length > 0 && (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  mt={1}
+                  sx={{ overflowX: "auto", p: 1 }}
+                >
+                  {ccValue.map((item: any, index: number) => (
+                    <Chip
+                      label={item.email}
+                      variant="outlined"
+                      onDelete={() => handleDelete("cc", item.email)}
+                    />
+                  ))}
+                </Stack>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -304,70 +406,97 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
               animate={{ height: "auto", opacity: 1, y: 0 }}
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
+              style={{ marginTop: "16px", marginBottom: "8px" }}
             >
-              <div className="w-full flex flex-col items-center gap-2">
-                <span className="font-semibold text-gray-600 text-sm">CC:</span>
-                <Autocomplete
-                  multiple
-                  freeSolo
-                  options={["--", "Option 1", "Option 2", "Option 3"]}
-                  value={fields.bcc}
-                  onChange={(event, newValue: any, reason) => {
-                    if (
-                      reason === "createOption" ||
-                      reason === "selectOption"
-                    ) {
-                      setBccValue(newValue);
-                    } else if (reason === "removeOption") {
-                      setBccValue(newValue);
-                    }
-                  }}
-                  onInputChange={(event, newInputValue) => {
-                    setBccChangeValue(newInputValue);
-                  }}
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        // zIndex: isFullscreen ? 10001 : 9999,
+              <Autocomplete
+                size="small"
+                disablePortal
+                value={null}
+                options={displayBCCOptions}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return "";
+                }}
+                renderOption={(props, option: any) => (
+                  <li {...props}>
+                    {typeof option === "string" ? (
+                      option
+                    ) : (
+                      <div
+                        className="flex items-center gap-3 p-2 rounded-md w-full"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            backgroundColor: "primary.main",
+                          }}
+                        >
+                          {option.userName?.charAt(0).toUpperCase()}
+                        </Avatar>
+
+                        <div className="flex flex-col">
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {option.userName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {option.userEmail}
+                          </Typography>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                )}
+                open={openBccfield}
+                onOpen={() => setOpenBccfield(true)}
+                onClose={() => setOpenBccfield(false)}
+                inputValue={bccChangeValue}
+                onInputChange={(_, value) => setBccChangeValue(value)}
+                onChange={(event, value) =>
+                  handleSelectedOption(event, value, "bcc")
+                }
+                filterOptions={(x) => x} // disable default filtering
+                getOptionDisabled={(option) => option === "Type to search"}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    // InputLabelProps={{ shrink: true }}
+                    label="BCC"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
                       },
-                    },
-                  }}
-                  renderTags={(tagValue, getTagProps) =>
-                    tagValue.map((option, index) => (
-                      <Chip
-                        label={option}
-                        {...getTagProps({ index })}
-                        sx={{
-                          backgroundColor: "#6EB4C9",
-                          color: "white",
-                          "& .MuiChip-deleteIcon": {
-                            color: "white",
-                          },
-                        }}
-                      />
-                    ))
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="BCC"
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
+              />
+              {bccValue.length > 0 && (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  mt={1}
+                  sx={{ overflowX: "auto", p: 1 }}
+                >
+                  {bccValue.map((item: any, index: number) => (
+                    <Chip
+                      label={item.email}
                       variant="outlined"
-                      size="small"
-                      sx={{
-                        width: 400,
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: "4px",
-                          backgroundColor: "#f9fafb",
-                          "&:hover fieldset": { borderColor: "#9ca3af" },
-                          "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                        },
-                        "& label.Mui-focused": { color: "#1a73e8" },
-                        "& label": { fontWeight: "bold" },
-                      }}
+                      onDelete={() => handleDelete("bcc", item.email)}
                     />
-                  )}
-                />
-              </div>
+                  ))}
+                </Stack>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -588,3 +717,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
 };
 
 export default ForwardPanel;
+function handleDelete(event: any): void {
+  throw new Error("Function not implemented.");
+}

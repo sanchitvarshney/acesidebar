@@ -79,7 +79,7 @@ const StackEditor = ({
     handleChangeValue,
     selectedValue,
     changeNotify,
-    notifyTag
+    notifyTag,
   } = props;
   const isMounted = React.useRef(true);
   const [editorContent, setEditorContent] = useState("");
@@ -94,7 +94,7 @@ const StackEditor = ({
   const [showCc, setShowCc] = React.useState(false);
   const [showBcc, setShowBcc] = React.useState(false);
   const [optionChangeKey, setOptionChangeKey] = useState(0);
-  
+
   const [currentSignature, setCurrentSignature] = useState("");
 
   // Focus the editor when it opens
@@ -541,7 +541,7 @@ const StackEditor = ({
     : (showCc || showBcc) && currentSignature
     ? "calc(100vh - 580px)"
     : showCc || showBcc
-    ? "calc(100vh - 405px)"
+    ? "calc(100vh - 400px)"
     : currentSignature
     ? "calc(100vh - 530px)"
     : selectedIndex !== "1"
@@ -608,26 +608,135 @@ const StackEditor = ({
         >
           {showCc && (
             <div>
-              <TextField
-                label="Cc"
-                size="small"
-                margin="dense"
-                // value={fields.cc}
-                onChange={(e) => {}}
-                sx={{ width: 400 }}
+              <Autocomplete
+                multiple
+                freeSolo
+                options={["--", "Option 1", "Option 2", "Option 3"]}
+                value={notifyTag}
+                onChange={(event, newValue, reason) => {
+                  if (reason === "createOption" || reason === "selectOption") {
+                    changeNotify(newValue);
+                  } else if (reason === "removeOption") {
+                    changeNotify(newValue);
+                  }
+                }}
+                onInputChange={(event, newInputValue) => {
+                  setNotifyValue(newInputValue);
+                }}
+                slotProps={{
+                  popper: {
+                    sx: {
+                      zIndex: isFullscreen ? 10001 : 9999,
+                    },
+                  },
+                }}
+                renderTags={(tagValue, getTagProps) =>
+                  tagValue.map((option, index) => (
+                    <Chip
+                      label={option}
+                      {...getTagProps({ index })}
+                      sx={{
+                        height: "20px",
+                        backgroundColor: "#6EB4C9",
+                        color: "white",
+                        "& .MuiChip-deleteIcon": {
+                          color: "white",
+                          width: "12px",
+                        },
+                        "& .MuiChip-deleteIcon:hover": {
+                          color: "#e87f8c",
+                        },
+                      }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="CC"
+                    
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      width: 400,
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
               />
             </div>
           )}
 
           {showBcc && (
             <div>
-              <TextField
-                label="Bcc"
-                size="small"
-                margin="dense"
-                // value={fields.bcc}
-                onChange={(e) => {}}
-                sx={{ width: 400 }}
+              <Autocomplete
+                multiple
+                freeSolo
+                options={["--", "Option 1", "Option 2", "Option 3"]}
+                value={notifyTag}
+                onChange={(event, newValue, reason) => {
+                  if (reason === "createOption" || reason === "selectOption") {
+                    changeNotify(newValue);
+                  } else if (reason === "removeOption") {
+                    changeNotify(newValue);
+                  }
+                }}
+                onInputChange={(event, newInputValue) => {
+                  setNotifyValue(newInputValue);
+                }}
+                slotProps={{
+                  popper: {
+                    sx: {
+                      zIndex: isFullscreen ? 10001 : 9999,
+                    },
+                  },
+                }}
+                renderTags={(tagValue, getTagProps) =>
+                  tagValue.map((option, index) => (
+                    <Chip
+                      label={option}
+                      {...getTagProps({ index })}
+                      sx={{
+                        height: "20px",
+                        backgroundColor: "#6EB4C9",
+                        color: "white",
+                        "& .MuiChip-deleteIcon": {
+                          color: "white",
+                          width: "12px",
+                        },
+                        "& .MuiChip-deleteIcon:hover": {
+                          color: "#e87f8c",
+                        },
+                      }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                   label="Bcc"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      width: 400,
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
               />
             </div>
           )}

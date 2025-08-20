@@ -487,7 +487,6 @@ const ProfilePage = () => {
             userEmail: email,
             isPrimaryEmail: isPrimaryEmail,
           }}
-          onchange={() => setIsPrimaryEmail(false)}
           close={() => setIsMerge(false)}
         />
       </CustomSideBarPanel>
