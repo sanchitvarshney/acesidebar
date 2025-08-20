@@ -113,10 +113,12 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
           <Tabs
             value={activeProfileTab}
             onChange={handleProfileTabChange}
-            variant="fullWidth"
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
             sx={{
               "& .MuiTab-root": {
-                minHeight: 40,
+                // minHeight: 40,
                 color: "#6b7280",
                 "&.Mui-selected": {
                   color: "#1a73e8",
@@ -124,7 +126,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
               },
               "& .MuiTabs-indicator": {
                 backgroundColor: "#1a73e8",
-                height: 2,
+                // height: 2,
               },
             }}
           >
@@ -158,43 +160,43 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
 
           {/* Organization section */}
           <div className="bg-white rounded border border-gray-200 p-2 flex flex-col">
-          <div className="flex items-center gap-2 mb-2">
-            <LocalOfferIcon className="text-gray-500" />
-            <span className="text-sm text-gray-700 font-medium">Tags</span>
+            <div className="flex items-center gap-2 mb-2">
+              <LocalOfferIcon className="text-gray-500" />
+              <span className="text-sm text-gray-700 font-medium">Tags</span>
+            </div>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+              {isTagListLoading ? (
+                <div>Loading...</div>
+              ) : (
+                <>
+                  {tagList?.map((item: any, tagID: any) => {
+                    return (
+                      <Chip
+                        key={tagID}
+                        label={item.tagName}
+                        onDelete={() => {}}
+                        deleteIcon={
+                          <CloseIcon
+                            sx={{
+                              transition: "color 0.2s",
+                            }}
+                          />
+                        }
+                        sx={{
+                          "&:hover .MuiChip-deleteIcon": {
+                            color: "error.main",
+                          },
+                          "& .MuiChip-deleteIcon": {
+                            fontSize: 18,
+                          },
+                        }}
+                      />
+                    );
+                  })}
+                </>
+              )}
+            </Box>
           </div>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-            {isTagListLoading ? (
-              <div>Loading...</div>
-            ) : (
-              <>
-                {tagList?.map((item: any, tagID: any) => {
-                  return (
-                    <Chip
-                      key={tagID}
-                      label={item.tagName}
-                      onDelete={() => {}}
-                      deleteIcon={
-                        <CloseIcon
-                          sx={{
-                            transition: "color 0.2s",
-                          }}
-                        />
-                      }
-                      sx={{
-                        "&:hover .MuiChip-deleteIcon": {
-                          color: "error.main"
-                        },
-                        "& .MuiChip-deleteIcon": {
-                          fontSize: 18,
-                        },
-                      }}
-                    />
-                  );
-                })}
-              </>
-            )}
-          </Box>
-        </div>
         </div>
       </div>
     );
@@ -233,10 +235,11 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
         <Tabs
           value={activeTopTab}
           onChange={handleTopTabChange}
-          variant="fullWidth"
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
           sx={{
             "& .MuiTab-root": {
-              minHeight: 40,
               color: "#6b7280",
               "&.Mui-selected": {
                 color: "#1a73e8",
@@ -244,7 +247,6 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
             },
             "& .MuiTabs-indicator": {
               backgroundColor: "#1a73e8",
-              height: 2,
             },
           }}
         >
@@ -268,7 +270,6 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
           height: "100%",
           backgroundColor: "#f8f9fa",
           p: 2,
-
         }}
       >
         {mainContent}
