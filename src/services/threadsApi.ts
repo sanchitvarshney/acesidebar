@@ -34,16 +34,15 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
-      forwardThread: builder.mutation({
+    forwardThread: builder.mutation({
       query: (credentials) => ({
         url: "/ticket/staff/forward-thread",
         method: "POST",
         body: credentials,
       }),
     }),
-  
 
-           ticketStatusChange: builder.mutation({
+    ticketStatusChange: builder.mutation({
       query: (credentials) => ({
         url: `/ticket/staff/${credentials.type}`,
         method: "POST",
@@ -51,16 +50,30 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
     }),
 
-    // getPriorityList: builder.query<any, void>({
-    //   query: () => ({
-    //     url: "/priority/list",
-    //     method: "GET",
-    //   }),
-    //   transformResponse: (response: any) => response?.data,
-    // }),
+    deleteTicket: builder.mutation({
+      query: (credentials) => ({
+        url: "/ticket/staff/delete",
+        method: "DELETE",
+        body: credentials,
+      }),
+    }),
+        closeTicket: builder.mutation({
+      query: (credentials) => ({
+        url: "/ticket/staff/close",
+        method: "Post",
+        body: credentials,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useReplyTicketMutation, useReviewThreadMutation,useAddNoteMutation , useForwardThreadMutation, useTicketStatusChangeMutation} =
-  extendedTicketApi;
+export const {
+  useReplyTicketMutation,
+  useReviewThreadMutation,
+  useAddNoteMutation,
+  useForwardThreadMutation,
+  useTicketStatusChangeMutation,
+  useDeleteTicketMutation,
+  useCloseTicketMutation
+} = extendedTicketApi;

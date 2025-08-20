@@ -44,6 +44,7 @@ import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
 import EditUser from "../pages/EditUser";
 import ConvertProfile from "./ConvertProfile";
 import ChangePassword from "./ChangePassword";
+import MergeContact from "./MergeContact";
 
 const getUserData = () => {
   try {
@@ -65,6 +66,7 @@ const ProfilePage = () => {
   const phone = userData?.phone || userData?.user?.phone || "27637738";
   const address = userData?.address || "7, fngu ,wiuf ";
 
+
   const [tab, setTab] = useState(0);
 
   const initials = useMemo(() => {
@@ -77,6 +79,14 @@ const ProfilePage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [isConvertProfile, setIsConvertProfile] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
+   const [isMerge, setIsMerge] = useState(false);
+   const [isPrimaryEmail,setIsPrimaryEmail] = useState(false);
+
+  const handleMergeContact = () => {
+    
+     setIsMerge(true);
+     setIsPrimaryEmail(true);
+   };
 
   return (
     <Box
@@ -109,7 +119,7 @@ const ProfilePage = () => {
         >
           Delete
         </Button>
-        <Button size="small" startIcon={<MergeIcon />} variant="contained">
+        <Button size="small" startIcon={<MergeIcon />} variant="contained" onClick={handleMergeContact}>
           Merge
         </Button>
         <Button
@@ -448,7 +458,7 @@ const ProfilePage = () => {
         onConfirm={() => {}}
       />
 
-     <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />
+      <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />
 
       <ConvertProfile
         open={isConvertProfile}
@@ -461,6 +471,10 @@ const ProfilePage = () => {
         onClose={() => setIsChangePassword(false)}
         onConfirm={() => {}}
       />
+
+      <CustomSideBarPanel open={isMerge} close={() => setIsMerge(false)} title={"Merge Contact"} width={600}>
+        <MergeContact data={{userName: username, userEmail: email, isPrimaryEmail: isPrimaryEmail}}  onchange = {()=>setIsPrimaryEmail(false)}/>
+      </CustomSideBarPanel>
     </Box>
   );
 };

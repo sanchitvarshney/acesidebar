@@ -4,7 +4,7 @@ import TicketFilterSkeleton from "../../skeleton/TicketFilterSkeleton";
 import TextField from "@mui/material/TextField";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import emptyimg from "../../../assets/image/overview-empty-state.svg"
+import emptyimg from "../../../assets/image/overview-empty-state.svg";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Chip from "@mui/material/Chip";
@@ -19,7 +19,6 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import InputAdornment from "@mui/material/InputAdornment";
 import Popover from "@mui/material/Popover";
 import SearchIcon from "@mui/icons-material/Search";
-
 
 interface TicketFilterPanelProps {
   onApplyFilters: (filters: Record<string, any>) => void;
@@ -109,8 +108,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const criteriaArray = Array.isArray(searchCriteria)
     ? searchCriteria
     : Array.isArray(searchCriteria?.data)
-      ? searchCriteria.data
-      : [];
+    ? searchCriteria.data
+    : [];
   if (!criteriaArray || criteriaArray.length === 0) {
     return null;
   }
@@ -142,10 +141,13 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     <Box className="w-100 min-w-100 shadow rounded-lg flex flex-col h-full relative bg-#f5f7f9">
       <div ref={topAnchorRef} />
       {/* Header */}
-      <Box className="flex items-center justify-between mb-3 p-2" sx={{
-        borderBottom: "1px solid #eee",
-        backgroundColor: "#e8f0fe",
-      }}>
+      <Box
+        className="flex items-center justify-between mb-3 p-2"
+        sx={{
+          borderBottom: "1px solid #eee",
+          backgroundColor: "#e8f0fe",
+        }}
+      >
         <span className="font-semibold text-gray-700 text-sm">FILTERS</span>
         {!showCustomFilters ? (
           <Button
@@ -171,7 +173,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       {!showCustomFilters ? (
         <Box className="flex-1 overflow-y-auto">
           {criteriaArray.map((field: any) => (
-            <Box  key={field.name}>
+            <Box key={field.name}>
               {field.type === "dropdown" && field.name === "priority" && (
                 <div style={{ padding: 10 }}>
                   <div
@@ -268,14 +270,15 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       value={filters[field.name] ?? ""}
                       onChange={handleSelectChange}
                     >
-                      {field.choices?.map((opt: { value: string; label: string }) => (
-                        <MenuItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </MenuItem>
-                      ))}
+                      {field.choices?.map(
+                        (opt: { value: string; label: string }) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        )
+                      )}
                     </Select>
                   </FormControl>
-
                 </div>
               )}
               {field.type === "text" && (
@@ -288,13 +291,12 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                     value={filters[field.name]}
                     onChange={handleChange}
                     variant="filled"
-                  // No label or placeholder
+                    // No label or placeholder
                   />
                 </div>
               )}
               {field.type === "date" && (
                 <div style={{ padding: 10 }}>
-
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       value={filters[field.name] || null}
@@ -319,7 +321,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 </div>
               )}
               {field.type === "chip" && (
-                <div style={{ padding:10 }}>
+                <div style={{ padding: 10 }}>
                   <div
                     style={{
                       fontSize: 13,
@@ -381,7 +383,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         // Custom dynamic filter panel (copied from previous dynamic logic)
         <Box className="flex-1 overflow-y-auto">
           {/* Add filters button and popover */}
-          <Box >
+          <Box>
             <Popover
               open={Boolean(anchorEl)}
               anchorEl={anchorEl}
@@ -762,9 +764,9 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
             fullWidth
             onClick={handleResetFilters}
             sx={{
-              fontSize: '0.875rem',
+              fontSize: "0.875rem",
               fontWeight: 600,
-              '&:disabled': {
+              "&:disabled": {
                 opacity: 0.5,
               },
             }}
@@ -777,13 +779,13 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           fullWidth
           color="primary"
           onClick={handleApply}
-          disabled={activeFilters.length === 0}
+          disabled={activeFilters.length < 0}
           sx={{
-            fontSize: '0.875rem',
+            fontSize: "0.875rem",
             fontWeight: 600,
-            '&:disabled': {
+            "&:disabled": {
               opacity: 0.5,
-              backgroundColor: '#9ca3af',
+              backgroundColor: "#9ca3af",
             },
           }}
         >

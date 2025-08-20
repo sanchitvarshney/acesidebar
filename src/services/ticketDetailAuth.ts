@@ -19,6 +19,7 @@ const extendedTicketDetailApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    
 
     //  getuserdata: builder.mutation({
     //   query: (credentials) => ({

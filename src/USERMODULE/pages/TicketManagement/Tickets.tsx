@@ -33,7 +33,12 @@ import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
 import { useParams, useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 
-import { useTicketStatusChangeMutation } from "../../../services/threadsApi";
+import {
+  useCloseTicketMutation,
+  useDeleteTicketMutation,
+  useTicketStatusChangeMutation,
+} from "../../../services/threadsApi";
+import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -87,8 +92,9 @@ const Tickets: React.FC = () => {
   const [copiedTicketNumber, setCopiedTicketNumber] = useState<string | null>(
     null
   );
-
+  const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [ticketStatusChange] = useTicketStatusChangeMutation();
+  const [ticketDelete] = useDeleteTicketMutation();
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -97,6 +103,8 @@ const Tickets: React.FC = () => {
   // Fetch sorting options
   const { data: sortingOptions, isLoading: isSortingOptionsLoading } =
     useGetTicketSortingOptionsQuery();
+
+  const [closeTicket] = useCloseTicketMutation();
 
   // Map API priorities to dropdown options
   const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
@@ -353,6 +361,14 @@ const Tickets: React.FC = () => {
   //     showToast("Please enter a reply message", "error");
   //   }
   // };
+
+  const handleDelete = () => {
+    if (selectedTickets.length < 0) {
+      return;
+    }
+
+    ticketDelete({ ticketId: selectedTickets });
+  };
 
   const handleDropdownChange = (value: any, ticket: any, type: any) => {
     const payload = {
@@ -697,6 +713,7 @@ const Tickets: React.FC = () => {
                       fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
+                    onClick={() => closeTicket({ ticketIds: selectedTickets })}
                   >
                     Close
                   </Button>
@@ -742,6 +759,7 @@ const Tickets: React.FC = () => {
                       fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
+                    onClick={() => setIsDeleteModal(true)}
                   >
                     Delete
                   </Button>
@@ -883,6 +901,11 @@ const Tickets: React.FC = () => {
           }}
         />
       )} */}
+      <ConfirmationModal
+        open={isDeleteModal}
+        onClose={() => setIsDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
     </>
   );
 };

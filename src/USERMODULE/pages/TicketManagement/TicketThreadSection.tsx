@@ -17,10 +17,7 @@ import {
   MenuItem,
   IconButton,
   Divider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  CircularProgress,
+
   Typography,
   Chip,
   ClickAwayListener,
@@ -36,20 +33,13 @@ import {
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
-
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
 import ShortCutPopover from "../../../components/shared/ShortCutPopover";
 import ShotCutContent from "../../components/ShotCutContent";
-
 import ShortcutIcon from "@mui/icons-material/Shortcut";
-
-import { set } from "react-hook-form";
-import { Add } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reduxStore/Store";
 import ImageViewComponent from "../../components/ImageViewComponent";
-import DynamicallyThread from "../../components/DynamicallyThread";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { setReplyValue } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
