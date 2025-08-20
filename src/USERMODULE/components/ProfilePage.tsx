@@ -66,7 +66,6 @@ const ProfilePage = () => {
   const phone = userData?.phone || userData?.user?.phone || "27637738";
   const address = userData?.address || "7, fngu ,wiuf ";
 
-
   const [tab, setTab] = useState(0);
 
   const initials = useMemo(() => {
@@ -79,14 +78,13 @@ const ProfilePage = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [isConvertProfile, setIsConvertProfile] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
-   const [isMerge, setIsMerge] = useState(false);
-   const [isPrimaryEmail,setIsPrimaryEmail] = useState(false);
+  const [isMerge, setIsMerge] = useState(false);
+  const [isPrimaryEmail, setIsPrimaryEmail] = useState(false);
 
   const handleMergeContact = () => {
-    
-     setIsMerge(true);
-     setIsPrimaryEmail(true);
-   };
+    setIsMerge(true);
+    setIsPrimaryEmail(true);
+  };
 
   return (
     <Box
@@ -119,7 +117,12 @@ const ProfilePage = () => {
         >
           Delete
         </Button>
-        <Button size="small" startIcon={<MergeIcon />} variant="contained" onClick={handleMergeContact}>
+        <Button
+          size="small"
+          startIcon={<MergeIcon />}
+          variant="contained"
+          onClick={handleMergeContact}
+        >
           Merge
         </Button>
         <Button
@@ -472,8 +475,21 @@ const ProfilePage = () => {
         onConfirm={() => {}}
       />
 
-      <CustomSideBarPanel open={isMerge} close={() => setIsMerge(false)} title={"Merge Contact"} width={600}>
-        <MergeContact data={{userName: username, userEmail: email, isPrimaryEmail: isPrimaryEmail}}  onchange = {()=>setIsPrimaryEmail(false)}/>
+      <CustomSideBarPanel
+        open={isMerge}
+        close={() => setIsMerge(false)}
+        title={"Merge Contact"}
+        width={600}
+      >
+        <MergeContact
+          data={{
+            userName: username,
+            userEmail: email,
+            isPrimaryEmail: isPrimaryEmail,
+          }}
+          onchange={() => setIsPrimaryEmail(false)}
+          close={() => setIsMerge(false)}
+        />
       </CustomSideBarPanel>
     </Box>
   );

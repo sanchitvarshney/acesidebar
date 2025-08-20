@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Autocomplete,
   Avatar,
+  Button,
   IconButton,
   List,
   ListItem,
@@ -14,12 +15,11 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import CustomToolTip from "../../reusable/CustomToolTip";
 
-const MergeContact = ({ data, onchange }: any) => {
+const MergeContact = ({ data, close }: any) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<any[]>([]);
   const [selectedOption, setSelectedOptions] = useState<string[]>([]);
-  console.log(selectedOption, "selectedOption");
 
   // simulate API call
   const fetchOptions = async (query: string) => {
@@ -64,7 +64,7 @@ const MergeContact = ({ data, onchange }: any) => {
   }, [data]);
 
   return (
-    <div className="p-6  w-full">
+    <div className="p-6 h-full overflow-hidden w-full">
       <Autocomplete
         size="small"
         fullWidth
@@ -85,12 +85,16 @@ const MergeContact = ({ data, onchange }: any) => {
                 className="flex items-center gap-3 p-2 rounded-md w-full"
                 style={{ cursor: "pointer" }}
               >
-             
-                <Avatar sx={{ width: 30, height: 30, backgroundColor:"primary.main" }}>
+                <Avatar
+                  sx={{
+                    width: 30,
+                    height: 30,
+                    backgroundColor: "primary.main",
+                  }}
+                >
                   {option.userName?.charAt(0).toUpperCase()}
                 </Avatar>
 
-          
                 <div className="flex flex-col">
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {option.userName}
@@ -128,7 +132,7 @@ const MergeContact = ({ data, onchange }: any) => {
         )}
       />
 
-      <div className="w-full my-3">
+      <div className="w-full max-h-[calc(100vh-210px)] min-h-[calc(100vh-210px)] overflow-y-auto my-3">
         <List>
           {selectedOption?.map((item: any) => (
             <ListItem
@@ -188,9 +192,15 @@ const MergeContact = ({ data, onchange }: any) => {
               <ListItemText
                 primary={
                   <div className="flex items-center gap-4">
-                    <Avatar sx={{ width: 30, height: 30 ,backgroundColor:"primary.main"}} >
-                        {item?.userName?.charAt(0).toUpperCase()}
-                      </Avatar>
+                    <Avatar
+                      sx={{
+                        width: 30,
+                        height: 30,
+                        backgroundColor: "primary.main",
+                      }}
+                    >
+                      {item?.userName?.charAt(0).toUpperCase()}
+                    </Avatar>
                     <div>
                       <Typography variant="subtitle2">
                         {item?.userName}
@@ -240,6 +250,24 @@ const MergeContact = ({ data, onchange }: any) => {
             </ListItem>
           ))}
         </List>
+      </div>
+      <div className="flex justify-end space-x-4 border-t-2 border-gray-200 w-full py-3 ">
+        <Button
+          variant="contained"
+          color="inherit"
+          onClick={close}
+          disabled={selectedOption?.length === 0}
+        >
+          Close
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {}}
+          disabled={selectedOption?.length === 0}
+        >
+          Merge
+        </Button>
       </div>
     </div>
   );
