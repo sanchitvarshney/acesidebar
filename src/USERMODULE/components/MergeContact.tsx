@@ -14,12 +14,14 @@ import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import CustomToolTip from "../../reusable/CustomToolTip";
+import { useMerageContactMutation } from "../../services/threadsApi";
 
 const MergeContact = ({ data, close }: any) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<any[]>([]);
   const [selectedOption, setSelectedOptions] = useState<string[]>([]);
+  const [mergeContact] = useMerageContactMutation();
 
   // simulate API call
   const fetchOptions = async (query: string) => {
@@ -62,6 +64,21 @@ const MergeContact = ({ data, close }: any) => {
     }
     setSelectedOptions(() => [data]);
   }, [data]);
+
+  const handleMergeContact = () => {
+    const reqUser = selectedOption.map((item: any) => {
+      if (item.userEmail === data.userEmail) {
+        return item;
+      }
+    });
+    const payload = {
+      mergeContact: selectedOption,
+      requestedBy: reqUser[0],
+    };
+
+    mergeContact(payload);
+    close();
+  };
 
   return (
     <div className="p-6 h-full overflow-hidden w-full">
@@ -263,7 +280,7 @@ const MergeContact = ({ data, close }: any) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => {}}
+          onClick={handleMergeContact}
           disabled={selectedOption?.length === 0}
         >
           Merge

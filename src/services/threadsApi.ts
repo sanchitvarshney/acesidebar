@@ -57,14 +57,20 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
-        closeTicket: builder.mutation({
+    closeTicket: builder.mutation({
       query: (credentials) => ({
         url: "/ticket/staff/close",
         method: "Post",
         body: credentials,
       }),
     }),
-    
+        merageContact: builder.mutation({
+      query: (credentials) => ({
+        url: "/ticket/staff/merage-contact",
+        method: "Post",
+        body: credentials,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -76,5 +82,6 @@ export const {
   useForwardThreadMutation,
   useTicketStatusChangeMutation,
   useDeleteTicketMutation,
-  useCloseTicketMutation
+  useCloseTicketMutation,
+  useMerageContactMutation
 } = extendedTicketApi;
