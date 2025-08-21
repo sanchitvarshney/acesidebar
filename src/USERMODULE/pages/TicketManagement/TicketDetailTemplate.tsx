@@ -60,7 +60,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   const handleForwardSend = () => {
     if (!ticket) return;
 
-    // Example: building the payload
+  
     const payload = {
       from:
         ticket?.header?.requester ||
@@ -73,12 +73,12 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
       attachments: [
         {
           filename: "report.pdf",
-          base64_data: "JVBERi0xLjQKJc...", // encode your file as Base64
+          base64_data: "JVBERi0xLjQKJc...", 
         },
       ],
     };
 
-    console.log("Forward payload:", payload);
+   
 
     // Call your API
     forwardThread(payload)

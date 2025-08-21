@@ -12,3 +12,22 @@
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
+
+export const fetchOptions =  (query:any) => {
+    if (!query) {
+      return;
+    }
+    const allData = [
+      { userName: "abc", userEmail: "abc@gmail.com" },
+      { userName: "xyz", userEmail: "xyz@gmail.com" },
+      {
+        userName: "abcde",
+        userEmail: " abcde@ReportGmailerrorred.com,",
+      },
+    ];
+    const filtered = allData?.filter((opt) =>
+      opt?.userName.toLowerCase().includes(query.toLowerCase())
+    );
+
+    return filtered;
+  };

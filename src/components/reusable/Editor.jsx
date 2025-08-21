@@ -25,18 +25,16 @@ import ShortcutIcon from "@mui/icons-material/Shortcut";
 import { set } from "react-hook-form";
 import CustomToolTip from "../../reusable/CustomToolTip";
 import { useToast } from "../../hooks/useToast";
-import { isValidEmail } from "../../utils/Utils";
+import { fetchOptions, isValidEmail } from "../../utils/Utils";
 
-export const formatEmail = (email) => {
-  if (!email) return "";
+export const formatName = (name) => {
+  if (!name) return "";
 
-  const [localPart, domain] = email?.split("@");
-  const shortenedLocal =
-    localPart?.length > 2 ? localPart?.slice(0, 2) + ".." : localPart;
-  const shortenedDomain =
-    domain?.length > 3 ? domain?.slice(0, 3) + ".." : domain;
+  if (name.length > 5) {
+    return name.slice(0, 5) + "....";
+  }
 
-  return `${shortenedLocal}@${shortenedDomain}`;
+  return name; // return full name if short
 };
 
 const selectionsOptions = [
@@ -136,7 +134,7 @@ const StackEditor = ({
         return;
       }
 
-      setCcValue((prev) => [...prev, { email: newEmail }]);
+      setCcValue((prev) => [...prev, {name: formatName(newEmail), email: newEmail }]);
       setCcChangeValue("");
     }
     if (
@@ -160,33 +158,16 @@ const StackEditor = ({
         return;
       }
 
-      setBccValue((prev) => [...prev, { email: newEmail }]);
+      setBccValue((prev) => [...prev, {name:formatName(newEmail), email: newEmail }]);
       setBccChangeValue(""); // clear input after adding
     }
   };
 
-  const fetchOptions =  (query) => {
-    if (!query) {
-      return;
-    }
-    const allData = [
-      { userName: "abc", userEmail: "abc@gmail.com" },
-      { userName: "xyz", userEmail: "xyz@gmail.com" },
-      {
-        userName: "abcde",
-        userEmail: " abcde@ReportGmailerrorred.com,",
-      },
-    ];
-    const filtered = allData?.filter((opt) =>
-      opt?.userName.toLowerCase().includes(query.toLowerCase())
-    );
-
-    return filtered;
-  };
+  
 
   useEffect(() => {
    const filterValue=  fetchOptions(ccChangeValue || bccChangeValue);
-  filterValue?.length > 0 ? setOptions(filterValue) : setOptions([ {userEmail: ccChangeValue || bccChangeValue}]);
+  filterValue?.length > 0 ? setOptions(filterValue) : setOptions([ {userName: ccChangeValue || bccChangeValue,userEmail: ccChangeValue || bccChangeValue}]);
   }, [ccChangeValue, bccChangeValue]);
 
   const handleSelectedOption = (_, newValue, type) => {
@@ -194,9 +175,16 @@ const StackEditor = ({
 
     const lastSelected = newValue[newValue.length - 1];
 
+   
+
     if (!lastSelected?.userEmail) return;
 
-    const dataValue = { email: lastSelected.userEmail };
+    const dataValue = { name: lastSelected.userName, email: lastSelected.userEmail };
+
+      if (!isValidEmail(dataValue.email)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
 
     if (type === "cc") {
       if (ccValue.some((item) => item.email === dataValue.email)) {
@@ -764,7 +752,7 @@ const StackEditor = ({
                     <CustomToolTip
                       title={
                         <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                          {option.email}
+                        {option.name ? `${option.name} (${option.email})` : option.email}
                         </Typography>
                       }
                     >
@@ -775,7 +763,7 @@ const StackEditor = ({
                         label={
                           typeof option === "string"
                             ? option
-                            : formatEmail(option?.email) // or option.userEmail depending on your data
+                            : formatName(option?.name) // or option.userEmail depending on your data
                         }
                         {...getTagProps({ index })}
                         sx={{
@@ -887,7 +875,7 @@ const StackEditor = ({
                         label={
                           typeof option === "string"
                             ? option
-                            : formatEmail(option.email)
+                            : (option.email)
                         }
                         {...getTagProps({ index })}
                         sx={{

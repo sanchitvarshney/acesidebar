@@ -28,6 +28,8 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { AnimatePresence, motion } from "framer-motion";
 import { useToast } from "../../../hooks/useToast";
+import { fetchOptions, isValidEmail } from "../../../utils/Utils";
+import { formatName } from "../../../components/reusable/Editor";
 
 interface ForwardPanelProps {
   open: boolean;
@@ -128,37 +130,80 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   };
 
   // simulate API call
-  const fetchOptions = async (query: string) => {
-    if (!query) {
-      setOptions([]);
-      return;
+
+  const handleKeyDown = (event: any, type: string) => {
+    if (type === "cc" && event.key === "Enter" && ccChangeValue.trim() !== "") {
+      const newEmail = ccChangeValue.trim();
+
+      if (!isValidEmail(newEmail)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
+
+      if (ccValue.some((item: any) => item.email === newEmail)) {
+        showToast("Email already exists", "error");
+        return;
+      }
+
+      if (ccValue.length >= 3) {
+        showToast("Maximum 3 CC allowed", "error");
+        return;
+      }
+
+      setCcValue((prev: any) => [
+        ...prev,
+        { name: formatName(newEmail), email: newEmail },
+      ]);
+      setCcChangeValue("");
     }
-    const allData = [
-      { userName: "abc", userEmail: "abc@gmail.com" },
-      { userName: "xyz", userEmail: "xyz@gmail.com" },
-      {
-        userName: "abcde",
-        userEmail: " abcde@ReportGmailerrorred.com,",
-      },
-    ];
-    const filtered = allData?.filter((opt) =>
-      opt?.userName.toLowerCase().includes(query.toLowerCase())
-    );
-    setOptions(filtered);
+    if (
+      type === "bcc" &&
+      event.key === "Enter" &&
+      bccChangeValue.trim() !== ""
+    ) {
+      const newEmail = bccChangeValue.trim();
+      if (!isValidEmail(newEmail)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
+
+      if (bccValue.some((item: any) => item.email === newEmail)) {
+        showToast("Email already exists", "error");
+        return;
+      }
+
+      if (bccValue.length >= 3) {
+        showToast("Maximum 3 CC allowed", "error");
+        return;
+      }
+
+      setBccValue((prev: any) => [
+        ...prev,
+        { name: formatName(newEmail), email: newEmail },
+      ]);
+      setBccChangeValue(""); // clear input after adding
+    }
   };
 
   useEffect(() => {
-    fetchOptions(ccChangeValue || bccChangeValue);
+    const filterValue: any = fetchOptions(ccChangeValue || bccChangeValue);
+    filterValue?.length > 0
+      ? setOptions(filterValue)
+      : setOptions([{ userEmail: ccChangeValue || bccChangeValue }]);
   }, [ccChangeValue, bccChangeValue]);
   const handleSelectedOption = (
     _: React.SyntheticEvent,
     value: any,
     type: string
   ) => {
-    console.log(value)
+    console.log(value);
     if (!value) return;
 
-    const dataValue = { email: value.userEmail };
+    const dataValue = { name: value.userName, email: value.userEmail };
+    if (!isValidEmail(dataValue.email)) {
+      showToast("Invalid email format", "error");
+      return;
+    }
 
     if (type === "cc") {
       if (ccValue.some((item: any) => item.email === value.userEmail)) {
@@ -367,6 +412,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                     label="CC"
                     variant="outlined"
                     size="small"
+                    onKeyDown={(e) => handleKeyDown(e, "cc")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "4px",
@@ -389,7 +435,9 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                 >
                   {ccValue.map((item: any, index: number) => (
                     <Chip
-                      label={item.email}
+                      label={
+                        item.name ? `${item.name} (${item.email})` : item.email
+                      }
                       variant="outlined"
                       onDelete={() => handleDelete("cc", item.email)}
                     />
@@ -468,6 +516,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                     // InputLabelProps={{ shrink: true }}
                     label="BCC"
                     variant="outlined"
+                    onKeyDown={(e) => handleKeyDown(e, "bcc")}
                     size="small"
                     sx={{
                       "& .MuiOutlinedInput-root": {
@@ -491,7 +540,9 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                 >
                   {bccValue.map((item: any, index: number) => (
                     <Chip
-                      label={item.email}
+                         label={
+                        item.name ? `${item.name} (${item.email})` : item.email
+                      }
                       variant="outlined"
                       onDelete={() => handleDelete("bcc", item.email)}
                     />
@@ -718,6 +769,3 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
 };
 
 export default ForwardPanel;
-function handleDelete(event: any): void {
-  throw new Error("Function not implemented.");
-}
