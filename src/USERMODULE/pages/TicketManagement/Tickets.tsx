@@ -180,7 +180,7 @@ const Tickets: React.FC = () => {
   const isTicketsFetching = sortType
     ? isSortedTicketListFetching
     : isTicketListFetching;
-
+console.log(ticketsToShow)
   // Handle filter apply
   const handleApplyFilters = (newFilters: any) => {
     // TODO: Trigger API call with newFilters
@@ -430,10 +430,10 @@ const Tickets: React.FC = () => {
           />
           <div className="relative">
             {ticket?.avatarUrl ? (
-              <Avatar src={ticket.avatarUrl} className="w-10 h-10" />
+              <Avatar src={ticket?.avatarUrl} className="w-10 h-10" />
             ) : (
               <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
-                {ticket?.fromUser?.name[0] || "D"}
+                {ticket?.fromUser?.name?.[0] || "D"}
               </div>
             )}
             {/* Sentiment emoji overlay */}
