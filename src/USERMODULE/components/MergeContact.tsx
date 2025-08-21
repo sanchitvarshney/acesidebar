@@ -102,8 +102,8 @@ const MergeContact = ({ data, close }: any) => {
           value={null}
           options={displayOptions}
           getOptionLabel={(option: any) => {
-            if (typeof option === "string") return option; // ✅ show placeholder
-            if (option?.userName) return option.userName; // ✅ show contact name
+            if (typeof option === "string") return option; 
+            if (option?.userName) return option.userName; 
             return "";
           }}
           renderOption={(props, option: any) => (

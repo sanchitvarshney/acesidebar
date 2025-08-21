@@ -155,6 +155,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     value: any,
     type: string
   ) => {
+    console.log(value)
     if (!value) return;
 
     const dataValue = { email: value.userEmail };

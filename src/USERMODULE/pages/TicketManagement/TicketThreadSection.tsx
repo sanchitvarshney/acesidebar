@@ -6,7 +6,7 @@ import StackEditor from "../../../components/reusable/Editor";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import StarIcon from "@mui/icons-material/Star";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import EmojiFlagsIcon from '@mui/icons-material/EmojiFlags';
+import EmojiFlagsIcon from "@mui/icons-material/EmojiFlags";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -17,7 +17,6 @@ import {
   MenuItem,
   IconButton,
   Divider,
-
   Typography,
   Chip,
   ClickAwayListener,
@@ -43,7 +42,10 @@ import ImageViewComponent from "../../components/ImageViewComponent";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { setReplyValue } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
-import { useReplyTicketMutation, useReviewThreadMutation } from "../../../services/threadsApi";
+import {
+  useReplyTicketMutation,
+  useReviewThreadMutation,
+} from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 
 const signatureValues: any = [
@@ -176,7 +178,6 @@ const ThreadItem = ({
     };
 
     reviewThread(payload)
-    
       .then((response) => {
         console.log(response);
       })
@@ -243,9 +244,15 @@ const ThreadItem = ({
     </Paper>
   );
   //@ts-ignore
-  const isCurrentUser =  item?.replyType === "S";
-  const bubbleBackgroundColor = isReported ? "#fee2e2" : (isCurrentUser ? "#f7faff" : "#fafafa");
-  const bubbleFooter = isCurrentUser ? "IP: 127.0.0.1 | Location: India" : "Send From Web | IP: 127.0.0.1 | Location: India";
+  const isCurrentUser = item?.replyType === "S";
+  const bubbleBackgroundColor = isReported
+    ? "#fee2e2"
+    : isCurrentUser
+    ? "#f7faff"
+    : "#fafafa";
+  const bubbleFooter = isCurrentUser
+    ? "IP: 127.0.0.1 | Location: India"
+    : "Send From Web | IP: 127.0.0.1 | Location: India";
   const isRatingDisabled = isCurrentUser;
 
   const decodeHtmlEntities = (encoded: string) => {
@@ -293,7 +300,9 @@ const ThreadItem = ({
                 height: 0,
                 borderTop: "10px solid transparent",
                 borderBottom: "10px solid transparent",
-                [isCurrentUser ? "borderLeft" : "borderRight"]: `12px solid ${bubbleBackgroundColor}`,
+                [isCurrentUser
+                  ? "borderLeft"
+                  : "borderRight"]: `12px solid ${bubbleBackgroundColor}`,
               }}
             />
             {item.repliedBy?.avatarUrl ? (
@@ -313,7 +322,10 @@ const ThreadItem = ({
                 onClick={() => setIsReported((v) => !v)}
                 sx={{ mt: 1 }}
               >
-                <EmojiFlagsIcon sx={{ color: isReported ? '#ef4444' : '#9ca3af' }} fontSize="small" />
+                <EmojiFlagsIcon
+                  sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
+                  fontSize="small"
+                />
               </IconButton>
             )}
           </div>
@@ -349,7 +361,11 @@ const ThreadItem = ({
 
                 <div
                   className="w-4/5 text-xs text-gray-500"
-                  dangerouslySetInnerHTML={{ __html: sanitizeMessageHtml(decodeHtmlEntities(item?.message)) }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeMessageHtml(
+                      decodeHtmlEntities(item?.message)
+                    ),
+                  }}
                 />
               </div>
             </div>
@@ -380,9 +396,17 @@ const ThreadItem = ({
                               transform: "scale(1.1)",
                             },
                       }}
-                      onMouseEnter={isRatingDisabled ? undefined : () => setHovered(idx)}
-                      onMouseLeave={isRatingDisabled ? undefined : () => setHovered(null)}
-                      onClick={isRatingDisabled ? undefined : () => handleReview(idx + 1)}
+                      onMouseEnter={
+                        isRatingDisabled ? undefined : () => setHovered(idx)
+                      }
+                      onMouseLeave={
+                        isRatingDisabled ? undefined : () => setHovered(null)
+                      }
+                      onClick={
+                        isRatingDisabled
+                          ? undefined
+                          : () => handleReview(idx + 1)
+                      }
                     />
                   );
                 })}
@@ -408,7 +432,9 @@ const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
         const isCurrentStaff = item?.replyType === "S";
         const isNextStaff = next ? next?.replyType === "S" : undefined;
         const marginBottomClass =
-          next === undefined || isCurrentStaff !== isNextStaff ? "mb-10" : "mb-3";
+          next === undefined || isCurrentStaff !== isNextStaff
+            ? "mb-10"
+            : "mb-3";
 
         return (
           <ThreadItem
@@ -533,13 +559,9 @@ const TicketThreadSection = ({
   // Handler for Reply button
   const handleReplyButton = () => {
     const newShowEditor = !showEditor;
-    console.log("handleReplyButton called:", {
-      currentShowEditor: showEditor,
-      newShowEditor,
-    });
+
     setShowEditor(newShowEditor);
     if (newShowEditor) {
-      console.log("Setting shouldFocusEditor to true from handleReplyButton");
       setShouldFocusEditor(true);
     }
   };
@@ -657,62 +679,65 @@ const TicketThreadSection = ({
               "&:before": { display: "none" },
             }}
           >
-            {!showEditor && !showReplyEditor && !showEditorNote && (
-              <AccordionSummary
-                expandIcon={
-                  showEditor || showReplyEditor || showEditorNote ? null : (
-                    <ExpandMoreIcon sx={{ transform: "rotate(180deg)" }} />
-                  )
-                }
-                aria-controls="panel2-content"
-                id="panel2-header"
-                sx={{
-                  // mx: 1,
+            {/* {!showEditor && !showReplyEditor && !showEditorNote && ( */}
+            <AccordionSummary
+              expandIcon={
+                showEditor || showReplyEditor || showEditorNote ? null : (
+                  <ExpandMoreIcon sx={{ transform: "rotate(180deg)" }} />
+                )
+              }
+              aria-controls="panel2-content"
+              id="panel2-header"
+              sx={{
+                // mx: 1,
 
+                backgroundColor:
+                  showEditor || showReplyEditor || showEditorNote
+                    ? "transparent"
+                    : "#f9fafb",
+                border:
+                  showEditor || showReplyEditor || showEditorNote
+                    ? "none"
+                    : "1px solid #d1d5db",
+                borderRadius: "50px",
+                padding: "0px 25px",
+                // width: "100% !important",
+                minHeight: "55px !important",
+                display:
+                  !showEditor && !showReplyEditor && !showEditorNote
+                    ? "flex"
+                    : "none",
+                alignItems: "center",
+                cursor: "text !important",
+                "&:hover": {
+                  borderColor:
+                    showEditor || showReplyEditor || showEditorNote
+                      ? "transparent"
+                      : "#9ca3af",
                   backgroundColor:
                     showEditor || showReplyEditor || showEditorNote
                       ? "transparent"
-                      : "#f9fafb",
-                  border:
-                    showEditor || showReplyEditor || showEditorNote
-                      ? "none"
-                      : "1px solid #d1d5db",
-                  borderRadius: "50px",
-                  padding: "0px 25px",
-                  // width: "100% !important",
-                  minHeight: "55px !important",
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "text !important",
-                  "&:hover": {
-                    borderColor:
-                      showEditor || showReplyEditor || showEditorNote
-                        ? "transparent"
-                        : "#9ca3af",
-                    backgroundColor:
-                      showEditor || showReplyEditor || showEditorNote
-                        ? "transparent"
-                        : "#f3f4f6",
-                  },
-                  "& .MuiAccordionSummary-content": {
-                    margin: 0,
-                    borderRadius: "none",
-                  },
+                      : "#f3f4f6",
+                },
+                "& .MuiAccordionSummary-content": {
+                  margin: 0,
+                  borderRadius: "none",
+                },
+              }}
+            >
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: "14px",
+                  color: "#374151",
+                  fontStyle: "italic",
+                  borderRadius: "none",
                 }}
               >
-                <Typography
-                  component="span"
-                  sx={{
-                    fontSize: "14px",
-                    color: "#374151",
-                    fontStyle: "italic",
-                    borderRadius: "none",
-                  }}
-                >
-                  Reply....
-                </Typography>
-              </AccordionSummary>
-            )}
+                Reply....
+              </Typography>
+            </AccordionSummary>
+            {/* )} */}
 
             <AccordionDetails sx={{ p: 0, height: "100%" }}>
               <div
