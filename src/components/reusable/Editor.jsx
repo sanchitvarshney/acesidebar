@@ -60,14 +60,14 @@ const optionsofPrivate = [
     icon: <PrivateConnectivityIcon fontSize="small" />,
     title: "Private",
     subTitle: "Only visible to you",
-    value: "1",
+    value: "private",
   },
   {
     id: 2,
     icon: <PublicIcon fontSize="small" />,
     title: "Public",
     subTitle: "Visible to everyone",
-    value: "2",
+    value: "public",
   },
 ];
 

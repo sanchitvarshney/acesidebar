@@ -478,7 +478,7 @@ const TicketThreadSection = ({
   const [showImagesModal, setShowImagesModal] = useState(false);
   const [canned, setCanned] = useState(false);
   const [suggest, setSuggest] = useState(false);
-  const [selectedValue, setSelectedValue] = useState("1");
+  const [selectedValue, setSelectedValue] = useState("public");
   //@ts-ignore
   const { shotcutData, replyValue } = useSelector(
     (state: RootState) => state.shotcut
