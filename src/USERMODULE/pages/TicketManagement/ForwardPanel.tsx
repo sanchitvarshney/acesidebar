@@ -99,7 +99,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
       file: file,
     }));
 
-    setAttachedFiles((prev) => [...prev, ...newFiles]);
+    onFieldChange("documents", JSON.stringify([...attachedFiles, ...newFiles]))
 
     if (newFileCount > 1) {
       showToast(`${newFileCount} files attached successfully!`, "success");
@@ -109,7 +109,8 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   };
 
   const handleFileRemove = (fileId: string) => {
-    setAttachedFiles((prev) => prev.filter((file) => file.id !== fileId));
+   
+    onFieldChange("documents", JSON.stringify(attachedFiles.filter((file) => file.id !== fileId)));
     showToast("File removed successfully!", "success");
   };
 

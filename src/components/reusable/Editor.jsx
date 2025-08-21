@@ -116,7 +116,7 @@ const StackEditor = ({
   const displayBCCOptions = bccChangeValue ? options : [];
 
   const handleKeyDown = (event, type) => {
-    if (type === "cc" && event.key === "Enter" && ccChangeValue.trim() !== "") {
+    if (type === "cc" && event.key === "Enter" && ccChangeValue) {
       const newEmail = ccChangeValue.trim();
 
       if (!isValidEmail(newEmail)) {
@@ -134,7 +134,7 @@ const StackEditor = ({
         return;
       }
 
-      setCcValue((prev) => [...prev, {name: formatName(newEmail), email: newEmail }]);
+      setCcValue((prev) => [...prev, { name: newEmail, email: newEmail }]);
       setCcChangeValue("");
     }
     if (
@@ -158,16 +158,21 @@ const StackEditor = ({
         return;
       }
 
-      setBccValue((prev) => [...prev, {name:formatName(newEmail), email: newEmail }]);
+      setBccValue((prev) => [...prev, { name: newEmail, email: newEmail }]);
       setBccChangeValue(""); // clear input after adding
     }
   };
 
-  
-
   useEffect(() => {
-   const filterValue=  fetchOptions(ccChangeValue || bccChangeValue);
-  filterValue?.length > 0 ? setOptions(filterValue) : setOptions([ {userName: ccChangeValue || bccChangeValue,userEmail: ccChangeValue || bccChangeValue}]);
+    const filterValue = fetchOptions(ccChangeValue || bccChangeValue);
+    filterValue?.length > 0
+      ? setOptions(filterValue)
+      : setOptions([
+          {
+            userName: ccChangeValue || bccChangeValue,
+            userEmail: ccChangeValue || bccChangeValue,
+          },
+        ]);
   }, [ccChangeValue, bccChangeValue]);
 
   const handleSelectedOption = (_, newValue, type) => {
@@ -175,16 +180,17 @@ const StackEditor = ({
 
     const lastSelected = newValue[newValue.length - 1];
 
-   
-
     if (!lastSelected?.userEmail) return;
 
-    const dataValue = { name: lastSelected.userName, email: lastSelected.userEmail };
+    const dataValue = {
+      name: lastSelected.userName,
+      email: lastSelected.userEmail,
+    };
 
-      if (!isValidEmail(dataValue.email)) {
-        showToast("Invalid email format", "error");
-        return;
-      }
+    if (!isValidEmail(dataValue.email)) {
+      showToast("Invalid email format", "error");
+      return;
+    }
 
     if (type === "cc") {
       if (ccValue.some((item) => item.email === dataValue.email)) {
@@ -752,7 +758,9 @@ const StackEditor = ({
                     <CustomToolTip
                       title={
                         <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                        {option.name ? `${option.name} (${option.email})` : option.email}
+                          {option.name
+                            ? `${option.name} (${option.email})`
+                            : option.email}
                         </Typography>
                       }
                     >
@@ -864,7 +872,9 @@ const StackEditor = ({
                     <CustomToolTip
                       title={
                         <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                          {option.email}
+                          {option.name
+                            ? `${option.name} (${option.email})`
+                            : option.email}
                         </Typography>
                       }
                     >
@@ -873,9 +883,7 @@ const StackEditor = ({
                         color="primary"
                         key={index}
                         label={
-                          typeof option === "string"
-                            ? option
-                            : (option.email)
+                          typeof option === "string" ? option : option.email
                         }
                         {...getTagProps({ index })}
                         sx={{
@@ -901,7 +909,7 @@ const StackEditor = ({
                     label="Bcc"
                     variant="outlined"
                     size="small"
-                    onKeyDown={(e) => handleKeyDown(e, "bcc")}
+                    keyDown={(e) => handleKeyDown(e, "bcc")}
                     sx={{
                       width: 400,
                       "& .MuiOutlinedInput-root": {

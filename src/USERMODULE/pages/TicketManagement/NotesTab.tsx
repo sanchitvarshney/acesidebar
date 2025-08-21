@@ -4,16 +4,19 @@ import StyledTextField from "../../../reusable/AddNotes";
 import NotesItem from "../../../reusable/NotesItem";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
 import { useAuth } from "../../../contextApi/AuthContext";
-import { useAddNoteMutation } from "../../../services/threadsApi";
+import {
+
+  useCommanApiMutation,
+} from "../../../services/threadsApi";
 
 const NotesTab = () => {
- const { user } =  useAuth();
+  const { user } = useAuth();
   const [isNotes, setIsNotes] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [note, setNote] = React.useState("");
   const [noteList, setNoteList] = React.useState<any[]>([]);
   const [editNoteId, setEditNoteId] = React.useState<number | null>(null);
- const [addNote] = useAddNoteMutation();
+  const [commanApi] = useCommanApiMutation();
 
   const handleInputText = (text: string) => {
     if (text.length <= 500) {
@@ -22,20 +25,19 @@ const NotesTab = () => {
   };
 
   const handleSave = async () => {
-    const payload = {
-      //@ts-ignore
-      userId: user?.id,
-      note,
-    };
-
     try {
       if (editNoteId !== null) {
-        // Update existing note
-        // await fetch(`/api/notes/${editNoteId}`, {
-        //   method: "PUT",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(payload),
-        // });
+        const payloadUpdate = {
+          url: "update-note",
+          body: {
+            id: editNoteId, // Unique identifier of the note
+            note: note, // Updated text entered by the use
+          },
+        };
+        commanApi(payloadUpdate)
+          .then((res) => {})
+          .catch((err) => {});
+   
 
         setNoteList((prev) =>
           prev.map((item) =>
@@ -46,12 +48,18 @@ const NotesTab = () => {
         setEditNoteId(null);
         setIsEdit(false);
       } else {
+        const payload = {
+          url: "add-note",
+          body: {
+            //@ts-ignore
+            userId: user?.id,
+            note,
+          },
+        };
         // Create new note
-        addNote(payload).then((res) => {
-          console.log(res)
-        }).catch((err) => {
-          console.log(err)
-        })
+        commanApi(payload)
+          .then((res) => {})
+          .catch((err) => {});
         // const response = await fetch("/api/notes", {
         //   method: "POST",
         //   headers: { "Content-Type": "application/json" },

@@ -42,11 +42,9 @@ import ImageViewComponent from "../../components/ImageViewComponent";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { setReplyValue } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
-import {
-  useReplyTicketMutation,
-  useReviewThreadMutation,
-} from "../../../services/threadsApi";
+import { useCommanApiMutation } from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
+import { useParams } from "react-router-dom";
 
 const signatureValues: any = [
   {
@@ -120,9 +118,10 @@ const ThreadItem = ({
   onForward,
   marginBottomClass,
 }: any) => {
-  const { user } = useAuth();
 
-  const [reviewThread] = useReviewThreadMutation();
+
+  const [commanApi] = useCommanApiMutation();
+
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
   const [localReplyText, setLocalReplyText] = useState("");
@@ -171,19 +170,22 @@ const ThreadItem = ({
   };
 
   const handleReview = (value: any) => {
+  const pathId =  window.location.pathname.split("/").pop(); 
+  
+
     setSelected(value);
     const payload = {
-      ticketId: "",
-      rating: value,
+      url: "review-ticket",
+      body: {
+        ticket: pathId,
+        rate: value,
+        thread: item.entryId,
+      },
     };
 
-    reviewThread(payload)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    commanApi(payload)
+      .then((response) => {})
+      .catch((error) => {});
   };
 
   const renderReplyOption = (
@@ -464,9 +466,8 @@ const TicketThreadSection = ({
   value,
 }: any) => {
   const dispatch = useDispatch();
-  const [replyTicket] = useReplyTicketMutation();
+  const [commonApi] = useCommanApiMutation();
   const [showEditor, setShowEditor] = useState<any>(false);
-
   const [showShotcut, setShowShotcut] = useState(false);
   const [slashTriggered, setSlashTriggered] = useState(false);
   const shotcutRef = React.useRef(null);
@@ -603,29 +604,31 @@ const TicketThreadSection = ({
     }
 
     const payload = {
-      ticket: header?.ticketId,
+      url: "reply-ticket",
+      body: {
+        ticket: header?.ticketId,
 
-      reply: {
-        type: selectedValue,
-        to: "example@example.com",
-        cc: [],
-        bcc: [],
-        message: replyValue,
-        signatureKey: signature,
-        attachments: [
-          {
-            filename: "image.jpg",
-            base64_data: images,
-          },
-        ],
-        note: notifyTag,
-        statusKey: "",
+        reply: {
+          type: selectedValue,
+          to: "example@example.com",
+          cc: [],
+          bcc: [],
+          message: replyValue,
+          signatureKey: signature,
+          attachments: [
+            {
+              filename: "image.jpg",
+              base64_data: images,
+            },
+          ],
+          note: notifyTag,
+          statusKey: "",
+        },
       },
     };
 
-    replyTicket(payload)
+    commonApi(payload)
       .then((res: any) => {
-        console.log(res);
         dispatch(setReplyValue(""));
         setSignature("");
         setSelectedOptionValue("1");

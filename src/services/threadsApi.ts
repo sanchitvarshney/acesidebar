@@ -3,37 +3,13 @@
 import { baseInstanceOfApi } from "./baseInstanceOfApi";
 
 // Define the interface for ticket list query parameters
-interface TicketListParams {
-  priority?: string;
-  department?: string;
-  page?: number;
-  limit?: number;
-}
+
 
 const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
   endpoints: (builder) => ({
-    replyTicket: builder.mutation({
-      query: (credentials) => ({
-        url: "/ticket/staff/reply",
-        method: "POST",
-        body: credentials,
-      }),
-    }),
-    reviewThread: builder.mutation({
-      query: (credentials) => ({
-        url: "/ticket/staff/star",
-        method: "POST",
-        body: credentials,
-      }),
-    }),
+ 
 
-    addNote: builder.mutation({
-      query: (credentials) => ({
-        url: "/ticket/staff/add-note",
-        method: "POST",
-        body: credentials,
-      }),
-    }),
+  
     forwardThread: builder.mutation({
       query: (credentials) => ({
         url: "/ticket/staff/forward-thread",
@@ -64,11 +40,19 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
-        merageContact: builder.mutation({
+    merageContact: builder.mutation({
       query: (credentials) => ({
         url: "/ticket/staff/merage-contact",
         method: "Post",
         body: credentials,
+      }),
+    }),
+
+    commanApi: builder.mutation({
+      query: (credentials) => ({
+        url: `{/ticket/staff/${credentials.url}`,
+        method: "Post",
+        body: credentials.body,
       }),
     }),
   }),
@@ -76,12 +60,12 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
 });
 
 export const {
-  useReplyTicketMutation,
-  useReviewThreadMutation,
-  useAddNoteMutation,
+ 
+
   useForwardThreadMutation,
   useTicketStatusChangeMutation,
   useDeleteTicketMutation,
   useCloseTicketMutation,
-  useMerageContactMutation
+  useMerageContactMutation,
+  useCommanApiMutation,
 } = extendedTicketApi;

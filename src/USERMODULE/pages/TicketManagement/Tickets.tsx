@@ -39,6 +39,9 @@ import {
   useTicketStatusChangeMutation,
 } from "../../../services/threadsApi";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
+import AssignTicket from "../../components/AssignTicket";
+
+
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -61,6 +64,17 @@ const Tickets: React.FC = () => {
   const [ticketDropdowns, setTicketDropdowns] = useState<
     Record<string, { priority: string; agent: string; status: string }>
   >({});
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const openAssign = Boolean(anchorEl);
+
+  const handleAssignClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleAssignClose = () => {
+    setAnchorEl(null);
+  };
 
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState<string | null>(null);
@@ -105,6 +119,8 @@ const Tickets: React.FC = () => {
     useGetTicketSortingOptionsQuery();
 
   const [closeTicket] = useCloseTicketMutation();
+
+  const optionsRef = React.useRef(null);
 
   // Map API priorities to dropdown options
   const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
@@ -180,7 +196,7 @@ const Tickets: React.FC = () => {
   const isTicketsFetching = sortType
     ? isSortedTicketListFetching
     : isTicketListFetching;
-console.log(ticketsToShow)
+  console.log(ticketsToShow);
   // Handle filter apply
   const handleApplyFilters = (newFilters: any) => {
     // TODO: Trigger API call with newFilters
@@ -683,9 +699,14 @@ console.log(ticketsToShow)
               {selectedTickets.length > 0 && (
                 <div className="flex items-center gap-2 ml-4 flex-wrap">
                   <Button
+                    id="assign-button"
                     variant="contained"
                     size="small"
                     color="inherit"
+                    aria-controls={openAssign ? "basic-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={openAssign ? "true" : undefined}
+                    onClick={handleAssignClick}
                     startIcon={
                       <PersonAddAltIcon
                         fontSize="small"
@@ -699,6 +720,15 @@ console.log(ticketsToShow)
                   >
                     Assign
                   </Button>
+             
+                    <AssignTicket
+                      close={handleAssignClose}
+                      open={openAssign}
+                      anchorEl={anchorEl}
+                      selectedTickets={selectedTickets}
+                    />
+               
+
                   <Button
                     variant="contained"
                     color="inherit"

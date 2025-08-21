@@ -21,7 +21,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import ForwardPanel from "./ForwardPanel";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { set } from "react-hook-form";
-import { useForwardThreadMutation } from "../../../services/threadsApi";
+import {
+  useCommanApiMutation,
+  useForwardThreadMutation,
+} from "../../../services/threadsApi";
+import { email } from "zod/v4/core/regexes";
 
 interface TicketDetailTemplateProps {
   ticket: any; // expects { header, response, other }
@@ -39,17 +43,20 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
       ticket?.header?.requester ||
       "MsCorpres Automation PvtLtd (support@postmanreply.com)",
     subject: ticket?.header?.subject ? `Fwd: ${ticket.header.subject}` : "",
-    to: "",
-    cc: "",
-    bcc: "",
+    to: [],
+    cc: [],
+    bcc: [],
 
     message: ticket?.header?.description || "",
+    documents:[]
   });
   const [showReplyEditor, setShowReplyEditor] = React.useState(false);
   const [showEditorNote, setShowEditorNote] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const [forwardThread] = useForwardThreadMutation();
+
+  const [commanApi] = useCommanApiMutation();
 
   // Pass this to children to allow opening the forward panel
   const handleOpenForward = () => setForwardOpen(true);
@@ -60,25 +67,27 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   const handleForwardSend = () => {
     if (!ticket) return;
 
-  
     const payload = {
-      from:
-        ticket?.header?.requester ||
-        "MsCorpres Automation PvtLtd (support@postmanreply.com)",
-      to: ["recipient1@example.com"],
-      cc: ["ccperson@example.com"],
-      bcc: ["hiddenperson@example.com"],
-      subject: ticket?.header?.subject ? `FWD: ${ticket.header.subject}` : "",
-      message: ticket?.header?.description || "",
-      attachments: [
-        {
-          filename: "report.pdf",
-          base64_data: "JVBERi0xLjQKJc...", 
+      url: "forward-thread",
+      body: {
+        email: {
+          from: ticket?.header?.requester,
+          to: forwardFields.to,
+          cc: forwardFields.cc,
+          bcc: forwardFields.bcc,
         },
-      ],
+        subject: ticket?.header?.subject
+          ? `FWD: ${ticket.header.subject}`
+          : forwardFields.subject,
+        message: ticket?.header?.description || forwardFields.message,
+        attachments: [
+          {
+            filename: "report.pdf",
+            base64_data: "JVBERi0xLjQKJc...",
+          },
+        ],
+      },
     };
-
-   
 
     // Call your API
     forwardThread(payload)
@@ -94,10 +103,11 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
         ticket?.header?.requester ||
         "MsCorpres Automation PvtLtd (support@postmanreply.com)",
       subject: ticket?.header?.subject ? `Fwd: ${ticket.header.subject}` : "",
-      to: "",
-      cc: "",
-      bcc: "",
+      to: [],
+      cc: [],
+      bcc: [],
       message: ticket?.header?.description || "",
+      documents:[],
     });
   };
 
