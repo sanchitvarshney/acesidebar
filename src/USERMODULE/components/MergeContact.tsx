@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
+import StarIcon from "@mui/icons-material/Star";
 import CustomToolTip from "../../reusable/CustomToolTip";
 
 import MergeConfirmation from "./MergeConfirmation";
@@ -288,7 +288,7 @@ const MergeContact = ({ data, close }: any) => {
                     }}
                   >
                     {item?.isPrimaryEmail ? (
-                      <Brightness7Icon fontSize="small" />
+                      <StarIcon fontSize="small" />
                     ) : null}
                   </IconButton>
                   <Typography variant="subtitle1" fontSize={10}>

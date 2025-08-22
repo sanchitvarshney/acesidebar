@@ -34,14 +34,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 
 import {
-
   useCommanApiMutation,
   useTicketStatusChangeMutation,
 } from "../../../services/threadsApi";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 import AssignTicket from "../../components/AssignTicket";
-
-
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import Mergeticket from "../../components/Mergeticket";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -92,6 +91,7 @@ const Tickets: React.FC = () => {
   const [userPopoverUser, setUserPopoverUser] = useState<any>(null);
 
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [isMergeModal, setIsMergeModal] = useState(false);
 
   // Sorting popover state
   const [sortingPopoverAnchorEl, setSortingPopoverAnchorEl] =
@@ -107,6 +107,7 @@ const Tickets: React.FC = () => {
     null
   );
   const [isDeleteModal, setIsDeleteModal] = useState(false);
+  const [isCloseModal, setIsCloseModal] = useState(false);
   const [ticketStatusChange] = useTicketStatusChangeMutation();
   const [commanApi] = useCommanApiMutation();
 
@@ -390,7 +391,7 @@ const Tickets: React.FC = () => {
     commanApi(payload);
   };
 
-    const handleClose = () => {
+  const handleClose = () => {
     if (selectedTickets.length < 0) {
       return;
     }
@@ -736,14 +737,13 @@ const Tickets: React.FC = () => {
                   >
                     Assign
                   </Button>
-             
-                    <AssignTicket
-                      close={handleAssignClose}
-                      open={openAssign}
-                      anchorEl={anchorEl}
-                      selectedTickets={selectedTickets}
-                    />
-               
+
+                  <AssignTicket
+                    close={handleAssignClose}
+                    open={openAssign}
+                    anchorEl={anchorEl}
+                    selectedTickets={selectedTickets}
+                  />
 
                   <Button
                     variant="contained"
@@ -759,7 +759,7 @@ const Tickets: React.FC = () => {
                       fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
-                    onClick={handleClose}
+                    onClick={() => setIsCloseModal(true)}
                   >
                     Close
                   </Button>
@@ -777,10 +777,25 @@ const Tickets: React.FC = () => {
                       fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
+                    onClick={() => setIsMergeModal(true)}
                   >
                     Merge
                   </Button>
-                  <Button
+                  <Mergeticket
+                    open={isMergeModal}
+                    initialPrimary={{
+                      id: "T-1001",
+                      title: "Unable to login to portal",
+                      group: "Support",
+                      agent: "John Doe",
+                      closedAgo: "2 days ago",
+                      resolvedOnTime: true,
+                      isPrimary: true, // this is your main ticket
+                    }}
+                    onClose={() => setIsMergeModal(false)}
+                  />
+
+                  {/* <Button
                     variant="contained"
                     size="small"
                     color="inherit"
@@ -793,7 +808,7 @@ const Tickets: React.FC = () => {
                     }}
                   >
                     Spam
-                  </Button>
+                  </Button> */}
                   <Button
                     variant="contained"
                     size="small"
@@ -951,6 +966,13 @@ const Tickets: React.FC = () => {
         open={isDeleteModal}
         onClose={() => setIsDeleteModal(false)}
         onConfirm={handleDelete}
+        type="delete"
+      />
+      <ConfirmationModal
+        open={isCloseModal}
+        onClose={() => setIsCloseModal(false)}
+        onConfirm={handleClose}
+        type="close"
       />
     </>
   );

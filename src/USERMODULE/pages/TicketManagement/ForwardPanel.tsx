@@ -29,7 +29,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { AnimatePresence, motion } from "framer-motion";
 import { useToast } from "../../../hooks/useToast";
 import { fetchOptions, isValidEmail } from "../../../utils/Utils";
-import { formatName } from "../../../components/reusable/Editor";
+
 
 interface ForwardPanelProps {
   open: boolean;
@@ -67,7 +67,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
-  const [bccValue, setBccValue] = React.useState<any>([]);
   const [ccChangeValue, setCcChangeValue] = React.useState("");
   const [bccChangeValue, setBccChangeValue] = React.useState("");
   const [toChangeValue, setToChangeValue] = React.useState("");

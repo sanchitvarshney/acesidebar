@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -14,6 +14,8 @@ import {
   Container,
   InputAdornment,
   FormHelperText,
+  Autocomplete,
+  Avatar,
 } from "@mui/material";
 import {
   Person,
@@ -26,7 +28,7 @@ import {
   Description,
   Warning,
   CheckCircle,
-  Business
+  Business,
 } from "@mui/icons-material";
 import {
   useCreateTicketMutation,
@@ -37,6 +39,31 @@ import { useToast } from "../../../hooks/useToast";
 import CustomDropdown from "../../../components/shared/CustomDropdown";
 import StackEditor from "../../../components/reusable/Editor";
 import { useNavigate } from "react-router-dom";
+import { fetchOptions, isValidEmail } from "../../../utils/Utils";
+
+// Priority options for dropdown
+const priorityOptions = [
+  { label: "Low", value: "1", color: "#4caf50" },
+  { label: "Medium", value: "2", color: "#ff9800" },
+  { label: "High", value: "3", color: "#f44336" },
+  { label: "Urgent", value: "4", color: "#9c27b0" },
+  { label: "Critical", value: "5", color: "#d32f2f" },
+];
+// Agent options for AssignTo dropdown
+const agentOptions = [
+  { label: "Any agent", value: "any" },
+  { label: "Agent 1", value: "agent1" },
+  { label: "Agent 2", value: "agent2" },
+];
+
+// Department options for dropdown
+const departmentOptions = [
+  { label: "Technical Support", value: "technical" },
+  { label: "Customer Service", value: "customer_service" },
+  { label: "Sales", value: "sales" },
+  { label: "Billing", value: "billing" },
+  { label: "General", value: "general" },
+];
 
 interface TicketFormData {
   user_name: string;
@@ -54,29 +81,18 @@ interface TicketFormData {
 const CreateTicketPage: React.FC = () => {
   const navigate = useNavigate();
   const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
-  const { data: priorityList, isLoading: isPriorityListLoading } = useGetPriorityListQuery();
+  const { data: priorityList, isLoading: isPriorityListLoading } =
+    useGetPriorityListQuery();
   const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const { showToast } = useToast();
 
+  const [fromChangeValue, setfromChangeValue] = React.useState("");
+
+  const [options, setOptions] = useState<any>();
+
   // Form validation errors
   const [errors, setErrors] = useState<Partial<TicketFormData>>({});
-
-  // Agent options for AssignTo dropdown
-  const agentOptions = [
-    { label: "Any agent", value: "any" },
-    { label: "Agent 1", value: "agent1" },
-    { label: "Agent 2", value: "agent2" }
-  ];
-
-  // Department options for dropdown
-  const departmentOptions = [
-    { label: "Technical Support", value: "technical" },
-    { label: "Customer Service", value: "customer_service" },
-    { label: "Sales", value: "sales" },
-    { label: "Billing", value: "billing" },
-    { label: "General", value: "general" }
-  ];
 
   const [newTicket, setNewTicket] = useState<TicketFormData>({
     user_name: "",
@@ -90,15 +106,6 @@ const CreateTicketPage: React.FC = () => {
     assignee: "",
     department: "",
   });
-
-  // Priority options for dropdown
-  const priorityOptions = [
-    { label: "Low", value: "1", color: "#4caf50" },
-    { label: "Medium", value: "2", color: "#ff9800" },
-    { label: "High", value: "3", color: "#f44336" },
-    { label: "Urgent", value: "4", color: "#9c27b0" },
-    { label: "Critical", value: "5", color: "#d32f2f" }
-  ];
 
   // Validation function
   const validateForm = (): boolean => {
@@ -118,6 +125,21 @@ const CreateTicketPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const displayFromOptions: any = fromChangeValue ? options : [];
+
+  useEffect(() => {
+    const filterValue: any = fetchOptions(fromChangeValue);
+
+    filterValue?.length > 0
+      ? setOptions(filterValue)
+      : setOptions([
+          {
+            userName: fromChangeValue,
+            userEmail: fromChangeValue,
+          },
+        ]);
+  }, [fromChangeValue]);
+
   const handleCreateTicketSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -126,9 +148,9 @@ const CreateTicketPage: React.FC = () => {
     try {
       const payload = {
         priority: Number(newTicket.priority),
-        user_name: newTicket.user_name,
+        user_name: newTicket.user_name || "Guest",
         user_email: newTicket.user_email,
-        user_phone: newTicket.user_phone,
+        user_phone: newTicket.user_phone || "0",
         subject: newTicket.subject,
         body: newTicket.body,
         format: newTicket.format,
@@ -156,26 +178,50 @@ const CreateTicketPage: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: keyof TicketFormData, value: string | number) => {
-    setNewTicket(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (
+    field: keyof TicketFormData,
+    value: string | number
+  ) => {
+    setNewTicket((prev) => ({ ...prev, [field]: value }));
 
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
+  const handleSelectedOption = (_: React.SyntheticEvent, value: any) => {
+    if (!value) return;
+
+    const dataValue = { name: value.userName, email: value.userEmail };
+    if (!isValidEmail(dataValue.email)) {
+      showToast("Invalid email format", "error");
+      return;
+    }
+
+    setNewTicket((prev) => ({ ...prev, user_email: dataValue.email }));
+  };
+
   return (
-    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#f9f9f9" }}>
-      {/* Header */}
-      <Box sx={{
-        p: 2,
-        backgroundColor: "#fff",
-        borderBottom: "1px solid #e0e0e0",
+    <Box
+      sx={{
+        height: "calc(100vh - 98px)",
         display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between"
-      }}>
+        flexDirection: "column",
+        backgroundColor: "#f9f9f9",
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          p: 2,
+          backgroundColor: "#fff",
+          borderBottom: "1px solid #e0e0e0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Button
             variant="outlined"
@@ -186,17 +232,23 @@ const CreateTicketPage: React.FC = () => {
               color: "#666",
               "&:hover": {
                 borderColor: "#1976d2",
-                color: "#1976d2"
-              }
+                color: "#1976d2",
+              },
             }}
           >
             ← Back to Tickets
           </Button>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: "#1a1a1a", mb: 0.5 }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, color: "#1a1a1a", mb: 0.5 }}
+            >
               Create New Ticket
             </Typography>
-            <Typography variant="body2" sx={{ color: "#666", fontSize: "12px" }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#666", fontSize: "12px" }}
+            >
               Fill in the details below to create a new support ticket
             </Typography>
           </Box>
@@ -228,8 +280,8 @@ const CreateTicketPage: React.FC = () => {
               color: "#666",
               "&:hover": {
                 borderColor: "#666",
-                backgroundColor: "#f5f5f5"
-              }
+                backgroundColor: "#f5f5f5",
+              },
             }}
           >
             Reset
@@ -247,8 +299,8 @@ const CreateTicketPage: React.FC = () => {
               py: 1,
               "&:disabled": {
                 backgroundColor: "#ccc",
-                color: "#666"
-              }
+                color: "#666",
+              },
             }}
           >
             {isCreating ? "Creating..." : "Create ticket"}
@@ -257,29 +309,55 @@ const CreateTicketPage: React.FC = () => {
       </Box>
 
       {/* Main Content - 3 Column Layout */}
-      <Box sx={{ flex: 1, display: "flex", gap: 3, p: 3, overflow: "auto" }}>
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          gap: 2,
+          p: 2,
+          overflow: "auto",
+          maxHeight: "calc(100vh - 150px)",
+        }}
+      >
         {/* Left Column - Ticket Details */}
         <Box sx={{ width: 300, flexShrink: 0 }}>
-          <Box sx={{
-            backgroundColor: "#fff",
-            borderRadius: 2,
-            p: 3,
-            border: "1px solid #e0e0e0",
-            height: "100%"
-          }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: "#1a1a1a" }}>
+          <Box
+            sx={{
+              backgroundColor: "#fff",
+              borderRadius: 2,
+              p: 3,
+              border: "1px solid #e0e0e0",
+              height: "100%",
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, mb: 2, color: "#1a1a1a" }}
+            >
               Ticket details
             </Typography>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {/* Priority */}
-              <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 3 }}>
+              <FormControl
+                fullWidth
+                size="small"
+                variant="outlined"
+                sx={{ mb: 3 }}
+              >
                 <InputLabel>Priority</InputLabel>
                 <Select
                   value={newTicket.priority.toString()}
-                  onChange={(e) => handleInputChange("priority", parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange("priority", parseInt(e.target.value))
+                  }
                   label="Priority"
-                  startAdornment={<PriorityHigh fontSize="small" sx={{ color: "#666", mr: 1 }} />}
+                  startAdornment={
+                    <PriorityHigh
+                      fontSize="small"
+                      sx={{ color: "#666", mr: 1 }}
+                    />
+                  }
                   sx={{
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#dadce0",
@@ -291,19 +369,21 @@ const CreateTicketPage: React.FC = () => {
                       borderColor: "#1976d2",
                     },
                     backgroundColor: "#fff",
-                    fontSize: "0.875rem"
+                    fontSize: "0.875rem",
                   }}
                 >
                   {priorityOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <Box
                           sx={{
                             width: 12,
                             height: 12,
                             borderRadius: "50%",
                             backgroundColor: option.color,
-                            flexShrink: 0
+                            flexShrink: 0,
                           }}
                         />
                         {option.label}
@@ -314,13 +394,25 @@ const CreateTicketPage: React.FC = () => {
               </FormControl>
 
               {/* Assignee */}
-              <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 2 }}>
+              <FormControl
+                fullWidth
+                size="small"
+                variant="outlined"
+                sx={{ mb: 2 }}
+              >
                 <InputLabel>Assignee</InputLabel>
                 <Select
                   value={newTicket.assignee || "any"}
-                  onChange={(e) => handleInputChange("assignee", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("assignee", e.target.value)
+                  }
                   label="Assignee"
-                  startAdornment={<Assignment fontSize="small" sx={{ color: "#666", mr: 1 }} />}
+                  startAdornment={
+                    <Assignment
+                      fontSize="small"
+                      sx={{ color: "#666", mr: 1 }}
+                    />
+                  }
                   sx={{
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#dadce0",
@@ -332,7 +424,7 @@ const CreateTicketPage: React.FC = () => {
                       borderColor: "#1976d2",
                     },
                     backgroundColor: "#fff",
-                    fontSize: "0.875rem"
+                    fontSize: "0.875rem",
                   }}
                 >
                   {agentOptions.map((option) => (
@@ -344,13 +436,22 @@ const CreateTicketPage: React.FC = () => {
               </FormControl>
 
               {/* Department */}
-              <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 3 }}>
+              <FormControl
+                fullWidth
+                size="small"
+                variant="outlined"
+                sx={{ mb: 3 }}
+              >
                 <InputLabel>Department</InputLabel>
                 <Select
                   value={newTicket.department || ""}
-                  onChange={(e) => handleInputChange("department", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("department", e.target.value)
+                  }
                   label="Department"
-                  startAdornment={<Business fontSize="small" sx={{ color: "#666", mr: 1 }} />}
+                  startAdornment={
+                    <Business fontSize="small" sx={{ color: "#666", mr: 1 }} />
+                  }
                   sx={{
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#dadce0",
@@ -362,7 +463,7 @@ const CreateTicketPage: React.FC = () => {
                       borderColor: "#1976d2",
                     },
                     backgroundColor: "#fff",
-                    fontSize: "0.875rem"
+                    fontSize: "0.875rem",
                   }}
                 >
                   {departmentOptions.map((option) => (
@@ -390,7 +491,7 @@ const CreateTicketPage: React.FC = () => {
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#fff",
                     borderColor: "#dadce0",
-                  }
+                  },
                 }}
               />
             </Box>
@@ -399,15 +500,19 @@ const CreateTicketPage: React.FC = () => {
 
         {/* Middle Column - Main Form */}
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <Box sx={{
-            backgroundColor: "#fff",
-            borderRadius: 2,
-            p: 3,
-            border: "1px solid #e0e0e0",
-            flex: 1,
-            display: "flex",
-            flexDirection: "column"
-          }}>
+          <Box
+            sx={{
+              backgroundColor: "#fff",
+              borderRadius: 2,
+              p: 2,
+              border: "1px solid #e0e0e0",
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              overflowY: "auto",
+              maxHeight: "calc(100vh - 198px)",
+            }}
+          >
             {/* Mandatory Fields Alert */}
             <Alert
               severity="info"
@@ -419,7 +524,9 @@ const CreateTicketPage: React.FC = () => {
             >
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 Fields marked with{" "}
-                <span style={{ color: "#d32f2f", fontSize: 18, fontWeight: "bold" }}>
+                <span
+                  style={{ color: "#d32f2f", fontSize: 18, fontWeight: "bold" }}
+                >
                   *
                 </span>{" "}
                 are mandatory
@@ -427,8 +534,10 @@ const CreateTicketPage: React.FC = () => {
             </Alert>
 
             {/* Form Fields */}
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
-              <TextField
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}
+            >
+              {/* <TextField
                 label="From*"
                 size="small"
                 fullWidth
@@ -461,7 +570,100 @@ const CreateTicketPage: React.FC = () => {
                 <FormHelperText error sx={{ mt: 0.5, fontSize: "0.75rem" }}>
                   {errors.user_email}
                 </FormHelperText>
-              )}
+              )} */}
+              <Autocomplete
+                disableClearable
+                popupIcon={null}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return option.userEmail || option.userName || "";
+                }}
+                options={displayFromOptions}
+                value={newTicket.user_email}
+                onChange={(event, newValue) => {
+                  handleSelectedOption(event, newValue);
+                }}
+                onInputChange={(_, value) => setfromChangeValue(value)}
+                filterOptions={(x) => x}
+                getOptionDisabled={(option) => option === "Type to search"}
+                noOptionsText="No Data Found"
+                renderOption={(props, option: any) => (
+                  <li {...props}>
+                    {typeof option === "string" ? (
+                      option
+                    ) : (
+                      <div
+                        className="flex items-center gap-3 p-2 rounded-md w-full"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            backgroundColor: "primary.main",
+                          }}
+                        >
+                          {option.userName?.charAt(0).toUpperCase()}
+                        </Avatar>
+
+                        <div className="flex flex-col">
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {option.userName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {option.userEmail}
+                          </Typography>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                )}
+                renderTags={(toValue, getTagProps) =>
+                  toValue?.map((option, index) => (
+                    <Chip
+                      variant="outlined"
+                      color="primary"
+                      //@ts-ignore
+                      label={typeof option === "string" ? option : option?.name}
+                      {...getTagProps({ index })}
+                      sx={{
+                        cursor: "pointer",
+                        height: "20px",
+                        // backgroundColor: "#6EB4C9",
+                        color: "primary.main",
+                        "& .MuiChip-deleteIcon": {
+                          color: "error.main",
+                          width: "12px",
+                        },
+                        "& .MuiChip-deleteIcon:hover": {
+                          color: "#e87f8c",
+                        },
+                      }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="To *"
+                    variant="outlined"
+                    fullWidth
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
+              />
 
               {/* Contacts Field */}
               <TextField
@@ -470,7 +672,9 @@ const CreateTicketPage: React.FC = () => {
                 fullWidth
                 variant="outlined"
                 value={newTicket.recipients}
-                onChange={(e) => handleInputChange("recipients", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("recipients", e.target.value)
+                }
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -482,7 +686,7 @@ const CreateTicketPage: React.FC = () => {
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#fff",
                     borderColor: "#dadce0",
-                  }
+                  },
                 }}
               />
 
@@ -498,7 +702,10 @@ const CreateTicketPage: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Subject fontSize="small" sx={{ color: errors.subject ? "#d32f2f" : "#666" }} />
+                      <Subject
+                        fontSize="small"
+                        sx={{ color: errors.subject ? "#d32f2f" : "#666" }}
+                      />
                     </InputAdornment>
                   ),
                 }}
@@ -507,8 +714,8 @@ const CreateTicketPage: React.FC = () => {
                     borderColor: errors.subject ? "#d32f2f" : "#dadce0",
                     "&.Mui-focused": {
                       borderColor: errors.subject ? "#d32f2f" : "#1976d2",
-                    }
-                  }
+                    },
+                  },
                 }}
               />
               {errors.subject && (
@@ -519,7 +726,10 @@ const CreateTicketPage: React.FC = () => {
 
               {/* Message Body */}
               <Box sx={{ flex: 1, minHeight: 300 }}>
-                <Typography variant="body2" sx={{ mb: 1, color: "#666", fontSize: "0.875rem" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mb: 1, color: "#666", fontSize: "0.875rem" }}
+                >
                   Please enter the user concern here*
                 </Typography>
 
@@ -544,64 +754,75 @@ const CreateTicketPage: React.FC = () => {
 
         {/* Right Column - Contact Details */}
         <Box sx={{ width: 300, flexShrink: 0 }}>
-          <Box sx={{
-            backgroundColor: "#fff",
-            borderRadius: 2,
-            p: 3,
-            border: "1px solid #e0e0e0",
-            height: "100%"
-          }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: "#1a1a1a" }}>
+          <Box
+            sx={{
+              backgroundColor: "#fff",
+              borderRadius: 2,
+              p: 3,
+              border: "1px solid #e0e0e0",
+              height: "100%",
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, mb: 2, color: "#1a1a1a" }}
+            >
               Contact details
             </Typography>
 
-            <Box sx={{
-              textAlign: "center",
-              p: 3,
-              backgroundColor: "#f8f9fa",
-              borderRadius: 2,
-              border: "1px solid #e9ecef",
-              mt: 2
-            }}>
+            <Box
+              sx={{
+                textAlign: "center",
+                p: 3,
+                backgroundColor: "#f8f9fa",
+                borderRadius: 2,
+                border: "1px solid #e9ecef",
+                mt: 2,
+              }}
+            >
               {/* Illustration Placeholder */}
-              <Box sx={{
-                width: 120,
-                height: 120,
-                margin: "0 auto 16px",
-                backgroundColor: "#e3f2fd",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                position: "relative"
-              }}>
-                <Email sx={{ fontSize: 48, color: "#1976d2" }} />
-                <Box sx={{
-                  position: "absolute",
-                  top: -8,
-                  right: -8,
-                  width: 32,
-                  height: 32,
-                  backgroundColor: "#ff9800",
+              <Box
+                sx={{
+                  width: 120,
+                  height: 120,
+                  margin: "0 auto 16px",
+                  backgroundColor: "#e3f2fd",
                   borderRadius: "50%",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
-                }}>
+                  justifyContent: "center",
+                  position: "relative",
+                }}
+              >
+                <Email sx={{ fontSize: 48, color: "#1976d2" }} />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: -8,
+                    right: -8,
+                    width: 32,
+                    height: 32,
+                    backgroundColor: "#ff9800",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   <Warning sx={{ fontSize: 20, color: "#fff" }} />
                 </Box>
               </Box>
 
-              <Typography variant="body2" sx={{ color: "#666", fontSize: "0.875rem" }}>
+              <Typography
+                variant="body2"
+                sx={{ color: "#666", fontSize: "0.875rem" }}
+              >
                 Enter email to see their details and recent conversations here
               </Typography>
             </Box>
-
           </Box>
         </Box>
       </Box>
-
-
     </Box>
   );
 };

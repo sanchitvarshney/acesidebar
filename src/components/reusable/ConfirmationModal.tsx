@@ -12,11 +12,10 @@ import {
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { motion } from "framer-motion";
 
-// Slide Transition
 const Transition = forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
   ref: React.Ref<unknown>
@@ -28,27 +27,62 @@ interface ConfirmationModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  bgColor?: string;
+  type?: "delete" | "close" | "custom";
+  title?: string;
+  message?: string;
+  successMessage?: string;
+  icon?: React.ReactNode;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   open,
   onClose,
   onConfirm,
-  bgColor = "white",
+  type = "delete",
+  title,
+  message,
+  successMessage,
+  icon,
 }) => {
   const [step, setStep] = useState<"confirm" | "success">("confirm");
 
   useEffect(() => {
-    if (open) {
-      setStep("confirm"); // Reset to initial state when modal opens
-    }
+    if (open) setStep("confirm");
   }, [open]);
 
   const handleConfirm = () => {
     setStep("success");
     onConfirm?.();
   };
+
+  // Dynamic background color based on type
+  const typeBgColor =
+    type === "delete" ? "#ffebee" : type === "close" ? "#e3f2fd" : "#f5f5f5";
+
+  // Defaults based on type
+  const defaultTitle =
+    type === "delete" ? "Delete item?" : type === "close" ? "Close item?" : "Confirm action?";
+  const defaultMessage =
+    type === "delete"
+      ? "Are you sure you want to delete this item? This action cannot be undone."
+      : type === "close"
+      ? "Are you sure you want to close this item?"
+      : "Are you sure you want to proceed?";
+  const defaultSuccessMessage =
+    type === "delete"
+      ? "Item deleted successfully"
+      : type === "close"
+      ? "Item closed successfully"
+      : "Action completed successfully";
+
+  const defaultIcon =
+    type === "delete" ? (
+      <DeleteForeverIcon sx={{ fontSize: 50, color: "error.main" }} />
+    ) : type === "close" ? (
+      <CloseIcon sx={{ fontSize: 50, color: "info.main" }} />
+    ) : (
+      <CheckCircleIcon sx={{ fontSize: 50, color: "success.main" }} />
+    );
 
   return (
     <Dialog
@@ -64,7 +98,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           boxShadow: 6,
           px: 1,
           py: 0.5,
-          backgroundColor: step === "confirm" ? "#ffebee" : "#ffffff",
+          backgroundColor: step === "confirm" ? typeBgColor : "#ffffff",
           position: "relative",
         },
       }}
@@ -75,7 +109,6 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         },
       }}
     >
-      {/* Close Icon */}
       {step === "confirm" && (
         <IconButton
           onClick={onClose}
@@ -91,17 +124,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </IconButton>
       )}
 
-      {/* Delete Icon */}
       {step === "confirm" && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            pt: 3,
-          }}
-        >
-          <DeleteForeverIcon sx={{ fontSize: 50, color: "error.main" }} />
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: 3 }}>
+          {icon || defaultIcon}
         </Box>
       )}
 
@@ -113,7 +138,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           py: 2,
         }}
       >
-        {step === "confirm" ? "Delete item?" : "Deleted"}
+        {step === "confirm" ? title || defaultTitle : "Success"}
       </DialogTitle>
 
       <DialogContent
@@ -123,16 +148,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          px: 2
+          px: 2,
         }}
       >
         {step === "confirm" && (
-          <Typography variant="body2" color="text.secondary">
-          Are you absolutely sure you want to delete this item?<br />
-          This action is irreversible and will permanently remove the item from your records.<br />
-          Please confirm if you wish to continue.
-        </Typography>
-        
+          <Typography variant="body2" color="text.secondary" textAlign="center">
+            {message || defaultMessage}
+          </Typography>
         )}
 
         {step === "success" && (
@@ -148,7 +170,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             }}
           >
             <Typography variant="body1" fontWeight="bold">
-              Deleted successfully
+              {successMessage || defaultSuccessMessage}
             </Typography>
 
             <motion.svg
@@ -197,11 +219,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         {step === "confirm" ? (
           <Button
             variant="contained"
-            color="error"
+            color={type === "delete" ? "error" : type === "close" ? "info" : "primary"}
             onClick={handleConfirm}
             sx={{ borderRadius: 5, textTransform: "none", px: 3 }}
           >
-            Please Delete
+            {type === "delete" ? "Delete" : type === "close" ? "Close" : "Confirm"}
           </Button>
         ) : (
           <Button
