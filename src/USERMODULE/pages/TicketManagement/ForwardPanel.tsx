@@ -35,7 +35,7 @@ interface ForwardPanelProps {
   open: boolean;
   onClose: () => void;
   fields: any;
-  onFieldChange: (field: string, value: string) => void;
+  onFieldChange: any;
   onSend: () => void;
   expand?: boolean;
   onExpandToggle?: () => void;
@@ -66,15 +66,16 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   const [isDragOver, setIsDragOver] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
-  const [ccValue, setCcValue] = React.useState<any>([]);
+
   const [bccValue, setBccValue] = React.useState<any>([]);
   const [ccChangeValue, setCcChangeValue] = React.useState("");
   const [bccChangeValue, setBccChangeValue] = React.useState("");
+  const [toChangeValue, setToChangeValue] = React.useState("");
   const [options, setOptions] = useState<any[]>([]);
   const [openCcfield, setOpenCcfield] = useState(false);
   const [openBccfield, setOpenBccfield] = useState(false);
 
-  const handleFileSelect = (files: FileList | null) => {
+  const handleFileSelect = async (files: FileList | null) => {
     if (!files) return;
 
     const currentFileCount = attachedFiles.length;
@@ -91,27 +92,36 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
       return;
     }
 
-    const newFiles: AttachedFile[] = Array.from(files).map((file) => ({
-      id: Math.random().toString(36).substr(2, 9),
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      file: file,
-    }));
+    const newFiles = await Promise.all(
+      Array.from(files).map(
+        (file) =>
+          new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              resolve({
+                file_id: `${Date.now()}-${file.name}`,
+                file_type: file.type,
+                file_name: file.name,
+                file_size: file.size,
+                base64_data: (reader?.result as string).split(",")[1], // Remove the data: prefix
+              });
+            };
+            reader?.readAsDataURL(file);
+          })
+      )
+    );
 
-    onFieldChange("documents", JSON.stringify([...attachedFiles, ...newFiles]))
+    //@ts-ignore
 
-    if (newFileCount > 1) {
-      showToast(`${newFileCount} files attached successfully!`, "success");
-    } else {
-      showToast("File attached successfully!", "success");
-    }
+    onFieldChange("documents", [...fields.documents, ...newFiles]);
   };
 
   const handleFileRemove = (fileId: string) => {
-   
-    onFieldChange("documents", JSON.stringify(attachedFiles.filter((file) => file.id !== fileId)));
-    showToast("File removed successfully!", "success");
+    //@ts-ignore
+    onFieldChange(
+      "documents",
+      fields.documents.filter((file: any) => file.file_id !== fileId)
+    );
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -132,72 +142,25 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
 
   // simulate API call
 
-  const handleKeyDown = (event: any, type: string) => {
-    if (type === "cc" && event.key === "Enter" && ccChangeValue.trim() !== "") {
-      const newEmail = ccChangeValue.trim();
-
-      if (!isValidEmail(newEmail)) {
-        showToast("Invalid email format", "error");
-        return;
-      }
-
-      if (ccValue.some((item: any) => item.email === newEmail)) {
-        showToast("Email already exists", "error");
-        return;
-      }
-
-      if (ccValue.length >= 3) {
-        showToast("Maximum 3 CC allowed", "error");
-        return;
-      }
-
-      setCcValue((prev: any) => [
-        ...prev,
-        { name: formatName(newEmail), email: newEmail },
-      ]);
-      setCcChangeValue("");
-    }
-    if (
-      type === "bcc" &&
-      event.key === "Enter" &&
-      bccChangeValue.trim() !== ""
-    ) {
-      const newEmail = bccChangeValue.trim();
-      if (!isValidEmail(newEmail)) {
-        showToast("Invalid email format", "error");
-        return;
-      }
-
-      if (bccValue.some((item: any) => item.email === newEmail)) {
-        showToast("Email already exists", "error");
-        return;
-      }
-
-      if (bccValue.length >= 3) {
-        showToast("Maximum 3 CC allowed", "error");
-        return;
-      }
-
-      setBccValue((prev: any) => [
-        ...prev,
-        { name: formatName(newEmail), email: newEmail },
-      ]);
-      setBccChangeValue(""); // clear input after adding
-    }
-  };
-
   useEffect(() => {
-    const filterValue: any = fetchOptions(ccChangeValue || bccChangeValue);
+    const filterValue: any = fetchOptions(
+      ccChangeValue || bccChangeValue || toChangeValue
+    );
+
     filterValue?.length > 0
       ? setOptions(filterValue)
-      : setOptions([{ userEmail: ccChangeValue || bccChangeValue }]);
-  }, [ccChangeValue, bccChangeValue]);
+      : setOptions([
+          {
+            userName: ccChangeValue || bccChangeValue || toChangeValue,
+            userEmail: ccChangeValue || bccChangeValue || toChangeValue,
+          },
+        ]);
+  }, [ccChangeValue, bccChangeValue, toChangeValue]);
   const handleSelectedOption = (
     _: React.SyntheticEvent,
     value: any,
     type: string
   ) => {
-    console.log(value);
     if (!value) return;
 
     const dataValue = { name: value.userName, email: value.userEmail };
@@ -207,33 +170,43 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     }
 
     if (type === "cc") {
-      if (ccValue.some((item: any) => item.email === value.userEmail)) {
+      if (fields.cc.some((item: any) => item.email === value.userEmail)) {
         showToast("Email already Exist", "error");
         return;
       }
-      if (ccValue.length >= 3) {
+      if (fields.cc.length >= 3) {
         showToast("Maximum 3 cc allowed", "error");
         return;
       }
-      setCcValue((prev: any) => [...prev, dataValue]);
+
+      onFieldChange("cc", [...fields.cc, dataValue.email]);
+    } else if (type === "to") {
+      onFieldChange("to", dataValue.email);
     } else {
-      if (bccValue.some((item: any) => item.email === value.userEmail)) {
+      if (fields.bcc.some((item: any) => item.email === value.userEmail)) {
         showToast("Email already Exist", "error");
         return;
       }
-      if (bccValue.length >= 3) {
+      if (fields.bcc.length >= 3) {
         showToast("Maximum 3 bcc allowed", "error");
         return;
       }
-      setBccValue((prev: any) => [...prev, dataValue]);
+
+      onFieldChange("bcc", [...fields.bcc, dataValue.email]);
     }
   };
 
   const handleDelete = (type: string, item: any) => {
     if (type === "cc") {
-      setCcValue((prev: any) => prev.filter((i: any) => i.email !== item));
+      onFieldChange(
+        "cc",
+        fields.cc.filter((i: any) => i.email !== item)
+      );
     } else {
-      setBccValue((prev: any) => prev.filter((i: any) => i.email !== item));
+      onFieldChange(
+        "bcc",
+        fields.bcc.filter((i: any) => i.email !== item)
+      );
     }
   };
 
@@ -246,15 +219,16 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   };
 
   const getFileIcon = (type: string) => {
-    if (type.startsWith("image/")) return <ImageIcon />;
+    if (type?.startsWith("image/")) return <ImageIcon />;
     if (type === "application/pdf") return <PictureAsPdfIcon />;
-    if (type.startsWith("text/")) return <DescriptionIcon />;
+    if (type?.startsWith("text/")) return <DescriptionIcon />;
     return <InsertDriveFileIcon />;
   };
   const displayCCOptions: any = ccChangeValue ? options : [];
   const displayBCCOptions: any = bccChangeValue ? options : [];
+  const displayToOptions: any = toChangeValue ? options : [];
 
-  const canAddMoreFiles = attachedFiles.length < MAX_FILES;
+  const canAddMoreFiles = fields.documents?.length < MAX_FILES;
 
   // Sidebar style panel (not modal) when expand is false
   const panelContent = (
@@ -317,7 +291,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           sx={{ mb: 1 }}
         />
 
-        <TextField
+        {/* <TextField
           label="To"
           size="medium"
           fullWidth
@@ -326,6 +300,95 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           onChange={(e) => onFieldChange("to", e.target.value)}
           required
           sx={{ mb: 1 }}
+        /> */}
+        <Autocomplete
+          disableClearable
+          popupIcon={null}
+          getOptionLabel={(option) => {
+            if (typeof option === "string") return option;
+            return option.userEmail || option.userName || "";
+          }}
+          options={displayToOptions}
+          value={fields.to}
+          onChange={(event, newValue) => {
+            handleSelectedOption(event, newValue, "to");
+          }}
+          onInputChange={(_, value) => setToChangeValue(value)}
+          filterOptions={(x) => x}
+          getOptionDisabled={(option) => option === "Type to search"}
+          noOptionsText="No Data Found"
+          renderOption={(props, option) => (
+            <li {...props}>
+              {typeof option === "string" ? (
+                option
+              ) : (
+                <div
+                  className="flex items-center gap-3 p-2 rounded-md w-full"
+                  style={{ cursor: "pointer" }}
+                >
+                  <Avatar
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      backgroundColor: "primary.main",
+                    }}
+                  >
+                    {option.userName?.charAt(0).toUpperCase()}
+                  </Avatar>
+
+                  <div className="flex flex-col">
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {option.userName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {option.userEmail}
+                    </Typography>
+                  </div>
+                </div>
+              )}
+            </li>
+          )}
+          renderTags={(toValue, getTagProps) =>
+            toValue?.map((option, index) => (
+              <Chip
+                variant="outlined"
+                color="primary"
+                label={typeof option === "string" ? option : option?.name}
+                {...getTagProps({ index })}
+                sx={{
+                  cursor: "pointer",
+                  height: "20px",
+                  // backgroundColor: "#6EB4C9",
+                  color: "primary.main",
+                  "& .MuiChip-deleteIcon": {
+                    color: "error.main",
+                    width: "12px",
+                  },
+                  "& .MuiChip-deleteIcon:hover": {
+                    color: "#e87f8c",
+                  },
+                }}
+              />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="To *"
+              variant="outlined"
+              fullWidth
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "4px",
+                  backgroundColor: "#f9fafb",
+                  "&:hover fieldset": { borderColor: "#9ca3af" },
+                  "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                },
+                "& label.Mui-focused": { color: "#1a73e8" },
+                "& label": { fontWeight: "bold" },
+              }}
+            />
+          )}
         />
 
         <div className="flex gap-2 justify-end mr-1 mb-1">
@@ -413,7 +476,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                     label="CC"
                     variant="outlined"
                     size="small"
-                    onKeyDown={(e) => handleKeyDown(e, "cc")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "4px",
@@ -427,14 +489,14 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                   />
                 )}
               />
-              {ccValue.length > 0 && (
+              {fields.cc.length > 0 && (
                 <Stack
                   direction="row"
                   spacing={1}
                   mt={1}
                   sx={{ overflowX: "auto", p: 1 }}
                 >
-                  {ccValue.map((item: any, index: number) => (
+                  {fields.cc.map((item: any, index: number) => (
                     <Chip
                       label={
                         item.name ? `${item.name} (${item.email})` : item.email
@@ -517,7 +579,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                     // InputLabelProps={{ shrink: true }}
                     label="BCC"
                     variant="outlined"
-                    onKeyDown={(e) => handleKeyDown(e, "bcc")}
                     size="small"
                     sx={{
                       "& .MuiOutlinedInput-root": {
@@ -532,16 +593,16 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                   />
                 )}
               />
-              {bccValue.length > 0 && (
+              {fields.bcc.length > 0 && (
                 <Stack
                   direction="row"
                   spacing={1}
                   mt={1}
                   sx={{ overflowX: "auto", p: 1 }}
                 >
-                  {bccValue.map((item: any, index: number) => (
+                  {fields.bcc.map((item: any, index: number) => (
                     <Chip
-                         label={
+                      label={
                         item.name ? `${item.name} (${item.email})` : item.email
                       }
                       variant="outlined"
@@ -571,7 +632,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
             variant="subtitle2"
             sx={{ mb: 1, fontWeight: 600, color: "#666" }}
           >
-            Attachments ({attachedFiles.length}/{MAX_FILES})
+            Attachments ({fields.documents?.length}/{MAX_FILES})
           </Typography>
 
           {/* Drag & Drop Area */}
@@ -636,18 +697,18 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         </MuiBox>
 
         {/* Attached Files List */}
-        {attachedFiles.length > 0 && (
+        {fields.documents?.length > 0 && (
           <MuiBox sx={{ mb: 2 }}>
             <Typography
               variant="subtitle2"
               sx={{ mb: 1, fontWeight: 600, color: "#666" }}
             >
-              Attached Files ({attachedFiles.length})
+              Attached Files ({fields.documents?.length})
             </Typography>
             <List sx={{ p: 0, bgcolor: "#f8f9fa", borderRadius: 1 }}>
-              {attachedFiles.map((file) => (
+              {fields.documents?.map((file: any) => (
                 <ListItem
-                  key={file.id}
+                  key={file.file_id}
                   sx={{
                     borderBottom: "1px solid #e0e0e0",
                     "&:last-child": { borderBottom: "none" },
@@ -655,11 +716,11 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: 40 }}>
-                    {getFileIcon(file.type)}
+                    {getFileIcon(file.file_type)}
                   </ListItemIcon>
                   <ListItemText
-                    primary={file.name}
-                    secondary={formatFileSize(file.size)}
+                    primary={file.file_name}
+                    secondary={formatFileSize(file.file_size)}
                     primaryTypographyProps={{
                       fontSize: "0.875rem",
                       fontWeight: 500,
@@ -670,7 +731,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                     <IconButton
                       edge="end"
                       size="small"
-                      onClick={() => handleFileRemove(file.id)}
+                      onClick={() => handleFileRemove(file.file_id)}
                       sx={{ color: "#f44336" }}
                     >
                       <DeleteIcon fontSize="small" />

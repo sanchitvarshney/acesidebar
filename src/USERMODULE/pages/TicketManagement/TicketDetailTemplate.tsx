@@ -4,28 +4,23 @@ import Sidebar from "../../../components/layout/Sidebar";
 import TicketDetailHeader from "./TicketDetailHeader";
 import TicketThreadSection from "./TicketThreadSection";
 import TicketPropertiesSidebar from "./TicketPropertiesSidebar";
-import TicketDetailAccordion from "./TicketDetailAccordion";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import {
   Drawer,
-  IconButton,
-  TextField,
+
   Button,
   Typography,
   Box as MuiBox,
   Avatar,
   Modal,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+
 import ForwardPanel from "./ForwardPanel";
-import { useAuth } from "../../../contextApi/AuthContext";
-import { set } from "react-hook-form";
+
 import {
   useCommanApiMutation,
-  useForwardThreadMutation,
+
 } from "../../../services/threadsApi";
-import { email } from "zod/v4/core/regexes";
+
 
 interface TicketDetailTemplateProps {
   ticket: any; // expects { header, response, other }
@@ -43,18 +38,17 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
       ticket?.header?.requester ||
       "MsCorpres Automation PvtLtd (support@postmanreply.com)",
     subject: ticket?.header?.subject ? `Fwd: ${ticket.header.subject}` : "",
-    to: [],
+    to: "",
     cc: [],
     bcc: [],
 
     message: ticket?.header?.description || "",
-    documents:[]
+    documents: [],
   });
   const [showReplyEditor, setShowReplyEditor] = React.useState(false);
   const [showEditorNote, setShowEditorNote] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
-  const [forwardThread] = useForwardThreadMutation();
 
   const [commanApi] = useCommanApiMutation();
 
@@ -80,34 +74,33 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
           ? `FWD: ${ticket.header.subject}`
           : forwardFields.subject,
         message: ticket?.header?.description || forwardFields.message,
-        attachments: [
-          {
-            filename: "report.pdf",
-            base64_data: "JVBERi0xLjQKJc...",
-          },
-        ],
+        attachments: forwardFields.documents.map((file: any) => {
+          return {
+            file_id: file.file_id,
+            file_name: file.file_name,
+            file_type: file.file_type,
+            file_size: file.file_size,
+            base64_data: file.base64_data,
+          };
+        }),
       },
     };
 
     // Call your API
-    forwardThread(payload)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    commanApi(payload)
+      .then((response) => {})
+      .catch((error) => {});
     setForwardOpen(false);
     setForwardFields({
       from:
         ticket?.header?.requester ||
         "MsCorpres Automation PvtLtd (support@postmanreply.com)",
       subject: ticket?.header?.subject ? `Fwd: ${ticket.header.subject}` : "",
-      to: [],
+      to: "",
       cc: [],
       bcc: [],
       message: ticket?.header?.description || "",
-      documents:[],
+      documents: [],
     });
   };
 

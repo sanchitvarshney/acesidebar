@@ -34,8 +34,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 
 import {
-  useCloseTicketMutation,
-  useDeleteTicketMutation,
+
+  useCommanApiMutation,
   useTicketStatusChangeMutation,
 } from "../../../services/threadsApi";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
@@ -108,7 +108,7 @@ const Tickets: React.FC = () => {
   );
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [ticketStatusChange] = useTicketStatusChangeMutation();
-  const [ticketDelete] = useDeleteTicketMutation();
+  const [commanApi] = useCommanApiMutation();
 
   // Fetch live priority list
   const { data: priorityList, isLoading: isPriorityListLoading } =
@@ -118,7 +118,7 @@ const Tickets: React.FC = () => {
   const { data: sortingOptions, isLoading: isSortingOptionsLoading } =
     useGetTicketSortingOptionsQuery();
 
-  const [closeTicket] = useCloseTicketMutation();
+  // const [closeTicket] = useCloseTicketMutation();
 
   const optionsRef = React.useRef(null);
 
@@ -382,8 +382,24 @@ const Tickets: React.FC = () => {
     if (selectedTickets.length < 0) {
       return;
     }
+    const payload = {
+      url: "delete-ticket",
+      body: { ids: selectedTickets },
+    };
 
-    ticketDelete({ ticketId: selectedTickets });
+    commanApi(payload);
+  };
+
+    const handleClose = () => {
+    if (selectedTickets.length < 0) {
+      return;
+    }
+    const payload = {
+      url: "close-ticket",
+      body: { ids: selectedTickets },
+    };
+
+    commanApi(payload);
   };
 
   const handleDropdownChange = (value: any, ticket: any, type: any) => {
@@ -743,7 +759,7 @@ const Tickets: React.FC = () => {
                       fontSize: "0.875rem",
                       fontWeight: 500,
                     }}
-                    onClick={() => closeTicket({ ticketIds: selectedTickets })}
+                    onClick={handleClose}
                   >
                     Close
                   </Button>

@@ -22,7 +22,7 @@ export const fetchOptions =  (query:any) => {
       { userName: "xyeiheioz", userEmail: "xyz@gmail.com" },
       {
         userName: "abcde",
-        userEmail: " absfuifeggcde@gamil.com",
+        userEmail: "fuifeggcde@gmail.com",
       },
     ];
     const filtered = allData?.filter((opt) =>

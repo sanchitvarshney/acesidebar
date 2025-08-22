@@ -14,6 +14,8 @@ import XIcon from "@mui/icons-material/X";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
+import { useAuth } from "../../../contextApi/AuthContext";
+import { useCommanApiMutation } from "../../../services/threadsApi";
 
 interface SharingDataType {
   id: string;
@@ -52,28 +54,33 @@ const initialSharingData: SharingDataType[] = [
 const SharingTab = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [socialLinks, setSocialLinks] = useState(initialSharingData);
+  const [commanApi] = useCommanApiMutation();
+  //@ts-ignore
+  const userId = useAuth().user?.id || Math.floor(Math.random() * 1000);
 
   const toggleEdit = () => setIsEditing((prev) => !prev);
 
   const handleUrlChange = (id: string, value: string) => {
     setSocialLinks((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, url: value } : item
-      )
+      prev.map((item) => (item.id === id ? { ...item, url: value } : item))
     );
   };
 
   const handleSave = () => {
-    console.log("Updated social links:", socialLinks); // <-- API call can go here
+    const payload = {
+      url: `update-profile/share-links/${userId}`,
+      body: {
+        socialLinks: socialLinks.map(({ id, url }) => ({ id, url })),
+      },
+    };
+    commanApi(payload);
     setIsEditing(false);
   };
 
   return (
     <div className="bg-white rounded border border-gray-200 p-3 mb-4">
       <div className="flex items-center justify-between mb-2">
-        <div className="font-semibold text-sm text-gray-700 ">
-          Social Media
-        </div>
+        <div className="font-semibold text-sm text-gray-700 ">Social Media</div>
         <IconButton size="small" onClick={isEditing ? handleSave : toggleEdit}>
           {isEditing ? (
             <SaveIcon sx={{ fontSize: 20 }} />
@@ -127,9 +134,7 @@ const SharingTab = () => {
                       size="small"
                       fullWidth
                       value={item.url}
-                      onChange={(e) =>
-                        handleUrlChange(item.id, e.target.value)
-                      }
+                      onChange={(e) => handleUrlChange(item.id, e.target.value)}
                       sx={{ mt: 0.5 }}
                     />
                   ) : (

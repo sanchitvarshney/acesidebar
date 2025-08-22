@@ -14,15 +14,16 @@ import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import CustomToolTip from "../../reusable/CustomToolTip";
-import { useMerageContactMutation } from "../../services/threadsApi";
+
 import MergeConfirmation from "./MergeConfirmation";
+import { useCommanApiMutation } from "../../services/threadsApi";
 
 const MergeContact = ({ data, close }: any) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<any[]>([]);
   const [selectedOption, setSelectedOptions] = useState<string[]>([]);
-  const [mergeContact] = useMerageContactMutation();
+  const [commanApi] = useCommanApiMutation();
   const [step, setStep] = useState<number>(1);
 
   // simulate API call
@@ -69,7 +70,7 @@ const MergeContact = ({ data, close }: any) => {
 
   const handleMergeContact = () => {
     if (selectedOption.length === 1) {
-      return
+      return;
     }
     const reqUser = selectedOption.map((item: any) => {
       if (item.userEmail === data.userEmail) {
@@ -77,8 +78,11 @@ const MergeContact = ({ data, close }: any) => {
       }
     });
     const payload = {
-      mergeContact: selectedOption,
-      requestedBy: reqUser[0],
+      url: "merge-contacts",
+      body: {
+        mergeContact: selectedOption,
+        requestedBy: reqUser[0],
+      },
     };
 
     if (step === 1) {
@@ -86,7 +90,7 @@ const MergeContact = ({ data, close }: any) => {
       return;
     }
     if (step === 2) {
-      mergeContact(payload);
+      commanApi(payload);
       close();
       setStep(1);
     }
@@ -102,8 +106,8 @@ const MergeContact = ({ data, close }: any) => {
           value={null}
           options={displayOptions}
           getOptionLabel={(option: any) => {
-            if (typeof option === "string") return option; 
-            if (option?.userName) return option.userName; 
+            if (typeof option === "string") return option;
+            if (option?.userName) return option.userName;
             return "";
           }}
           renderOption={(props, option: any) => (
@@ -303,9 +307,9 @@ const MergeContact = ({ data, close }: any) => {
           color="inherit"
           onClick={() => {
             close();
-           setTimeout(() => {
+            setTimeout(() => {
               setStep(1);
-           },500)
+            }, 500);
           }}
           disabled={selectedOption?.length === 0}
         >

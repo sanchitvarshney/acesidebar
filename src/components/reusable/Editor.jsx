@@ -115,53 +115,53 @@ const StackEditor = ({
   const displayCCOptions = ccChangeValue ? options : [];
   const displayBCCOptions = bccChangeValue ? options : [];
 
-  const handleKeyDown = (event, type) => {
-    if (type === "cc" && event.key === "Enter" && ccChangeValue) {
-      const newEmail = ccChangeValue.trim();
+  // const handleKeyDown = (event, type) => {
+  //   if (type === "cc" && event.key === "Enter" && ccChangeValue) {
+  //     const newEmail = ccChangeValue.trim();
 
-      if (!isValidEmail(newEmail)) {
-        showToast("Invalid email format", "error");
-        return;
-      }
+  //     if (!isValidEmail(newEmail)) {
+  //       showToast("Invalid email format", "error");
+  //       return;
+  //     }
 
-      if (ccValue.some((item) => item.email === newEmail)) {
-        showToast("Email already exists", "error");
-        return;
-      }
+  //     if (ccValue.some((item) => item.email === newEmail)) {
+  //       showToast("Email already exists", "error");
+  //       return;
+  //     }
 
-      if (ccValue.length >= 3) {
-        showToast("Maximum 3 CC allowed", "error");
-        return;
-      }
+  //     if (ccValue.length >= 3) {
+  //       showToast("Maximum 3 CC allowed", "error");
+  //       return;
+  //     }
 
-      setCcValue((prev) => [...prev, { name: newEmail, email: newEmail }]);
-      setCcChangeValue("");
-    }
-    if (
-      type === "bcc" &&
-      event.key === "Enter" &&
-      bccChangeValue.trim() !== ""
-    ) {
-      const newEmail = bccChangeValue.trim();
-      if (!isValidEmail(newEmail)) {
-        showToast("Invalid email format", "error");
-        return;
-      }
+  //     setCcValue((prev) => [...prev, { name: newEmail, email: newEmail }]);
+  //     setCcChangeValue("");
+  //   }
+  //   if (
+  //     type === "bcc" &&
+  //     event.key === "Enter" &&
+  //     bccChangeValue.trim() !== ""
+  //   ) {
+  //     const newEmail = bccChangeValue.trim();
+  //     if (!isValidEmail(newEmail)) {
+  //       showToast("Invalid email format", "error");
+  //       return;
+  //     }
 
-      if (bccValue.some((item) => item.email === newEmail)) {
-        showToast("Email already exists", "error");
-        return;
-      }
+  //     if (bccValue.some((item) => item.email === newEmail)) {
+  //       showToast("Email already exists", "error");
+  //       return;
+  //     }
 
-      if (bccValue.length >= 3) {
-        showToast("Maximum 3 CC allowed", "error");
-        return;
-      }
+  //     if (bccValue.length >= 3) {
+  //       showToast("Maximum 3 CC allowed", "error");
+  //       return;
+  //     }
 
-      setBccValue((prev) => [...prev, { name: newEmail, email: newEmail }]);
-      setBccChangeValue(""); // clear input after adding
-    }
-  };
+  //     setBccValue((prev) => [...prev, { name: newEmail, email: newEmail }]);
+  //     setBccChangeValue(""); // clear input after adding
+  //   }
+  // };
 
   useEffect(() => {
     const filterValue = fetchOptions(ccChangeValue || bccChangeValue);
@@ -172,7 +172,7 @@ const StackEditor = ({
             userName: ccChangeValue || bccChangeValue,
             userEmail: ccChangeValue || bccChangeValue,
           },
-        ]);
+]);
   }, [ccChangeValue, bccChangeValue]);
 
   const handleSelectedOption = (_, newValue, type) => {
@@ -201,7 +201,7 @@ const StackEditor = ({
         showToast("Maximum 3 CC allowed", "error");
         return;
       }
-      setCcValue((prev) => [...prev, dataValue]);
+      setCcValue((prev) => [...prev, dataValue.email]);
     } else {
       if (bccValue.some((item) => item.email === dataValue.email)) {
         showToast("Email already exists", "error");
@@ -211,7 +211,7 @@ const StackEditor = ({
         showToast("Maximum 3 BCC allowed", "error");
         return;
       }
-      setBccValue((prev) => [...prev, dataValue]);
+      setBccValue((prev) => [...prev, dataValue.email]);
     }
   };
 
@@ -719,6 +719,7 @@ const StackEditor = ({
                 onInputChange={(_, value) => setCcChangeValue(value)}
                 filterOptions={(x) => x}
                 getOptionDisabled={(option) => option === "Type to search"}
+                noOptionsText="No Data Found"
                 renderOption={(props, option) => (
                   <li {...props}>
                     {typeof option === "string" ? (
@@ -796,7 +797,7 @@ const StackEditor = ({
                     {...params}
                     label="CC"
                     variant="outlined"
-                    onKeyDown={(e) => handleKeyDown(e, "cc")}
+                  
                     size="small"
                     sx={{
                       width: 400,
@@ -882,8 +883,10 @@ const StackEditor = ({
                         variant="outlined"
                         color="primary"
                         key={index}
-                        label={
-                          typeof option === "string" ? option : option.email
+                         label={
+                          typeof option === "string"
+                            ? option
+                            : formatName(option?.name) // or option.userEmail depending on your data
                         }
                         {...getTagProps({ index })}
                         sx={{
@@ -909,7 +912,7 @@ const StackEditor = ({
                     label="Bcc"
                     variant="outlined"
                     size="small"
-                    keyDown={(e) => handleKeyDown(e, "bcc")}
+                 
                     sx={{
                       width: 400,
                       "& .MuiOutlinedInput-root": {
