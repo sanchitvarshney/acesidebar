@@ -214,7 +214,7 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
               renderOption={(props, option) => {
                 console.log(option);
                 return (
-                  <li {...props} className="flex items-center gap-2 p-2">
+                  <li {...props} className="flex items-center gap-2 p-2 cursor-pointer">
                     <Avatar
                       sx={{ width: 30, height: 30, bgcolor: "primary.main" }}
                     >

@@ -17,7 +17,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     commanApi: builder.mutation({
       query: (credentials) => ({
         url: `{/ticket/staff/${credentials.url}`,
-        method: "Post",
+        method: credentials.method ? credentials.method : "POST",
         body: credentials.body,
       }),
     }),

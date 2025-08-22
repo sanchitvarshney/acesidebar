@@ -118,8 +118,6 @@ const ThreadItem = ({
   onForward,
   marginBottomClass,
 }: any) => {
-
-
   const [commanApi] = useCommanApiMutation();
 
   const [open, setOpen] = useState(false);
@@ -170,8 +168,7 @@ const ThreadItem = ({
   };
 
   const handleReview = (value: any) => {
-  const pathId =  window.location.pathname.split("/").pop(); 
-  
+    const pathId = window.location.pathname.split("/").pop();
 
     setSelected(value);
     const payload = {
@@ -283,6 +280,17 @@ const ThreadItem = ({
     return out;
   };
 
+  const handleReportTicket = () => {
+    const payload = {
+      url: `report-ticket/${item.entryId}`,
+      method:"GET",
+    };
+    commanApi(payload)
+      .then((response) => {})
+      .catch((error) => {});
+    setIsReported((v) => !v);
+  };
+
   return (
     <div className={`flex p-2 overflow-auto ${marginBottomClass}`}>
       {/* Email content */}
@@ -321,7 +329,7 @@ const ThreadItem = ({
             {!isCurrentUser && (
               <IconButton
                 size="small"
-                onClick={() => setIsReported((v) => !v)}
+                onClick={handleReportTicket}
                 sx={{ mt: 1 }}
               >
                 <EmojiFlagsIcon
@@ -962,7 +970,6 @@ const TicketThreadSection = ({
           </Accordion>
         </div>
       </div>
-    
 
       <Drawer
         anchor="right"

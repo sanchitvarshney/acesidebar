@@ -19,10 +19,9 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import InputAdornment from "@mui/material/InputAdornment";
 import Popover from "@mui/material/Popover";
 import SearchIcon from "@mui/icons-material/Search";
+import { useCommanApiMutation } from "../../../services/threadsApi";
 
-interface TicketFilterPanelProps {
-  onApplyFilters: (filters: Record<string, any>) => void;
-}
+
 
 const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const {
@@ -37,6 +36,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [filterSearch, setFilterSearch] = useState("");
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
   const topAnchorRef = React.useRef<HTMLDivElement>(null);
+ const [commanApi] = useCommanApiMutation()
 
   useEffect(() => {
     if (searchCriteria && Array.isArray(searchCriteria)) {
@@ -84,8 +84,35 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   };
 
   const handleApply = () => {
-    onApplyFilters(filters);
-    console.log(filters);
+    // Build payload with only relevant filters
+    const buildNonEmpty = (obj: Record<string, any>) => {
+      const result: Record<string, any> = {};
+      Object.entries(obj).forEach(([key, value]) => {
+        if (value === undefined || value === null) return;
+        if (Array.isArray(value) && value.length === 0) return;
+        if (typeof value === "string" && value.trim() === "") return;
+        result[key] = value;
+      });
+      return result;
+    };
+
+    // If custom mode is shown, only include active filter fields
+    const selectedFilters: Record<string, any> = showCustomFilters
+      ? Object.fromEntries(
+          Object.entries(filters).filter(([key]) => activeFilters.includes(key))
+        )
+      : filters;
+
+    const cleanedFilters = buildNonEmpty(selectedFilters);
+
+    const payload  = {
+      url: "apply-filters",
+      body: cleanedFilters,
+    };
+    commanApi(payload);
+    if (typeof onApplyFilters === "function") {
+      onApplyFilters(cleanedFilters);
+    }
   };
 
   // Add a reset handler
@@ -96,7 +123,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       else cleared[field.name] = "";
     });
     setFilters(cleared);
-    onApplyFilters(cleared);
+    setActiveFilters([]);
+    if (typeof onApplyFilters === "function") {
+      onApplyFilters({});
+    }
   };
 
   if (isLoading) {
@@ -779,7 +809,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           fullWidth
           color="primary"
           onClick={handleApply}
-          disabled={activeFilters.length < 0}
+          disabled={showCustomFilters ? activeFilters.length === 0 : false}
           sx={{
             fontSize: "0.875rem",
             fontWeight: 600,
