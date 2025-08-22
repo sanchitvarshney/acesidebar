@@ -487,6 +487,7 @@ const TicketThreadSection = ({
   const [signature, setSignature] = useState("");
   const [signatureUpdateKey, setSignatureUpdateKey] = useState(0);
   const [shouldFocusEditor, setShouldFocusEditor] = useState(false);
+  const [shouldFocusNotify, setShouldFocusNotify] = useState(false);
   const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
   const [notifyTag, setNotifyTag] = useState([]);
 
@@ -570,6 +571,12 @@ const TicketThreadSection = ({
   useEffect(() => {
     if (!value) return;
     handleReplyButton();
+    if (value === "Add note") {
+      setSelectedValue("private");
+      setShouldFocusNotify(true);
+    } else {
+      setShouldFocusNotify(false);
+    }
   }, [value]);
 
   const handleIconClick = () => {
@@ -761,8 +768,10 @@ const TicketThreadSection = ({
                   isValues={value}
                   onForward={onForward}
                   shouldFocus={shouldFocusEditor}
+                  shouldFocusNotify={shouldFocusNotify}
                   onFocus={() => {
                     setShouldFocusEditor(false);
+                    setShouldFocusNotify(false);
                   }}
                   handleChangeValue={handleChangeValue}
                   selectedValue={selectedValue}
@@ -953,29 +962,7 @@ const TicketThreadSection = ({
           </Accordion>
         </div>
       </div>
-      {/* Reply bar below thread */}
-      {/* <div className="flex items-center gap-2 mt-4 mb-2">
-        <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
-          D
-        </div>
-        <button
-          className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition"
-          onClick={handleReplyButton}
-        >
-          <span>&#8592;</span> Reply
-        </button>
-        <button className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition">
-          <span>&#128221;</span> Add note
-        </button>
-        <button
-          className="flex items-center gap-1 px-3 py-1 rounded bg-white text-gray-700 text-sm font-medium border border-gray-200 hover:bg-gray-100 transition"
-          onClick={onForward}
-        >
-          <span>&#8594;</span> Forward
-        </button>
-      </div> */}
-      {/* Rich editor below reply bar */}
-      {/* {(showEditor || showReplyEditor) && ( */}
+    
 
       <Drawer
         anchor="right"

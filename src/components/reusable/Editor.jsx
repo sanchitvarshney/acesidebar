@@ -76,6 +76,7 @@ const StackEditor = ({
   onChange,
   isFull = true,
   shouldFocus = false,
+  shouldFocusNotify = false,
   onFocus,
   ...props
 }) => {
@@ -99,6 +100,7 @@ const StackEditor = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const editorRef = useRef(null);
   const signatureEditorRef = useRef(null);
+  const notifyInputRef = useRef(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const optionsRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = useState("1");
@@ -251,6 +253,20 @@ const StackEditor = ({
       }
     }
   }, [shouldFocus, onFocus]);
+
+  // Focus the Notify input when requested and when in Add note mode
+  useEffect(() => {
+    if (shouldFocusNotify && selectedIndex !== "1") {
+      const inputEl = notifyInputRef.current;
+      if (inputEl && typeof inputEl.focus === "function") {
+        setTimeout(() => {
+          try {
+            inputEl.focus();
+          } catch (e) {}
+        }, 200);
+      }
+    }
+  }, [shouldFocusNotify, selectedIndex]);
 
   useEffect(() => {
     if (shouldFocus && editorRef.current) {
@@ -610,6 +626,7 @@ const StackEditor = ({
                 InputLabelProps={{ shrink: true }}
                 variant="outlined"
                 size="small"
+                inputRef={notifyInputRef}
                 sx={{
                   width: 400,
                   "& .MuiOutlinedInput-root": {
