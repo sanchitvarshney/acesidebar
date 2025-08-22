@@ -46,6 +46,9 @@ import ConvertProfile from "./ConvertProfile";
 import ChangePassword from "./ChangePassword";
 import MergeContact from "./MergeContact";
 import CustomToolTip from "../../reusable/CustomToolTip";
+import { useParams } from "react-router-dom";
+import { common } from "@mui/material/colors";
+import { useCommanApiMutation } from "../../services/threadsApi";
 
 const ticketData: any = [
   {
@@ -91,6 +94,9 @@ const ProfilePage = () => {
   const phone = userData?.phone || userData?.user?.phone || "27637738";
   const address = userData?.address || "7, fngu ,wiuf ";
 
+  const userId = useParams().id 
+
+
   const [tab, setTab] = useState(0);
 
   const initials = useMemo(() => {
@@ -105,6 +111,26 @@ const ProfilePage = () => {
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [isMerge, setIsMerge] = useState(false);
   const [isPrimaryEmail, setIsPrimaryEmail] = useState(false);
+ const [commanApi] = useCommanApiMutation()
+
+ const  handleDelete = () => {
+  const payload = {
+    url: `delete-user/${userId}`,
+    method: "DELETE",
+  }
+  commanApi(payload)
+ }
+  const  handleMakeAgent = () => {
+  const payload = {
+    url: `make-agent/${userId}`,
+    method: "PUT",
+    body:{
+      type:"agent"
+    }
+  }
+  commanApi(payload)
+ }
+ 
 
   const handleMergeContact = () => {
     setIsMerge(true);
@@ -568,7 +594,7 @@ const ProfilePage = () => {
       <ConfirmationModal
         open={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => {}}
+        onConfirm={handleDelete}
       />
 
       <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />
@@ -576,7 +602,7 @@ const ProfilePage = () => {
       <ConvertProfile
         open={isConvertProfile}
         onClose={() => setIsConvertProfile(false)}
-        onConfirm={() => {}}
+        onConfirm={handleMakeAgent}
       />
 
       <ChangePassword

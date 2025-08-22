@@ -30,6 +30,7 @@ import {
 } from "@mui/icons-material";
 import { TransitionProps } from "@mui/material/transitions";
 import { forwardRef } from "react";
+import { useCommanApiMutation } from "../../services/threadsApi";
 
 export const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -63,6 +64,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const EditUser = ({ isEdit, close }: { isEdit: boolean; close: any }) => {
+  const [commanApi] = useCommanApiMutation();
   const {
     control,
     handleSubmit,
@@ -77,11 +79,29 @@ const EditUser = ({ isEdit, close }: { isEdit: boolean; close: any }) => {
   });
 
   const onSubmit = (data: FormData) => {
+    const payload = {
+      url: "update-user-profile",
+      body: {
+        name: data.name,
+        email: data.email,
+        title: data.title,
+        priority: data.priority,
+        about: data.about,
+        company: data.company,
+        address: data.address,
+        tags: data.tags,
+        mobileNo: data.mobileNo,
+        otherMobileNo: data.otherMobileNo,
+        externalId: data.externalId,
+        workMobileNo: data.workMobileNo,
+      },
+    };
+    commanApi(payload);
+    close()
     console.log("Form submitted", data);
   };
 
   return (
-  
     <Dialog
       open={isEdit}
       onClose={close}
@@ -233,6 +253,44 @@ const EditUser = ({ isEdit, close }: { isEdit: boolean; close: any }) => {
                     />
                   )}
                 />
+
+                <Controller
+                  name="priority"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label={
+                        <Typography>
+                          Priority{" "}
+                          <span className="text-red-500 text-lg font-bold">
+                            *
+                          </span>
+                        </Typography>
+                      }
+                      fullWidth
+                      size="small"
+                      variant="outlined"
+                      error={!!errors.priority}
+                      helperText={errors.priority?.message}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Badge color="action" fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 1,
+                          "&:hover .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#1976d2",
+                          },
+                        },
+                      }}
+                    />
+                  )}
+                />
               </div>
             </Box>
 
@@ -267,6 +325,7 @@ const EditUser = ({ isEdit, close }: { isEdit: boolean; close: any }) => {
                           </span>
                         </Typography>
                       }
+                      fullWidth
                       size="small"
                       variant="outlined"
                       error={!!errors.email}
@@ -569,6 +628,8 @@ const EditUser = ({ isEdit, close }: { isEdit: boolean; close: any }) => {
                     variant="outlined"
                     multiline
                     rows={4}
+                    error={!!errors.about}
+                    helperText={errors.about?.message}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -577,6 +638,29 @@ const EditUser = ({ isEdit, close }: { isEdit: boolean; close: any }) => {
                       ),
                     }}
                     sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 1,
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "#1976d2",
+                        },
+                      },
+                    }}
+                  />
+                )}
+              />
+
+              <Controller
+                name="tags"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label={"Tags"}
+                    fullWidth
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      mt:2,
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 1,
                         "&:hover .MuiOutlinedInput-notchedOutline": {

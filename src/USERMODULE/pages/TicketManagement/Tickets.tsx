@@ -543,7 +543,7 @@ const Tickets: React.FC = () => {
                     <ContentCopyIcon sx={{ fontSize: 14 }} />
                   )}
                 </IconButton>
-                <span className="text-xs text-gray-800"></span>•
+                <span className="text-xs text-gray-800"></span>
               </span>
               {/* <UserPopover
                 anchorEl={userPopoverAnchorEl}

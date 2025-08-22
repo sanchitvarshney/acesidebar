@@ -84,7 +84,7 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
     try {
       const apiResult: any = await searchTickets(query).unwrap();
       const normalize = (item: any): Ticket => ({
-        id: String(item?.ticketNumber ?? item?.id ?? ""),
+        id: String(item?.ticketNumber ?? item?.id ?? item?.ticketId ?? ""),
         title: String(
           item?.subject ??
             item?.title ??
@@ -214,7 +214,10 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
               renderOption={(props, option) => {
                 console.log(option);
                 return (
-                  <li {...props} className="flex items-center gap-2 p-2 cursor-pointer">
+                  <li
+                    {...props}
+                    className="flex items-center gap-2 p-2 cursor-pointer"
+                  >
                     <Avatar
                       sx={{ width: 30, height: 30, bgcolor: "primary.main" }}
                     >
@@ -429,10 +432,16 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
         </div>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ justifyContent: "flex-end", gap: 1 }}>
+        {step === 2 && (
+          <Button variant="outlined" onClick={() => setStep(1)}>
+            Back
+          </Button>
+        )}
         <Button variant="outlined" onClick={onClose}>
           Cancel
         </Button>
+
         <Button
           variant="contained"
           color="primary"
