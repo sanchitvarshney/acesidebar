@@ -98,6 +98,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     ticketSearch: builder.mutation({
       query: (ticketNumber: string) => ({
         url: `/ticket/search?ticket=${ticketNumber}`,
+        
         method: "GET",
       }),
       transformResponse: (response: any) => response?.data,

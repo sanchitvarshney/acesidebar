@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
@@ -26,6 +26,7 @@ import {
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 
 import { Button } from "@mui/material";
+import Mergeticket from "../../components/Mergeticket";
 
 const ActionButton = ({
   icon,
@@ -74,6 +75,7 @@ const TicketDetailHeader = ({
     null
   );
   const [moreOpen, setMoreOpen] = React.useState(false);
+    const [isMergeModal, setIsMergeModal] = useState(false);
 
   // More dropdown options
   const moreOptions = [
@@ -149,8 +151,22 @@ const TicketDetailHeader = ({
           onClick={onForward}
         />
         <ActionButton
+        onClick={() => setIsMergeModal(true)}
           icon={<MergeTypeIcon fontSize="small" className="text-purple-600" />}
           label="Merge"
+        />
+        <Mergeticket
+          open={isMergeModal}
+          initialPrimary={{
+            id: "T-1001",
+            title: "Unable to login to portal",
+            group: "Support",
+            agent: "John Doe",
+            closedAgo: "2 days ago",
+            resolvedOnTime: true,
+            isPrimary: true, // this is your main ticket
+          }}
+          onClose={() => setIsMergeModal(false)}
         />
         <ActionButton
           icon={<DeleteIcon fontSize="small" className="text-red-600" />}

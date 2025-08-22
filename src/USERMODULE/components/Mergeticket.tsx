@@ -3,6 +3,7 @@ import {
   Autocomplete,
   Avatar,
   Button,
+  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -20,7 +21,18 @@ import StarIcon from "@mui/icons-material/Star";
 import CloseIcon from "@mui/icons-material/Close";
 import { useCommanApiMutation } from "../../services/threadsApi";
 import MergeConfirmation from "./MergeConfirmation";
-import { FormControl, FormControlLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, Stack, Checkbox } from "@mui/material";
+import {
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Stack,
+  Checkbox,
+} from "@mui/material";
+import { useTicketSearchMutation } from "../../services/ticketAuth";
 
 interface Ticket {
   id: string;
@@ -38,7 +50,11 @@ interface MergeTicketsProps {
   onClose: () => void;
 }
 
-const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClose }) => {
+const MergeTickets: React.FC<MergeTicketsProps> = ({
+  open,
+  initialPrimary,
+  onClose,
+}) => {
   const [commanApi] = useCommanApiMutation();
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<Ticket[]>([]);
@@ -56,27 +72,39 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
   const [deleteChild, setDeleteChild] = useState(false);
   const [moveChildTasks, setMoveChildTasks] = useState(false);
 
-  // Mock dataset and fetch tickets (simulate API)
-  const ALL_TICKETS: Ticket[] = [
-    { id: "12", title: "Billing Issue", group: "Billing", agent: "John" },
-    { id: "13", title: "Login Problem", group: "Support", agent: "Jane" },
-    { id: "14", title: "Refund Request", group: "Billing", agent: "Sam" },
-    { id: "221217", title: "Avgfewagg", group: "Support", agent: "Eve" },
-    { id: "445799", title: "Swipe mono pack...", group: "Support", agent: "Max" },
-  ];
+  const [searchTickets, { isLoading }] = useTicketSearchMutation();
 
-  // Fetch tickets (simulate API)
+  // Fetch tickets using API by ID
   const fetchOptions = async (query: string) => {
     if (!query) {
       setOptions([]);
       return;
     }
 
-    const q = query.toLowerCase();
-    const filtered = ALL_TICKETS.filter((t) =>
-      t.title.toLowerCase().includes(q) || t.id.toLowerCase().includes(q)
-    );
-    setOptions(filtered);
+    try {
+      const apiResult: any = await searchTickets(query).unwrap();
+      const normalize = (item: any): Ticket => ({
+        id: String(item?.ticketNumber ?? item?.id ?? ""),
+        title: String(
+          item?.subject ??
+            item?.title ??
+            `Ticket #${item?.ticketNumber ?? item?.id ?? ""}`
+        ),
+        group: String(item?.group ?? item?.department ?? "Unknown"),
+        agent: String(item?.agent ?? item?.assignee ?? "Unassigned"),
+      });
+
+      const mapped: Ticket[] = Array.isArray(apiResult)
+        ? apiResult.map(normalize)
+        : apiResult
+        ? [normalize(apiResult)]
+        : [];
+
+      setOptions(mapped);
+    } catch (e) {
+      // ignore and fallback to local filter
+      setOptions([]);
+    }
   };
 
   useEffect(() => {
@@ -99,7 +127,9 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
   const handleSelectTicket = (_: any, value: Ticket | null) => {
     if (!value) return;
     setSelectedTickets((prev) =>
-      prev.some((t) => t.id === value.id) ? prev : [...prev, { ...value, isPrimary: false }]
+      prev.some((t) => t.id === value.id)
+        ? prev
+        : [...prev, { ...value, isPrimary: false }]
     );
   };
 
@@ -115,15 +145,6 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
         isPrimary: t.id === ticketId,
       }))
     );
-  };
-
-  const handleAddById = () => {
-    const found = ALL_TICKETS.find((t) => t.id === ticketIdToAdd.trim());
-    if (!found) return;
-    setSelectedTickets((prev) =>
-      prev.some((t) => t.id === found.id) ? prev : [...prev, { ...found, isPrimary: false }]
-    );
-    setTicketIdToAdd("");
   };
 
   const hasPrimary = selectedTickets.some((t) => t.isPrimary);
@@ -162,7 +183,13 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
       maxWidth="md"
       PaperProps={{ sx: { borderRadius: 3 } }}
     >
-      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         Merge Tickets
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
@@ -172,27 +199,36 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
       <DialogContent dividers sx={{ p: 2 }}>
         {step === 1 && (
           <Stack spacing={1.5}>
-           
+            <Alert severity="info">
+              Choose the Tickets to merge. Mark one as the Parent Ticket before
+              merging.
+            </Alert>
 
             <Autocomplete
               size="small"
               fullWidth
               disablePortal
               options={options}
-              getOptionLabel={(option) => `${option.title} (#${option.id})`}
-              renderOption={(props, option) => (
-                <li {...props} className="flex items-center gap-2 p-2">
-                  <Avatar sx={{ width: 30, height: 30, bgcolor: "primary.main" }}>
-                    {option.title.charAt(0).toUpperCase()}
-                  </Avatar>
-                  <div>
-                    <Typography variant="subtitle2">{option.title} · #{option.id}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Group: {option.group} • Agent: {option.agent}
-                    </Typography>
-                  </div>
-                </li>
-              )}
+              loading={isLoading}
+              getOptionLabel={(option) => `#${option.id}`}
+              renderOption={(props, option) => {
+                console.log(option);
+                return (
+                  <li {...props} className="flex items-center gap-2 p-2">
+                    <Avatar
+                      sx={{ width: 30, height: 30, bgcolor: "primary.main" }}
+                    >
+                      {option.title?.charAt(0).toUpperCase()}
+                    </Avatar>
+                    <div>
+                      <Typography variant="subtitle2">#{option.id}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Group: {option.group} • Agent: {option.agent}
+                      </Typography>
+                    </div>
+                  </li>
+                );
+              }}
               inputValue={inputValue}
               onInputChange={(_, value) => setInputValue(value)}
               onChange={handleSelectTicket}
@@ -205,28 +241,50 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
                     ...params.InputProps,
                     startAdornment: (
                       <>
-                        <SearchIcon sx={{ color: "gray", mr: 1 }} fontSize="small" />
+                        <SearchIcon
+                          sx={{ color: "gray", mr: 1 }}
+                          fontSize="small"
+                        />
                         {params.InputProps.startAdornment}
                       </>
                     ),
                   }}
+                  //   helperText={isLoading ? "Searching..." : inputValue && !isLoading && options.length === 0 ? "No matching tickets" : ""}
                 />
               )}
             />
 
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems={{ md: "center" }}>
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={2}
+              alignItems={{ md: "center" }}
+            >
               <FormControl size="small" sx={{ minWidth: 220 }}>
                 <InputLabel id="participants-label">Participants</InputLabel>
-                <Select labelId="participants-label" id="participants" label="Participants" value={participants} onChange={(e) => setParticipants(e.target.value)}>
+                <Select
+                  labelId="participants-label"
+                  id="participants"
+                  label="Participants"
+                  value={participants}
+                  onChange={(e) => setParticipants(e.target.value)}
+                >
                   <MenuItem value="User">User</MenuItem>
-                  <MenuItem value="User + Collaborators">User + Collaborators</MenuItem>
+                  <MenuItem value="User + Collaborators">
+                    User + Collaborators
+                  </MenuItem>
                   <MenuItem value="All Participants">All Participants</MenuItem>
                 </Select>
               </FormControl>
 
               <FormControl size="small" sx={{ minWidth: 160 }}>
                 <InputLabel id="child-status-label">Child Status</InputLabel>
-                <Select labelId="child-status-label" id="child-status" label="Child Status" value={childStatus} onChange={(e) => setChildStatus(e.target.value)}>
+                <Select
+                  labelId="child-status-label"
+                  id="child-status"
+                  label="Child Status"
+                  value={childStatus}
+                  onChange={(e) => setChildStatus(e.target.value)}
+                >
                   <MenuItem value="Open">Open</MenuItem>
                   <MenuItem value="Closed">Closed</MenuItem>
                   <MenuItem value="Pending">Pending</MenuItem>
@@ -242,9 +300,7 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
                   value={parentStatus}
                   onChange={(e) => setParentStatus(e.target.value)}
                   displayEmpty
-                 
                 >
-                 
                   <MenuItem value="Open">Open</MenuItem>
                   <MenuItem value="Closed">Closed</MenuItem>
                   <MenuItem value="Resolved">Resolved</MenuItem>
@@ -253,24 +309,50 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
             </Stack>
 
             <FormControl>
-              <RadioGroup row value={mergeType} onChange={(e) => setMergeType(e.target.value)}>
-                <FormControlLabel value="combine" control={<Radio />} label="Combine Threads" />
-                <FormControlLabel value="separate" control={<Radio />} label="Separate Threads" />
+              <RadioGroup
+                row
+                value={mergeType}
+                onChange={(e) => setMergeType(e.target.value)}
+              >
+                <FormControlLabel
+                  value="combine"
+                  control={<Radio />}
+                  label="Combine Threads"
+                />
+                <FormControlLabel
+                  value="separate"
+                  control={<Radio />}
+                  label="Separate Threads"
+                />
               </RadioGroup>
             </FormControl>
 
             <Stack>
-              <FormControlLabel control={<Checkbox checked={deleteChild} onChange={(e) => setDeleteChild(e.target.checked)} />} label="Delete Child Ticket" />
-              <FormControlLabel control={<Checkbox checked={moveChildTasks} onChange={(e) => setMoveChildTasks(e.target.checked)} />} label="Move Child Tasks to Parent" />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={deleteChild}
+                    onChange={(e) => setDeleteChild(e.target.checked)}
+                  />
+                }
+                label="Delete Child Ticket"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={moveChildTasks}
+                    onChange={(e) => setMoveChildTasks(e.target.checked)}
+                  />
+                }
+                label="Move Child Tasks to Parent"
+              />
             </Stack>
           </Stack>
         )}
 
         <div
           className={`w-full overflow-y-auto mt-3 ${
-            step === 1
-              ? "max-h-[50vh]"
-              : "max-h-[50vh]"
+            step === 1 ? "max-h-[50vh]" : "max-h-[50vh]"
           }`}
         >
           {step === 1 && (
@@ -288,7 +370,9 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
                 >
                   <IconButton
                     disabled={ticket.isPrimary}
-                    onClick={() => handleRemoveTicket(ticket.id, ticket.isPrimary || false)}
+                    onClick={() =>
+                      handleRemoveTicket(ticket.id, ticket.isPrimary || false)
+                    }
                     sx={{
                       border: "1px solid",
                       borderColor: ticket.isPrimary ? "#f28b82" : "#d32f2f",
@@ -303,11 +387,19 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
                   <ListItemText
                     primary={
                       <div className="flex items-center gap-3">
-                        <Avatar sx={{ bgcolor: "primary.main", width: 30, height: 30 }}>
+                        <Avatar
+                          sx={{
+                            bgcolor: "primary.main",
+                            width: 30,
+                            height: 30,
+                          }}
+                        >
                           {ticket.title.charAt(0).toUpperCase()}
                         </Avatar>
                         <div>
-                          <Typography variant="subtitle2">{ticket.title}</Typography>
+                          <Typography variant="subtitle2">
+                            {ticket.title}
+                          </Typography>
                           <Typography variant="caption">
                             Group: {ticket.group} • Agent: {ticket.agent}
                           </Typography>
@@ -345,7 +437,9 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({ open, initialPrimary, onClo
           variant="contained"
           color="primary"
           onClick={handleMerge}
-          disabled={step === 1 ? selectedTickets.length < 2 || !hasPrimary : false}
+          disabled={
+            step === 1 ? selectedTickets.length < 2 || !hasPrimary : false
+          }
         >
           {step === 1 ? "Proceed to Merge" : "Confirm Merge"}
         </Button>
