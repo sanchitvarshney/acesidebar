@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
@@ -13,6 +14,9 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import BlockIcon from "@mui/icons-material/Block";
 import ListIcon from "@mui/icons-material/List";
 import AddAlarmIcon from "@mui/icons-material/AddAlarm";
+import FlagIcon from "@mui/icons-material/Flag";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import {
   IconButton,
   Popover,
@@ -22,40 +26,73 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 
 import { Button } from "@mui/material";
 import Mergeticket from "../../components/Mergeticket";
+import { LinkIcon } from "lucide-react";
+import CustomToolTip from "../../../reusable/CustomToolTip";
+import { title } from "process";
 
 const ActionButton = ({
   icon,
-  label,
+  tooltip,
   onClick,
   className,
+  hasDropdown = false,
+  onDropdownClick,
 }: {
   icon: React.ReactNode;
-  label: string;
+  tooltip: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   className?: string;
+  hasDropdown?: boolean;
+  onDropdownClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }) => {
   return (
-    <Button
-      variant="contained"
-      color="inherit"
-      onClick={onClick}
-      size="small"
-      className={`flex items-center gap-1 normal-case shadow-none px-3 py-1 text-sm ${
-        className || ""
-      }`}
-      sx={{
-        fontSize: "0.875rem",
-        fontWeight: 500,
-      }}
-    >
-      {icon}
-      <span>{label}</span>
-    </Button>
+    <div className="flex items-center">
+      <CustomToolTip title={<Typography className="px-2 py-1" variant="subtitle2">{tooltip}</Typography>} placement="top">
+        <Button
+          variant="contained"
+          color="inherit"
+          onClick={onClick}
+          size="small"
+          className={`flex items-center justify-center normal-case shadow-none px-3 py-1 text-sm ${
+            className || ""
+          }`}
+          sx={{
+            fontSize: "0.875rem",
+            fontWeight: 500,
+            minWidth: "40px",
+          }}
+        >
+          {icon}
+        </Button>
+      </CustomToolTip>
+      {hasDropdown && (
+        <CustomToolTip title={<Typography className="px-2 py-1" variant="subtitle2">{tooltip}</Typography>} placement="top">
+          <Button
+            variant="contained"
+            color="inherit"
+            onClick={onDropdownClick}
+            size="small"
+            className="flex items-center justify-center normal-case shadow-none px-1 py-1 text-sm ml-0"
+            sx={{
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              minWidth: "24px",
+              borderLeft: "1px solid #e0e0e0",
+              borderRadius: "0 4px 4px 0",
+            }}
+          >
+            <ArrowDropDownIcon fontSize="small" />
+          </Button>
+        </CustomToolTip>
+      )}
+    </div>
   );
 };
 
@@ -75,10 +112,47 @@ const TicketDetailHeader = ({
     null
   );
   const [moreOpen, setMoreOpen] = React.useState(false);
-    const [isMergeModal, setIsMergeModal] = useState(false);
+  const [isMergeModal, setIsMergeModal] = useState(false);
+  const [statusAnchorEl, setStatusAnchorEl] =
+    React.useState<HTMLElement | null>(null);
+  const [statusOpen, setStatusOpen] = React.useState(false);
+
+  // Status dropdown options
+  const statusOptions = [
+    {
+      label: "Hold",
+      icon: <ArrowBackIcon fontSize="small" />,
+      action: () => console.log("Status changed to Hold"),
+    },
+    {
+      label: "Open",
+      icon: <ArrowBackIcon fontSize="small" />,
+      action: () => console.log("Status changed to Open"),
+    },
+    {
+      label: "Resolved",
+      icon: <ListIcon fontSize="small" />,
+      action: () => console.log("Status changed to Resolved"),
+    },
+  ];
 
   // More dropdown options
   const moreOptions = [
+    {
+      label: "Change Owner",
+      icon: <PersonAddAlt1Icon fontSize="small" />,
+      action: () => console.log("Change Owner clicked"),
+    },
+    {
+      label: "Link Tickets",
+      icon: <LinkIcon fontSize="small" />,
+      action: () => console.log("Change Owner clicked"),
+    },
+    {
+      label: "Manage Referrals",
+      icon: <ManageAccountsIcon fontSize="small" />,
+      action: () => console.log("Manage Referrals clicked"),
+    },
     {
       label: "Attachments",
       icon: <AttachFileIcon fontSize="small" />,
@@ -115,6 +189,17 @@ const TicketDetailHeader = ({
     setMoreOpen(false);
     setMoreAnchorEl(null);
   };
+
+  const handleStatusClick = (event: React.MouseEvent<HTMLElement>) => {
+    setStatusAnchorEl(event.currentTarget);
+    setStatusOpen(true);
+  };
+
+  const handleStatusClose = () => {
+    setStatusOpen(false);
+    setStatusAnchorEl(null);
+  };
+
   return (
     <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
       {/* Breadcrumb */}
@@ -135,25 +220,29 @@ const TicketDetailHeader = ({
       <div className="flex gap-2 ml-8">
         <ActionButton
           icon={<ReplyIcon fontSize="small" className="text-blue-600" />}
-          label="Reply"
+          tooltip="Post Reply"
           onClick={onReply}
         />
         <ActionButton
           icon={<NoteAddIcon fontSize="small" className="text-green-600" />}
-          label="Add note"
+          tooltip="Add Note"
           onClick={onNote}
         />
         <ActionButton
-          icon={
-            <ForwardToInboxIcon fontSize="small" className="text-orange-600" />
-          }
-          label="Forward"
-          onClick={onForward}
+          icon={<FlagIcon fontSize="small" className="text-orange-600" />}
+          tooltip="Change Status"
+          hasDropdown={true}
+          onDropdownClick={handleStatusClick}
         />
         <ActionButton
-        onClick={() => setIsMergeModal(true)}
+          icon={<SwapHorizIcon fontSize="small" className="text-purple-600" />}
+          tooltip="Transfer"
+          onClick={() => console.log("Transfer clicked")}
+        />
+        <ActionButton
+          onClick={() => setIsMergeModal(true)}
           icon={<MergeTypeIcon fontSize="small" className="text-purple-600" />}
-          label="Merge"
+          tooltip="Merge"
         />
         <Mergeticket
           open={isMergeModal}
@@ -170,7 +259,7 @@ const TicketDetailHeader = ({
         />
         <ActionButton
           icon={<DeleteIcon fontSize="small" className="text-red-600" />}
-          label="Delete"
+          tooltip="Delete"
           onClick={() => setIsDeleteModalOpen(true)}
         />
 
@@ -183,7 +272,7 @@ const TicketDetailHeader = ({
               <ArrowDropDownIcon fontSize="small" className="text-blue-600" />
             </div>
           }
-          label="More"
+          tooltip="More"
           onClick={handleMoreClick}
         />
       </div>
@@ -222,6 +311,42 @@ const TicketDetailHeader = ({
         onConfirm={() => {}}
         type="delete"
       />
+
+      {/* Status dropdown popup */}
+      <Popover
+        open={statusOpen}
+        anchorEl={statusAnchorEl}
+        onClose={handleStatusClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        PaperProps={{
+          className:
+            "shadow-lg rounded-lg mt-1 relative border border-gray-200 w-48",
+        }}
+      >
+        <List className="py-1">
+          {statusOptions.map((option, index) => (
+            <ListItem key={index} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  option.action();
+                  handleStatusClose();
+                }}
+                className="py-1.5 px-3 mx-1 rounded-md hover:bg-blue-50 active:bg-blue-100"
+              >
+                <ListItemIcon sx={{ minWidth: 35 }}>{option.icon}</ListItemIcon>
+                <ListItemText primary={option.label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Popover>
 
       {/* More dropdown popup */}
       <Popover
