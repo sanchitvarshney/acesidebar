@@ -9,6 +9,7 @@ import {
   Typography,
   IconButton,
   Slide,
+  CircularProgress,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -32,6 +33,7 @@ interface ConfirmationModalProps {
   message?: string;
   successMessage?: string;
   icon?: React.ReactNode;
+  loading?: boolean;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -43,6 +45,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   message,
   successMessage,
   icon,
+  loading = false,
 }) => {
   const [step, setStep] = useState<"confirm" | "success">("confirm");
 
@@ -222,8 +225,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             color={type === "delete" ? "error" : type === "close" ? "info" : "primary"}
             onClick={handleConfirm}
             sx={{ borderRadius: 5, textTransform: "none", px: 3 }}
+            disabled={loading}
           >
-            {type === "delete" ? "Delete" : type === "close" ? "Close" : "Confirm"}
+            {loading ? <CircularProgress size={24} color="inherit" /> : type === "delete" ? "Delete" : type === "close" ? "Close" : "Confirm"}
           </Button>
         ) : (
           <Button

@@ -15,7 +15,7 @@ import { RootState } from "../../reduxStore/Store";
 const ShotCutContent = ({
   onChange,
   onClose,
-  stateChangeKey
+  stateChangeKey,
 }: {
   onChange: any;
   onClose: any;
@@ -39,7 +39,7 @@ const ShotCutContent = ({
             <span>No Shotcuts</span>
           </div>
         ) : (
-          shotcutData.map((item: any, index: number) => (
+          shotcutData?.map((item: any, index: number) => (
             <ListItem
               key={item.id}
               component="div"
@@ -64,7 +64,7 @@ const ShotCutContent = ({
                 tabIndex={0}
                 onClick={() => {
                   onChange(item.message);
-                  stateChangeKey()
+                  stateChangeKey();
                   onClose();
                 }}
               >

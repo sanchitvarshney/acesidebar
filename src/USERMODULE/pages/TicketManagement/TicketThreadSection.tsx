@@ -33,7 +33,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ShortCutPopover from "../../../components/shared/ShortCutPopover";
+// import ShortCutPopover from "../../../components/shared/ShortCutPopover";
 import ShotCutContent from "../../components/ShotCutContent";
 import ShortcutIcon from "@mui/icons-material/Shortcut";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,7 +44,6 @@ import { setReplyValue } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
-import { useParams } from "react-router-dom";
 
 const signatureValues: any = [
   {
@@ -283,7 +282,7 @@ const ThreadItem = ({
   const handleReportTicket = () => {
     const payload = {
       url: `report-ticket/${item.entryId}`,
-      method:"GET",
+      method: "GET",
     };
     commanApi(payload)
       .then((response) => {})
@@ -788,7 +787,7 @@ const TicketThreadSection = ({
                 />
               </div>
 
-              {showShotcut && (
+              {/* {showShotcut && (
                 <ShortCutPopover
                   open={showShotcut}
                   close={() => setShowShotcut(false)}
@@ -805,7 +804,7 @@ const TicketThreadSection = ({
                     stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
                   />
                 </ShortCutPopover>
-              )}
+              )} */}
 
               <div className="w-full flex items-center justify-between gap-2 mt-2">
                 <div className="flex items-center gap-2">

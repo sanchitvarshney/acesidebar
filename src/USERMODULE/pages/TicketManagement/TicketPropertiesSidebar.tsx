@@ -23,6 +23,7 @@ import ShortcutsTab from "../../components/ShortcitsTab";
 import CloseIcon from "@mui/icons-material/Close";
 import { Height } from "@mui/icons-material";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
+import { useCommanApiMutation } from "../../../services/threadsApi";
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
@@ -66,6 +67,14 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   const [activeTopTab, setActiveTopTab] = React.useState(0);
   const [activeProfileTab, setActiveProfileTab] = React.useState(0);
   const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
+ const [commanApi] = useCommanApiMutation();
+
+const   handleDeleteTag = (tagId: number) => {
+    const  payload = {
+      url: `delete-tag/${tagId}`,
+    }
+    commanApi(payload)
+  };
 
   const handleAttributeChange = (event: any) => {
     setAttribute(event.target.value);
@@ -174,9 +183,10 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
                       <Chip
                         key={tagID}
                         label={item.tagName}
-                        onDelete={() => {}}
+                      onDelete={() => handleDeleteTag(item.tagID)}
                         deleteIcon={
                           <CloseIcon
+                          
                             sx={{
                               transition: "color 0.2s",
                             }}

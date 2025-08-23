@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   IconButton,
   TextField,
@@ -29,7 +29,6 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { AnimatePresence, motion } from "framer-motion";
 import { useToast } from "../../../hooks/useToast";
 import { fetchOptions, isValidEmail } from "../../../utils/Utils";
-
 
 interface ForwardPanelProps {
   open: boolean;
@@ -65,6 +64,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   const [attachedFiles, setAttachedFiles] = React.useState<AttachedFile[]>([]);
   const [isDragOver, setIsDragOver] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const toFieldRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
   const [ccChangeValue, setCcChangeValue] = React.useState("");
@@ -155,6 +155,19 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           },
         ]);
   }, [ccChangeValue, bccChangeValue, toChangeValue]);
+
+  // Focus on To field when panel opens
+  useEffect(() => {
+    if (open && toFieldRef.current) {
+      // Small delay to ensure the component is fully rendered
+      const timer = setTimeout(() => {
+        toFieldRef.current?.focus();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
   const handleSelectedOption = (
     _: React.SyntheticEvent,
     value: any,
@@ -178,7 +191,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         return;
       }
 
-      onFieldChange("cc", [...fields.cc, dataValue.email]);
+      onFieldChange("cc", [...fields.cc, dataValue]);
     } else if (type === "to") {
       onFieldChange("to", dataValue.email);
     } else {
@@ -191,7 +204,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         return;
       }
 
-      onFieldChange("bcc", [...fields.bcc, dataValue.email]);
+      onFieldChange("bcc", [...fields.bcc, dataValue]);
     }
   };
 
@@ -290,19 +303,10 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           sx={{ mb: 1 }}
         />
 
-        {/* <TextField
-          label="To"
-          size="medium"
-          fullWidth
-          margin="dense"
-          value={fields.to}
-          onChange={(e) => onFieldChange("to", e.target.value)}
-          required
-          sx={{ mb: 1 }}
-        /> */}
         <Autocomplete
           disableClearable
           popupIcon={null}
+          sx={{ my: 1.5 }}
           getOptionLabel={(option) => {
             if (typeof option === "string") return option;
             return option.userEmail || option.userName || "";
@@ -373,6 +377,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
+              inputRef={toFieldRef}
               label="To *"
               variant="outlined"
               fullWidth
