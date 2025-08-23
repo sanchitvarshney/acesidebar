@@ -16,7 +16,8 @@ import ListIcon from "@mui/icons-material/List";
 import AddAlarmIcon from "@mui/icons-material/AddAlarm";
 import FlagIcon from "@mui/icons-material/Flag";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+
 import {
   IconButton,
   Popover,
@@ -33,9 +34,9 @@ import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 
 import { Button } from "@mui/material";
 import Mergeticket from "../../components/Mergeticket";
-import { LinkIcon } from "lucide-react";
+import LinkIcon from "@mui/icons-material/Link";
 import CustomToolTip from "../../../reusable/CustomToolTip";
-import { title } from "process";
+import LinkTickets from "../../components/LinkTicket";
 
 const ActionButton = ({
   icon,
@@ -54,7 +55,14 @@ const ActionButton = ({
 }) => {
   return (
     <div className="flex items-center">
-      <CustomToolTip title={<Typography className="px-2 py-1" variant="subtitle2">{tooltip}</Typography>} placement="top">
+      <CustomToolTip
+        title={
+          <Typography className="px-2 py-1" variant="subtitle2">
+            {tooltip}
+          </Typography>
+        }
+        placement="top"
+      >
         <Button
           variant="contained"
           color="inherit"
@@ -73,7 +81,14 @@ const ActionButton = ({
         </Button>
       </CustomToolTip>
       {hasDropdown && (
-        <CustomToolTip title={<Typography className="px-2 py-1" variant="subtitle2">{tooltip}</Typography>} placement="top">
+        <CustomToolTip
+          title={
+            <Typography className="px-2 py-1" variant="subtitle2">
+              {tooltip}
+            </Typography>
+          }
+          placement="top"
+        >
           <Button
             variant="contained"
             color="inherit"
@@ -113,6 +128,7 @@ const TicketDetailHeader = ({
   );
   const [moreOpen, setMoreOpen] = React.useState(false);
   const [isMergeModal, setIsMergeModal] = useState(false);
+  const [isLinkModal, setIsLinkModal] = useState(false);
   const [statusAnchorEl, setStatusAnchorEl] =
     React.useState<HTMLElement | null>(null);
   const [statusOpen, setStatusOpen] = React.useState(false);
@@ -145,8 +161,8 @@ const TicketDetailHeader = ({
     },
     {
       label: "Link Tickets",
-      icon: <LinkIcon fontSize="small" />,
-      action: () => console.log("Change Owner clicked"),
+      icon: <LinkIcon />,
+      action: () => setIsLinkModal(true),
     },
     {
       label: "Manage Referrals",
@@ -228,12 +244,12 @@ const TicketDetailHeader = ({
           tooltip="Add Note"
           onClick={onNote}
         />
-        <ActionButton
+        {/* <ActionButton
           icon={<FlagIcon fontSize="small" className="text-orange-600" />}
           tooltip="Change Status"
           hasDropdown={true}
           onDropdownClick={handleStatusClick}
-        />
+        /> */}
         <ActionButton
           icon={<SwapHorizIcon fontSize="small" className="text-purple-600" />}
           tooltip="Transfer"
@@ -383,6 +399,20 @@ const TicketDetailHeader = ({
           ))}
         </List>
       </Popover>
+
+      <LinkTickets
+        open={isLinkModal}
+        onClose={() => setIsLinkModal(false)}
+        currentTicket={{
+          id: "T-1001",
+          title: "Unable to login to portal",
+          group: "Support",
+          agent: "John Doe",
+          closedAgo: "2 days ago",
+          resolvedOnTime: true,
+          isPrimary: true, // this is your main ticket
+        }}
+      />
     </div>
   );
 };
