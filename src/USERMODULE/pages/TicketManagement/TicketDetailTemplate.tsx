@@ -6,7 +6,6 @@ import TicketThreadSection from "./TicketThreadSection";
 import TicketPropertiesSidebar from "./TicketPropertiesSidebar";
 import {
   Drawer,
-
   Button,
   Typography,
   Box as MuiBox,
@@ -16,21 +15,28 @@ import {
 
 import ForwardPanel from "./ForwardPanel";
 
-import {
-  useCommanApiMutation,
+import { useCommanApiMutation } from "../../../services/threadsApi";
+import { useGetTicketDetailStaffViewQuery } from "../../../services/ticketDetailAuth";
+import { useNavigate, useParams } from "react-router-dom";
+import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
 
-} from "../../../services/threadsApi";
+// interface TicketDetailTemplateProps {
+//   ticket: any; // expects { header, response, other }
+//   onBack: () => void;
+// }
 
+const TicketDetailTemplate = () => {
+  const navigate = useNavigate();
 
-interface TicketDetailTemplateProps {
-  ticket: any; // expects { header, response, other }
-  onBack: () => void;
-}
+  const openTicketNumber = useParams().id;
+  const { data: ticket, isFetching: isTicketDetailLoading } =
+    useGetTicketDetailStaffViewQuery(
+      openTicketNumber
+        ? { ticketNumber: openTicketNumber }
+        : { ticketNumber: "" },
+      { skip: !openTicketNumber }
+    );
 
-const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
-  ticket,
-  onBack,
-}) => {
   const [forwardOpen, setForwardOpen] = React.useState(false);
   const [expandForward, setExpandForward] = React.useState(false);
   const [forwardFields, setForwardFields] = React.useState({
@@ -51,6 +57,11 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   const [value, setValue] = React.useState("");
 
   const [commanApi] = useCommanApiMutation();
+
+  const handleBack = () => {
+    // setOpenTicketNumber(null);
+    navigate("/tickets");
+  };
 
   // Pass this to children to allow opening the forward panel
   const handleOpenForward = () => setForwardOpen(true);
@@ -120,10 +131,12 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
   const handleConfirmDelete = () => {
     // TODO: Implement delete logic
     setDeleteModalOpen(false);
-    onBack(); // After delete, go back to dashboard
+    handleBack(); // After delete, go back to dashboard
   };
 
-  if (!ticket) return null;
+  if (isTicketDetailLoading || !ticket) {
+    return <TicketDetailSkeleton />;
+  }
   return (
     <Box
       sx={{
@@ -141,7 +154,7 @@ const TicketDetailTemplate: React.FC<TicketDetailTemplateProps> = ({
         <div className="sticky top-0 z-[99]">
           <TicketDetailHeader
             ticket={ticket.header}
-            onBack={onBack}
+            onBack={handleBack}
             onForward={handleOpenForward}
             onReply={handleReply}
             onDelete={handleDelete}

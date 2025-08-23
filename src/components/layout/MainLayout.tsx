@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { Box, CssBaseline, useTheme, styled } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { Outlet } from "react-router-dom";
 import BottomBar from "./BottomBar";
 import { usePopupContext } from "../../contextApi/PopupContext";
+import logo from "../../assets/image/ajaxter-logo.webp";
 
 const drawerWidth = 0;
 
-const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" && prop !== "isPopupOpen" })<{
+const Main = styled("main", {
+  shouldForwardProp: (prop) => prop !== "open" && prop !== "isPopupOpen",
+})<{
   open?: boolean;
   isPopupOpen?: boolean;
 }>(({ theme, open, isPopupOpen }) => ({
@@ -43,7 +46,7 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" && pr
     msOverflowStyle: "-ms-autohiding-scrollbar",
     msContentZooming: "none",
     msScrollChaining: "none",
-    msUserSelect: "none"
+    msUserSelect: "none",
   }),
 }));
 
@@ -51,7 +54,7 @@ const MainContent = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(8),
   padding: theme.spacing(0),
   backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius
+  borderRadius: theme.shape.borderRadius,
 }));
 
 const MainLayout = () => {
@@ -64,13 +67,22 @@ const MainLayout = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", }}>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <TopBar open={open} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar open={open} handleDrawerToggle={handleDrawerToggle} />
       <Main open={open} isPopupOpen={isAnyPopupOpen}>
         <MainContent>
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center">
+                {" "}
+                <img src={logo} alt="Ajaxter Logo" className="w-[300px]  " />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </MainContent>
       </Main>
       {/* <BottomBar /> */}

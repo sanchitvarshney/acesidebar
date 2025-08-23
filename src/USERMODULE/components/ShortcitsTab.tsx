@@ -11,6 +11,8 @@ import {
   Select,
   TextField,
   Typography,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import CustomSearch from "../../components/common/CustomSearch";
 import { useEffect, useState } from "react";
@@ -20,8 +22,9 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { AppDispatch, RootState } from "../../reduxStore/Store";
 import { useDispatch, useSelector } from "react-redux";
 import { setShotcuts } from "../../reduxStore/Slices/shotcutSlices";
-import emptyimg from "../../assets/image/overview-empty-state.svg"
+import emptyimg from "../../assets/image/overview-empty-state.svg";
 import LoadingCheck from "../../components/reusable/LoadingCheck";
+import { useCommanApiMutation } from "../../services/threadsApi";
 
 const elementValue = [
   {
@@ -56,7 +59,7 @@ const ShortcutsTab = () => {
   const { shotcutData } = useSelector((state: RootState) => state.shotcut);
   const [loading, setLoading] = useState(false);
 
-  const dispatch = useDispatch<AppDispatch>();
+  const [commanApi, { isLoading }] = useCommanApiMutation();
 
   const handleChangeValue = (event: any) => {
     setSelectedElement((prev: any) => {
@@ -79,45 +82,75 @@ const ShortcutsTab = () => {
     );
   };
 
-  const handleSubmit = () => {
-    if (isEditShortCut) {
-      dispatch(
-        setShotcuts(
-          shotcutData.map((item: any) => {
-            if (item.id === shortcutId) {
-              return {
-                ...item,
-                shortcutName: "/" + shortcutName,
-                message: message,
-              };
-            }
-            return item;
-          })
-        )
-      );
-      setIsEditShortCut(false);
-    } else {
-      dispatch(
-        setShotcuts([
-          ...shotcutData,
-          {
-            id: Date.now(),
+  const handleSubmit = async () => {
+    if (!shortcutName.trim() || !message.trim()) {
+      return;
+    }
+    const userId = "jdgiuew";
+
+    try {
+      if (isEditShortCut) {
+        // Edit existing shortcut
+        const payload = {
+          url: `update-shortcut/${userId}`,
+          body: {
+            id: shortcutId,
             shortcutName: "/" + shortcutName,
             message: message,
+            elements: selectedElement,
           },
-        ])
-      );
-      setIsAddShortcutOpen(false);
-    }
+        };
+
+        commanApi(payload);
+      } else {
+        // Create new shortcut
+        const payload = {
+          url: `create-shortcut/${userId}`,
+          body: {
+            shortcutName: "/" + shortcutName,
+            message: message,
+            elements: selectedElement,
+          },
+        };
+
+        commanApi(payload);
+      }
+    } catch (error: any) {}
+  };
+
+  const resetForm = () => {
+    setShortcutName("");
+    setMessage("");
+    setSelectedElement([]);
+    setShortcutId("");
   };
 
   const handleEditShortcut = (id: any) => {
     const item = shotcutData.find((item: any) => item.id === id);
-    const removeSlash = item.shortcutName.replace("/", "");
-    setShortcutName(removeSlash);
-    setMessage(item.message);
-    setShortcutId(id);
-    setIsEditShortCut(true);
+    if (item) {
+      const removeSlash = item.shortcutName.replace("/", "");
+      setShortcutName(removeSlash);
+      setMessage(item.message);
+      setSelectedElement(item.elements || []);
+      setShortcutId(id);
+      setIsEditShortCut(true);
+      setIsAddShortcutOpen(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (isEditShortCut) {
+      setIsEditShortCut(false);
+    } else {
+      setIsAddShortcutOpen(false);
+    }
+    resetForm();
+  };
+
+  const handleAddNewShortcut = () => {
+    setIsAddShortcutOpen(true);
+    setIsEditShortCut(false);
+    resetForm();
   };
 
   useEffect(() => {
@@ -154,11 +187,11 @@ const ShortcutsTab = () => {
                   startAdornment: (
                     <InputAdornment
                       position="start"
-                      sx={{ 
+                      sx={{
                         color: "#6366f1",
                         px: 1,
                         py: 0.5,
-                        mr: 1
+                        mr: 1,
                       }}
                     >
                       /
@@ -312,6 +345,22 @@ const ShortcutsTab = () => {
                         >
                           {item.message}
                         </Typography>
+                        {item.elements && item.elements.length > 0 && (
+                          <Box mt={1}>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color: "#6b7280",
+                                fontSize: "0.75rem",
+                              }}
+                            >
+                              Elements:{" "}
+                              {item.elements
+                                .map((el: any) => el.value)
+                                .join(", ")}
+                            </Typography>
+                          </Box>
+                        )}
                       </Box>
 
                       <Box display="flex" gap={1}>
@@ -341,11 +390,7 @@ const ShortcutsTab = () => {
               </>
             ) : (
               <div className="flex flex-col items-center mt-4">
-                <img
-                  src={emptyimg}
-                  alt="notes"
-                  className="mx-auto w-40 h-40"
-                />
+                <img src={emptyimg} alt="notes" className="mx-auto w-40 h-40" />
               </div>
             )}
           </div>
@@ -359,13 +404,8 @@ const ShortcutsTab = () => {
               variant="contained"
               color="inherit"
               fullWidth
-              onClick={() => {
-                if (isEditShortCut) {
-                  setIsEditShortCut(false);
-                } else {
-                  setIsAddShortcutOpen(false);
-                }
-              }}
+              onClick={handleCancel}
+              disabled={isLoading}
             >
               Cancel
             </Button>
@@ -374,8 +414,15 @@ const ShortcutsTab = () => {
               sx={{ bgcolor: "#1a73e8", color: "white" }}
               fullWidth
               onClick={handleSubmit}
+              disabled={isLoading || !shortcutName.trim() || !message.trim()}
             >
-              {isEditShortCut ? "Update" : "Save"}
+              {isLoading ? (
+                <LoadingCheck />
+              ) : isEditShortCut ? (
+                "Update"
+              ) : (
+                "Save"
+              )}
             </Button>
           </div>
         ) : (
@@ -383,11 +430,7 @@ const ShortcutsTab = () => {
             variant="contained"
             sx={{ bgcolor: "#1a73e8", color: "white" }}
             fullWidth
-            onClick={() => {
-              setIsAddShortcutOpen(true);
-              setShortcutName("");
-              setMessage("");
-            }}
+            onClick={handleAddNewShortcut}
           >
             Add New Shortcut
           </Button>

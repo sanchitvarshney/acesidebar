@@ -21,10 +21,10 @@ import ArticleViewPage from "../ADMINMODULE/pages/ArticalViewPage";
 // import ProfilePage from "../USERMODULE/components/ProfilePage";
 import NotFound from "../components/common/NotFound";
 
-import React, { Suspense, lazy } from "react";
+import TicketDetailTemplate from "../USERMODULE/pages/TicketManagement/TicketDetailTemplate";
 
-const ContactList = lazy(() => import("../USERMODULE/components/ContactList"));
-const ProfilePage = lazy(() => import("../USERMODULE/components/ProfilePage"));
+import ContactList from "../USERMODULE/components/ContactList";
+import ProfilePage from "../USERMODULE/components/ProfilePage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -64,7 +64,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "tickets/:id",
-        element: <Tickets />,
+        element:  <TicketDetailTemplate  />,
       },
       {
         path: "create-ticket",
@@ -76,19 +76,15 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <Suspense fallback={<div>Loading...</div>}>
+            element: 
                 <ContactList />
-              </Suspense>
-            ),
+           
           },
           {
             path: ":id",
-            element: (
-              <Suspense fallback={<div>Loading...</div>}>
+            element:
                 <ProfilePage />
-              </Suspense>
-            ),
+          
           },
         ],
       },

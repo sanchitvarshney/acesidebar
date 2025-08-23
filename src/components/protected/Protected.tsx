@@ -1,7 +1,7 @@
 import { LinearProgress } from "@mui/material";
 import React, { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../../assets/buildings.png";
+import logo from "../../assets/image/ajaxter-logo.webp";
 import { decrypt } from "../../utils/encryption";
 
 interface ProtectedProps {
@@ -45,7 +45,7 @@ const Protected: React.FC<ProtectedProps> = ({
         <div className="absolute top-0 left-0 right-0 w-full h-full opacity-50">
           <LinearProgress />
         </div>
-        <img src={logo} alt="Mscorpres Logo" className="w-[500px] opacity-50" />
+        <img src={logo} alt="Ajaxter Logo" className="w-[300px] opacity-90 " />
       </div>
     );
   }

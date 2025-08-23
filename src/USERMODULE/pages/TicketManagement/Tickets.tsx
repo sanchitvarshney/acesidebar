@@ -346,10 +346,7 @@ const Tickets: React.FC = () => {
   };
 
   // When closing a ticket, go back to /tickets
-  const handleBack = () => {
-    setOpenTicketNumber(null);
-    navigate("/tickets");
-  };
+ 
 
   // On mount, if there is an id param, open that ticket
   React.useEffect(() => {
@@ -416,13 +413,7 @@ const Tickets: React.FC = () => {
     // }));
   };
 
-  const { data: ticketDetailData, isFetching: isTicketDetailLoading } =
-    useGetTicketDetailStaffViewQuery(
-      openTicketNumber
-        ? { ticketNumber: openTicketNumber }
-        : { ticketNumber: "" },
-      { skip: !openTicketNumber }
-    );
+
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
@@ -682,11 +673,11 @@ const Tickets: React.FC = () => {
 
   return (
     <>
-      {isTicketDetailLoading ? (
+      {/* {isTicketDetailLoading ? (
         <TicketDetailSkeleton />
       ) : openTicketNumber && ticketDetailData ? (
         <TicketDetailTemplate ticket={ticketDetailData} onBack={handleBack} />
-      ) : (
+      ) : ( */}
         <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
           {/* Main Header Bar */}
           <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-#f0f4f9">
@@ -932,7 +923,7 @@ const Tickets: React.FC = () => {
             )}
           </div>
         </div>
-      )}
+      {/* )} */}
 
       {/* User Hover Popup */}
       <UserHoverPopup
