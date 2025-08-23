@@ -37,7 +37,7 @@ import {
   useGetTagListQuery,
 } from "../../../services/ticketAuth";
 import { useToast } from "../../../hooks/useToast";
-import CustomDropdown from "../../../components/shared/CustomDropdown";
+
 import StackEditor from "../../../components/reusable/Editor";
 import { useNavigate } from "react-router-dom";
 import { fetchOptions, isValidEmail } from "../../../utils/Utils";
@@ -77,6 +77,7 @@ interface TicketFormData {
   recipients: string;
   assignee: string;
   department: string;
+  tags: any[];
 }
 
 const CreateTicketPage: React.FC = () => {
@@ -88,14 +89,10 @@ const CreateTicketPage: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const { showToast } = useToast();
-
   const [fromChangeValue, setfromChangeValue] = React.useState("");
-  const [tagChangeValue, setTagChangeValue] = React.useState("");
   const [contactChangeValue, setContactChangeValue] = React.useState("");
-  const [openTagfield, setOpenTagfield] = useState(false);
   const [openContactField, setOpenContactField] = useState(false);
   const [options, setOptions] = useState<any>();
-
   // Form validation errors
   const [errors, setErrors] = useState<Partial<TicketFormData>>({});
 
@@ -110,6 +107,7 @@ const CreateTicketPage: React.FC = () => {
     recipients: "",
     assignee: "",
     department: "",
+    tags: [],
   });
 
   // Validation function
@@ -131,40 +129,23 @@ const CreateTicketPage: React.FC = () => {
   };
 
   const displayFromOptions: any = fromChangeValue ? options : [];
-  const displayTagOptions: any = tagChangeValue ? options : [];
+
   const displayContactOptions: any = contactChangeValue ? options : [];
 
   useEffect(() => {
-    const filterValue: any = fetchOptions(fromChangeValue || tagChangeValue || contactChangeValue);
+    const filterValue: any = fetchOptions(
+      fromChangeValue || contactChangeValue
+    );
 
     filterValue?.length > 0
       ? setOptions(filterValue)
       : setOptions([
           {
-            userName: fromChangeValue ||  contactChangeValue,
-            userEmail: fromChangeValue ||  contactChangeValue,
+            userName: fromChangeValue || contactChangeValue,
+            userEmail: fromChangeValue || contactChangeValue,
           },
         ]);
   }, [fromChangeValue, contactChangeValue]);
-
-
-
-  
-   useEffect(() => {
-    const filterValue: any = tagList;
-
-    filterValue?.length > 0
-      ? setOptions(filterValue)
-      : setOptions([
-          {
-            userName: fromChangeValue || tagChangeValue || contactChangeValue,
-            userEmail: fromChangeValue || tagChangeValue || contactChangeValue,
-          },
-        ]);
-  }, [fromChangeValue, tagChangeValue, contactChangeValue]);
-
-
-  
 
   const handleCreateTicketSubmit = async () => {
     if (!validateForm()) {
@@ -180,7 +161,7 @@ const CreateTicketPage: React.FC = () => {
         subject: newTicket.subject,
         body: newTicket.body,
         format: newTicket.format,
-                 recipients: selectedContacts.join(", "),
+        recipients: selectedContacts.join(", "),
         tags: selectedTags,
         assignee: newTicket.assignee,
         department: newTicket.department,
@@ -237,14 +218,7 @@ const CreateTicketPage: React.FC = () => {
     if (type === "from") {
       setNewTicket((prev) => ({ ...prev, user_email: dataValue.email }));
     }
-    if (type === "tag") {
-      if (selectedTags.some((item: any) => item.email === value.userEmail)) {
-        showToast("Tag already Exist", "error");
-        return;
-      }
 
-      setSelectedTags((prev) => [...prev, dataValue.email]);
-    }
     if (type === "contact") {
       if (selectedContacts.some((item: any) => item === value.userEmail)) {
         showToast("Contact already Exist", "error");
@@ -323,10 +297,11 @@ const CreateTicketPage: React.FC = () => {
                 recipients: "",
                 assignee: "",
                 department: "",
+                tags: [],
               });
               setErrors({});
-                             setSelectedTags([]);
-               setSelectedContacts([]);
+              setSelectedTags([]);
+              setSelectedContacts([]);
             }}
             sx={{
               textTransform: "none",
@@ -528,128 +503,63 @@ const CreateTicketPage: React.FC = () => {
                 </Select>
               </FormControl>
 
-              
-
-              {/* Tags
-              <TextField
-                label="Tags"
-                size="small"
+              <FormControl
                 fullWidth
+                size="small"
                 variant="outlined"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LocalOffer fontSize="small" sx={{ color: "#666" }} />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: "#fff",
-                    borderColor: "#dadce0",
-                  },
-                }}
-              /> */}
-              {/* <Autocomplete
-                size="small"
-                fullWidth
-                disablePortal
-                value={null}
-                options={displayTagOptions}
-                getOptionLabel={(option: any) => {
-                  if (typeof option === "string") return option;
-                  return "";
-                }}
-                renderOption={(props, option: any) => (
-                  <li {...props}>
-                    {typeof option === "string" ? (
-                      option
-                    ) : (
-                      <div
-                        className="flex items-center gap-3 p-2 rounded-md w-full"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 30,
-                            height: 30,
-                            backgroundColor: "primary.main",
-                          }}
-                        >
-                          {option.userName?.charAt(0).toUpperCase()}
-                        </Avatar>
-
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ fontWeight: 600 }}
-                          >
-                            {option.userName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {option.userEmail}
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                )}
-                open={openTagfield}
-                onOpen={() => setOpenTagfield(true)}
-                onClose={() => setOpenTagfield(false)}
-                inputValue={tagChangeValue}
-                onInputChange={(_, value) => setTagChangeValue(value)}
-                onChange={(event, newValue) =>
-                  handleSelectedOption(event, newValue, "cc")
-                }
-                filterOptions={(x) => x} // disable default filtering
-                getOptionDisabled={(option) => option === "Type to search"}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    // InputLabelProps={{ shrink: true }}
-                    label="Tag"
-                    variant="outlined"
-                    size="small"
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LocalOffer fontSize="small" sx={{ color: "#666" }} />
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "4px",
-                        backgroundColor: "#f9fafb",
-                        "&:hover fieldset": { borderColor: "#9ca3af" },
-                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                      },
-                      "& label.Mui-focused": { color: "#1a73e8" },
-                      "& label": { fontWeight: "bold" },
-                    }}
-                  />
-                )}
-              />
-              {selectedTags.length > 0 && (
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  mt={1}
-                  sx={{ overflowX: "auto", p: 1 }}
-                >
-                  {selectedTags.map((item: any, index: number) => (
-                    <Chip
-                      label={
-                        item.name ? `${item.name} (${item.email})` : item.email
-                      }
-                      variant="outlined"
-                      onDelete={() => handleDelete(item.email)}
+                sx={{ mb: 3 }}
+              >
+                <InputLabel>Tags</InputLabel>
+                <Select
+                  multiple
+                  value={newTicket.tags || []}
+                  onChange={(e: any) =>
+                    handleInputChange("tags", e.target.value)
+                  }
+                  label="Tags"
+                  startAdornment={
+                    <LocalOffer
+                      fontSize="small"
+                      sx={{ color: "#666", mr: 1 }}
                     />
+                  }
+                  renderValue={(selected) => selected.join(", ")}
+                  sx={{
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#dadce0",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#1976d2",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#1976d2",
+                    },
+                    backgroundColor: "#fff",
+                    fontSize: "0.875rem",
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 300, // optional: controls the menu height
+                      },
+                    },
+                  }}
+                >
+                  {tagList?.map((option: any) => (
+                    <MenuItem
+                      key={option.tagID}
+                      value={option.tagName}
+                      sx={{
+                        minHeight: 40, // Adjust this value to control item height
+                        py: 1, // padding top-bottom
+                      }}
+                    >
+                      {option.tagName}
+                    </MenuItem>
                   ))}
-                </Stack>
-              )} */}
+                </Select>
+              </FormControl>
+
             </Box>
           </Box>
         </Box>
@@ -693,40 +603,7 @@ const CreateTicketPage: React.FC = () => {
             <Box
               sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}
             >
-              {/* <TextField
-                label="From*"
-                size="small"
-                fullWidth
-                variant="outlined"
-                value={newTicket.user_email}
-                onChange={(e) => handleInputChange("user_email", e.target.value)}
-                error={!!errors.user_email}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Email fontSize="small" sx={{ color: errors.user_email ? "#d32f2f" : "#666" }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: errors.user_email && (
-                    <InputAdornment position="end">
-                      <Warning sx={{ color: "#d32f2f" }} />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderColor: errors.user_email ? "#d32f2f" : "#dadce0",
-                    "&.Mui-focused": {
-                      borderColor: errors.user_email ? "#d32f2f" : "#1976d2",
-                    }
-                  }
-                }}
-              />
-              {errors.user_email && (
-                <FormHelperText error sx={{ mt: 0.5, fontSize: "0.75rem" }}>
-                  {errors.user_email}
-                </FormHelperText>
-              )} */}
+             
               <Autocomplete
                 disableClearable
                 popupIcon={null}
@@ -844,105 +721,105 @@ const CreateTicketPage: React.FC = () => {
                 )}
               />
 
-                             {/* Contacts Field */}
-               <Autocomplete
-                 size="small"
-                 fullWidth
-                 disablePortal
-                 value={null}
-                 options={displayContactOptions}
-                 getOptionLabel={(option: any) => {
-                   if (typeof option === "string") return option;
-                   return "";
-                 }}
-                 renderOption={(props, option: any) => (
-                   <li {...props}>
-                     {typeof option === "string" ? (
-                       option
-                     ) : (
-                       <div
-                         className="flex items-center gap-3 p-2 rounded-md w-full"
-                         style={{ cursor: "pointer" }}
-                       >
-                         <Avatar
-                           sx={{
-                             width: 30,
-                             height: 30,
-                             backgroundColor: "primary.main",
-                           }}
-                         >
-                           {option.userName?.charAt(0).toUpperCase()}
-                         </Avatar>
+              {/* Contacts Field */}
+              <Autocomplete
+                size="small"
+                fullWidth
+                disablePortal
+                value={null}
+                options={displayContactOptions}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return "";
+                }}
+                renderOption={(props, option: any) => (
+                  <li {...props}>
+                    {typeof option === "string" ? (
+                      option
+                    ) : (
+                      <div
+                        className="flex items-center gap-3 p-2 rounded-md w-full"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            backgroundColor: "primary.main",
+                          }}
+                        >
+                          {option.userName?.charAt(0).toUpperCase()}
+                        </Avatar>
 
-                         <div className="flex flex-col">
-                           <Typography
-                             variant="subtitle2"
-                             sx={{ fontWeight: 600 }}
-                           >
-                             {option.userName}
-                           </Typography>
-                           <Typography variant="caption" color="text.secondary">
-                             {option.userEmail}
-                           </Typography>
-                         </div>
-                       </div>
-                     )}
-                   </li>
-                 )}
-                 open={openContactField}
-                 onOpen={() => setOpenContactField(true)}
-                 onClose={() => setOpenContactField(false)}
-                 inputValue={contactChangeValue}
-                 onInputChange={(_, value) => setContactChangeValue(value)}
-                 onChange={(event, newValue) =>
-                   handleSelectedOption(event, newValue, "contact")
-                 }
-                 filterOptions={(x) => x} // disable default filtering
-                 getOptionDisabled={(option) => option === "Type to search"}
-                 renderInput={(params) => (
-                   <TextField
-                     {...params}
-                     label="Contacts *"
-                     variant="outlined"
-                     size="small"
-                     InputProps={{
-                       ...params.InputProps,
-                       startAdornment: (
-                         <InputAdornment position="start">
-                           <Person fontSize="small" sx={{ color: "#666" }} />
-                         </InputAdornment>
-                       ),
-                     }}
-                     sx={{
-                       "& .MuiOutlinedInput-root": {
-                         borderRadius: "4px",
-                         backgroundColor: "#f9fafb",
-                         "&:hover fieldset": { borderColor: "#9ca3af" },
-                         "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                       },
-                       "& label.Mui-focused": { color: "#1a73e8" },
-                       "& label": { fontWeight: "bold" },
-                     }}
-                   />
-                 )}
-               />
-               {selectedContacts.length > 0 && (
-                 <Stack
-                   direction="row"
-                   spacing={1}
-                   mt={1}
-                   sx={{ overflowX: "auto", p: 1 }}
-                 >
-                   {selectedContacts.map((contact: any, index: number) => (
-                     <Chip
-                       key={index}
-                       label={contact}
-                       variant="outlined"
-                       onDelete={() => handleDeleteContact(contact)}
-                     />
-                   ))}
-                 </Stack>
-               )}
+                        <div className="flex flex-col">
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {option.userName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {option.userEmail}
+                          </Typography>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                )}
+                open={openContactField}
+                onOpen={() => setOpenContactField(true)}
+                onClose={() => setOpenContactField(false)}
+                inputValue={contactChangeValue}
+                onInputChange={(_, value) => setContactChangeValue(value)}
+                onChange={(event, newValue) =>
+                  handleSelectedOption(event, newValue, "contact")
+                }
+                filterOptions={(x) => x} // disable default filtering
+                getOptionDisabled={(option) => option === "Type to search"}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Contacts *"
+                    variant="outlined"
+                    size="small"
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person fontSize="small" sx={{ color: "#666" }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
+              />
+              {selectedContacts.length > 0 && (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  mt={1}
+                  sx={{ overflowX: "auto", p: 1 }}
+                >
+                  {selectedContacts.map((contact: any, index: number) => (
+                    <Chip
+                      key={index}
+                      label={contact}
+                      variant="outlined"
+                      onDelete={() => handleDeleteContact(contact)}
+                    />
+                  ))}
+                </Stack>
+              )}
 
               {/* Subject Field */}
               <TextField

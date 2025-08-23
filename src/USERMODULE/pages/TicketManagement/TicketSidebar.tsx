@@ -21,8 +21,6 @@ import Popover from "@mui/material/Popover";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 
-
-
 const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const {
     data: searchCriteria,
@@ -36,7 +34,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [filterSearch, setFilterSearch] = useState("");
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
   const topAnchorRef = React.useRef<HTMLDivElement>(null);
- const [commanApi] = useCommanApiMutation()
+  const [commanApi] = useCommanApiMutation();
 
   useEffect(() => {
     if (searchCriteria && Array.isArray(searchCriteria)) {
@@ -105,7 +103,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
     const cleanedFilters = buildNonEmpty(selectedFilters);
 
-    const payload  = {
+    const payload = {
       url: "apply-filters",
       body: cleanedFilters,
     };
@@ -193,7 +191,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
             variant="text"
             size="small"
             sx={{ fontSize: 10, fontWeight: "Bold" }}
-            onClick={() => setShowCustomFilters(false)}
+            onClick={() => {
+              handleResetFilters();
+              setShowCustomFilters(false);
+            }}
           >
             Show All Filters
           </Button>
