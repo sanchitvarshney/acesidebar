@@ -159,6 +159,7 @@ const TicketDetailTemplate = () => {
             onReply={handleReply}
             onDelete={handleDelete}
             onNote={handleAddNote}
+            ticketNumber={openTicketNumber}
           />
         </div>
         <div className="w-full  grid grid-cols-[3fr_1fr] ">

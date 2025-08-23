@@ -3,6 +3,8 @@ import {
 } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { router } from "./routes/Routing";
 import { ToastContext } from "./contextApi/ToastContext";
 import { AuthProvider } from "./contextApi/AuthContext";
@@ -18,18 +20,19 @@ import { TabsProvider } from "./contextApi/TabsContext";
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <TabsProvider>
-      <AuthProvider>
-        <PopupProvider>
-          <ToastContext>
-            <CssBaseline />
-            <RouterProvider router={router} />
-          </ToastContext>
-        </PopupProvider>
-      </AuthProvider>
-      </TabsProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <TabsProvider>
+          <AuthProvider>
+            <PopupProvider>
+              <ToastContext>
+                <CssBaseline />
+                <RouterProvider router={router} />
+              </ToastContext>
+            </PopupProvider>
+          </AuthProvider>
+        </TabsProvider>
+      </LocalizationProvider>
     </ThemeProvider>
-
   );
 }
 

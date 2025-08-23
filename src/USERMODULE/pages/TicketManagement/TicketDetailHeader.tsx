@@ -37,6 +37,9 @@ import Mergeticket from "../../components/Mergeticket";
 import LinkIcon from "@mui/icons-material/Link";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import LinkTickets from "../../components/LinkTicket";
+import { useCommanApiMutation } from "../../../services/threadsApi";
+import LogTimePanel from "./LogTimePanel";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 
 const ActionButton = ({
   icon,
@@ -114,6 +117,7 @@ const ActionButton = ({
 const TicketDetailHeader = ({
   ticket,
   onBack,
+  ticketNumber,
   onForward,
   onReply,
   onNote,
@@ -132,6 +136,31 @@ const TicketDetailHeader = ({
   const [statusAnchorEl, setStatusAnchorEl] =
     React.useState<HTMLElement | null>(null);
   const [statusOpen, setStatusOpen] = React.useState(false);
+  const [isLogTimeModal, setIsLogTimeModal] = useState(false);
+
+  const [commanApi] = useCommanApiMutation();
+
+  const handlePrintData = (ticketId: any) => {
+    if (!ticketId || ticketId === "") {
+      return;
+    }
+    const payload = {
+      url: `print/${ticketId}`,
+      method: "GET",
+    };
+    commanApi(payload);
+  };
+
+  const handleSpamTicket = (ticketId: any) => {
+    if (!ticketId || ticketId === "") {
+      return;
+    }
+    const payload = {
+      url: `${ticketId}/spam`,
+      method: "PUT",
+    };
+    commanApi(payload);
+  };
 
   // Status dropdown options
   const statusOptions = [
@@ -177,7 +206,7 @@ const TicketDetailHeader = ({
     {
       label: "Log time",
       icon: <AddAlarmIcon fontSize="small" />,
-      action: () => console.log("Log time clicked"),
+      action: () => setIsLogTimeModal(true),
     },
     {
       label: "Activity",
@@ -187,12 +216,12 @@ const TicketDetailHeader = ({
     {
       label: "Spam",
       icon: <BlockIcon fontSize="small" />,
-      action: () => console.log("Spam clicked"),
+      action: () => handlePrintData(ticketNumber),
     },
     {
       label: "Print",
       icon: <LocalPrintshopIcon fontSize="small" />,
-      action: () => console.log("Print clicked"),
+      action: () => handlePrintData(ticketNumber),
     },
   ];
 
@@ -215,6 +244,8 @@ const TicketDetailHeader = ({
     setStatusOpen(false);
     setStatusAnchorEl(null);
   };
+
+
 
   return (
     <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
@@ -253,7 +284,7 @@ const TicketDetailHeader = ({
         <ActionButton
           icon={<SwapHorizIcon fontSize="small" className="text-purple-600" />}
           tooltip="Transfer"
-          onClick={() => console.log("Transfer clicked")}
+          onClick={() => onForward()}
         />
         <ActionButton
           onClick={() => setIsMergeModal(true)}
@@ -413,6 +444,28 @@ const TicketDetailHeader = ({
           isPrimary: true, // this is your main ticket
         }}
       />
+
+      <CustomSideBarPanel
+        open={isLogTimeModal}
+        close={() => {
+          setIsLogTimeModal(false);
+        }}
+        title={
+          <Typography variant="subtitle2">
+            {" "}
+            <AddAlarmIcon fontSize="small" /> Log Time
+          </Typography>
+        }
+        width={500}
+      >
+        <LogTimePanel
+          open={isLogTimeModal}
+          onClose={() => {
+            setIsLogTimeModal(false);
+          }}
+          ticketId={ticketNumber}
+        />
+      </CustomSideBarPanel>
     </div>
   );
 };
