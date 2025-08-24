@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import ForwardToInboxIcon from "@mui/icons-material/ForwardToInbox";
+import EditDocumentIcon from "@mui/icons-material/EditDocument";
 import MergeTypeIcon from "@mui/icons-material/MergeType";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -40,6 +40,11 @@ import LinkTickets from "../../components/LinkTicket";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import LogTimePanel from "./LogTimePanel";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import EditTicket from "../EditTicket";
+import ChangeOwner from "./ChangeOwner";
+import ManageReferrals from "./ManageReferrals";
+import Attachments from "./Attachments";
+import Activity from "./Activity";
 
 const ActionButton = ({
   icon,
@@ -137,6 +142,11 @@ const TicketDetailHeader = ({
     React.useState<HTMLElement | null>(null);
   const [statusOpen, setStatusOpen] = React.useState(false);
   const [isLogTimeModal, setIsLogTimeModal] = useState(false);
+  const [isEditTicket, setIsEditTicket] = useState(false);
+  const [isChangeOwnerModal, setIsChangeOwnerModal] = useState(false);
+  const [isManageReferralsModal, setIsManageReferralsModal] = useState(false);
+  const [isAttachmentsModal, setIsAttachmentsModal] = useState(false);
+  const [isActivityModal, setIsActivityModal] = useState(false);
 
   const [commanApi] = useCommanApiMutation();
 
@@ -145,8 +155,19 @@ const TicketDetailHeader = ({
       return;
     }
     const payload = {
-      url: `print/${ticketId}`,
+      url: `${ticketId}/print`,
       method: "GET",
+    };
+    commanApi(payload);
+  };
+
+  const hanldeDeleteThread = (ticketId: any) => {
+    if (!ticketId || ticketId === "") {
+      return;
+    }
+    const payload = {
+      url: `${ticketId}/delete`,
+      method: "DeLETE",
     };
     commanApi(payload);
   };
@@ -186,7 +207,12 @@ const TicketDetailHeader = ({
     {
       label: "Change Owner",
       icon: <PersonAddAlt1Icon fontSize="small" />,
-      action: () => console.log("Change Owner clicked"),
+      action: () => setIsChangeOwnerModal(true),
+    },
+    {
+      label: "Edit Ticket",
+      icon: <EditDocumentIcon fontSize="small" />,
+      action: () => setIsEditTicket(true),
     },
     {
       label: "Link Tickets",
@@ -196,12 +222,12 @@ const TicketDetailHeader = ({
     {
       label: "Manage Referrals",
       icon: <ManageAccountsIcon fontSize="small" />,
-      action: () => console.log("Manage Referrals clicked"),
+      action: () => setIsManageReferralsModal(true),
     },
     {
       label: "Attachments",
       icon: <AttachFileIcon fontSize="small" />,
-      action: () => console.log("Attachments clicked"),
+      action: () => setIsAttachmentsModal(true),
     },
     {
       label: "Log time",
@@ -210,13 +236,13 @@ const TicketDetailHeader = ({
     },
     {
       label: "Activity",
-      icon: <ListIcon fontSize="small" />,
-      action: () => console.log("Activity clicked"),
+      icon: <AddAlarmIcon fontSize="small" />,
+      action: () => setIsActivityModal(true),
     },
     {
       label: "Spam",
       icon: <BlockIcon fontSize="small" />,
-      action: () => handlePrintData(ticketNumber),
+      action: () => handleSpamTicket(ticketNumber),
     },
     {
       label: "Print",
@@ -244,8 +270,6 @@ const TicketDetailHeader = ({
     setStatusOpen(false);
     setStatusAnchorEl(null);
   };
-
-
 
   return (
     <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
@@ -275,12 +299,7 @@ const TicketDetailHeader = ({
           tooltip="Add Note"
           onClick={onNote}
         />
-        {/* <ActionButton
-          icon={<FlagIcon fontSize="small" className="text-orange-600" />}
-          tooltip="Change Status"
-          hasDropdown={true}
-          onDropdownClick={handleStatusClick}
-        /> */}
+
         <ActionButton
           icon={<SwapHorizIcon fontSize="small" className="text-purple-600" />}
           tooltip="Transfer"
@@ -355,7 +374,7 @@ const TicketDetailHeader = ({
       <ConfirmationModal
         open={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => {}}
+        onConfirm={() => hanldeDeleteThread(ticketNumber)}
         type="delete"
       />
 
@@ -456,12 +475,141 @@ const TicketDetailHeader = ({
             <AddAlarmIcon fontSize="small" /> Log Time
           </Typography>
         }
-        width={500}
+        width={600}
       >
         <LogTimePanel
           open={isLogTimeModal}
           onClose={() => {
             setIsLogTimeModal(false);
+          }}
+          ticketId={ticketNumber}
+        />
+      </CustomSideBarPanel>
+
+      <CustomSideBarPanel
+        open={isEditTicket}
+        close={() => {
+          setIsEditTicket(false);
+        }}
+        title={
+          <div className="flex items-center gap-2">
+             <EditDocumentIcon fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={600}>
+              {" "}
+              Edit Ticket
+            </Typography>
+          </div>
+       
+        }
+        width={600}
+      >
+        <EditTicket
+          onClose={() => {
+            setIsEditTicket(false);
+          }}
+        />
+      </CustomSideBarPanel>
+
+      {/* Change Owner Panel */}
+      <CustomSideBarPanel
+        open={isChangeOwnerModal}
+        close={() => {
+          setIsChangeOwnerModal(false);
+        }}
+        title={
+          <div className="flex items-center gap-2">
+            <PersonAddAlt1Icon fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={600}>
+              Change Owner
+            </Typography>
+          </div>
+        }
+        width={600}
+      >
+        <ChangeOwner
+          open={isChangeOwnerModal}
+          onClose={() => {
+            setIsChangeOwnerModal(false);
+          }}
+          ticketId={ticketNumber}
+          currentOwner={{
+            id: "1",
+            name: "John Doe",
+            email: "john.doe@example.com"
+          }}
+        />
+      </CustomSideBarPanel>
+
+      {/* Manage Referrals Panel */}
+      <CustomSideBarPanel
+        open={isManageReferralsModal}
+        close={() => {
+          setIsManageReferralsModal(false);
+        }}
+        title={
+          <div className="flex items-center gap-2">
+            <ManageAccountsIcon fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={600}>
+              Manage Referrals
+            </Typography>
+          </div>
+        }
+        width={700}
+      >
+        <ManageReferrals
+          open={isManageReferralsModal}
+          onClose={() => {
+            setIsManageReferralsModal(false);
+          }}
+          ticketId={ticketNumber}
+        />
+      </CustomSideBarPanel>
+
+      {/* Attachments Panel */}
+      <CustomSideBarPanel
+        open={isAttachmentsModal}
+        close={() => {
+          setIsAttachmentsModal(false);
+        }}
+        title={
+          <div className="flex items-center gap-2">
+            <AttachFileIcon fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={600}>
+              Attachments
+            </Typography>
+          </div>
+        }
+        width={800}
+      >
+        <Attachments
+          open={isAttachmentsModal}
+          onClose={() => {
+            setIsAttachmentsModal(false);
+          }}
+          ticketId={ticketNumber}
+        />
+      </CustomSideBarPanel>
+
+      {/* Activity Panel */}
+      <CustomSideBarPanel
+        open={isActivityModal}
+        close={() => {
+          setIsActivityModal(false);
+        }}
+        title={
+          <div className="flex items-center gap-2">
+            <AddAlarmIcon fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={600}>
+              Activity Log
+            </Typography>
+          </div>
+        }
+        width={900}
+      >
+        <Activity
+          open={isActivityModal}
+          onClose={() => {
+            setIsActivityModal(false);
           }}
           ticketId={ticketNumber}
         />

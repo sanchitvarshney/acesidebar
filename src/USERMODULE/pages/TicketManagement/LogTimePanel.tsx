@@ -217,7 +217,7 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
           size="small"
           margin="dense"
           value={logTimeFields.timeSpent}
-          onChange={(e) => handleTimeChange(e.target.value)} // Just store as-is
+          onChange={(e) => handleTimeChange(e.target.value)}
           onBlur={() => validateAndConvertTime(logTimeFields.timeSpent)}
           placeholder="00:00"
           helperText={
@@ -228,7 +228,6 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
           sx={{ mb: 2 }}
         />
 
-        {/* Billable Checkbox */}
         <FormControlLabel
           control={
             <Checkbox

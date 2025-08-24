@@ -197,7 +197,7 @@ const CreateTicketPage: React.FC = () => {
     }
   };
 
-  const handleDelete = (id: any) => {};
+ 
   const handleDeleteContact = (id: any) => {
     setSelectedContacts((prev) => prev.filter((contact) => contact !== id));
   };
