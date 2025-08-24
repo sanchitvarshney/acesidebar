@@ -17,6 +17,7 @@ import AddAlarmIcon from "@mui/icons-material/AddAlarm";
 import FlagIcon from "@mui/icons-material/Flag";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import {
   IconButton,
@@ -147,6 +148,7 @@ const TicketDetailHeader = ({
   const [isManageReferralsModal, setIsManageReferralsModal] = useState(false);
   const [isAttachmentsModal, setIsAttachmentsModal] = useState(false);
   const [isActivityModal, setIsActivityModal] = useState(false);
+  const [isSpamModal, setIsSpamModal] = useState(false);
 
   const [commanApi] = useCommanApiMutation();
 
@@ -236,13 +238,13 @@ const TicketDetailHeader = ({
     },
     {
       label: "Activity",
-      icon: <AddAlarmIcon fontSize="small" />,
+      icon: <AccessTimeIcon fontSize="small" />,
       action: () => setIsActivityModal(true),
     },
     {
       label: "Spam",
       icon: <BlockIcon fontSize="small" />,
-      action: () => handleSpamTicket(ticketNumber),
+      action: () => setIsSpamModal(true),
     },
     {
       label: "Print",
@@ -493,13 +495,12 @@ const TicketDetailHeader = ({
         }}
         title={
           <div className="flex items-center gap-2">
-             <EditDocumentIcon fontSize="small" />
+            <EditDocumentIcon fontSize="small" />
             <Typography variant="subtitle1" fontWeight={600}>
               {" "}
               Edit Ticket
             </Typography>
           </div>
-       
         }
         width={600}
       >
@@ -535,7 +536,7 @@ const TicketDetailHeader = ({
           currentOwner={{
             id: "1",
             name: "John Doe",
-            email: "john.doe@example.com"
+            email: "john.doe@example.com",
           }}
         />
       </CustomSideBarPanel>
@@ -614,6 +615,14 @@ const TicketDetailHeader = ({
           ticketId={ticketNumber}
         />
       </CustomSideBarPanel>
+      <ConfirmationModal
+        open={isSpamModal}
+        onClose={() => setIsSpamModal(false)}
+        onConfirm={() => handleSpamTicket(ticketNumber)}
+        type="custom"
+        title="Spam Ticket"
+        message="Are you sure you want to spam this ticket?"
+      />
     </div>
   );
 };

@@ -206,7 +206,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
           <Autocomplete
             size="small"
             fullWidth
-            disablePortal
+            disablePortal={false}
             options={options}
             loading={isLoading}
             getOptionLabel={(option) => `#${option.id} - ${option.title}`}
@@ -239,6 +239,13 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
             onInputChange={(_, value) => setInputValue(value)}
             onChange={handleSelectTicket}
             filterOptions={(x) => x}
+            slotProps={{
+              popper: {
+                sx: {
+                  zIndex: 9999,
+                },
+              },
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
