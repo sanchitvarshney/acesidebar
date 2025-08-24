@@ -115,6 +115,20 @@ const StackEditor = ({
   const [options, setOptions] = useState([]);
   const [localNotifyTag, setLocalNotifyTag] = React.useState(notifyTag || []);
 
+  // Helper function to compare arrays
+  const arraysEqual = (a, b) => {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
+    
+    for (let i = 0; i < a.length; i++) {
+      if (a[i].email !== b[i].email || a[i].name !== b[i].name) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const displayCCOptions = ccChangeValue ? options : [];
   const displayBCCOptions = bccChangeValue ? options : [];
   const displayNotifyOptions = notifyValue ? options : [];
@@ -292,7 +306,7 @@ const StackEditor = ({
   }, [signatureValue]);
 
   useEffect(() => {
-    if (notifyTag) {
+    if (notifyTag && !arraysEqual(notifyTag, localNotifyTag)) {
       setLocalNotifyTag(notifyTag);
     }
   }, [notifyTag]);
