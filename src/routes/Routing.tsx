@@ -25,6 +25,10 @@ import TicketDetailTemplate from "../USERMODULE/pages/TicketManagement/TicketDet
 
 import ContactList from "../USERMODULE/components/ContactList";
 import ProfilePage from "../USERMODULE/components/ProfilePage";
+import GroupsPage from "../USERMODULE/pages/settingManangePages/GroupsPage";
+import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
+import BillAndPlanPage from "../USERMODULE/pages/settingManangePages/BillAndPlanPage";
+import AccountExport from "../USERMODULE/pages/settingManangePages/AccountExport";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -64,7 +68,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "tickets/:id",
-        element:  <TicketDetailTemplate  />,
+        element: <TicketDetailTemplate />,
       },
       {
         path: "create-ticket",
@@ -76,21 +80,33 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: 
-                <ContactList />
-           
+            element: <ContactList />,
           },
           {
             path: ":id",
-            element:
-                <ProfilePage />
-          
+            element: <ProfilePage />,
           },
         ],
       },
       {
         path: "settings",
         element: <Settings />,
+      },
+      {
+        path: "groups",
+        element: <GroupsPage />,
+      },
+      {
+        path: "account-settings",
+        element: <AccountSettings />,
+      },
+      {
+        path: "billings-plans",
+        element: <BillAndPlanPage />,
+      },
+            {
+        path: "account-export",
+        element: <AccountExport />,
       },
     ],
   },

@@ -1,7 +1,29 @@
+import { Button } from "@mui/material";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const SettingsCards: React.FC = ({ cards }: any) => {
-  console.log(cards, "cards");
+  const navigate = useNavigate();
+
+  const handleRoute = (title: string) => {
+    const path = title.toLowerCase().replace(" ", "-");
+    console.log(path, "path");
+    switch (path) {
+      case "groups":
+        navigate("/groups");
+        break;
+      case "account-details":
+        navigate("/account-settings");
+        break;
+      case "plans-& billing":
+        navigate("/billings-plans");
+        break;
+      case "account-exports":
+        navigate("/account-export");
+        break;
+    }
+  };
+
   return (
     <div className="space-y-8">
       {cards.map((section: any) => (
@@ -35,9 +57,14 @@ const SettingsCards: React.FC = ({ cards }: any) => {
 
                 {/* Optional action button */}
                 {item.action && (
-                  <button className="mt-auto bg-blue-600 text-white px-4 py-1.5 rounded font-semibold text-sm">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleRoute(item.title)}
+                  >
+                    {" "}
                     {item.action}
-                  </button>
+                  </Button>
                 )}
               </div>
             ))}
