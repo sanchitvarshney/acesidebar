@@ -11,7 +11,15 @@ import {
   Paper,
   Alert,
 } from "@mui/material";
-import { Download, Settings, ContactMail, Business, Phone, LocationOn } from "@mui/icons-material";
+import {
+  Download,
+  Settings,
+  ContactMail,
+  Business,
+  Phone,
+  LocationOn,
+} from "@mui/icons-material";
+import { useCommanApiMutation } from "../../services/threadsApi";
 
 const exportOptions = [
   "Full name",
@@ -26,15 +34,17 @@ const exportOptions = [
   "Other phone numbers",
   "Company",
   "Tags",
-  "Can see all tickets from this company",
 ];
 
 export default function ExportContact() {
   const [selected, setSelected] = useState<string[]>([]);
+  const [commanApi] = useCommanApiMutation();
 
   const handleToggle = (label: string) => {
     setSelected((prev) =>
-      prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label]
+      prev.includes(label)
+        ? prev.filter((item) => item !== label)
+        : [...prev, label]
     );
   };
 
@@ -47,14 +57,24 @@ export default function ExportContact() {
   };
 
   const handleExport = () => {
-    console.log("Exporting:", selected);
-    // Add export logic here
+    const payload = { url: "export-contacts", body: { fields: selected } };
+    commanApi(payload);
   };
 
   // Group options by category for better organization
   const personalInfo = ["Full name", "Email", "About", "Title"];
-  const contactInfo = ["Mobile phone", "Work phone", "Other phone numbers", "Twitter"];
-  const businessInfo = ["Company", "Address", "Tags", "Can see all tickets from this company"];
+  const contactInfo = [
+    "Mobile phone",
+    "Work phone",
+    "Other phone numbers",
+    "Twitter",
+  ];
+  const businessInfo = [
+    "Company",
+    "Address",
+    "Tags",
+    "Can see all tickets from this company",
+  ];
   const identification = ["Unique external ID"];
 
   return (
@@ -90,7 +110,10 @@ export default function ExportContact() {
               />
             }
             label={
-              <Typography variant="h6" sx={{ fontWeight: 600, color: "#1976d2" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, color: "#1976d2" }}
+              >
                 Select all fields
               </Typography>
             }

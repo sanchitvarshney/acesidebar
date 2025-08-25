@@ -46,7 +46,7 @@ import ConvertProfile from "./ConvertProfile";
 import ChangePassword from "./ChangePassword";
 import MergeContact from "./MergeContact";
 import CustomToolTip from "../../reusable/CustomToolTip";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { common } from "@mui/material/colors";
 import { useCommanApiMutation } from "../../services/threadsApi";
 
@@ -86,6 +86,7 @@ const getUserData = () => {
 
 const ProfilePage = () => {
   const userData = getUserData();
+  const navigate = useNavigate();
 
   const username = userData?.username || userData?.user?.username || "John Doe";
   const role = userData?.role || userData?.user?.role || "CEO";
@@ -197,6 +198,7 @@ const ProfilePage = () => {
           startIcon={<AddIcon />}
           variant="contained"
           color="primary"
+          onClick={() => navigate("/create-ticket")}
         >
           New ticket
         </Button>

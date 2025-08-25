@@ -17,9 +17,29 @@ import {
   Warning,
   UploadFile 
 } from "@mui/icons-material";
+import { useCommanApiMutation } from "../../services/threadsApi";
+
+// Define the contact fields structure
+interface ContactField {
+  name: string;
+  job_title: string;
+  email: string;
+  phone: string;
+  mobile: string;
+  other_phone_numbers: string;
+  twitter_id: string;
+  company_name: string;
+  address: string;
+  tag_names: string;
+  description: string;
+  client_manager: string;
+  unique_external_id: string;
+}
 
 export default function ImportContact() {
   const [file, setFile] = useState<File | null>(null);
+ 
+  const [commanApi] = useCommanApiMutation();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -34,9 +54,80 @@ export default function ImportContact() {
     }
   };
 
-  const handleImport = () => {
-    console.log("Importing file:", file);
-    // Add import logic here
+  const parseCSV = (csvText: string): ContactField[] => {
+    const lines = csvText.split('\n');
+    const headers = lines[0].split(',').map(header => header.trim().toLowerCase().replace(/"/g, ''));
+    
+    // Map CSV headers to our field structure
+    const fieldMapping: { [key: string]: keyof ContactField } = {
+      'name': 'name',
+      'job_title': 'job_title',
+      'email': 'email',
+      'phone': 'phone',
+      'mobile': 'mobile',
+      'other_phone_numbers': 'other_phone_numbers',
+      'twitter_id': 'twitter_id',
+      'company_name': 'company_name',
+      'address': 'address',
+      'tag_names': 'tag_names',
+      'description': 'description',
+      'client_manager': 'client_manager',
+      'unique_external_id': 'unique_external_id'
+    };
+
+    const contacts: ContactField[] = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      if (lines[i].trim()) {
+        const values = lines[i].split(',').map(value => value.trim().replace(/"/g, ''));
+        const contact: Partial<ContactField> = {};
+        
+        headers.forEach((header, index) => {
+          const fieldKey = fieldMapping[header];
+          if (fieldKey && values[index]) {
+            contact[fieldKey] = values[index];
+          }
+        });
+        
+        // Only add if we have at least a name or email
+        if (contact.name || contact.email) {
+          contacts.push(contact as ContactField);
+        }
+      }
+    }
+    
+    return contacts;
+  };
+
+  const handleImport = async () => {
+    if (!file) return;
+    
+  
+    
+
+      const fileText = await file.text();
+      const contacts = parseCSV(fileText);
+  
+
+      // Prepare payload for API
+      const payload = {
+        url: "import-contacts",
+        method: "POST",
+        body: {
+          contacts: contacts,
+          total_contacts: contacts.length,
+          import_fields: [
+            "name", "job_title", "email", "phone", "mobile", 
+            "other_phone_numbers", "twitter_id", "company_name", 
+            "address", "tag_names", "description", "client_manager", 
+            "unique_external_id"
+          ]
+        }
+      };
+
+     commanApi(payload)
+      
+ 
   };
 
   return (
