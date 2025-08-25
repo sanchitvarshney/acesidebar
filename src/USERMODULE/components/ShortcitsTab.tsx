@@ -56,6 +56,7 @@ const ShortcutsTab = () => {
   const [shortcutName, setShortcutName] = useState<any>("");
   const [shortcutId, setShortcutId] = useState<any>("");
   const [message, setMessage] = useState<any>("");
+  //@ts-ignore
   const { shotcutData } = useSelector((state: RootState) => state.shotcut);
   const [loading, setLoading] = useState(false);
 
