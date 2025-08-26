@@ -81,7 +81,7 @@ const Settings: React.FC = () => {
     );
   }, [searchQuery]);
 
-  // Auto-select first available section if current active is filtered out
+
   useEffect(() => {
     if (
       filteredMenuSections.length > 0 &&

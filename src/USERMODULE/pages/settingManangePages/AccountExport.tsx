@@ -154,7 +154,7 @@ const rows = [
 
 const AccountExport = () => {
   return (
-    <Paper sx={{ width: "100%" }}>
+    <div className=" h-[calc(100vh-160px)] w-full ">
       <DataGrid
         rows={rows}
         columns={columns.map((col) => ({ ...col, editable: false }))}
@@ -194,7 +194,7 @@ const AccountExport = () => {
         disableCellSelection
         disableColumnSelection
       />
-    </Paper>
+    </div>
   );
 };
 
