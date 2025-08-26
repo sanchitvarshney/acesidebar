@@ -29,6 +29,11 @@ import GroupsPage from "../USERMODULE/pages/settingManangePages/GroupsPage";
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
 import BillAndPlanPage from "../USERMODULE/pages/settingManangePages/BillAndPlanPage";
 import AccountExport from "../USERMODULE/pages/settingManangePages/AccountExport";
+import RecentPage from "../USERMODULE/pages/settingPages/RecentPage";
+import AccountPage from "../USERMODULE/pages/settingPages/AccountPage";
+import WorkflowPage from "../USERMODULE/pages/settingPages/WorkflowPage";
+import AgentProductivityPage from "../USERMODULE/pages/settingPages/AgentProductivityPage";
+import SupportOperationsPage from "../USERMODULE/pages/settingPages/SupportOperationsPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -91,6 +96,28 @@ export const router = createBrowserRouter([
       {
         path: "settings",
         element: <Settings />,
+        children: [
+          {
+            index: true,
+            element: <RecentPage />,
+          },
+          {
+            path: "account/:id",
+            element: <AccountPage />,
+          },
+          {
+            path: "workflow",
+            element: <WorkflowPage />,
+          },
+          {
+            path: "agent-productivity",
+            element: <AgentProductivityPage />,
+          },
+          {
+            path: "support-operations",
+            element: <SupportOperationsPage />,
+          },
+        ],
       },
       {
         path: "groups",
@@ -104,7 +131,7 @@ export const router = createBrowserRouter([
         path: "billings-plans",
         element: <BillAndPlanPage />,
       },
-            {
+      {
         path: "account-export",
         element: <AccountExport />,
       },

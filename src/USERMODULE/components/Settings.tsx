@@ -11,11 +11,8 @@ import {
   FaLifeRing,
 } from "react-icons/fa";
 import { IconType } from "react-icons";
-import RecentPage from "../pages/settingPages/RecentPage";
-import AccountPage from "../pages/settingPages/AccountPage";
-import WorkflowPage from "../pages/settingPages/WorkflowPage";
-import AgentProductivityPage from "../pages/settingPages/AgentProductivityPage";
-import SupportOperationsPage from "../pages/settingPages/SupportOperationsPage";
+
+import { Outlet, useNavigate, useParams, useLocation } from "react-router-dom";
 
 type MenuSection = {
   id: string;
@@ -66,6 +63,33 @@ const menuSections: MenuSection[] = [
 const Settings: React.FC = () => {
   const [activeId, setActiveId] = useState<string>(menuSections[0].id);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Sync activeId with current route
+  useEffect(() => {
+    const pathname = location.pathname;
+
+    // Map routes to active tab IDs
+    if (pathname === "/settings" || pathname === "/settings/") {
+      setActiveId("recent");
+    } else if (pathname.startsWith("/settings/account/")) {
+      setActiveId("accounts");
+    } else if (pathname === "/settings/workflow") {
+      setActiveId("workflows");
+    } else if (pathname === "/settings/agent-productivity") {
+      setActiveId("agent-productivity");
+    } else if (pathname === "/settings/support-operations") {
+      setActiveId("support-operations");
+    } else if (
+      pathname === "/account-settings" ||
+      pathname === "/groups" ||
+      pathname === "/billings-plans" ||
+      pathname === "/account-export"
+    ) {
+      setActiveId("accounts");
+    }
+  }, [location.pathname]);
 
   // Filter menu sections based on search query
   const filteredMenuSections = useMemo(() => {
@@ -81,7 +105,6 @@ const Settings: React.FC = () => {
     );
   }, [searchQuery]);
 
-
   useEffect(() => {
     if (
       filteredMenuSections.length > 0 &&
@@ -91,34 +114,57 @@ const Settings: React.FC = () => {
     }
   }, [filteredMenuSections, activeId]);
 
-  // Handle search result selection
-  const handleSearchResultSelect = useCallback((sectionId: string) => {
-    setActiveId(sectionId);
-    setSearchQuery(""); // Clear search after selection
-  }, []);
+  // Handle menu navigation
+  const handleMenuNavigation = useCallback(
+    (sectionId: string) => {
+      switch (sectionId) {
+        case "recent":
+          navigate("/settings");
+          break;
+        case "accounts":
+          navigate(`/settings/account/accounts`);
+          break;
+        case "workflows":
+          navigate("/settings/workflow");
+          break;
+        case "agent-productivity":
+          navigate("/settings/agent-productivity");
+          break;
+        case "support-operations":
+          navigate("/settings/support-operations");
+          break;
+        default:
+          break;
+      }
+    },
+    [navigate]
+  );
 
-  const renderSection = useCallback(() => {
-    switch (activeId) {
-      case "recent":
-        return <RecentPage />;
-      case "accounts":
-        return <AccountPage />;
-      case "workflows":
-        return <WorkflowPage />;
-      case "agent-productivity":
-        return <AgentProductivityPage />;
-      case "support-operations":
-        return <SupportOperationsPage />;
-      default:
-        return null; // safe fallback
-    }
-  }, [activeId]); // re-memoize only when activeId changes
+  // Handle search result selection
+  const handleSearchResultSelect = useCallback(
+    (sectionId: string) => {
+      setActiveId(sectionId);
+      setSearchQuery("");
+      // Navigate when user selects from search
+      handleMenuNavigation(sectionId);
+    },
+    [handleMenuNavigation]
+  );
+
+  // Handle menu item selection
+  const handleMenuSelect = useCallback(
+    (id: string) => {
+      setActiveId(id);
+      handleMenuNavigation(id);
+    },
+    [handleMenuNavigation]
+  );
 
   return (
     <div className="flex w-full h-[calc(100vh-100px)] bg-gray-50">
       <SettingsMenu
         menuSections={filteredMenuSections}
-        onSelect={(id: any) => setActiveId(id)}
+        onSelect={handleMenuSelect}
         activeId={activeId}
       />
       <main className="flex-1 p-4 overflow-y-auto">
@@ -128,7 +174,9 @@ const Settings: React.FC = () => {
             menuSections={menuSections}
           />
         </div>
-        <div className="my-4">{renderSection()}</div>
+        <div className="my-4">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
