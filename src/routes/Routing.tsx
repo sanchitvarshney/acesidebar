@@ -37,6 +37,7 @@ import SupportOperationsPage from "../USERMODULE/pages/settingPages/SupportOpera
 import AccountDayPasses from "../USERMODULE/pages/settingPages/AccountDayPasses";
 import AccountSecurity from "../USERMODULE/pages/settingPages/AccountSecurity";
 import AccountHelpCenter from "../USERMODULE/pages/settingPages/AccountHelpCenter";
+import ManageTags from "../USERMODULE/pages/settingPages/ManageTags";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -149,6 +150,10 @@ export const router = createBrowserRouter([
       {
         path: "account-help-center",
         element: <AccountHelpCenter />,
+      },
+      {
+        path: "manage-tags",
+        element: <ManageTags />,
       },
     ],
   },

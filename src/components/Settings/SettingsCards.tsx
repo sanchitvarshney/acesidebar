@@ -7,7 +7,7 @@ const SettingsCards: React.FC = ({ cards }: any) => {
 
   const handleRoute = (title: string) => {
     const path = title.toLowerCase().replace(" ", "-");
-
+    console.log(path);
     switch (path) {
       case "groups":
         navigate("/groups");
@@ -29,6 +29,9 @@ const SettingsCards: React.FC = ({ cards }: any) => {
         break;
       case "helpdesk-settings":
         navigate("/account-help-center");
+        break;
+      case "tags":
+        navigate("/manage-tags");
         break;
     }
   };
