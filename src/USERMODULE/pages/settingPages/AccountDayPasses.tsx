@@ -38,7 +38,7 @@ const AccountDayPasses = () => {
   return (
     <div className="w-full h-full grid grid-cols-[3fr_1fr] ">
       {/* left contect */}
-      <div className=" max-h-[calc(100vh-100px)] overflow-y-auto p-4  space-y-6">
+      <div className=" min-h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-y-auto p-4  space-y-6 border-r border-gray-200">
         <div className="space-y-4">
           <Typography variant="h6">Day Pass</Typography>
           <Alert severity="error">
@@ -118,8 +118,8 @@ const AccountDayPasses = () => {
               </TableBody>
             </Table>
           ) : (
-            <Typography variant="body2" sx={{ textAlign: "center", py: 2 }}>
-              No data found
+            <Typography variant="body2" sx={{ textAlign: "center", py: 3 }}>
+              No results found for selected options.
             </Typography>
           )}
         </TableContainer>
