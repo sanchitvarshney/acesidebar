@@ -34,6 +34,9 @@ import AccountPage from "../USERMODULE/pages/settingPages/AccountPage";
 import WorkflowPage from "../USERMODULE/pages/settingPages/WorkflowPage";
 import AgentProductivityPage from "../USERMODULE/pages/settingPages/AgentProductivityPage";
 import SupportOperationsPage from "../USERMODULE/pages/settingPages/SupportOperationsPage";
+import AccountDayPasses from "../USERMODULE/pages/settingPages/AccountDayPasses";
+import AccountSecurity from "../USERMODULE/pages/settingPages/AccountSecurity";
+import AccountHelpCenter from "../USERMODULE/pages/settingPages/AccountHelpCenter";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -134,6 +137,18 @@ export const router = createBrowserRouter([
       {
         path: "account-export",
         element: <AccountExport />,
+      },
+      {
+        path: "account-day-passes",
+        element: <AccountDayPasses />,
+      },
+      {
+        path: "account-security",
+        element: <AccountSecurity />,
+      },
+      {
+        path: "account-help-center",
+        element: <AccountHelpCenter />,
       },
     ],
   },
