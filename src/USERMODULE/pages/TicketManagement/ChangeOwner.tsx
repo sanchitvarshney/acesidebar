@@ -310,16 +310,15 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
           borderTop: "1px solid #eee",
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-end",
+          justifyContent: "center",
           gap: 1,
           backgroundColor: "#fafafa",
         }}
       >
         <Button
           onClick={handleClose}
-          variant="outlined"
-          color="inherit"
-          sx={{ minWidth: 80 }}
+          variant="text"
+          sx={{ minWidth: 80, fontWeight: 600 }}
         >
           Cancel
         </Button>
@@ -329,7 +328,7 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
           color="primary"
           disabled={!selectedAgent || !transferReason.trim()}
           startIcon={<SwapHoriz />}
-          sx={{ minWidth: 120 }}
+          sx={{ minWidth: 120, fontWeight: 600 }}
         >
           Transfer Ownership
         </Button>

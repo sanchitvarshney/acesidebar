@@ -732,16 +732,16 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
             borderTop: "1px solid #eee",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-end",
+            justifyContent: "center",
             gap: 1,
             backgroundColor: "#fafafa",
           }}
         >
           <Button
             onClick={handleClose}
-            variant="outlined"
-            color="inherit"
-            sx={{ minWidth: 80 }}
+            variant="text"
+       
+            sx={{ minWidth: 80 , fontWeight:600}}
           >
             Cancel
           </Button>
@@ -756,7 +756,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
               !notes.trim()
             }
             startIcon={<Share />}
-            sx={{ minWidth: 120 }}
+            sx={{ minWidth: 120, fontWeight:600 }}
           >
             Create Referral
           </Button>

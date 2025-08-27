@@ -244,7 +244,8 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
 
         {/* Date Field */}
         <DatePicker
-          label="On"
+          label="On Date"
+          format="DD-MM-YYYY"
           value={logTimeFields.date ? dayjs(logTimeFields.date) : dayjs()}
           onChange={(newValue: Dayjs | null) => {
             handleLogTimeFieldChange("date", newValue?.toDate() || new Date());
@@ -312,16 +313,16 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
           borderTop: "1px solid #eee",
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-end",
+          justifyContent: "center",
           gap: 1,
           backgroundColor: "#fafafa",
         }}
       >
         <Button
           onClick={onClose}
-          variant="outlined"
-          color="inherit"
-          sx={{ minWidth: 80 }}
+          variant="text"
+        
+          sx={{ minWidth: 80, fontWeight:600 }}
         >
           Cancel
         </Button>
@@ -330,7 +331,7 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
           variant="contained"
           color="primary"
           // disabled={logTimeFields.timeSpent}
-          sx={{ minWidth: 120 }}
+          sx={{ minWidth: 120,fontWeight:600 }}
         >
           {logTimeFields.timeSpent === "" || !logTimeFields.timeSpent
             ? "SAVE"

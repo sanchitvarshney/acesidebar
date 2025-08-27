@@ -27,13 +27,11 @@ import {
   AccordionDetails,
   Badge,
 } from "@mui/material";
+import SystemUpdateAltIcon from "@mui/icons-material/SystemUpdateAlt";
+import RefreshIcon from "@mui/icons-material/Refresh";
+
 import {
-  History,
   Search,
-  FilterList,
-  ExpandMore,
-  Person,
-  Edit,
   Reply,
   AttachFile,
   Delete,
@@ -63,18 +61,31 @@ import {
 } from "@mui/icons-material";
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
+import SearchIcon from '@mui/icons-material/Search';
 
 // Custom Timeline components using standard MUI components
-const Timeline = ({ children, position = "left" }: { children: React.ReactNode; position?: "left" | "right" | "alternate" }) => (
-  <MuiBox sx={{ position: "relative" }}>{children}</MuiBox>
-);
+const Timeline = ({
+  children,
+  position = "left",
+}: {
+  children: React.ReactNode;
+  position?: "left" | "right" | "alternate";
+}) => <MuiBox sx={{ position: "relative" }}>{children}</MuiBox>;
 
 const TimelineItem = ({ children }: { children: React.ReactNode }) => (
   <MuiBox sx={{ display: "flex", mb: 2 }}>{children}</MuiBox>
 );
 
 const TimelineSeparator = ({ children }: { children: React.ReactNode }) => (
-  <MuiBox sx={{ display: "flex", flexDirection: "column", alignItems: "center", mr: 2, minWidth: 60 }}>
+  <MuiBox
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      mr: 2,
+      minWidth: 60,
+    }}
+  >
     {children}
   </MuiBox>
 );
@@ -83,7 +94,13 @@ const TimelineConnector = () => (
   <MuiBox sx={{ width: 2, height: 20, bgcolor: "#e0e0e0", my: 0.5 }} />
 );
 
-const TimelineDot = ({ children, sx }: { children: React.ReactNode; sx?: any }) => (
+const TimelineDot = ({
+  children,
+  sx,
+}: {
+  children: React.ReactNode;
+  sx?: any;
+}) => (
   <MuiBox
     sx={{
       width: 32,
@@ -101,12 +118,24 @@ const TimelineDot = ({ children, sx }: { children: React.ReactNode; sx?: any }) 
   </MuiBox>
 );
 
-const TimelineContent = ({ children, sx }: { children: React.ReactNode; sx?: any }) => (
-  <MuiBox sx={{ flex: 1, ...sx }}>{children}</MuiBox>
-);
+const TimelineContent = ({
+  children,
+  sx,
+}: {
+  children: React.ReactNode;
+  sx?: any;
+}) => <MuiBox sx={{ flex: 1, ...sx }}>{children}</MuiBox>;
 
-const TimelineOppositeContent = ({ children, sx }: { children: React.ReactNode; sx?: any }) => (
-  <MuiBox sx={{ minWidth: 100, textAlign: "right", mr: 2, ...sx }}>{children}</MuiBox>
+const TimelineOppositeContent = ({
+  children,
+  sx,
+}: {
+  children: React.ReactNode;
+  sx?: any;
+}) => (
+  <MuiBox sx={{ minWidth: 100, textAlign: "right", mr: 2, ...sx }}>
+    {children}
+  </MuiBox>
 );
 
 interface ActivityProps {
@@ -117,7 +146,23 @@ interface ActivityProps {
 
 interface ActivityItem {
   id: string;
-  type: "status_change" | "owner_change" | "reply" | "note" | "attachment" | "referral" | "merge" | "link" | "time_log" | "priority_change" | "tag_change" | "spam" | "delete" | "print" | "forward" | "transfer";
+  type:
+    | "status_change"
+    | "owner_change"
+    | "reply"
+    | "note"
+    | "attachment"
+    | "referral"
+    | "merge"
+    | "link"
+    | "time_log"
+    | "priority_change"
+    | "tag_change"
+    | "spam"
+    | "delete"
+    | "print"
+    | "forward"
+    | "transfer";
   action: string;
   description: string;
   timestamp: string;
@@ -159,13 +204,13 @@ const sampleActivities: ActivityItem[] = [
     performedBy: {
       id: "1",
       name: "John Doe",
-      email: "john.doe@example.com"
+      email: "john.doe@example.com",
     },
     details: {
       oldValue: "Open",
       newValue: "In Progress",
-      reason: "Started working on the issue"
-    }
+      reason: "Started working on the issue",
+    },
   },
   {
     id: "2",
@@ -176,11 +221,11 @@ const sampleActivities: ActivityItem[] = [
     performedBy: {
       id: "1",
       name: "John Doe",
-      email: "john.doe@example.com"
+      email: "john.doe@example.com",
     },
     details: {
-      recipient: "customer@example.com"
-    }
+      recipient: "customer@example.com",
+    },
   },
   {
     id: "3",
@@ -191,12 +236,12 @@ const sampleActivities: ActivityItem[] = [
     performedBy: {
       id: "1",
       name: "John Doe",
-      email: "john.doe@example.com"
+      email: "john.doe@example.com",
     },
     details: {
       fileCount: 3,
-      fileNames: ["screenshot.png", "error-log.txt", "config.json"]
-    }
+      fileNames: ["screenshot.png", "error-log.txt", "config.json"],
+    },
   },
   {
     id: "4",
@@ -207,12 +252,12 @@ const sampleActivities: ActivityItem[] = [
     performedBy: {
       id: "1",
       name: "John Doe",
-      email: "john.doe@example.com"
+      email: "john.doe@example.com",
     },
     details: {
       timeSpent: "2:30",
-      billable: true
-    }
+      billable: true,
+    },
   },
   {
     id: "5",
@@ -223,12 +268,12 @@ const sampleActivities: ActivityItem[] = [
     performedBy: {
       id: "1",
       name: "John Doe",
-      email: "john.doe@example.com"
+      email: "john.doe@example.com",
     },
     details: {
       department: "Technical Support",
-      reason: "Requires technical expertise"
-    }
+      reason: "Requires technical expertise",
+    },
   },
   {
     id: "6",
@@ -239,13 +284,13 @@ const sampleActivities: ActivityItem[] = [
     performedBy: {
       id: "1",
       name: "John Doe",
-      email: "john.doe@example.com"
+      email: "john.doe@example.com",
     },
     details: {
       oldValue: "John Doe",
       newValue: "Jane Smith",
-      reason: "Better suited for this type of issue"
-    }
+      reason: "Better suited for this type of issue",
+    },
   },
   {
     id: "7",
@@ -256,13 +301,13 @@ const sampleActivities: ActivityItem[] = [
     performedBy: {
       id: "1",
       name: "John Doe",
-      email: "john.doe@example.com"
+      email: "john.doe@example.com",
     },
     details: {
       oldValue: "Medium",
       newValue: "High",
-      reason: "Customer experiencing critical business impact"
-    }
+      reason: "Customer experiencing critical business impact",
+    },
   },
   {
     id: "8",
@@ -273,32 +318,30 @@ const sampleActivities: ActivityItem[] = [
     performedBy: {
       id: "1",
       name: "John Doe",
-      email: "john.doe@example.com"
+      email: "john.doe@example.com",
     },
     details: {
-      tags: ["urgent", "billing"]
-    }
-  }
+      tags: ["urgent", "billing"],
+    },
+  },
 ];
 
-const Activity: React.FC<ActivityProps> = ({
-  open,
-  onClose,
-  ticketId,
-}) => {
+const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
   const [commanApi] = useCommanApiMutation();
   const { showToast } = useToast();
-  
+
   const [activeTab, setActiveTab] = useState(0);
-  const [activities, setActivities] = useState<ActivityItem[]>(sampleActivities);
+  const [activities, setActivities] =
+    useState<ActivityItem[]>(sampleActivities);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<{start: string; end: string}>({
-    start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    end: new Date().toISOString().split('T')[0]
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
+    start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0],
+    end: new Date().toISOString().split("T")[0],
   });
-  const [viewMode, setViewMode] = useState<"timeline" | "list">("timeline");
 
   // Fetch activities on component mount
   useEffect(() => {
@@ -310,18 +353,23 @@ const Activity: React.FC<ActivityProps> = ({
   }, [ticketId, commanApi]);
 
   // Filter activities based on search and filters
-  const filteredActivities = activities.filter(activity => {
-    const matchesSearch = activity.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         activity.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         activity.performedBy.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = selectedType === "all" || activity.type === selectedType;
-    const matchesUser = selectedUser === "all" || activity.performedBy.id === selectedUser;
-    
+  const filteredActivities = activities.filter((activity) => {
+    const matchesSearch =
+      activity.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      activity.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      activity.performedBy.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+    const matchesType =
+      selectedType === "all" || activity.type === selectedType;
+    const matchesUser =
+      selectedUser === "all" || activity.performedBy.id === selectedUser;
+
     const activityDate = new Date(activity.timestamp);
     const startDate = new Date(dateRange.start);
     const endDate = new Date(dateRange.end);
     const matchesDate = activityDate >= startDate && activityDate <= endDate;
-    
+
     return matchesSearch && matchesType && matchesUser && matchesDate;
   });
 
@@ -343,68 +391,114 @@ const Activity: React.FC<ActivityProps> = ({
     { value: "delete", label: "Deletions" },
     { value: "print", label: "Print Actions" },
     { value: "forward", label: "Forward Actions" },
-    { value: "transfer", label: "Transfers" }
+    { value: "transfer", label: "Transfers" },
   ];
 
   const users = [
     { value: "all", label: "All Users" },
-    ...Array.from(new Set(activities.map(a => a.performedBy.id))).map(id => {
-      const user = activities.find(a => a.performedBy.id === id)?.performedBy;
-      return { value: id, label: user?.name || "Unknown User" };
-    })
+    ...Array.from(new Set(activities.map((a) => a.performedBy.id))).map(
+      (id) => {
+        const user = activities.find(
+          (a) => a.performedBy.id === id
+        )?.performedBy;
+        return { value: id, label: user?.name || "Unknown User" };
+      }
+    ),
   ];
 
   const getActivityIcon = (type: ActivityItem["type"]) => {
     switch (type) {
-      case "status_change": return <CheckCircle />;
-      case "owner_change": return <SwapHoriz />;
-      case "reply": return <Reply />;
-      case "note": return <Comment />;
-      case "attachment": return <AttachFile />;
-      case "referral": return <Share />;
-      case "merge": return <Merge />;
-      case "link": return <Link />;
-      case "time_log": return <Schedule />;
-      case "priority_change": return <PriorityHigh />;
-      case "tag_change": return <Label />;
-      case "spam": return <Block />;
-      case "delete": return <Delete />;
-      case "print": return <Print />;
-      case "forward": return <Share />;
-      case "transfer": return <SwapHoriz />;
-      default: return <Info />;
+      case "status_change":
+        return <CheckCircle />;
+      case "owner_change":
+        return <SwapHoriz />;
+      case "reply":
+        return <Reply />;
+      case "note":
+        return <Comment />;
+      case "attachment":
+        return <AttachFile />;
+      case "referral":
+        return <Share />;
+      case "merge":
+        return <Merge />;
+      case "link":
+        return <Link />;
+      case "time_log":
+        return <Schedule />;
+      case "priority_change":
+        return <PriorityHigh />;
+      case "tag_change":
+        return <Label />;
+      case "spam":
+        return <Block />;
+      case "delete":
+        return <Delete />;
+      case "print":
+        return <Print />;
+      case "forward":
+        return <Share />;
+      case "transfer":
+        return <SwapHoriz />;
+      default:
+        return <Info />;
     }
   };
 
   const getActivityColor = (type: ActivityItem["type"]) => {
     switch (type) {
-      case "status_change": return "#4caf50";
-      case "owner_change": return "#2196f3";
-      case "reply": return "#ff9800";
-      case "note": return "#9c27b0";
-      case "attachment": return "#795548";
-      case "referral": return "#607d8b";
-      case "merge": return "#e91e63";
-      case "link": return "#00bcd4";
-      case "time_log": return "#8bc34a";
-      case "priority_change": return "#f44336";
-      case "tag_change": return "#9e9e9e";
-      case "spam": return "#f44336";
-      case "delete": return "#f44336";
-      case "print": return "#795548";
-      case "forward": return "#607d8b";
-      case "transfer": return "#2196f3";
-      default: return "#757575";
+      case "status_change":
+        return "#4caf50";
+      case "owner_change":
+        return "#2196f3";
+      case "reply":
+        return "#ff9800";
+      case "note":
+        return "#9c27b0";
+      case "attachment":
+        return "#795548";
+      case "referral":
+        return "#607d8b";
+      case "merge":
+        return "#e91e63";
+      case "link":
+        return "#00bcd4";
+      case "time_log":
+        return "#8bc34a";
+      case "priority_change":
+        return "#f44336";
+      case "tag_change":
+        return "#9e9e9e";
+      case "spam":
+        return "#f44336";
+      case "delete":
+        return "#f44336";
+      case "print":
+        return "#795548";
+      case "forward":
+        return "#607d8b";
+      case "transfer":
+        return "#2196f3";
+      default:
+        return "#757575";
     }
   };
 
   const getFileIcon = (fileName: string) => {
-    const extension = fileName.split('.').pop()?.toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension || '')) return <Image />;
-    if (['mp4', 'avi', 'mov', 'wmv', 'flv'].includes(extension || '')) return <VideoFile />;
-    if (extension === 'pdf') return <PictureAsPdf />;
-    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension || '')) return <Archive />;
-    if (['js', 'ts', 'jsx', 'tsx', 'json', 'xml', 'html', 'css'].includes(extension || '')) return <Code />;
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(extension || ""))
+      return <Image />;
+    if (["mp4", "avi", "mov", "wmv", "flv"].includes(extension || ""))
+      return <VideoFile />;
+    if (extension === "pdf") return <PictureAsPdf />;
+    if (["zip", "rar", "7z", "tar", "gz"].includes(extension || ""))
+      return <Archive />;
+    if (
+      ["js", "ts", "jsx", "tsx", "json", "xml", "html", "css"].includes(
+        extension || ""
+      )
+    )
+      return <Code />;
     return <Description />;
   };
 
@@ -429,8 +523,10 @@ const Activity: React.FC<ActivityProps> = ({
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
+
     if (diffInHours < 1) return "Just now";
     if (diffInHours < 24) return `${diffInHours} hour(s) ago`;
     if (diffInHours < 48) return "Yesterday";
@@ -455,7 +551,8 @@ const Activity: React.FC<ActivityProps> = ({
         )}
         {details.timeSpent && (
           <Typography variant="body2" sx={{ mb: 0.5 }}>
-            <strong>Time:</strong> {details.timeSpent} {details.billable && "(Billable)"}
+            <strong>Time:</strong> {details.timeSpent}{" "}
+            {details.billable && "(Billable)"}
           </Typography>
         )}
         {details.fileCount && details.fileNames && (
@@ -526,7 +623,9 @@ const Activity: React.FC<ActivityProps> = ({
           </TimelineSeparator>
           <TimelineContent sx={{ py: "12px", px: 2 }}>
             <Paper elevation={1} sx={{ p: 2 }}>
-              <MuiBox sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <MuiBox
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <Avatar
                   src={activity.performedBy.avatar}
                   sx={{ width: 24, height: 24, fontSize: "0.75rem" }}
@@ -539,10 +638,10 @@ const Activity: React.FC<ActivityProps> = ({
                 <Chip
                   label={activity.action}
                   size="small"
-                  sx={{ 
-                    bgcolor: getActivityColor(activity.type), 
+                  sx={{
+                    bgcolor: getActivityColor(activity.type),
                     color: "white",
-                    fontSize: "0.75rem"
+                    fontSize: "0.75rem",
                   }}
                 />
               </MuiBox>
@@ -555,51 +654,6 @@ const Activity: React.FC<ActivityProps> = ({
         </TimelineItem>
       ))}
     </Timeline>
-  );
-
-  const renderListView = () => (
-    <List>
-      {filteredActivities.map((activity) => (
-        <ListItem
-          key={activity.id}
-          sx={{
-            border: "1px solid #e0e0e0",
-            borderRadius: 1,
-            mb: 1,
-            backgroundColor: "#fff",
-          }}
-        >
-          <ListItemAvatar>
-            <Avatar sx={{ bgcolor: getActivityColor(activity.type) }}>
-              {getActivityIcon(activity.type)}
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            primary={
-              <MuiBox sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  {activity.action}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  by {activity.performedBy.name}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {formatTimestamp(activity.timestamp)}
-                </Typography>
-              </MuiBox>
-            }
-            secondary={
-              <MuiBox>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  {activity.description}
-                </Typography>
-                {renderActivityDetails(activity)}
-              </MuiBox>
-            }
-          />
-        </ListItem>
-      ))}
-    </List>
   );
 
   return (
@@ -619,114 +673,100 @@ const Activity: React.FC<ActivityProps> = ({
     >
       <MuiBox sx={{ p: 2, flex: 1, overflowY: "auto", width: "100%" }}>
         {/* Header */}
-        <MuiBox sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+        <MuiBox
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Ticket Activity Log
           </Typography>
-                     <MuiBox sx={{ display: "flex", gap: 1 }}>
-             <Button
-               variant={viewMode === "timeline" ? "contained" : "outlined"}
-               size="small"
-               onClick={() => setViewMode("timeline")}
-             >
-               Timeline
-             </Button>
-             <Button
-               variant={viewMode === "list" ? "contained" : "outlined"}
-               size="small"
-               onClick={() => setViewMode("list")}
-             >
-               List
-             </Button>
-             <Button
-               variant="outlined"
-               size="small"
-               onClick={handleRefreshActivities}
-             >
-               Refresh
-             </Button>
-             <Button
-               variant="outlined"
-               size="small"
-               onClick={handleExportActivities}
-             >
-               Export
-             </Button>
-           </MuiBox>
+          <MuiBox sx={{ display: "flex", gap: 1 }}>
+            <IconButton size="small" onClick={handleExportActivities}>
+              <SystemUpdateAltIcon fontSize="small" color="primary" />
+            </IconButton>
+          </MuiBox>
         </MuiBox>
 
         {/* Search and Filters */}
         <MuiBox sx={{ mb: 3 }}>
-          <div className="grid grid-cols-12 gap-4 items-center">
-            <div className="col-span-12 md:col-span-4">
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search activities..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                InputProps={{
-                  startAdornment: <Search sx={{ color: "#666", mr: 1 }} />,
-                }}
-              />
+          <div className="flex items-center justify-between ">
+            <div className="flex gap-2  ">
+              <div className="">
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Search activities..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  InputProps={{
+                    startAdornment: <Search sx={{ color: "#666", mr: 1}} />,  
+                  }}
+                />
+              </div>
+              <div className="">
+                <FormControl fullWidth size="small">
+                  <InputLabel>Type</InputLabel>
+                  <Select
+                    value={selectedType}
+                    label="Type"
+                    onChange={(e) => setSelectedType(e.target.value)}
+                  >
+                    {activityTypes.map((type) => (
+                      <MenuItem key={type.value} value={type.value}>
+                        {type.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
             </div>
-            <div className="col-span-6 md:col-span-2">
-              <FormControl fullWidth size="small">
-                <InputLabel>Type</InputLabel>
-                <Select
-                  value={selectedType}
-                  label="Type"
-                  onChange={(e) => setSelectedType(e.target.value)}
-                >
-                  {activityTypes.map(type => (
-                    <MenuItem key={type.value} value={type.value}>
-                      {type.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div className="col-span-6 md:col-span-2">
-              <FormControl fullWidth size="small">
-                <InputLabel>User</InputLabel>
-                <Select
-                  value={selectedUser}
-                  label="User"
-                  onChange={(e) => setSelectedUser(e.target.value)}
-                >
-                  {users.map(user => (
-                    <MenuItem key={user.value} value={user.value}>
-                      {user.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div className="col-span-6 md:col-span-2">
-              <TextField
-                size="small"
-                type="date"
-                label="From"
-                value={dateRange.start}
-                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                InputLabelProps={{ shrink: true }}
-              />
-            </div>
-            <div className="col-span-6 md:col-span-2">
-              <TextField
-                size="small"
-                type="date"
-                label="To"
-                value={dateRange.end}
-                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                InputLabelProps={{ shrink: true }}
-              />
+
+            <div className="flex gap-2">
+              <div className="">
+                <TextField
+                  size="small"
+                  type="date"
+                  label="From"
+                  value={dateRange.start}
+                  onChange={(e) =>
+                    setDateRange((prev) => ({ ...prev, start: e.target.value }))
+                  }
+                  InputLabelProps={{ shrink: true }}
+                />
+              </div>
+              <div className="space-x-2">
+                <TextField
+                  size="small"
+                  type="date"
+                  label="To"
+                  value={dateRange.end}
+                  onChange={(e) =>
+                    setDateRange((prev) => ({ ...prev, end: e.target.value }))
+                  }
+                  InputLabelProps={{ shrink: true }}
+                />
+                <IconButton size="medium">
+                  <SearchIcon  fontSize="small" color="primary" />
+                </IconButton>
+              </div>
             </div>
           </div>
         </MuiBox>
 
         {/* Activity Summary */}
-        <MuiBox sx={{ mb: 3, p: 2, bgcolor: "#f8f9fa", borderRadius: 1, border: "1px solid #e0e0e0" }}>
+        <MuiBox
+          sx={{
+            mb: 3,
+            p: 2,
+            bgcolor: "#f8f9fa",
+            borderRadius: 1,
+            border: "1px solid #e0e0e0",
+          }}
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <Typography variant="h6" color="primary">
@@ -738,7 +778,7 @@ const Activity: React.FC<ActivityProps> = ({
             </div>
             <div className="text-center">
               <Typography variant="h6" color="success.main">
-                {filteredActivities.filter(a => a.type === "reply").length}
+                {filteredActivities.filter((a) => a.type === "reply").length}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Replies
@@ -746,7 +786,10 @@ const Activity: React.FC<ActivityProps> = ({
             </div>
             <div className="text-center">
               <Typography variant="h6" color="warning.main">
-                {filteredActivities.filter(a => a.type === "attachment").length}
+                {
+                  filteredActivities.filter((a) => a.type === "attachment")
+                    .length
+                }
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Attachments
@@ -754,7 +797,7 @@ const Activity: React.FC<ActivityProps> = ({
             </div>
             <div className="text-center">
               <Typography variant="h6" color="text.secondary">
-                {filteredActivities.filter(a => a.type === "time_log").length}
+                {filteredActivities.filter((a) => a.type === "time_log").length}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Time Logs
@@ -765,11 +808,15 @@ const Activity: React.FC<ActivityProps> = ({
 
         {/* Activities Content */}
         {filteredActivities.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 4 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ textAlign: "center", py: 4 }}
+          >
             No activities found matching your criteria.
           </Typography>
         ) : (
-          viewMode === "timeline" ? renderTimelineView() : renderListView()
+          renderTimelineView()
         )}
       </MuiBox>
     </MuiBox>

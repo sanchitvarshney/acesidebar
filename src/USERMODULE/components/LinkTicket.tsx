@@ -167,7 +167,15 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={(_, reason) => {
+        if (reason === "backdropClick") {
+          return;
+        }
+        if (reason === "escapeKeyDown") {
+          onClose();
+          return;
+        }
+      }}
       fullWidth
       maxWidth="md"
       PaperProps={{ sx: { borderRadius: 3 } }}
@@ -215,9 +223,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
                 {...props}
                 className="flex items-center gap-2 p-2 cursor-pointer"
               >
-                <Avatar
-                  sx={{ width: 30, height: 30, bgcolor: "primary.main" }}
-                >
+                <Avatar sx={{ width: 30, height: 30, bgcolor: "primary.main" }}>
                   {option.title?.charAt(0).toUpperCase()}
                 </Avatar>
                 <div>
@@ -332,7 +338,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ justifyContent: "flex-end", gap: 1 }}>
-        <Button variant="outlined" onClick={onClose}>
+        <Button variant="text" onClick={onClose}>
           Cancel
         </Button>
 

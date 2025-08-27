@@ -178,7 +178,15 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={(_, reason) => {
+        if (reason === "backdropClick") {
+          return;
+        }
+        if (reason === "escapeKeyDown") {
+          onClose();
+          return;
+        }
+      }}
       fullWidth
       maxWidth="md"
       PaperProps={{ sx: { borderRadius: 3 } }}

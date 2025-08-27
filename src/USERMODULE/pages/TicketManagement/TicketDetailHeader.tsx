@@ -64,14 +64,7 @@ const ActionButton = ({
 }) => {
   return (
     <div className="flex items-center">
-      <CustomToolTip
-        title={
-          <Typography className="px-2 py-1" variant="subtitle2">
-            {tooltip}
-          </Typography>
-        }
-        placement="top"
-      >
+     <Tooltip title={tooltip}>
         <Button
           variant="contained"
           color="inherit"
@@ -88,7 +81,7 @@ const ActionButton = ({
         >
           {icon}
         </Button>
-      </CustomToolTip>
+      </Tooltip>
       {hasDropdown && (
         <CustomToolTip
           title={
@@ -337,7 +330,7 @@ const TicketDetailHeader = ({
         <ActionButton
           icon={
             <div className="flex items-center gap-1">
-              <MoreVertIcon fontSize="small" className="text-blue-600" />
+             More <MoreVertIcon fontSize="small" className="text-blue-600 " /> 
             </div>
           }
           tooltip="More"

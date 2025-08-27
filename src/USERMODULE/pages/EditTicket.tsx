@@ -304,7 +304,7 @@ const EditTicket = ({ onClose }: any) => {
           borderTop: "1px solid #eee",
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-end",
+          justifyContent: "center",
           gap: 1,
           backgroundColor: "#fafafa",
           mt: "auto",
@@ -312,9 +312,9 @@ const EditTicket = ({ onClose }: any) => {
       >
         <Button
           onClick={onClose}
-          variant="outlined"
-          color="inherit"
-          sx={{ minWidth: 80 }}
+          variant="text"
+          
+          sx={{ minWidth: 80, fontWeight:600 }}
         >
           Cancel
         </Button>
@@ -325,7 +325,7 @@ const EditTicket = ({ onClose }: any) => {
           disabled={
             !editData.subject || !editData.body || editData.contact.length === 0
           }
-          sx={{ minWidth: 100 }}
+          sx={{ minWidth: 100, fontWeight:600 }}
         >
           Save
         </Button>

@@ -129,15 +129,19 @@ const ManageTags = () => {
                   handleAdd();
                 }
               }}
+              sx={{
+                width: {xs:"100%",md:"45%"}
+              }}
             />
-            <Button variant="contained" onClick={handleAdd} disabled={!canAdd}>
+            <Button variant="contained" onClick={handleAdd} disabled={!canAdd}     sx={{fontWeight:600}}>
               Add
             </Button>
             <Button
-              variant="outlined"
-              color="inherit"
+              variant="text"
+            
               onClick={handleClear}
               disabled={!tagInput}
+              sx={{fontWeight:600}}
             >
               Clear
             </Button>
