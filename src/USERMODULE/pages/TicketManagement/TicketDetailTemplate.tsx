@@ -190,9 +190,26 @@ const TicketDetailTemplate = () => {
         <Drawer
           anchor="right"
           open={forwardOpen}
-          onClose={() => {
+          onClose={(_, reason) => {
             setExpandForward(false);
-            handleCloseForward();
+
+            if (reason === "escapeKeyDown") {
+              handleCloseForward();
+              return;
+            }
+            if (reason === "backdropClick") {
+              return;
+            }
+          }}
+          ModalProps={{
+            disableEscapeKeyDown: false,
+            keepMounted: true,
+            BackdropProps: {
+              style: { backgroundColor: "rgba(0, 0, 0, 0.5)",  },
+              onClick: (e) => {
+                e.stopPropagation();
+              },
+            },
           }}
           sx={{
             "& .MuiDrawer-paper": {
@@ -222,12 +239,13 @@ const TicketDetailTemplate = () => {
       {expandForward && (
         <Modal
           open={forwardOpen}
-          onClose={() => {
+          onClose={(_, reason) => {
             setExpandForward(false);
             handleCloseForward();
+            if (reason === "backdropClick") {
+              return;
+            }
           }}
-          aria-labelledby="forward-modal-title"
-          aria-describedby="forward-modal-description"
         >
           <Box
             sx={{

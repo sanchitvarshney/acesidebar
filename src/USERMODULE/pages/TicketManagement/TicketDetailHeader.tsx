@@ -14,10 +14,10 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import BlockIcon from "@mui/icons-material/Block";
 import ListIcon from "@mui/icons-material/List";
 import AddAlarmIcon from "@mui/icons-material/AddAlarm";
-import FlagIcon from "@mui/icons-material/Flag";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import {
   IconButton,
@@ -337,7 +337,7 @@ const TicketDetailHeader = ({
         <ActionButton
           icon={
             <div className="flex items-center gap-1">
-              <ArrowDropDownIcon fontSize="small" className="text-blue-600" />
+              <MoreVertIcon fontSize="small" className="text-blue-600" />
             </div>
           }
           tooltip="More"

@@ -5,7 +5,6 @@ import {
   Button,
   Chip,
   Divider,
-  IconButton,
   List,
   ListItem,
   ListItemIcon,
@@ -23,7 +22,6 @@ import {
   TimelineContent,
   timelineOppositeContentClasses,
   Timeline,
-  TimelineOppositeContent,
 } from "@mui/lab";
 import EmailIcon from "@mui/icons-material/Email";
 import MailOutlineIcon from "@mui/icons-material/MailOutline"; // mail icon
@@ -95,8 +93,7 @@ const ProfilePage = () => {
   const phone = userData?.phone || userData?.user?.phone || "27637738";
   const address = userData?.address || "7, fngu ,wiuf ";
 
-  const userId = useParams().id 
-
+  const userId = useParams().id;
 
   const [tab, setTab] = useState(0);
 
@@ -112,26 +109,25 @@ const ProfilePage = () => {
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [isMerge, setIsMerge] = useState(false);
   const [isPrimaryEmail, setIsPrimaryEmail] = useState(false);
- const [commanApi] = useCommanApiMutation()
+  const [commanApi] = useCommanApiMutation();
 
- const  handleDelete = () => {
-  const payload = {
-    url: `delete-user/${userId}`,
-    method: "DELETE",
-  }
-  commanApi(payload)
- }
-  const  handleMakeAgent = () => {
-  const payload = {
-    url: `make-agent/${userId}`,
-    method: "PUT",
-    body:{
-      type:"agent"
-    }
-  }
-  commanApi(payload)
- }
- 
+  const handleDelete = () => {
+    const payload = {
+      url: `delete-user/${userId}`,
+      method: "DELETE",
+    };
+    commanApi(payload);
+  };
+  const handleMakeAgent = () => {
+    const payload = {
+      url: `make-agent/${userId}`,
+      method: "PUT",
+      body: {
+        type: "agent",
+      },
+    };
+    commanApi(payload);
+  };
 
   const handleMergeContact = () => {
     setIsMerge(true);
@@ -152,10 +148,12 @@ const ProfilePage = () => {
     >
       <div className="  space-x-2 p-2 ">
         {/* <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}> */}
+
         <Button
           size="small"
           startIcon={<EditIcon />}
           variant="contained"
+          color="inherit"
           onClick={() => setIsEdit(true)}
         >
           Edit
@@ -174,6 +172,7 @@ const ProfilePage = () => {
           startIcon={<MergeIcon />}
           variant="contained"
           onClick={handleMergeContact}
+          color="inherit"
         >
           Merge
         </Button>
@@ -182,6 +181,7 @@ const ProfilePage = () => {
           startIcon={<AgentIcon />}
           variant="contained"
           onClick={() => setIsConvertProfile(true)}
+          color="inherit"
         >
           Convert to agent
         </Button>
@@ -190,6 +190,7 @@ const ProfilePage = () => {
           startIcon={<PasswordIcon />}
           variant="contained"
           onClick={() => setIsChangePassword(true)}
+          color="inherit"
         >
           Change password
         </Button>
@@ -197,8 +198,8 @@ const ProfilePage = () => {
           size="small"
           startIcon={<AddIcon />}
           variant="contained"
-          color="primary"
           onClick={() => navigate("/create-ticket")}
+          color="inherit"
         >
           New ticket
         </Button>
@@ -245,17 +246,17 @@ const ProfilePage = () => {
                   }}
                 >
                   {/* <div className="flex flex-col  items-center"> */}
-                    <Avatar
-                      sx={{
-                        width: 64,
-                        height: 64,
-                        bgcolor: "#1976d2",
-                        fontSize: 28,
-                      }}
-                    >
-                      {initials}
-                    </Avatar>
-                    {/* <Box sx={{ display: "flex", mt: 1 }}>
+                  <Avatar
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      bgcolor: "#1976d2",
+                      fontSize: 28,
+                    }}
+                  >
+                    {initials}
+                  </Avatar>
+                  {/* <Box sx={{ display: "flex", mt: 1 }}>
                       <Button size="small" variant="text">
                         Change
                       </Button>

@@ -40,7 +40,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reduxStore/Store";
 import ImageViewComponent from "../../components/ImageViewComponent";
 import { useAuth } from "../../../contextApi/AuthContext";
-import { setReplyValue } from "../../../reduxStore/Slices/shotcutSlices";
+import {
+  setForwardData,
+  setReplyValue,
+} from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
@@ -116,8 +119,10 @@ const ThreadItem = ({
   onReplyClick,
   onForward,
   marginBottomClass,
+  subject,
 }: any) => {
   const [commanApi] = useCommanApiMutation();
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
@@ -127,6 +132,7 @@ const ThreadItem = ({
   const optionsRef = React.useRef<any>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const [selected, setSelected] = useState<number>(0);
+  const dispatch = useDispatch();
 
   const handleReplyClick = (e: any) => {
     onForward();
@@ -159,6 +165,12 @@ const ThreadItem = ({
 
   const handleSelect = (value: string) => {
     if (value === "1") {
+      const payloadForward = {
+        subject: `#Forward: ${subject}`,
+        message: item.message,
+      };
+      dispatch(setForwardData(payloadForward));
+
       handleReplyClick(null);
       setOpen(false);
     } else if (value === "2") {
@@ -433,7 +445,7 @@ const ThreadItem = ({
   );
 };
 
-const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
+const ThreadList = ({ thread, onReplyClick, onForward, subject }: any) => (
   <div className="">
     {thread && thread.length > 0 ? (
       thread.map((item: any, idx: number) => {
@@ -452,6 +464,7 @@ const ThreadList = ({ thread, onReplyClick, onForward }: any) => (
             onReplyClick={onReplyClick}
             onForward={onForward}
             marginBottomClass={marginBottomClass}
+            subject={subject}
           />
         );
       })
@@ -681,7 +694,11 @@ const TicketThreadSection = ({
           <TicketSubjectBar header={header} />
         </div>
         <div className="flex flex-col gap-0 w-full h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
-          <ThreadList thread={thread} onForward={onForward} />
+          <ThreadList
+            thread={thread}
+            onForward={onForward}
+            subject={header.subject}
+          />
         </div>
         <div className="rounded   p-1 w-[74%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
           <Accordion

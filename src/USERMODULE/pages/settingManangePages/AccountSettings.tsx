@@ -111,7 +111,7 @@ const AccountSettings = () => {
                 </Box>
               </Typography>
               <CardActions sx={{ px: 0, mt: 'auto' }}>
-                <Button variant="contained" color="inherit" size="small">
+                <Button variant="contained" color="error" size="small">
                   Cancel account
                 </Button>
               </CardActions>

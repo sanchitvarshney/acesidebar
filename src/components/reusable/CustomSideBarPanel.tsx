@@ -20,20 +20,31 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   isHeader = true,
   width = 380,
   btn,
-  position = "right"
+  position = "right",
 }) => {
-
-
   return (
     <Drawer
       // elevation={0}
       anchor={position}
       open={open}
-      // onClose={close}
+      onClose={(event, reason) => {
+       
+        if (reason === "escapeKeyDown") {
+          close();
+          return;
+        }
+        if (reason === "backdropClick") {
+          return;
+        }
+      }}
       ModalProps={{
+        disableEscapeKeyDown: false,
         keepMounted: true,
         BackdropProps: {
-          style: { backgroundColor: "rgba(0, 0, 0, 0.5), ", cursor: "none" }, // visually transparent
+          style: { backgroundColor: "rgba(0, 0, 0, 0.5)", cursor: "none" },
+          onClick: (e) => {
+            e.stopPropagation();
+          },
         },
       }}
       // hideBackdrop
@@ -80,45 +91,6 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
       >
         {children}
       </div>
-      {/* <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          p: 2,
-          justifyContent:"flex-end",
-          borderBottom: "1px solid #ccc",
-          pointerEvents: "auto",
-          backgroundColor: "#e8f0fe",
-          gap:2
-        }}
-      >
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{
-            textTransform: "none",
-            backgroundColor: "#ccc",
-            color: "#000",
-            "&:hover": { backgroundColor: "#dadadaff" },
-
-            fontSize: 15,
-          }}
-        >
-          {btn?.secondary}
-        </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{
-            textTransform: "none",
-            "&:hover": { backgroundColor: "#0080ffff" },
-
-            fontSize: 15,
-          }}
-        >
-         {btn?.primary}
-        </Button>
-      </Box> */}
     </Drawer>
   );
 };

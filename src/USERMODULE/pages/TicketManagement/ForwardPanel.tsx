@@ -29,6 +29,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { AnimatePresence, motion } from "framer-motion";
 import { useToast } from "../../../hooks/useToast";
 import { fetchOptions, isValidEmail } from "../../../utils/Utils";
+import { useSelector } from "react-redux";
 
 interface ForwardPanelProps {
   open: boolean;
@@ -73,6 +74,14 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   const [options, setOptions] = useState<any[]>([]);
   const [openCcfield, setOpenCcfield] = useState(false);
   const [openBccfield, setOpenBccfield] = useState(false);
+  const { forwardData } = useSelector((state: any) => state.shotcut);
+
+  useEffect(() => {
+    if (forwardData) {
+      onFieldChange("subject", forwardData.subject);
+      onFieldChange("message", forwardData.message);
+    }
+  }, [forwardData]);
 
   const handleFileSelect = async (files: FileList | null) => {
     if (!files) return;
@@ -221,7 +230,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
       );
     }
   };
-  
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
