@@ -21,7 +21,9 @@ import React, { useState, useMemo, useCallback } from "react";
 import { useGetTagListQuery } from "../../../services/ticketAuth";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 import { useCommanApiMutation } from "../../../services/threadsApi";
-
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import PersonIcon from "@mui/icons-material/Person";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 const ManageTags = () => {
   const [tagInput, setTagInput] = useState<string>("");
   const [editingTag, setEditingTag] = useState<string | null>(null);
@@ -34,7 +36,12 @@ const ManageTags = () => {
 
   const canAdd = useMemo(() => {
     const trimmed = tagInput.trim();
-    return trimmed.length > 0 && !tagList?.some((tag: any) => tag.tagName.toLowerCase() === trimmed.toLowerCase());
+    return (
+      trimmed.length > 0 &&
+      !tagList?.some(
+        (tag: any) => tag.tagName.toLowerCase() === trimmed.toLowerCase()
+      )
+    );
   }, [tagInput, tagList]);
 
   const handleAdd = useCallback(() => {
@@ -76,14 +83,15 @@ const ManageTags = () => {
     if (!editingTag || !trimmed) return;
 
     // Check for duplicate names (excluding the current tag being edited)
-    const isDuplicate = tagList?.some((tag: any) => 
-      tag.tagName.toLowerCase() === trimmed.toLowerCase() && 
-      tag.tagID !== editingTag
+    const isDuplicate = tagList?.some(
+      (tag: any) =>
+        tag.tagName.toLowerCase() === trimmed.toLowerCase() &&
+        tag.tagID !== editingTag
     );
 
     if (isDuplicate) {
       // You might want to show a toast notification here
-      console.error('Tag name already exists');
+      console.error("Tag name already exists");
       return;
     }
 
@@ -98,7 +106,7 @@ const ManageTags = () => {
       setEditingTag(null);
       setEditValue("");
     } catch (error) {
-      console.error('Failed to update tag:', error);
+      console.error("Failed to update tag:", error);
       // You might want to show a toast notification here
     } finally {
       setIsEditingLoading(false);
@@ -130,18 +138,22 @@ const ManageTags = () => {
                 }
               }}
               sx={{
-                width: {xs:"100%",md:"45%"}
+                width: { xs: "100%", md: "45%" },
               }}
             />
-            <Button variant="contained" onClick={handleAdd} disabled={!canAdd}     sx={{fontWeight:600}}>
+            <Button
+              variant="contained"
+              onClick={handleAdd}
+              disabled={!canAdd}
+              sx={{ fontWeight: 600 }}
+            >
               Add
             </Button>
             <Button
               variant="text"
-            
               onClick={handleClear}
               disabled={!tagInput}
-              sx={{fontWeight:600}}
+              sx={{ fontWeight: 600 }}
             >
               Clear
             </Button>
@@ -167,7 +179,8 @@ const ManageTags = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Tag</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell /> <TableCell /> <TableCell />
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -207,12 +220,27 @@ const ManageTags = () => {
                               </Typography>
                             )}
                           </TableCell>
-                          <TableCell align="right">
+                          <TableCell>
+                            <IconButton>
+                              <ConfirmationNumberIcon />
+                            </IconButton>
+                          </TableCell>{" "}
+                          <TableCell>
+                            <IconButton>
+                              <PersonIcon />
+                            </IconButton>
+                          </TableCell>{" "}
+                          <TableCell>
+                            <IconButton>
+                              <InsertDriveFileIcon />
+                            </IconButton>
+                          </TableCell>{" "}
+                          <TableCell>
                             {isEditing ? (
                               <Stack
                                 direction="row"
                                 spacing={0.5}
-                                justifyContent="flex-end"
+                           
                               >
                                 <IconButton
                                   color="primary"
@@ -240,7 +268,7 @@ const ManageTags = () => {
                               <Stack
                                 direction="row"
                                 spacing={0.5}
-                                justifyContent="flex-end"
+                         
                               >
                                 <IconButton
                                   aria-label="edit"
