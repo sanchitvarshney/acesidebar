@@ -7,40 +7,55 @@ import {
   ListItemText,
   IconButton,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useDeleteAttachedFileMutation } from "../../services/uploadDocServices";
+import { useToast } from "../../hooks/useToast";
 
 interface ImageViewComponentProps {
   images: any; // Array of uploaded image files
-  onRemove?: any;
+  ticketId?: any;
+  handleRemove:any
 }
-
-const formatFileSize = (size: number) => {
-  if (size < 1024) return `${size} B`;
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
-  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
-};
 
 const ImageViewComponent: React.FC<ImageViewComponentProps> = ({
   images,
-  onRemove,
+  ticketId,
+  handleRemove
 }) => {
+  const { showToast } = useToast();
+  const [deleteAttachedFile, { isLoading: deleteLoading }] =
+    useDeleteAttachedFileMutation();
+
+  const onRemove = (fileId: string) => {
+    if (!fileId) {
+      showToast("File not exist please try again", "error");
+      return;
+    }
+    const payload = {
+      ticketNumber: ticketId,
+      signature: fileId,
+    };
+
+    deleteAttachedFile(payload).then((res)=> {
+      if (res?.data?.success !== true) {
+        showToast(res?.data?.message || "An error occurred while deleting", "error");
+        return;
+      }
+handleRemove(fileId)
+
+    })
+  };
   return (
-    <div style={{padding:"6px"}}>
+    <div style={{ padding: "6px" }}>
       <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
         Attached Files
       </Typography>
       <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-        {images?.map((file: any, index: number) => (
+        {images?.map((file: any) => (
           <ListItem
-            key={index}
-            // secondaryAction={
-            //   onRemove && (
-            //     <IconButton edge="end" onClick={() => onRemove(index)}>
-            //       <DeleteIcon  />
-            //     </IconButton>
-            //   )
-            // }
+            key={file?.fileId}
             sx={{
               width: "100%",
               cursor: "pointer",
@@ -65,13 +80,21 @@ const ImageViewComponent: React.FC<ImageViewComponentProps> = ({
                   {file.name}
                 </span>
               }
-              secondary={`${file.type || "Unknown"} • ${formatFileSize(
-                file.size
-              )}`}
+              secondary={`${file.type || "Unknown"} • ${file.size}`}
             />
-            <IconButton size="small" sx={{ ml: 2 }} onClick={() => onRemove(index)}>
+         {
+          deleteLoading ? (
+            <CircularProgress size={16}/>
+          ):(
+               <IconButton
+              size="small"
+              sx={{ ml: 2 }}
+              onClick={() => onRemove(file.fileId)}
+            >
               <DeleteIcon fontSize="small" color="error" />
             </IconButton>
+          )
+         }
           </ListItem>
         ))}
       </List>

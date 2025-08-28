@@ -398,6 +398,28 @@ const StackEditor = ({
     }
   };
 
+  // Helpers to control image sizing inside the editor
+  const IMAGE_DEFAULT_WIDTH = 45;
+  const setImageElementSize = (imageElement) => {
+    try {
+      if (!imageElement) return;
+      // imageElement.style.width = `${IMAGE_DEFAULT_WIDTH}%`;
+      imageElement.style.maxWidth = `${IMAGE_DEFAULT_WIDTH}%`;
+  
+    } catch (_) {}
+  };
+
+  const setImageSizeByUrl = (quillInstance, imageUrl) => {
+    try {
+      if (!quillInstance || !imageUrl) return;
+      const root = quillInstance.root;
+      const imgs = Array.from(root.querySelectorAll('img'));
+      imgs
+        .filter((img) => (img?.src || "") === imageUrl)
+        .forEach((img) => setImageElementSize(img));
+    } catch (_) {}
+  };
+
   // Handle paste images into editor: upload then insert URL
   useEffect(() => {
     let removeListener = () => {};
@@ -428,6 +450,7 @@ const StackEditor = ({
             });
             const url = await uploadPastedImage(file);
             img.src = url;
+            setImageElementSize(img);
           } catch (err) {
             // Remove the base64 image if upload fails
             try {
@@ -490,6 +513,7 @@ const StackEditor = ({
                 quill.getLength();
               quill.insertEmbed(currentIndex, "image", url, "user");
               quill.setSelection(currentIndex + 1, 0, "silent");
+              setImageSizeByUrl(quill, url);
             } catch (err) {
               // On failure, ensure no base64 image remains
               const root = quill.root;

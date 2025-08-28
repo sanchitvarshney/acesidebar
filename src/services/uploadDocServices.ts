@@ -14,8 +14,22 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
+    attachedFile: builder.mutation({
+      query: (credentials) => ({
+        url: `ticket/reply/image/upload?upload=file`,
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+    deleteAttachedFile: builder.mutation({
+      query: (credentials) => ({
+        url: `/ticket/staff/tickets/${credentials.ticketNumber}/attachments/${credentials.signature}`,
+        method: "delete",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useUploadFileApiMutation } = extendedTicketApi;
+export const { useUploadFileApiMutation, useAttachedFileMutation,useDeleteAttachedFileMutation } =
+  extendedTicketApi;

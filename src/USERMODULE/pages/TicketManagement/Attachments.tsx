@@ -48,7 +48,10 @@ import {
   CreateNewFolder,
 } from "@mui/icons-material";
 import { useToast } from "../../../hooks/useToast";
-import { useCommanApiMutation } from "../../../services/threadsApi";
+import {
+  useCommanApiMutation,
+  useGetAttacedFileQuery,
+} from "../../../services/threadsApi";
 
 interface AttachmentsProps {
   open: boolean;
@@ -56,53 +59,6 @@ interface AttachmentsProps {
   ticketId: string | number;
 }
 
-interface Attachment {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  uploadedAt: string;
-  uploadedBy: string;
-  category?: string;
-  tags?: string[];
-  description?: string;
-  isPublic: boolean;
-  downloadCount: number;
-  lastDownloaded?: string;
-}
-
-interface Folder {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  createdBy: string;
-  attachmentCount: number;
-}
-
-// Sample data - replace with actual API calls
-const sampleAttachments: Attachment[] = [
-  {
-    id: "1",
-    name: "Screenshot.png",
-    size: 12345,
-    type: "image/png",
-    uploadedAt: "2024-01-10T00:00:00Z",
-    uploadedBy: "Support Team",
-    isPublic: true,
-    downloadCount: 5,
-  },
-  {
-    id: "2",
-    name: "Log.txt",
-    size: 67890,
-    type: "text/plain",
-    uploadedAt: "2024-01-08T00:00:00Z",
-    uploadedBy: "Dev Team",
-    isPublic: false,
-    downloadCount: 2,
-  },
-];
 
 const Attachments: React.FC<AttachmentsProps> = ({
   open,
@@ -110,10 +66,12 @@ const Attachments: React.FC<AttachmentsProps> = ({
   ticketId,
 }) => {
   const [commanApi] = useCommanApiMutation();
+
+  const { data } = useGetAttacedFileQuery({ ticketId });
+
   const { showToast } = useToast();
 
-  const [attachments, setAttachments] =
-    useState<Attachment[]>(sampleAttachments);
+  const [attachments, setAttachments] = useState<any[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -137,52 +95,40 @@ const Attachments: React.FC<AttachmentsProps> = ({
     }
   }, [open]);
 
-  // Fetch attachments on component mount
-  useEffect(() => {
-    const payload = {
-      url: `tickets/${ticketId}/attachments`,
-      method: "GET",
-    };
-    commanApi(payload);
-  }, [ticketId, commanApi]);
-
-  // Fetch folders on component mount
-  useEffect(() => {
-    const payload = {
-      url: `tickets/${ticketId}/folders`,
-      method: "GET",
-    };
-    commanApi(payload);
-  }, [ticketId, commanApi]);
-
   // Filter and sort attachments
-  const filteredAttachments = attachments
-    .filter((attachment) => {
-      const matchesSearch =
-        attachment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        attachment.description
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        attachment.tags?.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      const matchesCategory =
-        selectedCategory === "all" || attachment.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    })
-    .sort((a, b) => {
-      let aValue: any = a[sortBy as keyof Attachment];
-      let bValue: any = b[sortBy as keyof Attachment];
+  // Assuming you have a proper Attachment type:
+  type Attachment = {
+    fileName: string;
+    uploadedAt: string;
+    // Add other fields you expect to sort by
+  };
 
+  const filteredAttachments = data?.data
+    ?.filter((attachment: Attachment) => {
+      const matchesSearch = attachment.fileName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      return matchesSearch; // && matchesCategory;
+    })
+    .sort((a: any, b: any) => {
+      let aValue = a[sortBy as keyof Attachment];
+      let bValue = b[sortBy as keyof Attachment];
+
+      // Handle uploadedAt as a date
       if (sortBy === "uploadedAt") {
-        aValue = new Date(aValue).getTime();
-        bValue = new Date(bValue).getTime();
+        aValue = new Date(aValue as string).getTime();
+        bValue = new Date(bValue as string).getTime();
       }
 
+      // Ensure undefined values don't break sorting
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
+
       if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1;
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
       } else {
-        return aValue < bValue ? 1 : -1;
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
       }
     });
 
@@ -198,25 +144,6 @@ const Attachments: React.FC<AttachmentsProps> = ({
     if (type.includes("code") || type.includes("json") || type.includes("xml"))
       return <Code />;
     return <Description />;
-  };
-
-  const getFileColor = (type: string) => {
-    if (type.startsWith("image/")) return "#4caf50";
-    if (type.startsWith("video/")) return "#ff9800";
-    if (type.startsWith("audio/")) return "#9c27b0";
-    if (type === "application/pdf") return "#f44336";
-    if (type.includes("zip") || type.includes("rar")) return "#795548";
-    if (type.includes("code") || type.includes("json") || type.includes("xml"))
-      return "#2196f3";
-    return "#757575";
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const handleFileUpload = async (files: FileList) => {
@@ -282,7 +209,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
 
   const handleDownload = async (attachment: Attachment) => {
     const payload = {
-      url: `tickets/${ticketId}/attachments/${attachment.id}/download`,
+      // url: `tickets/${ticketId}/attachments/${attachment.id}/download`,
       method: "GET",
     };
 
@@ -317,35 +244,6 @@ const Attachments: React.FC<AttachmentsProps> = ({
     );
     setSelectedAttachments([]);
     showToast("Selected files deleted successfully", "success");
-  };
-
-  const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) {
-      showToast("Please enter a folder name", "error");
-      return;
-    }
-
-    const payload = {
-      url: `tickets/${ticketId}/folders`,
-      method: "POST",
-      body: {
-        name: newFolderName,
-        description: newFolderDescription,
-      },
-    };
-
-    commanApi(payload);
-    showToast("Folder created successfully", "success");
-    setFolderDialogOpen(false);
-    setNewFolderName("");
-    setNewFolderDescription("");
-
-    // Refresh folders list
-    const refreshPayload = {
-      url: `tickets/${ticketId}/folders`,
-      method: "GET",
-    };
-    commanApi(refreshPayload);
   };
 
   const handleAttachmentSelect = (attachmentId: string) => {
@@ -525,7 +423,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
 
           {/* Attachments List */}
           <MuiBox>
-            {filteredAttachments.length === 0 ? (
+            {filteredAttachments?.length === 0 ? (
               <Typography
                 variant="body2"
                 color="text.secondary"
@@ -535,21 +433,21 @@ const Attachments: React.FC<AttachmentsProps> = ({
               </Typography>
             ) : (
               <List>
-                {filteredAttachments.map((attachment) => (
+                {filteredAttachments?.map((attachment: any) => (
                   <ListItem
-                    key={attachment.id}
+                    key={attachment.signature}
                     sx={{
                       border: "1px solid #e0e0e0",
                       borderRadius: 1,
                       mb: 1,
                       backgroundColor: selectedAttachments.includes(
-                        attachment.id
+                        attachment.signature
                       )
                         ? "#f3f8ff"
                         : "#fff",
                       "&:hover": {
                         backgroundColor: selectedAttachments.includes(
-                          attachment.id
+                          attachment.signature
                         )
                           ? "#f3f8ff"
                           : "#f5f5f5",
@@ -557,8 +455,8 @@ const Attachments: React.FC<AttachmentsProps> = ({
                     }}
                   >
                     <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: getFileColor(attachment.type) }}>
-                        {getFileIcon(attachment.type)}
+                      <Avatar sx={{ backgroundColor: "primary.main" }}>
+                        {getFileIcon(attachment.mime)}
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
@@ -572,20 +470,13 @@ const Attachments: React.FC<AttachmentsProps> = ({
                           }}
                         >
                           <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                            {attachment.name}
+                            {attachment.fileName}
                           </Typography>
-                          {attachment.isPublic ? (
+                          {attachment.dt.ago && (
                             <Chip
-                              label="Public"
+                              label={attachment.dt.ago}
                               size="small"
                               color="success"
-                              variant="outlined"
-                            />
-                          ) : (
-                            <Chip
-                              label="Private"
-                              size="small"
-                              color="default"
                               variant="outlined"
                             />
                           )}
@@ -594,34 +485,13 @@ const Attachments: React.FC<AttachmentsProps> = ({
                       secondary={
                         <MuiBox>
                           <Typography variant="body2" color="text.secondary">
-                            {formatFileSize(attachment.size)} •{" "}
-                            {attachment.type} • Uploaded by{" "}
-                            {attachment.uploadedBy}
+                            {attachment.fileSize} • {attachment.mime} • Uploaded
+                            by {attachment.uploadedBy}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            {new Date(
-                              attachment.uploadedAt
-                            ).toLocaleDateString()}{" "}
-                            • {attachment.downloadCount} downloads
+                            {`${attachment.dt.ds} ${attachment.dt.ts}`} •{" "}
+                            {attachment.downloads} downloads
                           </Typography>
-                          {attachment.description && (
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
-                              {attachment.description}
-                            </Typography>
-                          )}
-                          {attachment.tags && attachment.tags.length > 0 && (
-                            <MuiBox sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
-                              {attachment.tags.map((tag) => (
-                                <Chip
-                                  key={tag}
-                                  label={tag}
-                                  size="small"
-                                  variant="outlined"
-                                  sx={{ fontSize: "0.75rem" }}
-                                />
-                              ))}
-                            </MuiBox>
-                          )}
                         </MuiBox>
                       }
                     />
@@ -728,13 +598,6 @@ const Attachments: React.FC<AttachmentsProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setFolderDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleCreateFolder}
-            variant="contained"
-            disabled={!newFolderName.trim()}
-          >
-            Create Folder
-          </Button>
         </DialogActions>
       </Dialog>
     </MuiBox>

@@ -21,12 +21,18 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials.body,
       }),
     }),
+    getAttacedFile: builder.query({
+      query: (credentials) => ({
+        url: `/ticket/staff/tickets/${credentials.ticketId}/attachments`,
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
 export const {
   useTicketStatusChangeMutation,
-
+  useGetAttacedFileQuery,
   useCommanApiMutation,
 } = extendedTicketApi;

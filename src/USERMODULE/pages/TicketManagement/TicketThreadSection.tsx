@@ -31,6 +31,7 @@ import {
   Tooltip,
   Button,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -51,6 +52,8 @@ import CustomModal from "../../../components/layout/CustomModal";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import { v4 as uuidv4 } from "uuid";
+import { useAttachedFileMutation } from "../../../services/uploadDocServices";
+import { useToast } from "../../../hooks/useToast";
 
 const signatureValues: any = [
   {
@@ -432,7 +435,7 @@ const ThreadItem = ({
                 </div>
 
                 <div
-                  className="w-4/5 text-xs text-gray-500 my-3"
+                  className="w-4/5 text-xs text-gray-500 my-3 message-container"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeMessageHtml(
                       decodeHtmlEntities(item?.message)
@@ -536,6 +539,7 @@ const TicketThreadSection = ({
   onCloseEditorNote,
   value,
 }: any) => {
+  const { showToast } = useToast();
   const dispatch = useDispatch();
   const [commonApi] = useCommanApiMutation();
   const [showEditor, setShowEditor] = useState<any>(false);
@@ -545,7 +549,7 @@ const TicketThreadSection = ({
   const [stateChangeKey, setStateChangeKey] = useState(0);
   const [isEditorExpended, setIsEditorExpended] = useState(false);
   const [selectedOptionValue, setSelectedOptionValue] = useState("1");
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showImagesModal, setShowImagesModal] = useState(false);
   const [canned, setCanned] = useState(false);
@@ -561,6 +565,8 @@ const TicketThreadSection = ({
   const [shouldFocusNotify, setShouldFocusNotify] = useState(false);
   const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
   const [notifyTag, setNotifyTag] = useState([]);
+  const [attachedFile, { isLoading: attachedLoading }] =
+    useAttachedFileMutation();
 
   const handleChangeValue = (event: any) => {
     setSelectedValue(event);
@@ -662,24 +668,39 @@ const TicketThreadSection = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
+    if (!files) return;
+    const file = files[0];
+    const formData = new FormData();
+    formData.append("image", file, file.name);
+    formData.append("ticket", String(header?.ticketId));
 
-    if (files) {
-      const newFiles = Array.from(files);
-      setImages((prev: any[]) => {
-        const combined = [...prev, ...newFiles];
-        if (combined.length > 4) {
-          return combined.slice(0, 4); // Keep only first 4
+    attachedFile(formData)
+      .then((res: any) => {
+        if (res?.data?.success !== true) {
+          showToast(res?.data?.message || "Image upload failed", "error");
+          return;
         }
-        return combined;
+        const data = res?.data?.data;
+        const imageData = {
+          fileId: data?.signature,
+          name: data?.fileName,
+          size: data?.size,
+          type: data?.mime,
+        };
+        setImages((prevImages: any) => [...prevImages, imageData]);
+      })
+      .catch((err: any) => {
+        showToast(err?.data?.message || "Image upload failed", "error");
       });
-    }
   };
 
   // Extract signature key from an uploaded image URL
   const extractSignatureFromUrl = (url: string): string | null => {
     try {
       // match last hyphen-separated token before extension, e.g. ...-ac2dd664.png
-      const match = url.match(/-([a-zA-Z0-9]+)\.(png|jpg|jpeg|gif|webp)(\?.*)?$/);
+      const match = url.match(
+        /-([a-zA-Z0-9]+)\.(png|jpg|jpeg|gif|webp)(\?.*)?$/
+      );
       return match ? match[1] : null;
     } catch {
       return null;
@@ -687,11 +708,16 @@ const TicketThreadSection = ({
   };
 
   // Upload a data URL image and return signature key
-  const uploadDataUrlImage = async (dataUrl: string, ticket: string | number) => {
+  const uploadDataUrlImage = async (
+    dataUrl: string,
+    ticket: string | number
+  ) => {
     // Convert data URL to Blob
     const res = await fetch(dataUrl);
     const blob = await res.blob();
-    const file = new File([blob], `pasted_${Date.now()}.png`, { type: blob.type || "image/png" });
+    const file = new File([blob], `pasted_${Date.now()}.png`, {
+      type: blob.type || "image/png",
+    });
 
     const formData = new FormData();
     formData.append("image", file, file.name);
@@ -703,7 +729,11 @@ const TicketThreadSection = ({
     headers.append("x-request-key", uuidv4());
 
     const endpoint = `${process.env.REACT_APP_API_URL}ticket/reply/image/upload`;
-    const resp = await fetch(endpoint, { method: "POST", headers, body: formData });
+    const resp = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
     const data = await resp.json();
     if (data?.status !== true) {
       throw new Error(data?.message || "Image upload failed");
@@ -714,7 +744,9 @@ const TicketThreadSection = ({
   };
 
   // Transform editor HTML to replace images with signature;{key}
-  const transformMessageHtmlForSubmit = async (html: string): Promise<string> => {
+  const transformMessageHtmlForSubmit = async (
+    html: string
+  ): Promise<string> => {
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html || "", "text/html");
@@ -742,7 +774,11 @@ const TicketThreadSection = ({
         const curr = cleanImgs[i];
         const ps = prev.getAttribute("src") || "";
         const cs = curr.getAttribute("src") || "";
-        if (ps.startsWith("signature;") && cs.startsWith("signature;") && ps === cs) {
+        if (
+          ps.startsWith("signature;") &&
+          cs.startsWith("signature;") &&
+          ps === cs
+        ) {
           toRemove.push(curr);
         }
       }
@@ -799,11 +835,11 @@ const TicketThreadSection = ({
       });
   };
 
-  const handleRemoveImage = (index: number) => {
-    const updatedImages = [...images];
-    updatedImages.splice(index, 1);
+  const handleRemoveImage = (id: string | number) => {
+    const updatedImages = images.filter((image) => image.fileId !== id);
     setImages(updatedImages);
   };
+
   const onReplyClose = () => {
     setShowEditor(false);
     setShouldFocusEditor(false);
@@ -1002,7 +1038,8 @@ const TicketThreadSection = ({
                         title={
                           <ImageViewComponent
                             images={images}
-                            onRemove={handleRemoveImage}
+                            handleRemove={(id: any) => handleRemoveImage(id)}
+                            ticketId={header?.ticketId}
                           />
                         }
                         open={showImagesModal}
@@ -1032,12 +1069,16 @@ const TicketThreadSection = ({
                           style={{ display: "none" }}
                           onChange={handleFileChange}
                         />
-                        <IconButton size="small" onClick={handleIconClick}>
-                          <AttachFileIcon
-                            fontSize="small"
-                            sx={{ transform: "rotate(45deg)" }}
-                          />
-                        </IconButton>
+                        {attachedLoading ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <IconButton size="small" onClick={handleIconClick}>
+                            <AttachFileIcon
+                              fontSize="small"
+                              sx={{ transform: "rotate(45deg)" }}
+                            />
+                          </IconButton>
+                        )}
                       </div>
                     </Tooltip>
                     <Divider orientation="vertical" flexItem />

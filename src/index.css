@@ -7,8 +7,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -162,7 +160,6 @@
   background: white;
   z-index: 9999 !important;
   padding: 10px;
-  
 }
 
 .editor-fullscreen .p-editor-container {
@@ -197,7 +194,6 @@
 .editor-fullscreen .MuiTooltip-tooltip {
   z-index: 10002 !important;
 }
-
 
 /* Scrollbar track */
 ::-webkit-scrollbar {
