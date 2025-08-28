@@ -28,7 +28,7 @@ import {
   InputLabel,
   Select,
 } from "@mui/material";
-import RefreshIcon from '@mui/icons-material/Refresh';
+import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   AttachFile,
   CloudUpload,
@@ -128,6 +128,14 @@ const Attachments: React.FC<AttachmentsProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      //@ts-ignore
+      setTimeout(() => inputRef.current.focus(), 100);
+    }
+  }, [open]);
 
   // Fetch attachments on component mount
   useEffect(() => {
@@ -348,14 +356,6 @@ const Attachments: React.FC<AttachmentsProps> = ({
     );
   };
 
-  const handleSelectAll = () => {
-    if (selectedAttachments.length === filteredAttachments.length) {
-      setSelectedAttachments([]);
-    } else {
-      setSelectedAttachments(filteredAttachments.map((a) => a.id));
-    }
-  };
-
   // Bulk download selected attachments
   const handleBulkDownload = () => {
     if (selectedAttachments.length === 0) return;
@@ -415,7 +415,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
             >
               Refresh
             </Button>
-         
+
             <Button
               variant="text"
               size="small"
@@ -428,238 +428,230 @@ const Attachments: React.FC<AttachmentsProps> = ({
           </MuiBox>
         </MuiBox>
 
-      
-
-      
-         
-          <MuiBox>
-            {/* Search and Filters */}
-            <MuiBox sx={{ mb: 3 }}>
-              <div className="grid grid-cols-12 gap-4 items-center">
-                <div className="col-span-12 md:col-span-6">
-                  <TextField
-                    fullWidth
-                    size="small"
-                    placeholder="Search attachments..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    InputProps={{
-                      startAdornment: <Search sx={{ color: "#666", mr: 1 }} />,
-                    }}
-                  />
-                </div>
-                <div className="col-span-6 md:col-span-3">
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Category</InputLabel>
-                    <Select
-                      value={selectedCategory}
-                      label="Category"
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                    >
-                      {categories.map((category) => (
-                        <MenuItem key={category} value={category}>
-                          {category === "all" ? "All Categories" : category}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="col-span-6 md:col-span-3">
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Sort By</InputLabel>
-                    <Select
-                      value={sortBy}
-                      label="Sort By"
-                      onChange={(e) => setSortBy(e.target.value)}
-                    >
-                      <MenuItem value="uploadedAt">Upload Date</MenuItem>
-                      <MenuItem value="name">Name</MenuItem>
-                      <MenuItem value="size">Size</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
+        <MuiBox>
+          {/* Search and Filters */}
+          <MuiBox sx={{ mb: 3 }}>
+            <div className="grid grid-cols-12 gap-4 items-center">
+              <div className="col-span-12 md:col-span-6">
+                <TextField
+                  fullWidth
+                  autoFocus
+                  inputRef={inputRef}
+                  size="small"
+                  placeholder="Search attachments..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  InputProps={{
+                    startAdornment: <Search sx={{ color: "#666", mr: 1 }} />,
+                  }}
+                />
               </div>
-            </MuiBox>
+              <div className="col-span-6 md:col-span-3">
+                <FormControl fullWidth size="small">
+                  <InputLabel>Category</InputLabel>
+                  <Select
+                    value={selectedCategory}
+                    label="Category"
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                  >
+                    {categories.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category === "all" ? "All Categories" : category}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="col-span-6 md:col-span-3">
+                <FormControl fullWidth size="small">
+                  <InputLabel>Sort By</InputLabel>
+                  <Select
+                    value={sortBy}
+                    label="Sort By"
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
+                    <MenuItem value="uploadedAt">Upload Date</MenuItem>
+                    <MenuItem value="name">Name</MenuItem>
+                    <MenuItem value="size">Size</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+            </div>
+          </MuiBox>
 
-            {/* Bulk Actions */}
-            {selectedAttachments.length > 0 && (
+          {/* Bulk Actions */}
+          {selectedAttachments.length > 0 && (
+            <MuiBox
+              sx={{
+                mb: 2,
+                p: 2,
+                bgcolor: "#f3f8ff",
+                borderRadius: 1,
+                border: "1px solid #1976d2",
+              }}
+            >
               <MuiBox
                 sx={{
-                  mb: 2,
-                  p: 2,
-                  bgcolor: "#f3f8ff",
-                  borderRadius: 1,
-                  border: "1px solid #1976d2",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
-                <MuiBox
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography variant="body2">
-                    {selectedAttachments.length} file(s) selected
-                  </Typography>
-                  <MuiBox sx={{ display: "flex", gap: 1 }}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<Download />}
-                      onClick={handleBulkDownload}
-                    >
-                      Download Selected
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="error"
-                      startIcon={<Delete />}
-                      onClick={handleBulkDelete}
-                    >
-                      Delete Selected
-                    </Button>
-                  </MuiBox>
+                <Typography variant="body2">
+                  {selectedAttachments.length} file(s) selected
+                </Typography>
+                <MuiBox sx={{ display: "flex", gap: 1 }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<Download />}
+                    onClick={handleBulkDownload}
+                  >
+                    Download Selected
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="error"
+                    startIcon={<Delete />}
+                    onClick={handleBulkDelete}
+                  >
+                    Delete Selected
+                  </Button>
                 </MuiBox>
               </MuiBox>
-            )}
+            </MuiBox>
+          )}
 
-            {/* Attachments List */}
-            <MuiBox>
-              {filteredAttachments.length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ textAlign: "center", py: 4 }}
-                >
-                  No attachments found matching your criteria.
-                </Typography>
-              ) : (
-                <List>
-                  {filteredAttachments.map((attachment) => (
-                    <ListItem
-                      key={attachment.id}
-                      sx={{
-                        border: "1px solid #e0e0e0",
-                        borderRadius: 1,
-                        mb: 1,
+          {/* Attachments List */}
+          <MuiBox>
+            {filteredAttachments.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: "center", py: 4 }}
+              >
+                No attachments found matching your criteria.
+              </Typography>
+            ) : (
+              <List>
+                {filteredAttachments.map((attachment) => (
+                  <ListItem
+                    key={attachment.id}
+                    sx={{
+                      border: "1px solid #e0e0e0",
+                      borderRadius: 1,
+                      mb: 1,
+                      backgroundColor: selectedAttachments.includes(
+                        attachment.id
+                      )
+                        ? "#f3f8ff"
+                        : "#fff",
+                      "&:hover": {
                         backgroundColor: selectedAttachments.includes(
                           attachment.id
                         )
                           ? "#f3f8ff"
-                          : "#fff",
-                        "&:hover": {
-                          backgroundColor: selectedAttachments.includes(
-                            attachment.id
-                          )
-                            ? "#f3f8ff"
-                            : "#f5f5f5",
-                        },
-                      }}
-                    >
-                      <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: getFileColor(attachment.type) }}>
-                          {getFileIcon(attachment.type)}
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <MuiBox
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                              mb: 0.5,
-                            }}
-                          >
-                            <Typography
-                              variant="body1"
-                              sx={{ fontWeight: 500 }}
-                            >
-                              {attachment.name}
-                            </Typography>
-                            {attachment.isPublic ? (
-                              <Chip
-                                label="Public"
-                                size="small"
-                                color="success"
-                                variant="outlined"
-                              />
-                            ) : (
-                              <Chip
-                                label="Private"
-                                size="small"
-                                color="default"
-                                variant="outlined"
-                              />
-                            )}
-                          </MuiBox>
-                        }
-                        secondary={
-                          <MuiBox>
-                            <Typography variant="body2" color="text.secondary">
-                              {formatFileSize(attachment.size)} •{" "}
-                              {attachment.type} • Uploaded by{" "}
-                              {attachment.uploadedBy}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {new Date(
-                                attachment.uploadedAt
-                              ).toLocaleDateString()}{" "}
-                              • {attachment.downloadCount} downloads
-                            </Typography>
-                            {attachment.description && (
-                              <Typography variant="body2" sx={{ mt: 0.5 }}>
-                                {attachment.description}
-                              </Typography>
-                            )}
-                            {attachment.tags && attachment.tags.length > 0 && (
-                              <MuiBox
-                                sx={{ display: "flex", gap: 0.5, mt: 0.5 }}
-                              >
-                                {attachment.tags.map((tag) => (
-                                  <Chip
-                                    key={tag}
-                                    label={tag}
-                                    size="small"
-                                    variant="outlined"
-                                    sx={{ fontSize: "0.75rem" }}
-                                  />
-                                ))}
-                              </MuiBox>
-                            )}
-                          </MuiBox>
-                        }
-                      />
-                      <ListItemSecondaryAction>
-                        <MuiBox sx={{ display: "flex", gap: 1 }}>
-                          <Tooltip title="Download">
-                            <IconButton
+                          : "#f5f5f5",
+                      },
+                    }}
+                  >
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: getFileColor(attachment.type) }}>
+                        {getFileIcon(attachment.type)}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <MuiBox
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            mb: 0.5,
+                          }}
+                        >
+                          <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                            {attachment.name}
+                          </Typography>
+                          {attachment.isPublic ? (
+                            <Chip
+                              label="Public"
                               size="small"
-                              onClick={() => handleDownload(attachment)}
-                            >
-                              <Download />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton
+                              color="success"
+                              variant="outlined"
+                            />
+                          ) : (
+                            <Chip
+                              label="Private"
                               size="small"
-                              color="error"
-                              onClick={() => handleDelete(attachment.id)}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </Tooltip>
+                              color="default"
+                              variant="outlined"
+                            />
+                          )}
                         </MuiBox>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </MuiBox>
+                      }
+                      secondary={
+                        <MuiBox>
+                          <Typography variant="body2" color="text.secondary">
+                            {formatFileSize(attachment.size)} •{" "}
+                            {attachment.type} • Uploaded by{" "}
+                            {attachment.uploadedBy}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {new Date(
+                              attachment.uploadedAt
+                            ).toLocaleDateString()}{" "}
+                            • {attachment.downloadCount} downloads
+                          </Typography>
+                          {attachment.description && (
+                            <Typography variant="body2" sx={{ mt: 0.5 }}>
+                              {attachment.description}
+                            </Typography>
+                          )}
+                          {attachment.tags && attachment.tags.length > 0 && (
+                            <MuiBox sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
+                              {attachment.tags.map((tag) => (
+                                <Chip
+                                  key={tag}
+                                  label={tag}
+                                  size="small"
+                                  variant="outlined"
+                                  sx={{ fontSize: "0.75rem" }}
+                                />
+                              ))}
+                            </MuiBox>
+                          )}
+                        </MuiBox>
+                      }
+                    />
+                    <ListItemSecondaryAction>
+                      <MuiBox sx={{ display: "flex", gap: 1 }}>
+                        <Tooltip title="Download">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDownload(attachment)}
+                          >
+                            <Download />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleDelete(attachment.id)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
+                      </MuiBox>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                ))}
+              </List>
+            )}
           </MuiBox>
-      
+        </MuiBox>
       </MuiBox>
 
       {/* Upload Dialog */}

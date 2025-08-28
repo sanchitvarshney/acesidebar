@@ -12,15 +12,15 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import StackEditor from "../../components/reusable/Editor";
 import { fetchOptions, isValidEmail } from "../../utils/Utils";
 import { useToast } from "../../hooks/useToast";
 
-const EditTicket = ({ onClose }: any) => {
+const EditTicket = ({ onClose,open }: any) => {
   const { showToast } = useToast();
   const [contactChangeValue, setContactChangeValue] = useState("");
-  
+
   const [options, setOptions] = useState<any>();
 
   const [errors, setErrors] = useState<{ subject?: string; body?: string }>({});
@@ -32,9 +32,17 @@ const EditTicket = ({ onClose }: any) => {
 
   const displayContactOptions: any = contactChangeValue ? options : [];
 
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      //@ts-ignore
+      setTimeout(() => inputRef.current.focus(), 100);
+    }
+  }, [open]);
+
   useEffect(() => {
     const filterValue: any = fetchOptions(contactChangeValue);
-  
 
     filterValue?.length > 0
       ? setOptions(filterValue)
@@ -45,8 +53,6 @@ const EditTicket = ({ onClose }: any) => {
           },
         ]);
   }, [contactChangeValue]);
-
-  
 
   const handleInputChange = (field: string, value: string) => {
     setEditData((prev: any) => ({
@@ -84,8 +90,6 @@ const EditTicket = ({ onClose }: any) => {
     }
   };
 
-  
-
   const handleSave = () => {
     // Validate required fields
     const newErrors: { subject?: string; body?: string } = {};
@@ -114,7 +118,9 @@ const EditTicket = ({ onClose }: any) => {
   };
 
   return (
-    <Box sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
+    <Box
+      sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100%" }}
+    >
       <Box
         sx={{
           backgroundColor: "#fff",
@@ -127,7 +133,15 @@ const EditTicket = ({ onClose }: any) => {
           overflowY: "auto",
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, mb: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            flex: 1,
+            mb: 2,
+          }}
+        >
           <Autocomplete
             disableClearable
             popupIcon={null}
@@ -146,38 +160,41 @@ const EditTicket = ({ onClose }: any) => {
             getOptionDisabled={(option) => option === "Type to search"}
             noOptionsText="No Data Found"
             renderOption={(props, option) => {
-              console.log("Option:", option)
+              console.log("Option:", option);
               return (
-              <li {...props}>
-                {typeof option === "string" ? (
-                  option
-                ) : (
-                  <div
-                    className="flex items-center gap-3 p-2 rounded-md w-full"
-                    style={{ cursor: "pointer" }}
-                  >
-                    <Avatar
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        backgroundColor: "primary.main",
-                      }}
+                <li {...props}>
+                  {typeof option === "string" ? (
+                    option
+                  ) : (
+                    <div
+                      className="flex items-center gap-3 p-2 rounded-md w-full"
+                      style={{ cursor: "pointer" }}
                     >
-                      {option.userName?.charAt(0).toUpperCase()}
-                    </Avatar>
+                      <Avatar
+                        sx={{
+                          width: 30,
+                          height: 30,
+                          backgroundColor: "primary.main",
+                        }}
+                      >
+                        {option.userName?.charAt(0).toUpperCase()}
+                      </Avatar>
 
-                    <div className="flex flex-col">
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {option.userName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {option.userEmail}
-                      </Typography>
+                      <div className="flex flex-col">
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {option.userName}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {option.userEmail}
+                        </Typography>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </li>
-            )
+                  )}
+                </li>
+              );
             }}
             renderTags={(value, getTagProps) =>
               value?.map((option, index) => (
@@ -205,11 +222,13 @@ const EditTicket = ({ onClose }: any) => {
             renderInput={(params) => (
               <TextField
                 {...params}
+                autoFocus
+                inputRef={inputRef}
                 label="Contact"
                 variant="outlined"
                 fullWidth
                 InputProps={{
-                      ...params.InputProps,
+                  ...params.InputProps,
                   startAdornment: (
                     <InputAdornment position="start">
                       <Person
@@ -245,7 +264,6 @@ const EditTicket = ({ onClose }: any) => {
             }
             error={!!errors.subject}
             InputProps={{
-                 
               startAdornment: (
                 <InputAdornment position="start">
                   <Subject
@@ -313,8 +331,7 @@ const EditTicket = ({ onClose }: any) => {
         <Button
           onClick={onClose}
           variant="text"
-          
-          sx={{ minWidth: 80, fontWeight:600 }}
+          sx={{ minWidth: 80, fontWeight: 600 }}
         >
           Cancel
         </Button>
@@ -325,7 +342,7 @@ const EditTicket = ({ onClose }: any) => {
           disabled={
             !editData.subject || !editData.body || editData.contact.length === 0
           }
-          sx={{ minWidth: 100, fontWeight:600 }}
+          sx={{ minWidth: 100, fontWeight: 600 }}
         >
           Save
         </Button>

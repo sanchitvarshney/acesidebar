@@ -498,6 +498,7 @@ const TicketDetailHeader = ({
         width={600}
       >
         <EditTicket
+        open={isEditTicket}
           onClose={() => {
             setIsEditTicket(false);
           }}

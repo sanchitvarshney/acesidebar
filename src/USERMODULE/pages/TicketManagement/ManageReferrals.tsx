@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   IconButton,
   TextField,
@@ -187,8 +187,8 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
 
   const [activeTab, setActiveTab] = useState(0);
   const [referralType, setReferralType] = useState<
-    "department" | "agent" | "team"
-  >("department");
+    "department" | "agent" | "team" | null
+  >(null);
   const [selectedDepartment, setSelectedDepartment] = useState<any>("");
   const [selectedAgent, setSelectedAgent] = useState<any>("");
   const [selectedTeam, setSelectedTeam] = useState("");
@@ -202,6 +202,14 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
   const [options, setOptions] = useState<any>();
 
   const displayContactOptions: any = contactChangeValue ? options : [];
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      //@ts-ignore
+      setTimeout(() => inputRef.current.focus(), 100);
+    }
+  }, [open]);
 
   useEffect(() => {
     const filterValue: any = fetchOptions(contactChangeValue);
@@ -232,8 +240,6 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
     } else {
     }
   };
-
-
 
   const handleCreateReferral = async () => {
     if (referralType === "department" && !selectedDepartment) {
@@ -279,15 +285,13 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
     referralId: string,
     newStatus: Referral["status"]
   ) => {
+    const payload = {
+      url: `tickets/${ticketId}/referrals/${referralId}/status`,
+      method: "PUT",
+      body: { status: newStatus },
+    };
 
-      const payload = {
-        url: `tickets/${ticketId}/referrals/${referralId}/status`,
-        method: "PUT",
-        body: { status: newStatus },
-      };
-
-       commanApi(payload);
-
+    commanApi(payload);
   };
 
   const resetForm = () => {
@@ -382,6 +386,8 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                 <InputLabel>Select Type</InputLabel>
                 <Select
                   value={referralType}
+                  autoFocus
+                  inputRef={inputRef}
                   label="Select Type"
                   onChange={(e) => setReferralType(e.target.value as any)}
                 >
@@ -740,8 +746,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
           <Button
             onClick={handleClose}
             variant="text"
-       
-            sx={{ minWidth: 80 , fontWeight:600}}
+            sx={{ minWidth: 80, fontWeight: 600 }}
           >
             Cancel
           </Button>
@@ -756,7 +761,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
               !notes.trim()
             }
             startIcon={<Share />}
-            sx={{ minWidth: 120, fontWeight:600 }}
+            sx={{ minWidth: 120, fontWeight: 600 }}
           >
             Create Referral
           </Button>

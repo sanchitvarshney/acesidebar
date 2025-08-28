@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Autocomplete,
   Avatar,
@@ -61,6 +61,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   >({});
 
   const [searchTickets, { isLoading }] = useTicketSearchMutation();
+
 
   // Fetch tickets using API by ID
   const fetchOptions = async (query: string) => {
@@ -255,6 +256,8 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
             renderInput={(params) => (
               <TextField
                 {...params}
+                autoFocus
+                // inputRef={inputRef}
                 label="Search tickets to link"
                 InputProps={{
                   ...params.InputProps,
