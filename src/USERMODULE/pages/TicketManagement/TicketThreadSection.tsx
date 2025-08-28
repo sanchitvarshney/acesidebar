@@ -11,8 +11,8 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
-import web from "../../../assets/icons/ticket_source_web.gif"
-import email from "../../../assets/icons/ticket_source_email.gif"
+import web from "../../../assets/icons/ticket_source_web.gif";
+import email from "../../../assets/icons/ticket_source_email.gif";
 import {
   FormControl,
   Select,
@@ -30,6 +30,7 @@ import {
   Drawer,
   Tooltip,
   Button,
+  Avatar,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -336,14 +337,33 @@ const ThreadItem = ({
               }}
             >
               {item.repliedBy?.avatarUrl ? (
-                <img
+                // <img
+                //   src={item.repliedBy.avatarUrl}
+                //   alt={item.repliedBy.name}
+                //   className="w-10 h-10 rounded-full object-cover"
+                // />
+                <Avatar
                   src={item.repliedBy.avatarUrl}
                   alt={item.repliedBy.name}
                   className="w-10 h-10 rounded-full object-cover"
+                  sx={{
+                    backgroundColor: isCurrentUser
+                      ? "hsl(45deg 100% 51.37%)"
+                      : "primary.main",
+                  }}
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
-                  {item.repliedBy?.name?.[0] || "?"}
+                  <Avatar
+                    sizes="sm"
+                    sx={{
+                      backgroundColor: isCurrentUser
+                        ? "hsl(45deg 100% 51.37%)"
+                        : "primary.main",
+                    }}
+                  >
+                    {item.repliedBy?.name?.[0]}
+                  </Avatar>
                 </div>
               )}
             </div>
@@ -386,7 +406,7 @@ const ThreadItem = ({
                         isCurrentUser ? "justify-start" : "justify-end"
                       }`}
                     >
-                      <img src={isCurrentUser ? email : web} alt="ip"  />
+                      <img src={isCurrentUser ? email : web} alt="ip" />
                       <span className="text-xs text-gray-400 ">
                         {item.repliedAt?.timestamp}
                       </span>{" "}
@@ -424,7 +444,7 @@ const ThreadItem = ({
               className="flex items-center justify-between w-full py-3 px-8 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
               style={{ borderTopColor: isReported ? "#ffb6b6" : "#c3d9ff" }}
             >
-              <span className="text-xs text-gray-500" >File</span>
+              <span className="text-xs text-gray-500">File</span>
               <span className="flex gap-1">
                 {Array.from({ length: 5 }).map((_, idx) => {
                   const isActive =
