@@ -399,13 +399,12 @@ const StackEditor = ({
         throw new Error("Invalid server response");
       }
 
-      // Only succeed if API explicitly returns status === true
-      if (data?.status !== true) {
+      if (data?.success !== true) {
         throw new Error(data?.message || "Image upload failed");
       }
 
       const url =
-        data?.data?.url || data?.url || data?.imageUrl || data?.data?.imageUrl;
+        data?.data?.url;
       if (!url) throw new Error("Upload succeeded but URL missing");
       return url;
     } finally {
