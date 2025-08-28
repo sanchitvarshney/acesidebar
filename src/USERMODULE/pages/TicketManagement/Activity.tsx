@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   IconButton,
   TextField,
@@ -61,7 +61,46 @@ import {
 } from "@mui/icons-material";
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
-import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from "@mui/icons-material/Search";
+
+const getActivityColor = (type: ActivityItem["type"]) => {
+  switch (type) {
+    case "status_change":
+      return "#4caf50";
+    case "owner_change":
+      return "#2196f3";
+    case "reply":
+      return "#ff9800";
+    case "note":
+      return "#9c27b0";
+    case "attachment":
+      return "#795548";
+    case "referral":
+      return "#607d8b";
+    case "merge":
+      return "#e91e63";
+    case "link":
+      return "#00bcd4";
+    case "time_log":
+      return "#8bc34a";
+    case "priority_change":
+      return "#f44336";
+    case "tag_change":
+      return "#9e9e9e";
+    case "spam":
+      return "#f44336";
+    case "delete":
+      return "#f44336";
+    case "print":
+      return "#795548";
+    case "forward":
+      return "#607d8b";
+    case "transfer":
+      return "#2196f3";
+    default:
+      return "#757575";
+  }
+};
 
 // Custom Timeline components using standard MUI components
 const Timeline = ({
@@ -342,6 +381,14 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
       .split("T")[0],
     end: new Date().toISOString().split("T")[0],
   });
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      //@ts-ignore
+      setTimeout(() => inputRef.current.focus(), 100);
+    }
+  }, [open]);
 
   // Fetch activities on component mount
   useEffect(() => {
@@ -442,45 +489,6 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
         return <SwapHoriz />;
       default:
         return <Info />;
-    }
-  };
-
-  const getActivityColor = (type: ActivityItem["type"]) => {
-    switch (type) {
-      case "status_change":
-        return "#4caf50";
-      case "owner_change":
-        return "#2196f3";
-      case "reply":
-        return "#ff9800";
-      case "note":
-        return "#9c27b0";
-      case "attachment":
-        return "#795548";
-      case "referral":
-        return "#607d8b";
-      case "merge":
-        return "#e91e63";
-      case "link":
-        return "#00bcd4";
-      case "time_log":
-        return "#8bc34a";
-      case "priority_change":
-        return "#f44336";
-      case "tag_change":
-        return "#9e9e9e";
-      case "spam":
-        return "#f44336";
-      case "delete":
-        return "#f44336";
-      case "print":
-        return "#795548";
-      case "forward":
-        return "#607d8b";
-      case "transfer":
-        return "#2196f3";
-      default:
-        return "#757575";
     }
   };
 
@@ -699,11 +707,13 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
                 <TextField
                   fullWidth
                   size="small"
+                  autoFocus
+                  inputRef={inputRef}
                   placeholder="Search activities..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   InputProps={{
-                    startAdornment: <Search sx={{ color: "#666", mr: 1}} />,  
+                    startAdornment: <Search sx={{ color: "#666", mr: 1 }} />,
                   }}
                 />
               </div>
@@ -750,7 +760,7 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
                   InputLabelProps={{ shrink: true }}
                 />
                 <IconButton size="medium">
-                  <SearchIcon  fontSize="small" color="primary" />
+                  <SearchIcon fontSize="small" color="primary" />
                 </IconButton>
               </div>
             </div>

@@ -57,6 +57,15 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
     note: "",
   });
 
+    const inputRef = useRef(null);
+  
+    useEffect(() => {
+      if (open && inputRef.current) {
+        //@ts-ignore
+        setTimeout(() => inputRef.current.focus(), 100);
+      }
+    }, [open]);
+
   const handleLogTimeFieldChange = (field: string, value: any) => {
     setLogTimeFields((prev) => ({
       ...prev,
@@ -179,6 +188,8 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
         <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 3 }}>
           <InputLabel>Agent</InputLabel>
           <Select
+          autoFocus
+          inputRef={inputRef}
             value={logTimeFields.agent}
             label="Agent"
             onChange={(e) => handleLogTimeFieldChange("agent", e.target.value)}

@@ -71,8 +71,10 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
   const [mergeType, setMergeType] = useState("combine");
   const [deleteChild, setDeleteChild] = useState(false);
   const [moveChildTasks, setMoveChildTasks] = useState(false);
-
+ 
   const [searchTickets, { isLoading }] = useTicketSearchMutation();
+
+
 
   // Fetch tickets using API by ID
   const fetchOptions = async (query: string) => {
@@ -246,6 +248,7 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
               filterOptions={(x) => x}
               renderInput={(params) => (
                 <TextField
+                autoFocus
                   {...params}
                   label="Search tickets to merge"
                   InputProps={{

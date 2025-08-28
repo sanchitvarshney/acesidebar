@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   TextField,
   Button,
@@ -44,6 +44,15 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
   const [options, setOptions] = useState<any>();
 
   const displayContactOptions: any = contactChangeValue ? options : [];
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      //@ts-ignore
+      setTimeout(() => inputRef.current.focus(), 100);
+    }
+  }, [open]);
 
   useEffect(() => {
     const filterValue: any = fetchOptions(contactChangeValue);
@@ -243,6 +252,8 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
             }
             renderInput={(params) => (
               <TextField
+                autoFocus
+                inputRef={inputRef}
                 {...params}
                 label="Select New Owner"
                 variant="outlined"
