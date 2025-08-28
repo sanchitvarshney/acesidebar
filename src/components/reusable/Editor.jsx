@@ -5,6 +5,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ReplyIcon from "@mui/icons-material/Reply";
 import PrivateConnectivityIcon from "@mui/icons-material/PrivateConnectivity";
 import PublicIcon from "@mui/icons-material/Public";
+import { v4 as uuidv4 } from "uuid";
 
 import {
   Avatar,
@@ -19,6 +20,7 @@ import {
   FormControl,
   Select,
   Chip,
+  LinearProgress,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ShortcutIcon from "@mui/icons-material/Shortcut";
@@ -90,8 +92,10 @@ const StackEditor = ({
     customHeight = "calc(100vh - 365px)",
     handleChangeValue,
     selectedValue,
-    changeNotify = () => {},
+    changeNotify = () => { },
     notifyTag = [],
+    ticketId,
+    ticket,
   } = props;
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
@@ -114,13 +118,14 @@ const StackEditor = ({
   const [bccChangeValue, setBccChangeValue] = React.useState("");
   const [options, setOptions] = useState([]);
   const [localNotifyTag, setLocalNotifyTag] = React.useState(notifyTag || []);
+  const [uploadingCount, setUploadingCount] = useState(0);
 
   // Helper function to compare arrays
   const arraysEqual = (a, b) => {
     if (a === b) return true;
     if (a == null || b == null) return false;
     if (a.length !== b.length) return false;
-    
+
     for (let i = 0; i < a.length; i++) {
       if (a[i].email !== b[i].email || a[i].name !== b[i].name) {
         return false;
@@ -140,11 +145,11 @@ const StackEditor = ({
     filterValue?.length > 0
       ? setOptions(filterValue)
       : setOptions([
-          {
-            userName: ccChangeValue || bccChangeValue || notifyValue,
-            userEmail: ccChangeValue || bccChangeValue || notifyValue,
-          },
-        ]);
+        {
+          userName: ccChangeValue || bccChangeValue || notifyValue,
+          userEmail: ccChangeValue || bccChangeValue || notifyValue,
+        },
+      ]);
   }, [ccChangeValue, bccChangeValue, notifyValue]);
 
   const handleSelectedOption = (_, newValue, type) => {
@@ -259,7 +264,7 @@ const StackEditor = ({
         setTimeout(() => {
           try {
             inputEl.focus();
-          } catch (e) {}
+          } catch (e) { }
         }, 200);
       }
     }
@@ -312,19 +317,207 @@ const StackEditor = ({
   }, [notifyTag]);
 
   useEffect(() => {
-    if (editorRef.current) {
-      const quill = editorRef.current.getQuill();
-      if (!quill) return;
+    let attached = false;
+    let cancelled = false;
 
-      quill?.getModule("toolbar").addHandler("video", () => {
+    const attachToolbarHandlers = () => {
+      if (cancelled) return;
+      const quill = editorRef.current?.getQuill?.();
+      if (!quill) {
+        setTimeout(attachToolbarHandlers, 300);
+        return;
+      }
+
+      const toolbar = quill.getModule("toolbar");
+      if (!toolbar) return;
+
+      toolbar.addHandler("video", () => {
         const url = prompt("Enter video URL (YouTube, Vimeo, etc):");
         if (url) {
           const range = quill.getSelection();
           quill.insertEmbed(range.index, "video", url);
         }
       });
+
+      // Override image button to upload to server instead of base64
+      toolbar.addHandler("image", () => {
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("accept", "image/*");
+        input.onchange = async () => {
+          const file = input.files && input.files[0];
+          if (!file) return;
+          try {
+            const url = await uploadPastedImage(file);
+            const range =
+              quill.getSelection(true) || { index: quill.getLength(), length: 0 };
+            quill.insertEmbed(range.index, "image", url, "user");
+            quill.setSelection(range.index + 1, 0, "silent");
+          } catch (err) {
+            showToast(err?.message || "Failed to upload image", "error");
+          }
+        };
+        input.click();
+      });
+
+      attached = true;
+    };
+
+    attachToolbarHandlers();
+    return () => {
+      cancelled = true;
+      attached = false;
+    };
+  }, [optionChangeKey]);
+
+  // Upload image helper
+  const uploadPastedImage = async (file) => {
+    setUploadingCount((c) => c + 1);
+    const formData = new FormData();
+    const fileName = file?.name || `pasted_${Date.now()}.png`;
+    formData.append("image", file, fileName);
+    formData.append("ticket", 288517825);
+
+    const headers = new Headers();
+    const token = localStorage.getItem("userToken");
+    if (token) headers.append("Authorization", `Bearer ${token}`);
+    headers.append("x-request-key", uuidv4());
+
+    const endpoint = `${process.env.REACT_APP_API_URL}ticket/reply/image/upload`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (err) {
+        throw new Error("Invalid server response");
+      }
+
+      // Only succeed if API explicitly returns status === true
+      if (data?.status !== true) {
+        throw new Error(data?.message || "Image upload failed");
+      }
+
+      const url =
+        data?.data?.url || data?.url || data?.imageUrl || data?.data?.imageUrl;
+      if (!url) throw new Error("Upload succeeded but URL missing");
+      return url;
+    } finally {
+      setUploadingCount((c) => Math.max(0, c - 1));
     }
-  }, []);
+  };
+
+  // Handle paste images into editor: upload then insert URL
+  useEffect(() => {
+    let removeListener = () => { };
+    let cancelled = false;
+    let pasteInProgress = false;
+
+    const attach = () => {
+      if (cancelled) return;
+      const quill = editorRef.current?.getQuill?.();
+      if (!quill) {
+        setTimeout(attach, 300);
+        return;
+      }
+
+      const replaceDataUrlImagesInEditor = async () => {
+        const root = quill.root;
+        const imgs = Array.from(root.querySelectorAll('img'));
+        const dataImgs = imgs.filter((img) => (img?.src || '').startsWith('data:image'));
+        for (const img of dataImgs) {
+          try {
+            const src = img.src;
+            const res = await fetch(src);
+            const blob = await res.blob();
+            const file = new File([blob], `pasted_${Date.now()}.png`, { type: blob.type || 'image/png' });
+            const url = await uploadPastedImage(file);
+            img.src = url;
+          } catch (err) {
+            // Remove the base64 image if upload fails
+            try { img.remove(); } catch (_) { }
+            showToast(err?.message || 'Failed to upload pasted image', 'error');
+          }
+        }
+      };
+
+      const handlePaste = async (event) => {
+        if (pasteInProgress) return; // de-duplicate re-entrant paste
+        const clipboard = event.clipboardData;
+        if (!clipboard) return;
+
+        const items = clipboard.items ? Array.from(clipboard.items) : [];
+        const filesList = clipboard.files ? Array.from(clipboard.files) : [];
+
+        let imageFiles = [];
+        if (items.length) {
+          imageFiles = items
+            .filter((i) => i.kind === "file" && i.type.startsWith("image/"))
+            .map((i) => i.getAsFile())
+            .filter(Boolean);
+        }
+
+        if (imageFiles.length === 0 && filesList.length) {
+          imageFiles = filesList.filter((f) => f.type && f.type.startsWith("image/"));
+        }
+
+        // If there are file images in clipboard, prevent default and upload/insert
+        if (imageFiles.length > 0) {
+          event.preventDefault();
+          try { event.stopPropagation(); } catch (_) { }
+          try { if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation(); } catch (_) { }
+          pasteInProgress = true;
+          if (!process.env.REACT_APP_API_URL) {
+            showToast("Missing API URL configuration", "error");
+            pasteInProgress = false;
+            return;
+          }
+
+          const originalSelection =
+            quill.getSelection(true) || { index: quill.getLength(), length: 0 };
+
+          for (const file of imageFiles) {
+            try {
+              const url = await uploadPastedImage(file);
+              const currentIndex =
+                (quill.getSelection(true)?.index ?? originalSelection.index) ||
+                quill.getLength();
+              quill.insertEmbed(currentIndex, "image", url, "user");
+              quill.setSelection(currentIndex + 1, 0, "silent");
+            } catch (err) {
+              // On failure, ensure no base64 image remains
+              const root = quill.root;
+              const imgs = Array.from(root.querySelectorAll('img'));
+              const dataImgs = imgs.filter((img) => (img?.src || '').startsWith('data:image'));
+              dataImgs.forEach((img) => { try { img.remove(); } catch (_) { } });
+              showToast(err?.message || "Failed to upload image", "error");
+            }
+          }
+          pasteInProgress = false;
+          return;
+        }
+
+        // Otherwise let Quill paste happen, then replace any data URL images with uploaded URLs
+        setTimeout(replaceDataUrlImagesInEditor, 0);
+      };
+
+      const root = quill.root;
+      root.addEventListener("paste", handlePaste, true);
+      removeListener = () => root.removeEventListener("paste", handlePaste, true);
+    };
+
+    attach();
+    return () => {
+      cancelled = true;
+      removeListener();
+    };
+  }, [optionChangeKey]);
 
   useEffect(() => {
     if (signatureEditorRef.current) {
@@ -629,44 +822,44 @@ const StackEditor = ({
                 )}
               </li>
             )}
-                         renderTags={(value, getTagProps) =>
-               value?.map((option, index) => (
-                 <CustomToolTip
-                   title={
-                     <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                       {option.name
-                         ? `${option.name} (${option.email})`
-                         : option.email}
-                     </Typography>
-                   }
-                 >
-                   <Chip
-                     variant="outlined"
-                     color="primary"
-                     key={index}
-                     label={
-                       typeof option === "string"
-                         ? option
-                         : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
-                     }
-                     onDelete={() => handleDelete(index, "notify")}
-                     sx={{
-                       cursor: "pointer",
-                       height: "20px",
-                       // backgroundColor: "#6EB4C9",
-                       color: "primary.main",
-                       "& .MuiChip-deleteIcon": {
-                         color: "error.main",
-                         width: "12px",
-                       },
-                       "& .MuiChip-deleteIcon:hover": {
-                         color: "#e87f8c",
-                       },
-                     }}
-                   />
-                 </CustomToolTip>
-               ))
-             }
+            renderTags={(value, getTagProps) =>
+              value?.map((option, index) => (
+                <CustomToolTip
+                  title={
+                    <Typography variant="subtitle2" sx={{ p: 1.5 }}>
+                      {option.name
+                        ? `${option.name} (${option.email})`
+                        : option.email}
+                    </Typography>
+                  }
+                >
+                  <Chip
+                    variant="outlined"
+                    color="primary"
+                    key={index}
+                    label={
+                      typeof option === "string"
+                        ? option
+                        : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
+                    }
+                    onDelete={() => handleDelete(index, "notify")}
+                    sx={{
+                      cursor: "pointer",
+                      height: "20px",
+                      // backgroundColor: "#6EB4C9",
+                      color: "primary.main",
+                      "& .MuiChip-deleteIcon": {
+                        color: "error.main",
+                        width: "12px",
+                      },
+                      "& .MuiChip-deleteIcon:hover": {
+                        color: "#e87f8c",
+                      },
+                    }}
+                  />
+                </CustomToolTip>
+              ))
+            }
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -695,16 +888,16 @@ const StackEditor = ({
   const editorHeight = isFullscreen
     ? "100vh"
     : isEditorExpended
-    ? "450px"
-    : (showCc || showBcc) && currentSignature
-    ? "calc(100vh - 580px)"
-    : showCc || showBcc
-    ? "calc(100vh - 400px)"
-    : currentSignature
-    ? "calc(100vh - 530px)"
-    : selectedIndex !== "1"
-    ? "calc(100vh - 370px)"
-    : customHeight;
+      ? "450px"
+      : (showCc || showBcc) && currentSignature
+        ? "calc(100vh - 580px)"
+        : showCc || showBcc
+          ? "calc(100vh - 400px)"
+          : currentSignature
+            ? "calc(100vh - 530px)"
+            : selectedIndex !== "1"
+              ? "calc(100vh - 370px)"
+              : customHeight;
 
   return (
     <div
@@ -712,6 +905,11 @@ const StackEditor = ({
         isFullscreen ? "editor-fullscreen relative " : " w-full h-full"
       }
     >
+      {uploadingCount > 0 && (
+        <div className="w-full px-2 mb-2">
+          <LinearProgress />
+        </div>
+      )}
       {isFull && (
         <>
           <div
@@ -728,7 +926,7 @@ const StackEditor = ({
                 title={renderToolTipComponent}
                 placement="bottom-start"
                 open={isOptionsOpen}
-                // close={() => setIsOptionsOpen(false)}
+              // close={() => setIsOptionsOpen(false)}
               >
                 <span
                   onClick={() => setIsOptionsOpen(true)}
@@ -776,15 +974,15 @@ const StackEditor = ({
                 }}
                 options={displayCCOptions}
                 value={ccValue}
-                                 onChange={(event, newValue) => {
-                   if (newValue.length < ccValue.length) {
-                     // Item was deleted
-                     setCcValue(newValue);
-                   } else {
-                     // Item was added
-                     handleSelectedOption(event, newValue, "cc");
-                   }
-                 }}
+                onChange={(event, newValue) => {
+                  if (newValue.length < ccValue.length) {
+                    // Item was deleted
+                    setCcValue(newValue);
+                  } else {
+                    // Item was added
+                    handleSelectedOption(event, newValue, "cc");
+                  }
+                }}
                 onInputChange={(_, value) => setCcChangeValue(value)}
                 filterOptions={(x) => x}
                 getOptionDisabled={(option) => option === "Type to search"}
@@ -823,44 +1021,44 @@ const StackEditor = ({
                     )}
                   </li>
                 )}
-                                                                   renderTags={(ccValue, getTagProps) =>
-                    ccValue?.map((option, index) => (
-                      <CustomToolTip
-                        title={
-                          <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                            {option.name
-                              ? `${option.name} (${option.email})`
-                              : option.email}
-                          </Typography>
+                renderTags={(ccValue, getTagProps) =>
+                  ccValue?.map((option, index) => (
+                    <CustomToolTip
+                      title={
+                        <Typography variant="subtitle2" sx={{ p: 1.5 }}>
+                          {option.name
+                            ? `${option.name} (${option.email})`
+                            : option.email}
+                        </Typography>
+                      }
+                    >
+                      <Chip
+                        variant="outlined"
+                        color="primary"
+                        key={index}
+                        label={
+                          typeof option === "string"
+                            ? option
+                            : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
                         }
-                      >
-                        <Chip
-                          variant="outlined"
-                          color="primary"
-                          key={index}
-                          label={
-                            typeof option === "string"
-                              ? option
-                              : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
-                          }
-                          onDelete={() => handleDelete(index, "cc")}
-                          sx={{
-                            cursor: "pointer",
-                            height: "20px",
-                            // backgroundColor: "#6EB4C9",
-                            color: "primary.main",
-                            "& .MuiChip-deleteIcon": {
-                              color: "error.main",
-                              width: "12px",
-                            },
-                            "& .MuiChip-deleteIcon:hover": {
-                              color: "#e87f8c",
-                            },
-                          }}
-                        />
-                      </CustomToolTip>
-                    ))
-                  }
+                        onDelete={() => handleDelete(index, "cc")}
+                        sx={{
+                          cursor: "pointer",
+                          height: "20px",
+                          // backgroundColor: "#6EB4C9",
+                          color: "primary.main",
+                          "& .MuiChip-deleteIcon": {
+                            color: "error.main",
+                            width: "12px",
+                          },
+                          "& .MuiChip-deleteIcon:hover": {
+                            color: "#e87f8c",
+                          },
+                        }}
+                      />
+                    </CustomToolTip>
+                  ))
+                }
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -896,15 +1094,15 @@ const StackEditor = ({
                 }}
                 options={displayBCCOptions}
                 value={bccValue}
-                                 onChange={(event, newValue) => {
-                   if (newValue.length < bccValue.length) {
-                     // Item was deleted
-                     setBccValue(newValue);
-                   } else {
-                     // Item was added
-                     handleSelectedOption(event, newValue, "bcc");
-                   }
-                 }}
+                onChange={(event, newValue) => {
+                  if (newValue.length < bccValue.length) {
+                    // Item was deleted
+                    setBccValue(newValue);
+                  } else {
+                    // Item was added
+                    handleSelectedOption(event, newValue, "bcc");
+                  }
+                }}
                 onInputChange={(_, value) => setBccChangeValue(value)}
                 filterOptions={(x) => x}
                 getOptionDisabled={(option) => option === "Type to search"}
@@ -942,44 +1140,44 @@ const StackEditor = ({
                     )}
                   </li>
                 )}
-                                                                   renderTags={(bccValue, getTagProps) =>
-                    bccValue.map((option, index) => (
-                      <CustomToolTip
-                        title={
-                          <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                            {option.name
-                              ? `${option.name} (${option.email})`
-                              : option.email}
-                          </Typography>
+                renderTags={(bccValue, getTagProps) =>
+                  bccValue.map((option, index) => (
+                    <CustomToolTip
+                      title={
+                        <Typography variant="subtitle2" sx={{ p: 1.5 }}>
+                          {option.name
+                            ? `${option.name} (${option.email})`
+                            : option.email}
+                        </Typography>
+                      }
+                    >
+                      <Chip
+                        variant="outlined"
+                        color="primary"
+                        key={index}
+                        label={
+                          typeof option === "string"
+                            ? option
+                            : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
                         }
-                      >
-                        <Chip
-                          variant="outlined"
-                          color="primary"
-                          key={index}
-                          label={
-                            typeof option === "string"
-                              ? option
-                              : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
-                          }
-                          onDelete={() => handleDelete(index, "bcc")}
-                          sx={{
-                            cursor: "pointer",
-                            height: "20px",
-                            // backgroundColor: "#6EB4C9",
-                            color: "primary.main",
-                            "& .MuiChip-deleteIcon": {
-                              color: "error.main",
-                              width: "12px",
-                            },
-                            "& .MuiChip-deleteIcon:hover": {
-                              color: "#e87f8c",
-                            },
-                          }}
-                        />
-                      </CustomToolTip>
-                    ))
-                  }
+                        onDelete={() => handleDelete(index, "bcc")}
+                        sx={{
+                          cursor: "pointer",
+                          height: "20px",
+                          // backgroundColor: "#6EB4C9",
+                          color: "primary.main",
+                          "& .MuiChip-deleteIcon": {
+                            color: "error.main",
+                            width: "12px",
+                          },
+                          "& .MuiChip-deleteIcon:hover": {
+                            color: "#e87f8c",
+                          },
+                        }}
+                      />
+                    </CustomToolTip>
+                  ))
+                }
                 renderInput={(params) => (
                   <TextField
                     {...params}

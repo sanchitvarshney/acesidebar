@@ -50,6 +50,7 @@ import {
 import CustomModal from "../../../components/layout/CustomModal";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
+import { v4 as uuidv4 } from "uuid";
 
 const signatureValues: any = [
   {
@@ -674,11 +675,91 @@ const TicketThreadSection = ({
     }
   };
 
+  // Extract signature key from an uploaded image URL
+  const extractSignatureFromUrl = (url: string): string | null => {
+    try {
+      // match last hyphen-separated token before extension, e.g. ...-ac2dd664.png
+      const match = url.match(/-([a-zA-Z0-9]+)\.(png|jpg|jpeg|gif|webp)(\?.*)?$/);
+      return match ? match[1] : null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Upload a data URL image and return signature key
+  const uploadDataUrlImage = async (dataUrl: string, ticket: string | number) => {
+    // Convert data URL to Blob
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], `pasted_${Date.now()}.png`, { type: blob.type || "image/png" });
+
+    const formData = new FormData();
+    formData.append("image", file, file.name);
+    formData.append("ticket", String(ticket));
+
+    const headers = new Headers();
+    const token = localStorage.getItem("userToken");
+    if (token) headers.append("Authorization", `Bearer ${token}`);
+    headers.append("x-request-key", uuidv4());
+
+    const endpoint = `${process.env.REACT_APP_API_URL}ticket/reply/image/upload`;
+    const resp = await fetch(endpoint, { method: "POST", headers, body: formData });
+    const data = await resp.json();
+    if (data?.status !== true) {
+      throw new Error(data?.message || "Image upload failed");
+    }
+    const signature = data?.data?.signature || data?.signature;
+    if (!signature) throw new Error("Upload succeeded but signature missing");
+    return signature as string;
+  };
+
+  // Transform editor HTML to replace images with signature;{key}
+  const transformMessageHtmlForSubmit = async (html: string): Promise<string> => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html || "", "text/html");
+      const imgs = Array.from(doc.body.querySelectorAll("img"));
+      // Process images sequentially; ensure exactly one signature per logical image
+      for (const img of imgs) {
+        const src = img.getAttribute("src") || "";
+        if (!src) continue;
+        if (src.startsWith("data:image")) {
+          // Upload inline base64 image and replace with signature token
+          const sig = await uploadDataUrlImage(src, header?.ticketId);
+          img.setAttribute("src", `signature;${sig}`);
+        } else {
+          const sig = extractSignatureFromUrl(src);
+          if (sig) {
+            img.setAttribute("src", `signature;${sig}`);
+          }
+        }
+      }
+      // Deduplicate any duplicated consecutive signature images that Quill might have inserted
+      const cleanImgs = Array.from(doc.body.querySelectorAll("img"));
+      const toRemove: Element[] = [];
+      for (let i = 1; i < cleanImgs.length; i++) {
+        const prev = cleanImgs[i - 1];
+        const curr = cleanImgs[i];
+        const ps = prev.getAttribute("src") || "";
+        const cs = curr.getAttribute("src") || "";
+        if (ps.startsWith("signature;") && cs.startsWith("signature;") && ps === cs) {
+          toRemove.push(curr);
+        }
+      }
+      toRemove.forEach((el) => el.parentElement?.removeChild(el));
+      return doc.body.innerHTML;
+    } catch {
+      return html;
+    }
+  };
+
   // Handler for Save button
-  const handleSave = () => {
+  const handleSave = async () => {
     if (replyValue === null || !replyValue) {
       return;
     }
+
+    const finalMessage = await transformMessageHtmlForSubmit(replyValue);
 
     const payload = {
       url: "reply-ticket",
@@ -690,7 +771,7 @@ const TicketThreadSection = ({
           to: "example@example.com",
           cc: [],
           bcc: [],
-          message: replyValue,
+          message: finalMessage,
           signatureKey: signature,
           attachments: [
             {
