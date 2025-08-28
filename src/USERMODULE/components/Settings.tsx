@@ -9,6 +9,7 @@ import {
   FaClipboardList,
   FaCogs,
   FaLifeRing,
+  FaSearch,
 } from "react-icons/fa";
 import { IconType } from "react-icons";
 
@@ -25,10 +26,10 @@ type MenuSection = {
 const menuSections: MenuSection[] = [
   {
     id: "recent",
-    icon: FaClipboardList,
+    icon: FaSearch,
     iconClass: "text-blue-500 text-xl",
-    title: "Recent",
-    description: "Recently accessed settings",
+    title: "Search",
+    description: "Search all settings",
   },
   {
     id: "accounts",
@@ -62,7 +63,7 @@ const menuSections: MenuSection[] = [
 
 const Settings: React.FC = () => {
   const [activeId, setActiveId] = useState<string>(menuSections[0].id);
-  const [searchQuery, setSearchQuery] = useState("");
+ 
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -91,28 +92,9 @@ const Settings: React.FC = () => {
     }
   }, [location.pathname]);
 
-  // Filter menu sections based on search query
-  const filteredMenuSections = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return menuSections;
-    }
+ 
 
-    const lowerQuery = searchQuery.toLowerCase();
-    return menuSections.filter(
-      (section) =>
-        section.title.toLowerCase().includes(lowerQuery) ||
-        section.description.toLowerCase().includes(lowerQuery)
-    );
-  }, [searchQuery]);
 
-  useEffect(() => {
-    if (
-      filteredMenuSections.length > 0 &&
-      !filteredMenuSections.find((section) => section.id === activeId)
-    ) {
-      setActiveId(filteredMenuSections[0].id);
-    }
-  }, [filteredMenuSections, activeId]);
 
   // Handle menu navigation
   const handleMenuNavigation = useCallback(
@@ -140,16 +122,7 @@ const Settings: React.FC = () => {
     [navigate]
   );
 
-  // Handle search result selection
-  const handleSearchResultSelect = useCallback(
-    (sectionId: string) => {
-      setActiveId(sectionId);
-      setSearchQuery("");
-      // Navigate when user selects from search
-      handleMenuNavigation(sectionId);
-    },
-    [handleMenuNavigation]
-  );
+
 
   // Handle menu item selection
   const handleMenuSelect = useCallback(
@@ -163,17 +136,12 @@ const Settings: React.FC = () => {
   return (
     <div className="flex w-full h-[calc(100vh-100px)] bg-gray-50">
       <SettingsMenu
-        menuSections={filteredMenuSections}
+        menuSections={menuSections}
         onSelect={handleMenuSelect}
         activeId={activeId}
       />
       <main className="flex-1 p-4 overflow-y-auto">
-        <div className="mb-4 flex justify-end">
-          <SettingsSearchBar
-            onSearchResultSelect={handleSearchResultSelect}
-            menuSections={menuSections}
-          />
-        </div>
+   
         <div className="my-4">
           <Outlet />
         </div>
