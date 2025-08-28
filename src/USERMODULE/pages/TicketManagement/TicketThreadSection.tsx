@@ -932,6 +932,7 @@ const TicketThreadSection = ({
                   selectedValue={selectedValue}
                   changeNotify={(value: any) => setNotifyTag(value)}
                   notifyTag={notifyTag}
+                  ticketId={header?.ticketId}
                 />
               </div>
 

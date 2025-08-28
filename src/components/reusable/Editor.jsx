@@ -28,6 +28,7 @@ import { set } from "react-hook-form";
 import CustomToolTip from "../../reusable/CustomToolTip";
 import { useToast } from "../../hooks/useToast";
 import { fetchOptions, isValidEmail } from "../../utils/Utils";
+import { useUploadFileApiMutation } from "../../services/uploadDocServices";
 
 export const formatName = (name) => {
   if (!name) return "";
@@ -92,10 +93,9 @@ const StackEditor = ({
     customHeight = "calc(100vh - 365px)",
     handleChangeValue,
     selectedValue,
-    changeNotify = () => { },
+    changeNotify = () => {},
     notifyTag = [],
     ticketId,
-    ticket,
   } = props;
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
@@ -119,6 +119,7 @@ const StackEditor = ({
   const [options, setOptions] = useState([]);
   const [localNotifyTag, setLocalNotifyTag] = React.useState(notifyTag || []);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const [uploadFileApi] = useUploadFileApiMutation();
 
   // Helper function to compare arrays
   const arraysEqual = (a, b) => {
@@ -145,11 +146,11 @@ const StackEditor = ({
     filterValue?.length > 0
       ? setOptions(filterValue)
       : setOptions([
-        {
-          userName: ccChangeValue || bccChangeValue || notifyValue,
-          userEmail: ccChangeValue || bccChangeValue || notifyValue,
-        },
-      ]);
+          {
+            userName: ccChangeValue || bccChangeValue || notifyValue,
+            userEmail: ccChangeValue || bccChangeValue || notifyValue,
+          },
+        ]);
   }, [ccChangeValue, bccChangeValue, notifyValue]);
 
   const handleSelectedOption = (_, newValue, type) => {
@@ -264,7 +265,7 @@ const StackEditor = ({
         setTimeout(() => {
           try {
             inputEl.focus();
-          } catch (e) { }
+          } catch (e) {}
         }, 200);
       }
     }
@@ -349,8 +350,10 @@ const StackEditor = ({
           if (!file) return;
           try {
             const url = await uploadPastedImage(file);
-            const range =
-              quill.getSelection(true) || { index: quill.getLength(), length: 0 };
+            const range = quill.getSelection(true) || {
+              index: quill.getLength(),
+              length: 0,
+            };
             quill.insertEmbed(range.index, "image", url, "user");
             quill.setSelection(range.index + 1, 0, "silent");
           } catch (err) {
@@ -376,36 +379,19 @@ const StackEditor = ({
     const formData = new FormData();
     const fileName = file?.name || `pasted_${Date.now()}.png`;
     formData.append("image", file, fileName);
-    formData.append("ticket", 288517825);
-
-    const headers = new Headers();
-    const token = localStorage.getItem("userToken");
-    if (token) headers.append("Authorization", `Bearer ${token}`);
-    headers.append("x-request-key", uuidv4());
-
-    const endpoint = `${process.env.REACT_APP_API_URL}ticket/reply/image/upload`;
+    formData.append("ticket", ticketId);
 
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers,
-        body: formData,
-      });
+      const response = await uploadFileApi(formData);
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (err) {
-        throw new Error("Invalid server response");
+      if (response?.data?.success !== true) {
+        // throw new Error(response?.data?.message || "Image upload failed");
+        showToast(response?.data?.message || "Image upload failed", "error");
       }
 
-      if (data?.success !== true) {
-        throw new Error(data?.message || "Image upload failed");
-      }
-
-      const url =
-        data?.data?.url;
-      if (!url) throw new Error("Upload succeeded but URL missing");
+      const url = response?.data?.data?.url;
+      console.log(url);
+      if (!url) showToast("Upload succeeded but URL missing", "error");
       return url;
     } finally {
       setUploadingCount((c) => Math.max(0, c - 1));
@@ -414,7 +400,7 @@ const StackEditor = ({
 
   // Handle paste images into editor: upload then insert URL
   useEffect(() => {
-    let removeListener = () => { };
+    let removeListener = () => {};
     let cancelled = false;
     let pasteInProgress = false;
 
@@ -428,20 +414,26 @@ const StackEditor = ({
 
       const replaceDataUrlImagesInEditor = async () => {
         const root = quill.root;
-        const imgs = Array.from(root.querySelectorAll('img'));
-        const dataImgs = imgs.filter((img) => (img?.src || '').startsWith('data:image'));
+        const imgs = Array.from(root.querySelectorAll("img"));
+        const dataImgs = imgs.filter((img) =>
+          (img?.src || "").startsWith("data:image")
+        );
         for (const img of dataImgs) {
           try {
             const src = img.src;
             const res = await fetch(src);
             const blob = await res.blob();
-            const file = new File([blob], `pasted_${Date.now()}.png`, { type: blob.type || 'image/png' });
+            const file = new File([blob], `pasted_${Date.now()}.png`, {
+              type: blob.type || "image/png",
+            });
             const url = await uploadPastedImage(file);
             img.src = url;
           } catch (err) {
             // Remove the base64 image if upload fails
-            try { img.remove(); } catch (_) { }
-            showToast(err?.message || 'Failed to upload pasted image', 'error');
+            try {
+              img.remove();
+            } catch (_) {}
+            showToast(err?.message || "Failed to upload pasted image", "error");
           }
         }
       };
@@ -463,14 +455,21 @@ const StackEditor = ({
         }
 
         if (imageFiles.length === 0 && filesList.length) {
-          imageFiles = filesList.filter((f) => f.type && f.type.startsWith("image/"));
+          imageFiles = filesList.filter(
+            (f) => f.type && f.type.startsWith("image/")
+          );
         }
 
         // If there are file images in clipboard, prevent default and upload/insert
         if (imageFiles.length > 0) {
           event.preventDefault();
-          try { event.stopPropagation(); } catch (_) { }
-          try { if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation(); } catch (_) { }
+          try {
+            event.stopPropagation();
+          } catch (_) {}
+          try {
+            if (typeof event.stopImmediatePropagation === "function")
+              event.stopImmediatePropagation();
+          } catch (_) {}
           pasteInProgress = true;
           if (!process.env.REACT_APP_API_URL) {
             showToast("Missing API URL configuration", "error");
@@ -478,8 +477,10 @@ const StackEditor = ({
             return;
           }
 
-          const originalSelection =
-            quill.getSelection(true) || { index: quill.getLength(), length: 0 };
+          const originalSelection = quill.getSelection(true) || {
+            index: quill.getLength(),
+            length: 0,
+          };
 
           for (const file of imageFiles) {
             try {
@@ -492,9 +493,15 @@ const StackEditor = ({
             } catch (err) {
               // On failure, ensure no base64 image remains
               const root = quill.root;
-              const imgs = Array.from(root.querySelectorAll('img'));
-              const dataImgs = imgs.filter((img) => (img?.src || '').startsWith('data:image'));
-              dataImgs.forEach((img) => { try { img.remove(); } catch (_) { } });
+              const imgs = Array.from(root.querySelectorAll("img"));
+              const dataImgs = imgs.filter((img) =>
+                (img?.src || "").startsWith("data:image")
+              );
+              dataImgs.forEach((img) => {
+                try {
+                  img.remove();
+                } catch (_) {}
+              });
               showToast(err?.message || "Failed to upload image", "error");
             }
           }
@@ -508,7 +515,8 @@ const StackEditor = ({
 
       const root = quill.root;
       root.addEventListener("paste", handlePaste, true);
-      removeListener = () => root.removeEventListener("paste", handlePaste, true);
+      removeListener = () =>
+        root.removeEventListener("paste", handlePaste, true);
     };
 
     attach();
@@ -839,7 +847,9 @@ const StackEditor = ({
                     label={
                       typeof option === "string"
                         ? option
-                        : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
+                        : formatName(
+                            option?.name || option?.userName || option?.email
+                          ) // Handle all data structures
                     }
                     onDelete={() => handleDelete(index, "notify")}
                     sx={{
@@ -887,16 +897,16 @@ const StackEditor = ({
   const editorHeight = isFullscreen
     ? "100vh"
     : isEditorExpended
-      ? "450px"
-      : (showCc || showBcc) && currentSignature
-        ? "calc(100vh - 580px)"
-        : showCc || showBcc
-          ? "calc(100vh - 400px)"
-          : currentSignature
-            ? "calc(100vh - 530px)"
-            : selectedIndex !== "1"
-              ? "calc(100vh - 370px)"
-              : customHeight;
+    ? "450px"
+    : (showCc || showBcc) && currentSignature
+    ? "calc(100vh - 580px)"
+    : showCc || showBcc
+    ? "calc(100vh - 400px)"
+    : currentSignature
+    ? "calc(100vh - 530px)"
+    : selectedIndex !== "1"
+    ? "calc(100vh - 370px)"
+    : customHeight;
 
   return (
     <div
@@ -925,7 +935,7 @@ const StackEditor = ({
                 title={renderToolTipComponent}
                 placement="bottom-start"
                 open={isOptionsOpen}
-              // close={() => setIsOptionsOpen(false)}
+                // close={() => setIsOptionsOpen(false)}
               >
                 <span
                   onClick={() => setIsOptionsOpen(true)}
@@ -969,7 +979,9 @@ const StackEditor = ({
                 popupIcon={null}
                 getOptionLabel={(option) => {
                   if (typeof option === "string") return option;
-                  return option.userEmail || option.userName || option.email || "";
+                  return (
+                    option.userEmail || option.userName || option.email || ""
+                  );
                 }}
                 options={displayCCOptions}
                 value={ccValue}
@@ -1038,7 +1050,11 @@ const StackEditor = ({
                         label={
                           typeof option === "string"
                             ? option
-                            : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
+                            : formatName(
+                                option?.name ||
+                                  option?.userName ||
+                                  option?.email
+                              ) // Handle all data structures
                         }
                         onDelete={() => handleDelete(index, "cc")}
                         sx={{
@@ -1089,7 +1105,9 @@ const StackEditor = ({
                 popupIcon={null}
                 getOptionLabel={(option) => {
                   if (typeof option === "string") return option;
-                  return option.userEmail || option.userName || option.email || "";
+                  return (
+                    option.userEmail || option.userName || option.email || ""
+                  );
                 }}
                 options={displayBCCOptions}
                 value={bccValue}
@@ -1157,7 +1175,11 @@ const StackEditor = ({
                         label={
                           typeof option === "string"
                             ? option
-                            : formatName(option?.name || option?.userName || option?.email) // Handle all data structures
+                            : formatName(
+                                option?.name ||
+                                  option?.userName ||
+                                  option?.email
+                              ) // Handle all data structures
                         }
                         onDelete={() => handleDelete(index, "bcc")}
                         sx={{
