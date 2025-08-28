@@ -369,7 +369,6 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
   const [commanApi] = useCommanApiMutation();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState(0);
   const [activities, setActivities] =
     useState<ActivityItem[]>(sampleActivities);
   const [searchQuery, setSearchQuery] = useState("");
