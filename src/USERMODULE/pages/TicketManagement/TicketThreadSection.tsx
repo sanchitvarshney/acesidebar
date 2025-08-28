@@ -11,6 +11,8 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
+import web from "../../../assets/icons/ticket_source_web.gif"
+import email from "../../../assets/icons/ticket_source_email.gif"
 import {
   FormControl,
   Select,
@@ -262,7 +264,7 @@ const ThreadItem = ({
     : "#fafafa";
   const bubbleFooter = isCurrentUser
     ? "IP: 127.0.0.1 | Location: India"
-    : "Send From Web | IP: 127.0.0.1 | Location: India";
+    : "IP: 127.0.0.1 | Location: India";
   const isRatingDisabled = isCurrentUser;
 
   const decodeHtmlEntities = (encoded: string) => {
@@ -303,7 +305,7 @@ const ThreadItem = ({
   };
 
   return (
-    <div className={`flex p-2 overflow-auto ${marginBottomClass}`}>
+    <div className={`w-full flex p-2 overflow-auto ${marginBottomClass}`}>
       {/* Email content */}
       <div className="flex-1">
         <div
@@ -311,7 +313,7 @@ const ThreadItem = ({
             isCurrentUser ? " flex-row-reverse" : "flex-row "
           }`}
         >
-          <div className="w-20 relative flex px-4 py-2 flex-col items-center">
+          <div className=" relative flex px-4 py-2 flex-col items-center">
             <div
               style={{
                 position: "absolute",
@@ -326,62 +328,90 @@ const ThreadItem = ({
                   : "borderRight"]: `12px solid ${bubbleBackgroundColor}`,
               }}
             />
-            {item.repliedBy?.avatarUrl ? (
-              <img
-                src={item.repliedBy.avatarUrl}
-                alt={item.repliedBy.name}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
-                {item.repliedBy?.name?.[0] || "?"}
-              </div>
-            )}
-            {!isCurrentUser && (
-              <IconButton
-                size="small"
-                onClick={handleReportTicket}
-                sx={{ mt: 1 }}
-              >
-                <EmojiFlagsIcon
-                  sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
-                  fontSize="small"
+            <div
+              style={{
+                position: "absolute",
+                top: "15px",
+                [isCurrentUser ? "left" : "right"]: `-20px`,
+              }}
+            >
+              {item.repliedBy?.avatarUrl ? (
+                <img
+                  src={item.repliedBy.avatarUrl}
+                  alt={item.repliedBy.name}
+                  className="w-10 h-10 rounded-full object-cover"
                 />
-              </IconButton>
-            )}
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
+                  {item.repliedBy?.name?.[0] || "?"}
+                </div>
+              )}
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                top: "60px",
+                [isCurrentUser ? "left" : "right"]: `-16px`,
+              }}
+            >
+              {!isCurrentUser && (
+                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
+                  <IconButton size="small" onClick={handleReportTicket}>
+                    <EmojiFlagsIcon
+                      sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
+                      fontSize="small"
+                    />
+                  </IconButton>
+                </div>
+              )}
+            </div>
           </div>
           <div
-            className="w-[90%] flex flex-col items-center justify-between border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)] rounded-lg"
+            className="w-[100%] flex flex-col items-center justify-between border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)] rounded-lg"
             style={{ backgroundColor: bubbleBackgroundColor }}
           >
-            <div className="flex items-center justify-between w-full px-4 py-2">
-              <div className="w-full flex flex-col">
-                <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-between  w-full px-8 py-2">
+              <div className={`w-full  flex flex-col`}>
+                <div
+                  className={`flex  items-center justify-between  w-full border-b-2 border-gray-200 pb-4  ${
+                    isCurrentUser ? " flex-row-reverse" : "flex-row "
+                  }`}
+                >
                   <span className="font-semibold text-[#1a73e8] text-sm">
                     {item.repliedBy?.name || "User"}
                   </span>
-                  <div>
-                    <span className="text-xs text-gray-400">
-                      {item.repliedAt?.timestamp}
-                    </span>{" "}
-                    <CustomToolTip
-                      title={renderReplyOption}
-                      open={open}
-                      placement={"bottom-end"}
+                  <div className="flex flex-col ">
+                    <div
+                      className={`flex items-center gap-2 ${
+                        isCurrentUser ? "justify-start" : "justify-end"
+                      }`}
                     >
-                      <IconButton
-                        size="small"
-                        onClick={() => setOpen(true)}
-                        ref={optionsRef}
+                      <img src={isCurrentUser ? email : web} alt="ip"  />
+                      <span className="text-xs text-gray-400 ">
+                        {item.repliedAt?.timestamp}
+                      </span>{" "}
+                      <CustomToolTip
+                        title={renderReplyOption}
+                        open={open}
+                        placement={"bottom-end"}
                       >
-                        <ArrowDropDownIcon />
-                      </IconButton>
-                    </CustomToolTip>
+                        <IconButton
+                          size="small"
+                          onClick={() => setOpen(true)}
+                          ref={optionsRef}
+                        >
+                          <ArrowDropDownIcon fontSize="small" />
+                        </IconButton>
+                      </CustomToolTip>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {bubbleFooter}
+                    </span>
                   </div>
                 </div>
 
                 <div
-                  className="w-4/5 text-xs text-gray-500"
+                  className="w-4/5 text-xs text-gray-500 my-3"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeMessageHtml(
                       decodeHtmlEntities(item?.message)
@@ -391,10 +421,10 @@ const ThreadItem = ({
               </div>
             </div>
             <div
-              className="flex items-center justify-between w-full py-3 px-4 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
+              className="flex items-center justify-between w-full py-3 px-8 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
               style={{ borderTopColor: isReported ? "#ffb6b6" : "#c3d9ff" }}
             >
-              <span className="text-xs text-gray-500">{bubbleFooter}</span>
+              <span className="text-xs text-gray-500" >File</span>
               <span className="flex gap-1">
                 {Array.from({ length: 5 }).map((_, idx) => {
                   const isActive =
