@@ -57,8 +57,6 @@ const profileTabs = [
 ];
 
 const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
-  // Example data, replace with real ticket/user data as needed
-  const name = ticket?.name || "shiv kumar";
   const email = ticket?.email || "postmanreply@gmail.com";
   const phone = ticket?.phone || "";
   const jobTitle = ticket?.jobTitle || "";
@@ -110,10 +108,12 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
               fontSize: 24,
             }}
           >
-            {name?.[0]?.toUpperCase() || "?"}
+            {ticket?.username?.[0]?.toUpperCase() || "?"}
           </Avatar>
           <div>
-            <div className="font-semibold text-base text-gray-800">{name}</div>
+            <div className="font-semibold text-base text-gray-800">
+              {ticket?.username}
+            </div>
           </div>
         </div>
 
@@ -155,15 +155,16 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
           {/* Profile tab content */}
           {activeProfileTab === 0 && (
             <AboutTab
-              name={name}
-              email={email}
-              phone={phone}
-              jobTitle={jobTitle}
+              name={ticket?.username}
+              email={ticket?.email}
+              phone={ticket?.phone}
+              extention={ticket?.extensionNo}
+               internalNote={ticket?.internalNotes}
               attribute={attribute}
               handleAttributeChange={handleAttributeChange}
             />
           )}
-          {activeProfileTab === 1 && <SharingTab userId={ticket.userID} />}
+          {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
           {activeProfileTab === 2 && <InfoTab />}
           {activeProfileTab === 3 && <NotesTab />}
 

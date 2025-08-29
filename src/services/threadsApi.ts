@@ -21,6 +21,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials.body,
       }),
     }),
+       updateUserSocialData: builder.mutation({
+      query: (credentials) => ({
+        url: `/user/edit/${credentials.USERID}?type=social`,
+        method: "PUT",
+        body: credentials.body,
+      }),
+    }),
     getAttacedFile: builder.query({
       query: (credentials) => ({
         url: `/ticket/staff/tickets/${credentials.ticketId}/attachments`,
@@ -35,4 +42,5 @@ export const {
   useTicketStatusChangeMutation,
   useGetAttacedFileQuery,
   useCommanApiMutation,
+  useUpdateUserSocialDataMutation
 } = extendedTicketApi;

@@ -10,21 +10,24 @@ import SaveIcon from "@mui/icons-material/Save";
 import { Close } from "@mui/icons-material";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { useCommanApiMutation } from "../../../services/threadsApi";
+import FifteenMpIcon from "@mui/icons-material/FifteenMp";
+import EditNoteIcon from "@mui/icons-material/EditNote";
 
 const AboutTab = ({
   name: initialName,
   email: initialEmail,
   phone: initialPhone,
-  jobTitle: initialJobTitle,
-  attribute,
-  handleAttributeChange,
+  extention: initialExtention,
+
+  internalNote: initialInternalNote,
 }: any) => {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(initialEmail);
   const [phone, setPhone] = useState(initialPhone);
   const [commanApi] = useCommanApiMutation();
-  const [jobTitle, setJobTitle] = useState(initialJobTitle);
+  const [extention, setExtention] = useState(initialExtention);
+  const [internalNote, setInternalNote] = useState(initialInternalNote);
   //@ts-ignore
   const userId = useAuth().user?.id || Math.floor(Math.random() * 1000);
 
@@ -35,8 +38,6 @@ const AboutTab = ({
         name,
         email,
         phone,
-        jobTitle,
-        attribute,
       },
     };
     commanApi(payload);
@@ -134,7 +135,6 @@ const AboutTab = ({
             onChange={(e) => {
               const value = e.target.value;
               if (/^\d*$/.test(value)) {
-             
                 setPhone(value);
               }
             }}
@@ -148,39 +148,41 @@ const AboutTab = ({
 
         {/* Job Title */}
         <div className="flex items-center gap-2 mb-1">
-          <WorkIcon className="text-gray-900" fontSize="small" />
-          <span className="text-xs text-gray-800">Job title</span>
+          <FifteenMpIcon className="text-gray-900" fontSize="small" />
+          <span className="text-xs text-gray-800">Extension</span>
         </div>
         {isEditing ? (
           <TextField
             size="small"
             fullWidth
-            value={jobTitle}
-            onChange={(e) => setJobTitle(e.target.value)}
+            value={extention}
+            onChange={(e) => setExtention(e.target.value)}
             sx={{ mb: 2 }}
           />
         ) : (
           <div className="text-xs text-gray-500 mb-2">
-            {jobTitle || <span className="italic">Job title</span>}
+            {extention || <span className="italic">Extension</span>}
           </div>
         )}
 
-        {/* Attribute dropdown */}
-        <Select
-          value={attribute}
-          onChange={handleAttributeChange}
-          displayEmpty
-          size="small"
-          className="w-full mt-2 text-xs"
-          sx={{ fontSize: 13 }}
-          disabled={!isEditing}
-        >
-          <MenuItem value="">
-            <span className="text-xs text-gray-500">Add Attribute</span>
-          </MenuItem>
-          <MenuItem value={"Department"}>Department</MenuItem>
-          <MenuItem value={"Location"}>Location</MenuItem>
-        </Select>
+        {/* Job Title */}
+        <div className="flex items-center gap-2 mb-1">
+          <EditNoteIcon className="text-gray-900" fontSize="small" />
+          <span className="text-xs text-gray-800">Internal Note</span>
+        </div>
+        {isEditing ? (
+          <TextField
+            size="small"
+            fullWidth
+            value={internalNote}
+            onChange={(e) => setInternalNote(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+        ) : (
+          <div className="text-xs text-gray-500 mb-2">
+            {internalNote || <span className="italic">Internal Note</span>}
+          </div>
+        )}
       </div>
     </>
   );

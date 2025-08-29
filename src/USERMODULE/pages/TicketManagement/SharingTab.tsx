@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -15,7 +15,10 @@ import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
 import { useAuth } from "../../../contextApi/AuthContext";
-import { useCommanApiMutation } from "../../../services/threadsApi";
+import {
+  useCommanApiMutation,
+  useUpdateUserSocialDataMutation,
+} from "../../../services/threadsApi";
 
 interface SharingDataType {
   id: string;
@@ -26,59 +29,90 @@ interface SharingDataType {
 
 const initialSharingData: SharingDataType[] = [
   {
-    id: "facebook",
+    id: "fb",
     label: "Facebook",
     icon: <FacebookIcon fontSize="small" />,
     url: "https://www.facebook.com/",
   },
   {
-    id: "twitter",
+    id: "x",
     label: "Twitter",
     icon: <XIcon fontSize="small" />,
     url: "https://www.twitter.com/",
   },
   {
-    id: "linkedin",
+    id: "li",
     label: "Linkedin",
     icon: <LinkedInIcon fontSize="small" />,
     url: "https://www.linkedin.com/",
   },
   {
-    id: "instagram",
+    id: "ig",
     label: "Instagram",
     icon: <InstagramIcon fontSize="small" />,
     url: "https://www.instagram.com/",
   },
 ];
 
-const SharingTab = ({ userID }: any) => {
+const SharingTab = ({ ticketData }: any) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [socialLinks, setSocialLinks] = useState(initialSharingData);
-  const [commanApi] = useCommanApiMutation();
+  const [socialLinks, setSocialLinks] = useState<any>([]);
+  const [updateUserSocialData, { isLoading }] =
+    useUpdateUserSocialDataMutation();
+  const [changeUrl, setChangeUrl] = useState<Record<string, string>>({});
   //@ts-ignore
 
-  const toggleEdit = () => setIsEditing((prev) => !prev);
-
-  const handleUrlChange = (id: string, value: string) => {
-    setSocialLinks((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, url: value } : item))
-    );
+  const toggleEdit = () => {
+    // When entering edit mode, prefill inputs with current URLs
+    setIsEditing((prev) => {
+      const next = !prev;
+      if (next) {
+        const prefilled: Record<string, string> = {};
+        socialLinks.forEach((item: any) => {
+          prefilled[item.id] = item.url ?? "";
+        });
+        setChangeUrl(prefilled);
+      }
+      return next;
+    });
   };
 
+  const handleUrlChange = (id: string, value: string) => {
+    setChangeUrl((prev: any) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  useEffect(() => {
+    if (ticketData?.socialAccount) {
+      setSocialLinks(() => {
+        const list: any[] = [];
+        initialSharingData.forEach((item) => {
+          if (item.id in ticketData.socialAccount) {
+            list.push({ ...item, url: ticketData.socialAccount[item.id] });
+          }
+        });
+        return list;
+      });
+    }
+  }, [ticketData?.socialAccount]);
+
+  console.log(socialLinks);
+
   const handleSave = () => {
-    const USERID = userID;
     const payload = {
-      url: `/user/edit/${USERID}?type=social`,
+      USERID: ticketData.userID,
       body: {
         socialData: {
-          x: "@userhandle",
-          fb: "facebook.com/user",
-          lin: "linkedin.com/in/user",
-          inst: "instagram.com/user",
+          x: changeUrl.x ?? ticketData?.socialAccount?.x ?? "",
+          fb: changeUrl.fb ?? ticketData?.socialAccount?.fb ?? "",
+          li: changeUrl.li ?? ticketData?.socialAccount?.li ?? "",
+          ig: changeUrl.ig ?? ticketData?.socialAccount?.ig ?? "",
         },
       },
     };
-    commanApi(payload)
+    updateUserSocialData(payload)
       .then((res: any) => {
         console.log(res);
       })
@@ -102,7 +136,7 @@ const SharingTab = ({ userID }: any) => {
       </div>
 
       <div>
-        {socialLinks.map((item) => (
+        {socialLinks.map((item: any) => (
           <ListItem
             key={item.id}
             component="div"
@@ -144,8 +178,10 @@ const SharingTab = ({ userID }: any) => {
                     <TextField
                       size="small"
                       fullWidth
-                      value={item.url}
-                      onChange={(e) => handleUrlChange(item.id, e.target.value)}
+                      value={changeUrl[item.id] ?? item.url}
+                      onChange={(e: any) =>
+                        handleUrlChange(item.id, e.target.value)
+                      }
                       sx={{ mt: 0.5 }}
                     />
                   ) : (
