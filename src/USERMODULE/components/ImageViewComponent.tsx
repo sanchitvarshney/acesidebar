@@ -8,21 +8,32 @@ import {
   IconButton,
   Typography,
   CircularProgress,
+  FormGroup,
+  FormControlLabel,
+  Switch,
+  Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDeleteAttachedFileMutation } from "../../services/uploadDocServices";
 import { useToast } from "../../hooks/useToast";
+import HelpIcon from "@mui/icons-material/Help";
 
 interface ImageViewComponentProps {
   images: any; // Array of uploaded image files
   ticketId?: any;
   handleRemove: any;
+  isToggle?: boolean;
+  handleSelectValue?: any;
+  isPrivate?: boolean;
 }
 
 const ImageViewComponent: React.FC<ImageViewComponentProps> = ({
   images,
   ticketId,
   handleRemove,
+  isToggle = false,
+  handleSelectValue,
+  isPrivate,
 }) => {
   const { showToast } = useToast();
   const [deleteAttachedFile, { isLoading: deleteLoading }] =
@@ -79,22 +90,45 @@ const ImageViewComponent: React.FC<ImageViewComponentProps> = ({
                     verticalAlign: "bottom",
                   }}
                 >
-                  {file.name}
+                  {file?.name}
                 </span>
               }
               secondary={`${file.type || "Unknown"} • ${file.size}`}
             />
-            {deleteLoading ? (
-              <CircularProgress size={16} />
-            ) : (
-              <IconButton
-                size="small"
-                sx={{ ml: 2 }}
-                onClick={() => onRemove(file.fileId)}
-              >
-                <DeleteIcon fontSize="small" color="error" />
-              </IconButton>
+            {isToggle && (
+              <div>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Tooltip
+                        title={`Currently: ${isPrivate ? "Private" : "Public"}`}
+                      >
+                        <Switch size="small" />
+                      </Tooltip>
+                    }
+                    label={
+                      <Tooltip title="File type (Public or Private)">
+                        <HelpIcon fontSize="small" />
+                      </Tooltip>
+                    }
+                    onChange={(e: any) => handleSelectValue(e.target.checked)}
+                  />
+                </FormGroup>
+              </div>
             )}
+            <div>
+              {deleteLoading ? (
+                <CircularProgress size={16} />
+              ) : (
+                <IconButton
+                  size="small"
+                  sx={{}}
+                  onClick={() => onRemove(file.fileId)}
+                >
+                  <DeleteIcon fontSize="small" color="error" />
+                </IconButton>
+              )}
+            </div>
           </ListItem>
         ))}
       </List>

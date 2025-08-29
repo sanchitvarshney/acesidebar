@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   IconButton,
   TextField,
@@ -7,18 +8,12 @@ import {
   Box as MuiBox,
   Avatar,
   Chip,
-  Divider,
-  Alert,
   List,
   ListItem,
   ListItemText,
   ListItemAvatar,
   ListItemSecondaryAction,
-  Tabs,
-  Tab,
-  Paper,
   Tooltip,
-  Menu,
   MenuItem,
   Dialog,
   DialogTitle,
@@ -28,16 +23,15 @@ import {
   InputLabel,
   Select,
   CircularProgress,
+  Switch,
+  FormGroup,
+  FormControlLabel,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
-  AttachFile,
   CloudUpload,
   Download,
   Delete,
-  Visibility,
-  MoreVert,
-  Folder,
   Image,
   Description,
   PictureAsPdf,
@@ -46,7 +40,6 @@ import {
   Archive,
   Code,
   Search,
-  CreateNewFolder,
 } from "@mui/icons-material";
 import { useToast } from "../../../hooks/useToast";
 import {
@@ -54,10 +47,12 @@ import {
   useGetAttacedFileQuery,
 } from "../../../services/threadsApi";
 import {
+  useAttachedFileMutation,
   useDeleteAttachedFileMutation,
   useLazyDownloadAttachedFileQuery,
 } from "../../../services/uploadDocServices";
-import { a } from "framer-motion/dist/types.d-Cjd591yU";
+
+import ImageViewComponent from "../../components/ImageViewComponent";
 
 interface AttachmentsProps {
   open: boolean;
@@ -70,7 +65,9 @@ const Attachments: React.FC<AttachmentsProps> = ({
   onClose,
   ticketId,
 }) => {
+  console.log("ticketId", ticketId);
   const [commanApi] = useCommanApiMutation();
+  const [attachedFile, { isLoading: isUploading }] = useAttachedFileMutation();
 
   const { data, refetch } = useGetAttacedFileQuery({ ticketId });
   const [triggerDownload, { isLoading: isDownloading }] =
@@ -83,15 +80,13 @@ const Attachments: React.FC<AttachmentsProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("uploadedAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [selectedAttachments, setSelectedAttachments] = useState<string[]>([]);
+
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [newFolderDescription, setNewFolderDescription] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
+
   const [deleteingValue, setDeletingValue] = useState("");
   const [downloadingValue, setdownloadingValue] = useState("");
-
+  const [images, setImages] = useState<any>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef(null);
@@ -155,8 +150,6 @@ const Attachments: React.FC<AttachmentsProps> = ({
   };
 
   const handleFileUpload = async (files: FileList) => {
-    setIsLoading(true);
-
     const uploadPromises = Array.from(files).map(async (file) => {
       const formData = new FormData();
       formData.append("file", file);
@@ -185,15 +178,37 @@ const Attachments: React.FC<AttachmentsProps> = ({
       method: "GET",
     };
     commanApi(refreshPayload);
-
-    setIsLoading(false);
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
-      handleFileUpload(files);
-    }
+    if (!files) return;
+    const file = files[0];
+    const type = isPrivate ? "PRIVATE" : "PUBLIC";
+    const formData = new FormData();
+    formData.append("image", file, file.name);
+    formData.append("ticket", String(ticketId));
+    formData.append("type", type);
+
+    attachedFile(formData)
+      .then((res: any) => {
+        if (res?.data?.success !== true) {
+          showToast(res?.data?.message || "Image upload failed", "error");
+          return;
+        }
+        const data = res?.data?.data;
+        const imageData = {
+          fileId: data?.signature,
+          name: data?.fileName,
+          size: data?.size,
+          type: data?.mime,
+        };
+        refetch();
+        setImages((prevImages: any) => [...prevImages, imageData]);
+      })
+      .catch((err: any) => {
+        showToast(err?.data?.message || "Image upload failed", "error");
+      });
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -274,10 +289,11 @@ const Attachments: React.FC<AttachmentsProps> = ({
   };
 
   const onRemove = (fileId: string) => {
-    if (!fileId) {
+    if (!fileId || !ticketId) {
       showToast("File not exist please try again", "error");
       return;
     }
+    console.log("ticket id during delete file", ticketId);
     const payload = {
       ticketNumber: ticketId,
       signature: fileId,
@@ -298,6 +314,11 @@ const Attachments: React.FC<AttachmentsProps> = ({
   // Refresh attachments list
   const handleRefreshAttachments = () => {
     refetch();
+  };
+
+  const handleRemoveImage = (id: string | number) => {
+    const updatedImages = images.filter((image: any) => image.fileId !== id);
+    setImages(updatedImages);
   };
 
   return (
@@ -420,17 +441,9 @@ const Attachments: React.FC<AttachmentsProps> = ({
                       border: "1px solid #e0e0e0",
                       borderRadius: 1,
                       mb: 1,
-                      backgroundColor: selectedAttachments.includes(
-                        attachment.signature
-                      )
-                        ? "#f3f8ff"
-                        : "#fff",
+                      backgroundColor: "#fff",
                       "&:hover": {
-                        backgroundColor: selectedAttachments.includes(
-                          attachment.signature
-                        )
-                          ? "#f3f8ff"
-                          : "#f5f5f5",
+                        backgroundColor: "#f5f5f5",
                       },
                     }}
                   >
@@ -499,7 +512,8 @@ const Attachments: React.FC<AttachmentsProps> = ({
                               );
                             }}
                           >
-                            {isDownloading && downloadingValue === attachment?.signature ? (
+                            {isDownloading &&
+                            downloadingValue === attachment?.signature ? (
                               <CircularProgress size={18} />
                             ) : (
                               <Download />
@@ -517,7 +531,8 @@ const Attachments: React.FC<AttachmentsProps> = ({
                                 onRemove(attachment.signature);
                               }}
                             >
-                              {deleteLoading && deleteingValue === attachment?.signature ? (
+                              {deleteLoading &&
+                              deleteingValue === attachment?.signature ? (
                                 <CircularProgress size={18} />
                               ) : (
                                 <Delete />
@@ -542,14 +557,19 @@ const Attachments: React.FC<AttachmentsProps> = ({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Upload Files</DialogTitle>
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography variant="h6">Upload Files</Typography>{" "}
+          <IconButton>
+            <CloseIcon onClick={() => setUploadDialogOpen(false)} />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           <MuiBox
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             sx={{
-              p: 4,
+              p: 2,
               border: dragOver ? "2px dashed #1976d2" : "2px dashed #ccc",
               borderRadius: 2,
               textAlign: "center",
@@ -559,7 +579,11 @@ const Attachments: React.FC<AttachmentsProps> = ({
             }}
             onClick={() => fileInputRef.current?.click()}
           >
-            <CloudUpload sx={{ fontSize: 48, color: "#1976d2", mb: 2 }} />
+            {isUploading ? (
+              <CircularProgress size={45} />
+            ) : (
+              <CloudUpload sx={{ fontSize: 48, color: "#1976d2", mb: 2 }} />
+            )}
             <Typography variant="h6" sx={{ mb: 1 }}>
               {dragOver ? "Drop files here" : "Drag & drop files here"}
             </Typography>
@@ -574,42 +598,28 @@ const Attachments: React.FC<AttachmentsProps> = ({
               onChange={handleFileSelect}
             />
           </MuiBox>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setUploadDialogOpen(false)}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
 
-      {/* Create Folder Dialog */}
-      <Dialog
-        open={folderDialogOpen}
-        onClose={() => setFolderDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Create New Folder</DialogTitle>
-        <DialogContent>
-          <MuiBox sx={{ pt: 1 }}>
-            <TextField
-              fullWidth
-              label="Folder Name"
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              fullWidth
-              label="Description (Optional)"
-              value={newFolderDescription}
-              onChange={(e) => setNewFolderDescription(e.target.value)}
-              multiline
-              rows={3}
-            />
-          </MuiBox>
+          {images.length > 0 && (
+            <div className="mt-3">
+              <ImageViewComponent
+                images={images}
+                handleRemove={(id: any) => handleRemoveImage(id)}
+                isToggle={true}
+                handleSelectValue={(e: any) => setIsPrivate(e)}
+                isPrivate={isPrivate}
+                ticketId={ticketId}
+              />
+            </div>
+          )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setFolderDialogOpen(false)}>Cancel</Button>
-        </DialogActions>
+        <DialogActions
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            px: 2,
+          }}
+        ></DialogActions>
       </Dialog>
     </MuiBox>
   );
