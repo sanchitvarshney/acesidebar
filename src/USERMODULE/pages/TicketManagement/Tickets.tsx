@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
 import { Avatar, IconButton, Button, Checkbox } from "@mui/material";
+import LeftMenu from "./LeftMenu";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
@@ -54,6 +55,7 @@ const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
 const Tickets: React.FC = () => {
   const navigate = useNavigate();
+  // Page-based navigation now handled via router; keep default UI static
   const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -898,8 +900,8 @@ const Tickets: React.FC = () => {
           </div>
           {/* Main Content: Tickets + Filters */}
           <div className="flex flex-1 h-0 min-h-0">
-            {/* Ticket List */}
-            <div className="flex-1 pt-4 h-full overflow-y-auto bg-[#fafafa]">
+            <LeftMenu />
+            <div className="flex-1 p-2 h-full overflow-y-auto bg-[#fafafa]">
               {isTicketsFetching ? (
                 <TicketSkeleton />
               ) : (
