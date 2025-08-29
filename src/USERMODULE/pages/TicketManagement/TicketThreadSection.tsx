@@ -49,7 +49,10 @@ import {
   setReplyValue,
 } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
-import { useCommanApiMutation } from "../../../services/threadsApi";
+import {
+  useCommanApiMutation,
+  useGetAttacedFileQuery,
+} from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import { v4 as uuidv4 } from "uuid";
 import { useAttachedFileMutation } from "../../../services/uploadDocServices";
@@ -129,7 +132,6 @@ const ThreadItem = ({
   subject,
 }: any) => {
   const [commanApi] = useCommanApiMutation();
-  const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
   const [open, setOpen] = useState(false);
   const [showReplyEditor, setShowReplyEditor] = useState(false);
@@ -541,6 +543,8 @@ const TicketThreadSection = ({
 }: any) => {
   const { showToast } = useToast();
   const dispatch = useDispatch();
+  const { refetch } = useGetAttacedFileQuery({ ticketId: header?.ticketId });
+  const [isReply, setIsReply] = useState(true);
   const [commonApi] = useCommanApiMutation();
   const [showEditor, setShowEditor] = useState<any>(false);
   const [showShotcut, setShowShotcut] = useState(false);
@@ -804,6 +808,7 @@ const TicketThreadSection = ({
 
         reply: {
           type: selectedValue,
+          isReply: isReply === true ? "R" : "N",
           to: "example@example.com",
           cc: [],
           bcc: [],
@@ -829,6 +834,7 @@ const TicketThreadSection = ({
         setSignatureUpdateKey(0);
         setShowEditor(false);
         if (onCloseReply) onCloseReply();
+        refetch();
       })
       .catch((error: any) => {
         console.error(error);
@@ -969,6 +975,7 @@ const TicketThreadSection = ({
                   changeNotify={(value: any) => setNotifyTag(value)}
                   notifyTag={notifyTag}
                   ticketId={header?.ticketId}
+                  setIsReply={(value: any) => setIsReply(value)}
                 />
               </div>
 

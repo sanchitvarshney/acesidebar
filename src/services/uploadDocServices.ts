@@ -27,9 +27,20 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: "delete",
       }),
     }),
+    downloadAttachedFile: builder.query({
+      query: (credentials) => ({
+        url: `/ticket/staff/tickets/${credentials.ticketNumber}/attachments/${credentials.signature}/download`,
+        method: "GET",
+        responseHandler: (response: any) => response.blob(),
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useUploadFileApiMutation, useAttachedFileMutation,useDeleteAttachedFileMutation } =
-  extendedTicketApi;
+export const {
+  useUploadFileApiMutation,
+  useAttachedFileMutation,
+  useDeleteAttachedFileMutation,
+  useLazyDownloadAttachedFileQuery,
+} = extendedTicketApi;

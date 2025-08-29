@@ -16,13 +16,13 @@ import { useToast } from "../../hooks/useToast";
 interface ImageViewComponentProps {
   images: any; // Array of uploaded image files
   ticketId?: any;
-  handleRemove:any
+  handleRemove: any;
 }
 
 const ImageViewComponent: React.FC<ImageViewComponentProps> = ({
   images,
   ticketId,
-  handleRemove
+  handleRemove,
 }) => {
   const { showToast } = useToast();
   const [deleteAttachedFile, { isLoading: deleteLoading }] =
@@ -38,14 +38,16 @@ const ImageViewComponent: React.FC<ImageViewComponentProps> = ({
       signature: fileId,
     };
 
-    deleteAttachedFile(payload).then((res)=> {
+    deleteAttachedFile(payload).then((res) => {
       if (res?.data?.success !== true) {
-        showToast(res?.data?.message || "An error occurred while deleting", "error");
+        showToast(
+          res?.data?.message || "An error occurred while deleting",
+          "error"
+        );
         return;
       }
-handleRemove(fileId)
-
-    })
+      handleRemove(fileId);
+    });
   };
   return (
     <div style={{ padding: "6px" }}>
@@ -82,19 +84,17 @@ handleRemove(fileId)
               }
               secondary={`${file.type || "Unknown"} • ${file.size}`}
             />
-         {
-          deleteLoading ? (
-            <CircularProgress size={16}/>
-          ):(
-               <IconButton
-              size="small"
-              sx={{ ml: 2 }}
-              onClick={() => onRemove(file.fileId)}
-            >
-              <DeleteIcon fontSize="small" color="error" />
-            </IconButton>
-          )
-         }
+            {deleteLoading ? (
+              <CircularProgress size={16} />
+            ) : (
+              <IconButton
+                size="small"
+                sx={{ ml: 2 }}
+                onClick={() => onRemove(file.fileId)}
+              >
+                <DeleteIcon fontSize="small" color="error" />
+              </IconButton>
+            )}
           </ListItem>
         ))}
       </List>

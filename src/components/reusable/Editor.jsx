@@ -96,6 +96,7 @@ const StackEditor = ({
     changeNotify = () => {},
     notifyTag = [],
     ticketId,
+    setIsReply
   } = props;
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
@@ -615,6 +616,7 @@ const StackEditor = ({
     if (index === "3") {
       onForward();
     }
+    setIsReply(index==="2" ? false : true)
     setSelectedIndex(index);
     setIsOptionsOpen(false); // Close after selection
     setOptionChangeKey((prevKey) => prevKey + 1);

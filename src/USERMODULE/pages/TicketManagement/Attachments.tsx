@@ -27,6 +27,7 @@ import {
   FormControl,
   InputLabel,
   Select,
+  CircularProgress,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
@@ -52,13 +53,17 @@ import {
   useCommanApiMutation,
   useGetAttacedFileQuery,
 } from "../../../services/threadsApi";
+import {
+  useDeleteAttachedFileMutation,
+  useLazyDownloadAttachedFileQuery,
+} from "../../../services/uploadDocServices";
+import { a } from "framer-motion/dist/types.d-Cjd591yU";
 
 interface AttachmentsProps {
   open: boolean;
   onClose: () => void;
   ticketId: string | number;
 }
-
 
 const Attachments: React.FC<AttachmentsProps> = ({
   open,
@@ -67,11 +72,12 @@ const Attachments: React.FC<AttachmentsProps> = ({
 }) => {
   const [commanApi] = useCommanApiMutation();
 
-  const { data } = useGetAttacedFileQuery({ ticketId });
-
+  const { data, refetch } = useGetAttacedFileQuery({ ticketId });
+  const [triggerDownload, { isLoading: isDownloading }] =
+    useLazyDownloadAttachedFileQuery();
+  const [deleteAttachedFile, { isLoading: deleteLoading }] =
+    useDeleteAttachedFileMutation();
   const { showToast } = useToast();
-
-  const [attachments, setAttachments] = useState<any[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -83,6 +89,8 @@ const Attachments: React.FC<AttachmentsProps> = ({
   const [newFolderName, setNewFolderName] = useState("");
   const [newFolderDescription, setNewFolderDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteingValue, setDeletingValue] = useState("");
+  const [downloadingValue, setdownloadingValue] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -207,72 +215,89 @@ const Attachments: React.FC<AttachmentsProps> = ({
     }
   };
 
-  const handleDownload = async (attachment: Attachment) => {
-    const payload = {
-      // url: `tickets/${ticketId}/attachments/${attachment.id}/download`,
-      method: "GET",
-    };
-
-    commanApi(payload);
-    showToast("Download started", "success");
-  };
-
-  const handleDelete = async (attachmentId: string) => {
-    const payload = {
-      url: `tickets/${ticketId}/attachments/${attachmentId}`,
-      method: "DELETE",
-    };
-
-    commanApi(payload);
-    setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
-    showToast("File deleted successfully", "success");
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedAttachments.length === 0) return;
-
-    const deletePromises = selectedAttachments.map((id) =>
-      commanApi({
-        url: `tickets/${ticketId}/attachments/${id}`,
-        method: "DELETE",
-      })
-    );
-
-    await Promise.all(deletePromises);
-    setAttachments((prev) =>
-      prev.filter((a) => !selectedAttachments.includes(a.id))
-    );
-    setSelectedAttachments([]);
-    showToast("Selected files deleted successfully", "success");
-  };
-
-  const handleAttachmentSelect = (attachmentId: string) => {
-    setSelectedAttachments((prev) =>
-      prev.includes(attachmentId)
-        ? prev.filter((id) => id !== attachmentId)
-        : [...prev, attachmentId]
-    );
-  };
-
-  // Bulk download selected attachments
-  const handleBulkDownload = () => {
-    if (selectedAttachments.length === 0) return;
+  const handleDownload = async (id: string, fileName: string) => {
+    if (!id || !ticketId) {
+      showToast("Invalid attachment ID", "error");
+      return;
+    }
 
     const payload = {
-      url: `tickets/${ticketId}/attachments/bulk-download`,
-      method: "POST",
-      body: { attachmentIds: selectedAttachments },
+      ticketNumber: ticketId,
+      signature: id,
     };
-    commanApi(payload);
+
+    try {
+      const res = await triggerDownload(payload).unwrap();
+
+      if (res instanceof Blob) {
+        const url = window.URL.createObjectURL(res);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "attachment";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        showToast("Download completed", "success");
+        return;
+      }
+
+      if (res?.success === true && res?.data) {
+        const byteCharacters = atob(res.data);
+        const byteNumbers = new Array(byteCharacters.length)
+          .fill(0)
+          .map((_, i) => byteCharacters.charCodeAt(i));
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {
+          type: "application/octet-stream",
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName || "attachment";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        showToast("Download completed", "success");
+      } else {
+        showToast(
+          res?.message || "An error occurred while downloading",
+          "error"
+        );
+      }
+    } catch (error) {
+      showToast("Failed to download file", "error");
+    }
+  };
+
+  const onRemove = (fileId: string) => {
+    if (!fileId) {
+      showToast("File not exist please try again", "error");
+      return;
+    }
+    const payload = {
+      ticketNumber: ticketId,
+      signature: fileId,
+    };
+
+    deleteAttachedFile(payload).then((res) => {
+      if (res?.data?.success !== true) {
+        showToast(
+          res?.data?.message || "An error occurred while deleting",
+          "error"
+        );
+        return;
+      }
+      refetch();
+    });
   };
 
   // Refresh attachments list
   const handleRefreshAttachments = () => {
-    const payload = {
-      url: `tickets/${ticketId}/attachments`,
-      method: "GET",
-    };
-    commanApi(payload);
+    refetch();
   };
 
   return (
@@ -291,7 +316,6 @@ const Attachments: React.FC<AttachmentsProps> = ({
       }}
     >
       <MuiBox sx={{ p: 2, flex: 1, overflowY: "auto", width: "100%" }}>
-        {/* Header with Actions */}
         <MuiBox
           sx={{
             display: "flex",
@@ -377,50 +401,6 @@ const Attachments: React.FC<AttachmentsProps> = ({
             </div>
           </MuiBox>
 
-          {/* Bulk Actions */}
-          {selectedAttachments.length > 0 && (
-            <MuiBox
-              sx={{
-                mb: 2,
-                p: 2,
-                bgcolor: "#f3f8ff",
-                borderRadius: 1,
-                border: "1px solid #1976d2",
-              }}
-            >
-              <MuiBox
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Typography variant="body2">
-                  {selectedAttachments.length} file(s) selected
-                </Typography>
-                <MuiBox sx={{ display: "flex", gap: 1 }}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<Download />}
-                    onClick={handleBulkDownload}
-                  >
-                    Download Selected
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="error"
-                    startIcon={<Delete />}
-                    onClick={handleBulkDelete}
-                  >
-                    Delete Selected
-                  </Button>
-                </MuiBox>
-              </MuiBox>
-            </MuiBox>
-          )}
-
           {/* Attachments List */}
           <MuiBox>
             {filteredAttachments?.length === 0 ? (
@@ -472,11 +452,15 @@ const Attachments: React.FC<AttachmentsProps> = ({
                           <Typography variant="body1" sx={{ fontWeight: 500 }}>
                             {attachment.fileName}
                           </Typography>
-                          {attachment.dt.ago && (
+                          {attachment.type && (
                             <Chip
-                              label={attachment.dt.ago}
+                              label={attachment.type}
                               size="small"
-                              color="success"
+                              color={
+                                attachment.type == "PUBLIC"
+                                  ? "success"
+                                  : "warning"
+                              }
                               variant="outlined"
                             />
                           )}
@@ -485,12 +469,19 @@ const Attachments: React.FC<AttachmentsProps> = ({
                       secondary={
                         <MuiBox>
                           <Typography variant="body2" color="text.secondary">
-                            {attachment.fileSize} • {attachment.mime} • Uploaded
-                            by {attachment.uploadedBy}
+                            {attachment.fileSize} • Uploaded by:{" "}
+                            {attachment.uploadedBy?.name} (
+                            {attachment.uploadedBy?.type == "S"
+                              ? "Agent"
+                              : attachment.uploadedBy?.type == "U"
+                              ? "Client"
+                              : "Admin"}
+                            )
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            {`${attachment.dt.ds} ${attachment.dt.ts}`} •{" "}
-                            {attachment.downloads} downloads
+                            {`${attachment.dt.ds} ${attachment.dt.ts}`} • (
+                            {attachment.dt.ago}) | {attachment.downloads}{" "}
+                            downloads
                           </Typography>
                         </MuiBox>
                       }
@@ -500,20 +491,40 @@ const Attachments: React.FC<AttachmentsProps> = ({
                         <Tooltip title="Download">
                           <IconButton
                             size="small"
-                            onClick={() => handleDownload(attachment)}
+                            onClick={() => {
+                              setdownloadingValue(attachment?.signature);
+                              handleDownload(
+                                attachment?.signature,
+                                attachment?.fileName
+                              );
+                            }}
                           >
-                            <Download />
+                            {isDownloading && downloadingValue === attachment?.signature ? (
+                              <CircularProgress size={18} />
+                            ) : (
+                              <Download />
+                            )}
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Delete">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleDelete(attachment.id)}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </Tooltip>
+
+                        {attachment?.deletable && (
+                          <Tooltip title="Delete">
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => {
+                                setDeletingValue(attachment?.signature);
+                                onRemove(attachment.signature);
+                              }}
+                            >
+                              {deleteLoading && deleteingValue === attachment?.signature ? (
+                                <CircularProgress size={18} />
+                              ) : (
+                                <Delete />
+                              )}
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </MuiBox>
                     </ListItemSecondaryAction>
                   </ListItem>

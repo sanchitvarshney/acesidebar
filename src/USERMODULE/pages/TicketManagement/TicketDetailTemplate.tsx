@@ -205,7 +205,7 @@ const TicketDetailTemplate = () => {
             disableEscapeKeyDown: false,
             keepMounted: true,
             BackdropProps: {
-              style: { backgroundColor: "rgba(0, 0, 0, 0.5)",  },
+              style: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
               onClick: (e) => {
                 e.stopPropagation();
               },
