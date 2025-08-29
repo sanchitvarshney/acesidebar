@@ -67,13 +67,13 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
   const [activeTopTab, setActiveTopTab] = React.useState(0);
   const [activeProfileTab, setActiveProfileTab] = React.useState(0);
   const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
- const [commanApi] = useCommanApiMutation();
+  const [commanApi] = useCommanApiMutation();
 
-const   handleDeleteTag = (tagId: number) => {
-    const  payload = {
+  const handleDeleteTag = (tagId: number) => {
+    const payload = {
       url: `delete-tag/${tagId}`,
-    }
-    commanApi(payload)
+    };
+    commanApi(payload);
   };
 
   const handleAttributeChange = (event: any) => {
@@ -163,7 +163,7 @@ const   handleDeleteTag = (tagId: number) => {
               handleAttributeChange={handleAttributeChange}
             />
           )}
-          {activeProfileTab === 1 && <SharingTab />}
+          {activeProfileTab === 1 && <SharingTab userId={ticket.userID} />}
           {activeProfileTab === 2 && <InfoTab />}
           {activeProfileTab === 3 && <NotesTab />}
 
@@ -183,10 +183,9 @@ const   handleDeleteTag = (tagId: number) => {
                       <Chip
                         key={tagID}
                         label={item.tagName}
-                      onDelete={() => handleDeleteTag(item.tagID)}
+                        onDelete={() => handleDeleteTag(item.tagID)}
                         deleteIcon={
                           <CloseIcon
-                          
                             sx={{
                               transition: "color 0.2s",
                             }}

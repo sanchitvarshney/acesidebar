@@ -65,11 +65,11 @@ const Attachments: React.FC<AttachmentsProps> = ({
   onClose,
   ticketId,
 }) => {
-  console.log("ticketId", ticketId);
   const [commanApi] = useCommanApiMutation();
-  const [attachedFile, { isLoading: isUploading }] = useAttachedFileMutation();
+  const [attachedFile, { isLoading: isUploading,data: attachedFileData }] = useAttachedFileMutation();
 
   const { data, refetch } = useGetAttacedFileQuery({ ticketId });
+
   const [triggerDownload, { isLoading: isDownloading }] =
     useLazyDownloadAttachedFileQuery();
   const [deleteAttachedFile, { isLoading: deleteLoading }] =
@@ -135,6 +135,8 @@ const Attachments: React.FC<AttachmentsProps> = ({
       }
     });
 
+
+   
   // Get unique categories
   const categories = ["All Categories"];
 
@@ -287,7 +289,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
       showToast("Failed to download file", "error");
     }
   };
-
+  
   const onRemove = (fileId: string) => {
     if (!fileId || !ticketId) {
       showToast("File not exist please try again", "error");
@@ -560,7 +562,12 @@ const Attachments: React.FC<AttachmentsProps> = ({
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography variant="h6">Upload Files</Typography>{" "}
           <IconButton>
-            <CloseIcon onClick={() => setUploadDialogOpen(false)} />
+            <CloseIcon
+              onClick={() => {
+                setUploadDialogOpen(false);
+                setImages([]);
+              }}
+            />
           </IconButton>
         </DialogTitle>
         <DialogContent>
@@ -605,21 +612,12 @@ const Attachments: React.FC<AttachmentsProps> = ({
                 images={images}
                 handleRemove={(id: any) => handleRemoveImage(id)}
                 isToggle={true}
-                handleSelectValue={(e: any) => setIsPrivate(e)}
-                isPrivate={isPrivate}
+                isPrivate={attachedFileData?.data?.isPublic}
                 ticketId={ticketId}
               />
             </div>
           )}
         </DialogContent>
-        <DialogActions
-          sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "space-between",
-            px: 2,
-          }}
-        ></DialogActions>
       </Dialog>
     </MuiBox>
   );

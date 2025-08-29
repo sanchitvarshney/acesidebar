@@ -51,12 +51,11 @@ const initialSharingData: SharingDataType[] = [
   },
 ];
 
-const SharingTab = () => {
+const SharingTab = ({ userID }: any) => {
   const [isEditing, setIsEditing] = useState(false);
   const [socialLinks, setSocialLinks] = useState(initialSharingData);
   const [commanApi] = useCommanApiMutation();
   //@ts-ignore
-  const userId = useAuth().user?.id || Math.floor(Math.random() * 1000);
 
   const toggleEdit = () => setIsEditing((prev) => !prev);
 
@@ -67,13 +66,25 @@ const SharingTab = () => {
   };
 
   const handleSave = () => {
+    const USERID = userID;
     const payload = {
-      url: `update-profile/share-links/${userId}`,
+      url: `/user/edit/${USERID}?type=social`,
       body: {
-        socialLinks: socialLinks.map(({ id, url }) => ({ id, url })),
+        socialData: {
+          x: "@userhandle",
+          fb: "facebook.com/user",
+          lin: "linkedin.com/in/user",
+          inst: "instagram.com/user",
+        },
       },
     };
-    commanApi(payload);
+    commanApi(payload)
+      .then((res: any) => {
+        console.log(res);
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
     setIsEditing(false);
   };
 
