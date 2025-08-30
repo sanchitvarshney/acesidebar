@@ -7,6 +7,7 @@ import {
   ListItemButton,
   Typography,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -24,7 +25,7 @@ interface SharingDataType {
   id: string;
   label: string;
   icon: any;
-  url: string;
+  url?: string;
 }
 
 const initialSharingData: SharingDataType[] = [
@@ -32,32 +33,32 @@ const initialSharingData: SharingDataType[] = [
     id: "fb",
     label: "Facebook",
     icon: <FacebookIcon fontSize="small" />,
-    url: "https://www.facebook.com/",
+    
   },
   {
     id: "x",
     label: "Twitter",
     icon: <XIcon fontSize="small" />,
-    url: "https://www.twitter.com/",
+   
   },
   {
     id: "li",
     label: "Linkedin",
     icon: <LinkedInIcon fontSize="small" />,
-    url: "https://www.linkedin.com/",
+  
   },
   {
     id: "ig",
     label: "Instagram",
     icon: <InstagramIcon fontSize="small" />,
-    url: "https://www.instagram.com/",
+
   },
 ];
 
 const SharingTab = ({ ticketData }: any) => {
   const [isEditing, setIsEditing] = useState(false);
   const [socialLinks, setSocialLinks] = useState<any>([]);
-  const [updateUserSocialData, { isLoading }] =
+  const [updateUserSocialData, { isLoading: isUpdating }] =
     useUpdateUserSocialDataMutation();
   const [changeUrl, setChangeUrl] = useState<Record<string, string>>({});
   //@ts-ignore
@@ -126,13 +127,15 @@ const SharingTab = ({ ticketData }: any) => {
     <div className="bg-white rounded border border-gray-200 p-3 mb-4">
       <div className="flex items-center justify-between mb-2">
         <div className="font-semibold text-sm text-gray-700 ">Social Media</div>
-        <IconButton size="small" onClick={isEditing ? handleSave : toggleEdit}>
+       {isUpdating ? (<CircularProgress size={16} />) : (
+         <IconButton size="small" onClick={isEditing ? handleSave : toggleEdit}>
           {isEditing ? (
             <SaveIcon sx={{ fontSize: 20 }} />
           ) : (
             <ModeEditIcon sx={{ fontSize: 20 }} />
           )}
         </IconButton>
+       )}
       </div>
 
       <div>
