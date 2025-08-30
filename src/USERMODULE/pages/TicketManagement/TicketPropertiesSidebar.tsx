@@ -175,17 +175,20 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
     if (!Array.isArray(newValue)) return;
 
     // Find the newly added tag by comparing with previous state
-    const previousTagIds = editTags.map((tag: any) => tag.id);
+    const previousTagIds = editTags.map((tag: any) => tag.tagId);
     const newlyAddedTag = newValue.find(
       (tag: any) => !previousTagIds.includes(tag.tagId)
     );
 
+    
+
     if (newlyAddedTag) {
       const newTagData = {
-        id: newlyAddedTag.tagId,
-        name: newlyAddedTag.tagName,
+        tagId: newlyAddedTag.tagID,
+        tagName: newlyAddedTag.tagName,
       };
-
+   
+     
       setEditTags((prev: any) => [...prev, newTagData]);
     } else {
       // If no new tag found, just update the state (for deletions)
