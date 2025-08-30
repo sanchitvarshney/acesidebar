@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -12,18 +12,31 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import HistoryIcon from "@mui/icons-material/History";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import AboutTab from "./AboutTab";
 import SharingTab from "./SharingTab";
 import InfoTab from "./InfoTab";
 import NotesTab from "./NotesTab";
-import { useGetTagListQuery } from "../../../services/ticketAuth";
-import { Chip, MenuItem } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import { Close } from "@mui/icons-material";
+import {
+  Autocomplete,
+  Chip,
+  CircularProgress,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import ShortcutsTab from "../../components/ShortcitsTab";
 import CloseIcon from "@mui/icons-material/Close";
-import { Height } from "@mui/icons-material";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
-import { useCommanApiMutation } from "../../../services/threadsApi";
+import {
+  useCommanApiMutation,
+
+} from "../../../services/threadsApi";
+import { useToast } from "../../../hooks/useToast";
+
+import { useGetTagListQuery } from "../../../services/ticketAuth";
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
@@ -56,26 +69,75 @@ const profileTabs = [
   { key: "notes", icon: <DescriptionIcon />, label: "Notes" },
 ];
 
-const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
-  const email = ticket?.email || "postmanreply@gmail.com";
-  const phone = ticket?.phone || "";
-  const jobTitle = ticket?.jobTitle || "";
-
-  const [attribute, setAttribute] = React.useState("");
-  const [activeTopTab, setActiveTopTab] = React.useState(0);
-  const [activeProfileTab, setActiveProfileTab] = React.useState(0);
+const TicketPropertiesSidebar = ({ ticket }: any) => {
+  const { showToast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
   const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
-  const [commanApi] = useCommanApiMutation();
+  const [activeTopTab, setActiveTopTab] = useState(0);
+  const [activeProfileTab, setActiveProfileTab] = useState(0);
+  const [tags, setTags] = useState<any>([]);
+  const [editTags, setEditTags] = useState<any>([]);
+  const [options, setOptions] = useState<any>([]);
+  const [triggerCommanApi] = useCommanApiMutation();
+  const [triggerUpdateUserData, { isLoading: isUserDataLoading ,error}] =
+    useCommanApiMutation();
 
-  const handleDeleteTag = (tagId: number) => {
-    const payload = {
-      url: `delete-tag/${tagId}`,
-    };
-    commanApi(payload);
+  const [editChangeValue, setEditChangeValue] = React.useState("");
+
+  const displayOptions = editChangeValue.length >= 3 ? options : [];
+
+  const fetchOptions = (value: string) => {
+    if (!value || value.length < 3) return [];
+    const filteredOptions = tagList?.filter((option: any) =>
+      option.tagName?.toLowerCase().includes(value?.toLowerCase())
+    );
+    return filteredOptions || [];
   };
 
-  const handleAttributeChange = (event: any) => {
-    setAttribute(event.target.value);
+  useEffect(() => {
+    if (editChangeValue.length >= 3) {
+      const filterValue: any = fetchOptions(editChangeValue);
+      setOptions(filterValue);
+    } else {
+      setOptions([]);
+    }
+  }, [editChangeValue, tagList]);
+
+  useEffect(() => {
+    if (!ticket) return;
+    setTags(ticket?.tags);
+  }, [ticket]);
+
+  const handleDeleteTag = (tagId: number) => {
+    if (!tagId || !ticket?.ticketId) {
+      showToast("Invalid tag ID or ticket ID", "error");
+      return;
+    }
+    const credentials = {
+      ticket: ticket?.ticketId,
+      tag: tagId,
+    };
+    const payload = {
+      url: `delete-tag/${credentials.ticket}/${credentials.tag}`,
+      method: "DELETE",
+    };
+    triggerCommanApi(payload)
+      .then((res: any) => {
+        if (res?.data?.success !== true) {
+          showToast(res?.data?.message || "An error occurred", "error");
+          return;
+        }
+        setTags((prevTags: any) =>
+          prevTags.filter((tag: any) => tag.key !== tagId)
+        );
+        showToast(
+          res?.data?.message || " Tag  Deleted successfully",
+          "success"
+        );
+      })
+      .catch((err: any) => {
+        showToast("Error deleting tag", "error");
+      });
   };
 
   const handleTopTabChange = (
@@ -92,6 +154,69 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
     setActiveProfileTab(newValue);
   };
 
+  const handleSave = () => {
+    const credentials = {
+      ticket: ticket?.ticketId,
+      tags: editTags,
+    };
+    const payload = {
+      url: `add-tag/${credentials.ticket}`,
+      body: {
+        tags: credentials.tags,
+      },
+    };
+    triggerUpdateUserData(payload)
+      .then((res: any) => {
+        if (res?.data?.success !== true) {
+          showToast(res?.data?.message || "An error occurred", "error");
+          return;
+        }
+        showToast(
+          res?.data?.message || " UserData updated successfully",
+          "success"
+        );
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
+    setIsEditing(false);
+  };
+
+  const handleSelectedOption = (_: any, newValue: any) => {
+    if (!Array.isArray(newValue)) return;
+
+    // Find the newly added tag by comparing with previous state
+    const previousTagIds = editTags.map((tag: any) => tag.id);
+    const newlyAddedTag = newValue.find(
+      (tag: any) => !previousTagIds.includes(tag.tagId)
+    );
+
+    if (newlyAddedTag) {
+      const newTagData = {
+        id: newlyAddedTag.tagId,
+        name: newlyAddedTag.tagName,
+      };
+
+      setEditTags((prev: any) => [...prev, newTagData]);
+    } else {
+      // If no new tag found, just update the state (for deletions)
+      setEditTags(newValue);
+    }
+  };
+
+  const toggleEdit = () => {
+    if (isEditing) {
+      handleSave();
+    } else {
+      if (tags.length > 0) {
+        setEditTags(tags);
+      } else {
+        setEditTags([]);
+      }
+      setIsEditing(true);
+    }
+  };
+ 
   // Top-level tab content
   let mainContent = null;
   if (activeTopTab === 0) {
@@ -153,59 +278,166 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
 
         <div className="w-full h-[calc(100vh-365px)] overflow-y-scroll">
           {/* Profile tab content */}
-          {activeProfileTab === 0 && (
-            <AboutTab
-              name={ticket?.username}
-              email={ticket?.email}
-              phone={ticket?.phone}
-              extention={ticket?.extensionNo}
-               internalNote={ticket?.internalNotes}
-              attribute={attribute}
-              handleAttributeChange={handleAttributeChange}
-            />
-          )}
+          {activeProfileTab === 0 && <AboutTab ticketData={ticket} />}
           {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
           {activeProfileTab === 2 && <InfoTab />}
           {activeProfileTab === 3 && <NotesTab />}
 
           {/* Organization section */}
           <div className="bg-white rounded border border-gray-200 p-2 flex flex-col">
-            <div className="flex items-center gap-2 mb-2">
-              <LocalOfferIcon className="text-gray-500" />
-              <span className="text-sm text-gray-700 font-medium">Tags</span>
-            </div>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-              {isTagListLoading ? (
-                <div>Loading...</div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="space-x-2">
+                {" "}
+                <LocalOfferIcon sx={{ fontSize: 20 }} />
+                <span className="text-sm font-medium">Tags</span>
+              </div>
+              {isUserDataLoading ? (
+                <CircularProgress size={16} />
               ) : (
-                <>
-                  {tagList?.map((item: any, tagID: any) => {
+                <div>
+                  <IconButton
+                    size="small"
+                    onClick={() => isEditing && setIsEditing(false)}
+                  >
+                    {isEditing && <Close sx={{ fontSize: 20 }} />}
+                  </IconButton>
+                  <IconButton size="small" onClick={toggleEdit}>
+                    {isEditing ? (
+                      <SaveIcon sx={{ fontSize: 20 }} />
+                    ) : (
+                      <ModeEditIcon sx={{ fontSize: 20 }} />
+                    )}
+                  </IconButton>
+                </div>
+              )}
+            </div>
+            {isEditing ? (
+              <Box sx={{ width: "100%" }}>
+                <Autocomplete
+                  multiple
+                  disableClearable
+                  popupIcon={null}
+                  getOptionLabel={(option) => {
+                    if (typeof option === "string") return option;
+                    return option.tagName || option.name || "";
+                  }}
+                  options={displayOptions}
+                  value={editTags}
+                  onChange={(event, newValue) => {
+                    handleSelectedOption(event, newValue);
+                  }}
+                  onInputChange={(_, value) => setEditChangeValue(value)}
+                  filterOptions={(x) => x}
+                  getOptionDisabled={(option) => option === "Type to search"}
+                  noOptionsText={
+                    editChangeValue.length < 3
+                      ? "Type at least 3 characters to search"
+                      : "No tags found"
+                  }
+                  renderOption={(props, option) => {
                     return (
+                      <li {...props}>
+                        {typeof option === "string" ? (
+                          option
+                        ) : (
+                          <div
+                            className="flex items-center gap-3 p-1 rounded-md w-full"
+                            style={{ cursor: "pointer" }}
+                          >
+                            <div className="flex flex-col">
+                              <Typography
+                                variant="subtitle2"
+                                sx={{ fontWeight: 600 }}
+                              >
+                                {option.tagName}
+                              </Typography>
+                            </div>
+                          </div>
+                        )}
+                      </li>
+                    );
+                  }}
+                  renderTags={(editTags, getTagProps) =>
+                    editTags?.map((option, index) => (
                       <Chip
-                        key={tagID}
-                        label={item.tagName}
-                        onDelete={() => handleDeleteTag(item.tagID)}
-                        deleteIcon={
-                          <CloseIcon
-                            sx={{
-                              transition: "color 0.2s",
-                            }}
-                          />
+                        variant="outlined"
+                        color="primary"
+                        key={index}
+                        label={
+                          typeof option === "string"
+                            ? option
+                            : option.name ?? option.tagName
                         }
+                        onDelete={() => {
+                          const newTags = editTags.filter(
+                            (_, i) => i !== index
+                          );
+                          setEditTags(newTags);
+                        }}
                         sx={{
-                          "&:hover .MuiChip-deleteIcon": {
-                            color: "error.main",
-                          },
+                          cursor: "pointer",
+                          height: "20px",
+                          color: "primary.main",
                           "& .MuiChip-deleteIcon": {
-                            fontSize: 18,
+                            color: "error.main",
+                            width: "12px",
+                          },
+                          "& .MuiChip-deleteIcon:hover": {
+                            color: "#e87f8c",
                           },
                         }}
                       />
-                    );
-                  })}
-                </>
-              )}
-            </Box>
+                    ))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      placeholder="Type at least 3 characters to search tags..."
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "4px",
+                          backgroundColor: "#f9fafb",
+                          "&:hover fieldset": { borderColor: "#9ca3af" },
+                          "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                        },
+                        "& label.Mui-focused": { color: "#1a73e8" },
+                        "& label": { fontWeight: "bold" },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            ) : (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                {tags?.map((item: any) => {
+                  return (
+                    <Chip
+                      key={item.key}
+                      label={item.name}
+                      onDelete={() => handleDeleteTag(item.key)}
+                      deleteIcon={
+                        <CloseIcon
+                          sx={{
+                            transition: "color 0.2s",
+                          }}
+                        />
+                      }
+                      sx={{
+                        "&:hover .MuiChip-deleteIcon": {
+                          color: "error.main",
+                        },
+                        "& .MuiChip-deleteIcon": {
+                          fontSize: 18,
+                        },
+                      }}
+                    />
+                  );
+                })}
+              </Box>
+            )}
           </div>
         </div>
       </div>
@@ -221,6 +453,7 @@ const TicketPropertiesSidebar = ({ ticket, onExpand, onClose }: any) => {
     mainContent = <HistoryTab />;
   }
 
+ 
   return (
     <Box
       sx={{

@@ -18,8 +18,9 @@ import SaveIcon from "@mui/icons-material/Save";
 import { useAuth } from "../../../contextApi/AuthContext";
 import {
   useCommanApiMutation,
-  useUpdateUserSocialDataMutation,
+  useUpdateUserDataMutation,
 } from "../../../services/threadsApi";
+import { useToast } from "../../../hooks/useToast";
 
 interface SharingDataType {
   id: string;
@@ -33,33 +34,30 @@ const initialSharingData: SharingDataType[] = [
     id: "fb",
     label: "Facebook",
     icon: <FacebookIcon fontSize="small" />,
-    
   },
   {
     id: "x",
     label: "Twitter",
     icon: <XIcon fontSize="small" />,
-   
   },
   {
     id: "li",
     label: "Linkedin",
     icon: <LinkedInIcon fontSize="small" />,
-  
   },
   {
     id: "ig",
     label: "Instagram",
     icon: <InstagramIcon fontSize="small" />,
-
   },
 ];
 
 const SharingTab = ({ ticketData }: any) => {
+  const { showToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [socialLinks, setSocialLinks] = useState<any>([]);
-  const [updateUserSocialData, { isLoading: isUpdating }] =
-    useUpdateUserSocialDataMutation();
+  const [updateUserData, { isLoading: isUpdating, data }] =
+    useUpdateUserDataMutation();
   const [changeUrl, setChangeUrl] = useState<Record<string, string>>({});
   //@ts-ignore
 
@@ -86,24 +84,26 @@ const SharingTab = ({ ticketData }: any) => {
   };
 
   useEffect(() => {
-    if (ticketData?.socialAccount) {
-      setSocialLinks(() => {
-        const list: any[] = [];
-        initialSharingData.forEach((item) => {
-          if (item.id in ticketData.socialAccount) {
-            list.push({ ...item, url: ticketData.socialAccount[item.id] });
-          }
-        });
-        return list;
-      });
-    }
-  }, [ticketData?.socialAccount]);
+    // Determine source: mutation data if available, otherwise ticketData
+    const source =
+      data?.type === "success" && data?.socialData
+        ? data.socialData
+        : ticketData?.socialAccount;
 
-  console.log(socialLinks);
+    if (!source) return;
+
+    const list: any[] = initialSharingData.map((item) => ({
+      ...item,
+      url: source[item.id] ?? "",
+    }));
+
+    setSocialLinks(list);
+  }, [ticketData?.socialAccount, data]);
 
   const handleSave = () => {
     const payload = {
       USERID: ticketData.userID,
+      type: "social",
       body: {
         socialData: {
           x: changeUrl.x ?? ticketData?.socialAccount?.x ?? "",
@@ -113,9 +113,16 @@ const SharingTab = ({ ticketData }: any) => {
         },
       },
     };
-    updateUserSocialData(payload)
+    updateUserData(payload)
       .then((res: any) => {
-        console.log(res);
+        if (res?.data?.success !== true) {
+          showToast(res?.data?.message || "An error occurred", "error");
+          return;
+        }
+        showToast(
+          res?.data?.message || " UserData updated successfully",
+          "success"
+        );
       })
       .catch((err: any) => {
         console.log(err);
@@ -127,15 +134,20 @@ const SharingTab = ({ ticketData }: any) => {
     <div className="bg-white rounded border border-gray-200 p-3 mb-4">
       <div className="flex items-center justify-between mb-2">
         <div className="font-semibold text-sm text-gray-700 ">Social Media</div>
-       {isUpdating ? (<CircularProgress size={16} />) : (
-         <IconButton size="small" onClick={isEditing ? handleSave : toggleEdit}>
-          {isEditing ? (
-            <SaveIcon sx={{ fontSize: 20 }} />
-          ) : (
-            <ModeEditIcon sx={{ fontSize: 20 }} />
-          )}
-        </IconButton>
-       )}
+        {isUpdating ? (
+          <CircularProgress size={16} />
+        ) : (
+          <IconButton
+            size="small"
+            onClick={isEditing ? handleSave : toggleEdit}
+          >
+            {isEditing ? (
+              <SaveIcon sx={{ fontSize: 20 }} />
+            ) : (
+              <ModeEditIcon sx={{ fontSize: 20 }} />
+            )}
+          </IconButton>
+        )}
       </div>
 
       <div>

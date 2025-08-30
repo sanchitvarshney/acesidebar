@@ -1,47 +1,74 @@
-import React, { useState } from "react";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+import React, { useEffect, useState } from "react";
+
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
-import WorkIcon from "@mui/icons-material/Work";
-import { IconButton, TextField } from "@mui/material";
+
+import { CircularProgress, IconButton, TextField } from "@mui/material";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
 import { Close } from "@mui/icons-material";
-import { useAuth } from "../../../contextApi/AuthContext";
-import { useCommanApiMutation } from "../../../services/threadsApi";
+
 import FifteenMpIcon from "@mui/icons-material/FifteenMp";
 import EditNoteIcon from "@mui/icons-material/EditNote";
+import { useUpdateUserDataMutation } from "../../../services/threadsApi";
+import { useToast } from "../../../hooks/useToast";
 
-const AboutTab = ({
-  name: initialName,
-  email: initialEmail,
-  phone: initialPhone,
-  extention: initialExtention,
+const getCharacters = (text: string) => {
+  const val = 200 - text.length;
+  if (val < 0) {
+    return 0;
+  } else {
+    return val;
+  }
+};
 
-  internalNote: initialInternalNote,
-}: any) => {
+const AboutTab = ({ ticketData }: any) => {
+  const { showToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(initialName);
-  const [email, setEmail] = useState(initialEmail);
-  const [phone, setPhone] = useState(initialPhone);
-  const [commanApi] = useCommanApiMutation();
-  const [extention, setExtention] = useState(initialExtention);
-  const [internalNote, setInternalNote] = useState(initialInternalNote);
-  //@ts-ignore
-  const userId = useAuth().user?.id || Math.floor(Math.random() * 1000);
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [extention, setExtention] = useState("");
+  const [internalNote, setInternalNote] = useState("");
+
+  const [updateUserData, { isLoading, data }] = useUpdateUserDataMutation();
+
+  useEffect(() => {
+    const source =
+      data?.type === "success" && data?.aboutData ? data.aboutData : ticketData;
+
+    if (!source) return;
+
+    setEmail(source.email ?? "");
+    setPhone(source.phone ?? "");
+    setExtention(source.extensionNo ?? source.ext ?? "");
+    setInternalNote(source.internalNotes ?? source.internal_notes ?? "");
+  }, [ticketData, data]);
 
   const handleSave = () => {
     const payload = {
-      url: `update-profile/about/${userId}`,
+      USERID: ticketData.userID,
+      type: "about",
       body: {
-        name,
         email,
         phone,
+        ext: extention,
+        internal_notes: internalNote,
       },
     };
-    commanApi(payload);
-
+    updateUserData(payload)
+      .then((res: any) => {
+        if (res?.data?.success !== true) {
+          showToast(res?.data?.message || "An error occurred", "error");
+          return;
+        }
+        showToast(
+          res?.data?.message || " UserData updated successfully",
+          "success"
+        );
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
     setIsEditing(false);
   };
 
@@ -55,24 +82,6 @@ const AboutTab = ({
 
   return (
     <>
-      <style>
-        {`
-          .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-          }
-        `}
-      </style>
       <div
         className="bg-white rounded border border-gray-200 p-3 mb-4 custom-scrollbar"
         style={{
@@ -85,19 +94,25 @@ const AboutTab = ({
         <div className="flex items-center justify-between mb-2">
           <div className="font-semibold text-sm text-gray-700 ">About</div>
           <div className="space-x-2">
-            <IconButton
-              size="small"
-              onClick={() => isEditing && setIsEditing(false)}
-            >
-              {isEditing && <Close sx={{ fontSize: 20 }} />}
-            </IconButton>
-            <IconButton size="small" onClick={toggleEdit}>
-              {isEditing ? (
-                <SaveIcon sx={{ fontSize: 20 }} />
-              ) : (
-                <ModeEditIcon sx={{ fontSize: 20 }} />
-              )}
-            </IconButton>
+            {isLoading ? (
+              <CircularProgress size={16} />
+            ) : (
+              <>
+                <IconButton
+                  size="small"
+                  onClick={() => isEditing && setIsEditing(false)}
+                >
+                  {isEditing && <Close sx={{ fontSize: 20 }} />}
+                </IconButton>
+                <IconButton size="small" onClick={toggleEdit}>
+                  {isEditing ? (
+                    <SaveIcon sx={{ fontSize: 20 }} />
+                  ) : (
+                    <ModeEditIcon sx={{ fontSize: 20 }} />
+                  )}
+                </IconButton>
+              </>
+            )}
           </div>
         </div>
 
@@ -171,13 +186,36 @@ const AboutTab = ({
           <span className="text-xs text-gray-800">Internal Note</span>
         </div>
         {isEditing ? (
-          <TextField
-            size="small"
-            fullWidth
-            value={internalNote}
-            onChange={(e) => setInternalNote(e.target.value)}
-            sx={{ mb: 2 }}
-          />
+          <div>
+            <TextField
+              size="small"
+              multiline
+              rows={2}
+              fullWidth
+              value={internalNote}
+              onChange={(e) => {
+                let value = e.target.value;
+
+                // Filter out disallowed characters (dash removed)
+                value = value.replace(
+                  /[^a-zA-Z0-9\s,\.@#&'\[\]\{\}!|\/\\\*\%\(\);]/g,
+                  ""
+                );
+
+                // Limit to 200 words
+                const words = value.trim().split(/\s+/);
+                if (words.length > 200) {
+                  value = words.slice(0, 200).join(" "); // Keep only first 200 words
+                }
+
+                setInternalNote(value);
+              }}
+              sx={{ mb: 1 }}
+            />
+            <p className="text-xs text-gray-500  text-right ">{`${
+              internalNote.length === 0 ? 500 : getCharacters(internalNote)
+            } remaining characters`}</p>
+          </div>
         ) : (
           <div className="text-xs text-gray-500 mb-2">
             {internalNote || <span className="italic">Internal Note</span>}
