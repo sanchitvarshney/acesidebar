@@ -4,6 +4,8 @@ import MainLayout from "../components/layout/MainLayout";
 import Protected from "../components/protected/Protected";
 
 import Tickets from "../USERMODULE/pages/TicketManagement/Tickets";
+import Tasks from "../USERMODULE/pages/TicketManagement/Tasks";
+import Chat from "../USERMODULE/pages/TicketManagement/Chat";
 import CreateTicketPage from "../USERMODULE/pages/TicketManagement/CreateTicketPage";
 import CreateUser from "../USERMODULE/pages/CreateUser";
 import LoginScreen from "../USERMODULE/screens/LoginScreen";
@@ -74,6 +76,14 @@ export const router = createBrowserRouter([
       {
         path: "tickets",
         element: <Tickets />,
+      },
+      {
+        path: "tasks",
+        element: <Tasks />,
+      },
+      {
+        path: "chat",
+        element: <Chat />,
       },
       {
         path: "tickets/:id",
