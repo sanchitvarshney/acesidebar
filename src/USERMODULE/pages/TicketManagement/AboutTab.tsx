@@ -61,14 +61,9 @@ const AboutTab = ({ ticketData }: any) => {
           showToast(res?.data?.message || "An error occurred", "error");
           return;
         }
-        showToast(
-          res?.data?.message || " UserData updated successfully",
-          "success"
-        );
+
       })
-      .catch((err: any) => {
-        console.log(err);
-      });
+ 
     setIsEditing(false);
   };
 

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
@@ -30,10 +29,7 @@ import ShortcutsTab from "../../components/ShortcitsTab";
 import CloseIcon from "@mui/icons-material/Close";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
-import {
-  useCommanApiMutation,
-
-} from "../../../services/threadsApi";
+import { useCommanApiMutation } from "../../../services/threadsApi";
 import { useToast } from "../../../hooks/useToast";
 
 import { useGetTagListQuery } from "../../../services/ticketAuth";
@@ -72,14 +68,14 @@ const profileTabs = [
 const TicketPropertiesSidebar = ({ ticket }: any) => {
   const { showToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
+  const { data: tagList } = useGetTagListQuery();
   const [activeTopTab, setActiveTopTab] = useState(0);
   const [activeProfileTab, setActiveProfileTab] = useState(0);
   const [tags, setTags] = useState<any>([]);
   const [editTags, setEditTags] = useState<any>([]);
   const [options, setOptions] = useState<any>([]);
   const [triggerCommanApi] = useCommanApiMutation();
-  const [triggerUpdateUserData, { isLoading: isUserDataLoading ,error}] =
+  const [triggerUpdateUserData, { isLoading: isUserDataLoading }] =
     useCommanApiMutation();
 
   const [editChangeValue, setEditChangeValue] = React.useState("");
@@ -121,23 +117,15 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
       url: `delete-tag/${credentials.ticket}/${credentials.tag}`,
       method: "DELETE",
     };
-    triggerCommanApi(payload)
-      .then((res: any) => {
-        if (res?.data?.success !== true) {
-          showToast(res?.data?.message || "An error occurred", "error");
-          return;
-        }
-        setTags((prevTags: any) =>
-          prevTags.filter((tag: any) => tag.key !== tagId)
-        );
-        showToast(
-          res?.data?.message || " Tag  Deleted successfully",
-          "success"
-        );
-      })
-      .catch((err: any) => {
-        showToast("Error deleting tag", "error");
-      });
+    triggerCommanApi(payload).then((res: any) => {
+      if (res?.data?.success !== true) {
+        showToast(res?.data?.message || "An error occurred", "error");
+        return;
+      }
+      setTags((prevTags: any) =>
+        prevTags.filter((tag: any) => tag.key !== tagId)
+      );
+    });
   };
 
   const handleTopTabChange = (
@@ -160,8 +148,9 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
       tags: editTags,
     };
     const payload = {
-      url: `add-tag/${credentials.ticket}`,
+      url: `add-tag`,
       body: {
+        ticket: credentials.ticket,
         tags: credentials.tags,
       },
     };
@@ -216,7 +205,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
       setIsEditing(true);
     }
   };
- 
+
   // Top-level tab content
   let mainContent = null;
   if (activeTopTab === 0) {
@@ -281,7 +270,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           {activeProfileTab === 0 && <AboutTab ticketData={ticket} />}
           {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
           {activeProfileTab === 2 && <InfoTab />}
-          {activeProfileTab === 3 && <NotesTab />}
+          {activeProfileTab === 3 && <NotesTab ticketData={ticket} />}
 
           {/* Organization section */}
           <div className="bg-white rounded border border-gray-200 p-2 flex flex-col">
@@ -453,7 +442,6 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
     mainContent = <HistoryTab />;
   }
 
- 
   return (
     <Box
       sx={{

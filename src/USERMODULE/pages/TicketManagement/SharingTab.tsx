@@ -113,20 +113,13 @@ const SharingTab = ({ ticketData }: any) => {
         },
       },
     };
-    updateUserData(payload)
-      .then((res: any) => {
-        if (res?.data?.success !== true) {
-          showToast(res?.data?.message || "An error occurred", "error");
-          return;
-        }
-        showToast(
-          res?.data?.message || " UserData updated successfully",
-          "success"
-        );
-      })
-      .catch((err: any) => {
-        console.log(err);
-      });
+    updateUserData(payload).then((res: any) => {
+      if (res?.data?.success !== true) {
+        showToast(res?.data?.message || "An error occurred", "error");
+        return;
+      }
+    });
+
     setIsEditing(false);
   };
 

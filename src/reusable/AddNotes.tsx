@@ -2,10 +2,10 @@
 import React from "react";
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
-
+import { useParams } from "react-router-dom";
 
 const getCharacters = (text: string) => {
-  const val = 500 - text.length;
+  const val = 100 - text.length;
   if (val < 0) {
     return 0;
   } else {
@@ -13,7 +13,8 @@ const getCharacters = (text: string) => {
   }
 };
 const AddNotes = ({ label = "Write your note here", rows = 4, ...props }) => {
-  const { inputText,note,onCancel,handleSave, } = props;
+  const { inputText, note, onCancel, handleSave } = props;
+
   return (
     <>
       <TextField
@@ -33,10 +34,6 @@ const AddNotes = ({ label = "Write your note here", rows = 4, ...props }) => {
             "&:hover fieldset": {
               borderColor: "#ccc", // border color on hover
             },
-            "&.Mui-focused fieldset": {
-              borderColor: "#000", // border color on focus
-              // backgroundColor: "#fff",
-            },
           },
           "& .MuiInputLabel-root": {
             fontStyle: "italic",
@@ -54,17 +51,17 @@ const AddNotes = ({ label = "Write your note here", rows = 4, ...props }) => {
         {...props}
       />
       <p className="text-xs text-gray-500  text-right my-3">{`${
-        note.length === 0 ? 500 : getCharacters(note)
+        note.length === 0 ? 100 : getCharacters(note)
       } remaining characters`}</p>
       <div className="flex justify-end gap-2 mt-2">
-        <Button
-          variant="contained"
-          color="inherit"
-          onClick={onCancel}
-        >
+        <Button variant="contained" color="inherit" onClick={onCancel}>
           Cancel
         </Button>
-        <Button variant="contained" sx={{bgcolor:"#1a73e8", color:"white"}} onClick={handleSave}>
+        <Button
+          variant="contained"
+          sx={{ bgcolor: "#1a73e8", color: "white" }}
+          onClick={handleSave}
+        >
           Save
         </Button>
       </div>

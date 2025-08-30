@@ -3,23 +3,22 @@ import React from "react";
 import StyledTextField from "../../../reusable/AddNotes";
 import NotesItem from "../../../reusable/NotesItem";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
-import { useAuth } from "../../../contextApi/AuthContext";
-import {
+import { useCommanApiMutation } from "../../../services/threadsApi";
+import { useToast } from "../../../hooks/useToast";
 
-  useCommanApiMutation,
-} from "../../../services/threadsApi";
-
-const NotesTab = () => {
-  const { user } = useAuth();
+const NotesTab = ({ ticketData }: any) => {
+  const { showToast } = useToast();
   const [isNotes, setIsNotes] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [note, setNote] = React.useState("");
   const [noteList, setNoteList] = React.useState<any[]>([]);
   const [editNoteId, setEditNoteId] = React.useState<number | null>(null);
-  const [commanApi] = useCommanApiMutation();
+  const [triggerAddNote] = useCommanApiMutation();
+  const [triggerdeleteNote, { isLoading: isDeletingNote }] =
+    useCommanApiMutation();
 
   const handleInputText = (text: string) => {
-    if (text.length <= 500) {
+    if (text.length <= 100) {
       setNote(text);
     }
   };
@@ -34,10 +33,9 @@ const NotesTab = () => {
             note: note, // Updated text entered by the use
           },
         };
-        commanApi(payloadUpdate)
-          .then((res) => {})
-          .catch((err) => {});
-   
+        // commanApi(payloadUpdate)
+        //   .then((res) => {})
+        //   .catch((err) => {});
 
         setNoteList((prev) =>
           prev.map((item) =>
@@ -49,35 +47,19 @@ const NotesTab = () => {
         setIsEdit(false);
       } else {
         const payload = {
-          url: "add-note",
+          url: "internal-note",
           body: {
-            //@ts-ignore
-            userId: user?.id,
+            ticket: ticketData?.ticketId,
             note,
           },
         };
         // Create new note
-        commanApi(payload)
-          .then((res) => {})
-          .catch((err) => {});
-        // const response = await fetch("/api/notes", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(payload),
-        // });
-
-        // const result = await response.json();
-
-        // setNoteList((prev) => [
-        //   ...prev,
-        //   {
-        //     id: result.id ?? Date.now(), // use API id if available
-        //     note,
-        //     createdBy: "Current User",
-        //     createdAt: new Date().toLocaleString(),
-        //     userId: payload.userId,
-        //   },
-        // ]);
+        triggerAddNote(payload).then((res) => {
+          if (res?.data?.success !== true) {
+            showToast(res?.data?.message || "An error occurred", "error");
+            return;
+          }
+        });
       }
     } catch (err) {
       console.error("Error saving note:", err);
@@ -88,7 +70,21 @@ const NotesTab = () => {
   };
 
   const handleDelete = (id: number) => {
-    setNoteList((prev) => prev.filter((item) => item.id !== id));
+    const values = {
+      note: id,
+      ticket: ticketData?.ticketId,
+    };
+    const payload = {
+      url: `internal-note/${values.note}/${values.ticket}`,
+      method: "DELETE",
+    };
+    triggerdeleteNote(payload).then((res) => {
+      if (res?.data?.success !== true) {
+        showToast(res?.data?.message || "An error occurred", "error");
+        return;
+      }
+      
+    });
   };
 
   const handleEdit = (id: number) => {
@@ -121,7 +117,7 @@ const NotesTab = () => {
         />
       )}
 
-      {noteList.length > 0 ? (
+      {ticketData?.notes.length > 0 ? (
         <div className="mb-0">
           {!isNotes && (
             <div className="flex items-center justify-end mb-2">
@@ -133,12 +129,12 @@ const NotesTab = () => {
               </span>
             </div>
           )}
-          {noteList.map((item) => (
+          {ticketData?.notes.map((item: any) => (
             <NotesItem
-              key={item.id} // ✅ Added key
+              key={item.key} // ✅ Added key
               data={item}
-              handleDelete={() => handleDelete(item.id)}
-              handleEdit={() => handleEdit(item.id)}
+              handleDelete={() => handleDelete(item.key)}
+              handleEdit={() => handleEdit(item.key)}
               isEdit={isEdit}
               handleSave={handleSave}
               note={note}

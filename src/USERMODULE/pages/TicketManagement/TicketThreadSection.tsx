@@ -37,13 +37,13 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-// import ShortCutPopover from "../../../components/shared/ShortCutPopover";
+
 import ShotCutContent from "../../components/ShotCutContent";
 import ShortcutIcon from "@mui/icons-material/Shortcut";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reduxStore/Store";
 import ImageViewComponent from "../../components/ImageViewComponent";
-import { useAuth } from "../../../contextApi/AuthContext";
+
 import {
   setForwardData,
   setReplyValue,
@@ -52,6 +52,7 @@ import CustomModal from "../../../components/layout/CustomModal";
 import {
   useCommanApiMutation,
   useGetAttacedFileQuery,
+  useGetShortCutListQuery,
 } from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import { v4 as uuidv4 } from "uuid";
@@ -569,6 +570,8 @@ const TicketThreadSection = ({
   const [shouldFocusNotify, setShouldFocusNotify] = useState(false);
   const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
   const [notifyTag, setNotifyTag] = useState([]);
+  const { data: shortcutList, isLoading: shortcutLoading } =
+    useGetShortCutListQuery({ refetchOnMountOrArgChange: true });
   const [attachedFile, { isLoading: attachedLoading }] =
     useAttachedFileMutation();
 
@@ -603,7 +606,7 @@ const TicketThreadSection = ({
 
   // Function to check if current content has a signature
   const hasSignature = (content: string) => {
-    return content.includes("Best regards,") && selectedOptionValue !== "1";
+    return content?.includes("Best regards,") && selectedOptionValue !== "1";
   };
 
   // Function to get current signature name
@@ -1288,9 +1291,9 @@ const TicketThreadSection = ({
             overflow: "auto",
           }}
         >
-          {shotcutData?.length > 0 ? (
+          {shortcutList?.length > 0 ? (
             <>
-              {(shotcutData ?? [])?.map((item: any) => (
+              {(shortcutList ?? [])?.map((item: any) => (
                 <ListItem
                   key={item.id}
                   disablePadding
@@ -1313,7 +1316,7 @@ const TicketThreadSection = ({
                           mb: 0.5,
                         }}
                       >
-                        {item.shortcutName}
+                        {item.contentValue}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -1323,18 +1326,16 @@ const TicketThreadSection = ({
                           lineHeight: 1.4,
                         }}
                       >
-                        {item.message}
+                        {item.description}
                       </Typography>
                     </Box>
 
                     <Box display="flex" gap={1}>
                       <IconButton
                         size="small"
-                        onClick={(e) => {
+                        onClick={() => {
                           dispatch(
-                            setReplyValue(
-                              (prev: any) => prev + ` ${item.message}`
-                            )
+                            setReplyValue(replyValue + item.description)
                           );
                         }}
                       >
