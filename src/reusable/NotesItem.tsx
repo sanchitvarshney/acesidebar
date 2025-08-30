@@ -29,41 +29,44 @@ const NoteItem: FC<NoteItemProps> = ({
 }) => {
   return (
     <Paper
-      elevation={0}
-         sx={{
-          mt:1,
-          mb:2,
-          p:1,
-          "&:hover": {
-            cursor: "pointer",
-            backgroundColor: "#ccc",
-          },
-        }}
+      elevation={1}
+      sx={{
+        mt: 1,
+        mb: 2,
+        p: 1,
+        boxShadow: "0px 2px 5px 1px rgba(0, 0, 0, 0.1)",
+        "&:hover": {
+          cursor: "pointer",
+          backgroundColor: "#f8f8f8ff",
+          
+        },
+      }}
     >
       {/* Header Section */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={0.5}
-    
-      >
-        <Typography variant="caption" sx={{ color: "#000" }}>
-          {data?.createdBy}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          {data?.createdAt}
+      <Box display="flex" alignItems="center" mb={0.5}>
+        {/* Content Section */}
+        <Typography variant="body2" sx={{ mb: 0.5 }}>
+          {data?.name}
         </Typography>
       </Box>
+      <div className="flex flex-col">
+        <Typography variant="subtitle2" sx={{ color: "#000", fontSize: 10 }}>
+          {data?.createBy}
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          color="text.secondary"
+          sx={{ fontSize: 11 }}
+        >
+          {data?.creatDt.timeStamp}
+          <br />({data?.creatDt.ago})
+        </Typography>
+      </div>
 
-      {/* Content Section */}
-      <Typography variant="body2" sx={{ mb: 0.5 }}>
-        {data?.note}
-      </Typography>
-      {isEdit && editNoteId === data.id && (
+      {isEdit && editNoteId === data.key && (
         <AddNotes
           inputText={inputText}
-          note={note}
+          note={data?.name}
           onCancel={onEdit}
           handleSave={handleSave}
         />

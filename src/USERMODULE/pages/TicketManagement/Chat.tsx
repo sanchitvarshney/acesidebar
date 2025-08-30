@@ -552,7 +552,7 @@ const Chat: React.FC = () => {
                         inputProps={{ maxLength: 200 }}
                         onChange={(e) => {
                           const raw = e.target.value || '';
-                          const allowed = raw.replace(/[^A-Za-z0-9\s\n,\.@#'\[\]\{\}\|\/\\!&\*%\(\);]/g, '');
+                         const allowed = raw.replace(/[^A-Za-z0-9\s\n,.@#'\[\]\{\}\|\/\\!&\*%\(\);]/g, '');
                           setNewChatMessage(allowed);
                         }}
                       />

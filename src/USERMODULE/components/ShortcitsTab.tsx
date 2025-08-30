@@ -13,6 +13,7 @@ import {
   Typography,
   Alert,
   Snackbar,
+  CircularProgress,
 } from "@mui/material";
 import CustomSearch from "../../components/common/CustomSearch";
 import { useEffect, useState } from "react";
@@ -24,7 +25,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { setShotcuts } from "../../reduxStore/Slices/shotcutSlices";
 import emptyimg from "../../assets/image/overview-empty-state.svg";
 import LoadingCheck from "../../components/reusable/LoadingCheck";
-import { useCommanApiMutation } from "../../services/threadsApi";
+import {
+  useCommanApiMutation,
+  useGetShortCutListQuery,
+} from "../../services/threadsApi";
 
 const elementValue = [
   {
@@ -61,6 +65,8 @@ const ShortcutsTab = () => {
   const [loading, setLoading] = useState(false);
 
   const [commanApi, { isLoading }] = useCommanApiMutation();
+  const { data: shortcutList, isLoading: shortcutLoading } =
+    useGetShortCutListQuery({ refetchOnMountOrArgChange: true });
 
   const handleChangeValue = (event: any) => {
     setSelectedElement((prev: any) => {
@@ -162,6 +168,10 @@ const ShortcutsTab = () => {
       setLoading(false);
     }, 1000);
   }, [loading]);
+
+  if (shortcutLoading) {
+    return <div className="flex justify-center items-center h-full"><CircularProgress size={30} /></div>;
+  }
 
   return (
     <div className="p-2 w-full">
@@ -304,9 +314,9 @@ const ShortcutsTab = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-3 my-2">
-            {shotcutData?.length > 0 ? (
+            {shortcutList?.length > 0 ? (
               <>
-                {(shotcutData ?? [])?.map((item: any) => (
+                {(shortcutList ?? [])?.map((item: any) => (
                   <ListItem
                     key={item.id}
                     disablePadding
@@ -334,7 +344,7 @@ const ShortcutsTab = () => {
                             mb: 0.5,
                           }}
                         >
-                          {item.shortcutName}
+                          {item.contentValue}
                         </Typography>
                         <Typography
                           variant="body2"
@@ -344,7 +354,7 @@ const ShortcutsTab = () => {
                             lineHeight: 1.4,
                           }}
                         >
-                          {item.message}
+                          {item.description}
                         </Typography>
                         {item.elements && item.elements.length > 0 && (
                           <Box mt={1}>

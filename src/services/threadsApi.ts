@@ -21,18 +21,26 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials.body,
       }),
     }),
-       updateUserSocialData: builder.mutation({
+    updateUserData: builder.mutation({
       query: (credentials) => ({
-        url: `/user/edit/${credentials.USERID}?type=social`,
+        url: `/user/edit/${credentials.USERID}?type=${credentials.type}`,
         method: "PUT",
         body: credentials.body,
       }),
     }),
+
     getAttacedFile: builder.query({
       query: (credentials) => ({
         url: `/ticket/staff/tickets/${credentials.ticketId}/attachments`,
         method: "GET",
       }),
+    }),
+    getShortCutList: builder.query({
+      query: () => ({
+        url: `/shortcut/list`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
     }),
   }),
   overrideExisting: false,
@@ -42,5 +50,6 @@ export const {
   useTicketStatusChangeMutation,
   useGetAttacedFileQuery,
   useCommanApiMutation,
-  useUpdateUserSocialDataMutation
+  useUpdateUserDataMutation,
+  useGetShortCutListQuery
 } = extendedTicketApi;

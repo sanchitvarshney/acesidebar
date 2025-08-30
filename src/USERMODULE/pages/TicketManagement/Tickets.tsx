@@ -11,14 +11,11 @@ import {
   useGetTicketListSortingQuery,
   useGetTicketSortingOptionsQuery,
 } from "../../../services/ticketAuth";
-import { useToast } from "../../../hooks/useToast";
-
 import TicketSkeleton from "../../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CallMergeIcon from "@mui/icons-material/CallMerge";
-import BlockIcon from "@mui/icons-material/Block";
 import CustomDropdown from "../../../components/shared/CustomDropdown";
 import PersonIcon from "@mui/icons-material/Person";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
@@ -27,10 +24,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import TicketSubjectPopover from "../../../components/shared/TicketSubjectPopover";
 import TicketSortingPopover from "../../../components/shared/TicketSortingPopover";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import TicketDetailTemplate from "./TicketDetailTemplate";
-import { useGetTicketDetailStaffViewQuery } from "../../../services/ticketDetailAuth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
 import { useParams, useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 
@@ -40,7 +34,6 @@ import {
 } from "../../../services/threadsApi";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 import AssignTicket from "../../components/AssignTicket";
-import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import Mergeticket from "../../components/Mergeticket";
 
 // Priority/Status/Agent dropdown options
@@ -55,11 +48,9 @@ const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
 const Tickets: React.FC = () => {
   const navigate = useNavigate();
-  // Page-based navigation now handled via router; keep default UI static
   const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
   const [ticketDropdowns, setTicketDropdowns] = useState<
@@ -82,16 +73,8 @@ const Tickets: React.FC = () => {
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<null | HTMLElement>(
     null
   );
-
   const [popoverHovered, setPopoverHovered] = useState(false);
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
-
-  const [userPopoverAnchorEl, setUserPopoverAnchorEl] =
-    useState<null | HTMLElement>(null);
-  const [userPopoverHovered, setUserPopoverHovered] = useState(false);
-  const userPopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
-  const [userPopoverUser, setUserPopoverUser] = useState<any>(null);
-
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [isMergeModal, setIsMergeModal] = useState(false);
 
@@ -114,16 +97,12 @@ const Tickets: React.FC = () => {
   const [commanApi] = useCommanApiMutation();
 
   // Fetch live priority list
-  const { data: priorityList, isLoading: isPriorityListLoading } =
+  const { data: priorityList } =
     useGetPriorityListQuery();
 
   // Fetch sorting options
-  const { data: sortingOptions, isLoading: isSortingOptionsLoading } =
+  const { data: sortingOptions} =
     useGetTicketSortingOptionsQuery();
-
-  // const [closeTicket] = useCloseTicketMutation();
-
-  const optionsRef = React.useRef(null);
 
   // Map API priorities to dropdown options
   const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
@@ -170,18 +149,14 @@ const Tickets: React.FC = () => {
   };
   const {
     data: ticketList,
-    isLoading: isTicketListLoading,
     isFetching: isTicketListFetching,
-    refetch,
   } = useGetTicketListQuery(getApiParams());
   const sortingParams = sortType
     ? { type: sortType, order: sortOrder, page, limit }
     : undefined;
   const {
     data: sortedTicketList,
-    isLoading: isSortedTicketListLoading,
     isFetching: isSortedTicketListFetching,
-    refetch: refetchSorted,
   } = useGetTicketListSortingQuery(
     sortingParams as {
       type: string;
@@ -191,11 +166,8 @@ const Tickets: React.FC = () => {
     },
     { skip: !sortType }
   );
-  const { showToast } = useToast();
+
   const ticketsToShow = sortType ? sortedTicketList : ticketList;
-  const isTicketsLoading = sortType
-    ? isSortedTicketListLoading
-    : isTicketListLoading;
   const isTicketsFetching = sortType
     ? isSortedTicketListFetching
     : isTicketListFetching;
@@ -236,18 +208,6 @@ const Tickets: React.FC = () => {
     );
   }, [selectedTickets, ticketList]);
 
-  const handlePopoverOpen = (
-    event: React.MouseEvent<HTMLElement>,
-    ticket: any
-  ) => {
-    if (closePopoverTimer.current) {
-      clearTimeout(closePopoverTimer.current);
-      closePopoverTimer.current = null;
-    }
-    setPopoverAnchorEl(event.currentTarget as HTMLElement);
-    setPopoverHovered(true);
-  };
-
   const handlePopoverClose = () => {
     setPopoverAnchorEl(null);
     setPopoverHovered(false);
@@ -265,38 +225,6 @@ const Tickets: React.FC = () => {
     closePopoverTimer.current = setTimeout(() => {
       setPopoverHovered(false);
       setPopoverAnchorEl(null);
-    }, 200);
-  };
-
-  const handleUserPopoverOpen = (
-    event: React.MouseEvent<HTMLElement>,
-    user: any
-  ) => {
-    if (userPopoverTimer.current) {
-      clearTimeout(userPopoverTimer.current);
-      userPopoverTimer.current = null;
-    }
-    setUserPopoverAnchorEl(event.currentTarget as HTMLElement);
-    setUserPopoverUser(user);
-    setUserPopoverHovered(true);
-  };
-  const handleUserPopoverClose = () => {
-    setUserPopoverAnchorEl(null);
-    setUserPopoverUser(null);
-    setUserPopoverHovered(false);
-  };
-  const handleUserPopoverEnter = () => {
-    if (userPopoverTimer.current) {
-      clearTimeout(userPopoverTimer.current);
-      userPopoverTimer.current = null;
-    }
-    setUserPopoverHovered(true);
-  };
-  const handleUserPopoverLeave = () => {
-    userPopoverTimer.current = setTimeout(() => {
-      setUserPopoverHovered(false);
-      setUserPopoverAnchorEl(null);
-      setUserPopoverUser(null);
     }, 200);
   };
 
@@ -348,7 +276,6 @@ const Tickets: React.FC = () => {
   };
 
   // When closing a ticket, go back to /tickets
- 
 
   // On mount, if there is an id param, open that ticket
   React.useEffect(() => {
@@ -414,8 +341,6 @@ const Tickets: React.FC = () => {
     //   [ticket.ticketNumber]: { ...dropdownState, priority: value },
     // }));
   };
-
-
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
@@ -680,115 +605,112 @@ const Tickets: React.FC = () => {
       ) : openTicketNumber && ticketDetailData ? (
         <TicketDetailTemplate ticket={ticketDetailData} onBack={handleBack} />
       ) : ( */}
-        <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
-          {/* Main Header Bar */}
-          <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-#f0f4f9">
-            {/* Left: Title, master checkbox, count, and action buttons (inline) */}
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <Checkbox
-                checked={masterChecked}
-                onChange={handleMasterCheckbox}
-                aria-label="Select all tickets"
-                sx={{
-                  mr: 1,
-                  color: "#666",
-                  "&.Mui-checked": {
-                    color: "#1a73e8",
-                  },
-                  "&:hover": {
-                    backgroundColor: "rgba(26, 115, 232, 0.04)",
-                  },
-                }}
-              />
-              <span className="text-xl font-semibold whitespace-nowrap">
-                All tickets
-              </span>
-              <span className="bg-[#f0f4f9] text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">
-                {ticketList?.data?.length}
-              </span>
-              {selectedTickets.length > 0 && (
-                <div className="flex items-center gap-2 ml-4 flex-wrap">
-                  <Button
-                    id="assign-button"
-                    variant="contained"
-                    size="small"
-                    color="inherit"
-                    aria-controls={openAssign ? "basic-menu" : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={openAssign ? "true" : undefined}
-                    onClick={handleAssignClick}
-                    startIcon={
-                      <PersonAddAltIcon
-                        fontSize="small"
-                        sx={{ color: "#1a73e8" }}
-                      />
-                    }
-                    sx={{
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Assign
-                  </Button>
+      <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
+        {/* Main Header Bar */}
+        <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-#f0f4f9">
+          {/* Left: Title, master checkbox, count, and action buttons (inline) */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Checkbox
+              checked={masterChecked}
+              onChange={handleMasterCheckbox}
+              aria-label="Select all tickets"
+              sx={{
+                mr: 1,
+                color: "#666",
+                "&.Mui-checked": {
+                  color: "#1a73e8",
+                },
+                "&:hover": {
+                  backgroundColor: "rgba(26, 115, 232, 0.04)",
+                },
+              }}
+            />
+            <span className="text-xl font-semibold whitespace-nowrap">
+              All tickets
+            </span>
+            <span className="bg-[#f0f4f9] text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">
+              {ticketList?.data?.length}
+            </span>
+            {selectedTickets.length > 0 && (
+              <div className="flex items-center gap-2 ml-4 flex-wrap">
+                <Button
+                  id="assign-button"
+                  variant="contained"
+                  size="small"
+                  color="inherit"
+                  aria-controls={openAssign ? "basic-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={openAssign ? "true" : undefined}
+                  onClick={handleAssignClick}
+                  startIcon={
+                    <PersonAddAltIcon
+                      fontSize="small"
+                      sx={{ color: "#1a73e8" }}
+                    />
+                  }
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  Assign
+                </Button>
 
-                  <AssignTicket
-                    close={handleAssignClose}
-                    open={openAssign}
-                    anchorEl={anchorEl}
-                    selectedTickets={selectedTickets}
-                  />
+                <AssignTicket
+                  close={handleAssignClose}
+                  open={openAssign}
+                  anchorEl={anchorEl}
+                  selectedTickets={selectedTickets}
+                />
 
-                  <Button
-                    variant="contained"
-                    color="inherit"
-                    size="small"
-                    startIcon={
-                      <CheckCircleIcon
-                        fontSize="small"
-                        sx={{ color: "#43a047" }}
-                      />
-                    }
-                    sx={{
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                    onClick={() => setIsCloseModal(true)}
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="inherit"
-                    size="small"
-                    startIcon={
-                      <CallMergeIcon
-                        fontSize="small"
-                        sx={{ color: "#ff9800" }}
-                      />
-                    }
-                    sx={{
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                    onClick={() => setIsMergeModal(true)}
-                  >
-                    Merge
-                  </Button>
-                  <Mergeticket
-                    open={isMergeModal}
-                    initialPrimary={{
-                      id: "T-1001",
-                      title: "Unable to login to portal",
-                      group: "Support",
-                      agent: "John Doe",
-                      closedAgo: "2 days ago",
-                      resolvedOnTime: true,
-                      isPrimary: true, // this is your main ticket
-                    }}
-                    onClose={() => setIsMergeModal(false)}
-                  />
+                <Button
+                  variant="contained"
+                  color="inherit"
+                  size="small"
+                  startIcon={
+                    <CheckCircleIcon
+                      fontSize="small"
+                      sx={{ color: "#43a047" }}
+                    />
+                  }
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                  onClick={() => setIsCloseModal(true)}
+                >
+                  Close
+                </Button>
+                <Button
+                  variant="contained"
+                  color="inherit"
+                  size="small"
+                  startIcon={
+                    <CallMergeIcon fontSize="small" sx={{ color: "#ff9800" }} />
+                  }
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                  onClick={() => setIsMergeModal(true)}
+                >
+                  Merge
+                </Button>
+                <Mergeticket
+                  open={isMergeModal}
+                  initialPrimary={{
+                    id: "T-1001",
+                    title: "Unable to login to portal",
+                    group: "Support",
+                    agent: "John Doe",
+                    closedAgo: "2 days ago",
+                    resolvedOnTime: true,
+                    isPrimary: true, // this is your main ticket
+                  }}
+                  onClose={() => setIsMergeModal(false)}
+                />
 
-                  {/* <Button
+                {/* <Button
                     variant="contained"
                     size="small"
                     color="inherit"
@@ -802,129 +724,129 @@ const Tickets: React.FC = () => {
                   >
                     Spam
                   </Button> */}
-                  <Button
-                    variant="contained"
-                    size="small"
-                    color="inherit"
-                    startIcon={
-                      <DeleteIcon fontSize="small" sx={{ color: "#d32f2f" }} />
-                    }
-                    sx={{
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                    onClick={() => setIsDeleteModal(true)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              )}
-              {selectedTickets.length === 0 && (
-                <div className="flex items-center gap-2 ml-4">
-                  <Button
-                    variant="contained"
-                    size="small"
-                    color="inherit"
-                    onClick={handleSortingPopoverOpen}
-                    endIcon={<FilterAltOutlinedIcon fontSize="small" />}
-                    sx={{
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {sortBy}
-                  </Button>
-
-                  <TicketSortingPopover
-                    anchorEl={sortingPopoverAnchorEl}
-                    open={sortingPopoverOpen}
-                    onClose={handleSortingPopoverClose}
-                    fields={sortingOptions?.sort?.type || []}
-                    modes={sortingOptions?.sort?.mode || []}
-                    selectedField={sortType || ""}
-                    selectedMode={sortOrder}
-                    onFieldChange={handleFieldChange}
-                    onModeChange={handleModeChange}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Right: Controls */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Pagination */}
-              {ticketList?.pagination && (
-                <TablePagination
-                  component="div"
-                  count={ticketList.pagination.total}
-                  page={page - 1}
-                  onPageChange={(_, newPage) => setPage(newPage + 1)}
-                  rowsPerPage={limit}
-                  onRowsPerPageChange={(e) => {
-                    setLimit(parseInt(e.target.value, 10));
-                    setPage(1);
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="inherit"
+                  startIcon={
+                    <DeleteIcon fontSize="small" sx={{ color: "#d32f2f" }} />
+                  }
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
                   }}
-                  rowsPerPageOptions={[10, 20, 30, 50, 100]}
-                  labelRowsPerPage=""
+                  onClick={() => setIsDeleteModal(true)}
+                >
+                  Delete
+                </Button>
+              </div>
+            )}
+            {selectedTickets.length === 0 && (
+              <div className="flex items-center gap-2 ml-4">
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="inherit"
+                  onClick={handleSortingPopoverOpen}
+                  endIcon={<FilterAltOutlinedIcon fontSize="small" />}
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  {sortBy}
+                </Button>
+
+                <TicketSortingPopover
+                  anchorEl={sortingPopoverAnchorEl}
+                  open={sortingPopoverOpen}
+                  onClose={handleSortingPopoverClose}
+                  fields={sortingOptions?.sort?.type || []}
+                  modes={sortingOptions?.sort?.mode || []}
+                  selectedField={sortType || ""}
+                  selectedMode={sortOrder}
+                  onFieldChange={handleFieldChange}
+                  onModeChange={handleModeChange}
                 />
-              )}
-              {/* + New Button */}
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => navigate("/create-ticket")}
-                sx={{
-                  textTransform: "none",
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  backgroundColor: "#1976d2",
-                  "&:hover": {
-                    backgroundColor: "#1565c0",
-                  },
-                }}
-              >
-                + New
-              </Button>
-              {/* Filters Icon Button */}
-              <Button
-                variant="contained"
-                color="inherit"
-                size="small"
-                onClick={() => setFiltersOpen((prev) => !prev)}
-                startIcon={<FilterListIcon fontSize="small" />}
-                aria-label="Toggle Filters"
-              >
-                Filters
-              </Button>
-            </div>
-          </div>
-          {/* Main Content: Tickets + Filters */}
-          <div className="flex flex-1 h-0 min-h-0">
-            <LeftMenu />
-            <div className="flex-1 p-2 h-full overflow-y-auto bg-[#fafafa]">
-              {isTicketsFetching ? (
-                <TicketSkeleton />
-              ) : (
-                <div>
-                  {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
-                    ticketsToShow?.data?.map(renderTicketCard)
-                  ) : (
-                    <div className="text-gray-400 text-center py-8">
-                      No tickets found.
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            {filtersOpen && (
-              <div className="w-80 min-w-[300px] border-l bg-white flex flex-col h-full">
-                <div className="flex-1 overflow-y-auto h-full">
-                  <TicketFilterPanel onApplyFilters={handleApplyFilters} />
-                </div>
               </div>
             )}
           </div>
+
+          {/* Right: Controls */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Pagination */}
+            {ticketList?.pagination && (
+              <TablePagination
+                component="div"
+                count={ticketList.pagination.total}
+                page={page - 1}
+                onPageChange={(_, newPage) => setPage(newPage + 1)}
+                rowsPerPage={limit}
+                onRowsPerPageChange={(e) => {
+                  setLimit(parseInt(e.target.value, 10));
+                  setPage(1);
+                }}
+                rowsPerPageOptions={[10, 20, 30, 50, 100]}
+                labelRowsPerPage=""
+              />
+            )}
+            {/* + New Button */}
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => navigate("/create-ticket")}
+              sx={{
+                textTransform: "none",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                backgroundColor: "#1976d2",
+                "&:hover": {
+                  backgroundColor: "#1565c0",
+                },
+              }}
+            >
+              + New
+            </Button>
+            {/* Filters Icon Button */}
+            <Button
+              variant="contained"
+              color="inherit"
+              size="small"
+              onClick={() => setFiltersOpen((prev) => !prev)}
+              startIcon={<FilterListIcon fontSize="small" />}
+              aria-label="Toggle Filters"
+            >
+              Filters
+            </Button>
+          </div>
         </div>
+        {/* Main Content: Tickets + Filters */}
+        <div className="flex flex-1 h-0 min-h-0">
+          <LeftMenu />
+          <div className="flex-1 p-2 h-full overflow-y-auto bg-[#fafafa]">
+            {isTicketsFetching ? (
+              <TicketSkeleton />
+            ) : (
+              <div>
+                {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
+                  ticketsToShow?.data?.map(renderTicketCard)
+                ) : (
+                  <div className="text-gray-400 text-center py-8">
+                    No tickets found.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          {filtersOpen && (
+            <div className="w-80 min-w-[300px] border-l bg-white flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto h-full">
+                <TicketFilterPanel onApplyFilters={handleApplyFilters} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
       {/* )} */}
 
       {/* User Hover Popup */}
