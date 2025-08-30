@@ -75,7 +75,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
   const [editTags, setEditTags] = useState<any>([]);
   const [options, setOptions] = useState<any>([]);
   const [triggerCommanApi] = useCommanApiMutation();
-  const [triggerUpdateUserData, { isLoading: isUserDataLoading }] =
+  const [triggerUpdateUserData, { isLoading: isUserDataLoading, isSuccess }] =
     useCommanApiMutation();
 
   const [editChangeValue, setEditChangeValue] = React.useState("");
@@ -102,7 +102,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
   useEffect(() => {
     if (!ticket) return;
     setTags(ticket?.tags);
-  }, [ticket]);
+  }, [ticket,isSuccess]);
 
   const handleDeleteTag = (tagId: number) => {
     if (!tagId || !ticket?.ticketId) {
@@ -160,39 +160,34 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           showToast(res?.data?.message || "An error occurred", "error");
           return;
         }
-        showToast(
-          res?.data?.message || " UserData updated successfully",
-          "success"
-        );
+        // updatetag after save
+ 
       })
-      .catch((err: any) => {
-        console.log(err);
-      });
+     
     setIsEditing(false);
   };
 
   const handleSelectedOption = (_: any, newValue: any) => {
     if (!Array.isArray(newValue)) return;
 
-    // Find the newly added tag by comparing with previous state
+    // Normalize keys: ensure each item has tagId (not tagID)
+    const normalizedNewValue = newValue.map((tag: any) => ({
+      tagId: tag.tagId ?? tag.tagID,
+      tagName: tag.tagName,
+    }));
+
+    // Find the newly added tag
     const previousTagIds = editTags.map((tag: any) => tag.tagId);
-    const newlyAddedTag = newValue.find(
+    const newlyAddedTag = normalizedNewValue.find(
       (tag: any) => !previousTagIds.includes(tag.tagId)
     );
 
-    
-
     if (newlyAddedTag) {
-      const newTagData = {
-        tagId: newlyAddedTag.tagID,
-        tagName: newlyAddedTag.tagName,
-      };
-   
-     
-      setEditTags((prev: any) => [...prev, newTagData]);
+      // Add newly added tag
+      setEditTags((prev: any) => [...prev, newlyAddedTag]);
     } else {
-      // If no new tag found, just update the state (for deletions)
-      setEditTags(newValue);
+      // If no new tag found, just update the state (e.g., after deletion)
+      setEditTags(normalizedNewValue);
     }
   };
 
