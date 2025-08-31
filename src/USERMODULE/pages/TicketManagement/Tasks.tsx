@@ -42,6 +42,8 @@ import {
   Save as SaveIcon,
   Refresh as RefreshIcon
 } from "@mui/icons-material";
+import SortIcon from '@mui/icons-material/Sort';
+
 import DownloadIcon from '@mui/icons-material/Download';
 interface Task {
   id: string;
@@ -89,9 +91,6 @@ interface Attachment {
 const Tasks: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [priorityFilter, setPriorityFilter] = React.useState<string>("all");
-  const [showFilters, setShowFilters] = React.useState(false);
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const [taskDialogOpen, setTaskDialogOpen] = React.useState(false);
   const [showCommentForm, setShowCommentForm] = React.useState(false);
@@ -538,13 +537,6 @@ const Tasks: React.FC = () => {
     tags: true,
   });
 
-  const [dateRangeFilter, setDateRangeFilter] = React.useState<string>("all");
-  const [assigneeFilter, setAssigneeFilter] = React.useState<string>("all");
-  const [urgencyFilter, setUrgencyFilter] = React.useState<string>("all");
-  const [overdueFilter, setOverdueFilter] = React.useState<string>("all");
-  const [estimatedHoursFilter, setEstimatedHoursFilter] = React.useState<string>("all");
-  const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
-
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -584,103 +576,8 @@ const Tasks: React.FC = () => {
       });
     }
     
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(task => task.status === statusFilter);
-    }
-    
-    if (priorityFilter !== "all") {
-      filtered = filtered.filter(task => task.priority === priorityFilter);
-    }
-    
-    if (dateRangeFilter !== "all") {
-      const today = new Date();
-
-      switch (dateRangeFilter) {
-        case 'today':
-          filtered = filtered.filter(task => {
-            const dueDate = new Date(task.dueDate);
-            return dueDate.toDateString() === today.toDateString();
-          });
-          break;
-        case 'week':
-          const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-          filtered = filtered.filter(task => {
-            const dueDate = new Date(task.dueDate);
-            return dueDate <= weekFromNow;
-          });
-          break;
-        case 'month':
-          const monthFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
-          filtered = filtered.filter(task => {
-            const dueDate = new Date(task.dueDate);
-            return dueDate <= monthFromNow;
-          });
-          break;
-        case 'overdue':
-          filtered = filtered.filter(task => task.isOverdue);
-          break;
-        case 'due-soon':
-          const threeDaysFromNow = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
-          filtered = filtered.filter(task => {
-            const dueDate = new Date(task.dueDate);
-            return dueDate <= threeDaysFromNow && !task.isOverdue;
-          });
-          break;
-      }
-    }
-
-    if (assigneeFilter !== "all") {
-      switch (assigneeFilter) {
-        case 'me':
-          filtered = filtered.filter(task => task.assignedTo === currentAgent);
-          break;
-        case 'others':
-          filtered = filtered.filter(task => task.assignedTo !== currentAgent);
-          break;
-        case 'unassigned':
-          filtered = filtered.filter(task => !task.assignedTo || task.assignedTo === '');
-          break;
-      }
-    }
-
-    if (urgencyFilter !== "all") {
-      if (urgencyFilter === 'urgent') {
-        filtered = filtered.filter(task => task.isUrgent);
-      } else if (urgencyFilter === 'non-urgent') {
-        filtered = filtered.filter(task => !task.isUrgent);
-      }
-    }
-
-    if (overdueFilter !== "all") {
-      if (overdueFilter === 'overdue') {
-        filtered = filtered.filter(task => task.isOverdue);
-      } else if (overdueFilter === 'not-overdue') {
-        filtered = filtered.filter(task => !task.isOverdue);
-      }
-    }
-
-    if (estimatedHoursFilter !== "all") {
-      switch (estimatedHoursFilter) {
-        case 'small':
-          filtered = filtered.filter(task => task.estimatedHours <= 2);
-          break;
-        case 'medium':
-          filtered = filtered.filter(task => task.estimatedHours > 2 && task.estimatedHours <= 8);
-          break;
-        case 'large':
-          filtered = filtered.filter(task => task.estimatedHours > 8);
-          break;
-      }
-    }
-
-    if (selectedTags.length > 0) {
-      filtered = filtered.filter(task =>
-        selectedTags.some(selectedTag => task.tags.includes(selectedTag))
-      );
-    }
-    
     return filtered;
-  }, [tasks, searchQuery, statusFilter, priorityFilter, dateRangeFilter, assigneeFilter, urgencyFilter, overdueFilter, estimatedHoursFilter, selectedTags, searchInFields, currentAgent]);
+  }, [tasks, searchQuery, searchInFields]);
 
   const paginatedTasks = React.useMemo(() => {
     return filteredTasks.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
@@ -741,6 +638,7 @@ const Tasks: React.FC = () => {
   ];
 
   const [rightActiveTab, setRightActiveTab] = React.useState(0);
+  const [attachmentsTab, setAttachmentsTab] = React.useState<'comments' | 'attachments'>('comments');
 
   return (
     <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
@@ -800,7 +698,7 @@ const Tasks: React.FC = () => {
             <Button
               variant="contained"
             size="small"
-              onClick={() => setTaskDialogOpen(true)}
+            onClick={() => setTaskDialogOpen(true)}
             sx={{
               textTransform: "none",
               fontSize: "0.875rem",
@@ -837,85 +735,7 @@ const Tasks: React.FC = () => {
           />
         </div>
 
-        {/* Filters */}
-        <div className="px-6 py-3 border-b bg-gray-50">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-gray-700">Filters</span>
-            <IconButton
-              size="small"
-              onClick={() => setShowFilters(!showFilters)}
-              color={showFilters ? "primary" : "default"}
-            >
-              <FilterListIcon />
-            </IconButton>
-          </div>
 
-          {showFilters && (
-              <div className="grid grid-cols-2 gap-3">
-              <FormControl size="small" fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  label="Status"
-                >
-                  <MenuItem value="all">All Statuses</MenuItem>
-                  {statusOptions.map(option => (
-                    <MenuItem key={option.value} value={option.value}>
-                        <div className="flex items-center">
-                          <div
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: option.color }}
-                          ></div>
-                      {option.label}
-                        </div>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl size="small" fullWidth>
-                <InputLabel>Priority</InputLabel>
-                <Select
-                  value={priorityFilter}
-                  onChange={(e) => setPriorityFilter(e.target.value)}
-                  label="Priority"
-                >
-                  <MenuItem value="all">All Priorities</MenuItem>
-                  {priorityOptions.map(option => (
-                    <MenuItem key={option.value} value={option.value}>
-                        <div className="flex items-center">
-                          <div
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: option.color }}
-                          ></div>
-                      {option.label}
-                        </div>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-          )}
-
-          {showFilters && (
-            <div className="mt-3 flex justify-end">
-              <Button
-                variant="text"
-                size="small"
-                sx={{
-                  fontWeight: 550,
-                }}
-                onClick={() => {
-                  setStatusFilter("all");
-                  setPriorityFilter("all");
-                }}
-              >
-                Clear Filters
-              </Button>
-            </div>
-          )}
-        </div>
 
         {/* Task List */}
         <div className="flex-1 overflow-y-auto">
@@ -1063,71 +883,73 @@ const Tasks: React.FC = () => {
         {selectedTask && (
           <div className="w-[65%] flex bg-gray-50">
             {/* Right Sidebar Tabs */}
-            <div className="w-20 bg-white border-r flex flex-col">
-            <div className="p-2 space-y-2">
-  <Tooltip title="Details" placement="left">
-    <IconButton
-      onClick={() => setRightActiveTab(0)}
-      sx={{
-        width: 48,
-        height: 48,
-        borderRadius: '50%',
-        transition: 'all 0.2s',
-        bgcolor: rightActiveTab === 0 ? 'primary.main' : 'transparent',
-        color: rightActiveTab === 0 ? '#fff' : 'text.secondary',
-        boxShadow: rightActiveTab === 0 ? 3 : 'none',
-        '&:hover': {
-          bgcolor: rightActiveTab === 0 ? 'primary.dark' : 'grey.100',
-          color: rightActiveTab === 0 ? '#fff' : 'text.primary',
-        },
-      }}
-    >
-      <AssignmentIcon />
-    </IconButton>
-  </Tooltip>
+            <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
 
-  <Tooltip title="Files" placement="left">
-    <IconButton
-      onClick={() => setRightActiveTab(1)}
-      sx={{
-        width: 48,
-        height: 48,
-        borderRadius: '50%',
-        transition: 'all 0.2s',
-        bgcolor: rightActiveTab === 1 ? 'primary.main' : 'transparent',
-        color: rightActiveTab === 1 ? '#fff' : 'text.secondary',
-        boxShadow: rightActiveTab === 1 ? 3 : 'none',
-        '&:hover': {
-          bgcolor: rightActiveTab === 1 ? 'primary.dark' : 'grey.100',
-          color: rightActiveTab === 1 ? '#fff' : 'text.primary',
-        },
-      }}
-    >
-      <AttachFileIcon />
-    </IconButton>
-  </Tooltip>
 
-  <Tooltip title="History" placement="left">
-    <IconButton
-      onClick={() => setRightActiveTab(2)}
-      sx={{
-        width: 48,
-        height: 48,
-        borderRadius: '50%',
-        transition: 'all 0.2s',
-        bgcolor: rightActiveTab === 2 ? 'primary.main' : 'transparent',
-        color: rightActiveTab === 2 ? '#fff' : 'text.secondary',
-        boxShadow: rightActiveTab === 2 ? 3 : 'none',
-        '&:hover': {
-          bgcolor: rightActiveTab === 2 ? 'primary.dark' : 'grey.100',
-          color: rightActiveTab === 2 ? '#fff' : 'text.primary',
-        },
-      }}
-    >
-      <TrendingUpIcon />
-    </IconButton>
-  </Tooltip>
-</div>
+              <div className="p-4 space-y-4">
+                <Tooltip title="Details" placement="left">
+                  <IconButton
+                    onClick={() => setRightActiveTab(0)}
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      transition: 'all 0.2s',
+                      bgcolor: rightActiveTab === 0 ? 'primary.main' : 'transparent',
+                      color: rightActiveTab === 0 ? '#fff' : 'text.secondary',
+                      boxShadow: rightActiveTab === 0 ? 3 : 'none',
+                      '&:hover': {
+                        bgcolor: rightActiveTab === 0 ? 'primary.dark' : 'grey.100',
+                        color: rightActiveTab === 0 ? '#fff' : 'text.primary',
+                      },
+                    }}
+                  >
+                    <AssignmentIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Files" placement="left">
+                  <IconButton
+                    onClick={() => setRightActiveTab(1)}
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      transition: 'all 0.2s',
+                      bgcolor: rightActiveTab === 1 ? 'primary.main' : 'transparent',
+                      color: rightActiveTab === 1 ? '#fff' : 'text.secondary',
+                      boxShadow: rightActiveTab === 1 ? 3 : 'none',
+                      '&:hover': {
+                        bgcolor: rightActiveTab === 1 ? 'primary.dark' : 'grey.100',
+                        color: rightActiveTab === 1 ? '#fff' : 'text.primary',
+                      },
+                    }}
+                  >
+                    <AttachFileIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="History" placement="left">
+                  <IconButton
+                    onClick={() => setRightActiveTab(2)}
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      transition: 'all 0.2s',
+                      bgcolor: rightActiveTab === 2 ? 'primary.main' : 'transparent',
+                      color: rightActiveTab === 2 ? '#fff' : 'text.secondary',
+                      boxShadow: rightActiveTab === 2 ? 3 : 'none',
+                      '&:hover': {
+                        bgcolor: rightActiveTab === 2 ? 'primary.dark' : 'grey.100',
+                        color: rightActiveTab === 2 ? '#fff' : 'text.primary',
+                      },
+                    }}
+                  >
+                    <TrendingUpIcon />
+                  </IconButton>
+                </Tooltip>
+              </div>
 
             </div>
 
@@ -1280,285 +1102,295 @@ const Tasks: React.FC = () => {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-gray-900">Comments ({selectedTask.comments.length})</h3>
-
+                    <h3 className="font-medium text-gray-900">Latest 3 Comments ({selectedTask.comments.length})</h3>
+                    
                     <Button
-                              variant="contained"
+                      variant="contained"
                       size="small"
-                              startIcon={showCommentForm ? <CloseIcon /> : <CommentIcon />}
-                              onClick={() => setShowCommentForm(!showCommentForm)}
+                      startIcon={showCommentForm ? <CloseIcon /> : <CommentIcon />}
+                      onClick={() => setShowCommentForm(!showCommentForm)}
+                      sx={{
+                        textTransform: "none",
+                        backgroundColor: "#1a73e8",
+                        "&:hover": {
+                          backgroundColor: "#1557b0",
+                        },
+                      }}
                     >
-                              {showCommentForm ? 'Cancel' : 'Add Comment'}
+                      {showCommentForm ? 'Cancel' : 'Add Comment'}
                     </Button>
                   </div>
-
-                          {/* Comment Form */}
-                          <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${showCommentForm
-                              ? 'max-h-[800px] opacity-100 mb-4'
-                              : 'max-h-0 opacity-0 mb-0'
-                              }`}
-                          >
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                              <div className="space-y-4">
-                                {/* Comment Body */}
-                                <div className="space-y-2">
-                                  <TextField
-                                    label="Comment"
-                                    multiline
-                                    rows={4}
-                                    fullWidth
-                                    value={newComment}
-                                    onChange={(e) => {
-                                      const text = e.target.value;
-                                      setNewComment(text);
-                                      const error = validateComment(text);
-                                      setCommentError(error);
-                                    }}
-                                    placeholder="Write your comment here..."
-                                    size="medium"
-                                    error={commentError.length > 0}
-                                    helperText={commentError}
-                                    inputRef={commentTextareaRef}
-                                  />
-
-                                  {/* Word Count and Remaining */}
-                                  <div className="flex items-center justify-between text-xs">
-                                    <div className="flex items-center gap-4">
-                                      <span className={`font-medium ${getWordCount(newComment) > 500 ? 'text-red-600' : 'text-gray-600'}`}>
-                                        Words: {getWordCount(newComment)}/500 |
-                                      </span>
-                                      <span className={`font-medium ${getRemainingWords(newComment) < 50 ? 'text-orange-600' : 'text-gray-500'}`}>
-                                        Remaining: {getRemainingWords(newComment)} words
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Private Comment Toggle */}
-                                <div className="flex items-start gap-2 mb-3">
-                                  <Checkbox
-                                    checked={isInternalComment}
-                                    onChange={(e) => {
-                                      const isPrivate = e.target.checked;
-                                      setIsInternalComment(isPrivate);
-                                      if (isPrivate && showAttachments) {
-                                        setShowAttachments(false);
-                                        setAttachments([]); // Clear any existing attachments
-                                      }
-                                    }}
-                                    size="small"
-                                    sx={{ padding: '2px', marginTop: '-2px' }}
-                                  />
-                                  <div className="text-xs text-gray-700">
-                                    <div>Mark as Private</div>
-                                    <div className="text-xs text-gray-500">Only you can see this</div>
-                                  </div>
-                                </div>
-
-                                {/* Attachments Section */}
-                                <div className="flex items-start gap-2 mb-3">
-                                  <Checkbox
-                                    checked={showAttachments}
-                                    onChange={(e) => setShowAttachments(e.target.checked)}
-                                    disabled={isInternalComment}
-                                    size="small"
-                                    sx={{ padding: '2px', marginTop: '-2px' }}
-                                  />
-                                  <div className={`text-xs ${isInternalComment ? 'text-gray-400' : 'text-gray-700'}`}>
-                                    <div>Add note attachment</div>
-                                    <div className="text-xs text-gray-500">Will always be public for agents</div>
-                                  </div>
-                                </div>
-
-                                <div
-                                  className={`overflow-hidden transition-all duration-300 ease-in-out ${showAttachments
-                                    ? 'max-h-[600px] opacity-100'
-                                    : 'max-h-0 opacity-0'
-                                    }`}
-                                >
-                                  <div className="border-t pt-4">
-                                    <div className="flex items-center justify-end mb-3">
-                                      <span className="text-xs text-gray-500">
-                                        {attachments.length}/3 files
-                                      </span>
-                                    </div>
-
-                                    {/* File Upload Area */}
-                                    <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${attachments.length >= 3
-                                      ? 'border-gray-200 bg-gray-50'
-                                      : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                      }`}>
-                                      <input
-                                        type="file"
-                                        multiple
-                                        className="hidden"
-                                        id="file-upload"
-                                        onChange={(e) => {
-                                          const files = Array.from(e.target.files || []);
-                                          handleFileUpload(files);
-                                        }}
-                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                                        disabled={attachments.length >= 3}
-                                      />
-                                      <label
-                                        htmlFor="file-upload"
-                                        className={`cursor-pointer ${attachments.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                      >
-                                        <AttachFileIcon className="text-gray-400 text-2xl mx-auto mb-2" />
-                                        <p className="text-sm text-gray-600 mb-1">
-                                          <span className="text-blue-600 hover:text-blue-700 font-medium">
-                                            Click to upload
-                                          </span>{' '}
-                                          or drag and drop
-                                        </p>
-                                        <p className="text-xs text-gray-500">
-                                          Office files only (PDF, DOC, XLS, PPT) up to 5MB • Max 3 files
-                                        </p>
-                                        {attachments.length >= 3 && (
-                                          <p className="text-xs text-red-500 mt-1">
-                                            Maximum 3 files reached
-                                          </p>
-                                        )}
-                                      </label>
-                                    </div>
-
-                                    {/* File List Preview */}
-                                    {attachments.length > 0 && (
-                                      <div className="mt-3 space-y-2">
-                                        {attachments.map((file, index) => (
-                                          <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                                            <div className="flex items-center gap-2">
-                                              <span className="text-lg">{getFileIcon(file.name)}</span>
-                                              <div>
-                                                <div className="text-sm font-medium">{file.name}</div>
-                                                <div className="text-xs text-gray-500">
-                                                  {formatFileSize(file.size)}
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <IconButton
-                                              size="small"
-                                              color="error"
-                                              onClick={() => {
-                                                setAttachments(prev => prev.filter((_, i) => i !== index));
-                                              }}
-                                            >
-                                              <CloseIcon fontSize="small" />
-                                            </IconButton>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex justify-end gap-3 pt-2">
-                                  <Button
-                                    variant="text"
-                                    onClick={() => {
-                                      setShowCommentForm(false);
-                                      resetCommentForm();
-                                    }}
-                                    size="small"
-                                    sx={{ fontWeight: 550 }}
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button
-                                    variant="contained"
-                                    onClick={() => {
-                                      const error = validateComment(newComment);
-                                      if (error) {
-                                        setCommentError(error);
-                                        return;
-                                      }
-                                      // Here you would typically save the comment
-                                      console.log('Saving comment:', { newComment, attachments, isInternalComment });
-                                      setShowCommentForm(false);
-                                      resetCommentForm();
-                                    }}
-                                    size="small"
-                                    disabled={commentError.length > 0 || newComment.trim().length === 0}
-                                  >
-                                    Send Comment
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                  </div>
                   
-                  <div className="space-y-3 max-h-60 overflow-y-auto">
-                    {selectedTask.comments.map((comment) => (
-                      <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium text-sm">{comment.author}</span>
+                  {/* Comment Form */}
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${showCommentForm
+                      ? 'max-h-[800px] opacity-100 mb-4'
+                      : 'max-h-0 opacity-0 mb-0'
+                      }`}
+                  >
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="space-y-4">
+                        {/* Comment Body */}
+                        <div className="space-y-2">
+                          <TextField
+                            label="Comment"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            value={newComment}
+                            onChange={(e) => {
+                              const text = e.target.value;
+                              setNewComment(text);
+                              const error = validateComment(text);
+                              setCommentError(error);
+                            }}
+                            placeholder="Write your comment here..."
+                            size="medium"
+                            error={commentError.length > 0}
+                            helperText={commentError}
+                            inputRef={commentTextareaRef}
+                          />
+
+                          {/* Word Count and Remaining */}
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-4">
+                              <span className={`font-medium ${getWordCount(newComment) > 500 ? 'text-red-600' : 'text-gray-600'}`}>
+                                Words: {getWordCount(newComment)}/500 |
+                              </span>
+                              <span className={`font-medium ${getRemainingWords(newComment) < 50 ? 'text-orange-600' : 'text-gray-500'}`}>
+                                Remaining: {getRemainingWords(newComment)} words
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Private Comment Toggle */}
+                        <div className="flex items-start gap-2 mb-3">
+                          <Checkbox
+                            checked={isInternalComment}
+                            onChange={(e) => {
+                              const isPrivate = e.target.checked;
+                              setIsInternalComment(isPrivate);
+                              if (isPrivate && showAttachments) {
+                                setShowAttachments(false);
+                                setAttachments([]); // Clear any existing attachments
+                              }
+                            }}
+                            size="small"
+                            sx={{ padding: '2px', marginTop: '-2px' }}
+                          />
+                          <div className="text-xs text-gray-700">
+                            <div>Mark as Private</div>
+                            <div className="text-xs text-gray-500">Only you can see this</div>
+                          </div>
+                        </div>
+
+                        {/* Attachments Section */}
+                        <div className="flex items-start gap-2 mb-3">
+                          <Checkbox
+                            checked={showAttachments}
+                            onChange={(e) => setShowAttachments(e.target.checked)}
+                            disabled={isInternalComment}
+                            size="small"
+                            sx={{ padding: '2px', marginTop: '-2px' }}
+                          />
+                          <div className={`text-xs ${isInternalComment ? 'text-gray-400' : 'text-gray-700'}`}>
+                            <div>Add note attachment</div>
+                            <div className="text-xs text-gray-500">Will always be public for agents</div>
+                          </div>
+                        </div>
+
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${showAttachments
+                            ? 'max-h-[600px] opacity-100'
+                            : 'max-h-0 opacity-0'
+                            }`}
+                        >
+                          <div className="border-t pt-4">
+                            <div className="flex items-center justify-end mb-3">
+                              <span className="text-xs text-gray-500">
+                                {attachments.length}/3 files
+                              </span>
+                            </div>
+
+                            {/* File Upload Area */}
+                            <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${attachments.length >= 3
+                              ? 'border-gray-200 bg-gray-50'
+                              : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                              }`}>
+                              <input
+                                type="file"
+                                multiple
+                                className="hidden"
+                                id="file-upload"
+                                onChange={(e) => {
+                                  const files = Array.from(e.target.files || []);
+                                  handleFileUpload(files);
+                                }}
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                                disabled={attachments.length >= 3}
+                              />
+                              <label
+                                htmlFor="file-upload"
+                                className={`cursor-pointer ${attachments.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              >
+                                <AttachFileIcon className="text-gray-400 text-2xl mx-auto mb-2" />
+                                <p className="text-sm text-gray-600 mb-1">
+                                  <span className="text-blue-600 hover:text-blue-700 font-medium">
+                                    Click to upload
+                                  </span>{' '}
+                                  or drag and drop
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Office files only (PDF, DOC, XLS, PPT) up to 5MB • Max 3 files
+                                </p>
+                                {attachments.length >= 3 && (
+                                  <p className="text-xs text-red-500 mt-1">
+                                    Maximum 3 files reached
+                                  </p>
+                                )}
+                              </label>
+                            </div>
+
+                            {/* File List Preview */}
+                            {attachments.length > 0 && (
+                              <div className="mt-3 space-y-2">
+                                {attachments.map((file, index) => (
+                                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
                           <div className="flex items-center gap-2">
-                                    <div className="text-right">
-                                      <div className="text-xs text-gray-500">{comment.timestamp}</div>
-                                      <div className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</div>
+                                      <span className="text-lg">{getFileIcon(file.name)}</span>
+                                      <div>
+                                        <div className="text-sm font-medium">{file.name}</div>
+                                        <div className="text-xs text-gray-500">
+                                          {formatFileSize(file.size)}
+                                        </div>
+                                      </div>
                                     </div>
-                            {comment.isInternal && (
-                              <Chip label="Internal" size="small" color="warning" />
-                            )}
-                                    {canEditComment(comment.createdAt) && (
-                                      <IconButton
-                                        size="small"
-                                        onClick={() => startEditingComment(comment)}
-                                        sx={{ padding: '2px' }}
-                                      >
-                                        <EditIcon fontSize="small" />
-                                      </IconButton>
+                                    <IconButton
+                                      size="small"
+                                      color="error"
+                                      onClick={() => {
+                                        setAttachments(prev => prev.filter((_, i) => i !== index));
+                                      }}
+                                    >
+                                      <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                  </div>
+                                ))}
+                              </div>
                             )}
                           </div>
                         </div>
 
-                                {editingCommentId === comment.id ? (
-                                  <div className="space-y-2">
-                                    <TextField
-                                      multiline
-                                      rows={3}
-                                      fullWidth
-                                      size="small"
-                                      value={comment.editText || comment.text}
-                                      onChange={(e) => {
-                                        // In real app, update the comment editText
-                                        console.log('Editing comment:', e.target.value);
-                                      }}
-                                    />
-                                    <div className="flex gap-2">
-                                      <Button
-                                        size="small"
-                                        variant="contained"
-                                        startIcon={<SaveIcon fontSize="small" />}
-                                        onClick={() => saveEditedComment(comment.id, comment.editText || comment.text)}
-                                      >
-                                        Save
-                                      </Button>
-                                      <Button
-                                        size="small"
-                                        variant="outlined"
-                                        startIcon={<CloseIcon fontSize="small" />}
-                                        onClick={cancelEditingComment}
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ) : (
+                        {/* Action Buttons */}
+                        <div className="flex justify-end gap-3 pt-2">
+                          <Button
+                            variant="text"
+                            onClick={() => {
+                              setShowCommentForm(false);
+                              resetCommentForm();
+                            }}
+                            size="small"
+                            sx={{ fontWeight: 550 }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="contained"
+                            onClick={() => {
+                              const error = validateComment(newComment);
+                              if (error) {
+                                setCommentError(error);
+                                return;
+                              }
+                              // Here you would typically save the comment
+                              console.log('Saving comment:', { newComment, attachments, isInternalComment });
+                              setShowCommentForm(false);
+                              resetCommentForm();
+                            }}
+                            size="small"
+                            disabled={commentError.length > 0 || newComment.trim().length === 0}
+                          >
+                            Send Comment
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                                             <div className="space-y-4 max-h-60 overflow-y-auto">
+                             {selectedTask.comments.slice(0, 3).map((comment) => (
+                               <div key={comment.id} className="flex items-start gap-3">
+                                 {/* Avatar */}
+                                 <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                   {comment.author.charAt(0).toUpperCase()}
+                                 </div>
+                                 
+                                 {/* Comment Bubble */}
+                                 <div className="flex-1 min-w-0">
+                                   <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                     <div className="flex items-center justify-between mb-2">
+                                       <span className="font-medium text-sm text-gray-900">{comment.author}</span>
+                                       <div className="flex items-center gap-2">
+                            {comment.isInternal && (
+                              <Chip label="Internal" size="small" color="warning" />
+                            )}
+                                         {canEditComment(comment.createdAt) && (
+                                           <IconButton
+                                             size="small"
+                                             onClick={() => startEditingComment(comment)}
+                                             sx={{ color: "#6b7280", padding: '2px' }}
+                                           >
+                                             <EditIcon fontSize="small" />
+                                           </IconButton>
+                                         )}
+                          </div>
+                        </div>
+                                     
+                                     {editingCommentId === comment.id ? (
+                                       <div className="space-y-2">
+                                         <TextField
+                                           multiline
+                                           rows={2}
+                                           value={comment.editText || comment.text}
+                                           onChange={(e) => {
+                                             // In real app, update the comment editText
+                                             console.log('Editing comment:', e.target.value);
+                                           }}
+                                           fullWidth
+                                           size="small"
+                                         />
+                                         <div className="flex gap-2">
+                                           <Button
+                                             size="small"
+                                             variant="contained"
+                                             startIcon={<SaveIcon fontSize="small" />}
+                                             onClick={() => saveEditedComment(comment.id, comment.editText || comment.text)}
+                                           >
+                                             Save
+                                           </Button>
+                                           <Button
+                                             size="small"
+                                             variant="outlined"
+                                             startIcon={<CloseIcon fontSize="small" />}
+                                             onClick={cancelEditingComment}
+                                           >
+                                             Cancel
+                                           </Button>
+                                           </div>
+                                       </div>
+                                     ) : (
                         <p className="text-sm text-gray-700">{comment.text}</p>
-                                )}
-
-                                {!canEditComment(comment.createdAt) ? (
-                                  <div className="mt-2 text-xs text-gray-400">
-                                    ⏰ Edit time expired (15 seconds)
-                                  </div>
-                                ) : (
-                                  <div className="mt-2 text-xs text-blue-500">
-                                    ⏱️ Edit available for {getRemainingEditTime(comment.createdAt)} more seconds
-                                  </div>
-                                )}
+                                     )}
+                                   </div>
+                                   
+                                   {/* Timestamp */}
+                                   <div className="flex items-center gap-2 mt-2 ml-1">
+                                     <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                                     <span className="text-xs text-gray-400">•</span>
+                                     <span className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</span>
+                                   </div>
+                                 </div>
                       </div>
                     ))}
                     
@@ -1566,6 +1398,25 @@ const Tasks: React.FC = () => {
                       <div className="text-center py-6 text-gray-500">
                         <CommentIcon className="text-2xl mx-auto mb-2" />
                         <p>No comments yet</p>
+                      </div>
+                    )}
+                    
+                    {selectedTask.comments.length > 3 && (
+                      <div className="text-center py-3">
+                        <Button
+                          size="small"
+                          variant="text"
+                          onClick={() => setRightActiveTab(1)}
+                          sx={{
+                            textTransform: "none",
+                            color: "#1a73e8",
+                            "&:hover": {
+                              backgroundColor: "rgba(26, 115, 232, 0.04)",
+                            },
+                          }}
+                        >
+                          View All {selectedTask.comments.length} Comments
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -1577,58 +1428,159 @@ const Tasks: React.FC = () => {
 
                 {/* Attachments Tab */}
                 {rightActiveTab === 1 && (
-                  <div className="flex-1 overflow-y-auto p-6">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-gray-900">Attachments</h2>
-                        <Button
-                          variant="contained"
-                          startIcon={<AttachFileIcon />}
-                          size="small"
-                        >
-                          Upload Files
-                        </Button>
-                      </div>
-
-                      {selectedTask.attachments.length > 0 ? (
-                        <div className="space-y-4">
-                      {selectedTask.attachments.map((attachment) => (
-                            <Card key={attachment.id}>
-                              <CardContent className="p-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                      <AttachFileIcon className="text-blue-600" />
-                                    </div>
-                            <div>
-                                      <div className="font-medium text-gray-900">{attachment.name}</div>
-                                      <div className="text-sm text-gray-500">{attachment.size} • {attachment.type}</div>
-                                      <div className="text-xs text-gray-400">Uploaded by {attachment.uploadedBy} on {attachment.uploadedAt}</div>
+                  <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6 border-b">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {attachmentsTab === 'comments' ? 'Comments' : 'Attachments'}
+                      </h3>
+                          <div className="flex items-center gap-2">
+                         <IconButton
+                           size="small"
+                           sx={{
+                             color: "#6b7280",
+                             border: "1px solid #d1d5db",
+                             "&:hover": {
+                               borderColor: "#9ca3af",
+                               backgroundColor: "#f9fafb",
+                             },
+                           }}
+                         >
+                           <SortIcon fontSize="small" />
+                         </IconButton>
+                         <IconButton
+                           size="small"
+                           sx={{
+                             color: "#6b7280",
+                             border: "1px solid #d1d5db",
+                             "&:hover": {
+                               borderColor: "#9ca3af",
+                               backgroundColor: "#f9fafb",
+                             },
+                           }}
+                         >
+                           <RefreshIcon fontSize="small" />
+                         </IconButton>
                             </div>
                           </div>
-                                  <div className="flex gap-2">
-                                    <Button size="small" variant="outlined" startIcon={<DownloadIcon />}>
-                                      Download
-                                    </Button>
-                                    <IconButton size="small" color="error">
-                                      <CloseIcon fontSize="small" />
-                                    </IconButton>
+
+                    {/* Scrollable Content Area */}
+                    <div className="flex-1 overflow-y-auto p-6">
+                      {/* Comments Tab Content */}
+                      {attachmentsTab === 'comments' && (
+                        <div className="space-y-4">
+                          {selectedTask.comments.length > 0 ? (
+                            <div className="space-y-4">
+                              {selectedTask.comments.map((comment) => (
+                                <div key={comment.id} className="flex items-start gap-3">
+                                  {/* Avatar */}
+                                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                    {comment.author.charAt(0).toUpperCase()}
+                                  </div>
+                                  
+                                  {/* Comment Bubble */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="font-medium text-sm text-gray-900">{comment.author}</span>
+                                        <div className="flex items-center gap-2">
+                                          {comment.isInternal && (
+                                            <Chip label="Internal" size="small" color="warning" />
+                                          )}
+                                        </div>
+                                      </div>
+                                      <p className="text-sm text-gray-700">{comment.text}</p>
+                                    </div>
+                                    
+                                    {/* Timestamp */}
+                                    <div className="flex items-center gap-2 mt-2 ml-1">
+                                      <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                                      <span className="text-xs text-gray-400">•</span>
+                                      <span className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</span>
+                                    </div>
+                                  </div>
                         </div>
+                      ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-6 text-gray-500">
+                              <CommentIcon className="text-2xl mx-auto mb-2" />
+                              <p>No comments yet</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Attachments Tab Content */}
+                      {attachmentsTab === 'attachments' && (
+                        <div className="space-y-4">
+                          {selectedTask.attachments.length > 0 ? (
+                            <div className="space-y-4">
+                              {selectedTask.attachments.map((attachment) => (
+                                <Card key={attachment.id}>
+                                  <CardContent className="p-4">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                          <AttachFileIcon className="text-blue-600" />
+                                        </div>
+                                        <div>
+                                          <div className="font-medium text-gray-900">{attachment.name}</div>
+                                          <div className="text-sm text-gray-500">{attachment.size} • {attachment.type}</div>
+                                          <div className="text-xs text-gray-400">Uploaded by {attachment.uploadedBy} on {attachment.uploadedAt}</div>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button size="small" variant="outlined" startIcon={<DownloadIcon />}>
+                                          Download
+                                        </Button>
+                                        <IconButton size="small" color="error">
+                                          <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                      </div>
                     </div>
                   </CardContent>
                 </Card>
-                          ))}
+                              ))}
             </div>
-                      ) : (
-                        <div className="text-center py-12">
-                          <AttachFileIcon className="text-gray-400 text-4xl mx-auto mb-3" />
-                          <h3 className="text-lg font-medium text-gray-900 mb-2">No attachments</h3>
-                          <p className="text-gray-600">This task doesn't have any attachments yet</p>
-                        </div>
-                      )}
+                          ) : (
+                            <div className="text-center py-12">
+                              <AttachFileIcon className="text-gray-400 text-4xl mx-auto mb-3" />
+                              <h3 className="text-lg font-medium text-gray-900 mb-2">No attachments</h3>
+                              <p className="text-gray-600">Upload files to share with your team</p>
             </div>
+                          )}
           </div>
         )}
+      </div>
+
+                    {/* Fixed Bottom Tabs */}
+                    <div className="border-t border-gray-200 bg-white">
+                      <div className="flex space-x-8 px-6 py-3">
+                                                 <button
+                           className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                             attachmentsTab === 'comments'
+                               ? 'border-blue-500 text-blue-600'
+                               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                           }`}
+                           onClick={() => setAttachmentsTab('comments')}
+                         >
+                           Comments ({selectedTask.comments.length})
+                         </button>
+                         <button
+                           className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                             attachmentsTab === 'attachments'
+                               ? 'border-blue-500 text-blue-600'
+                               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                           }`}
+                           onClick={() => setAttachmentsTab('attachments')}
+                         >
+                           Attachments ({selectedTask.attachments.length})
+                         </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Activities Tab */}
                 {rightActiveTab === 2 && (
@@ -1646,14 +1598,14 @@ const Tasks: React.FC = () => {
                             <div className="relative z-10 flex-shrink-0">
                               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                                 <CheckCircleIcon className="text-green-600 text-sm" />
-                              </div>
+          </div>
                             </div>
                             <div className="flex-1 pt-1">
                               <div className="font-medium text-gray-900">Task Status Updated</div>
                               <div className="text-sm text-gray-600 mt-1">Status changed from "Pending" to "In Progress"</div>
                               <div className="text-xs text-gray-400 mt-2">2 hours ago by John Doe</div>
                             </div>
-      </div>
+                          </div>
 
                           {/* Activity 2 */}
                           <div className="relative flex items-start gap-4">
@@ -1674,7 +1626,7 @@ const Tasks: React.FC = () => {
                             <div className="relative z-10 flex-shrink-0">
                               <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                                 <AttachFileIcon className="text-purple-600 text-sm" />
-          </div>
+                              </div>
                             </div>
                             <div className="flex-1 pt-1">
                               <div className="font-medium text-gray-900">File Uploaded</div>
@@ -1869,5 +1821,3 @@ const Tasks: React.FC = () => {
 };
 
 export default Tasks;
-
-
