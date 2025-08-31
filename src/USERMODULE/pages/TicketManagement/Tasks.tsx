@@ -975,15 +975,6 @@ const Tasks: React.FC = () => {
                             }`}>
                             {task.title}
                           </h3>
-                          {selectedTask?.id === task.id && (
-                            <Chip
-                              label="Selected"
-                              color="primary"
-                              size="small"
-                              variant="filled"
-                              sx={{ fontSize: '0.7rem', height: '20px' }}
-                            />
-                          )}
                         {task.isUrgent && (
                           <Chip 
                             icon={<PriorityHighIcon />} 
@@ -1073,43 +1064,71 @@ const Tasks: React.FC = () => {
           <div className="w-[65%] flex bg-gray-50">
             {/* Right Sidebar Tabs */}
             <div className="w-20 bg-white border-r flex flex-col">
-              <div className="p-2 space-y-2">
-                <Tooltip title="Details" placement="left">
-                  <IconButton
-                    onClick={() => setRightActiveTab(0)}
-                    className={`w-full h-12 transition-all duration-200 ${rightActiveTab === 0
-                      ? 'bg-primary text-white border-r-4 border-primary-dark shadow-lg'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                      }`}
-                  >
-                    <AssignmentIcon />
-                  </IconButton>
-                </Tooltip>
+            <div className="p-2 space-y-2">
+  <Tooltip title="Details" placement="left">
+    <IconButton
+      onClick={() => setRightActiveTab(0)}
+      sx={{
+        width: 48,
+        height: 48,
+        borderRadius: '50%',
+        transition: 'all 0.2s',
+        bgcolor: rightActiveTab === 0 ? 'primary.main' : 'transparent',
+        color: rightActiveTab === 0 ? '#fff' : 'text.secondary',
+        boxShadow: rightActiveTab === 0 ? 3 : 'none',
+        '&:hover': {
+          bgcolor: rightActiveTab === 0 ? 'primary.dark' : 'grey.100',
+          color: rightActiveTab === 0 ? '#fff' : 'text.primary',
+        },
+      }}
+    >
+      <AssignmentIcon />
+    </IconButton>
+  </Tooltip>
 
-                <Tooltip title="Files" placement="left">
-                  <IconButton
-                    onClick={() => setRightActiveTab(1)}
-                    className={`w-full h-12 transition-all duration-200 ${rightActiveTab === 1
-                      ? 'bg-primary text-white border-r-4 border-primary-dark shadow-lg'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                      }`}
-                  >
-                    <AttachFileIcon />
-                  </IconButton>
-                </Tooltip>
-                
-                <Tooltip title="History" placement="left">
-                  <IconButton
-                    onClick={() => setRightActiveTab(2)}
-                    className={`w-full h-12 transition-all duration-200 ${rightActiveTab === 2
-                      ? 'bg-primary text-white border-r-4 border-primary-dark shadow-lg'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                      }`}
-                  >
-                    <TrendingUpIcon />
-                  </IconButton>
-                </Tooltip>
-              </div>
+  <Tooltip title="Files" placement="left">
+    <IconButton
+      onClick={() => setRightActiveTab(1)}
+      sx={{
+        width: 48,
+        height: 48,
+        borderRadius: '50%',
+        transition: 'all 0.2s',
+        bgcolor: rightActiveTab === 1 ? 'primary.main' : 'transparent',
+        color: rightActiveTab === 1 ? '#fff' : 'text.secondary',
+        boxShadow: rightActiveTab === 1 ? 3 : 'none',
+        '&:hover': {
+          bgcolor: rightActiveTab === 1 ? 'primary.dark' : 'grey.100',
+          color: rightActiveTab === 1 ? '#fff' : 'text.primary',
+        },
+      }}
+    >
+      <AttachFileIcon />
+    </IconButton>
+  </Tooltip>
+
+  <Tooltip title="History" placement="left">
+    <IconButton
+      onClick={() => setRightActiveTab(2)}
+      sx={{
+        width: 48,
+        height: 48,
+        borderRadius: '50%',
+        transition: 'all 0.2s',
+        bgcolor: rightActiveTab === 2 ? 'primary.main' : 'transparent',
+        color: rightActiveTab === 2 ? '#fff' : 'text.secondary',
+        boxShadow: rightActiveTab === 2 ? 3 : 'none',
+        '&:hover': {
+          bgcolor: rightActiveTab === 2 ? 'primary.dark' : 'grey.100',
+          color: rightActiveTab === 2 ? '#fff' : 'text.primary',
+        },
+      }}
+    >
+      <TrendingUpIcon />
+    </IconButton>
+  </Tooltip>
+</div>
+
             </div>
 
             {/* Right Content Area */}
@@ -1468,7 +1487,7 @@ const Tasks: React.FC = () => {
                                 </div>
                               </div>
                             </div>
-                          </div>
+                  </div>
                   
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {selectedTask.comments.map((comment) => (
@@ -1491,7 +1510,7 @@ const Tasks: React.FC = () => {
                                       >
                                         <EditIcon fontSize="small" />
                                       </IconButton>
-                                    )}
+                            )}
                           </div>
                         </div>
 
