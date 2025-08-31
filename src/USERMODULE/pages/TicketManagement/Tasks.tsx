@@ -63,6 +63,7 @@ interface Task {
   attachments: Attachment[];
   isUrgent: boolean;
   isOverdue: boolean;
+  disabled?: boolean; // Added for conditional checkbox
 }
 
 interface Comment {
@@ -558,7 +559,7 @@ const Tasks: React.FC = () => {
 
   const filteredTasks = React.useMemo(() => {
     let filtered = tasks;
-
+    
     if (searchQuery) {
       filtered = filtered.filter(task => {
         let matches = false;
@@ -582,15 +583,15 @@ const Tasks: React.FC = () => {
         return matches;
       });
     }
-
+    
     if (statusFilter !== "all") {
       filtered = filtered.filter(task => task.status === statusFilter);
     }
-
+    
     if (priorityFilter !== "all") {
       filtered = filtered.filter(task => task.priority === priorityFilter);
     }
-
+    
     if (dateRangeFilter !== "all") {
       const today = new Date();
 
@@ -677,13 +678,51 @@ const Tasks: React.FC = () => {
         selectedTags.some(selectedTag => task.tags.includes(selectedTag))
       );
     }
-
+    
     return filtered;
   }, [tasks, searchQuery, statusFilter, priorityFilter, dateRangeFilter, assigneeFilter, urgencyFilter, overdueFilter, estimatedHoursFilter, selectedTags, searchInFields, currentAgent]);
 
   const paginatedTasks = React.useMemo(() => {
     return filteredTasks.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
   }, [filteredTasks, page, rowsPerPage]);
+
+  // Master checkbox functionality
+  const [selectedTasks, setSelectedTasks] = React.useState<string[]>([]);
+  const [masterChecked, setMasterChecked] = React.useState(false);
+
+  const handleMasterCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      // Only select enabled tasks that are NOT currently opened
+      const selectableTaskIds = paginatedTasks
+        .filter(task => !task.disabled && selectedTask?.id !== task.id)
+        .map(task => task.id);
+      setSelectedTasks(selectableTaskIds);
+      setMasterChecked(true);
+    } else {
+      setSelectedTasks([]);
+      setMasterChecked(false);
+    }
+  };
+
+  // Update master checkbox state when individual selections change
+  React.useEffect(() => {
+    const selectableTasks = paginatedTasks.filter(task => !task.disabled && selectedTask?.id !== task.id);
+    if (selectedTasks.length === 0) {
+      setMasterChecked(false);
+    } else if (selectedTasks.length === selectableTasks.length) {
+      setMasterChecked(true);
+    } else {
+      setMasterChecked(false);
+    }
+  }, [selectedTasks, paginatedTasks, selectedTask]);
+
+  const handleTaskSelection = (taskId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTasks(prev => [...prev, taskId]);
+    } else {
+      setSelectedTasks(prev => prev.filter(id => id !== taskId));
+    }
+  };
 
   const statusOptions = [
     { value: 'pending', label: 'Pending', color: '#6B7280' },
@@ -708,12 +747,34 @@ const Tasks: React.FC = () => {
       {/* Main Header Bar */}
       <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-[#f0f4f9]">
         <div className="flex items-center gap-2 flex-1 min-w-0">
+          <Checkbox
+            checked={masterChecked}
+            onChange={handleMasterCheckbox}
+            aria-label="Select all tasks"
+            sx={{
+              mr: 1,
+              color: "#666",
+              "&.Mui-checked": {
+                color: "#1a73e8",
+              },
+              "&:hover": {
+                backgroundColor: "rgba(26, 115, 232, 0.04)",
+              },
+            }}
+          />
           <span className="text-xl font-semibold whitespace-nowrap">
             My Tasks
           </span>
           <span className="bg-[#f0f4f9] text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">
             {filteredTasks.length}
           </span>
+          {selectedTasks.length > 0 && (
+            <div className="flex items-center gap-2 ml-4 flex-wrap">
+              <span className="text-sm text-gray-600">
+                {selectedTasks.length} selected
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
@@ -736,10 +797,10 @@ const Tasks: React.FC = () => {
               },
             }}
           />
-          <Button
-            variant="contained"
+            <Button
+              variant="contained"
             size="small"
-            onClick={() => setTaskDialogOpen(true)}
+              onClick={() => setTaskDialogOpen(true)}
             sx={{
               textTransform: "none",
               fontSize: "0.875rem",
@@ -751,9 +812,9 @@ const Tasks: React.FC = () => {
             }}
           >
             + New Task
-          </Button>
+            </Button>
         </div>
-      </div>
+          </div>
 
       {/* Main Content: Tasks + Details */}
       <div className="flex flex-1 h-0 min-h-0">
@@ -763,105 +824,105 @@ const Tasks: React.FC = () => {
         <div className="w-[35%] flex flex-col border-r bg-white">
           {/* Search and Filters Header */}
           <div className="px-6 py-4 border-b">
-            {/* Search */}
-            <TextField
+          {/* Search */}
+          <TextField
               placeholder="Search tasks or tickets..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              InputProps={{
-                startAdornment: <SearchIcon className="text-gray-400 mr-2" />,
-              }}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon className="text-gray-400 mr-2" />,
+            }}
+            size="small"
+            fullWidth
+          />
+        </div>
+
+        {/* Filters */}
+        <div className="px-6 py-3 border-b bg-gray-50">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-700">Filters</span>
+            <IconButton
               size="small"
-              fullWidth
-            />
+              onClick={() => setShowFilters(!showFilters)}
+              color={showFilters ? "primary" : "default"}
+            >
+              <FilterListIcon />
+            </IconButton>
           </div>
 
-          {/* Filters */}
-          <div className="px-6 py-3 border-b bg-gray-50">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-gray-700">Filters</span>
-              <IconButton
-                size="small"
-                onClick={() => setShowFilters(!showFilters)}
-                color={showFilters ? "primary" : "default"}
-              >
-                <FilterListIcon />
-              </IconButton>
-            </div>
-
-            {showFilters && (
+          {showFilters && (
               <div className="grid grid-cols-2 gap-3">
-                <FormControl size="small" fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    label="Status"
-                  >
-                    <MenuItem value="all">All Statuses</MenuItem>
-                    {statusOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <div className="flex items-center">
-                          <div
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: option.color }}
-                          ></div>
-                          {option.label}
-                        </div>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl size="small" fullWidth>
-                  <InputLabel>Priority</InputLabel>
-                  <Select
-                    value={priorityFilter}
-                    onChange={(e) => setPriorityFilter(e.target.value)}
-                    label="Priority"
-                  >
-                    <MenuItem value="all">All Priorities</MenuItem>
-                    {priorityOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <div className="flex items-center">
-                          <div
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: option.color }}
-                          ></div>
-                          {option.label}
-                        </div>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-            )}
-
-            {showFilters && (
-              <div className="mt-3 flex justify-end">
-                <Button
-                  variant="text"
-                  size="small"
-                  sx={{
-                    fontWeight: 550,
-                  }}
-                  onClick={() => {
-                    setStatusFilter("all");
-                    setPriorityFilter("all");
-                  }}
+              <FormControl size="small" fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  label="Status"
                 >
-                  Clear Filters
-                </Button>
-              </div>
-            )}
-          </div>
+                  <MenuItem value="all">All Statuses</MenuItem>
+                  {statusOptions.map(option => (
+                    <MenuItem key={option.value} value={option.value}>
+                        <div className="flex items-center">
+                          <div
+                            className="w-3 h-3 rounded-full mr-2"
+                            style={{ backgroundColor: option.color }}
+                          ></div>
+                      {option.label}
+                        </div>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-          {/* Task List */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4 space-y-3">
+              <FormControl size="small" fullWidth>
+                <InputLabel>Priority</InputLabel>
+                <Select
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value)}
+                  label="Priority"
+                >
+                  <MenuItem value="all">All Priorities</MenuItem>
+                  {priorityOptions.map(option => (
+                    <MenuItem key={option.value} value={option.value}>
+                        <div className="flex items-center">
+                          <div
+                            className="w-3 h-3 rounded-full mr-2"
+                            style={{ backgroundColor: option.color }}
+                          ></div>
+                      {option.label}
+                        </div>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+          )}
+
+          {showFilters && (
+            <div className="mt-3 flex justify-end">
+              <Button
+                variant="text"
+                size="small"
+                sx={{
+                  fontWeight: 550,
+                }}
+                onClick={() => {
+                  setStatusFilter("all");
+                  setPriorityFilter("all");
+                }}
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Task List */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 space-y-3">
               {paginatedTasks.map((task) => (
-                <Card
-                  key={task.id}
+              <Card 
+                key={task.id} 
                   className={`cursor-pointer transition-all duration-200 border-2 ${selectedTask?.id === task.id
                     ? 'ring-2 ring-blue-500 bg-blue-100 shadow-lg scale-[1.02] border-blue-300'
                     : 'hover:shadow-md hover:bg-gray-50 border-transparent'
@@ -875,23 +936,41 @@ const Tasks: React.FC = () => {
                     pointerEvents: selectedTask?.id === task.id ? 'none' : 'auto',
                     opacity: selectedTask?.id === task.id ? 0.9 : 1,
                   }}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                      {!task.disabled && selectedTask?.id !== task.id && (
+                        <div className="flex-shrink-0 relative">
+                          <Checkbox
+                            checked={selectedTasks.includes(task.id)}
+                            onChange={(e) => handleTaskSelection(task.id, e.target.checked)}
+                            onClick={(e) => e.stopPropagation()}
+                            sx={{
+                              color: "#666",
+                              "&.Mui-checked": {
+                                color: "#1a73e8",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(26, 115, 232, 0.04)",
+                              },
+                            }}
+                          />
+                        </div>
+                      )}
                       <div className="flex-shrink-0 relative">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedTask?.id === task.id ? 'bg-blue-200' : 'bg-blue-100'
-                          }`}>
-                          {getStatusIcon(task.status)}
-                        </div>
+                          } ${task.disabled ? 'opacity-50' : ''}`}>
+                        {getStatusIcon(task.status)}
+                      </div>
                         {selectedTask?.id === task.id && (
                           <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
                             <div className="w-2 h-2 bg-white rounded-full"></div>
                           </div>
                         )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
                           <h3 className={`text-base font-medium truncate ${selectedTask?.id === task.id ? 'text-blue-700' : 'text-gray-900'
                             }`}>
                             {task.title}
@@ -905,91 +984,91 @@ const Tasks: React.FC = () => {
                               sx={{ fontSize: '0.7rem', height: '20px' }}
                             />
                           )}
-                          {task.isUrgent && (
-                            <Chip
-                              icon={<PriorityHighIcon />}
-                              label="Urgent"
-                              color="error"
-                              size="small"
-                            />
-                          )}
-                          {task.isOverdue && (
-                            <Chip
-                              label="Overdue"
-                              color="error"
-                              size="small"
-                            />
-                          )}
+                        {task.isUrgent && (
+                          <Chip 
+                            icon={<PriorityHighIcon />} 
+                            label="Urgent" 
+                            color="error" 
+                            size="small" 
+                          />
+                        )}
+                        {task.isOverdue && (
+                          <Chip 
+                            label="Overdue" 
+                            color="error" 
+                            size="small" 
+                          />
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                        <span className="flex items-center gap-1">
+                          <ConfirmationNumberIcon fontSize="small" />
+                          {task.ticketId}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <PersonIcon fontSize="small" />
+                          {task.assignedTo}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <ScheduleIcon fontSize="small" />
+                          {task.dueDate}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Chip 
+                            label={task.status} 
+                            size="small" 
+                            color={getStatusColor(task.status) as any}
+                          />
+                          <Chip 
+                            label={task.priority} 
+                            size="small" 
+                            color={getPriorityColor(task.priority) as any}
+                            variant="outlined"
+                          />
                         </div>
-
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                          <span className="flex items-center gap-1">
-                            <ConfirmationNumberIcon fontSize="small" />
-                            {task.ticketId}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <PersonIcon fontSize="small" />
-                            {task.assignedTo}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <ScheduleIcon fontSize="small" />
-                            {task.dueDate}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Chip
-                              label={task.status}
-                              size="small"
-                              color={getStatusColor(task.status) as any}
-                            />
-                            <Chip
-                              label={task.priority}
-                              size="small"
-                              color={getPriorityColor(task.priority) as any}
-                              variant="outlined"
-                            />
-                          </div>
-
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <span>{task.actualHours}/{task.estimatedHours}h</span>
-                            <div className="flex items-center gap-1">
+                        
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span>{task.actualHours}/{task.estimatedHours}h</span>
+                          <div className="flex items-center gap-1">
                               <IconButton
                                 size="small"
                               >
-                                <CommentIcon fontSize="small" />
+                            <CommentIcon fontSize="small" />
                               </IconButton>
                               <span className="text-gray-500">{task.comments.length}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
+                          </div>
+                          <div className="flex items-center gap-1">
                               <IconButton
                                 size="small"
                               >
-                                <AttachFileIcon fontSize="small" />
+                            <AttachFileIcon fontSize="small" />
                               </IconButton>
                               <span className="text-gray-500">{task.attachments.length}</span>
-                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
 
               {paginatedTasks.length === 0 && (
-                <div className="text-center py-12">
-                  <AssignmentIcon className="text-gray-400 text-4xl mx-auto mb-3" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
-                  <p className="text-gray-600">Try adjusting your search or filters</p>
-                </div>
-              )}
-            </div>
+              <div className="text-center py-12">
+                <AssignmentIcon className="text-gray-400 text-4xl mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
+                <p className="text-gray-600">Try adjusting your search or filters</p>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* RIGHT SECTION - Task Details & Actions */}
+      {/* RIGHT SECTION - Task Details & Actions */}
         {selectedTask && (
           <div className="w-[65%] flex bg-gray-50">
             {/* Right Sidebar Tabs */}
@@ -1035,39 +1114,39 @@ const Tasks: React.FC = () => {
 
             {/* Right Content Area */}
             <div className="flex-1 flex flex-col">
-              <>
-                {/* Task Header */}
-                <div className="bg-white border-b px-6 py-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        {getStatusIcon(selectedTask.status)}
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-semibold text-gray-900">{selectedTask.title}</h2>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Chip
-                            label={selectedTask.status}
-                            color={getStatusColor(selectedTask.status) as any}
-                          />
-                          <Chip
-                            label={selectedTask.priority}
-                            color={getPriorityColor(selectedTask.priority) as any}
-                            variant="outlined"
-                          />
-                          {selectedTask.isUrgent && (
-                            <Chip
-                              icon={<PriorityHighIcon />}
-                              label="Urgent"
-                              color="error"
-                              size="small"
-                            />
-                          )}
-                        </div>
-                      </div>
+          <>
+            {/* Task Header */}
+            <div className="bg-white border-b px-6 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    {getStatusIcon(selectedTask.status)}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">{selectedTask.title}</h2>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Chip 
+                        label={selectedTask.status} 
+                        color={getStatusColor(selectedTask.status) as any}
+                      />
+                      <Chip 
+                        label={selectedTask.priority} 
+                        color={getPriorityColor(selectedTask.priority) as any}
+                        variant="outlined"
+                      />
+                      {selectedTask.isUrgent && (
+                        <Chip 
+                          icon={<PriorityHighIcon />} 
+                          label="Urgent" 
+                          color="error" 
+                          size="small" 
+                        />
+                      )}
                     </div>
-
-                    <div className="flex gap-2">
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
                       <FormControl size="small">
                         <Select
                           value={selectedTask.status}
@@ -1082,14 +1161,14 @@ const Tasks: React.FC = () => {
                                   style={{ backgroundColor: option.color }}
                                 ></div>
                                 {option.label}
-                              </div>
+                </div>
                             </MenuItem>
                           ))}
                         </Select>
                       </FormControl>
-                    </div>
+              </div>
                   </div>
-                </div>
+            </div>
 
                 {/* Tab Content */}
                 {rightActiveTab === 0 && (
@@ -1103,96 +1182,96 @@ const Tasks: React.FC = () => {
                         </CardContent>
                       </Card>
 
-                      {/* Associated Ticket */}
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <ConfirmationNumberIcon className="text-blue-600" />
-                            <h3 className="font-medium text-gray-900">Associated Ticket</h3>
-                          </div>
-                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium text-blue-900">{selectedTask.ticketId}</div>
-                                <div className="text-sm text-blue-700">{selectedTask.ticketTitle}</div>
-                              </div>
-                              <Chip
-                                label={selectedTask.ticketStatus}
-                                size="small"
-                                color={selectedTask.ticketStatus === 'Open' ? 'error' : 'default'}
-                              />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+              {/* Associated Ticket */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ConfirmationNumberIcon className="text-blue-600" />
+                    <h3 className="font-medium text-gray-900">Associated Ticket</h3>
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-blue-900">{selectedTask.ticketId}</div>
+                        <div className="text-sm text-blue-700">{selectedTask.ticketTitle}</div>
+                      </div>
+                      <Chip 
+                        label={selectedTask.ticketStatus} 
+                        size="small" 
+                        color={selectedTask.ticketStatus === 'Open' ? 'error' : 'default'}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                      {/* Task Details */}
-                      <Card>
-                        <CardContent className="p-4">
-                          <h3 className="font-medium text-gray-900 mb-3">Task Details</h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-3">
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Assigned To:</span>
-                                <span className="font-medium">{selectedTask.assignedTo}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Assigned By:</span>
-                                <span className="font-medium">{selectedTask.assignedBy}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Created:</span>
-                                <span className="font-medium">{selectedTask.createdAt}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Due Date:</span>
-                                <span className="font-medium">{selectedTask.dueDate}</span>
-                              </div>
-                            </div>
+              {/* Task Details */}
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-medium text-gray-900 mb-3">Task Details</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Assigned To:</span>
+                        <span className="font-medium">{selectedTask.assignedTo}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Assigned By:</span>
+                        <span className="font-medium">{selectedTask.assignedBy}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Created:</span>
+                        <span className="font-medium">{selectedTask.createdAt}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Due Date:</span>
+                        <span className="font-medium">{selectedTask.dueDate}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Estimated:</span>
+                        <span className="font-medium">{selectedTask.estimatedHours}h</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Actual:</span>
+                        <span className="font-medium">{selectedTask.actualHours}h</span>
+                      </div>
+                      </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                            <div className="space-y-3">
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Estimated:</span>
-                                <span className="font-medium">{selectedTask.estimatedHours}h</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Actual:</span>
-                                <span className="font-medium">{selectedTask.actualHours}h</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+              {/* Tags */}
+              {selectedTask.tags.length > 0 && (
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-medium text-gray-900 mb-3">Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedTask.tags.map((tag, index) => (
+                        <Chip key={index} label={tag} size="small" variant="outlined" />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-                      {/* Tags */}
-                      {selectedTask.tags.length > 0 && (
-                        <Card>
-                          <CardContent className="p-4">
-                            <h3 className="font-medium text-gray-900 mb-3">Tags</h3>
-                            <div className="flex flex-wrap gap-2">
-                              {selectedTask.tags.map((tag, index) => (
-                                <Chip key={index} label={tag} size="small" variant="outlined" />
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
+              {/* Comments */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-medium text-gray-900">Comments ({selectedTask.comments.length})</h3>
 
-                      {/* Comments */}
-                      <Card>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-medium text-gray-900">Comments ({selectedTask.comments.length})</h3>
-
-                            <Button
+                    <Button
                               variant="contained"
-                              size="small"
+                      size="small"
                               startIcon={showCommentForm ? <CloseIcon /> : <CommentIcon />}
                               onClick={() => setShowCommentForm(!showCommentForm)}
-                            >
+                    >
                               {showCommentForm ? 'Cancel' : 'Add Comment'}
-                            </Button>
-                          </div>
+                    </Button>
+                  </div>
 
                           {/* Comment Form */}
                           <div
@@ -1390,20 +1469,20 @@ const Tasks: React.FC = () => {
                               </div>
                             </div>
                           </div>
-
-                          <div className="space-y-3 max-h-60 overflow-y-auto">
-                            {selectedTask.comments.map((comment) => (
-                              <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
-                                <div className="flex items-center justify-between mb-1">
-                                  <span className="font-medium text-sm">{comment.author}</span>
-                                  <div className="flex items-center gap-2">
+                  
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {selectedTask.comments.map((comment) => (
+                      <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-sm">{comment.author}</span>
+                          <div className="flex items-center gap-2">
                                     <div className="text-right">
                                       <div className="text-xs text-gray-500">{comment.timestamp}</div>
                                       <div className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</div>
                                     </div>
-                                    {comment.isInternal && (
-                                      <Chip label="Internal" size="small" color="warning" />
-                                    )}
+                            {comment.isInternal && (
+                              <Chip label="Internal" size="small" color="warning" />
+                            )}
                                     {canEditComment(comment.createdAt) && (
                                       <IconButton
                                         size="small"
@@ -1413,8 +1492,8 @@ const Tasks: React.FC = () => {
                                         <EditIcon fontSize="small" />
                                       </IconButton>
                                     )}
-                                  </div>
-                                </div>
+                          </div>
+                        </div>
 
                                 {editingCommentId === comment.id ? (
                                   <div className="space-y-2">
@@ -1449,7 +1528,7 @@ const Tasks: React.FC = () => {
                                     </div>
                                   </div>
                                 ) : (
-                                  <p className="text-sm text-gray-700">{comment.text}</p>
+                        <p className="text-sm text-gray-700">{comment.text}</p>
                                 )}
 
                                 {!canEditComment(comment.createdAt) ? (
@@ -1461,18 +1540,18 @@ const Tasks: React.FC = () => {
                                     ⏱️ Edit available for {getRemainingEditTime(comment.createdAt)} more seconds
                                   </div>
                                 )}
-                              </div>
-                            ))}
-
-                            {selectedTask.comments.length === 0 && (
-                              <div className="text-center py-6 text-gray-500">
-                                <CommentIcon className="text-2xl mx-auto mb-2" />
-                                <p>No comments yet</p>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
+                      </div>
+                    ))}
+                    
+                    {selectedTask.comments.length === 0 && (
+                      <div className="text-center py-6 text-gray-500">
+                        <CommentIcon className="text-2xl mx-auto mb-2" />
+                        <p>No comments yet</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
                     </div>
                   </div>
                 )}
@@ -1494,7 +1573,7 @@ const Tasks: React.FC = () => {
 
                       {selectedTask.attachments.length > 0 ? (
                         <div className="space-y-4">
-                          {selectedTask.attachments.map((attachment) => (
+                      {selectedTask.attachments.map((attachment) => (
                             <Card key={attachment.id}>
                               <CardContent className="p-4">
                                 <div className="flex items-center justify-between">
@@ -1502,12 +1581,12 @@ const Tasks: React.FC = () => {
                                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                                       <AttachFileIcon className="text-blue-600" />
                                     </div>
-                                    <div>
+                            <div>
                                       <div className="font-medium text-gray-900">{attachment.name}</div>
                                       <div className="text-sm text-gray-500">{attachment.size} • {attachment.type}</div>
                                       <div className="text-xs text-gray-400">Uploaded by {attachment.uploadedBy} on {attachment.uploadedAt}</div>
-                                    </div>
-                                  </div>
+                            </div>
+                          </div>
                                   <div className="flex gap-2">
                                     <Button size="small" variant="outlined" startIcon={<DownloadIcon />}>
                                       Download
@@ -1515,12 +1594,12 @@ const Tasks: React.FC = () => {
                                     <IconButton size="small" color="error">
                                       <CloseIcon fontSize="small" />
                                     </IconButton>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
                         </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                          ))}
+            </div>
                       ) : (
                         <div className="text-center py-12">
                           <AttachFileIcon className="text-gray-400 text-4xl mx-auto mb-3" />
@@ -1528,9 +1607,9 @@ const Tasks: React.FC = () => {
                           <p className="text-gray-600">This task doesn't have any attachments yet</p>
                         </div>
                       )}
-                    </div>
-                  </div>
-                )}
+            </div>
+          </div>
+        )}
 
                 {/* Activities Tab */}
                 {rightActiveTab === 2 && (
@@ -1555,7 +1634,7 @@ const Tasks: React.FC = () => {
                               <div className="text-sm text-gray-600 mt-1">Status changed from "Pending" to "In Progress"</div>
                               <div className="text-xs text-gray-400 mt-2">2 hours ago by John Doe</div>
                             </div>
-                          </div>
+      </div>
 
                           {/* Activity 2 */}
                           <div className="relative flex items-start gap-4">
@@ -1576,7 +1655,7 @@ const Tasks: React.FC = () => {
                             <div className="relative z-10 flex-shrink-0">
                               <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                                 <AttachFileIcon className="text-purple-600 text-sm" />
-                              </div>
+          </div>
                             </div>
                             <div className="flex-1 pt-1">
                               <div className="font-medium text-gray-900">File Uploaded</div>
@@ -1675,7 +1754,7 @@ const Tasks: React.FC = () => {
                 placeholder="Enter task title"
                 size="medium"
               />
-
+              
               <TextField
                 label="Description"
                 multiline
@@ -1684,7 +1763,7 @@ const Tasks: React.FC = () => {
                 placeholder="Describe the task in detail"
                 size="medium"
               />
-
+              
               <div className="grid grid-cols-2 gap-6">
                 <FormControl fullWidth>
                   <InputLabel>Priority</InputLabel>
@@ -1696,13 +1775,13 @@ const Tasks: React.FC = () => {
                             className="w-3 h-3 rounded-full mr-2"
                             style={{ backgroundColor: option.color }}
                           ></div>
-                          {option.label}
+                        {option.label}
                         </div>
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
-
+                
                 <TextField
                   label="Due Date"
                   type="date"
@@ -1711,7 +1790,7 @@ const Tasks: React.FC = () => {
                   size="medium"
                 />
               </div>
-
+              
               <div className="grid grid-cols-2 gap-6">
                 <TextField
                   label="Estimated Hours"
@@ -1720,7 +1799,7 @@ const Tasks: React.FC = () => {
                   inputProps={{ min: 0, step: 0.5 }}
                   size="medium"
                 />
-
+                
                 <FormControl fullWidth>
                   <InputLabel>Assigned To</InputLabel>
                   <Select label="Assigned To" size="medium" value={currentAgent}>
@@ -1728,14 +1807,14 @@ const Tasks: React.FC = () => {
                   </Select>
                 </FormControl>
               </div>
-
+              
               <TextField
                 label="Associated Ticket ID"
                 fullWidth
                 placeholder="e.g., TK-2024-001"
                 size="medium"
               />
-
+              
               <TextField
                 label="Tags"
                 fullWidth
@@ -1749,15 +1828,15 @@ const Tasks: React.FC = () => {
           {/* Footer Actions */}
           <div className="bg-gray-50 border-t px-6 py-4">
             <div className="flex justify-end gap-3">
-              <Button
-                variant="outlined"
+              <Button 
+                variant="outlined" 
                 onClick={() => setTaskDialogOpen(false)}
                 size="large"
               >
                 Cancel
               </Button>
-              <Button
-                variant="contained"
+              <Button 
+                variant="contained" 
                 size="large"
               >
                 Create Task
