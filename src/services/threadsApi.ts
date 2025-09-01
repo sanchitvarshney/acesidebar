@@ -42,6 +42,27 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    editShortcut: builder.mutation({
+      query: (credentials) => ({
+        url: `/shortcut/edit/${credentials.key}`,
+        method: "PUT",
+        body: credentials.body,
+      }),
+    }),
+    AddShortcut: builder.mutation({
+      query: (credentials) => ({
+        url: `/shortcut/add`,
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+        deleteShortcut: builder.mutation({
+      query: (credentials) => ({
+        url: `/shortcut/delete/${credentials.key}`,
+        method: "DELETE",
+   
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -51,5 +72,8 @@ export const {
   useGetAttacedFileQuery,
   useCommanApiMutation,
   useUpdateUserDataMutation,
-  useGetShortCutListQuery
+  useGetShortCutListQuery,
+  useEditShortcutMutation,
+  useAddShortcutMutation,
+  useDeleteShortcutMutation
 } = extendedTicketApi;
