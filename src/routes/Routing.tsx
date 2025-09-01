@@ -4,7 +4,7 @@ import MainLayout from "../components/layout/MainLayout";
 import Protected from "../components/protected/Protected";
 
 import Tickets from "../USERMODULE/pages/TicketManagement/Tickets";
-import Tasks from "../USERMODULE/pages/TicketManagement/Tasks";
+import Tasks from "../USERMODULE/pages/task/Tasks";
 import Chat from "../USERMODULE/pages/TicketManagement/Chat";
 import CreateTicketPage from "../USERMODULE/pages/TicketManagement/CreateTicketPage";
 import CreateUser from "../USERMODULE/pages/CreateUser";

@@ -1,0 +1,173 @@
+import React from "react";
+import {
+  TextField,
+  IconButton,
+  Tooltip,
+  TablePagination,
+  Box,
+} from "@mui/material";
+import {
+  FilterList as FilterListIcon,
+  ManageSearch as ManageSearchIcon,
+  Assignment as AssignmentIcon,
+} from "@mui/icons-material";
+import { Task } from "../types/task.types";
+import TaskCard from "./TaskCard";
+import { filterTasksBySearch, paginateTasks } from "../utils/taskUtils";
+
+interface TaskListProps {
+  tasks: Task[];
+  selectedTasks: string[];
+  selectedTask: Task | null;
+  searchQuery: string;
+  page: number;
+  rowsPerPage: number;
+  onSearchChange: (query: string) => void;
+  onTaskSelect: (taskId: string, checked: boolean) => void;
+  onTaskClick: (task: Task) => void;
+  onPageChange: (page: number) => void;
+  onRowsPerPageChange: (rowsPerPage: number) => void;
+  onAdvancedSearchOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  getStatusIcon: (status: string) => React.ReactNode;
+}
+
+const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  selectedTasks,
+  selectedTask,
+  searchQuery,
+  page,
+  rowsPerPage,
+  onSearchChange,
+  onTaskSelect,
+  onTaskClick,
+  onPageChange,
+  onRowsPerPageChange,
+  onAdvancedSearchOpen,
+  getStatusIcon,
+}) => {
+  // Filter tasks based on search query
+  const filteredTasks = React.useMemo(() => {
+    return filterTasksBySearch(tasks, searchQuery, {
+      title: true,
+      description: true,
+      ticketId: true,
+      assignedTo: true,
+      tags: true,
+    });
+  }, [tasks, searchQuery]);
+
+  // Paginate filtered tasks
+  const paginatedTasks = React.useMemo(() => {
+    return paginateTasks(filteredTasks, page, rowsPerPage);
+  }, [filteredTasks, page, rowsPerPage]);
+
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    onPageChange(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    onRowsPerPageChange(parseInt(event.target.value, 10));
+  };
+
+  return (
+    <div className="w-[35%] flex flex-col border-r bg-white">
+      {/* Search and Filters Header */}
+      <div className="px-6 py-4 border-b bg-[#f5f5f5] border-b-[#ccc]">
+        <div className="flex items-center gap-2 mb-3">
+          {/* Search */}
+          <TextField
+            placeholder="Search tasks or tickets..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <ManageSearchIcon className="text-gray-400 mr-2" />
+              ),
+            }}
+            size="small"
+            fullWidth
+          />
+
+          {/* Task Advanced Search Button */}
+          <Tooltip title="Task Advanced Filters" placement="bottom">
+            <IconButton
+              onClick={(e) => onAdvancedSearchOpen(e)}
+              sx={{
+                color: "#374151",
+                backgroundColor: "#f8f9fa",
+                border: "1px solid #e9ecef",
+                "&:hover": {
+                  backgroundColor: "#e9ecef",
+                  borderColor: "#dee2e6",
+                },
+                width: 40,
+                height: 40,
+              }}
+            >
+              <FilterListIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+      </div>
+
+      {/* Task List */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4 space-y-3">
+          {paginatedTasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              isSelected={selectedTasks.includes(task.id)}
+              isCurrentTask={selectedTask?.id === task.id}
+              onSelect={onTaskSelect}
+              onClick={onTaskClick}
+              getStatusIcon={getStatusIcon}
+            />
+          ))}
+
+          {paginatedTasks.length === 0 && (
+            <div className="text-center py-12">
+              <AssignmentIcon className="text-gray-400 text-4xl mx-auto mb-3" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No tasks found
+              </h3>
+              <p className="text-gray-600">
+                Try adjusting your search or filters
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <Box sx={{ borderTop: "1px solid #e0e0e0", backgroundColor: "#fafafa" }}>
+        <TablePagination
+          component="div"
+          count={filteredTasks.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5, 10, 20, 50]}
+          labelRowsPerPage=""
+          sx={{
+            ".MuiTablePagination-selectLabel": {
+              display: "none",
+            },
+            ".MuiTablePagination-displayedRows": {
+              margin: 0,
+            },
+          }}
+        />
+      </Box>
+    </div>
+  );
+};
+
+export default TaskList;
