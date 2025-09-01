@@ -162,7 +162,7 @@ const TicketDetailTemplate = () => {
             ticketNumber={openTicketNumber}
           />
         </div>
-        <div className="w-full  grid grid-cols-[3fr_1fr] ">
+        <div className="w-full bg-gray-100 grid grid-cols-[3fr_1fr] ">
           <div
             style={{ width: "100%", height: "100%", overflow: "auto" }}
             id="ticket-thread"

@@ -504,13 +504,13 @@ const ThreadItem = ({
                   }}
                 />
                 {item?.attachments.length > 0 && (
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                       Attachments ({item?.attachments?.length} files)
                     </Typography>
                     <List
                       disablePadding
-                      sx={{ width: 260, bgcolor: "#eeececff", px: 0.8 }}
+                      sx={{ width: 260, bgcolor: "transparent", px: 0.8 }}
                     >
                       {item?.attachments?.map((file: any) => (
                         <ListItem disablePadding key={file?.fileSignature}>
