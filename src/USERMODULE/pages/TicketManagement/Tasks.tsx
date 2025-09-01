@@ -1082,7 +1082,7 @@ const Tasks: React.FC = () => {
                   key={task.id}
                   className={`relative border mb-3 transition-shadow cursor-pointer transition-all duration-200
                   ${selectedTask?.id === task.id
-                      ? 'border-blue-500 shadow-lg scale-[1.02] before:bg-[#1a73e8]'
+                      ? 'border-[#1a73e8] shadow-lg scale-[1.02] before:bg-[#1a73e8]'
                       : 'border-gray-300 hover:shadow-md hover:bg-gray-100 before:bg-gray-300'
                     } before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:rounded-l`}
                   onClick={() => {
