@@ -18,6 +18,8 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 
 import {
   IconButton,
@@ -30,6 +32,8 @@ import {
   Box,
   Tooltip,
   Typography,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 
@@ -142,6 +146,7 @@ const TicketDetailHeader = ({
   const [isAttachmentsModal, setIsAttachmentsModal] = useState(false);
   const [isActivityModal, setIsActivityModal] = useState(false);
   const [isSpamModal, setIsSpamModal] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const [commanApi] = useCommanApiMutation();
 
@@ -266,6 +271,12 @@ const TicketDetailHeader = ({
     setStatusAnchorEl(null);
   };
 
+  const handleNotificationToggle = () => {
+    setNotificationsEnabled(!notificationsEnabled);
+    // You can add API call here to update notification settings
+    console.log('Notifications', notificationsEnabled ? 'disabled' : 'enabled');
+  };
+
   return (
     <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
       {/* Breadcrumb */}
@@ -340,7 +351,35 @@ const TicketDetailHeader = ({
 
       {/* Navigation buttons - Right side */}
 
-      <div className="flex gap-1 ml-auto">
+      <div className="flex gap-8 ml-auto">
+        {/* Notification Switch with Icon */}
+        <Tooltip title={notificationsEnabled ? "Disable Notifications" : "Enable Notifications"} placement="left">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {notificationsEnabled ? (
+              <NotificationsIcon fontSize="small" sx={{ color: '#1a73e8' }} />
+            ) : (
+              <NotificationsOffIcon fontSize="small" sx={{ color: '#9ca3af' }} />
+            )}
+            <Switch
+              checked={notificationsEnabled}
+              onChange={handleNotificationToggle}
+              size="small"
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: '#1a73e8',
+                  '& + .MuiSwitch-track': {
+                    backgroundColor: '#1a73e8',
+                  },
+                },
+                '& .MuiSwitch-track': {
+                  backgroundColor: '#d1d5db',
+                },
+              }}
+            />
+          </Box>
+        </Tooltip>
+
+        {/* Previous Ticket Button */}
         <IconButton
           onClick={onPreviousTicket}
           disabled={!hasPreviousTicket}
@@ -353,6 +392,8 @@ const TicketDetailHeader = ({
         >
           <ArrowBackIosIcon fontSize="small" />
         </IconButton>
+
+        {/* Next Ticket Button */}
         <IconButton
           onClick={onNextTicket}
           disabled={!hasNextTicket}
