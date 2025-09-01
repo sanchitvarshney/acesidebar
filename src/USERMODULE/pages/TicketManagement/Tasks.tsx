@@ -12,20 +12,14 @@ import {
   Tooltip,
   FormControl,
   InputLabel,
-  Switch,
-  FormControlLabel,
   Checkbox,
-  LinearProgress,
   Drawer,
   TablePagination,
-  Popper,
-  Paper,
   Box,
   Typography,
   ListItemText
 } from "@mui/material";
 import {
-  Search as SearchIcon,
   FilterList as FilterListIcon,
   Add as AddIcon,
   Assignment as AssignmentIcon,
@@ -46,7 +40,11 @@ import {
   CheckCircle as CheckCircleIcon,
   Save as SaveIcon,
   Refresh as RefreshIcon,
-  ManageSearch as ManageSearchIcon
+  Timer as TimerIcon,
+  ManageSearch as ManageSearchIcon,
+  Event as EventIcon,
+  AccessTime as AccessTimeIcon,
+  DisplaySettings as DisplaySettingsIcon
 } from "@mui/icons-material";
 import SortIcon from '@mui/icons-material/Sort';
 
@@ -1358,23 +1356,36 @@ const Tasks: React.FC = () => {
                       {/* Task Description */}
                       <Card>
                         <CardContent className="p-4 border border-gray-100 shadow-sm transition-shadow">
-                          <h3 className="mb-3 font-bold">Description</h3>
-                          <p  className="text-gray-600 text-sm">{selectedTask.description}</p>
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100 mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <DisplaySettingsIcon className="text-blue-600 text-sm" />
+                              </div>
+                              <h3 className="font-bold text-gray-900">Description</h3>
+                            </div>
+                          </div>
+                          <p className="text-gray-600 text-sm font-medium">{selectedTask.description}</p>
                         </CardContent>
                       </Card>
 
                       {/* Associated Ticket */}
                       <Card>
                         <CardContent className="p-4 border border-gray-100 shadow-sm transition-shadow">
-                          <div className="flex items-center gap-2 mb-3">
-                            <ConfirmationNumberIcon className="text-blue-600" />
-                            <h3 className="font-bold">Associated Ticket</h3>
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100 mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <ConfirmationNumberIcon className="text-blue-600 text-sm font-medium" />
+                              </div>
+                              <h3 className="font-bold text-gray-900">Associated Ticket</h3>
+                            </div>
                           </div>
-                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+
+
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                             <div className="flex items-center justify-between">
                               <div>
-                                <div className="text-blue-900">{selectedTask.ticketId}</div>
-                                <div className="text-sm text-blue-700">{selectedTask.ticketTitle}</div>
+                                <div className="text-blue-900 font-bold">{selectedTask.ticketId}</div>
+                                <div className="text-blue-700 font-bold" style={{ fontSize: '12px' }}>{selectedTask.ticketTitle}</div>
                               </div>
                               <Chip
                                 label={selectedTask.ticketStatus}
@@ -1388,36 +1399,75 @@ const Tasks: React.FC = () => {
 
                       {/* Task Details */}
                       <Card>
-                        <CardContent className="p-4 border border-gray-100 shadow-sm transition-shadow">
-                          <h3 className="mb-3 font-bold">Task Details</h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-3">
-                              <div className="flex justify-between">
-                                <span className="text-gray-500 text-sm">Assigned To:</span>
-                                <span className="text-sm">{selectedTask.assignedTo}</span>
+                        <CardContent className="p-0 border border-gray-100 shadow-sm transition-shadow overflow-hidden">
+                          {/* Header */}
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <AssignmentIcon className="text-blue-600 text-sm" />
                               </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Assigned By:</span>
-                                <span className="text-sm">{selectedTask.assignedBy}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Created:</span>
-                                <span className="text-sm">{selectedTask.createdAt}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Due Date:</span>
-                                <span className="text-sm">{selectedTask.dueDate}</span>
-                              </div>
+                              <h3 className="font-bold text-gray-900">Task Details</h3>
                             </div>
+                          </div>
 
-                            <div className="space-y-3">
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Estimated:</span>
-                                <span className="text-sm">{selectedTask.estimatedHours}h</span>
+                          {/* Content */}
+                          <div className="p-4">
+                            <div className="grid grid-cols-1 gap-4">
+                              {/* Assignment Info */}
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center  gap-2">
+                                    <PersonIcon className="text-gray-500 text-sm" />
+                                    <span className="text-gray-600 text-sm font-medium">Assigned To</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">{selectedTask.assignedTo}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center gap-2">
+                                    <PersonIcon className="text-gray-500 text-sm" />
+                                    <span className="text-gray-600 text-sm font-medium">Assigned By</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">{selectedTask.assignedBy}</span>
+                                </div>
                               </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Actual:</span>
-                                <span className="text-sm">{selectedTask.actualHours}h</span>
+
+                              {/* Time Info */}
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center gap-2">
+                                    <ScheduleIcon className="text-gray-500 text-sm" />
+                                    <span className="text-gray-600 text-sm font-medium">Created</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">{selectedTask.createdAt}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center gap-2">
+                                    <EventIcon className="text-gray-500 text-sm" />
+                                    <span className="text-gray-600 text-sm font-medium">Due Date</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">{selectedTask.dueDate}</span>
+                                </div>
+                              </div>
+
+                              {/* Hours Info */}
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                  <div className="flex items-center gap-2">
+                                    <AccessTimeIcon className="text-blue-500 text-sm" />
+                                    <span className="text-blue-700 text-sm font-medium">Estimated</span>
+                                  </div>
+                                  <span className="text-sm font-bold text-blue-900">{selectedTask.estimatedHours}h</span>
+                                </div>
+
+                                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                                  <div className="flex items-center gap-2">
+                                    <TimerIcon className="text-green-500 text-sm" />
+                                    <span className="text-green-700 text-sm font-medium">Actual</span>
+                                  </div>
+                                  <span className="text-sm font-bold text-green-900">{selectedTask.actualHours}h</span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1428,10 +1478,17 @@ const Tasks: React.FC = () => {
                       {selectedTask.tags.length > 0 && (
                         <Card>
                           <CardContent className="p-4">
-                            <h3 className="text-gray-900 mb-3 font-bold">Tags</h3>
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100 mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  <AssignmentIcon className="text-blue-600 text-sm" />
+                                </div>
+                                <h3 className="font-bold text-gray-900">Tags</h3>
+                              </div>
+                            </div>
                             <div className="flex flex-wrap gap-2">
                               {selectedTask.tags.map((tag, index) => (
-                                <Chip key={index} label={tag} size="small" variant="outlined" />
+                                <Chip key={index} label={tag} size="small" variant="outlined" style={{ padding: '5px 8px' }} color="primary" />
                               ))}
                             </div>
                           </CardContent>
@@ -1662,7 +1719,7 @@ const Tasks: React.FC = () => {
                             {selectedTask.comments.slice(0, 3).map((comment) => (
                               <div key={comment.id} className="flex items-start gap-3">
                                 {/* Avatar */}
-                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
                                   {comment.author.charAt(0).toUpperCase()}
                                 </div>
 
@@ -1672,9 +1729,6 @@ const Tasks: React.FC = () => {
                                     <div className="flex items-center justify-between mb-2">
                                       <span className="font-medium text-sm text-gray-900">{comment.author}</span>
                                       <div className="flex items-center gap-2">
-                                        {comment.isInternal && (
-                                          <Chip label="Internal" size="small" color="warning" />
-                                        )}
                                         {canEditComment(comment.createdAt) && (
                                           <IconButton
                                             size="small"
@@ -1723,7 +1777,7 @@ const Tasks: React.FC = () => {
                                         </div>
                                       </div>
                                     ) : (
-                                      <p className="text-sm text-gray-700">{comment.text}</p>
+                                      <p className="text-sm text-gray-700 font-medium">{comment.text}</p>
                                     )}
                                   </div>
 
@@ -1732,6 +1786,14 @@ const Tasks: React.FC = () => {
                                     <span className="text-xs text-gray-500">{comment.timestamp}</span>
                                     <span className="text-xs text-gray-400">•</span>
                                     <span className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</span>
+                                    <span className="text-xs text-gray-400">- </span>
+
+                                    {comment.isInternal && (
+                                      <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                                        Internal
+                                      </span>
+                                    )}
+
                                   </div>
                                 </div>
                               </div>
