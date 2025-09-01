@@ -16,7 +16,6 @@ import ListIcon from "@mui/icons-material/List";
 import AddAlarmIcon from "@mui/icons-material/AddAlarm";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
@@ -43,6 +42,7 @@ import {
   Avatar,
   Chip,
   Autocomplete,
+  Drawer,
 } from "@mui/material";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 
@@ -138,10 +138,7 @@ const TicketDetailHeader = ({
   hasNextTicket = true,
 }: any) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-  const [moreAnchorEl, setMoreAnchorEl] = React.useState<HTMLElement | null>(
-    null
-  );
-  const [moreOpen, setMoreOpen] = React.useState(false);
+
   const [isMergeModal, setIsMergeModal] = useState(false);
   const [isLinkModal, setIsLinkModal] = useState(false);
   const [statusAnchorEl, setStatusAnchorEl] =
@@ -162,6 +159,7 @@ const TicketDetailHeader = ({
     { id: 2, name: "Me (Developer Account)", email: "developer@example.com", avatar: "D" }
   ]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
 
   const [commanApi] = useCommanApiMutation();
 
@@ -217,64 +215,9 @@ const TicketDetailHeader = ({
     },
   ];
 
-  // More dropdown options
-  const moreOptions = [
-    {
-      label: "Change Owner",
-      icon: <PersonAddAlt1Icon fontSize="small" />,
-      action: () => setIsChangeOwnerModal(true),
-    },
-    {
-      label: "Edit Ticket",
-      icon: <EditDocumentIcon fontSize="small" />,
-      action: () => setIsEditTicket(true),
-    },
-    {
-      label: "Link Tickets",
-      icon: <LinkIcon />,
-      action: () => setIsLinkModal(true),
-    },
-    {
-      label: "Manage Referrals",
-      icon: <ManageAccountsIcon fontSize="small" />,
-      action: () => setIsManageReferralsModal(true),
-    },
-    {
-      label: "Attachments",
-      icon: <AttachFileIcon fontSize="small" />,
-      action: () => setIsAttachmentsModal(true),
-    },
-    {
-      label: "Log time",
-      icon: <AddAlarmIcon fontSize="small" />,
-      action: () => setIsLogTimeModal(true),
-    },
-    {
-      label: "Activity",
-      icon: <AccessTimeIcon fontSize="small" />,
-      action: () => setIsActivityModal(true),
-    },
-    {
-      label: "Spam",
-      icon: <BlockIcon fontSize="small" />,
-      action: () => setIsSpamModal(true),
-    },
-    {
-      label: "Print",
-      icon: <LocalPrintshopIcon fontSize="small" />,
-      action: () => handlePrintData(ticketNumber),
-    },
-  ];
 
-  const handleMoreClick = (event: React.MouseEvent<HTMLElement>) => {
-    setMoreAnchorEl(event.currentTarget);
-    setMoreOpen(true);
-  };
 
-  const handleMoreClose = () => {
-    setMoreOpen(false);
-    setMoreAnchorEl(null);
-  };
+
 
   const handleStatusClick = (event: React.MouseEvent<HTMLElement>) => {
     setStatusAnchorEl(event.currentTarget);
@@ -310,6 +253,14 @@ const TicketDetailHeader = ({
     if (newWatcher && !watchers.find(w => w.id === newWatcher.id)) {
       setWatchers([...watchers, newWatcher]);
     }
+  };
+
+  const handleMoreDrawerOpen = () => {
+    setMoreDrawerOpen(true);
+  };
+
+  const handleMoreDrawerClose = () => {
+    setMoreDrawerOpen(false);
   };
 
   return (
@@ -373,14 +324,14 @@ const TicketDetailHeader = ({
         {/* Divider line */}
         <div className="w-px h-7 bg-gray-300 mx-2"></div>
 
-        <ActionButton
+                <ActionButton
           icon={
             <div className="flex items-center gap-1">
-              More <MoreVertIcon fontSize="small" className="text-blue-600 " />
+               More <MoreVertIcon fontSize="small" className="text-blue-600 " />
             </div>
           }
-          tooltip="More"
-          onClick={handleMoreClick}
+          tooltip="More Options"
+          onClick={handleMoreDrawerOpen}
         />
       </div>
 
@@ -517,41 +468,8 @@ const TicketDetailHeader = ({
         </List>
       </Popover>
 
-      {/* More dropdown popup */}
-      <Popover
-        open={moreOpen}
-        anchorEl={moreAnchorEl}
-        onClose={handleMoreClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-        PaperProps={{
-          className:
-            "shadow-lg rounded-lg mt-1 relative border border-gray-200 w-56",
-        }}
-      >
-        <List className="py-1">
-          {moreOptions.map((option, index) => (
-            <ListItem key={index} disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  option.action();
-                  handleMoreClose();
-                }}
-                className="py-1.5 px-3 mx-1 rounded-md hover:bg-blue-50 active:bg-blue-100"
-              >
-                <ListItemIcon sx={{ minWidth: 35 }}>{option.icon}</ListItemIcon>
-                <ListItemText primary={option.label} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Popover>
+
+
 
       <LinkTickets
         open={isLinkModal}
@@ -862,6 +780,472 @@ const TicketDetailHeader = ({
           </Box>
         </Box>
       </Popover>
+
+      {/* More Options Drawer */}
+      <Drawer
+        anchor="right"
+        open={moreDrawerOpen}
+        onClose={handleMoreDrawerClose}
+        PaperProps={{
+          sx: {
+            width: "30%",
+            borderTopLeftRadius: '50px',
+            borderBottomLeftRadius: '50px',
+            borderTopRightRadius: '0px',
+            borderBottomRightRadius: '0px',
+          },
+        }}
+      >
+        <Box sx={{ p: 3, height: '100%' }}>
+          {/* Header */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+              More Options
+            </Typography>
+            <IconButton onClick={handleMoreDrawerClose} sx={{ color: '#64748b' }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          {/* Search */}
+          <TextField
+            fullWidth
+            placeholder="Search options..."
+            size="small"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#64748b' }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              mb: 3,
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'white',
+                borderRadius: 2,
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#cbd5e1',
+                },
+              },
+            }}
+          />
+
+          {/* Options Grid */}
+          <Box 
+            sx={{ 
+              display: 'grid', 
+              gap: 2,
+              maxHeight: 'calc(100vh - 200px)',
+              overflowY: 'auto',
+              paddingRight: 1,
+            }} 
+            id="more-options-grid"
+          >
+            {/* Change Owner */}
+            <Box
+              onClick={() => {
+                setIsChangeOwnerModal(true);
+                handleMoreDrawerClose();
+              }}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#dbeafe',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <PersonAddAlt1Icon sx={{ color: '#1a73e8' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                    Change Owner
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Transfer ticket ownership
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Edit Ticket */}
+            <Box
+              onClick={() => {
+                setIsEditTicket(true);
+                handleMoreDrawerClose();
+              }}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#fef3c7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <EditDocumentIcon sx={{ color: '#f59e0b' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                    Edit Ticket
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Modify ticket details
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Link Tickets */}
+            <Box
+              onClick={() => {
+                setIsLinkModal(true);
+                handleMoreDrawerClose();
+              }}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#d1fae5',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <LinkIcon sx={{ color: '#059669' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                    Link Tickets
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Connect related tickets
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Manage Referrals */}
+            <Box
+              onClick={() => {
+                setIsManageReferralsModal(true);
+                handleMoreDrawerClose();
+              }}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#f3e8ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <ManageAccountsIcon sx={{ color: '#9333ea' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                    Manage Referrals
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Handle ticket referrals
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Attachments */}
+            <Box
+              onClick={() => {
+                setIsAttachmentsModal(true);
+                handleMoreDrawerClose();
+              }}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#fef2f2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <AttachFileIcon sx={{ color: '#dc2626' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                    Attachments
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Manage ticket files
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Activity */}
+            <Box
+              onClick={() => {
+                setIsActivityModal(true);
+                handleMoreDrawerClose();
+              }}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#e0f2fe',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <ListIcon sx={{ color: '#0284c7' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                    Activity
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    View ticket history
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Log Time */}
+            <Box
+              onClick={() => {
+                setIsLogTimeModal(true);
+                handleMoreDrawerClose();
+              }}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#fef7cd',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <AddAlarmIcon sx={{ color: '#eab308' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                    Log Time
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Track time spent on ticket
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Spam */}
+            <Box
+              onClick={() => {
+                setIsSpamModal(true);
+                handleMoreDrawerClose();
+              }}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#fef2f2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <BlockIcon sx={{ color: '#dc2626' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+                    Spam
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Mark ticket as spam
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Print */}
+            <Box
+              onClick={() => handlePrintData(ticketNumber)}
+              sx={{
+                p: 2,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                  borderColor: '#1a73e8',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    backgroundColor: '#f0f9ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <LocalPrintshopIcon sx={{ color: '#0ea5e9' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e73e8' }}>
+                    Print
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Print ticket details
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Drawer>
     </div>
   );
 };
