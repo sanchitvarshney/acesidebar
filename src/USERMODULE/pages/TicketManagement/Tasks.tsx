@@ -12,15 +12,14 @@ import {
   Tooltip,
   FormControl,
   InputLabel,
-  Switch,
-  FormControlLabel,
   Checkbox,
-  LinearProgress,
   Drawer,
-  TablePagination
+  TablePagination,
+  Box,
+  Typography,
+  ListItemText
 } from "@mui/material";
 import {
-  Search as SearchIcon,
   FilterList as FilterListIcon,
   Add as AddIcon,
   Assignment as AssignmentIcon,
@@ -40,7 +39,12 @@ import {
   Stop as StopIcon,
   CheckCircle as CheckCircleIcon,
   Save as SaveIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  Timer as TimerIcon,
+  ManageSearch as ManageSearchIcon,
+  Event as EventIcon,
+  AccessTime as AccessTimeIcon,
+  DisplaySettings as DisplaySettingsIcon
 } from "@mui/icons-material";
 import SortIcon from '@mui/icons-material/Sort';
 
@@ -104,6 +108,20 @@ const Tasks: React.FC = () => {
   const [commentError, setCommentError] = React.useState("");
   const [editingCommentId, setEditingCommentId] = React.useState<string | null>(null);
   const [currentTime, setCurrentTime] = React.useState(new Date());
+
+  // Task Advanced Search State
+  const [taskAdvancedSearchOpen, setTaskAdvancedSearchOpen] = React.useState(false);
+  const taskAdvancedSearchAnchorEl = React.useRef<HTMLButtonElement>(null);
+
+  // Task Advanced Search Filters
+  const [taskSearchConditions, setTaskSearchConditions] = React.useState<Array<{
+    id: string;
+    field: string;
+    condition: string;
+    value: string | string[];
+  }>>([]);
+
+  const [logicOperator, setLogicOperator] = React.useState<'AND' | 'OR'>('AND');
 
   // Refs for auto-focus and auto-scroll
   const commentTextareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -551,7 +569,7 @@ const Tasks: React.FC = () => {
 
   const filteredTasks = React.useMemo(() => {
     let filtered = tasks;
-    
+
     if (searchQuery) {
       filtered = filtered.filter(task => {
         let matches = false;
@@ -575,7 +593,7 @@ const Tasks: React.FC = () => {
         return matches;
       });
     }
-    
+
     return filtered;
   }, [tasks, searchQuery, searchInFields]);
 
@@ -618,6 +636,301 @@ const Tasks: React.FC = () => {
       setSelectedTasks(prev => [...prev, taskId]);
     } else {
       setSelectedTasks(prev => prev.filter(id => id !== taskId));
+    }
+  };
+
+  // Task Advanced Search Handlers
+  const handleTaskAdvancedSearchOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    taskAdvancedSearchAnchorEl.current = event.currentTarget;
+    setTaskAdvancedSearchOpen(true);
+  };
+
+  const handleTaskAdvancedSearchClose = () => {
+    setTaskAdvancedSearchOpen(false);
+    taskAdvancedSearchAnchorEl.current = null;
+  };
+
+  const handleTaskAdvancedSearchApply = () => {
+    console.log('Task advanced search conditions:', taskSearchConditions);
+    console.log('Logic operator:', logicOperator);
+    // Apply the filters to the task list
+    // You can implement the filtering logic here
+    handleTaskAdvancedSearchClose();
+  };
+
+  const addCondition = () => {
+    // Check if maximum conditions reached
+    if (taskSearchConditions.length >= 4) {
+      return;
+    }
+
+    // Get available fields (not already selected)
+    const usedFields = taskSearchConditions.map(c => c.field);
+    const availableFields = fieldOptions.filter(option => !usedFields.includes(option.value));
+
+    if (availableFields.length === 0) {
+      return; // No available fields
+    }
+
+    const newField = availableFields[0].value;
+    const defaultCondition = getConditionOptions(newField)[0].value;
+
+    // Initialize value based on field type and condition
+    let initialValue: any = '';
+    if (['status', 'priority'].includes(newField) && ['any_of', 'none_of'].includes(defaultCondition)) {
+      initialValue = []; // Array for multi-select
+    } else if (['dueDate', 'createdDate'].includes(newField) && defaultCondition === 'between') {
+      initialValue = ['', '']; // Array for date range
+    }
+
+    const newCondition = {
+      id: Date.now().toString(),
+      field: newField,
+      condition: defaultCondition,
+      value: initialValue
+    };
+    setTaskSearchConditions(prev => [...prev, newCondition]);
+  };
+
+  const removeCondition = (id: string) => {
+    setTaskSearchConditions(prev => prev.filter(condition => condition.id !== id));
+  };
+
+  const updateCondition = (id: string, field: 'field' | 'condition' | 'value', value: any) => {
+    setTaskSearchConditions(prev => prev.map(condition => {
+      if (condition.id === id) {
+        const updatedCondition = { ...condition, [field]: value };
+
+        // If condition type changed, reset value to appropriate type
+        if (field === 'condition') {
+          const { field: conditionField } = condition;
+          if (['status', 'priority'].includes(conditionField) && ['any_of', 'none_of'].includes(value)) {
+            updatedCondition.value = []; // Reset to empty array for multi-select
+          } else if (['status', 'priority'].includes(conditionField) && !['any_of', 'none_of'].includes(value)) {
+            updatedCondition.value = ''; // Reset to empty string for single select
+          } else if (['dueDate', 'createdDate'].includes(conditionField) && value === 'between') {
+            updatedCondition.value = ['', '']; // Reset to empty array for date range
+          } else if (['dueDate', 'createdDate'].includes(conditionField) && value !== 'between') {
+            updatedCondition.value = ''; // Reset to empty string for single date
+          }
+        }
+
+        return updatedCondition;
+      }
+      return condition;
+    }));
+  };
+
+  const clearAllConditions = () => {
+    setTaskSearchConditions([]);
+  };
+
+  // Validation functions
+  const validateCondition = (condition: any) => {
+    if (!condition.field || !condition.condition) {
+      return false;
+    }
+
+    if (condition.condition === 'is_empty') {
+      return true;
+    }
+
+    if (['dueDate', 'createdDate'].includes(condition.field)) {
+      if (condition.condition === 'between') {
+        return Array.isArray(condition.value) && condition.value[0] && condition.value[1];
+      }
+      return condition.value && condition.value.trim() !== '';
+    }
+
+    if (['status', 'priority'].includes(condition.field)) {
+      if (['any_of', 'none_of'].includes(condition.condition)) {
+        return Array.isArray(condition.value) && condition.value.length > 0;
+      }
+      return condition.value && condition.value.trim() !== '';
+    }
+
+    return condition.value && condition.value.trim() !== '';
+  };
+
+  const getConditionErrors = () => {
+    const errors: string[] = [];
+
+    taskSearchConditions.forEach((condition, index) => {
+      if (!validateCondition(condition)) {
+        errors.push(`Condition ${index + 1} is incomplete`);
+      }
+    });
+
+    return errors;
+  };
+
+  const isFormValid = () => {
+    return taskSearchConditions.length > 0 && getConditionErrors().length === 0;
+  };
+
+  const getAvailableFields = (currentConditionId: string) => {
+    const usedFields = taskSearchConditions
+      .filter(c => c.id !== currentConditionId)
+      .map(c => c.field);
+    return fieldOptions.filter(option => !usedFields.includes(option.value));
+  };
+
+  // Render dynamic value input based on field type
+  const renderValueInput = (condition: any) => {
+    const { field, condition: conditionType, value } = condition;
+
+    // Date fields
+    if (['dueDate', 'createdDate'].includes(field)) {
+      if (conditionType === 'between') {
+        return (
+          <div className="grid grid-cols-2 gap-2">
+            <TextField
+              type="date"
+              size="small"
+              placeholder="From"
+              value={Array.isArray(value) ? value[0] || '' : ''}
+              onChange={(e) => updateCondition(condition.id, 'value', [e.target.value, Array.isArray(value) ? value[1] || '' : ''])}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
+                  backgroundColor: '#f8f9fa',
+                }
+              }}
+            />
+            <TextField
+              type="date"
+              size="small"
+              placeholder="To"
+              value={Array.isArray(value) ? value[1] || '' : ''}
+              onChange={(e) => updateCondition(condition.id, 'value', [Array.isArray(value) ? value[0] || '' : '', e.target.value])}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
+                  backgroundColor: '#f8f9fa',
+                }
+              }}
+            />
+          </div>
+        );
+      } else {
+        return (
+          <TextField
+            type="date"
+            size="small"
+            fullWidth
+            value={value as string}
+            onChange={(e) => updateCondition(condition.id, 'value', e.target.value)}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+                backgroundColor: '#f8f9fa',
+              }
+            }}
+          />
+        );
+      }
+    }
+
+    // Select fields (Status, Priority)
+    if (['status', 'priority'].includes(field)) {
+      const options = field === 'status' ? statusOptions : priorityOptions;
+      const isMultiple = ['any_of', 'none_of'].includes(conditionType);
+      const currentValue = isMultiple ? (Array.isArray(value) ? value : []) : (value || '');
+
+      return (
+        <FormControl fullWidth size="small">
+          <Select
+            multiple={isMultiple}
+            value={currentValue}
+            onChange={(e) => updateCondition(condition.id, 'value', e.target.value)}
+            sx={{
+              borderRadius: '8px',
+              backgroundColor: '#f8f9fa',
+            }}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {Array.isArray(selected) ? selected.map((v) => (
+                  <Chip key={v} label={v} size="small" />
+                )) : (
+                  <span>{selected}</span>
+                )}
+              </Box>
+            )}
+          >
+            {options.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <Checkbox checked={isMultiple ? currentValue.includes(option.value) : currentValue === option.value} />
+                <ListItemText primary={option.label} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      );
+    }
+
+    // Text fields (default)
+    return (
+      <TextField
+        size="small"
+        fullWidth
+        value={value as string}
+        onChange={(e) => updateCondition(condition.id, 'value', e.target.value)}
+        placeholder={`Enter ${field} value...`}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
+            backgroundColor: '#f8f9fa',
+          }
+        }}
+      />
+    );
+  };
+
+  // Field options for conditions
+  const fieldOptions = [
+    { value: 'title', label: 'Task Title' },
+    { value: 'description', label: 'Description' },
+    { value: 'status', label: 'Status' },
+    { value: 'priority', label: 'Priority' },
+    { value: 'assignee', label: 'Assignee' },
+    { value: 'ticketId', label: 'Ticket ID' },
+    { value: 'dueDate', label: 'Due Date' },
+    { value: 'createdDate', label: 'Created Date' }
+  ];
+
+  // Condition options based on field type
+  const getConditionOptions = (field: string) => {
+    const textConditions = [
+      { value: 'contains', label: 'Contains' },
+      { value: 'not_contains', label: 'Does not contain' },
+      { value: 'starts_with', label: 'Starts with' },
+      { value: 'ends_with', label: 'Ends with' },
+      { value: 'equals', label: 'Equals' },
+      { value: 'is_empty', label: 'Is empty' }
+    ];
+
+    const dateConditions = [
+      { value: 'before', label: 'Before' },
+      { value: 'after', label: 'After' },
+      { value: 'on', label: 'On' },
+      { value: 'between', label: 'Between' },
+      { value: 'is_empty', label: 'Is empty' }
+    ];
+
+    const selectConditions = [
+      { value: 'equals', label: 'Equals' },
+      { value: 'not_equals', label: 'Does not equal' },
+      { value: 'any_of', label: 'Any of' },
+      { value: 'none_of', label: 'None of' },
+      { value: 'is_empty', label: 'Is empty' }
+    ];
+
+    if (['dueDate', 'createdDate'].includes(field)) {
+      return dateConditions;
+    } else if (['status', 'priority'].includes(field)) {
+      return selectConditions;
+    } else {
+      return textConditions;
     }
   };
 
@@ -695,8 +1008,8 @@ const Tasks: React.FC = () => {
               },
             }}
           />
-            <Button
-              variant="contained"
+          <Button
+            variant="contained"
             size="small"
             onClick={() => setTaskDialogOpen(true)}
             sx={{
@@ -710,9 +1023,9 @@ const Tasks: React.FC = () => {
             }}
           >
             + New Task
-            </Button>
+          </Button>
         </div>
-          </div>
+      </div>
 
       {/* Main Content: Tasks + Details */}
       <div className="flex flex-1 h-0 min-h-0">
@@ -721,32 +1034,55 @@ const Tasks: React.FC = () => {
         {/* LEFT SECTION - Task List & Filters */}
         <div className="w-[35%] flex flex-col border-r bg-white">
           {/* Search and Filters Header */}
-          <div className="px-6 py-4 border-b">
-          {/* Search */}
-          <TextField
-              placeholder="Search tasks or tickets..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: <SearchIcon className="text-gray-400 mr-2" />,
-            }}
-            size="small"
-            fullWidth
-          />
-        </div>
+          <div className="px-6 py-4 border-b bg-[#f5f5f5] border-b-[#ccc]">
+            <div className="flex items-center gap-2 mb-3">
+              {/* Search */}
+              <TextField
+                placeholder="Search tasks or tickets..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: <ManageSearchIcon className="text-gray-400 mr-2" />,
+                }}
+                size="small"
+                fullWidth
+              />
+
+              {/* Task Advanced Search Button */}
+              <Tooltip title="Task Advanced Filters" placement="bottom">
+                <IconButton
+                  onClick={handleTaskAdvancedSearchOpen}
+                  sx={{
+                    color: "#374151",
+                    backgroundColor: "#f8f9fa",
+                    border: "1px solid #e9ecef",
+                    "&:hover": {
+                      backgroundColor: "#e9ecef",
+                      borderColor: "#dee2e6",
+                    },
+                    width: 40,
+                    height: 40,
+                  }}
+                >
+                  <FilterListIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </div>
+          </div>
 
 
 
-        {/* Task List */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-3">
+          {/* Task List */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-4 space-y-3">
               {paginatedTasks.map((task) => (
-              <Card 
-                key={task.id} 
-                  className={`cursor-pointer transition-all duration-200 border-2 ${selectedTask?.id === task.id
-                    ? 'ring-2 ring-blue-500 bg-blue-100 shadow-lg scale-[1.02] border-blue-300'
-                    : 'hover:shadow-md hover:bg-gray-50 border-transparent'
-                    }`}
+                <Card
+                  key={task.id}
+                  className={`relative border mb-3 transition-shadow cursor-pointer transition-all duration-200
+                  ${selectedTask?.id === task.id
+                      ? 'border-[#1a73e8] shadow-lg scale-[1.02] before:bg-[#1a73e8]'
+                      : 'border-gray-300 hover:shadow-md hover:bg-gray-100 before:bg-gray-300'
+                    } before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:rounded-l`}
                   onClick={() => {
                     if (selectedTask?.id !== task.id) {
                       setSelectedTask(task);
@@ -756,9 +1092,11 @@ const Tasks: React.FC = () => {
                     pointerEvents: selectedTask?.id === task.id ? 'none' : 'auto',
                     opacity: selectedTask?.id === task.id ? 0.9 : 1,
                   }}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
+                >
+
+
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
                       {!task.disabled && selectedTask?.id !== task.id && (
                         <div className="flex-shrink-0 relative">
                           <Checkbox
@@ -780,106 +1118,106 @@ const Tasks: React.FC = () => {
                       <div className="flex-shrink-0 relative">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedTask?.id === task.id ? 'bg-blue-200' : 'bg-blue-100'
                           } ${task.disabled ? 'opacity-50' : ''}`}>
-                        {getStatusIcon(task.status)}
-                      </div>
+                          {getStatusIcon(task.status)}
+                        </div>
                         {selectedTask?.id === task.id && (
                           <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
                             <div className="w-2 h-2 bg-white rounded-full"></div>
                           </div>
                         )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
                           <h3 className={`text-base font-medium truncate ${selectedTask?.id === task.id ? 'text-blue-700' : 'text-gray-900'
                             }`}>
                             {task.title}
                           </h3>
-                        {task.isUrgent && (
-                          <Chip 
-                            icon={<PriorityHighIcon />} 
-                            label="Urgent" 
-                            color="error" 
-                            size="small" 
-                          />
-                        )}
-                        {task.isOverdue && (
-                          <Chip 
-                            label="Overdue" 
-                            color="error" 
-                            size="small" 
-                          />
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                        <span className="flex items-center gap-1">
-                          <ConfirmationNumberIcon fontSize="small" />
-                          {task.ticketId}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <PersonIcon fontSize="small" />
-                          {task.assignedTo}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <ScheduleIcon fontSize="small" />
-                          {task.dueDate}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Chip 
-                            label={task.status} 
-                            size="small" 
-                            color={getStatusColor(task.status) as any}
-                          />
-                          <Chip 
-                            label={task.priority} 
-                            size="small" 
-                            color={getPriorityColor(task.priority) as any}
-                            variant="outlined"
-                          />
+                          {task.isUrgent && (
+                            <Chip
+                              icon={<PriorityHighIcon />}
+                              label="Urgent"
+                              color="error"
+                              size="small"
+                            />
+                          )}
+                          {task.isOverdue && (
+                            <Chip
+                              label="Overdue"
+                              color="error"
+                              size="small"
+                            />
+                          )}
                         </div>
-                        
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <span>{task.actualHours}/{task.estimatedHours}h</span>
-                          <div className="flex items-center gap-1">
+
+                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                          <span className="flex items-center gap-1">
+                            <ConfirmationNumberIcon fontSize="small" />
+                            {task.ticketId}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <PersonIcon fontSize="small" />
+                            {task.assignedTo}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <ScheduleIcon fontSize="small" />
+                            {task.dueDate}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Chip
+                              label={task.status}
+                              size="small"
+                              color={getStatusColor(task.status) as any}
+                            />
+                            <Chip
+                              label={task.priority}
+                              size="small"
+                              color={getPriorityColor(task.priority) as any}
+                              variant="outlined"
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <span>{task.actualHours}/{task.estimatedHours}h</span>
+                            <div className="flex items-center gap-1">
                               <IconButton
                                 size="small"
                               >
-                            <CommentIcon fontSize="small" />
+                                <CommentIcon fontSize="small" />
                               </IconButton>
                               <span className="text-gray-500">{task.comments.length}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
+                            </div>
+                            <div className="flex items-center gap-1">
                               <IconButton
                                 size="small"
                               >
-                            <AttachFileIcon fontSize="small" />
+                                <AttachFileIcon fontSize="small" />
                               </IconButton>
                               <span className="text-gray-500">{task.attachments.length}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
 
               {paginatedTasks.length === 0 && (
-              <div className="text-center py-12">
-                <AssignmentIcon className="text-gray-400 text-4xl mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
-                <p className="text-gray-600">Try adjusting your search or filters</p>
-              </div>
-            )}
+                <div className="text-center py-12">
+                  <AssignmentIcon className="text-gray-400 text-4xl mx-auto mb-3" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
+                  <p className="text-gray-600">Try adjusting your search or filters</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* RIGHT SECTION - Task Details & Actions */}
+        {/* RIGHT SECTION - Task Details & Actions */}
         {selectedTask && (
           <div className="w-[65%] flex bg-gray-50">
             {/* Right Sidebar Tabs */}
@@ -955,39 +1293,39 @@ const Tasks: React.FC = () => {
 
             {/* Right Content Area */}
             <div className="flex-1 flex flex-col">
-          <>
-            {/* Task Header */}
-            <div className="bg-white border-b px-6 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    {getStatusIcon(selectedTask.status)}
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900">{selectedTask.title}</h2>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Chip 
-                        label={selectedTask.status} 
-                        color={getStatusColor(selectedTask.status) as any}
-                      />
-                      <Chip 
-                        label={selectedTask.priority} 
-                        color={getPriorityColor(selectedTask.priority) as any}
-                        variant="outlined"
-                      />
-                      {selectedTask.isUrgent && (
-                        <Chip 
-                          icon={<PriorityHighIcon />} 
-                          label="Urgent" 
-                          color="error" 
-                          size="small" 
-                        />
-                      )}
+              <>
+                {/* Task Header */}
+                <div className="bg-white border-b px-6 py-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        {getStatusIcon(selectedTask.status)}
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-semibold text-gray-900">{selectedTask.title}</h2>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Chip
+                            label={selectedTask.status}
+                            color={getStatusColor(selectedTask.status) as any}
+                          />
+                          <Chip
+                            label={selectedTask.priority}
+                            color={getPriorityColor(selectedTask.priority) as any}
+                            variant="outlined"
+                          />
+                          {selectedTask.isUrgent && (
+                            <Chip
+                              icon={<PriorityHighIcon />}
+                              label="Urgent"
+                              color="error"
+                              size="small"
+                            />
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
+
+                    <div className="flex gap-2">
                       <FormControl size="small">
                         <Select
                           value={selectedTask.status}
@@ -1002,14 +1340,14 @@ const Tasks: React.FC = () => {
                                   style={{ backgroundColor: option.color }}
                                 ></div>
                                 {option.label}
-                </div>
+                              </div>
                             </MenuItem>
                           ))}
                         </Select>
                       </FormControl>
-              </div>
+                    </div>
                   </div>
-            </div>
+                </div>
 
                 {/* Tab Content */}
                 {rightActiveTab === 0 && (
@@ -1017,411 +1355,478 @@ const Tasks: React.FC = () => {
                     <div className="space-y-6">
                       {/* Task Description */}
                       <Card>
-                        <CardContent className="p-4">
-                          <h3 className="font-medium text-gray-900 mb-3">Description</h3>
-                          <p className="text-gray-700">{selectedTask.description}</p>
+                        <CardContent className="p-4 border border-gray-100 shadow-sm transition-shadow">
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100 mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <DisplaySettingsIcon className="text-blue-600 text-sm" />
+                              </div>
+                              <h3 className="font-bold text-gray-900">Description</h3>
+                            </div>
+                          </div>
+                          <p className="text-gray-600 text-sm font-medium">{selectedTask.description}</p>
                         </CardContent>
                       </Card>
 
-              {/* Associated Ticket */}
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <ConfirmationNumberIcon className="text-blue-600" />
-                    <h3 className="font-medium text-gray-900">Associated Ticket</h3>
-                  </div>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-blue-900">{selectedTask.ticketId}</div>
-                        <div className="text-sm text-blue-700">{selectedTask.ticketTitle}</div>
-                      </div>
-                      <Chip 
-                        label={selectedTask.ticketStatus} 
-                        size="small" 
-                        color={selectedTask.ticketStatus === 'Open' ? 'error' : 'default'}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Task Details */}
-              <Card>
-                <CardContent className="p-4">
-                  <h3 className="font-medium text-gray-900 mb-3">Task Details</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Assigned To:</span>
-                        <span className="font-medium">{selectedTask.assignedTo}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Assigned By:</span>
-                        <span className="font-medium">{selectedTask.assignedBy}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Created:</span>
-                        <span className="font-medium">{selectedTask.createdAt}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Due Date:</span>
-                        <span className="font-medium">{selectedTask.dueDate}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Estimated:</span>
-                        <span className="font-medium">{selectedTask.estimatedHours}h</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Actual:</span>
-                        <span className="font-medium">{selectedTask.actualHours}h</span>
-                      </div>
-                      </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Tags */}
-              {selectedTask.tags.length > 0 && (
-                <Card>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium text-gray-900 mb-3">Tags</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedTask.tags.map((tag, index) => (
-                        <Chip key={index} label={tag} size="small" variant="outlined" />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Comments */}
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-gray-900">Latest 3 Comments ({selectedTask.comments.length})</h3>
-                    
-                    <Button
-                      variant="contained"
-                      size="small"
-                      startIcon={showCommentForm ? <CloseIcon /> : <CommentIcon />}
-                      onClick={() => setShowCommentForm(!showCommentForm)}
-                      sx={{
-                        textTransform: "none",
-                        backgroundColor: "#1a73e8",
-                        "&:hover": {
-                          backgroundColor: "#1557b0",
-                        },
-                      }}
-                    >
-                      {showCommentForm ? 'Cancel' : 'Add Comment'}
-                    </Button>
-                  </div>
-                  
-                  {/* Comment Form */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${showCommentForm
-                      ? 'max-h-[800px] opacity-100 mb-4'
-                      : 'max-h-0 opacity-0 mb-0'
-                      }`}
-                  >
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="space-y-4">
-                        {/* Comment Body */}
-                        <div className="space-y-2">
-                          <TextField
-                            label="Comment"
-                            multiline
-                            rows={4}
-                            fullWidth
-                            value={newComment}
-                            onChange={(e) => {
-                              const text = e.target.value;
-                              setNewComment(text);
-                              const error = validateComment(text);
-                              setCommentError(error);
-                            }}
-                            placeholder="Write your comment here..."
-                            size="medium"
-                            error={commentError.length > 0}
-                            helperText={commentError}
-                            inputRef={commentTextareaRef}
-                          />
-
-                          {/* Word Count and Remaining */}
-                          <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center gap-4">
-                              <span className={`font-medium ${getWordCount(newComment) > 500 ? 'text-red-600' : 'text-gray-600'}`}>
-                                Words: {getWordCount(newComment)}/500 |
-                              </span>
-                              <span className={`font-medium ${getRemainingWords(newComment) < 50 ? 'text-orange-600' : 'text-gray-500'}`}>
-                                Remaining: {getRemainingWords(newComment)} words
-                              </span>
+                      {/* Associated Ticket */}
+                      <Card>
+                        <CardContent className="p-4 border border-gray-100 shadow-sm transition-shadow">
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100 mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <ConfirmationNumberIcon className="text-blue-600 text-sm font-medium" />
+                              </div>
+                              <h3 className="font-bold text-gray-900">Associated Ticket</h3>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Private Comment Toggle */}
-                        <div className="flex items-start gap-2 mb-3">
-                          <Checkbox
-                            checked={isInternalComment}
-                            onChange={(e) => {
-                              const isPrivate = e.target.checked;
-                              setIsInternalComment(isPrivate);
-                              if (isPrivate && showAttachments) {
-                                setShowAttachments(false);
-                                setAttachments([]); // Clear any existing attachments
-                              }
-                            }}
-                            size="small"
-                            sx={{ padding: '2px', marginTop: '-2px' }}
-                          />
-                          <div className="text-xs text-gray-700">
-                            <div>Mark as Private</div>
-                            <div className="text-xs text-gray-500">Only you can see this</div>
-                          </div>
-                        </div>
 
-                        {/* Attachments Section */}
-                        <div className="flex items-start gap-2 mb-3">
-                          <Checkbox
-                            checked={showAttachments}
-                            onChange={(e) => setShowAttachments(e.target.checked)}
-                            disabled={isInternalComment}
-                            size="small"
-                            sx={{ padding: '2px', marginTop: '-2px' }}
-                          />
-                          <div className={`text-xs ${isInternalComment ? 'text-gray-400' : 'text-gray-700'}`}>
-                            <div>Add note attachment</div>
-                            <div className="text-xs text-gray-500">Will always be public for agents</div>
-                          </div>
-                        </div>
-
-                        <div
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${showAttachments
-                            ? 'max-h-[600px] opacity-100'
-                            : 'max-h-0 opacity-0'
-                            }`}
-                        >
-                          <div className="border-t pt-4">
-                            <div className="flex items-center justify-end mb-3">
-                              <span className="text-xs text-gray-500">
-                                {attachments.length}/3 files
-                              </span>
-                            </div>
-
-                            {/* File Upload Area */}
-                            <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${attachments.length >= 3
-                              ? 'border-gray-200 bg-gray-50'
-                              : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                              }`}>
-                              <input
-                                type="file"
-                                multiple
-                                className="hidden"
-                                id="file-upload"
-                                onChange={(e) => {
-                                  const files = Array.from(e.target.files || []);
-                                  handleFileUpload(files);
-                                }}
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                                disabled={attachments.length >= 3}
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="text-blue-900 font-bold">{selectedTask.ticketId}</div>
+                                <div className="text-blue-700 font-bold" style={{ fontSize: '12px' }}>{selectedTask.ticketTitle}</div>
+                              </div>
+                              <Chip
+                                label={selectedTask.ticketStatus}
+                                size="small"
+                                color={selectedTask.ticketStatus === 'Open' ? 'error' : 'default'}
                               />
-                              <label
-                                htmlFor="file-upload"
-                                className={`cursor-pointer ${attachments.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              >
-                                <AttachFileIcon className="text-gray-400 text-2xl mx-auto mb-2" />
-                                <p className="text-sm text-gray-600 mb-1">
-                                  <span className="text-blue-600 hover:text-blue-700 font-medium">
-                                    Click to upload
-                                  </span>{' '}
-                                  or drag and drop
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  Office files only (PDF, DOC, XLS, PPT) up to 5MB • Max 3 files
-                                </p>
-                                {attachments.length >= 3 && (
-                                  <p className="text-xs text-red-500 mt-1">
-                                    Maximum 3 files reached
-                                  </p>
-                                )}
-                              </label>
                             </div>
+                          </div>
+                        </CardContent>
+                      </Card>
 
-                            {/* File List Preview */}
-                            {attachments.length > 0 && (
-                              <div className="mt-3 space-y-2">
-                                {attachments.map((file, index) => (
-                                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                          <div className="flex items-center gap-2">
-                                      <span className="text-lg">{getFileIcon(file.name)}</span>
-                                      <div>
-                                        <div className="text-sm font-medium">{file.name}</div>
-                                        <div className="text-xs text-gray-500">
-                                          {formatFileSize(file.size)}
-                                        </div>
+                      {/* Task Details */}
+                      <Card>
+                        <CardContent className="p-0 border border-gray-100 shadow-sm transition-shadow overflow-hidden">
+                          {/* Header */}
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <AssignmentIcon className="text-blue-600 text-sm" />
+                              </div>
+                              <h3 className="font-bold text-gray-900">Task Details</h3>
+                            </div>
+                          </div>
+
+                          {/* Content */}
+                          <div className="p-4">
+                            <div className="grid grid-cols-1 gap-4">
+                              {/* Assignment Info */}
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center  gap-2">
+                                    <PersonIcon className="text-gray-500 text-sm" />
+                                    <span className="text-gray-600 text-sm font-medium">Assigned To</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">{selectedTask.assignedTo}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center gap-2">
+                                    <PersonIcon className="text-gray-500 text-sm" />
+                                    <span className="text-gray-600 text-sm font-medium">Assigned By</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">{selectedTask.assignedBy}</span>
+                                </div>
+                              </div>
+
+                              {/* Time Info */}
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center gap-2">
+                                    <ScheduleIcon className="text-gray-500 text-sm" />
+                                    <span className="text-gray-600 text-sm font-medium">Created</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">{selectedTask.createdAt}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center gap-2">
+                                    <EventIcon className="text-gray-500 text-sm" />
+                                    <span className="text-gray-600 text-sm font-medium">Due Date</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">{selectedTask.dueDate}</span>
+                                </div>
+                              </div>
+
+                              {/* Hours Info */}
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                  <div className="flex items-center gap-2">
+                                    <AccessTimeIcon className="text-blue-500 text-sm" />
+                                    <span className="text-blue-700 text-sm font-medium">Estimated</span>
+                                  </div>
+                                  <span className="text-sm font-bold text-blue-900">{selectedTask.estimatedHours}h</span>
+                                </div>
+
+                                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                                  <div className="flex items-center gap-2">
+                                    <TimerIcon className="text-green-500 text-sm" />
+                                    <span className="text-green-700 text-sm font-medium">Actual</span>
+                                  </div>
+                                  <span className="text-sm font-bold text-green-900">{selectedTask.actualHours}h</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Tags */}
+                      {selectedTask.tags.length > 0 && (
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100 mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  <AssignmentIcon className="text-blue-600 text-sm" />
+                                </div>
+                                <h3 className="font-bold text-gray-900">Tags</h3>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {selectedTask.tags.map((tag, index) => (
+                                <Chip key={index} label={tag} size="small" variant="outlined" style={{ padding: '5px 8px' }} color="primary" />
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Comments */}
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-gray-900 font-bold">Latest 3 Comments ({selectedTask.comments.length})</h3>
+
+                            <Button
+                              variant="contained"
+                              size="small"
+                              startIcon={showCommentForm ? <CloseIcon /> : <CommentIcon />}
+                              onClick={() => setShowCommentForm(!showCommentForm)}
+                              sx={{
+                                textTransform: "none",
+                                backgroundColor: "#1a73e8",
+                                "&:hover": {
+                                  backgroundColor: "#1557b0",
+                                },
+                              }}
+                            >
+                              {showCommentForm ? 'Cancel' : 'Add Comment'}
+                            </Button>
+                          </div>
+
+                          {/* Comment Form */}
+                          <div
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${showCommentForm
+                              ? 'max-h-[800px] opacity-100 mb-4'
+                              : 'max-h-0 opacity-0 mb-0'
+                              }`}
+                          >
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                              <div className="space-y-4">
+                                {/* Comment Body */}
+                                <div className="space-y-2">
+                                  <TextField
+                                    label="Comment"
+                                    multiline
+                                    rows={4}
+                                    fullWidth
+                                    value={newComment}
+                                    onChange={(e) => {
+                                      const text = e.target.value;
+                                      setNewComment(text);
+                                      const error = validateComment(text);
+                                      setCommentError(error);
+                                    }}
+                                    placeholder="Write your comment here..."
+                                    size="medium"
+                                    error={commentError.length > 0}
+                                    helperText={commentError}
+                                    inputRef={commentTextareaRef}
+                                  />
+
+                                  {/* Word Count and Remaining */}
+                                  <div className="flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-4">
+                                      <span className={`font-medium ${getWordCount(newComment) > 500 ? 'text-red-600' : 'text-gray-600'}`}>
+                                        Words: {getWordCount(newComment)}/500 |
+                                      </span>
+                                      <span className={`font-medium ${getRemainingWords(newComment) < 50 ? 'text-orange-600' : 'text-gray-500'}`}>
+                                        Remaining: {getRemainingWords(newComment)} words
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Private Comment Toggle */}
+                                <div className="flex items-start gap-2 mb-3">
+                                  <Checkbox
+                                    checked={isInternalComment}
+                                    onChange={(e) => {
+                                      const isPrivate = e.target.checked;
+                                      setIsInternalComment(isPrivate);
+                                      if (isPrivate && showAttachments) {
+                                        setShowAttachments(false);
+                                        setAttachments([]); // Clear any existing attachments
+                                      }
+                                    }}
+                                    size="small"
+                                    sx={{ padding: '2px', marginTop: '-2px' }}
+                                  />
+                                  <div className="text-xs text-gray-700">
+                                    <div>Mark as Private</div>
+                                    <div className="text-xs text-gray-500">Only you can see this</div>
+                                  </div>
+                                </div>
+
+                                {/* Attachments Section */}
+                                <div className="flex items-start gap-2 mb-3">
+                                  <Checkbox
+                                    checked={showAttachments}
+                                    onChange={(e) => setShowAttachments(e.target.checked)}
+                                    disabled={isInternalComment}
+                                    size="small"
+                                    sx={{ padding: '2px', marginTop: '-2px' }}
+                                  />
+                                  <div className={`text-xs ${isInternalComment ? 'text-gray-400' : 'text-gray-700'}`}>
+                                    <div>Add note attachment</div>
+                                    <div className="text-xs text-gray-500">Will always be public for agents</div>
+                                  </div>
+                                </div>
+
+                                <div
+                                  className={`overflow-hidden transition-all duration-300 ease-in-out ${showAttachments
+                                    ? 'max-h-[600px] opacity-100'
+                                    : 'max-h-0 opacity-0'
+                                    }`}
+                                >
+                                  <div className="border-t pt-4">
+                                    <div className="flex items-center justify-end mb-3">
+                                      <span className="text-xs text-gray-500">
+                                        {attachments.length}/3 files
+                                      </span>
+                                    </div>
+
+                                    {/* File Upload Area */}
+                                    <div className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${attachments.length >= 3
+                                      ? 'border-gray-200 bg-gray-50'
+                                      : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                                      }`}>
+                                      <input
+                                        type="file"
+                                        multiple
+                                        className="hidden"
+                                        id="file-upload"
+                                        onChange={(e) => {
+                                          const files = Array.from(e.target.files || []);
+                                          handleFileUpload(files);
+                                        }}
+                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                                        disabled={attachments.length >= 3}
+                                      />
+                                      <label
+                                        htmlFor="file-upload"
+                                        className={`cursor-pointer ${attachments.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                      >
+                                        <AttachFileIcon className="text-gray-400 text-2xl mx-auto mb-2" />
+                                        <p className="text-sm text-gray-600 mb-1">
+                                          <span className="text-blue-600 hover:text-blue-700 font-medium">
+                                            Click to upload
+                                          </span>{' '}
+                                          or drag and drop
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                          Office files only (PDF, DOC, XLS, PPT) up to 5MB • Max 3 files
+                                        </p>
+                                        {attachments.length >= 3 && (
+                                          <p className="text-xs text-red-500 mt-1">
+                                            Maximum 3 files reached
+                                          </p>
+                                        )}
+                                      </label>
+                                    </div>
+
+                                    {/* File List Preview */}
+                                    {attachments.length > 0 && (
+                                      <div className="mt-3 space-y-2">
+                                        {attachments.map((file, index) => (
+                                          <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-lg">{getFileIcon(file.name)}</span>
+                                              <div>
+                                                <div className="text-sm font-medium">{file.name}</div>
+                                                <div className="text-xs text-gray-500">
+                                                  {formatFileSize(file.size)}
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <IconButton
+                                              size="small"
+                                              color="error"
+                                              onClick={() => {
+                                                setAttachments(prev => prev.filter((_, i) => i !== index));
+                                              }}
+                                            >
+                                              <CloseIcon fontSize="small" />
+                                            </IconButton>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex justify-end gap-3 pt-2">
+                                  <Button
+                                    variant="text"
+                                    onClick={() => {
+                                      setShowCommentForm(false);
+                                      resetCommentForm();
+                                    }}
+                                    size="small"
+                                    sx={{ fontWeight: 550 }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    variant="contained"
+                                    onClick={() => {
+                                      const error = validateComment(newComment);
+                                      if (error) {
+                                        setCommentError(error);
+                                        return;
+                                      }
+                                      // Here you would typically save the comment
+                                      console.log('Saving comment:', { newComment, attachments, isInternalComment });
+                                      setShowCommentForm(false);
+                                      resetCommentForm();
+                                    }}
+                                    size="small"
+                                    disabled={commentError.length > 0 || newComment.trim().length === 0}
+                                  >
+                                    Send Comment
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4 max-h-60 overflow-y-auto">
+                            {selectedTask.comments.slice(0, 3).map((comment) => (
+                              <div key={comment.id} className="flex items-start gap-3">
+                                {/* Avatar */}
+                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                                  {comment.author.charAt(0).toUpperCase()}
+                                </div>
+
+                                {/* Comment Bubble */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="font-medium text-sm text-gray-900">{comment.author}</span>
+                                      <div className="flex items-center gap-2">
+                                        {canEditComment(comment.createdAt) && (
+                                          <IconButton
+                                            size="small"
+                                            onClick={() => startEditingComment(comment)}
+                                            sx={{ color: "#6b7280", padding: '2px' }}
+                                          >
+                                            <EditIcon fontSize="small" />
+                                          </IconButton>
+                                        )}
                                       </div>
                                     </div>
-                                    <IconButton
-                                      size="small"
-                                      color="error"
-                                      onClick={() => {
-                                        setAttachments(prev => prev.filter((_, i) => i !== index));
-                                      }}
-                                    >
-                                      <CloseIcon fontSize="small" />
-                                    </IconButton>
+
+                                    {editingCommentId === comment.id ? (
+                                      <div className="space-y-2">
+                                        <TextField
+                                          multiline
+                                          rows={2}
+                                          value={comment.editText || comment.text}
+                                          onChange={(e) => {
+                                            // In real app, update the comment editText
+                                            console.log('Editing comment:', e.target.value);
+                                          }}
+                                          fullWidth
+                                          size="small"
+                                        />
+                                        <div className="flex gap-2">
+                                          <Button
+                                            size="small"
+                                            variant="contained"
+                                            startIcon={<SaveIcon fontSize="small" />}
+                                            onClick={() => saveEditedComment(comment.id, comment.editText || comment.text)}
+                                          >
+                                            Save
+                                          </Button>
+                                          <Button
+                                            size="small"
+                                            variant="text"
+                                            sx={{
+                                              fontWeight: 550
+                                            }}
+                                            startIcon={<CloseIcon fontSize="small" />}
+                                            onClick={cancelEditingComment}
+                                          >
+                                            Cancel
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <p className="text-sm text-gray-700 font-medium">{comment.text}</p>
+                                    )}
                                   </div>
-                                ))}
+
+                                  {/* Timestamp */}
+                                  <div className="flex items-center gap-2 mt-2 ml-1">
+                                    <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                                    <span className="text-xs text-gray-400">•</span>
+                                    <span className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</span>
+                                    <span className="text-xs text-gray-400">- </span>
+
+                                    {comment.isInternal && (
+                                      <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                                        Internal
+                                      </span>
+                                    )}
+
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+
+                            {selectedTask.comments.length === 0 && (
+                              <div className="text-center py-6 text-gray-500">
+                                <CommentIcon className="text-2xl mx-auto mb-2" />
+                                <p>No comments yet</p>
+                              </div>
+                            )}
+
+                            {selectedTask.comments.length > 3 && (
+                              <div className="text-center py-3">
+                                <Button
+                                  size="small"
+                                  variant="text"
+                                  onClick={() => setRightActiveTab(1)}
+                                  sx={{
+                                    textTransform: "none",
+                                    color: "#1a73e8",
+                                    "&:hover": {
+                                      backgroundColor: "rgba(26, 115, 232, 0.04)",
+                                    },
+                                  }}
+                                >
+                                  View All {selectedTask.comments.length} Comments
+                                </Button>
                               </div>
                             )}
                           </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex justify-end gap-3 pt-2">
-                          <Button
-                            variant="text"
-                            onClick={() => {
-                              setShowCommentForm(false);
-                              resetCommentForm();
-                            }}
-                            size="small"
-                            sx={{ fontWeight: 550 }}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="contained"
-                            onClick={() => {
-                              const error = validateComment(newComment);
-                              if (error) {
-                                setCommentError(error);
-                                return;
-                              }
-                              // Here you would typically save the comment
-                              console.log('Saving comment:', { newComment, attachments, isInternalComment });
-                              setShowCommentForm(false);
-                              resetCommentForm();
-                            }}
-                            size="small"
-                            disabled={commentError.length > 0 || newComment.trim().length === 0}
-                          >
-                            Send Comment
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                                             <div className="space-y-4 max-h-60 overflow-y-auto">
-                             {selectedTask.comments.slice(0, 3).map((comment) => (
-                               <div key={comment.id} className="flex items-start gap-3">
-                                 {/* Avatar */}
-                                 <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-                                   {comment.author.charAt(0).toUpperCase()}
-                                 </div>
-                                 
-                                 {/* Comment Bubble */}
-                                 <div className="flex-1 min-w-0">
-                                   <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                                     <div className="flex items-center justify-between mb-2">
-                                       <span className="font-medium text-sm text-gray-900">{comment.author}</span>
-                                       <div className="flex items-center gap-2">
-                            {comment.isInternal && (
-                              <Chip label="Internal" size="small" color="warning" />
-                            )}
-                                         {canEditComment(comment.createdAt) && (
-                                           <IconButton
-                                             size="small"
-                                             onClick={() => startEditingComment(comment)}
-                                             sx={{ color: "#6b7280", padding: '2px' }}
-                                           >
-                                             <EditIcon fontSize="small" />
-                                           </IconButton>
-                                         )}
-                          </div>
-                        </div>
-                                     
-                                     {editingCommentId === comment.id ? (
-                                       <div className="space-y-2">
-                                         <TextField
-                                           multiline
-                                           rows={2}
-                                           value={comment.editText || comment.text}
-                                           onChange={(e) => {
-                                             // In real app, update the comment editText
-                                             console.log('Editing comment:', e.target.value);
-                                           }}
-                                           fullWidth
-                                           size="small"
-                                         />
-                                         <div className="flex gap-2">
-                                           <Button
-                                             size="small"
-                                             variant="contained"
-                                             startIcon={<SaveIcon fontSize="small" />}
-                                             onClick={() => saveEditedComment(comment.id, comment.editText || comment.text)}
-                                           >
-                                             Save
-                                           </Button>
-                                           <Button
-                                             size="small"
-                                             variant="outlined"
-                                             startIcon={<CloseIcon fontSize="small" />}
-                                             onClick={cancelEditingComment}
-                                           >
-                                             Cancel
-                                           </Button>
-                                           </div>
-                                       </div>
-                                     ) : (
-                        <p className="text-sm text-gray-700">{comment.text}</p>
-                                     )}
-                                   </div>
-                                   
-                                   {/* Timestamp */}
-                                   <div className="flex items-center gap-2 mt-2 ml-1">
-                                     <span className="text-xs text-gray-500">{comment.timestamp}</span>
-                                     <span className="text-xs text-gray-400">•</span>
-                                     <span className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</span>
-                                   </div>
-                                 </div>
-                      </div>
-                    ))}
-                    
-                    {selectedTask.comments.length === 0 && (
-                      <div className="text-center py-6 text-gray-500">
-                        <CommentIcon className="text-2xl mx-auto mb-2" />
-                        <p>No comments yet</p>
-                      </div>
-                    )}
-                    
-                    {selectedTask.comments.length > 3 && (
-                      <div className="text-center py-3">
-                        <Button
-                          size="small"
-                          variant="text"
-                          onClick={() => setRightActiveTab(1)}
-                          sx={{
-                            textTransform: "none",
-                            color: "#1a73e8",
-                            "&:hover": {
-                              backgroundColor: "rgba(26, 115, 232, 0.04)",
-                            },
-                          }}
-                        >
-                          View All {selectedTask.comments.length} Comments
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 )}
@@ -1434,35 +1839,35 @@ const Tasks: React.FC = () => {
                       <h3 className="text-lg font-semibold text-gray-900">
                         {attachmentsTab === 'comments' ? 'Comments' : 'Attachments'}
                       </h3>
-                          <div className="flex items-center gap-2">
-                         <IconButton
-                           size="small"
-                           sx={{
-                             color: "#6b7280",
-                             border: "1px solid #d1d5db",
-                             "&:hover": {
-                               borderColor: "#9ca3af",
-                               backgroundColor: "#f9fafb",
-                             },
-                           }}
-                         >
-                           <SortIcon fontSize="small" />
-                         </IconButton>
-                         <IconButton
-                           size="small"
-                           sx={{
-                             color: "#6b7280",
-                             border: "1px solid #d1d5db",
-                             "&:hover": {
-                               borderColor: "#9ca3af",
-                               backgroundColor: "#f9fafb",
-                             },
-                           }}
-                         >
-                           <RefreshIcon fontSize="small" />
-                         </IconButton>
-                            </div>
-                          </div>
+                      <div className="flex items-center gap-2">
+                        <IconButton
+                          size="small"
+                          sx={{
+                            color: "#6b7280",
+                            border: "1px solid #d1d5db",
+                            "&:hover": {
+                              borderColor: "#9ca3af",
+                              backgroundColor: "#f9fafb",
+                            },
+                          }}
+                        >
+                          <SortIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          sx={{
+                            color: "#6b7280",
+                            border: "1px solid #d1d5db",
+                            "&:hover": {
+                              borderColor: "#9ca3af",
+                              backgroundColor: "#f9fafb",
+                            },
+                          }}
+                        >
+                          <RefreshIcon fontSize="small" />
+                        </IconButton>
+                      </div>
+                    </div>
 
                     {/* Scrollable Content Area */}
                     <div className="flex-1 overflow-y-auto p-6">
@@ -1477,7 +1882,7 @@ const Tasks: React.FC = () => {
                                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                                     {comment.author.charAt(0).toUpperCase()}
                                   </div>
-                                  
+
                                   {/* Comment Bubble */}
                                   <div className="flex-1 min-w-0">
                                     <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
@@ -1491,7 +1896,7 @@ const Tasks: React.FC = () => {
                                       </div>
                                       <p className="text-sm text-gray-700">{comment.text}</p>
                                     </div>
-                                    
+
                                     {/* Timestamp */}
                                     <div className="flex items-center gap-2 mt-2 ml-1">
                                       <span className="text-xs text-gray-500">{comment.timestamp}</span>
@@ -1499,8 +1904,8 @@ const Tasks: React.FC = () => {
                                       <span className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</span>
                                     </div>
                                   </div>
-                        </div>
-                      ))}
+                                </div>
+                              ))}
                             </div>
                           ) : (
                             <div className="text-center py-6 text-gray-500">
@@ -1538,45 +1943,43 @@ const Tasks: React.FC = () => {
                                           <CloseIcon fontSize="small" />
                                         </IconButton>
                                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                                    </div>
+                                  </CardContent>
+                                </Card>
                               ))}
-            </div>
+                            </div>
                           ) : (
                             <div className="text-center py-12">
                               <AttachFileIcon className="text-gray-400 text-4xl mx-auto mb-3" />
                               <h3 className="text-lg font-medium text-gray-900 mb-2">No attachments</h3>
                               <p className="text-gray-600">Upload files to share with your team</p>
-            </div>
+                            </div>
                           )}
-          </div>
-        )}
-      </div>
+                        </div>
+                      )}
+                    </div>
 
                     {/* Fixed Bottom Tabs */}
                     <div className="border-t border-gray-200 bg-white">
                       <div className="flex space-x-8 px-6 py-3">
-                                                 <button
-                           className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                             attachmentsTab === 'comments'
-                               ? 'border-blue-500 text-blue-600'
-                               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                           }`}
-                           onClick={() => setAttachmentsTab('comments')}
-                         >
-                           Comments ({selectedTask.comments.length})
-                         </button>
-                         <button
-                           className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                             attachmentsTab === 'attachments'
-                               ? 'border-blue-500 text-blue-600'
-                               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                           }`}
-                           onClick={() => setAttachmentsTab('attachments')}
-                         >
-                           Attachments ({selectedTask.attachments.length})
-                         </button>
+                        <button
+                          className={`py-2 px-1 border-b-2 font-medium text-sm ${attachmentsTab === 'comments'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                          onClick={() => setAttachmentsTab('comments')}
+                        >
+                          Comments ({selectedTask.comments.length})
+                        </button>
+                        <button
+                          className={`py-2 px-1 border-b-2 font-medium text-sm ${attachmentsTab === 'attachments'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                          onClick={() => setAttachmentsTab('attachments')}
+                        >
+                          Attachments ({selectedTask.attachments.length})
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1598,7 +2001,7 @@ const Tasks: React.FC = () => {
                             <div className="relative z-10 flex-shrink-0">
                               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                                 <CheckCircleIcon className="text-green-600 text-sm" />
-          </div>
+                              </div>
                             </div>
                             <div className="flex-1 pt-1">
                               <div className="font-medium text-gray-900">Task Status Updated</div>
@@ -1725,7 +2128,7 @@ const Tasks: React.FC = () => {
                 placeholder="Enter task title"
                 size="medium"
               />
-              
+
               <TextField
                 label="Description"
                 multiline
@@ -1734,7 +2137,7 @@ const Tasks: React.FC = () => {
                 placeholder="Describe the task in detail"
                 size="medium"
               />
-              
+
               <div className="grid grid-cols-2 gap-6">
                 <FormControl fullWidth>
                   <InputLabel>Priority</InputLabel>
@@ -1746,13 +2149,13 @@ const Tasks: React.FC = () => {
                             className="w-3 h-3 rounded-full mr-2"
                             style={{ backgroundColor: option.color }}
                           ></div>
-                        {option.label}
+                          {option.label}
                         </div>
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
-                
+
                 <TextField
                   label="Due Date"
                   type="date"
@@ -1761,7 +2164,7 @@ const Tasks: React.FC = () => {
                   size="medium"
                 />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-6">
                 <TextField
                   label="Estimated Hours"
@@ -1770,7 +2173,7 @@ const Tasks: React.FC = () => {
                   inputProps={{ min: 0, step: 0.5 }}
                   size="medium"
                 />
-                
+
                 <FormControl fullWidth>
                   <InputLabel>Assigned To</InputLabel>
                   <Select label="Assigned To" size="medium" value={currentAgent}>
@@ -1778,14 +2181,14 @@ const Tasks: React.FC = () => {
                   </Select>
                 </FormControl>
               </div>
-              
+
               <TextField
                 label="Associated Ticket ID"
                 fullWidth
                 placeholder="e.g., TK-2024-001"
                 size="medium"
               />
-              
+
               <TextField
                 label="Tags"
                 fullWidth
@@ -1799,15 +2202,18 @@ const Tasks: React.FC = () => {
           {/* Footer Actions */}
           <div className="bg-gray-50 border-t px-6 py-4">
             <div className="flex justify-end gap-3">
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="text"
+                sx={{
+                  fontWeight: 550
+                }}
                 onClick={() => setTaskDialogOpen(false)}
                 size="large"
               >
                 Cancel
               </Button>
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 size="large"
               >
                 Create Task
@@ -1815,6 +2221,343 @@ const Tasks: React.FC = () => {
             </div>
           </div>
         </div>
+      </Drawer>
+
+      {/* Task Advanced Search Modal Slider */}
+      <Drawer
+        anchor="right"
+        open={taskAdvancedSearchOpen}
+        onClose={handleTaskAdvancedSearchClose}
+        PaperProps={{
+          sx: {
+            width: '35%',
+            height: '100vh',
+            backgroundColor: '#fff',
+            boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.15)',
+          }
+        }}
+        ModalProps={{
+          keepMounted: true,
+        }}
+      >
+
+
+        {/* Header */}
+        <Box sx={{
+          p: 3,
+          borderBottom: '1px solid #f0f0f0',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a1a1a', mb: 0.5 }}>
+              Task Advanced Filters
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.875rem' }}>
+              Filter tasks by multiple criteria
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={handleTaskAdvancedSearchClose}
+            sx={{
+              color: '#666',
+              '&:hover': { backgroundColor: '#f5f5f5' }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        {/* Content */}
+        <Box sx={{
+          p: 3,
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: '#f1f1f1',
+            borderRadius: '3px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: '#c1c1c1',
+            borderRadius: '3px',
+            '&:hover': {
+              backgroundColor: '#a8a8a8',
+            },
+          },
+        }}>
+          <div className="space-y-6" style={{ minWidth: 0 }}>
+
+
+            {/* Conditions List */}
+            <div className="space-y-3">
+              {taskSearchConditions.length === 0 ? (
+                <Box sx={{
+                  textAlign: 'center',
+                  py: 6,
+                  color: '#666',
+                  border: '2px dashed #e0e0e0',
+                  borderRadius: '12px',
+                  backgroundColor: '#fafafa'
+                }}>
+                  <FilterListIcon sx={{ fontSize: 48, color: '#ccc', mb: 2 }} />
+                  <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
+                    No filters applied
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#888' }}>
+                    Add conditions to filter your tasks
+                  </Typography>
+                </Box>
+              ) : (
+                taskSearchConditions.map((condition, index) => (
+                  <React.Fragment key={condition.id}>
+                    {/* Condition Card */}
+                    <Box sx={{
+                      p: 2.5,
+                      border: '1px solid #e8eaed',
+                      borderRadius: '12px',
+                      backgroundColor: validateCondition(condition) ? '#f8f9fa' : '#fff5f5',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                      position: 'relative',
+                      '&:hover': {
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        borderColor: '#dadce0'
+                      }
+                    }}>
+                      {/* Condition Content */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                        {/* Field and Condition in same row */}
+                        <Box sx={{ display: 'flex', gap: 1, flex: 1 }}>
+                          <FormControl size="small" sx={{ minWidth: 120, flex: 1 }}>
+                            <Select
+                              value={condition.field}
+                              onChange={(e) => updateCondition(condition.id, 'field', e.target.value)}
+                              sx={{
+                                '& .MuiSelect-select': {
+                                  py: 0.75,
+                                  fontSize: '0.875rem'
+                                }
+                              }}
+                              displayEmpty
+                            >
+                              <MenuItem value="" disabled>
+                                <em>Select field</em>
+                              </MenuItem>
+                              {getAvailableFields(condition.id).map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </MenuItem>
+                              ))}
+                              {/* Show current field even if it's not in available fields (for display purposes) */}
+                              {!getAvailableFields(condition.id).some(opt => opt.value === condition.field) && condition.field && (
+                                <MenuItem value={condition.field} disabled>
+                                  {fieldOptions.find(opt => opt.value === condition.field)?.label} (Selected)
+                                </MenuItem>
+                              )}
+                            </Select>
+                          </FormControl>
+
+                          <FormControl size="small" sx={{ minWidth: 120, flex: 1 }}>
+                            <Select
+                              value={condition.condition}
+                              onChange={(e) => updateCondition(condition.id, 'condition', e.target.value)}
+                              sx={{
+                                '& .MuiSelect-select': {
+                                  py: 0.75,
+                                  fontSize: '0.875rem'
+                                }
+                              }}
+                              displayEmpty
+                            >
+                              <MenuItem value="" disabled>
+                                <em>Select condition</em>
+                              </MenuItem>
+                              {getConditionOptions(condition.field).map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Box>
+
+                        {/* Remove Button */}
+                        <IconButton
+                          size="small"
+                          onClick={() => removeCondition(condition.id)}
+                          sx={{
+                            color: '#666',
+                            backgroundColor: '#f8f9fa',
+                            '&:hover': {
+                              color: '#d32f2f',
+                              backgroundColor: '#ffebee'
+                            }
+                          }}
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+
+                      {/* Dynamic Value Input based on Field */}
+                      {condition.condition !== 'is_empty' && condition.field && (
+                        <Box sx={{ mt: 1 }}>
+                          {renderValueInput(condition)}
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Logic Operator between conditions */}
+                    {index < taskSearchConditions.length - 1 && (
+                      <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        py: 1
+                      }}>
+                        <Box sx={{
+                          display: 'flex',
+                          border: '1px solid #e3f2fd',
+                          borderRadius: '6px',
+                          overflow: 'hidden',
+                          backgroundColor: '#f8f9fa'
+                        }}>
+                          <Button
+                            variant={logicOperator === 'AND' ? 'contained' : 'text'}
+                            onClick={() => setLogicOperator('AND')}
+                            sx={{
+                              minWidth: '60px',
+                              py: 0.5,
+                              px: 2,
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                              textTransform: 'none',
+                              backgroundColor: logicOperator === 'AND' ? '#1a73e8' : 'transparent',
+                              color: logicOperator === 'AND' ? '#fff' : '#1a73e8',
+                              borderRadius: 0,
+                              borderRight: '1px solid #e3f2fd',
+                              '&:hover': {
+                                backgroundColor: logicOperator === 'AND' ? '#1557b0' : '#f0f8ff'
+                              }
+                            }}
+                          >
+                            AND
+                          </Button>
+                          <Button
+                            variant={logicOperator === 'OR' ? 'contained' : 'text'}
+                            onClick={() => setLogicOperator('OR')}
+                            sx={{
+                              minWidth: '60px',
+                              py: 0.5,
+                              px: 2,
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                              textTransform: 'none',
+                              backgroundColor: logicOperator === 'OR' ? '#1a73e8' : 'transparent',
+                              color: logicOperator === 'OR' ? '#fff' : '#1a73e8',
+                              borderRadius: 0,
+                              '&:hover': {
+                                backgroundColor: logicOperator === 'OR' ? '#1557b0' : '#f0f8ff'
+                              }
+                            }}
+                          >
+                            OR
+                          </Button>
+                        </Box>
+                      </Box>
+                    )}
+                  </React.Fragment>
+                ))
+              )}
+            </div>
+
+
+
+            {/* Add Condition Button */}
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              mt: 2,
+              mb: 2
+            }}>
+              <IconButton
+                onClick={addCondition}
+                disabled={taskSearchConditions.length >= 4 || getAvailableFields('').length === 0}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '8px',
+                  border: '2px solid',
+                  borderColor: taskSearchConditions.length >= 4 || getAvailableFields('').length === 0 ? '#ccc' : '#1a73e8',
+                  color: taskSearchConditions.length >= 4 || getAvailableFields('').length === 0 ? '#999' : '#1a73e8',
+                  backgroundColor: '#fff',
+                  '&:hover': {
+                    borderColor: taskSearchConditions.length >= 4 || getAvailableFields('').length === 0 ? '#ccc' : '#1557b0',
+                    backgroundColor: taskSearchConditions.length >= 4 || getAvailableFields('').length === 0 ? '#fff' : '#f0f8ff'
+                  },
+                  '&:disabled': {
+                    borderColor: '#ccc',
+                    color: '#999'
+                  }
+                }}
+              >
+                <AddIcon />
+              </IconButton>
+            </Box>
+          </div>
+        </Box>
+
+        {/* Footer */}
+        <Box sx={{
+          p: 3,
+          pt: 2,
+          borderTop: '1px solid #ccc',
+          backgroundColor: '#f5f5f5',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <Button
+            variant="text"
+            onClick={clearAllConditions}
+            sx={{
+              fontWeight: 550
+            }}
+          >
+            Clear All Conditions
+          </Button>
+          <div className="flex gap-3">
+            <Button
+              variant="text"
+              onClick={handleTaskAdvancedSearchClose}
+              sx={{
+                fontWeight: 550
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleTaskAdvancedSearchApply}
+              disabled={!isFormValid()}
+              sx={{
+                '&:hover': {
+                  backgroundColor: isFormValid() ? '#1557b0' : '#e5e7eb'
+                },
+                '&:disabled': {
+                  backgroundColor: '#e5e7eb',
+                  color: '#9ca3af',
+                  cursor: 'not-allowed'
+                }
+              }}
+            >
+              Apply Filters
+            </Button>
+          </div>
+        </Box>
       </Drawer>
     </div>
   );
