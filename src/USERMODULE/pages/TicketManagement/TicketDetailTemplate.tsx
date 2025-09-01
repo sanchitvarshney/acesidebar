@@ -38,7 +38,6 @@ const TicketDetailTemplate = () => {
     );
 
   const [forwardOpen, setForwardOpen] = React.useState(false);
-  const [expandForward, setExpandForward] = React.useState(false);
   const [forwardFields, setForwardFields] = React.useState({
     from:
       ticket?.header?.requester ||
@@ -185,111 +184,37 @@ const TicketDetailTemplate = () => {
           </div>
         </div>
       </Box>
-      {/* Forward Drawer (MUI Slider) */}
-      {!expandForward && (
-        <Drawer
-          anchor="right"
-          open={forwardOpen}
-          onClose={(_, reason) => {
-            setExpandForward(false);
-
-            if (reason === "escapeKeyDown") {
-              handleCloseForward();
-              return;
-            }
-            if (reason === "backdropClick") {
-              return;
-            }
-          }}
-          ModalProps={{
-            disableEscapeKeyDown: false,
-            keepMounted: true,
-            BackdropProps: {
-              style: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
-              onClick: (e) => {
-                e.stopPropagation();
-              },
+      {/* Forward Drawer */}
+      <Drawer
+        anchor="right"
+        open={forwardOpen}
+        onClose={handleCloseForward}
+        ModalProps={{
+          disableEscapeKeyDown: false,
+          keepMounted: true,
+          BackdropProps: {
+            style: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
+            onClick: (e) => {
+              e.stopPropagation();
             },
-          }}
-          sx={{
-            "& .MuiDrawer-paper": {
-              width: 600,
-              maxWidth: "100vw",
-              boxShadow: 24,
-            },
-          }}
-        >
-          <ForwardPanel
-            open={forwardOpen}
-            onClose={() => {
-              setExpandForward(false);
-              handleCloseForward();
-            }}
-            fields={forwardFields}
-            onFieldChange={handleForwardFieldChange}
-            onSend={handleForwardSend}
-            expand={expandForward}
-            onExpandToggle={() => {
-              setExpandForward((prev) => !prev);
-            }}
-          />
-        </Drawer>
-      )}
-      {/* Forward Modal (centered) */}
-      {expandForward && (
-        <Modal
+          },
+        }}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: 600,
+            maxWidth: "100vw",
+            boxShadow: 24,
+          },
+        }}
+      >
+        <ForwardPanel
           open={forwardOpen}
-          onClose={(_, reason) => {
-            setExpandForward(false);
-            handleCloseForward();
-            if (reason === "backdropClick") {
-              return;
-            }
-          }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              borderRadius: 2,
-              p: 0,
-              width: {
-                xs: "98vw",
-                sm: "90vw",
-                md: "70vw",
-                lg: "60vw",
-                xl: "900px",
-              },
-              maxWidth: "98vw",
-              maxHeight: "90vh",
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-            }}
-          >
-            <Box sx={{ flex: 1, overflow: "auto" }}>
-              <ForwardPanel
-                open={forwardOpen}
-                onClose={() => {
-                  setExpandForward(false);
-                  handleCloseForward();
-                }}
-                fields={forwardFields}
-                onFieldChange={handleForwardFieldChange}
-                onSend={handleForwardSend}
-                expand={expandForward}
-                onExpandToggle={() => {
-                  setExpandForward((prev) => !prev);
-                }}
-              />
-            </Box>
-          </Box>
-        </Modal>
-      )}
+          onClose={handleCloseForward}
+          fields={forwardFields}
+          onFieldChange={handleForwardFieldChange}
+          onSend={handleForwardSend}
+        />
+      </Drawer>
       {/* Delete Modal */}
       <Modal
         open={deleteModalOpen}

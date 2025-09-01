@@ -14,9 +14,9 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import BlockIcon from "@mui/icons-material/Block";
 import ListIcon from "@mui/icons-material/List";
 import AddAlarmIcon from "@mui/icons-material/AddAlarm";
+import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -327,7 +327,7 @@ const TicketDetailHeader = ({
                 <ActionButton
           icon={
             <div className="flex items-center gap-1">
-               More <MoreVertIcon fontSize="small" className="text-blue-600 " />
+               More <ReadMoreIcon fontSize="small" className="text-blue-600 " />
             </div>
           }
           tooltip="More Options"

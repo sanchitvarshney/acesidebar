@@ -114,42 +114,121 @@ const StatusTab = ({ ticket }: any) => {
   return (
     <div className="w-full h-[calc(100vh-100px)] overflow-hidden ">
       <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-265px)] overflow-y-auto  ">
-        <Typography variant="subtitle1">Status</Typography>
-        <div className="my-2">
-          <div className="flex items-center gap-2">
-            {" "}
-            <span className="w-2 h-2 inline-block rounded-full bg-red-500" />
-            <Typography
-              variant="subtitle2"
-              sx={{ textTransform: "capitalize", fontSize: "14px" }}
-            >
-              First Response Due
-            </Typography>
-          </div>
-          <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
-            by Fri, Jul 11, 2025 4:00 PM
-          </Typography>
-        </div>
-        <div className="mb-5">
-          <div className="flex items-center gap-2">
-            {" "}
-            <span className="w-2 h-2 inline-block rounded-full bg-red-500" />
-            <Typography
-              variant="subtitle2"
-              sx={{ textTransform: "capitalize", fontSize: "14px" }}
-            >
-              First Response Due
-            </Typography>
-          </div>
-          <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
-            by Fri, Jul 11, 2025 4:00 PM
-          </Typography>
-        </div>
+       
+       
+        
 
-        <Divider />
+        <div className="w-full space-y-3 p-3">
+          
+        <Typography variant="subtitle1">Properties</Typography>
+          
+          <div>
+            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+              Type
+            </Typography>
+            <Select
+            variant="standard"
+              fullWidth
+              size="medium"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+            >
+              {typeOptions.map((name) => (
+                <MenuItem key={name.id} value={name.label}>
+                  {name.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+              Status
+            </Typography>
+            <Select
+              fullWidth
+              variant="standard"
+              size="medium"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              {statusList?.map((status: any) => (
+                <MenuItem key={status.key} value={status.statusName}>
+                  <Typography
+                    variant="body2"
+                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                  >
+                    {status?.statusName}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
 
-        <div className="w-full mt-2 space-y-3">
-          <Typography variant="subtitle1">Properties</Typography>
+          <div>
+            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+              Priority
+            </Typography>
+            <Select
+              fullWidth
+              variant="standard"
+              size="medium"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+            >
+              {priorityList?.map((priority: any) => (
+                <MenuItem key={priority.key} value={priority.priorityName}>
+                  <Typography
+                    variant="body2"
+                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                  >
+                    <span
+                      className="w-3 h-3 inline-block"
+                      style={{ backgroundColor: priority.color }}
+                    />
+                    {priority.specification}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+          <Divider />
+          <div>
+            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+              Department
+            </Typography>
+            <Select
+              fullWidth
+              variant="standard"
+              size="medium"
+              value={group}
+              onChange={(e) => setGroup(e.target.value)}
+            >
+              {groupOptions.map((name) => (
+                <MenuItem key={name.id} value={name.label}>
+                  {name.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+              Agent
+            </Typography>
+            <Select
+              fullWidth
+              variant="standard"
+              size="medium"
+              value={agent}
+              onChange={(e) => setAgent(e.target.value)}
+            >
+              {agentOptions.map((name) => (
+                <MenuItem key={name.id} value={name.label}>
+                  {name.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+          <Divider />
           <div>
             <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
               Tags
@@ -232,7 +311,7 @@ const StatusTab = ({ ticket }: any) => {
                 <TextField
                   {...params}
                   variant="outlined"
-                  size="small"
+                  size="medium"
                   fullWidth
                   sx={{
                     "& .MuiOutlinedInput-root": {
@@ -247,107 +326,6 @@ const StatusTab = ({ ticket }: any) => {
                 />
               )}
             />
-          </div>
-
-          <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
-              Type
-            </Typography>
-            <Select
-              fullWidth
-              size="small"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-            >
-              {typeOptions.map((name) => (
-                <MenuItem key={name.id} value={name.label}>
-                  {name.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </div>
-          <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
-              Status
-            </Typography>
-            <Select
-              fullWidth
-              size="small"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              {statusList?.map((status: any) => (
-                <MenuItem key={status.key} value={status.statusName}>
-                  <Typography
-                    variant="body2"
-                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                  >
-                    {status?.statusName}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Select>
-          </div>
-
-          <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
-              Priority
-            </Typography>
-            <Select
-              fullWidth
-              size="small"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-            >
-              {priorityList?.map((priority: any) => (
-                <MenuItem key={priority.key} value={priority.priorityName}>
-                  <Typography
-                    variant="body2"
-                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                  >
-                    <span
-                      className="w-3 h-3 inline-block"
-                      style={{ backgroundColor: priority.color }}
-                    />
-                    {priority.specification}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Select>
-          </div>
-          <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
-              Group
-            </Typography>
-            <Select
-              fullWidth
-              size="small"
-              value={group}
-              onChange={(e) => setGroup(e.target.value)}
-            >
-              {groupOptions.map((name) => (
-                <MenuItem key={name.id} value={name.label}>
-                  {name.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </div>
-          <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
-              Agent
-            </Typography>
-            <Select
-              fullWidth
-              size="small"
-              value={agent}
-              onChange={(e) => setAgent(e.target.value)}
-            >
-              {agentOptions.map((name) => (
-                <MenuItem key={name.id} value={name.label}>
-                  {name.label}
-                </MenuItem>
-              ))}
-            </Select>
           </div>
         </div>
       </div>
