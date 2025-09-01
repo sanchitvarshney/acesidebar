@@ -13,6 +13,8 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
 import web from "../../../assets/icons/ticket_source_web.gif";
 import email from "../../../assets/icons/ticket_source_email.gif";
+import fileicon from "../../../assets/archive.png";
+import DownloadIcon from "@mui/icons-material/Download";
 import {
   FormControl,
   Select,
@@ -32,6 +34,8 @@ import {
   Button,
   Avatar,
   CircularProgress,
+  List,
+  ListItemText,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -56,8 +60,12 @@ import {
 } from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import { v4 as uuidv4 } from "uuid";
-import { useAttachedFileMutation } from "../../../services/uploadDocServices";
+import {
+  useAttachedFileMutation,
+  useLazyDownloadAttachedFileQuery,
+} from "../../../services/uploadDocServices";
 import { useToast } from "../../../hooks/useToast";
+import { useParams } from "react-router-dom";
 
 const signatureValues: any = [
   {
@@ -133,27 +141,21 @@ const ThreadItem = ({
   subject,
 }: any) => {
   const [commanApi] = useCommanApiMutation();
-
+  const { showToast } = useToast();
   const [open, setOpen] = useState(false);
-  const [showReplyEditor, setShowReplyEditor] = useState(false);
-  const [localReplyText, setLocalReplyText] = useState("");
   const [isReported, setIsReported] = useState<boolean>(false);
-
+  const ticketId = useParams().id;
   const optionsRef = React.useRef<any>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const [selected, setSelected] = useState<number>(0);
+  const [trackDownloadId, setTrackDownloadId] = useState<string>("");
+
   const dispatch = useDispatch();
+  const [triggerDownload, { isLoading: isDownloading }] =
+    useLazyDownloadAttachedFileQuery();
 
   const handleReplyClick = (e: any) => {
     onForward();
-  };
-
-  const handleSendReply = () => {
-    if (localReplyText.trim()) {
-      onReplyClick(item, localReplyText);
-      setLocalReplyText("");
-      setShowReplyEditor(false);
-    }
   };
 
   function handleListKeyDown(event: any) {
@@ -204,6 +206,65 @@ const ThreadItem = ({
     commanApi(payload)
       .then((response) => {})
       .catch((error) => {});
+  };
+
+  const downloadFile = async (fileId: string, fileName: string) => {
+    if (!fileId || !ticketId) {
+      showToast("Invalid attachment ID or ticketId", "error");
+      return;
+    }
+
+    const payload = {
+      ticketNumber: ticketId,
+      signature: fileId,
+    };
+
+    try {
+      const res = await triggerDownload(payload).unwrap();
+
+      if (res instanceof Blob) {
+        const url = window.URL.createObjectURL(res);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName || "attachment";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        showToast("Download completed", "success");
+        return;
+      }
+
+      if (res?.success === true && res?.data) {
+        const byteCharacters = atob(res.data);
+        const byteNumbers = new Array(byteCharacters.length)
+          .fill(0)
+          .map((_, i) => byteCharacters.charCodeAt(i));
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], {
+          type: "application/octet-stream",
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "attachment";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        showToast("Download completed", "success");
+      } else {
+        showToast(
+          res?.message || "An error occurred while downloading",
+          "error"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      showToast("Failed to download file", "error");
+    }
   };
 
   const renderReplyOption = (
@@ -273,7 +334,7 @@ const ThreadItem = ({
   const bubbleFooter = isCurrentUser
     ? "IP: 127.0.0.1 | Location: India"
     : "IP: 127.0.0.1 | Location: India";
-  const isRatingDisabled = isCurrentUser;
+  // const isRatingDisabled = isCurrentUser;
 
   const decodeHtmlEntities = (encoded: string) => {
     try {
@@ -445,55 +506,113 @@ const ThreadItem = ({
                     ),
                   }}
                 />
+                {item?.attachments.length > 0 && (
+                  <div className="mt-3">
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                      Attachments ({item?.attachments?.length} files)
+                    </Typography>
+                    <List
+                      disablePadding
+                      sx={{ width: 260, bgcolor: "#eeececff", px: 0.8 }}
+                    >
+                      {item?.attachments?.map((file: any) => (
+                        <ListItem disablePadding key={file?.fileSignature}>
+                          <ListItemText
+                            primary={
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span>
+                                    <img
+                                      src={fileicon}
+                                      alt=""
+                                      className="w-5"
+                                    />
+                                  </span>
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      maxWidth: "120px", // adjust width
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      verticalAlign: "bottom",
+                                    }}
+                                  >
+                                    {file?.fileName}
+                                  </span>
+                                </div>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    setTrackDownloadId(file?.fileSignature);
+                                    downloadFile(
+                                      file?.fileSignature,
+                                      file?.fileName
+                                    );
+                                  }}
+                                >
+                                  {isDownloading &&
+                                  trackDownloadId === file?.fileSignature ? (
+                                    <CircularProgress size={16} />
+                                  ) : (
+                                    <DownloadIcon fontSize="small" />
+                                  )}
+                                </IconButton>
+                              </div>
+                            }
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </div>
+                )}
               </div>
             </div>
             <div
               className="flex items-center justify-between w-full py-3 px-8 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
               style={{ borderTopColor: isReported ? "#ffb6b6" : "#c3d9ff" }}
             >
-              <span className="text-xs text-gray-500">File</span>
-              <span className="flex gap-1">
-                {Array.from({ length: 5 }).map((_, idx) => {
-                  const isActive =
-                    hovered !== null ? idx <= hovered : idx < selected;
+              {/* {item?.attachments.length > 0 ? (
+                <span className="text-xs text-gray-500 cursor-pointer hover:text-decoration-underline ">
+                  {item?.attachments.fileName}
+                </span>
+              ) : ( */}
+              <span />
+              {/* )} */}
+              {!isCurrentUser && (
+                <span className="flex gap-1">
+                  {Array.from({ length: 5 }).map((_, idx) => {
+                    const isActive =
+                      hovered !== null ? idx <= hovered : idx < selected;
 
-                  return (
-                    <StarIcon
-                      key={idx}
-                      sx={{
-                        color: isActive ? "#fbbf24" : "#a4a4a4ff",
-                        cursor: isRatingDisabled ? "not-allowed" : "pointer",
-                        opacity: isRatingDisabled ? 0.5 : 1,
-                        fontSize: "18px",
-                        transition: "all 0.2s ease",
-                        pointerEvents: isRatingDisabled ? "none" : "auto",
-                        "&:hover": isRatingDisabled
-                          ? {}
-                          : {
-                              color: "#fbbf24",
-                              transform: "scale(1.1)",
-                            },
-                      }}
-                      onMouseEnter={
-                        isRatingDisabled ? undefined : () => setHovered(idx)
-                      }
-                      onMouseLeave={
-                        isRatingDisabled ? undefined : () => setHovered(null)
-                      }
-                      onClick={
-                        isRatingDisabled
-                          ? undefined
-                          : () => handleReview(idx + 1)
-                      }
-                    />
-                  );
-                })}
-                {!isRatingDisabled && selected > 0 && (
-                  <span className="ml-2 text-xs text-gray-600">
-                    {selected} star{selected > 1 ? "s" : ""}
-                  </span>
-                )}
-              </span>
+                    return (
+                      <StarIcon
+                        key={idx}
+                        sx={{
+                          color: isActive ? "#fbbf24" : "#a4a4a4ff",
+                          cursor: "pointer",
+                          opacity: 1,
+                          fontSize: "18px",
+                          transition: "all 0.2s ease",
+                          pointerEvents: "auto",
+                          "&:hover": {
+                            color: "#fbbf24",
+                            transform: "scale(1.1)",
+                          },
+                        }}
+                        onMouseEnter={() => setHovered(idx)}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={() => handleReview(idx + 1)}
+                      />
+                    );
+                  })}
+                  {selected > 0 && (
+                    <span className="ml-2 text-xs text-gray-600">
+                      {selected} star{selected > 1 ? "s" : ""}
+                    </span>
+                  )}
+                </span>
+              )}
             </div>
           </div>
         </div>
