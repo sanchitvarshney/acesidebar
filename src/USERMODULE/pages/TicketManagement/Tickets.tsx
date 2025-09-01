@@ -10,6 +10,7 @@ import {
   useGetPriorityListQuery,
   useGetTicketListSortingQuery,
   useGetTicketSortingOptionsQuery,
+  useGetStatusListQuery,
 } from "../../../services/ticketAuth";
 import TicketSkeleton from "../../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
@@ -97,12 +98,11 @@ const Tickets: React.FC = () => {
   const [commanApi] = useCommanApiMutation();
 
   // Fetch live priority list
-  const { data: priorityList } =
-    useGetPriorityListQuery();
+  const { data: priorityList } = useGetPriorityListQuery();
+  const { data: statusList } = useGetStatusListQuery();
 
   // Fetch sorting options
-  const { data: sortingOptions} =
-    useGetTicketSortingOptionsQuery();
+  const { data: sortingOptions } = useGetTicketSortingOptionsQuery();
 
   // Map API priorities to dropdown options
   const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
@@ -147,25 +147,21 @@ const Tickets: React.FC = () => {
       limit,
     };
   };
-  const {
-    data: ticketList,
-    isFetching: isTicketListFetching,
-  } = useGetTicketListQuery(getApiParams());
+  const { data: ticketList, isFetching: isTicketListFetching } =
+    useGetTicketListQuery(getApiParams());
   const sortingParams = sortType
     ? { type: sortType, order: sortOrder, page, limit }
     : undefined;
-  const {
-    data: sortedTicketList,
-    isFetching: isSortedTicketListFetching,
-  } = useGetTicketListSortingQuery(
-    sortingParams as {
-      type: string;
-      order: string;
-      page: number;
-      limit: number;
-    },
-    { skip: !sortType }
-  );
+  const { data: sortedTicketList, isFetching: isSortedTicketListFetching } =
+    useGetTicketListSortingQuery(
+      sortingParams as {
+        type: string;
+        order: string;
+        page: number;
+        limit: number;
+      },
+      { skip: !sortType }
+    );
 
   const ticketsToShow = sortType ? sortedTicketList : ticketList;
   const isTicketsFetching = sortType
