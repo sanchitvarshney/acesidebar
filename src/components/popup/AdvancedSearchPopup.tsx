@@ -6,6 +6,8 @@
  * - Articles  
  * - Contacts
  * - Tickets
+ * - Tasks
+ * - Chats
  * 
  * Features:
  * - Multi-step search builder
@@ -31,7 +33,7 @@
  * API Endpoint: POST /ticket/staff/advance-search
  * Payload Structure:
  * {
- *   searchType: 'ticket' | 'knowledgebase' | 'article' | 'contact',
+ *   searchType: 'ticket' | 'knowledgebase' | 'article' | 'contact' | 'task' | 'chat',
  *   logicOperator: 'and' | 'or',
  *   filters: [
  *     {
@@ -73,7 +75,9 @@ import {
   Article as ArticleIcon,
   ContactSupport as ContactIcon,
   ConfirmationNumber as TicketIcon,
-  Warning as WarningIcon
+  Warning as WarningIcon,
+  Assignment as AssignmentIcon,
+  Chat as ChatIcon
 } from '@mui/icons-material';
 import { useAdvancedSearchMutation } from '../../services/ticketAuth';
 
@@ -109,7 +113,7 @@ interface SearchResult {
   results?: any[];
 }
 
-type SearchType = 'knowledgebase' | 'article' | 'contact' | 'ticket';
+type SearchType = 'knowledgebase' | 'article' | 'contact' | 'ticket' | 'task' | 'chat';
 
 const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose, anchorEl, onSearchComplete }) => {
   const popupRef = useRef<HTMLDivElement>(null);
@@ -130,7 +134,9 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
     { value: 'knowledgebase', label: 'Knowledge Base', icon: <SearchIcon /> },
     { value: 'article', label: 'Articles', icon: <ArticleIcon /> },
     { value: 'contact', label: 'Contacts', icon: <ContactIcon /> },
-    { value: 'ticket', label: 'Tickets', icon: <TicketIcon /> }
+    { value: 'ticket', label: 'Tickets', icon: <TicketIcon /> },
+    { value: 'task', label: 'Tasks', icon: <AssignmentIcon /> },
+    { value: 'chat', label: 'Chats', icon: <ChatIcon /> }
   ];
 
   // Field options for each search type
@@ -179,6 +185,25 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
       'Updated Date',
       'Category',
       'All fields'
+    ],
+    task: [
+      'Title',
+      'Description',
+      'Status',
+      'Priority',
+      'Assignee',
+      'Created Date',
+      'Due Date',
+      'Category',
+      'All fields'
+    ],
+    chat: [
+      'Message',
+      'Sender',
+      'Receiver',
+      'Created Date',
+      'Category',
+      'All fields'
     ]
   };
 
@@ -225,7 +250,11 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
     'Updated Date': ['Before', 'After', 'Between', 'On', 'Is empty', 'Is not empty'],
     'Published Date': ['Before', 'After', 'Between', 'On', 'Is empty', 'Is not empty'],
     'Last Contact': ['Before', 'After', 'Between', 'On', 'Is empty', 'Is not empty'],
+    'Due Date': ['Before', 'After', 'Between', 'On', 'Is empty', 'Is not empty'],
     'Views': ['Greater than', 'Less than', 'Equals', 'Between', 'Is empty', 'Is not empty'],
+    'Message': ['Contains', 'Does not contain', 'Starts with', 'Ends with', 'Is empty', 'Is not empty'],
+    'Sender': ['Any of', 'None of', 'Is empty', 'Is not empty'],
+    'Receiver': ['Any of', 'None of', 'Is empty', 'Is not empty'],
     'All fields': ['Matches any', 'Does not match', 'Is empty', 'Is not empty']
   };
 
@@ -234,7 +263,9 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
     knowledgebase: ['published', 'draft', 'archived', 'review'],
     article: ['published', 'draft', 'archived', 'pending'],
     contact: ['active', 'inactive', 'lead', 'customer', 'prospect'],
-    ticket: ['open', 'in-progress', 'resolved', 'closed', 'pending', 'cancelled']
+    ticket: ['open', 'in-progress', 'resolved', 'closed', 'pending', 'cancelled'],
+    task: ['todo', 'in-progress', 'completed', 'overdue'],
+    chat: ['sent', 'received', 'unread']
   };
 
   // Priority options for tickets
@@ -357,7 +388,11 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
     'Company': 'company',
     'Department': 'department',
     'Last Contact': 'last_contact',
+    'Due Date': 'due_date',
     'Views': 'views',
+    'Message': 'message',
+    'Sender': 'sender',
+    'Receiver': 'receiver',
     'All fields': 'all_fields'
   };
 
@@ -546,7 +581,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
       );
     }
 
-    if (filter.field === 'Assignee' || filter.field === 'Customer' || filter.field === 'Author') {
+    if (filter.field === 'Assignee' || filter.field === 'Customer' || filter.field === 'Author' || filter.field === 'Sender' || filter.field === 'Receiver') {
       return (
         <TextField
           size="small"
@@ -589,7 +624,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
             What would you like to search?
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
             {searchTypes.map((type) => (
               <Button
                 key={type.value}
