@@ -116,13 +116,13 @@ export const theme = createTheme({
         },
       },
     },
-    MuiBackdrop: {
-      styleOverrides: {
-        root: {
-          backgroundColor: "#ffffff80 !important",
-        },
-      },
-    },
+    // MuiBackdrop: {
+    //   styleOverrides: {
+    //     root: {
+    //       backgroundColor: "#ffffff80 !important",
+    //     },
+    //   },
+    // },
   },
   palette: {
     primary: {

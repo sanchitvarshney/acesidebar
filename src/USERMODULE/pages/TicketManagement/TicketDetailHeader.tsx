@@ -18,6 +18,12 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
 
 import {
   IconButton,
@@ -30,6 +36,13 @@ import {
   Box,
   Tooltip,
   Typography,
+  Switch,
+  FormControlLabel,
+  TextField,
+  InputAdornment,
+  Avatar,
+  Chip,
+  Autocomplete,
 } from "@mui/material";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 
@@ -64,15 +77,14 @@ const ActionButton = ({
 }) => {
   return (
     <div className="flex items-center">
-     <Tooltip title={tooltip}>
+      <Tooltip title={tooltip}>
         <Button
           variant="contained"
           color="inherit"
           onClick={onClick}
           size="small"
-          className={`flex items-center justify-center normal-case shadow-none px-3 py-1 text-sm ${
-            className || ""
-          }`}
+          className={`flex items-center justify-center normal-case shadow-none px-3 py-1 text-sm ${className || ""
+            }`}
           sx={{
             fontSize: "0.875rem",
             fontWeight: 500,
@@ -142,6 +154,14 @@ const TicketDetailHeader = ({
   const [isAttachmentsModal, setIsAttachmentsModal] = useState(false);
   const [isActivityModal, setIsActivityModal] = useState(false);
   const [isSpamModal, setIsSpamModal] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [watchersAnchorEl, setWatchersAnchorEl] = useState<HTMLElement | null>(null);
+  const [watchersOpen, setWatchersOpen] = useState(false);
+  const [watchers, setWatchers] = useState([
+    { id: 1, name: "Diwuebfiuekj", email: "diwuebfiuekj@example.com", avatar: "D" },
+    { id: 2, name: "Me (Developer Account)", email: "developer@example.com", avatar: "D" }
+  ]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [commanApi] = useCommanApiMutation();
 
@@ -266,6 +286,32 @@ const TicketDetailHeader = ({
     setStatusAnchorEl(null);
   };
 
+  const handleNotificationToggle = () => {
+    setNotificationsEnabled(!notificationsEnabled);
+    // You can add API call here to update notification settings
+    console.log('Notifications', notificationsEnabled ? 'disabled' : 'enabled');
+  };
+
+  const handleWatchersClick = (event: React.MouseEvent<HTMLElement>) => {
+    setWatchersAnchorEl(event.currentTarget);
+    setWatchersOpen(true);
+  };
+
+  const handleWatchersClose = () => {
+    setWatchersOpen(false);
+    setWatchersAnchorEl(null);
+  };
+
+  const handleRemoveWatcher = (watcherId: number) => {
+    setWatchers(watchers.filter(watcher => watcher.id !== watcherId));
+  };
+
+  const handleAddWatcher = (newWatcher: any) => {
+    if (newWatcher && !watchers.find(w => w.id === newWatcher.id)) {
+      setWatchers([...watchers, newWatcher]);
+    }
+  };
+
   return (
     <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
       {/* Breadcrumb */}
@@ -330,7 +376,7 @@ const TicketDetailHeader = ({
         <ActionButton
           icon={
             <div className="flex items-center gap-1">
-             More <MoreVertIcon fontSize="small" className="text-blue-600 " /> 
+              More <MoreVertIcon fontSize="small" className="text-blue-600 " />
             </div>
           }
           tooltip="More"
@@ -340,28 +386,90 @@ const TicketDetailHeader = ({
 
       {/* Navigation buttons - Right side */}
 
-      <div className="flex gap-1 ml-auto">
+      <div className="flex gap-8 ml-auto">
+        {/* Notification Switch with Icon */}
+        <Tooltip title={notificationsEnabled ? "Disable Notifications" : "Enable Notifications"} placement="left">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {notificationsEnabled ? (
+              <NotificationsIcon fontSize="small" sx={{ color: '#1a73e8' }} />
+            ) : (
+              <NotificationsOffIcon fontSize="small" sx={{ color: '#9ca3af' }} />
+            )}
+            <Switch
+              checked={notificationsEnabled}
+              onChange={handleNotificationToggle}
+              size="small"
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: '#1a73e8',
+                  '& + .MuiSwitch-track': {
+                    backgroundColor: '#1a73e8',
+                  },
+                },
+                '& .MuiSwitch-track': {
+                  backgroundColor: '#d1d5db',
+                },
+              }}
+            />
+          </Box>
+        </Tooltip>
+
+        {/* Watchers Button */}
+        <Tooltip
+          title={
+            <Box className="p-2 rounded-md text-black">
+              <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                Ticket watchers ({watchers.length})
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block', mb: 1 }}>
+                Agents added as watchers will receive alerts when this ticket is updated
+              </Typography>
+            </Box>
+          }
+          placement="bottom"
+          componentsProps={{
+            tooltip: {
+              sx: {
+                backgroundColor: 'white',
+                color: 'black',
+                boxShadow: 3,
+                border: '1px solid #e0e0e0',
+              },
+            },
+          }}
+        >
+          <IconButton
+            onClick={handleWatchersClick}
+            size="small"
+            className="text-blue-600 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+
+
+        {/* Previous Ticket Button */}
         <IconButton
           onClick={onPreviousTicket}
           disabled={!hasPreviousTicket}
           size="small"
-          className={`${
-            hasPreviousTicket
+          className={`${hasPreviousTicket
               ? "text-blue-600 hover:bg-blue-50 hover:text-blue-600"
               : "text-gray-400"
-          } disabled:text-gray-400`}
+            } disabled:text-gray-400`}
         >
           <ArrowBackIosIcon fontSize="small" />
         </IconButton>
+
+        {/* Next Ticket Button */}
         <IconButton
           onClick={onNextTicket}
           disabled={!hasNextTicket}
           size="small"
-          className={`${
-            hasNextTicket
+          className={`${hasNextTicket
               ? "text-blue-600 hover:bg-blue-50 hover:text-blue-600"
               : "text-gray-400"
-          } disabled:text-gray-400`}
+            } disabled:text-gray-400`}
         >
           <ArrowForwardIosIcon fontSize="small" />
         </IconButton>
@@ -498,7 +606,7 @@ const TicketDetailHeader = ({
         width={600}
       >
         <EditTicket
-        open={isEditTicket}
+          open={isEditTicket}
           onClose={() => {
             setIsEditTicket(false);
           }}
@@ -617,6 +725,143 @@ const TicketDetailHeader = ({
         title="Spam Ticket"
         message="Are you sure you want to spam this ticket?"
       />
+
+      {/* Watchers Popover */}
+      <Popover
+        open={watchersOpen}
+        anchorEl={watchersAnchorEl}
+        onClose={handleWatchersClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        PaperProps={{
+          sx: {
+            width: 400,
+            maxHeight: 500,
+            p: 2,
+          },
+        }}
+      >
+        <Box>
+          {/* Header */}
+          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+            Ticket watchers ({watchers.length})
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+            Agents added as watchers will receive alerts when this ticket is updated
+          </Typography>
+
+          {/* Search Bar */}
+          <TextField
+            fullWidth
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            size="small"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ mb: 2 }}
+          />
+
+          {/* Add More Dropdown */}
+          <Autocomplete
+            options={[
+              { id: 3, name: "John Doe", email: "john@example.com", avatar: "J" },
+              { id: 4, name: "Jane Smith", email: "jane@example.com", avatar: "J" },
+              { id: 5, name: "Mike Johnson", email: "mike@example.com", avatar: "M" },
+            ]}
+            getOptionLabel={(option) => option.name}
+            onChange={(event, newValue) => {
+              if (newValue) {
+                handleAddWatcher(newValue);
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="Add more watchers..."
+                size="small"
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonAddIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+            renderOption={(props, option) => (
+              <Box component="li" {...props}>
+                <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: '0.75rem' }}>
+                  {option.avatar}
+                </Avatar>
+                <Box>
+                  <Typography variant="body2">{option.name}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {option.email}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+            sx={{ mb: 2 }}
+          />
+
+          {/* Watchers List */}
+          <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
+            {watchers.map((watcher) => (
+              <Box
+                key={watcher.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  p: 1,
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  mb: 1,
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleRemoveWatcher(watcher.id)}
+                    sx={{
+                      color: '#ef4444',
+                      mr: 1,
+                      '&:hover': { backgroundColor: '#fee2e2' }
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                  <Avatar sx={{ width: 32, height: 32, mr: 1, fontSize: '0.875rem' }}>
+                    {watcher.avatar}
+                  </Avatar>
+                  <Box>
+                    <Typography variant="body2">{watcher.name}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {watcher.email}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Popover>
     </div>
   );
 };

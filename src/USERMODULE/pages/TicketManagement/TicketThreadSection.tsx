@@ -41,7 +41,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
+import AddTaskIcon from '@mui/icons-material/AddTask';
 import ShotCutContent from "../../components/ShotCutContent";
 import ShortcutIcon from "@mui/icons-material/Shortcut";
 import { useDispatch, useSelector } from "react-redux";
@@ -204,8 +204,8 @@ const ThreadItem = ({
     };
 
     commanApi(payload)
-      .then((response) => {})
-      .catch((error) => {});
+      .then((response) => { })
+      .catch((error) => { });
   };
 
   const downloadFile = async (fileId: string, fileName: string) => {
@@ -329,8 +329,8 @@ const ThreadItem = ({
   const bubbleBackgroundColor = isReported
     ? "#fee2e2"
     : isCurrentUser
-    ? "#f7faff"
-    : "#fafafa";
+      ? "#f7faff"
+      : "#fafafa";
   const bubbleFooter = isCurrentUser
     ? "IP: 127.0.0.1 | Location: India"
     : "IP: 127.0.0.1 | Location: India";
@@ -368,8 +368,8 @@ const ThreadItem = ({
       method: "GET",
     };
     commanApi(payload)
-      .then((response) => {})
-      .catch((error) => {});
+      .then((response) => { })
+      .catch((error) => { });
     setIsReported((v) => !v);
   };
 
@@ -378,9 +378,8 @@ const ThreadItem = ({
       {/* Email content */}
       <div className="flex-1">
         <div
-          className={`rounded flex ${
-            isCurrentUser ? " flex-row-reverse" : "flex-row "
-          }`}
+          className={`rounded flex ${isCurrentUser ? " flex-row-reverse" : "flex-row "
+            }`}
         >
           <div className=" relative flex px-4 py-2 flex-col items-center">
             <div
@@ -461,18 +460,16 @@ const ThreadItem = ({
             <div className="flex items-center justify-between  w-full px-8 py-2">
               <div className={`w-full  flex flex-col`}>
                 <div
-                  className={`flex  items-center justify-between  w-full border-b-2 border-gray-200 pb-4  ${
-                    isCurrentUser ? " flex-row-reverse" : "flex-row "
-                  }`}
+                  className={`flex  items-center justify-between  w-full border-b-2 border-gray-200 pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "
+                    }`}
                 >
                   <span className="font-semibold text-[#1a73e8] text-sm">
                     {item.repliedBy?.name || "User"}
                   </span>
                   <div className="flex flex-col ">
                     <div
-                      className={`flex items-center gap-2 ${
-                        isCurrentUser ? "justify-start" : "justify-end"
-                      }`}
+                      className={`flex items-center gap-2 ${isCurrentUser ? "justify-start" : "justify-end"
+                        }`}
                     >
                       <img src={isCurrentUser ? email : web} alt="ip" />
                       <span className="text-xs text-gray-400 ">
@@ -507,13 +504,13 @@ const ThreadItem = ({
                   }}
                 />
                 {item?.attachments.length > 0 && (
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                       Attachments ({item?.attachments?.length} files)
                     </Typography>
                     <List
                       disablePadding
-                      sx={{ width: 260, bgcolor: "#eeececff", px: 0.8 }}
+                      sx={{ width: 260, bgcolor: "transparent", px: 0.8 }}
                     >
                       {item?.attachments?.map((file: any) => (
                         <ListItem disablePadding key={file?.fileSignature}>
@@ -552,7 +549,7 @@ const ThreadItem = ({
                                   }}
                                 >
                                   {isDownloading &&
-                                  trackDownloadId === file?.fileSignature ? (
+                                    trackDownloadId === file?.fileSignature ? (
                                     <CircularProgress size={16} />
                                   ) : (
                                     <DownloadIcon fontSize="small" />
@@ -1054,17 +1051,65 @@ const TicketThreadSection = ({
                 },
               }}
             >
-              <Typography
-                component="span"
-                sx={{
-                  fontSize: "14px",
-                  color: "#374151",
-                  fontStyle: "italic",
-                  borderRadius: "none",
-                }}
-              >
-                Reply....
-              </Typography>
+              <div className="flex items-center justify-between w-full">
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: "14px",
+                    color: "#374151",
+                    fontStyle: "italic",
+                    borderRadius: "none",
+                  }}
+                >
+                  Reply....
+                </Typography>
+
+                {/* Task Icon */}
+                <div className="flex items-center gap-2 mr-4">
+                  <Tooltip title="Add Tasks" placement="left">
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        alert("Add Tasks");
+                      }}
+                      size="small"
+                      sx={{
+                        color: "#1a73e8",
+                        backgroundColor: "#e8f0fe",
+                        border: "1px solid #bad0ff",
+                        borderRadius: "3px",
+                        width: "100px",
+                        padding: "10px",
+                        position: "relative",
+                        "&:hover": {
+                          backgroundColor: "#bad0ff",
+                          color: "#1a73e8",
+                          borderColor: "#e8f0fe",
+                          transform: "scale(1.05)",
+                        },
+                        transition: "all 0.2s ease-in-out",
+                      }}
+                    >
+                      <AddTaskIcon fontSize="small" />
+                       {/* Small indicator dot */}
+                       <Box
+                        sx={{
+                          position: "absolute",
+                          top: "6px",
+                          right: "10px",
+                          width: "15px",
+                          height: "15px",
+                          backgroundColor: "#34a853",
+                          borderRadius: "50%",
+                          border: "2px solid #ffffff",
+                        }}
+                      />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+              </div>
+
+
             </AccordionSummary>
             {/* )} */}
 
@@ -1476,12 +1521,12 @@ const TicketThreadSection = ({
       {isSuccessModal && (
         <CustomModal
           open={isSuccessModal}
-          onClose={() => {}}
+          onClose={() => { }}
           title={"Ticket Save"}
           msg="Ticket save successfully"
           primaryButton={{
             title: "Go Next",
-            onClick: () => {},
+            onClick: () => { },
           }}
           secondaryButton={{
             title: "Ticket List",
