@@ -195,7 +195,7 @@ const ShortcutsTab = () => {
       {/* <div className="text-xs text-gray-500">No shortcuts found</div> */}
       <CustomSearch width="100%" placeholder="Search" onChange={() => {}} />
 
-      <div className="my-3 wi-full h-[calc(100vh-375px)] overflow-y-auto">
+      <div className="my-3 wi-full h-[calc(100vh-360px)] overflow-y-auto">
         {isAddShortcutOpen || isEditShortCut ? (
           <div className="flex flex-col gap-3">
             <div>

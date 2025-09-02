@@ -142,7 +142,7 @@ const TicketDetailTemplate = () => {
         display: "flex",
         position: "relative",
         overflow: "hidden",
-        height: "calc(100vh - 112px)",
+        height: "calc(100vh - 98px)",
       }}
     >
       <Sidebar open={false} handleDrawerToggle={() => {}} />

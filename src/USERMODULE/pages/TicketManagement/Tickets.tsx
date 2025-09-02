@@ -601,7 +601,7 @@ const Tickets: React.FC = () => {
       ) : openTicketNumber && ticketDetailData ? (
         <TicketDetailTemplate ticket={ticketDetailData} onBack={handleBack} />
       ) : ( */}
-      <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
+      <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)]">
         {/* Main Header Bar */}
         <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-#f0f4f9">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
@@ -706,20 +706,6 @@ const Tickets: React.FC = () => {
                   onClose={() => setIsMergeModal(false)}
                 />
 
-                {/* <Button
-                    variant="contained"
-                    size="small"
-                    color="inherit"
-                    startIcon={
-                      <BlockIcon fontSize="small" sx={{ color: "#d32f2f" }} />
-                    }
-                    sx={{
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Spam
-                  </Button> */}
                 <Button
                   variant="contained"
                   size="small"
@@ -855,24 +841,6 @@ const Tickets: React.FC = () => {
         user={userPopupUser}
       />
 
-      {/* {isSuccessModal && (
-        <CustomModal
-          open={isSuccessModal}
-          onClose={() => {}}
-          title={"Ticket Save"}
-          msg="Ticket save successfully"
-          primaryButton={{
-            title: "Go Next",
-            onClick: () => {},
-          }}
-          secondaryButton={{
-            title: "Ticket List",
-            onClick: () => {
-              setIsSuccessModal(false);
-            },
-          }}
-        />
-      )} */}
       <ConfirmationModal
         open={isDeleteModal}
         onClose={() => setIsDeleteModal(false)}

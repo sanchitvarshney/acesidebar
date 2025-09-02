@@ -1146,25 +1146,6 @@ const TicketThreadSection = ({
                 />
               </div>
 
-              {/* {showShotcut && (
-                <ShortCutPopover
-                  open={showShotcut}
-                  close={() => setShowShotcut(false)}
-                  anchorEl={shotcutRef}
-                  width={600}
-                >
-                  <ShotCutContent
-                    onChange={(e: any) => {
-                      dispatch(
-                        setReplyValue((prev: any) => prev?.replace(/\/$/, e))
-                      );
-                    }}
-                    onClose={() => setShowShotcut(false)}
-                    stateChangeKey={() => setStateChangeKey((prev) => prev + 1)}
-                  />
-                </ShortCutPopover>
-              )} */}
-
               <div className="w-full flex items-center justify-between gap-2 mt-2">
                 <div className="flex items-center gap-2">
                   <FormControl fullWidth>

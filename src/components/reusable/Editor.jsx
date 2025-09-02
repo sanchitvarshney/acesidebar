@@ -90,13 +90,13 @@ const StackEditor = ({
     signatureValue,
     isValues,
     onForward,
-    customHeight = "calc(100vh - 365px)",
+    customHeight = "calc(100vh - 350px)",
     handleChangeValue,
     selectedValue,
     changeNotify = () => {},
     notifyTag = [],
     ticketId,
-    setIsReply
+    setIsReply,
   } = props;
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
@@ -406,7 +406,6 @@ const StackEditor = ({
       if (!imageElement) return;
       // imageElement.style.width = `${IMAGE_DEFAULT_WIDTH}%`;
       imageElement.style.maxWidth = `${IMAGE_DEFAULT_WIDTH}%`;
-  
     } catch (_) {}
   };
 
@@ -414,7 +413,7 @@ const StackEditor = ({
     try {
       if (!quillInstance || !imageUrl) return;
       const root = quillInstance.root;
-      const imgs = Array.from(root.querySelectorAll('img'));
+      const imgs = Array.from(root.querySelectorAll("img"));
       imgs
         .filter((img) => (img?.src || "") === imageUrl)
         .forEach((img) => setImageElementSize(img));
@@ -616,10 +615,12 @@ const StackEditor = ({
     if (index === "3") {
       onForward();
     }
-    setIsReply(index==="2" ? false : true)
+
+    setIsReply(index === "2" ? false : true);
     setSelectedIndex(index);
     setIsOptionsOpen(false); // Close after selection
     setOptionChangeKey((prevKey) => prevKey + 1);
+ 
   };
 
   const renderHeader = () => {
@@ -923,15 +924,15 @@ const StackEditor = ({
   const editorHeight = isFullscreen
     ? "100vh"
     : isEditorExpended
-    ? "450px"
+    ? "436px"
     : (showCc || showBcc) && currentSignature
-    ? "calc(100vh - 580px)"
+    ? "calc(100vh - 565px)"
     : showCc || showBcc
-    ? "calc(100vh - 400px)"
+    ? "calc(100vh - 385px)"
     : currentSignature
-    ? "calc(100vh - 530px)"
+    ? "calc(100vh - 515px)"
     : selectedIndex !== "1"
-    ? "calc(100vh - 370px)"
+    ? "calc(100vh - 354px)"
     : customHeight;
 
   return (
