@@ -18,17 +18,12 @@ import {
 import CustomSearch from "../../components/common/CustomSearch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useEffect, useState } from "react";
-import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { AppDispatch, RootState } from "../../reduxStore/Store";
-import { useDispatch, useSelector } from "react-redux";
-import { setShotcuts } from "../../reduxStore/Slices/shotcutSlices";
 import emptyimg from "../../assets/image/overview-empty-state.svg";
 import LoadingCheck from "../../components/reusable/LoadingCheck";
 import {
   useAddShortcutMutation,
-  useCommanApiMutation,
   useDeleteShortcutMutation,
   useEditShortcutMutation,
   useGetShortCutListQuery,
@@ -63,6 +58,7 @@ const ShortcutsTab = () => {
   const [message, setMessage] = useState<any>("");
   const [trackId, setTrackId] = useState<any>("");
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const {
     data: shortcutList,
@@ -189,11 +185,26 @@ const ShortcutsTab = () => {
     }, 1000);
   }, [loading]);
 
+  // Filter shortcuts based on search query
+  const filteredShortcuts = shortcutList?.filter((item: any) => {
+    if (!searchQuery.trim()) return true;
+    
+    const searchLower = searchQuery.toLowerCase();
+    const shortcutName = item.shortcut?.toLowerCase() || '';
+    const shortcutText = item.text?.toLowerCase() || '';
+    
+    return shortcutName.includes(searchLower) || shortcutText.includes(searchLower);
+  }) || [];
+
   return (
     <div className="p-2 w-full">
       <div className="font-semibold text-xs mb-2 text-gray-500">Shortcuts</div>
       {/* <div className="text-xs text-gray-500">No shortcuts found</div> */}
-      <CustomSearch width="100%" placeholder="Search" onChange={() => {}} />
+      <CustomSearch 
+        width="100%" 
+        placeholder="Search shortcuts..." 
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} 
+      />
 
       <div className="my-3 wi-full h-[calc(100vh-360px)] overflow-y-auto">
         {isAddShortcutOpen || isEditShortCut ? (
@@ -319,9 +330,9 @@ const ShortcutsTab = () => {
             ) : (
               <>
                 {" "}
-                {shortcutList?.length > 0 ? (
+                {filteredShortcuts?.length > 0 ? (
                   <>
-                    {(shortcutList ?? [])?.map((item: any) => (
+                    {(filteredShortcuts ?? [])?.map((item: any) => (
                       <ListItem
                         key={item.key}
                         disablePadding
@@ -428,6 +439,15 @@ const ShortcutsTab = () => {
                       alt="notes"
                       className="mx-auto w-40 h-40"
                     />
+                    {searchQuery.trim() ? (
+                      <div className="text-sm text-gray-500 mt-2">
+                        No shortcuts found matching "{searchQuery}"
+                      </div>
+                    ) : (
+                      <div className="text-sm text-gray-500 mt-2">
+                        No shortcuts found
+                      </div>
+                    )}
                   </div>
                 )}
               </>
