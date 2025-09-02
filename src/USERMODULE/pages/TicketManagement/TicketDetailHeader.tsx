@@ -14,15 +14,15 @@ import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import BlockIcon from "@mui/icons-material/Block";
 import ListIcon from "@mui/icons-material/List";
 import AddAlarmIcon from "@mui/icons-material/AddAlarm";
-import ReadMoreIcon from '@mui/icons-material/ReadMore';
+import ReadMoreIcon from "@mui/icons-material/ReadMore";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import SearchIcon from '@mui/icons-material/Search';
-import CloseIcon from '@mui/icons-material/Close';
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 
 import {
   IconButton,
@@ -83,8 +83,9 @@ const ActionButton = ({
           color="inherit"
           onClick={onClick}
           size="small"
-          className={`flex items-center justify-center normal-case shadow-none px-3 py-1 text-sm ${className || ""
-            }`}
+          className={`flex items-center justify-center normal-case shadow-none px-3 py-1 text-sm ${
+            className || ""
+          }`}
           sx={{
             fontSize: "0.875rem",
             fontWeight: 500,
@@ -152,14 +153,133 @@ const TicketDetailHeader = ({
   const [isActivityModal, setIsActivityModal] = useState(false);
   const [isSpamModal, setIsSpamModal] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [watchersAnchorEl, setWatchersAnchorEl] = useState<HTMLElement | null>(null);
+  const [watchersAnchorEl, setWatchersAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
   const [watchersOpen, setWatchersOpen] = useState(false);
   const [watchers, setWatchers] = useState([
-    { id: 1, name: "Diwuebfiuekj", email: "diwuebfiuekj@example.com", avatar: "D" },
-    { id: 2, name: "Me (Developer Account)", email: "developer@example.com", avatar: "D" }
+    {
+      id: 1,
+      name: "Diwuebfiuekj",
+      email: "diwuebfiuekj@example.com",
+      avatar: "D",
+    },
+    {
+      id: 2,
+      name: "Me (Developer Account)",
+      email: "developer@example.com",
+      avatar: "D",
+    },
   ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
+  const [moreOptionsSearchQuery, setMoreOptionsSearchQuery] = useState("");
+
+  // More options data
+  const moreOptions = [
+    {
+      id: "change-owner",
+      title: "Change Owner",
+      description: "Transfer ticket ownership",
+      icon: <PersonAddAlt1Icon sx={{ color: "#1a73e8" }} />,
+      iconBg: "#dbeafe",
+      onClick: () => {
+        setIsChangeOwnerModal(true);
+        handleMoreDrawerClose();
+      },
+    },
+    {
+      id: "edit-ticket",
+      title: "Edit Ticket",
+      description: "Modify ticket details",
+      icon: <EditDocumentIcon sx={{ color: "#f59e0b" }} />,
+      iconBg: "#fef3c7",
+      onClick: () => {
+        setIsEditTicket(true);
+        handleMoreDrawerClose();
+      },
+    },
+    {
+      id: "link-tickets",
+      title: "Link Tickets",
+      description: "Connect related tickets",
+      icon: <LinkIcon sx={{ color: "#059669" }} />,
+      iconBg: "#d1fae5",
+      onClick: () => {
+        setIsLinkModal(true);
+        handleMoreDrawerClose();
+      },
+    },
+    {
+      id: "manage-referrals",
+      title: "Manage Referrals",
+      description: "Handle ticket referrals",
+      icon: <ManageAccountsIcon sx={{ color: "#9333ea" }} />,
+      iconBg: "#f3e8ff",
+      onClick: () => {
+        setIsManageReferralsModal(true);
+        handleMoreDrawerClose();
+      },
+    },
+    {
+      id: "attachments",
+      title: "Attachments",
+      description: "Manage ticket files",
+      icon: <AttachFileIcon sx={{ color: "#dc2626" }} />,
+      iconBg: "#fef2f2",
+      onClick: () => {
+        setIsAttachmentsModal(true);
+        handleMoreDrawerClose();
+      },
+    },
+    {
+      id: "activity",
+      title: "Activity",
+      description: "View ticket history",
+      icon: <ListIcon sx={{ color: "#0284c7" }} />,
+      iconBg: "#e0f2fe",
+      onClick: () => {
+        setIsActivityModal(true);
+        handleMoreDrawerClose();
+      },
+    },
+    {
+      id: "log-time",
+      title: "Log Time",
+      description: "Track time spent on ticket",
+      icon: <AddAlarmIcon sx={{ color: "#eab308" }} />,
+      iconBg: "#fef7cd",
+      onClick: () => {
+        setIsLogTimeModal(true);
+        handleMoreDrawerClose();
+      },
+    },
+    {
+      id: "spam",
+      title: "Spam",
+      description: "Mark ticket as spam",
+      icon: <BlockIcon sx={{ color: "#dc2626" }} />,
+      iconBg: "#fef2f2",
+      onClick: () => {
+        setIsSpamModal(true);
+        handleMoreDrawerClose();
+      },
+    },
+    {
+      id: "print",
+      title: "Print",
+      description: "Print ticket details",
+      icon: <LocalPrintshopIcon sx={{ color: "#0ea5e9" }} />,
+      iconBg: "#f0f9ff",
+      onClick: () => handlePrintData(ticketNumber),
+    },
+  ];
+
+  // Filter options based on search query
+  const filteredOptions = moreOptions.filter((option) =>
+    option.title.toLowerCase().includes(moreOptionsSearchQuery.toLowerCase()) ||
+    option.description.toLowerCase().includes(moreOptionsSearchQuery.toLowerCase())
+  );
 
   const [commanApi] = useCommanApiMutation();
 
@@ -215,10 +335,6 @@ const TicketDetailHeader = ({
     },
   ];
 
-
-
-
-
   const handleStatusClick = (event: React.MouseEvent<HTMLElement>) => {
     setStatusAnchorEl(event.currentTarget);
     setStatusOpen(true);
@@ -232,7 +348,7 @@ const TicketDetailHeader = ({
   const handleNotificationToggle = () => {
     setNotificationsEnabled(!notificationsEnabled);
     // You can add API call here to update notification settings
-    console.log('Notifications', notificationsEnabled ? 'disabled' : 'enabled');
+    console.log("Notifications", notificationsEnabled ? "disabled" : "enabled");
   };
 
   const handleWatchersClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -246,11 +362,11 @@ const TicketDetailHeader = ({
   };
 
   const handleRemoveWatcher = (watcherId: number) => {
-    setWatchers(watchers.filter(watcher => watcher.id !== watcherId));
+    setWatchers(watchers.filter((watcher) => watcher.id !== watcherId));
   };
 
   const handleAddWatcher = (newWatcher: any) => {
-    if (newWatcher && !watchers.find(w => w.id === newWatcher.id)) {
+    if (newWatcher && !watchers.find((w) => w.id === newWatcher.id)) {
       setWatchers([...watchers, newWatcher]);
     }
   };
@@ -261,6 +377,7 @@ const TicketDetailHeader = ({
 
   const handleMoreDrawerClose = () => {
     setMoreDrawerOpen(false);
+    setMoreOptionsSearchQuery(""); // Clear search when drawer closes
   };
 
   return (
@@ -324,10 +441,10 @@ const TicketDetailHeader = ({
         {/* Divider line */}
         <div className="w-px h-7 bg-gray-300 mx-2"></div>
 
-                <ActionButton
+        <ActionButton
           icon={
             <div className="flex items-center gap-1">
-               More <ReadMoreIcon fontSize="small" className="text-blue-600 " />
+              More <ReadMoreIcon fontSize="small" className="text-blue-600 " />
             </div>
           }
           tooltip="More Options"
@@ -339,26 +456,36 @@ const TicketDetailHeader = ({
 
       <div className="flex gap-8 ml-auto">
         {/* Notification Switch with Icon */}
-        <Tooltip title={notificationsEnabled ? "Disable Notifications" : "Enable Notifications"} placement="left">
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Tooltip
+          title={
+            notificationsEnabled
+              ? "Disable Notifications"
+              : "Enable Notifications"
+          }
+          placement="left"
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             {notificationsEnabled ? (
-              <NotificationsIcon fontSize="small" sx={{ color: '#1a73e8' }} />
+              <NotificationsIcon fontSize="small" sx={{ color: "#1a73e8" }} />
             ) : (
-              <NotificationsOffIcon fontSize="small" sx={{ color: '#9ca3af' }} />
+              <NotificationsOffIcon
+                fontSize="small"
+                sx={{ color: "#9ca3af" }}
+              />
             )}
             <Switch
               checked={notificationsEnabled}
               onChange={handleNotificationToggle}
               size="small"
               sx={{
-                '& .MuiSwitch-switchBase.Mui-checked': {
-                  color: '#1a73e8',
-                  '& + .MuiSwitch-track': {
-                    backgroundColor: '#1a73e8',
+                "& .MuiSwitch-switchBase.Mui-checked": {
+                  color: "#1a73e8",
+                  "& + .MuiSwitch-track": {
+                    backgroundColor: "#1a73e8",
                   },
                 },
-                '& .MuiSwitch-track': {
-                  backgroundColor: '#d1d5db',
+                "& .MuiSwitch-track": {
+                  backgroundColor: "#d1d5db",
                 },
               }}
             />
@@ -369,11 +496,12 @@ const TicketDetailHeader = ({
         <Tooltip
           title={
             <Box className="p-2 rounded-md text-black">
-              <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold", mb: 0.5 }}>
                 Ticket watchers ({watchers.length})
               </Typography>
-              <Typography variant="caption" sx={{ display: 'block', mb: 1 }}>
-                Agents added as watchers will receive alerts when this ticket is updated
+              <Typography variant="caption" sx={{ display: "block", mb: 1 }}>
+                Agents added as watchers will receive alerts when this ticket is
+                updated
               </Typography>
             </Box>
           }
@@ -381,10 +509,10 @@ const TicketDetailHeader = ({
           componentsProps={{
             tooltip: {
               sx: {
-                backgroundColor: 'white',
-                color: 'black',
+                backgroundColor: "white",
+                color: "black",
                 boxShadow: 3,
-                border: '1px solid #e0e0e0',
+                border: "1px solid #e0e0e0",
               },
             },
           }}
@@ -398,16 +526,16 @@ const TicketDetailHeader = ({
           </IconButton>
         </Tooltip>
 
-
         {/* Previous Ticket Button */}
         <IconButton
           onClick={onPreviousTicket}
           disabled={!hasPreviousTicket}
           size="small"
-          className={`${hasPreviousTicket
+          className={`${
+            hasPreviousTicket
               ? "text-blue-600 hover:bg-blue-50 hover:text-blue-600"
               : "text-gray-400"
-            } disabled:text-gray-400`}
+          } disabled:text-gray-400`}
         >
           <ArrowBackIosIcon fontSize="small" />
         </IconButton>
@@ -417,10 +545,11 @@ const TicketDetailHeader = ({
           onClick={onNextTicket}
           disabled={!hasNextTicket}
           size="small"
-          className={`${hasNextTicket
+          className={`${
+            hasNextTicket
               ? "text-blue-600 hover:bg-blue-50 hover:text-blue-600"
               : "text-gray-400"
-            } disabled:text-gray-400`}
+          } disabled:text-gray-400`}
         >
           <ArrowForwardIosIcon fontSize="small" />
         </IconButton>
@@ -467,9 +596,6 @@ const TicketDetailHeader = ({
           ))}
         </List>
       </Popover>
-
-
-
 
       <LinkTickets
         open={isLinkModal}
@@ -650,12 +776,12 @@ const TicketDetailHeader = ({
         anchorEl={watchersAnchorEl}
         onClose={handleWatchersClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: "bottom",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         PaperProps={{
           sx: {
@@ -667,11 +793,12 @@ const TicketDetailHeader = ({
       >
         <Box>
           {/* Header */}
-          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
             Ticket watchers ({watchers.length})
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-            Agents added as watchers will receive alerts when this ticket is updated
+          <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+            Agents added as watchers will receive alerts when this ticket is
+            updated
           </Typography>
 
           {/* Search Bar */}
@@ -694,9 +821,24 @@ const TicketDetailHeader = ({
           {/* Add More Dropdown */}
           <Autocomplete
             options={[
-              { id: 3, name: "John Doe", email: "john@example.com", avatar: "J" },
-              { id: 4, name: "Jane Smith", email: "jane@example.com", avatar: "J" },
-              { id: 5, name: "Mike Johnson", email: "mike@example.com", avatar: "M" },
+              {
+                id: 3,
+                name: "John Doe",
+                email: "john@example.com",
+                avatar: "J",
+              },
+              {
+                id: 4,
+                name: "Jane Smith",
+                email: "jane@example.com",
+                avatar: "J",
+              },
+              {
+                id: 5,
+                name: "Mike Johnson",
+                email: "mike@example.com",
+                avatar: "M",
+              },
             ]}
             getOptionLabel={(option) => option.name}
             onChange={(event, newValue) => {
@@ -721,7 +863,9 @@ const TicketDetailHeader = ({
             )}
             renderOption={(props, option) => (
               <Box component="li" {...props}>
-                <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: '0.75rem' }}>
+                <Avatar
+                  sx={{ width: 24, height: 24, mr: 1, fontSize: "0.75rem" }}
+                >
                   {option.avatar}
                 </Avatar>
                 <Box>
@@ -736,36 +880,38 @@ const TicketDetailHeader = ({
           />
 
           {/* Watchers List */}
-          <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
+          <Box sx={{ maxHeight: 200, overflowY: "auto" }}>
             {watchers.map((watcher) => (
               <Box
                 key={watcher.id}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                   p: 1,
-                  border: '1px solid #e0e0e0',
+                  border: "1px solid #e0e0e0",
                   borderRadius: 1,
                   mb: 1,
-                  '&:hover': {
-                    backgroundColor: '#f5f5f5',
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5",
                   },
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
                   <IconButton
                     size="small"
                     onClick={() => handleRemoveWatcher(watcher.id)}
                     sx={{
-                      color: '#ef4444',
+                      color: "#ef4444",
                       mr: 1,
-                      '&:hover': { backgroundColor: '#fee2e2' }
+                      "&:hover": { backgroundColor: "#fee2e2" },
                     }}
                   >
                     <CloseIcon fontSize="small" />
                   </IconButton>
-                  <Avatar sx={{ width: 32, height: 32, mr: 1, fontSize: '0.875rem' }}>
+                  <Avatar
+                    sx={{ width: 32, height: 32, mr: 1, fontSize: "0.875rem" }}
+                  >
                     {watcher.avatar}
                   </Avatar>
                   <Box>
@@ -789,20 +935,33 @@ const TicketDetailHeader = ({
         PaperProps={{
           sx: {
             width: "30%",
-            borderTopLeftRadius: '50px',
-            borderBottomLeftRadius: '50px',
-            borderTopRightRadius: '0px',
-            borderBottomRightRadius: '0px',
+            borderTopLeftRadius: "50px",
+            borderBottomLeftRadius: "50px",
+            borderTopRightRadius: "0px",
+            borderBottomRightRadius: "0px",
           },
         }}
       >
-        <Box sx={{ p: 3, height: '100%' }}>
+        <Box sx={{ p: 3, height: "100%" }}>
           {/* Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 3,
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: "bold", color: "#1e293b" }}
+            >
               More Options
             </Typography>
-            <IconButton onClick={handleMoreDrawerClose} sx={{ color: '#64748b' }}>
+            <IconButton
+              onClick={handleMoreDrawerClose}
+              sx={{ color: "#64748b" }}
+            >
               <CloseIcon />
             </IconButton>
           </Box>
@@ -812,437 +971,109 @@ const TicketDetailHeader = ({
             fullWidth
             placeholder="Search options..."
             size="small"
+            value={moreOptionsSearchQuery}
+            onChange={(e) => setMoreOptionsSearchQuery(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#64748b' }} />
+                  <SearchIcon sx={{ color: "#64748b" }} />
                 </InputAdornment>
               ),
             }}
             sx={{
-              mb: 3,
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: 'white',
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: "white",
                 borderRadius: 2,
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#cbd5e1',
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#cbd5e1",
                 },
               },
             }}
           />
 
           {/* Options Grid */}
-          <Box 
-            sx={{ 
-              display: 'grid', 
+          <Box
+            sx={{
+              display: "grid",
               gap: 2,
-              maxHeight: 'calc(100vh - 200px)',
-              overflowY: 'auto',
+              py: 1,
+              maxHeight: "calc(100vh - 200px)",
+              overflowY: "auto",
               paddingRight: 1,
-            }} 
+            }}
             id="more-options-grid"
           >
-            {/* Change Owner */}
-            <Box
-              onClick={() => {
-                setIsChangeOwnerModal(true);
-                handleMoreDrawerClose();
-              }}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option) => (
                 <Box
+                  key={option.id}
+                  onClick={option.onClick}
                   sx={{
-                    width: 40,
-                    height: 40,
+                    p: 2,
+                    backgroundColor: "white",
                     borderRadius: 2,
-                    backgroundColor: '#dbeafe',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    border: "1px solid #e2e8f0",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                      borderColor: "#1a73e8",
+                    },
                   }}
                 >
-                  <PersonAddAlt1Icon sx={{ color: '#1a73e8' }} />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 2,
+                        backgroundColor: option.iconBg,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {option.icon}
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{ fontWeight: "bold", color: "#1e293b" }}
+                      >
+                        {option.title}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: "#64748b" }}>
+                        {option.description}
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Change Owner
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    Transfer ticket ownership
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Edit Ticket */}
-            <Box
-              onClick={() => {
-                setIsEditTicket(true);
-                handleMoreDrawerClose();
-              }}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: '#fef3c7',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
+              ))
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  py: 4,
+                  textAlign: "center",
+                }}
+              >
+                <SearchIcon sx={{ fontSize: 48, color: "#9ca3af", mb: 2 }} />
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#6b7280", fontWeight: "medium", mb: 1 }}
                 >
-                  <EditDocumentIcon sx={{ color: '#f59e0b' }} />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Edit Ticket
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    Modify ticket details
-                  </Typography>
-                </Box>
+                  No options found
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#9ca3af" }}>
+                  Try searching with different keywords
+                </Typography>
               </Box>
-            </Box>
-
-            {/* Link Tickets */}
-            <Box
-              onClick={() => {
-                setIsLinkModal(true);
-                handleMoreDrawerClose();
-              }}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: '#d1fae5',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <LinkIcon sx={{ color: '#059669' }} />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Link Tickets
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    Connect related tickets
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Manage Referrals */}
-            <Box
-              onClick={() => {
-                setIsManageReferralsModal(true);
-                handleMoreDrawerClose();
-              }}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: '#f3e8ff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <ManageAccountsIcon sx={{ color: '#9333ea' }} />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Manage Referrals
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    Handle ticket referrals
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Attachments */}
-            <Box
-              onClick={() => {
-                setIsAttachmentsModal(true);
-                handleMoreDrawerClose();
-              }}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: '#fef2f2',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <AttachFileIcon sx={{ color: '#dc2626' }} />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Attachments
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    Manage ticket files
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Activity */}
-            <Box
-              onClick={() => {
-                setIsActivityModal(true);
-                handleMoreDrawerClose();
-              }}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: '#e0f2fe',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <ListIcon sx={{ color: '#0284c7' }} />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Activity
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    View ticket history
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Log Time */}
-            <Box
-              onClick={() => {
-                setIsLogTimeModal(true);
-                handleMoreDrawerClose();
-              }}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: '#fef7cd',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <AddAlarmIcon sx={{ color: '#eab308' }} />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Log Time
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    Track time spent on ticket
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Spam */}
-            <Box
-              onClick={() => {
-                setIsSpamModal(true);
-                handleMoreDrawerClose();
-              }}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: '#fef2f2',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <BlockIcon sx={{ color: '#dc2626' }} />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e293b' }}>
-                    Spam
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    Mark ticket as spam
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Print */}
-            <Box
-              onClick={() => handlePrintData(ticketNumber)}
-              sx={{
-                p: 2,
-                backgroundColor: 'white',
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  borderColor: '#1a73e8',
-                },
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: '#f0f9ff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <LocalPrintshopIcon sx={{ color: '#0ea5e9' }} />
-                </Box>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#1e73e8' }}>
-                    Print
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    Print ticket details
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
+            )}
           </Box>
         </Box>
       </Drawer>
