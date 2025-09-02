@@ -26,10 +26,21 @@ const agentServices = baseInstanceOfApi.injectEndpoints({
         url: `/staff/agent?search=${credentials.search}`,
         method: "GET",
       }),
+    }),
+    getDepartmentBySeach: builder.query<any, any>({
+      query: (credentials) => ({
+        url: `/department/department?search=${credentials.search}`,
+        method: "GET",
+      }),
    
     }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAgentsQuery, useCommanApiMutation,useLazyGetAgentsBySeachQuery } = agentServices;
+export const {
+  useGetAgentsQuery,
+  useCommanApiMutation,
+  useLazyGetAgentsBySeachQuery,
+  useLazyGetDepartmentBySeachQuery,
+} = agentServices;
