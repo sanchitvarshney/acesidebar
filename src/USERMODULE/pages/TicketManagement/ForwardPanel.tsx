@@ -18,8 +18,7 @@ import {
   Stack,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
+
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
@@ -37,8 +36,6 @@ interface ForwardPanelProps {
   fields: any;
   onFieldChange: any;
   onSend: () => void;
-  expand?: boolean;
-  onExpandToggle?: () => void;
 }
 
 interface AttachedFile {
@@ -57,8 +54,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   fields,
   onFieldChange,
   onSend,
-  expand = false,
-  onExpandToggle,
 }) => {
   const [showCc, setShowCc] = React.useState(false);
   const [showBcc, setShowBcc] = React.useState(false);
@@ -262,7 +257,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         flexDirection: "column",
         width: "100%",
         maxWidth: "100%",
-        boxShadow: expand ? 24 : 1,
+        boxShadow: 1,
         position: "relative",
         m: 0,
       }}
@@ -279,15 +274,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
           Forward
         </Typography>
-        {onExpandToggle && (
-          <IconButton
-            onClick={onExpandToggle}
-            size="small"
-            sx={{ marginRight: 2 }}
-          >
-            {expand ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
-          </IconButton>
-        )}
+
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -789,42 +776,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     </MuiBox>
   );
 
-  if (expand) {
-    return (
-      <Modal
-        open={open}
-        onClose={onClose}
-        BackdropProps={{
-          sx: {
-            backdropFilter: "blur(4px)",
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-          },
-        }}
-      >
-        <MuiBox
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "60vw",
-            maxWidth: "60vw",
-            maxHeight: "80vh",
-            height: "80vh",
-            bgcolor: "#fff",
-            boxShadow: 24,
-            outline: "none",
-            p: 0,
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          {panelContent}
-        </MuiBox>
-      </Modal>
-    );
-  }
+
 
   // Sidebar panel (not modal)
   return (

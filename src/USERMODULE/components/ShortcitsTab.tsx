@@ -16,6 +16,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CustomSearch from "../../components/common/CustomSearch";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useEffect, useState } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
@@ -26,101 +27,119 @@ import { setShotcuts } from "../../reduxStore/Slices/shotcutSlices";
 import emptyimg from "../../assets/image/overview-empty-state.svg";
 import LoadingCheck from "../../components/reusable/LoadingCheck";
 import {
+  useAddShortcutMutation,
   useCommanApiMutation,
+  useDeleteShortcutMutation,
+  useEditShortcutMutation,
   useGetShortCutListQuery,
 } from "../../services/threadsApi";
+import { useToast } from "../../hooks/useToast";
 
 const elementValue = [
   {
     id: 1,
-    name: "Ticket Form",
-    value: "Ticket Form",
+    name: "Text",
+    value: "HTML",
   },
   {
     id: 2,
-    name: "File",
-    value: "File",
+    name: "Attachment",
+    value: "FILE",
   },
   {
     id: 3,
-    name: "Lead Capture Form",
-    value: "Lead Capture Form",
-  },
-  {
-    id: 3,
-    name: "Suggested Messages",
-    value: "Suggested Messages",
+    name: "Form",
+    value: "FORM",
   },
 ];
 
 const ShortcutsTab = () => {
-  const [isAddShortcutOpen, setIsAddShortcutOpen] = useState(false);
+  const { showToast } = useToast();
+  const [isAddShortcutOpen, setIsAddShortcutOpen] = useState<any>(false);
   const [isEditShortCut, setIsEditShortCut] = useState(false);
-  const [selectedElement, setSelectedElement] = useState<any>([]);
+  const [selectedElement, setSelectedElement] = useState<any>("");
   const [shortcutName, setShortcutName] = useState<any>("");
   const [shortcutId, setShortcutId] = useState<any>("");
   const [message, setMessage] = useState<any>("");
-  //@ts-ignore
-  const { shotcutData } = useSelector((state: RootState) => state.shotcut);
+  const [trackId, setTrackId] = useState<any>("");
   const [loading, setLoading] = useState(false);
 
-  const [commanApi, { isLoading }] = useCommanApiMutation();
-  const { data: shortcutList, isLoading: shortcutLoading } =
-    useGetShortCutListQuery({ refetchOnMountOrArgChange: true });
+  const {
+    data: shortcutList,
+    isLoading: shortcutLoading,
+    refetch,
+  } = useGetShortCutListQuery({ refetchOnMountOrArgChange: true });
+  const [editShortcut, { isLoading: editLoading }] = useEditShortcutMutation();
+  const [addShortcut, { isLoading: addLoading, data: addData }] =
+    useAddShortcutMutation();
+  const [deleteShortcut, { isLoading: deleteLoading }] =
+    useDeleteShortcutMutation();
 
   const handleChangeValue = (event: any) => {
-    setSelectedElement((prev: any) => {
-      return [
-        ...prev,
-        {
-          id: new Date().getTime(),
-          name: event.target.value,
+    console.log("event", event);
 
-          value: event.target.value,
-        },
-      ];
-    });
-    setShortcutName("");
+    const valueData = event?.target?.value ? event?.target?.value : event;
+    setSelectedElement(valueData);
   };
 
-  const handleDeleteItem = (id: any) => {
-    setSelectedElement((prev: any) =>
-      prev.filter((item: any) => item.id !== id)
-    );
+  const handledelete = (id: any) => {
+    const payload = {
+      key: id,
+    };
+    deleteShortcut(payload).then((res: any) => {
+      if (res?.data?.success !== true) {
+        showToast(res?.data?.message || "An error occurred", "error");
+        return;
+      }
+      refetch();
+    });
   };
 
   const handleSubmit = async () => {
     if (!shortcutName.trim() || !message.trim()) {
       return;
     }
-    const userId = "jdgiuew";
 
     try {
       if (isEditShortCut) {
         // Edit existing shortcut
         const payload = {
-          url: `update-shortcut/${userId}`,
+          key: shortcutId,
           body: {
-            id: shortcutId,
-            shortcutName: "/" + shortcutName,
-            message: message,
-            elements: selectedElement,
+            shortcut: shortcutName,
+            text: message,
+            type: selectedElement,
           },
         };
 
-        commanApi(payload);
+        editShortcut(payload).then((res: any) => {
+          if (res?.data?.success !== true) {
+            showToast(res?.data?.message || "An error occurred", "error");
+            return;
+          }
+          refetch();
+          resetForm();
+
+          setIsEditShortCut(false);
+        });
       } else {
         // Create new shortcut
         const payload = {
-          url: `create-shortcut/${userId}`,
-          body: {
-            shortcutName: "/" + shortcutName,
-            message: message,
-            elements: selectedElement,
-          },
+          shortcut: shortcutName,
+          text: message,
+          type: selectedElement,
         };
 
-        commanApi(payload);
+        addShortcut(payload).then((res: any) => {
+          if (res?.data?.success !== true) {
+            showToast(res?.data?.message || "An error occurred", "error");
+            return;
+          }
+          refetch();
+
+          resetForm();
+          setIsAddShortcutOpen(false);
+        });
       }
     } catch (error: any) {}
   };
@@ -128,17 +147,18 @@ const ShortcutsTab = () => {
   const resetForm = () => {
     setShortcutName("");
     setMessage("");
-    setSelectedElement([]);
+    setSelectedElement("");
     setShortcutId("");
   };
 
   const handleEditShortcut = (id: any) => {
-    const item = shotcutData.find((item: any) => item.id === id);
+    const item = shortcutList.find((item: any) => item.key === id);
+
     if (item) {
-      const removeSlash = item.shortcutName.replace("/", "");
+      const removeSlash = item.shortcut.replace("/", "");
       setShortcutName(removeSlash);
-      setMessage(item.message);
-      setSelectedElement(item.elements || []);
+      setMessage(item.text);
+      handleChangeValue(item?.type);
       setShortcutId(id);
       setIsEditShortCut(true);
       setIsAddShortcutOpen(false);
@@ -169,17 +189,13 @@ const ShortcutsTab = () => {
     }, 1000);
   }, [loading]);
 
-  if (shortcutLoading) {
-    return <div className="flex justify-center items-center h-full"><CircularProgress size={30} /></div>;
-  }
-
   return (
     <div className="p-2 w-full">
       <div className="font-semibold text-xs mb-2 text-gray-500">Shortcuts</div>
       {/* <div className="text-xs text-gray-500">No shortcuts found</div> */}
       <CustomSearch width="100%" placeholder="Search" onChange={() => {}} />
 
-      <div className="my-3 wi-full h-[calc(100vh-375px)] overflow-y-auto">
+      <div className="my-3 wi-full h-[calc(100vh-360px)] overflow-y-auto">
         {isAddShortcutOpen || isEditShortCut ? (
           <div className="flex flex-col gap-3">
             <div>
@@ -189,10 +205,14 @@ const ShortcutsTab = () => {
               </span>{" "}
               <TextField
                 size="small"
-                placeholder={"Enter Shortcut"}
-                onChange={(e: any) => setShortcutName(e.target.value)}
+                placeholder="Enter Shortcut"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  let value = e.target.value;
+
+                  value = value.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 20);
+                  setShortcutName(value);
+                }}
                 value={shortcutName}
-                // rows={rows}
                 InputLabelProps={{ shrink: true }}
                 InputProps={{
                   startAdornment: (
@@ -213,22 +233,21 @@ const ShortcutsTab = () => {
                   width: "100%",
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": {
-                      borderColor: "#ccc", // default border
+                      borderColor: "#ccc",
                     },
                     "&:hover fieldset": {
-                      borderColor: "#ccc", // border color on hover
+                      borderColor: "#ccc",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#1a73e8", // border color on focus
-                      // backgroundColor: "#fff",
+                      borderColor: "#1a73e8",
                     },
                   },
                   "& .MuiInputLabel-root": {
                     fontStyle: "italic",
-                    color: "#999", // default label color
+                    color: "#999",
                   },
                   "& .MuiInputLabel-root.Mui-focused": {
-                    color: "green", // label color on focus
+                    color: "green",
                   },
                   "& .MuiOutlinedInput-input::placeholder": {
                     fontStyle: "italic",
@@ -276,30 +295,11 @@ const ShortcutsTab = () => {
               }}
             />
 
-            {selectedElement && selectedElement.length > 0 && (
-              <div className="w-full  ">
-                {selectedElement.map((item: any) => (
-                  <div
-                    className="flex items-center justify-between p-2"
-                    key={item.id}
-                  >
-                    <span>{item.value}</span>
-                    <IconButton onClick={() => handleDeleteItem(item.id)}>
-                      <ClearIcon sx={{ fontSize: "20px" }} />
-                    </IconButton>
-                  </div>
-                ))}
-              </div>
-            )}
             <Box sx={{ minWidth: 200 }}>
               <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Add Element
-                </InputLabel>
+                <InputLabel>Add Element</InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  //   value={}
+                  value={selectedElement}
                   label="Add Element"
                   onChange={handleChangeValue}
                 >
@@ -314,95 +314,123 @@ const ShortcutsTab = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-3 my-2">
-            {shortcutList?.length > 0 ? (
+            {shortcutLoading ? (
+              <CircularProgress size={20} />
+            ) : (
               <>
-                {(shortcutList ?? [])?.map((item: any) => (
-                  <ListItem
-                    key={item.id}
-                    disablePadding
-                    sx={{
-                      backgroundColor: "#fff",
-                      borderBottom: "1px solid #e5e7eb", // Tailwind border-gray-200
-                      px: 2,
-                      py: 1,
-                    }}
-                  >
-                    <Box
-                      display="flex"
-                      gap={2}
-                      width="100%"
-                      alignItems="center"
-                    >
-                      <Box flex={1}>
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={600}
-                          sx={{
-                            color: "#2c3e50",
-                            fontSize: "0.9rem",
-                            lineHeight: 1.2,
-                            mb: 0.5,
-                          }}
+                {" "}
+                {shortcutList?.length > 0 ? (
+                  <>
+                    {(shortcutList ?? [])?.map((item: any) => (
+                      <ListItem
+                        key={item.key}
+                        disablePadding
+                        sx={{
+                          backgroundColor: "#fff",
+                          borderBottom: "1px solid #e5e7eb", // Tailwind border-gray-200
+                          px: 2,
+                          py: 1,
+                        }}
+                      >
+                        <Box
+                          display="flex"
+                          gap={2}
+                          width="100%"
+                          alignItems="center"
                         >
-                          {item.contentValue}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#4b5563", // Tailwind text-gray-600
-                            fontSize: "0.85rem",
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          {item.description}
-                        </Typography>
-                        {item.elements && item.elements.length > 0 && (
-                          <Box mt={1}>
+                          <Box flex={1}>
                             <Typography
-                              variant="caption"
+                              variant="subtitle2"
+                              fontWeight={600}
                               sx={{
-                                color: "#6b7280",
-                                fontSize: "0.75rem",
+                                color: "#2c3e50",
+                                fontSize: "0.9rem",
+                                lineHeight: 1.2,
+                                mb: 0.5,
                               }}
                             >
-                              Elements:{" "}
-                              {item.elements
-                                .map((el: any) => el.value)
-                                .join(", ")}
+                              {item.shortcut}
                             </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: "#4b5563", // Tailwind text-gray-600
+                                fontSize: "0.85rem",
+                                lineHeight: 1.4,
+                              }}
+                            >
+                              {item.text}
+                            </Typography>
+                            {item.elements && item.elements.length > 0 && (
+                              <Box mt={1}>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#6b7280",
+                                    fontSize: "0.75rem",
+                                  }}
+                                >
+                                  Elements:{" "}
+                                  {item.elements
+                                    .map((el: any) => el.value)
+                                    .join(", ")}
+                                </Typography>
+                              </Box>
+                            )}
                           </Box>
-                        )}
-                      </Box>
 
-                      <Box display="flex" gap={1}>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleEditShortcut(item.id)}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        {loading ? (
-                          <LoadingCheck />
-                        ) : (
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              navigator.clipboard.writeText(item.message);
-                              setLoading(true);
-                            }}
-                          >
-                            <ContentCopyIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                      </Box>
-                    </Box>
-                  </ListItem>
-                ))}
+                          <Box display="flex" gap={1}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditShortcut(item.key)}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            {loading && trackId === item.key ? (
+                              <LoadingCheck />
+                            ) : (
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  setTrackId(item.key);
+                                  navigator.clipboard.writeText(
+                                    item.description
+                                  );
+                                  setLoading(true);
+                                }}
+                              >
+                                <ContentCopyIcon fontSize="small" />
+                              </IconButton>
+                            )}
+
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                setTrackId(item.key);
+                                handledelete(item.key);
+                              }}
+                            >
+                              {deleteLoading && trackId === item.key ? (
+                                <CircularProgress size={16} />
+                              ) : (
+                                <DeleteIcon fontSize="small" color="error" />
+                              )}
+                            </IconButton>
+                          </Box>
+                        </Box>
+                      </ListItem>
+                    ))}
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center mt-4">
+                    <img
+                      src={emptyimg}
+                      alt="notes"
+                      className="mx-auto w-40 h-40"
+                    />
+                  </div>
+                )}
               </>
-            ) : (
-              <div className="flex flex-col items-center mt-4">
-                <img src={emptyimg} alt="notes" className="mx-auto w-40 h-40" />
-              </div>
             )}
           </div>
         )}
@@ -416,19 +444,18 @@ const ShortcutsTab = () => {
               color="inherit"
               fullWidth
               onClick={handleCancel}
-              disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
               variant="contained"
-              sx={{ bgcolor: "#1a73e8", color: "white" }}
+              color="primary"
               fullWidth
               onClick={handleSubmit}
-              disabled={isLoading || !shortcutName.trim() || !message.trim()}
+              disabled={!shortcutName.trim() || !message.trim()}
             >
-              {isLoading ? (
-                <LoadingCheck />
+              {editLoading || addLoading ? (
+                <CircularProgress color="inherit" size={20} />
               ) : isEditShortCut ? (
                 "Update"
               ) : (

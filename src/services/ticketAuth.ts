@@ -27,6 +27,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    getStatusList: builder.query<any, void>({
+      query: () => ({
+        url: "/status/list",
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
 
     getTicketList: builder.query<any, TicketListParams>({
       query: (params) => {
@@ -95,7 +102,6 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
     }),
 
-
     ticketSearch: builder.mutation({
       query: (ticketNumber: string) => ({
         url: `/ticket/search?ticket=${ticketNumber}`,
@@ -161,5 +167,5 @@ export const {
   useGetDepartmentListQuery,
   useGetStaffListQuery,
   useAdvancedSearchMutation,
- 
+  useGetStatusListQuery,
 } = extendedTicketApi;

@@ -10,6 +10,7 @@ import {
   useGetPriorityListQuery,
   useGetTicketListSortingQuery,
   useGetTicketSortingOptionsQuery,
+  useGetStatusListQuery,
 } from "../../../services/ticketAuth";
 import TicketSkeleton from "../../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
@@ -97,12 +98,11 @@ const Tickets: React.FC = () => {
   const [commanApi] = useCommanApiMutation();
 
   // Fetch live priority list
-  const { data: priorityList } =
-    useGetPriorityListQuery();
+  const { data: priorityList } = useGetPriorityListQuery();
+  const { data: statusList } = useGetStatusListQuery();
 
   // Fetch sorting options
-  const { data: sortingOptions} =
-    useGetTicketSortingOptionsQuery();
+  const { data: sortingOptions } = useGetTicketSortingOptionsQuery();
 
   // Map API priorities to dropdown options
   const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
@@ -147,25 +147,21 @@ const Tickets: React.FC = () => {
       limit,
     };
   };
-  const {
-    data: ticketList,
-    isFetching: isTicketListFetching,
-  } = useGetTicketListQuery(getApiParams());
+  const { data: ticketList, isFetching: isTicketListFetching } =
+    useGetTicketListQuery(getApiParams());
   const sortingParams = sortType
     ? { type: sortType, order: sortOrder, page, limit }
     : undefined;
-  const {
-    data: sortedTicketList,
-    isFetching: isSortedTicketListFetching,
-  } = useGetTicketListSortingQuery(
-    sortingParams as {
-      type: string;
-      order: string;
-      page: number;
-      limit: number;
-    },
-    { skip: !sortType }
-  );
+  const { data: sortedTicketList, isFetching: isSortedTicketListFetching } =
+    useGetTicketListSortingQuery(
+      sortingParams as {
+        type: string;
+        order: string;
+        page: number;
+        limit: number;
+      },
+      { skip: !sortType }
+    );
 
   const ticketsToShow = sortType ? sortedTicketList : ticketList;
   const isTicketsFetching = sortType
@@ -605,7 +601,7 @@ const Tickets: React.FC = () => {
       ) : openTicketNumber && ticketDetailData ? (
         <TicketDetailTemplate ticket={ticketDetailData} onBack={handleBack} />
       ) : ( */}
-      <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
+      <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)]">
         {/* Main Header Bar */}
         <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-#f0f4f9">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
@@ -710,20 +706,6 @@ const Tickets: React.FC = () => {
                   onClose={() => setIsMergeModal(false)}
                 />
 
-                {/* <Button
-                    variant="contained"
-                    size="small"
-                    color="inherit"
-                    startIcon={
-                      <BlockIcon fontSize="small" sx={{ color: "#d32f2f" }} />
-                    }
-                    sx={{
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Spam
-                  </Button> */}
                 <Button
                   variant="contained"
                   size="small"
@@ -859,24 +841,6 @@ const Tickets: React.FC = () => {
         user={userPopupUser}
       />
 
-      {/* {isSuccessModal && (
-        <CustomModal
-          open={isSuccessModal}
-          onClose={() => {}}
-          title={"Ticket Save"}
-          msg="Ticket save successfully"
-          primaryButton={{
-            title: "Go Next",
-            onClick: () => {},
-          }}
-          secondaryButton={{
-            title: "Ticket List",
-            onClick: () => {
-              setIsSuccessModal(false);
-            },
-          }}
-        />
-      )} */}
       <ConfirmationModal
         open={isDeleteModal}
         onClose={() => setIsDeleteModal(false)}

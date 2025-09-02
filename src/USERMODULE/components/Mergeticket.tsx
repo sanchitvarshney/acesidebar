@@ -71,10 +71,8 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
   const [mergeType, setMergeType] = useState("combine");
   const [deleteChild, setDeleteChild] = useState(false);
   const [moveChildTasks, setMoveChildTasks] = useState(false);
- 
+
   const [searchTickets, { isLoading }] = useTicketSearchMutation();
-
-
 
   // Fetch tickets using API by ID
   const fetchOptions = async (query: string) => {
@@ -192,6 +190,11 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
       fullWidth
       maxWidth="md"
       PaperProps={{ sx: { borderRadius: 3 } }}
+      BackdropProps={{
+        sx: {
+          backgroundColor: "rgb(255 255 255 / 50%)", // Change this to your desired color
+        },
+      }}
     >
       <DialogTitle
         sx={{
@@ -248,7 +251,7 @@ const MergeTickets: React.FC<MergeTicketsProps> = ({
               filterOptions={(x) => x}
               renderInput={(params) => (
                 <TextField
-                autoFocus
+                  autoFocus
                   {...params}
                   label="Search tickets to merge"
                   InputProps={{

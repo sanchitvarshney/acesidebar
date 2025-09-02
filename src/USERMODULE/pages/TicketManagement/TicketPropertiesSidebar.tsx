@@ -10,13 +10,13 @@ import InfoIcon from "@mui/icons-material/Info";
 import DescriptionIcon from "@mui/icons-material/Description";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
-import HistoryIcon from "@mui/icons-material/History";
 import AboutTab from "./AboutTab";
 import SharingTab from "./SharingTab";
 import InfoTab from "./InfoTab";
 import NotesTab from "./NotesTab";
 import SaveIcon from "@mui/icons-material/Save";
 import { Close } from "@mui/icons-material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   Autocomplete,
   Chip,
@@ -33,6 +33,8 @@ import { useCommanApiMutation } from "../../../services/threadsApi";
 import { useToast } from "../../../hooks/useToast";
 
 import { useGetTagListQuery } from "../../../services/ticketAuth";
+import { Icon } from "lucide-react";
+import StatusTab from "./StatusTab";
 
 // Placeholder components for new top-level tabs
 const KnowledgeBaseTab = () => (
@@ -43,33 +45,37 @@ const KnowledgeBaseTab = () => (
   </div>
 );
 
-const HistoryTab = () => (
-  <div className="p-4 flex flex-col justify-center items-center w-full h-full">
-    <img src={emptyimg} alt="No History" className="mb-4" />
-    <div className="font-semibold text-base mb-2">History</div>
-    <div className="text-xs text-gray-500">No history found</div>
-  </div>
-);
-
 const topTabs = [
-  { key: "profile", icon: <PersonIcon />, label: "Profile" },
-  { key: "knowledge", icon: <MenuBookIcon />, label: "Knowledge Base" },
-  { key: "shortcuts", icon: <ContentCutIcon />, label: "Shortcuts" },
-  { key: "history", icon: <HistoryIcon />, label: "History" },
+  {
+    key: "status",
+    icon: <CheckCircleIcon fontSize="small" />,
+    label: "Status",
+  },
+  { key: "profile", icon: <PersonIcon fontSize="small" />, label: "Profile" },
+  {
+    key: "knowledge",
+    icon: <MenuBookIcon fontSize="small" />,
+    label: "Knowledge Base",
+  },
+  {
+    key: "shortcuts",
+    icon: <ContentCutIcon fontSize="small" />,
+    label: "Shortcuts",
+  },
 ];
 
 const profileTabs = [
-  { key: "about", icon: <PersonIcon />, label: "About" },
-  { key: "share", icon: <ShareIcon />, label: "Sharing" },
-  { key: "info", icon: <InfoIcon />, label: "Info" },
-  { key: "notes", icon: <DescriptionIcon />, label: "Notes" },
+  { key: "about", icon: <PersonIcon fontSize="small" />, label: "About" },
+  { key: "share", icon: <ShareIcon fontSize="small" />, label: "Sharing" },
+  { key: "info", icon: <InfoIcon fontSize="small" />, label: "Info" },
+  { key: "notes", icon: <DescriptionIcon fontSize="small" />, label: "Notes" },
 ];
 
 const TicketPropertiesSidebar = ({ ticket }: any) => {
   const { showToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const { data: tagList } = useGetTagListQuery();
-  const [activeTopTab, setActiveTopTab] = useState(0);
+  const [activeTopTab, setActiveTopTab] = useState<any>(0);
   const [activeProfileTab, setActiveProfileTab] = useState(0);
   const [tags, setTags] = useState<any>([]);
   const [editTags, setEditTags] = useState<any>([]);
@@ -102,7 +108,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
   useEffect(() => {
     if (!ticket) return;
     setTags(ticket?.tags);
-  }, [ticket,isSuccess]);
+  }, [ticket, isSuccess]);
 
   const handleDeleteTag = (tagId: number) => {
     if (!tagId || !ticket?.ticketId) {
@@ -132,6 +138,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
     event: React.SyntheticEvent,
     newValue: number
   ) => {
+    console.log(newValue);
     setActiveTopTab(newValue);
   };
 
@@ -154,16 +161,14 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
         tags: credentials.tags,
       },
     };
-    triggerUpdateUserData(payload)
-      .then((res: any) => {
-        if (res?.data?.success !== true) {
-          showToast(res?.data?.message || "An error occurred", "error");
-          return;
-        }
-        // updatetag after save
- 
-      })
-     
+    triggerUpdateUserData(payload).then((res: any) => {
+      if (res?.data?.success !== true) {
+        showToast(res?.data?.message || "An error occurred", "error");
+        return;
+      }
+      // updatetag after save
+    });
+
     setIsEditing(false);
   };
 
@@ -206,7 +211,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
 
   // Top-level tab content
   let mainContent = null;
-  if (activeTopTab === 0) {
+  if (activeTopTab === 1) {
     // profile
     mainContent = (
       <div className="w-full overflow-hidden ">
@@ -238,6 +243,11 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
             scrollButtons="auto"
             allowScrollButtonsMobile
             sx={{
+              "& .MuiTabs-flexContainer": {
+                display: "flex",
+                justifyContent: "space-between", // <-- apply here
+                alignItems: "center",
+              },
               "& .MuiTab-root": {
                 // minHeight: 40,
                 color: "#6b7280",
@@ -258,12 +268,15 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
                 id={`profile-tab-${index}`}
                 aria-controls={`profile-tabpanel-${index}`}
                 aria-label={tab.label}
+                sx={{
+                  minWidth: 60,
+                }}
               />
             ))}
           </Tabs>
         </Box>
 
-        <div className="w-full h-[calc(100vh-365px)] overflow-y-scroll">
+        <div className="w-full h-[calc(100vh-350px)] overflow-y-scroll">
           {/* Profile tab content */}
           {activeProfileTab === 0 && <AboutTab ticketData={ticket} />}
           {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
@@ -429,15 +442,15 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
         </div>
       </div>
     );
-  } else if (activeTopTab === 1) {
+  } else if (activeTopTab === 2) {
     // knowledge
     mainContent = <KnowledgeBaseTab />;
-  } else if (activeTopTab === 2) {
+  } else if (activeTopTab === 3) {
     // shortcuts
     mainContent = <ShortcutsTab />;
-  } else if (activeTopTab === 3) {
+  } else if (activeTopTab === 0) {
     // history
-    mainContent = <HistoryTab />;
+    mainContent = <StatusTab ticket={ticket} />;
   }
 
   return (
@@ -468,8 +481,15 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           scrollButtons="auto"
           allowScrollButtonsMobile
           sx={{
+            "& .MuiTabs-flexContainer": {
+              display: "flex",
+              justifyContent: "space-between", // <-- apply here
+              alignItems: "center",
+              mx: 1,
+            },
             "& .MuiTab-root": {
               color: "#6b7280",
+
               "&.Mui-selected": {
                 color: "#1a73e8",
               },
@@ -486,6 +506,9 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
               id={`top-tab-${index}`}
               aria-controls={`top-tabpanel-${index}`}
               aria-label={tab.label}
+              sx={{
+                minWidth: 60,
+              }}
             />
           ))}
         </Tabs>
@@ -498,7 +521,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           overflow: "auto",
           height: "100%",
           backgroundColor: "#f8f9fa",
-          p: 2,
+          p: 1,
         }}
       >
         {mainContent}

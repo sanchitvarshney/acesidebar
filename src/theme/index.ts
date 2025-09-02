@@ -7,6 +7,21 @@ export const theme = createTheme({
     fontFamily: "MsCorpres EmberFont, sans-serif",
   },
   components: {
+        MuiInput: {
+      styleOverrides: {
+        underline: {
+          "&:before": {
+            borderBottom: "1px solid #ccc", // default
+          },
+          "&:hover:not(.Mui-disabled):before": {
+            borderBottom: "1px solid #919090ff", // hover
+          },
+          "&:after": {
+            borderBottom: "2px solid #ccc", // focused
+          },
+        },
+      },
+    },
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -62,6 +77,15 @@ export const theme = createTheme({
     MuiInputBase: {
       styleOverrides: {
         root: {
+           "&:before": {
+            borderColor: "#9ca3af", // for standard variant
+          },
+          "&:hover:before": {
+            borderColor: "#6b7280",
+          },
+          "&.Mui-focused:before": {
+            borderColor: "#1a73e8",
+          },
           fontSize:"13px",
           "&.Mui-disabled": {
             cursor: "not-allowed !important",
@@ -116,13 +140,13 @@ export const theme = createTheme({
         },
       },
     },
-    MuiBackdrop: {
-      styleOverrides: {
-        root: {
-          backgroundColor: "#ffffff80 !important",
-        },
-      },
-    },
+    // MuiBackdrop: {
+    //   styleOverrides: {
+    //     root: {
+    //       backgroundColor: "#ffffff80 !important",
+    //     },
+    //   },
+    // },
   },
   palette: {
     primary: {
