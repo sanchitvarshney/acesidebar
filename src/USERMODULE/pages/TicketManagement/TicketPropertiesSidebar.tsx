@@ -450,7 +450,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
     mainContent = <ShortcutsTab />;
   } else if (activeTopTab === 0) {
     // history
-    mainContent = <StatusTab  ticket={ticket} />;
+    mainContent = <StatusTab ticket={ticket} />;
   }
 
   return (

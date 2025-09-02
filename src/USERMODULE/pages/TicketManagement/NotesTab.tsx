@@ -1,5 +1,5 @@
-import { Button, TextField } from "@mui/material";
-import React from "react";
+import { Button, CircularProgress, TextField } from "@mui/material";
+import React, { useEffect } from "react";
 import StyledTextField from "../../../reusable/AddNotes";
 import NotesItem from "../../../reusable/NotesItem";
 import emptyimg from "../../../assets/image/overview-empty-state.svg";
@@ -13,8 +13,10 @@ const NotesTab = ({ ticketData }: any) => {
   const [note, setNote] = React.useState("");
   const [noteList, setNoteList] = React.useState<any[]>([]);
   const [editNoteId, setEditNoteId] = React.useState<number | null>(null);
-  const [triggerAddNote] = useCommanApiMutation();
+  const [triggerAddNote, { isLoading: addingLoading }] = useCommanApiMutation();
   const [triggerdeleteNote, { isLoading: isDeletingNote }] =
+    useCommanApiMutation();
+  const [triggerEditNote, { isLoading: isEditLoading }] =
     useCommanApiMutation();
 
   const handleInputText = (text: string) => {
@@ -23,28 +25,40 @@ const NotesTab = ({ ticketData }: any) => {
     }
   };
 
+  useEffect(() => {
+    if (ticketData?.notes.length <= 0) return;
+
+    setNoteList(ticketData?.notes);
+  }, [ticketData]);
+
   const handleSave = async () => {
     try {
       if (editNoteId !== null) {
+        const valueofPayload: any = {
+          noteID: editNoteId,
+          ticket: ticketData?.ticketId,
+          note: note,
+        };
         const payloadUpdate = {
-          url: "update-note",
+          url: `internal-note/${valueofPayload.noteID}/${valueofPayload.ticket}`,
           body: {
-            id: editNoteId, // Unique identifier of the note
-            note: note, // Updated text entered by the use
+            note: valueofPayload.note, // Updated text entered by the use
           },
         };
-        // commanApi(payloadUpdate)
-        //   .then((res) => {})
-        //   .catch((err) => {});
+        triggerEditNote(payloadUpdate).then((res) => {
+          if (res?.data?.success !== true) {
+            showToast(res?.data?.message || "An error occurred", "error");
+            return;
+          }
+          setNoteList((prev) =>
+            prev.map((item) =>
+              item.key === editNoteId ? { ...item, note } : item
+            )
+          );
 
-        setNoteList((prev) =>
-          prev.map((item) =>
-            item.id === editNoteId ? { ...item, note } : item
-          )
-        );
-
-        setEditNoteId(null);
-        setIsEdit(false);
+          setEditNoteId(null);
+          setIsEdit(false);
+        });
       } else {
         const payload = {
           url: "internal-note",
@@ -59,6 +73,8 @@ const NotesTab = ({ ticketData }: any) => {
             showToast(res?.data?.message || "An error occurred", "error");
             return;
           }
+          console.log(res.data.data);
+          setNoteList((prev) => [res?.data?.data, ...prev]);
         });
       }
     } catch (err) {
@@ -83,23 +99,29 @@ const NotesTab = ({ ticketData }: any) => {
         showToast(res?.data?.message || "An error occurred", "error");
         return;
       }
-      
+      setNoteList((prev) => prev.filter((item) => item.key !== id));
     });
   };
 
   const handleEdit = (id: number) => {
+  
     setIsNotes(false);
-    const noteToEdit = noteList.find((item) => item.id === id);
+    const noteToEdit = noteList.find((item) => item.key === id);
     if (noteToEdit) {
-      setNote(noteToEdit.note);
+      setNote(noteToEdit.note || noteToEdit.name || "");
       setEditNoteId(id);
       setIsEdit(true);
-      setIsNotes(true); // show editor when editing
+      setIsNotes(false);
     }
   };
 
   const handleCancel = () => {
     setIsNotes(false);
+    setIsEdit(false);
+    setEditNoteId(null);
+    setNote("");
+  };
+  const handleEditCancel = () => {
     setIsEdit(false);
     setEditNoteId(null);
     setNote("");
@@ -117,19 +139,23 @@ const NotesTab = ({ ticketData }: any) => {
         />
       )}
 
-      {ticketData?.notes.length > 0 ? (
+      {noteList.length > 0 ? (
         <div className="mb-0">
           {!isNotes && (
             <div className="flex items-center justify-end mb-2">
-              <span
-                className="text-sm text-[#1a73e8] cursor-pointer p-2"
-                onClick={() => setIsNotes(true)}
-              >
-                + Add note
-              </span>
+              {addingLoading || isEditLoading ? (
+                <CircularProgress size={18} />
+              ) : (
+                <span
+                  className="text-sm text-[#1a73e8] cursor-pointer p-2"
+                  onClick={() => setIsNotes(true)}
+                >
+                  + Add note
+                </span>
+              )}
             </div>
           )}
-          {ticketData?.notes.map((item: any) => (
+          {noteList.map((item: any) => (
             <NotesItem
               key={item.key} // ✅ Added key
               data={item}
@@ -137,15 +163,16 @@ const NotesTab = ({ ticketData }: any) => {
               handleEdit={() => handleEdit(item.key)}
               isEdit={isEdit}
               handleSave={handleSave}
-              note={note}
+              loadingDelete={isDeletingNote}
               inputText={handleInputText}
               editNoteId={editNoteId}
-              onEdit={() => setIsEdit(false)}
+              onEdit={handleEditCancel}
+              currentNote={note}
             />
           ))}
         </div>
       ) : (
-        !isNotes && (
+        isNotes && (
           <div className="flex flex-col items-center mt-4">
             <img src={emptyimg} alt="notes" className="mx-auto w-40 h-30" />
             <span

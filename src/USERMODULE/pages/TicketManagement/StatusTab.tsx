@@ -114,20 +114,15 @@ const StatusTab = ({ ticket }: any) => {
   return (
     <div className="w-full h-[calc(100vh-100px)] overflow-hidden ">
       <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-265px)] overflow-y-auto  ">
-       
-       
-        
-
         <div className="w-full space-y-3 p-3">
-          
-        <Typography variant="subtitle1">Properties</Typography>
-          
+          <Typography variant="subtitle1">Properties</Typography>
+
           <div>
             <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
               Type
             </Typography>
             <Select
-            variant="standard"
+              variant="standard"
               fullWidth
               size="medium"
               value={type}
@@ -280,8 +275,6 @@ const StatusTab = ({ ticket }: any) => {
               renderTags={(editTags, getTagProps) =>
                 editTags?.map((option, index) => (
                   <Chip
-                    variant="outlined"
-                    color="primary"
                     key={index}
                     label={
                       typeof option === "string"
@@ -293,12 +286,8 @@ const StatusTab = ({ ticket }: any) => {
                       setTagValue(newTags);
                     }}
                     sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      color: "primary.main",
                       "& .MuiChip-deleteIcon": {
                         color: "error.main",
-                        width: "12px",
                       },
                       "& .MuiChip-deleteIcon:hover": {
                         color: "#e87f8c",

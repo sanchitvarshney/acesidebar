@@ -28,7 +28,6 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
       anchor={position}
       open={open}
       onClose={(event, reason) => {
-       
         if (reason === "escapeKeyDown") {
           close();
           return;
@@ -41,22 +40,22 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
         disableEscapeKeyDown: false,
         keepMounted: true,
         BackdropProps: {
-          style: { backgroundColor: "rgba(0, 0, 0, 0.5)", cursor: "none" },
-          onClick: (e) => {
-            e.stopPropagation();
+          style: {
+            backgroundColor: "rgb(255 255 255 / 50%)",
+            cursor: "default",
+            pointerEvents: "none",
           },
         },
       }}
       // hideBackdrop
       sx={{
-        pointerEvents: "none",
         "& .MuiDrawer-paper": {
           width: width,
           position: "absolute",
           top: 0,
           backgroundColor: "#f9fafb",
           zIndex: 0,
-          pointerEvents: "none",
+          pointerEvents: "auto",
         },
       }}
     >

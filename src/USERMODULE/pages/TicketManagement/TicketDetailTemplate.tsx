@@ -192,12 +192,13 @@ const TicketDetailTemplate = () => {
         ModalProps={{
           disableEscapeKeyDown: false,
           keepMounted: true,
-          BackdropProps: {
-            style: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
-            onClick: (e) => {
-              e.stopPropagation();
-            },
+            BackdropProps: {
+          style: {
+            backgroundColor: "rgb(255 255 255 / 50%)",
+            cursor: "default",
+            pointerEvents: "none",
           },
+        },
         }}
         sx={{
           "& .MuiDrawer-paper": {

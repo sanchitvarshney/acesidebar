@@ -1,5 +1,11 @@
-import React, { FC } from "react";
-import { Box, Typography, IconButton, Paper } from "@mui/material";
+import React, { FC, useState } from "react";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Paper,
+  CircularProgress,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddNotes from "./AddNotes";
@@ -9,11 +15,12 @@ interface NoteItemProps {
   handleDelete: any;
   handleEdit: any;
   isEdit: any;
-  note: any;
+  loadingDelete: any;
   handleSave: any;
   inputText: any;
   editNoteId: any;
   onEdit: any;
+    currentNote: string;
 }
 
 const NoteItem: FC<NoteItemProps> = ({
@@ -21,12 +28,15 @@ const NoteItem: FC<NoteItemProps> = ({
   handleDelete,
   handleEdit,
   isEdit,
-  note,
+  loadingDelete,
   handleSave,
   inputText,
   editNoteId,
   onEdit,
+  currentNote
 }) => {
+  
+  const [trackId, setTrackId] = useState<any>("");
   return (
     <Paper
       elevation={1}
@@ -34,21 +44,19 @@ const NoteItem: FC<NoteItemProps> = ({
         mt: 1,
         mb: 2,
         p: 1,
+        overflow: "auto",
         boxShadow: "0px 2px 5px 1px rgba(0, 0, 0, 0.1)",
         "&:hover": {
           cursor: "pointer",
           backgroundColor: "#f8f8f8ff",
-          
         },
       }}
     >
-      {/* Header Section */}
-      <Box display="flex" alignItems="center" mb={0.5}>
-        {/* Content Section */}
-        <Typography variant="body2" sx={{ mb: 0.5 }}>
-          {data?.name}
-        </Typography>
-      </Box>
+      {/* Content Section */}
+      <Typography variant="body2" sx={{ mb: 0.5 }}>
+            {data?.note || data?.name}
+      </Typography>
+
       <div className="flex flex-col">
         <Typography variant="subtitle2" sx={{ color: "#000", fontSize: 10 }}>
           {data?.createBy}
@@ -58,29 +66,42 @@ const NoteItem: FC<NoteItemProps> = ({
           color="text.secondary"
           sx={{ fontSize: 11 }}
         >
-          {data?.creatDt.timeStamp}
-          <br />({data?.creatDt.ago})
+          {data?.creatDt?.timeStamp}
+          <br />({data?.creatDt?.ago})
         </Typography>
       </div>
 
       {isEdit && editNoteId === data.key && (
         <AddNotes
           inputText={inputText}
-          note={data?.name}
+          note={currentNote}
           onCancel={onEdit}
           handleSave={handleSave}
         />
       )}
 
       {/* Action Buttons */}
-      <Box display="flex" justifyContent="flex-end" gap={1}>
-        <IconButton size="small" color="primary" onClick={handleEdit}>
-          <EditIcon sx={{ fontSize: "16px" }} />
-        </IconButton>
-        <IconButton size="small" color="error" onClick={handleDelete}>
-          <DeleteIcon sx={{ fontSize: "16px" }} />
-        </IconButton>
-      </Box>
+      {!isEdit && trackId !== data.key && (
+        <Box display="flex" justifyContent="flex-end" gap={1}>
+          <IconButton size="small" color="primary" onClick={handleEdit}>
+            <EditIcon sx={{ fontSize: "16px" }} />
+          </IconButton>
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => {
+              setTrackId(data.key);
+              handleDelete();
+            }}
+          >
+            {loadingDelete && trackId === data.key ? (
+              <CircularProgress size={16} />
+            ) : (
+              <DeleteIcon sx={{ fontSize: "16px" }} />
+            )}
+          </IconButton>
+        </Box>
+      )}
     </Paper>
   );
 };
