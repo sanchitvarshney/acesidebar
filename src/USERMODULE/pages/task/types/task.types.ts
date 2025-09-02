@@ -25,6 +25,7 @@ export type TaskStatus =
   | "pending"
   | "hold"
   | "progress"
+  | "postponed"
   | "queue"
   | "completed"
   | "terminated";
@@ -111,4 +112,3 @@ export interface TaskTabState {
   rightActiveTab: number;
   attachmentsTab: "comments" | "attachments";
 }
-

@@ -18,7 +18,9 @@ export const getStatusColor = (status: TaskStatus) => {
     case "hold":
       return "warning";
     case "progress":
-      return "info";
+      return "primary";
+    case "postponed":
+      return "secondary";
     case "queue":
       return "secondary";
     case "completed":
@@ -37,7 +39,7 @@ export const getPriorityColor = (priority: TaskPriority) => {
     case "medium":
       return "info";
     case "high":
-      return "warning";
+      return "error";
     case "urgent":
       return "error";
     default:
@@ -53,6 +55,8 @@ export const getStatusIcon = (status: string): React.ReactNode => {
       return <PauseIcon fontSize="small" />;
     case "progress":
       return <PlayArrowIcon fontSize="small" />;
+    case "postponed":
+      return <ScheduleIcon fontSize="small" style={{ color: "#8B5CF6" }} />;
     case "queue":
       return <AssignmentIcon fontSize="small" />;
     case "completed":
@@ -180,7 +184,9 @@ export const validateFileUpload = (files: File[], existingFiles: File[]) => {
     const allowedTypes = FILE_UPLOAD_CONFIG.allowedTypes;
     if (!allowedTypes.includes(file.type)) {
       errors.push(
-        `${file.name} is not an allowed file type. Allowed types: ${allowedTypes.join(
+        `${
+          file.name
+        } is not an allowed file type. Allowed types: ${allowedTypes.join(
           ", "
         )}`
       );
@@ -188,10 +194,11 @@ export const validateFileUpload = (files: File[], existingFiles: File[]) => {
     }
 
     // Check total file count
-    if (existingFiles.length + validFiles.length >= FILE_UPLOAD_CONFIG.maxFiles) {
-      errors.push(
-        `Maximum ${FILE_UPLOAD_CONFIG.maxFiles} files allowed`
-      );
+    if (
+      existingFiles.length + validFiles.length >=
+      FILE_UPLOAD_CONFIG.maxFiles
+    ) {
+      errors.push(`Maximum ${FILE_UPLOAD_CONFIG.maxFiles} files allowed`);
       return;
     }
 
@@ -222,7 +229,11 @@ export const validateSearchCondition = (condition: any): boolean => {
   return true;
 };
 
-export const filterTasksBySearch = (tasks: any[], searchQuery: string, searchInFields: any) => {
+export const filterTasksBySearch = (
+  tasks: any[],
+  searchQuery: string,
+  searchInFields: any
+) => {
   if (!searchQuery) return tasks;
 
   return tasks.filter((task) => {
@@ -265,6 +276,10 @@ export const filterTasksBySearch = (tasks: any[], searchQuery: string, searchInF
   });
 };
 
-export const paginateTasks = (tasks: any[], page: number, rowsPerPage: number) => {
+export const paginateTasks = (
+  tasks: any[],
+  page: number,
+  rowsPerPage: number
+) => {
   return tasks.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 };

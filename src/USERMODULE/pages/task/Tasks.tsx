@@ -49,7 +49,7 @@ import {
 import SortIcon from "@mui/icons-material/Sort";
 
 import DownloadIcon from "@mui/icons-material/Download";
-import { Task, TaskStatus, Comment, Attachment } from "./types/task.types";
+import { Task, TaskStatus, Comment as TaskComment } from "./types/task.types";
 import {
   mockTasks,
   CURRENT_USER,
@@ -208,7 +208,7 @@ const Tasks: React.FC = () => {
   const handleFileUpload = (files: File[]) => {
     const validation = validateFileUpload(files, attachments);
     if (validation.errors.length > 0) {
-      validation.errors.forEach(error => alert(error));
+      validation.errors.forEach((error) => alert(error));
     }
     if (validation.validFiles.length > 0) {
       setAttachments((prev) => [...prev, ...validation.validFiles]);
@@ -216,7 +216,7 @@ const Tasks: React.FC = () => {
   };
 
   // Comment editing functions
-  const startEditingComment = (comment: Comment) => {
+  const startEditingComment = (comment: TaskComment) => {
     if (canEditComment(comment.createdAt, currentTime)) {
       setEditingCommentId(comment.id);
       // Initialize edit text with current comment text
@@ -781,636 +781,622 @@ const Tasks: React.FC = () => {
             {/* Right Content Area */}
             <div className="flex-1 flex flex-col">
               {/* Task Header */}
-                <div className="bg-white border-b px-6 py-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        {getStatusIcon(selectedTask.status)}
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-semibold text-gray-900">
-                          {selectedTask.title}
-                        </h2>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Chip label={selectedTask.status} />
-                          <Chip
-                            label={selectedTask.priority}
-                            variant="outlined"
-                          />
-                          {selectedTask.isUrgent && (
-                            <Chip
-                              icon={<PriorityHighIcon />}
-                              label="Urgent"
-                              color="error"
-                              size="small"
-                            />
-                          )}
-                        </div>
-                      </div>
+              <div className="bg-white border-b px-6 py-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                      {getStatusIcon(selectedTask.status)}
                     </div>
-
-                    <div className="flex gap-2">
-                      <FormControl size="small">
-                        <Select
-                          value={selectedTask.status}
-                          onChange={(e) =>
-                            handleStatusChange(
-                              selectedTask.id,
-                              e.target.value as Task["status"]
-                            )
-                          }
-                          sx={{ minWidth: 120 }}
-                        >
-                          {statusOptions.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                              <div className="flex items-center">
-                                <div
-                                  className="w-3 h-3 rounded-full mr-2"
-                                  style={{ backgroundColor: option.color }}
-                                ></div>
-                                {option.label}
-                              </div>
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">
+                        {selectedTask.title}
+                      </h2>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Chip label={selectedTask.status} />
+                        <Chip
+                          label={selectedTask.priority}
+                          variant="outlined"
+                        />
+                        {selectedTask.isUrgent && (
+                          <Chip
+                            icon={<PriorityHighIcon />}
+                            label="Urgent"
+                            color="error"
+                            size="small"
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
+
+                  <div className="flex gap-2">
+                    <FormControl size="small">
+                      <Select
+                        value={selectedTask.status}
+                        onChange={(e) =>
+                          handleStatusChange(
+                            selectedTask.id,
+                            e.target.value as Task["status"]
+                          )
+                        }
+                        sx={{ minWidth: 120 }}
+                      >
+                        {statusOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            <div className="flex items-center">
+                              <div
+                                className="w-3 h-3 rounded-full mr-2"
+                                style={{ backgroundColor: option.color }}
+                              ></div>
+                              {option.label}
+                            </div>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
                 </div>
+              </div>
 
-                {/* Tab Content */}
-                {rightActiveTab === 0 && (
-                  <div className="flex-1 overflow-y-auto p-6" ref={taskDetailsRef}>
-                    <TaskDetails
-                      task={selectedTask}
-                      getStatusIcon={getStatusIcon}
-                      onStatusChange={(taskId, newStatus) =>
-                        handleStatusChange(taskId, newStatus)
-                      }
-                    />
+              {/* Tab Content */}
+              {rightActiveTab === 0 && (
+                <div
+                  className="flex-1 overflow-y-auto p-6"
+                  ref={taskDetailsRef}
+                >
+                  <TaskDetails
+                    task={selectedTask}
+                    getStatusIcon={getStatusIcon}
+                    onStatusChange={(taskId, newStatus) =>
+                      handleStatusChange(taskId, newStatus)
+                    }
+                  />
 
-                    {/* Comments */}
-                    <Card>
-                      <CardContent className="p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-gray-900 font-bold">
-                              Latest 3 Comments ({selectedTask.comments.length})
-                            </h3>
+                  {/* Comments */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-gray-900 font-bold">
+                          Latest 3 Comments ({selectedTask.comments.length})
+                        </h3>
 
-                            <Button
-                              variant="contained"
-                              size="small"
-                              startIcon={
-                                showCommentForm ? (
-                                  <CloseIcon />
+                        <Button
+                          variant="contained"
+                          size="small"
+                          startIcon={
+                            showCommentForm ? <CloseIcon /> : <CommentIcon />
+                          }
+                          onClick={() => setShowCommentForm(!showCommentForm)}
+                          sx={{
+                            textTransform: "none",
+                            backgroundColor: "#1a73e8",
+                            "&:hover": {
+                              backgroundColor: "#1557b0",
+                            },
+                          }}
+                        >
+                          {showCommentForm ? "Cancel" : "Add Comment"}
+                        </Button>
+                      </div>
+
+                      {/* Comment Form */}
+                      <CommentForm
+                        isOpen={showCommentForm}
+                        comment={newComment}
+                        isInternal={isInternalComment}
+                        showAttachments={showAttachments}
+                        attachments={attachments}
+                        error={commentError}
+                        onCommentChange={(text) => {
+                          setNewComment(text);
+                          const error = validateComment(text);
+                          setCommentError(error);
+                        }}
+                        onInternalChange={(isPrivate) => {
+                          setIsInternalComment(isPrivate);
+                          if (isPrivate && showAttachments) {
+                            setShowAttachments(false);
+                            setAttachments([]);
+                          }
+                        }}
+                        onShowAttachmentsChange={setShowAttachments}
+                        onAttachmentsChange={setAttachments}
+                        onErrorChange={setCommentError}
+                        onSubmit={() => {
+                          const error = validateComment(newComment);
+                          if (error) {
+                            setCommentError(error);
+                            return;
+                          }
+                          console.log("Saving comment:", {
+                            newComment,
+                            attachments,
+                            isInternalComment,
+                          });
+                          setShowCommentForm(false);
+                          resetCommentForm();
+                        }}
+                        onCancel={() => {
+                          setShowCommentForm(false);
+                          resetCommentForm();
+                        }}
+                      />
+
+                      <div className="space-y-4 max-h-60 overflow-y-auto">
+                        {selectedTask.comments.slice(0, 3).map((comment) => (
+                          <div
+                            key={comment.id}
+                            className="flex items-start gap-3"
+                          >
+                            {/* Avatar */}
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                              {comment.author.charAt(0).toUpperCase()}
+                            </div>
+
+                            {/* Comment Bubble */}
+                            <div className="flex-1 min-w-0">
+                              <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-medium text-sm text-gray-900">
+                                    {comment.author}
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    {canEditComment(
+                                      comment.createdAt,
+                                      currentTime
+                                    ) && (
+                                      <IconButton
+                                        size="small"
+                                        onClick={() =>
+                                          startEditingComment(comment)
+                                        }
+                                        sx={{
+                                          color: "#6b7280",
+                                          padding: "2px",
+                                        }}
+                                      >
+                                        <EditIcon fontSize="small" />
+                                      </IconButton>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {editingCommentId === comment.id ? (
+                                  <div className="space-y-2">
+                                    <TextField
+                                      multiline
+                                      rows={2}
+                                      value={comment.editText || comment.text}
+                                      onChange={(e) => {
+                                        // In real app, update the comment editText
+                                        console.log(
+                                          "Editing comment:",
+                                          e.target.value
+                                        );
+                                      }}
+                                      fullWidth
+                                      size="small"
+                                    />
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="small"
+                                        variant="contained"
+                                        startIcon={
+                                          <SaveIcon fontSize="small" />
+                                        }
+                                        onClick={() =>
+                                          saveEditedComment(
+                                            comment.id,
+                                            comment.editText || comment.text
+                                          )
+                                        }
+                                      >
+                                        Save
+                                      </Button>
+                                      <Button
+                                        size="small"
+                                        variant="text"
+                                        sx={{
+                                          fontWeight: 550,
+                                        }}
+                                        startIcon={
+                                          <CloseIcon fontSize="small" />
+                                        }
+                                        onClick={cancelEditingComment}
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
                                 ) : (
-                                  <CommentIcon />
-                                )
-                              }
-                              onClick={() =>
-                                setShowCommentForm(!showCommentForm)
-                              }
+                                  <p className="text-sm text-gray-700 font-medium">
+                                    {comment.text}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Timestamp */}
+                              <div className="flex items-center gap-2 mt-2 ml-1">
+                                <span className="text-xs text-gray-500">
+                                  {comment.timestamp}
+                                </span>
+                                <span className="text-xs text-gray-400">•</span>
+                                <span className="text-xs text-gray-400">
+                                  {getTimeAgo(comment.createdAt)}
+                                </span>
+                                <span className="text-xs text-gray-400">
+                                  -{" "}
+                                </span>
+
+                                {comment.isInternal && (
+                                  <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                                    Internal
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {selectedTask.comments.length === 0 && (
+                          <div className="text-center py-6 text-gray-500">
+                            <CommentIcon className="text-2xl mx-auto mb-2" />
+                            <p>No comments yet</p>
+                          </div>
+                        )}
+
+                        {selectedTask.comments.length > 3 && (
+                          <div className="text-center py-3">
+                            <Button
+                              size="small"
+                              variant="text"
+                              onClick={() => setRightActiveTab(1)}
                               sx={{
                                 textTransform: "none",
-                                backgroundColor: "#1a73e8",
+                                color: "#1a73e8",
                                 "&:hover": {
-                                  backgroundColor: "#1557b0",
+                                  backgroundColor: "rgba(26, 115, 232, 0.04)",
                                 },
                               }}
                             >
-                              {showCommentForm ? "Cancel" : "Add Comment"}
+                              View All {selectedTask.comments.length} Comments
                             </Button>
                           </div>
-
-                          {/* Comment Form */}
-                          <CommentForm
-                            isOpen={showCommentForm}
-                            comment={newComment}
-                            isInternal={isInternalComment}
-                            showAttachments={showAttachments}
-                            attachments={attachments}
-                            error={commentError}
-                            onCommentChange={(text) => {
-                              setNewComment(text);
-                              const error = validateComment(text);
-                              setCommentError(error);
-                            }}
-                            onInternalChange={(isPrivate) => {
-                              setIsInternalComment(isPrivate);
-                              if (isPrivate && showAttachments) {
-                                setShowAttachments(false);
-                                setAttachments([]);
-                              }
-                            }}
-                            onShowAttachmentsChange={setShowAttachments}
-                            onAttachmentsChange={setAttachments}
-                            onErrorChange={setCommentError}
-                            onSubmit={() => {
-                              const error = validateComment(newComment);
-                              if (error) {
-                                setCommentError(error);
-                                return;
-                              }
-                              console.log("Saving comment:", {
-                                newComment,
-                                attachments,
-                                isInternalComment,
-                              });
-                              setShowCommentForm(false);
-                              resetCommentForm();
-                            }}
-                            onCancel={() => {
-                              setShowCommentForm(false);
-                              resetCommentForm();
-                            }}
-                          />
-
-                          <div className="space-y-4 max-h-60 overflow-y-auto">
-                            {selectedTask.comments
-                              .slice(0, 3)
-                              .map((comment) => (
-                                <div
-                                  key={comment.id}
-                                  className="flex items-start gap-3"
-                                >
-                                  {/* Avatar */}
-                                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                                    {comment.author.charAt(0).toUpperCase()}
-                                  </div>
-
-                                  {/* Comment Bubble */}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className="font-medium text-sm text-gray-900">
-                                          {comment.author}
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                          {canEditComment(
-                                            comment.createdAt,
-                                            currentTime
-                                          ) && (
-                                            <IconButton
-                                              size="small"
-                                              onClick={() =>
-                                                startEditingComment(comment)
-                                              }
-                                              sx={{
-                                                color: "#6b7280",
-                                                padding: "2px",
-                                              }}
-                                            >
-                                              <EditIcon fontSize="small" />
-                                            </IconButton>
-                                          )}
-                                        </div>
-                                      </div>
-
-                                      {editingCommentId === comment.id ? (
-                                        <div className="space-y-2">
-                                          <TextField
-                                            multiline
-                                            rows={2}
-                                            value={
-                                              comment.editText || comment.text
-                                            }
-                                            onChange={(e) => {
-                                              // In real app, update the comment editText
-                                              console.log(
-                                                "Editing comment:",
-                                                e.target.value
-                                              );
-                                            }}
-                                            fullWidth
-                                            size="small"
-                                          />
-                                          <div className="flex gap-2">
-                                            <Button
-                                              size="small"
-                                              variant="contained"
-                                              startIcon={
-                                                <SaveIcon fontSize="small" />
-                                              }
-                                              onClick={() =>
-                                                saveEditedComment(
-                                                  comment.id,
-                                                  comment.editText ||
-                                                    comment.text
-                                                )
-                                              }
-                                            >
-                                              Save
-                                            </Button>
-                                            <Button
-                                              size="small"
-                                              variant="text"
-                                              sx={{
-                                                fontWeight: 550,
-                                              }}
-                                              startIcon={
-                                                <CloseIcon fontSize="small" />
-                                              }
-                                              onClick={cancelEditingComment}
-                                            >
-                                              Cancel
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <p className="text-sm text-gray-700 font-medium">
-                                          {comment.text}
-                                        </p>
-                                      )}
-                                    </div>
-
-                                    {/* Timestamp */}
-                                    <div className="flex items-center gap-2 mt-2 ml-1">
-                                      <span className="text-xs text-gray-500">
-                                        {comment.timestamp}
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        •
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        {getTimeAgo(comment.createdAt)}
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        -{" "}
-                                      </span>
-
-                                      {comment.isInternal && (
-                                        <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
-                                          Internal
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-
-                            {selectedTask.comments.length === 0 && (
-                              <div className="text-center py-6 text-gray-500">
-                                <CommentIcon className="text-2xl mx-auto mb-2" />
-                                <p>No comments yet</p>
-                              </div>
-                            )}
-
-                            {selectedTask.comments.length > 3 && (
-                              <div className="text-center py-3">
-                                <Button
-                                  size="small"
-                                  variant="text"
-                                  onClick={() => setRightActiveTab(1)}
-                                  sx={{
-                                    textTransform: "none",
-                                    color: "#1a73e8",
-                                    "&:hover": {
-                                      backgroundColor:
-                                        "rgba(26, 115, 232, 0.04)",
-                                    },
-                                  }}
-                                >
-                                  View All {selectedTask.comments.length}{" "}
-                                  Comments
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
-
-                {/* Attachments Tab */}
-                {rightActiveTab === 1 && (
-                  <div className="flex flex-col h-full">
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {attachmentsTab === "comments"
-                          ? "Comments"
-                          : "Attachments"}
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <IconButton
-                          size="small"
-                          sx={{
-                            color: "#6b7280",
-                            border: "1px solid #d1d5db",
-                            "&:hover": {
-                              borderColor: "#9ca3af",
-                              backgroundColor: "#f9fafb",
-                            },
-                          }}
-                        >
-                          <SortIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          sx={{
-                            color: "#6b7280",
-                            border: "1px solid #d1d5db",
-                            "&:hover": {
-                              borderColor: "#9ca3af",
-                              backgroundColor: "#f9fafb",
-                            },
-                          }}
-                        >
-                          <RefreshIcon fontSize="small" />
-                        </IconButton>
+                        )}
                       </div>
-                    </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
 
-                    {/* Scrollable Content Area */}
-                    <div className="flex-1 overflow-y-auto p-6">
-                      {/* Comments Tab Content */}
-                      {attachmentsTab === "comments" && (
-                        <div className="space-y-4">
-                          {selectedTask.comments.length > 0 ? (
-                            <div className="space-y-4">
-                              {selectedTask.comments.map((comment) => (
-                                <div
-                                  key={comment.id}
-                                  className="flex items-start gap-3"
-                                >
-                                  {/* Avatar */}
-                                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-                                    {comment.author.charAt(0).toUpperCase()}
-                                  </div>
-
-                                  {/* Comment Bubble */}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className="font-medium text-sm text-gray-900">
-                                          {comment.author}
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                          {comment.isInternal && (
-                                            <Chip
-                                              label="Internal"
-                                              size="small"
-                                              color="warning"
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                      <p className="text-sm text-gray-700">
-                                        {comment.text}
-                                      </p>
-                                    </div>
-
-                                    {/* Timestamp */}
-                                    <div className="flex items-center gap-2 mt-2 ml-1">
-                                      <span className="text-xs text-gray-500">
-                                        {comment.timestamp}
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        •
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        {getTimeAgo(comment.createdAt)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-center py-6 text-gray-500">
-                              <CommentIcon className="text-2xl mx-auto mb-2" />
-                              <p>No comments yet</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Attachments Tab Content */}
-                      {attachmentsTab === "attachments" && (
-                        <div className="space-y-4">
-                          {selectedTask.attachments.length > 0 ? (
-                            <div className="space-y-4">
-                              {selectedTask.attachments.map((attachment) => (
-                                <Card key={attachment.id}>
-                                  <CardContent className="p-4">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                          <AttachFileIcon className="text-blue-600" />
-                                        </div>
-                                        <div>
-                                          <div className="font-medium text-gray-900">
-                                            {attachment.name}
-                                          </div>
-                                          <div className="text-sm text-gray-500">
-                                            {attachment.size} •{" "}
-                                            {attachment.type}
-                                          </div>
-                                          <div className="text-xs text-gray-400">
-                                            Uploaded by {attachment.uploadedBy}{" "}
-                                            on {attachment.uploadedAt}
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="flex gap-2">
-                                        <Button
-                                          size="small"
-                                          variant="outlined"
-                                          startIcon={<DownloadIcon />}
-                                        >
-                                          Download
-                                        </Button>
-                                        <IconButton size="small" color="error">
-                                          <CloseIcon fontSize="small" />
-                                        </IconButton>
-                                      </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-center py-12">
-                              <AttachFileIcon className="text-gray-400 text-4xl mx-auto mb-3" />
-                              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                No attachments
-                              </h3>
-                              <p className="text-gray-600">
-                                Upload files to share with your team
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Fixed Bottom Tabs */}
-                    <div className="border-t border-gray-200 bg-white">
-                      <div className="flex space-x-8 px-6 py-3">
-                        <button
-                          className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                            attachmentsTab === "comments"
-                              ? "border-blue-500 text-blue-600"
-                              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                          }`}
-                          onClick={() => setAttachmentsTab("comments")}
-                        >
-                          Comments ({selectedTask.comments.length})
-                        </button>
-                        <button
-                          className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                            attachmentsTab === "attachments"
-                              ? "border-blue-500 text-blue-600"
-                              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                          }`}
-                          onClick={() => setAttachmentsTab("attachments")}
-                        >
-                          Attachments ({selectedTask.attachments.length})
-                        </button>
-                      </div>
+              {/* Attachments Tab */}
+              {rightActiveTab === 1 && (
+                <div className="flex flex-col h-full">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-6 border-b">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {attachmentsTab === "comments"
+                        ? "Comments"
+                        : "Attachments"}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: "#6b7280",
+                          border: "1px solid #d1d5db",
+                          "&:hover": {
+                            borderColor: "#9ca3af",
+                            backgroundColor: "#f9fafb",
+                          },
+                        }}
+                      >
+                        <SortIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: "#6b7280",
+                          border: "1px solid #d1d5db",
+                          "&:hover": {
+                            borderColor: "#9ca3af",
+                            backgroundColor: "#f9fafb",
+                          },
+                        }}
+                      >
+                        <RefreshIcon fontSize="small" />
+                      </IconButton>
                     </div>
                   </div>
-                )}
 
-                {/* Activities Tab */}
-                {rightActiveTab === 2 && (
+                  {/* Scrollable Content Area */}
                   <div className="flex-1 overflow-y-auto p-6">
-                    <div className="space-y-6">
-                      <h2 className="text-xl font-semibold text-gray-900">
-                        Activities
-                      </h2>
+                    {/* Comments Tab Content */}
+                    {attachmentsTab === "comments" && (
+                      <div className="space-y-4">
+                        {selectedTask.comments.length > 0 ? (
+                          <div className="space-y-4">
+                            {selectedTask.comments.map((comment) => (
+                              <div
+                                key={comment.id}
+                                className="flex items-start gap-3"
+                              >
+                                {/* Avatar */}
+                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                  {comment.author.charAt(0).toUpperCase()}
+                                </div>
 
-                      <div className="relative">
-                        {/* Timeline Line */}
-                        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                                {/* Comment Bubble */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="font-medium text-sm text-gray-900">
+                                        {comment.author}
+                                      </span>
+                                      <div className="flex items-center gap-2">
+                                        {comment.isInternal && (
+                                          <Chip
+                                            label="Internal"
+                                            size="small"
+                                            color="warning"
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                    <p className="text-sm text-gray-700">
+                                      {comment.text}
+                                    </p>
+                                  </div>
 
-                        <div className="space-y-6">
-                          {/* Activity 1 */}
-                          <div className="relative flex items-start gap-4">
-                            <div className="relative z-10 flex-shrink-0">
-                              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                <CheckCircleIcon className="text-green-600 text-sm" />
+                                  {/* Timestamp */}
+                                  <div className="flex items-center gap-2 mt-2 ml-1">
+                                    <span className="text-xs text-gray-500">
+                                      {comment.timestamp}
+                                    </span>
+                                    <span className="text-xs text-gray-400">
+                                      •
+                                    </span>
+                                    <span className="text-xs text-gray-400">
+                                      {getTimeAgo(comment.createdAt)}
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex-1 pt-1">
-                              <div className="font-medium text-gray-900">
-                                Task Status Updated
-                              </div>
-                              <div className="text-sm text-gray-600 mt-1">
-                                Status changed from "Pending" to "In Progress"
-                              </div>
-                              <div className="text-xs text-gray-400 mt-2">
-                                2 hours ago by John Doe
-                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-6 text-gray-500">
+                            <CommentIcon className="text-2xl mx-auto mb-2" />
+                            <p>No comments yet</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Attachments Tab Content */}
+                    {attachmentsTab === "attachments" && (
+                      <div className="space-y-4">
+                        {selectedTask.attachments.length > 0 ? (
+                          <div className="space-y-4">
+                            {selectedTask.attachments.map((attachment) => (
+                              <Card key={attachment.id}>
+                                <CardContent className="p-4">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <AttachFileIcon className="text-blue-600" />
+                                      </div>
+                                      <div>
+                                        <div className="font-medium text-gray-900">
+                                          {attachment.name}
+                                        </div>
+                                        <div className="text-sm text-gray-500">
+                                          {attachment.size} • {attachment.type}
+                                        </div>
+                                        <div className="text-xs text-gray-400">
+                                          Uploaded by {attachment.uploadedBy} on{" "}
+                                          {attachment.uploadedAt}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="small"
+                                        variant="outlined"
+                                        startIcon={<DownloadIcon />}
+                                      >
+                                        Download
+                                      </Button>
+                                      <IconButton size="small" color="error">
+                                        <CloseIcon fontSize="small" />
+                                      </IconButton>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-12">
+                            <AttachFileIcon className="text-gray-400 text-4xl mx-auto mb-3" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                              No attachments
+                            </h3>
+                            <p className="text-gray-600">
+                              Upload files to share with your team
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Fixed Bottom Tabs */}
+                  <div className="border-t border-gray-200 bg-white">
+                    <div className="flex space-x-8 px-6 py-3">
+                      <button
+                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                          attachmentsTab === "comments"
+                            ? "border-blue-500 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        }`}
+                        onClick={() => setAttachmentsTab("comments")}
+                      >
+                        Comments ({selectedTask.comments.length})
+                      </button>
+                      <button
+                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                          attachmentsTab === "attachments"
+                            ? "border-blue-500 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        }`}
+                        onClick={() => setAttachmentsTab("attachments")}
+                      >
+                        Attachments ({selectedTask.attachments.length})
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Activities Tab */}
+              {rightActiveTab === 2 && (
+                <div className="flex-1 overflow-y-auto p-6">
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Activities
+                    </h2>
+
+                    <div className="relative">
+                      {/* Timeline Line */}
+                      <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+                      <div className="space-y-6">
+                        {/* Activity 1 */}
+                        <div className="relative flex items-start gap-4">
+                          <div className="relative z-10 flex-shrink-0">
+                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                              <CheckCircleIcon className="text-green-600 text-sm" />
                             </div>
                           </div>
-
-                          {/* Activity 2 */}
-                          <div className="relative flex items-start gap-4">
-                            <div className="relative z-10 flex-shrink-0">
-                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                <CommentIcon className="text-blue-600 text-sm" />
-                              </div>
+                          <div className="flex-1 pt-1">
+                            <div className="font-medium text-gray-900">
+                              Task Status Updated
                             </div>
-                            <div className="flex-1 pt-1">
-                              <div className="font-medium text-gray-900">
-                                Comment Added
-                              </div>
-                              <div className="text-sm text-gray-600 mt-1">
-                                "Started investigation on the payment gateway
-                                issue"
-                              </div>
-                              <div className="text-xs text-gray-400 mt-2">
-                                4 hours ago by John Doe
-                              </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              Status changed from "Pending" to "In Progress"
+                            </div>
+                            <div className="text-xs text-gray-400 mt-2">
+                              2 hours ago by John Doe
                             </div>
                           </div>
+                        </div>
 
-                          {/* Activity 3 */}
-                          <div className="relative flex items-start gap-4">
-                            <div className="relative z-10 flex-shrink-0">
-                              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                <AttachFileIcon className="text-purple-600 text-sm" />
-                              </div>
-                            </div>
-                            <div className="flex-1 pt-1">
-                              <div className="font-medium text-gray-900">
-                                File Uploaded
-                              </div>
-                              <div className="text-sm text-gray-600 mt-1">
-                                error_logs.txt (2.3 MB) was uploaded
-                              </div>
-                              <div className="text-xs text-gray-400 mt-2">
-                                6 hours ago by John Doe
-                              </div>
+                        {/* Activity 2 */}
+                        <div className="relative flex items-start gap-4">
+                          <div className="relative z-10 flex-shrink-0">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                              <CommentIcon className="text-blue-600 text-sm" />
                             </div>
                           </div>
-
-                          {/* Activity 4 */}
-                          <div className="relative flex items-start gap-4">
-                            <div className="relative z-10 flex-shrink-0">
-                              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                <AssignmentIcon className="text-orange-600 text-sm" />
-                              </div>
+                          <div className="flex-1 pt-1">
+                            <div className="font-medium text-gray-900">
+                              Comment Added
                             </div>
-                            <div className="flex-1 pt-1">
-                              <div className="font-medium text-gray-900">
-                                Task Assigned
-                              </div>
-                              <div className="text-sm text-gray-600 mt-1">
-                                Task assigned to John Doe by Mike Johnson
-                              </div>
-                              <div className="text-xs text-gray-400 mt-2">
-                                1 day ago by Mike Johnson
-                              </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              "Started investigation on the payment gateway
+                              issue"
+                            </div>
+                            <div className="text-xs text-gray-400 mt-2">
+                              4 hours ago by John Doe
                             </div>
                           </div>
+                        </div>
 
-                          {/* Activity 5 */}
-                          <div className="relative flex items-start gap-4">
-                            <div className="relative z-10 flex-shrink-0">
-                              <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                <ScheduleIcon className="text-indigo-600 text-sm" />
-                              </div>
-                            </div>
-                            <div className="flex-1 pt-1">
-                              <div className="font-medium text-gray-900">
-                                Due Date Updated
-                              </div>
-                              <div className="text-sm text-gray-600 mt-1">
-                                Due date changed from Jan 20 to Jan 25
-                              </div>
-                              <div className="text-xs text-gray-400 mt-2">
-                                2 days ago by Mike Johnson
-                              </div>
+                        {/* Activity 3 */}
+                        <div className="relative flex items-start gap-4">
+                          <div className="relative z-10 flex-shrink-0">
+                            <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                              <AttachFileIcon className="text-purple-600 text-sm" />
                             </div>
                           </div>
-
-                          {/* Activity 6 */}
-                          <div className="relative flex items-start gap-4">
-                            <div className="relative z-10 flex-shrink-0">
-                              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                <PriorityHighIcon className="text-red-600 text-sm" />
-                              </div>
+                          <div className="flex-1 pt-1">
+                            <div className="font-medium text-gray-900">
+                              File Uploaded
                             </div>
-                            <div className="flex-1 pt-1">
-                              <div className="font-medium text-gray-900">
-                                Priority Changed
-                              </div>
-                              <div className="text-sm text-gray-600 mt-1">
-                                Priority elevated from Medium to High
-                              </div>
-                              <div className="text-xs text-gray-400 mt-2">
-                                3 days ago by System
-                              </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              error_logs.txt (2.3 MB) was uploaded
+                            </div>
+                            <div className="text-xs text-gray-400 mt-2">
+                              6 hours ago by John Doe
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Activity 4 */}
+                        <div className="relative flex items-start gap-4">
+                          <div className="relative z-10 flex-shrink-0">
+                            <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                              <AssignmentIcon className="text-orange-600 text-sm" />
+                            </div>
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <div className="font-medium text-gray-900">
+                              Task Assigned
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              Task assigned to John Doe by Mike Johnson
+                            </div>
+                            <div className="text-xs text-gray-400 mt-2">
+                              1 day ago by Mike Johnson
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Activity 5 */}
+                        <div className="relative flex items-start gap-4">
+                          <div className="relative z-10 flex-shrink-0">
+                            <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                              <ScheduleIcon className="text-indigo-600 text-sm" />
+                            </div>
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <div className="font-medium text-gray-900">
+                              Due Date Updated
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              Due date changed from Jan 20 to Jan 25
+                            </div>
+                            <div className="text-xs text-gray-400 mt-2">
+                              2 days ago by Mike Johnson
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Activity 6 */}
+                        <div className="relative flex items-start gap-4">
+                          <div className="relative z-10 flex-shrink-0">
+                            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                              <PriorityHighIcon className="text-red-600 text-sm" />
+                            </div>
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <div className="font-medium text-gray-900">
+                              Priority Changed
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              Priority elevated from Medium to High
+                            </div>
+                            <div className="text-xs text-gray-400 mt-2">
+                              3 days ago by System
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                )}
-
+                </div>
+              )}
             </div>
           </div>
         )}

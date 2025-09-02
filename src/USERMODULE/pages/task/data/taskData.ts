@@ -173,6 +173,37 @@ export const mockTasks: Task[] = [
     isUrgent: false,
     isOverdue: false,
   },
+  {
+    id: "T006",
+    title: "Database optimization review",
+    description:
+      "Review and optimize database queries for better performance. This task has been postponed due to higher priority items.",
+    status: "postponed",
+    priority: "medium",
+    assignedTo: "Sarah Wilson",
+    assignedBy: "Tech Lead",
+    ticketId: "TK-2024-006",
+    ticketTitle: "Database Performance Review",
+    ticketStatus: "Postponed",
+    createdAt: "2024-01-12",
+    dueDate: "2024-01-30",
+    estimatedHours: 16,
+    actualHours: 0,
+    tags: ["database", "optimization", "performance"],
+    comments: [
+      {
+        id: "1",
+        text: "Task postponed due to higher priority items",
+        author: "Tech Lead",
+        timestamp: "2024-01-12 14:00",
+        isInternal: true,
+        createdAt: new Date("2024-01-12T14:00:00"),
+      },
+    ],
+    attachments: [],
+    isUrgent: false,
+    isOverdue: false,
+  },
 ];
 
 // Field options for advanced search
@@ -192,6 +223,7 @@ export const statusOptions: FieldOption[] = [
   { value: "pending", label: "Pending", color: "#6B7280" },
   { value: "hold", label: "On Hold", color: "#F59E0B" },
   { value: "progress", label: "In Progress", color: "#3B82F6" },
+  { value: "postponed", label: "Postponed", color: "#8B5CF6" },
   { value: "queue", label: "In Queue", color: "#8B5CF6" },
   { value: "completed", label: "Completed", color: "#10B981" },
   { value: "terminated", label: "Terminated", color: "#EF4444" },
@@ -201,7 +233,7 @@ export const statusOptions: FieldOption[] = [
 export const priorityOptions: FieldOption[] = [
   { value: "low", label: "Low", color: "#10B981" },
   { value: "medium", label: "Medium", color: "#3B82F6" },
-  { value: "high", label: "High", color: "#F59E0B" },
+  { value: "high", label: "High", color: "#EF4444" },
   { value: "urgent", label: "Urgent", color: "#EF4444" },
 ];
 
@@ -270,4 +302,3 @@ export const PAGINATION_OPTIONS = [5, 10, 20, 50];
 
 // Current user (in real app, this would come from authentication context)
 export const CURRENT_USER = "John Doe";
-
