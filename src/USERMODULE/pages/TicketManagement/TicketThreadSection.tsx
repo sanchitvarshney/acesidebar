@@ -1461,7 +1461,7 @@ const TicketThreadSection = ({
                           mb: 0.5,
                         }}
                       >
-                        {item.contentValue}
+                        {item.shortcut}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -1471,7 +1471,7 @@ const TicketThreadSection = ({
                           lineHeight: 1.4,
                         }}
                       >
-                        {item.description}
+                        {item.text}
                       </Typography>
                     </Box>
 
@@ -1480,7 +1480,7 @@ const TicketThreadSection = ({
                         size="small"
                         onClick={() => {
                           dispatch(
-                            setReplyValue(replyValue + item.description)
+                            setReplyValue(replyValue + item.text)
                           );
                         }}
                       >
