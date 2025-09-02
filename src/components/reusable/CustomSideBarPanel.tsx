@@ -73,6 +73,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           <Typography
             sx={{ flex: 1, fontSize: 20, fontWeight: "bold" }}
             variant="subtitle1"
+            component="div"
           >
             {title}
           </Typography>

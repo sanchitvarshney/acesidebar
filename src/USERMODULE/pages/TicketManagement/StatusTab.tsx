@@ -281,7 +281,7 @@ const StatusTab = ({ ticket }: any) => {
               noOptionsText={
                 <div>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {seachAgentLoading ? (
+                    {deptLoading ? (
                       <CircularProgress size={18} />
                     ) : (
                       "Type to search"
@@ -368,7 +368,7 @@ const StatusTab = ({ ticket }: any) => {
               noOptionsText={
                 <div>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {deptLoading ? (
+                    {seachAgentLoading ? (
                       <CircularProgress size={18} />
                     ) : (
                       "Type to search"

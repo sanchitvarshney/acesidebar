@@ -302,7 +302,7 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
 
         {/* Info Alert */}
         <Alert severity="info" sx={{ mb: 2 }}>
-          <Typography variant="body2">
+          <Typography variant="body2" component="div">
             <strong>Note:</strong> Transferring ticket ownership will:
             <ul style={{ margin: "4px 0", paddingLeft: "20px" }}>
               <li>Update the ticket's assigned agent</li>

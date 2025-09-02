@@ -331,7 +331,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           fullWidth
           size="small"
           margin="dense"
-          value={fields.subject}
+          value={fields.subject ?? ""}
           onChange={(e) => onFieldChange("subject", e.target.value)}
           required
           sx={{ mb: 1 }}
@@ -346,7 +346,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
             return option.fName || option.fName || "";
           }}
           options={displayToOptions}
-          value={fields.to}
+          value={fields.to ?? ""}
           onChange={(event, newValue) => {
             handleSelectedOption(event, newValue, "to");
           }}
@@ -700,7 +700,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           margin="dense"
           multiline
           minRows={4}
-          value={fields.message}
+          value={fields.message ?? ""}
           onChange={(e) => onFieldChange("message", e.target.value)}
           sx={{ mb: 2 }}
         />

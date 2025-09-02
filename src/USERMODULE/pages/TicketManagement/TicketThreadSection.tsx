@@ -1007,6 +1007,7 @@ const TicketThreadSection = ({
           >
             {/* {!showEditor && !showReplyEditor && !showEditorNote && ( */}
             <AccordionSummary
+              component="div"
               expandIcon={
                 showEditor || showReplyEditor || showEditorNote ? null : (
                   <ExpandMoreIcon sx={{ transform: "rotate(180deg)" }} />
@@ -1440,7 +1441,7 @@ const TicketThreadSection = ({
             <>
               {(shortcutList ?? [])?.map((item: any) => (
                 <ListItem
-                  key={item.id}
+                  key={item.key}
                   disablePadding
                   sx={{
                     backgroundColor: "#fff",
