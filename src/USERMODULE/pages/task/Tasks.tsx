@@ -14,7 +14,6 @@ import {
   InputLabel,
   Checkbox,
   Drawer,
-  TablePagination,
   Box,
   Typography,
   ListItemText,
@@ -23,33 +22,20 @@ import {
   FilterList as FilterListIcon,
   Add as AddIcon,
   Assignment as AssignmentIcon,
-  Person as PersonIcon,
-  Schedule as ScheduleIcon,
   PriorityHigh as PriorityHighIcon,
-  Visibility as VisibilityIcon,
   Edit as EditIcon,
   Comment as CommentIcon,
   AttachFile as AttachFileIcon,
   TrendingUp as TrendingUpIcon,
-  CalendarToday as CalendarTodayIcon,
   Close as CloseIcon,
-  ConfirmationNumber as ConfirmationNumberIcon,
-  PlayArrow as PlayArrowIcon,
-  Pause as PauseIcon,
-  Stop as StopIcon,
   CheckCircle as CheckCircleIcon,
   Save as SaveIcon,
   Refresh as RefreshIcon,
-  Timer as TimerIcon,
-  ManageSearch as ManageSearchIcon,
-  Event as EventIcon,
-  AccessTime as AccessTimeIcon,
-  DisplaySettings as DisplaySettingsIcon,
+  Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import SortIcon from "@mui/icons-material/Sort";
-
 import DownloadIcon from "@mui/icons-material/Download";
-import { Task, TaskStatus, Comment as TaskComment } from "./types/task.types";
+import { Task, Comment as TaskComment } from "./types/task.types";
 import {
   mockTasks,
   CURRENT_USER,
@@ -57,23 +43,14 @@ import {
   priorityOptions,
   fieldOptions,
   getConditionOptions,
-  FILE_UPLOAD_CONFIG,
 } from "./data/taskData";
 import {
-  getStatusColor,
-  getPriorityColor,
   getStatusIcon,
   getTimeAgo,
   canEditComment,
-  getRemainingEditTime,
-  getFileIcon,
   validateComment,
-  getWordCount,
-  getRemainingWords,
   validateFileUpload,
   validateSearchCondition,
-  filterTasksBySearch,
-  paginateTasks,
 } from "./utils/taskUtils";
 import TaskHeader from "./components/TaskHeader";
 import TaskList from "./components/TaskList";
@@ -81,17 +58,13 @@ import TaskDetails from "./components/TaskDetails";
 import CommentForm from "./components/CommentForm";
 
 const Tasks: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState(0);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const [taskDialogOpen, setTaskDialogOpen] = React.useState(false);
   const [showCommentForm, setShowCommentForm] = React.useState(false);
   const [showAttachments, setShowAttachments] = React.useState(false);
-  const [attachmentDialogOpen, setAttachmentDialogOpen] = React.useState(false);
   const [newComment, setNewComment] = React.useState("");
   const [isInternalComment, setIsInternalComment] = React.useState(false);
-  const [commentSubject, setCommentSubject] = React.useState("");
-  const [commentRecipients, setCommentRecipients] = React.useState("");
   const [attachments, setAttachments] = React.useState<File[]>([]);
   const [commentError, setCommentError] = React.useState("");
   const [editingCommentId, setEditingCommentId] = React.useState<string | null>(
@@ -219,19 +192,10 @@ const Tasks: React.FC = () => {
   const startEditingComment = (comment: TaskComment) => {
     if (canEditComment(comment.createdAt, currentTime)) {
       setEditingCommentId(comment.id);
-      // Initialize edit text with current comment text
-      const updatedTasks = tasks.map((task) => ({
-        ...task,
-        comments: task.comments.map((c) =>
-          c.id === comment.id ? { ...c, isEditing: true, editText: c.text } : c
-        ),
-      }));
-      // In real app, you would update the state here
     }
   };
 
   const saveEditedComment = (commentId: string, newText: string) => {
-    // In real app, this would update the backend
     console.log(`Saving edited comment ${commentId}: ${newText}`);
     setEditingCommentId(null);
   };
@@ -243,90 +207,36 @@ const Tasks: React.FC = () => {
   // Current agent - in real app this would come from authentication context
   const currentAgent = CURRENT_USER; // from shared data
 
-  // Sample data - use shared mockTasks
-  const allTasks: Task[] = mockTasks;
-
   // Filter tasks to show only current agent's tasks
-  const tasks = allTasks.filter((task) => task.assignedTo === currentAgent);
-
-  // use shared utils
+  const tasks = mockTasks.filter((task) => task.assignedTo === currentAgent);
 
   const handleStatusChange = (taskId: string, newStatus: Task["status"]) => {
     // In real app, this would update the backend
     console.log(`Task ${taskId} status changed to ${newStatus}`);
   };
 
-  const [searchInFields, setSearchInFields] = React.useState({
-    title: true,
-    description: true,
-    ticketId: true,
-    assignedTo: true,
-    tags: true,
-  });
-
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   const filteredTasks = React.useMemo(() => {
     let filtered = tasks;
 
     if (searchQuery) {
       filtered = filtered.filter((task) => {
-        let matches = false;
-
-        if (
-          searchInFields.title &&
-          task.title.toLowerCase().includes(searchQuery.toLowerCase())
-        ) {
-          matches = true;
-        }
-        if (
-          searchInFields.description &&
-          task.description.toLowerCase().includes(searchQuery.toLowerCase())
-        ) {
-          matches = true;
-        }
-        if (
-          searchInFields.ticketId &&
-          task.ticketId.toLowerCase().includes(searchQuery.toLowerCase())
-        ) {
-          matches = true;
-        }
-        if (
-          searchInFields.assignedTo &&
-          task.assignedTo.toLowerCase().includes(searchQuery.toLowerCase())
-        ) {
-          matches = true;
-        }
-        if (
-          searchInFields.tags &&
+        return (
+          task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.ticketId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.assignedTo.toLowerCase().includes(searchQuery.toLowerCase()) ||
           task.tags.some((tag) =>
             tag.toLowerCase().includes(searchQuery.toLowerCase())
           )
-        ) {
-          matches = true;
-        }
-
-        return matches;
+        );
       });
     }
 
     return filtered;
-  }, [tasks, searchQuery, searchInFields]);
+  }, [tasks, searchQuery]);
 
   const paginatedTasks = React.useMemo(() => {
     return filteredTasks.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
@@ -488,8 +398,6 @@ const Tasks: React.FC = () => {
     setTaskSearchConditions([]);
   };
 
-  // use shared validation from taskUtils
-
   const getConditionErrors = () => {
     const errors: string[] = [];
 
@@ -647,8 +555,6 @@ const Tasks: React.FC = () => {
       />
     );
   };
-
-  // use shared data from taskData
 
   const [rightActiveTab, setRightActiveTab] = React.useState(0);
   const [attachmentsTab, setAttachmentsTab] = React.useState<
