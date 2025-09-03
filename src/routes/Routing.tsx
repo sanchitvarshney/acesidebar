@@ -26,7 +26,7 @@ import NotFound from "../components/common/NotFound";
 import TicketDetailTemplate from "../USERMODULE/pages/TicketManagement/TicketDetailTemplate";
 
 import ContactList from "../USERMODULE/components/ContactList";
-import ProfilePage from "../USERMODULE/components/ProfilePage";
+import ProfilePage from "../USERMODULE/components/Profile/ProfilePage";
 import GroupsPage from "../USERMODULE/pages/settingManangePages/GroupsPage";
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
 import BillAndPlanPage from "../USERMODULE/pages/settingManangePages/BillAndPlanPage";
