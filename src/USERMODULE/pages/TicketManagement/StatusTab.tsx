@@ -20,6 +20,7 @@ import {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
 } from "../../../services/agentServices";
+import { useToast } from "../../../hooks/useToast";
 
 const typeOptions = [
   {
@@ -49,6 +50,7 @@ const typeOptions = [
 ];
 
 const StatusTab = ({ ticket }: any) => {
+  const { showToast } = useToast();
   const [tagValue, setTagValue] = useState<any[]>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
   const [type, setType] = useState("");
@@ -152,23 +154,25 @@ const StatusTab = ({ ticket }: any) => {
 
   const handleSelectedOption = (_: any, newValue: any, type: string) => {
     if (type === "tag") {
-      if (!Array.isArray(newValue)) return;
-
-      const normalizedNewValue = newValue.map((tag: any) => ({
-        tagId: tag.tagId ?? tag.tagID,
-        tagName: tag.tagName,
-      }));
-
-      const previousTagIds = tagValue.map((tag: any) => tag.tagId);
-      const newlyAddedTag = normalizedNewValue.find(
-        (tag: any) => !previousTagIds.includes(tag.tagId)
-      );
-
-      if (newlyAddedTag) {
-        setTagValue((prev: any) => [...prev, newlyAddedTag]);
-      } else {
-        setTagValue(normalizedNewValue);
+      if (!Array.isArray(newValue) || newValue.length === 0) {
+        showToast("Tag already exists", "error");
+        return;
       }
+
+      setTagValue((prev) => {
+        // Find newly added tags (those not already in prev)
+        const addedTags = newValue.filter(
+          (tag: any) => !prev.some((p) => p.tagID === tag.tagID)
+        );
+
+        if (addedTags.length === 0) {
+          // No new tags (all duplicates)
+          showToast("Tag already exists", "error");
+          return prev;
+        }
+
+        return [...prev, ...addedTags];
+      });
     }
     if (type === "dept") {
       setDept(newValue);
