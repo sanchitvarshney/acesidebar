@@ -17,6 +17,7 @@ import {
   Autocomplete,
   Avatar,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import {
   Person,
@@ -41,30 +42,11 @@ import { useToast } from "../../../hooks/useToast";
 import StackEditor from "../../../components/reusable/Editor";
 import { useNavigate } from "react-router-dom";
 import { fetchOptions, isValidEmail } from "../../../utils/Utils";
-
-// Priority options for dropdown
-const priorityOptions = [
-  { label: "Low", value: "1", color: "#4caf50" },
-  { label: "Medium", value: "2", color: "#ff9800" },
-  { label: "High", value: "3", color: "#f44336" },
-  { label: "Urgent", value: "4", color: "#9c27b0" },
-  { label: "Critical", value: "5", color: "#d32f2f" },
-];
-// Agent options for AssignTo dropdown
-const agentOptions = [
-  { label: "Any agent", value: "any" },
-  { label: "Agent 1", value: "agent1" },
-  { label: "Agent 2", value: "agent2" },
-];
-
-// Department options for dropdown
-const departmentOptions = [
-  { label: "Technical Support", value: "technical" },
-  { label: "Customer Service", value: "customer_service" },
-  { label: "Sales", value: "sales" },
-  { label: "Billing", value: "billing" },
-  { label: "General", value: "general" },
-];
+import {
+  useLazyGetAgentsBySeachQuery,
+  useLazyGetDepartmentBySeachQuery,
+} from "../../../services/agentServices";
+import { AnyAaaaRecord } from "node:dns";
 
 interface TicketFormData {
   user_name: string;
@@ -85,6 +67,7 @@ const CreateTicketPage: React.FC = () => {
   const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
   const { data: priorityList, isLoading: isPriorityListLoading } =
     useGetPriorityListQuery();
+
   const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
@@ -93,8 +76,21 @@ const CreateTicketPage: React.FC = () => {
   const [contactChangeValue, setContactChangeValue] = React.useState("");
   const [openContactField, setOpenContactField] = useState(false);
   const [options, setOptions] = useState<any>();
+  const [tagOptions, setTagOptions] = useState<any>();
   // Form validation errors
   const [errors, setErrors] = useState<Partial<TicketFormData>>({});
+  const [tagValue, setTagValue] = useState<any[]>([]);
+  const [changeTagValue, setChangeTabValue] = useState("");
+  const [agentValue, setAgentValue] = useState<any>("");
+  const [changeAgent, setChangeAgent] = useState("");
+  const [dept, setDept] = useState("");
+  const [changeDept, setChangedept] = useState("");
+  const [departmentOptions, setDepartmentOptions] = useState<any>([]);
+  const [AgentOptions, setAgentOptions] = useState<any>([]);
+  const [triggerDept, { isLoading: deptLoading }] =
+    useLazyGetDepartmentBySeachQuery();
+  const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
+    useLazyGetAgentsBySeachQuery();
 
   const [newTicket, setNewTicket] = useState<TicketFormData>({
     user_name: "",
@@ -131,6 +127,80 @@ const CreateTicketPage: React.FC = () => {
   const displayFromOptions: any = fromChangeValue ? options : [];
 
   const displayContactOptions: any = contactChangeValue ? options : [];
+
+  const displayOptions = changeTagValue.length >= 3 ? tagOptions : [];
+  const displayDepartmentOptions = changeDept ? departmentOptions : [];
+  const displayAgentOptions = changeAgent ? AgentOptions : [];
+
+  const fetchDeptOptions = async (query: string) => {
+    if (!query) {
+      setDepartmentOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerDept({
+        search: query,
+      }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = changeDept;
+      const fallback = [
+        {
+          deptName: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setDepartmentOptions(data.length > 0 ? data : fallback);
+      } else {
+        setDepartmentOptions([]);
+      }
+    } catch (error) {
+      setDepartmentOptions([]);
+    }
+  };
+
+  const fetchTagOptions = (value: string) => {
+    if (!value || value.length < 3) return [];
+    const filteredOptions = tagList?.filter((option: any) =>
+      option.tagName?.toLowerCase().includes(value?.toLowerCase())
+    );
+
+    if (filteredOptions || filteredOptions?.length > 0) {
+      setTagOptions(filteredOptions);
+    } else {
+      setTagOptions([]);
+    }
+  };
+
+  const fetchAgentOptions = async (query: string) => {
+    if (!query) {
+      setAgentOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerSeachAgent({ search: query }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = changeAgent;
+      const fallback = [
+        {
+          fName: currentValue,
+          emailAddress: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setAgentOptions(data.length > 0 ? data : fallback);
+      } else {
+        setAgentOptions([]);
+      }
+    } catch (error) {
+      setAgentOptions([]);
+    }
+  };
 
   useEffect(() => {
     const filterValue: any = fetchOptions(
@@ -197,7 +267,6 @@ const CreateTicketPage: React.FC = () => {
     }
   };
 
- 
   const handleDeleteContact = (id: any) => {
     setSelectedContacts((prev) => prev.filter((contact) => contact !== id));
   };
@@ -210,22 +279,51 @@ const CreateTicketPage: React.FC = () => {
     if (!value) return;
 
     const dataValue = { name: value.userName, email: value.userEmail };
-    if (!isValidEmail(dataValue.email)) {
-      showToast("Invalid email format", "error");
-      return;
-    }
 
     if (type === "from") {
+      if (!isValidEmail(dataValue.email)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
       setNewTicket((prev) => ({ ...prev, user_email: dataValue.email }));
     }
 
     if (type === "contact") {
+      if (!isValidEmail(dataValue.email)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
       if (selectedContacts.some((item: any) => item === value.userEmail)) {
         showToast("Contact already Exist", "error");
         return;
       }
 
       setSelectedContacts((prev) => [...prev, dataValue.email]);
+    }
+    if (type === "dept") {
+      setDept(value);
+    }
+
+    if (type === "tag") {
+      if (!Array.isArray(value) || value.length === 0) {
+        showToast("Tag already exists", "error");
+        return;
+      }
+
+      setTagValue((prev) => {
+        // Find newly added tags (those not already in prev)
+        const addedTags = value.filter(
+          (tag: any) => !prev.some((p) => p.tagID === tag.tagID)
+        );
+
+        if (addedTags.length === 0) {
+          // No new tags (all duplicates)
+          showToast("Tag already exists", "error");
+          return prev;
+        }
+
+        return [...prev, ...addedTags];
+      });
     }
   };
 
@@ -368,12 +466,7 @@ const CreateTicketPage: React.FC = () => {
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {/* Priority */}
-              <FormControl
-                fullWidth
-                size="small"
-                variant="outlined"
-                sx={{ mb: 3 }}
-              >
+              <FormControl fullWidth size="small" variant="outlined">
                 <InputLabel>Priority</InputLabel>
                 <Select
                   value={newTicket.priority.toString()}
@@ -388,11 +481,8 @@ const CreateTicketPage: React.FC = () => {
                     />
                   }
                   sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#dadce0",
-                    },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
+                      borderColor: "#9ca3af",
                     },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#1976d2",
@@ -401,8 +491,8 @@ const CreateTicketPage: React.FC = () => {
                     fontSize: "0.875rem",
                   }}
                 >
-                  {priorityOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
+                  {priorityList?.map((option: any) => (
+                    <MenuItem key={option.key} value={option.priorityName}>
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
@@ -415,151 +505,311 @@ const CreateTicketPage: React.FC = () => {
                             flexShrink: 0,
                           }}
                         />
-                        {option.label}
+                        {option.priorityName}
                       </Box>
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
 
-              {/* Assignee */}
-              <FormControl
-                fullWidth
-                size="small"
-                variant="outlined"
-                sx={{ mb: 2 }}
-              >
-                <InputLabel>Assignee</InputLabel>
-                <Select
-                  value={newTicket.assignee || "any"}
-                  onChange={(e) =>
-                    handleInputChange("assignee", e.target.value)
-                  }
-                  label="Assignee"
-                  startAdornment={
-                    <Assignment
-                      fontSize="small"
-                      sx={{ color: "#666", mr: 1 }}
-                    />
-                  }
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#dadce0",
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
-                    },
-                    backgroundColor: "#fff",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {agentOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Department */}
-              <FormControl
-                fullWidth
-                size="small"
-                variant="outlined"
-                sx={{ mb: 3 }}
-              >
-                <InputLabel>Department</InputLabel>
-                <Select
-                  value={newTicket.department || ""}
-                  onChange={(e) =>
-                    handleInputChange("department", e.target.value)
-                  }
-                  label="Department"
-                  startAdornment={
-                    <Business fontSize="small" sx={{ color: "#666", mr: 1 }} />
-                  }
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#dadce0",
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
-                    },
-                    backgroundColor: "#fff",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {departmentOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl
-                fullWidth
-                size="small"
-                variant="outlined"
-                sx={{ mb: 3 }}
-              >
-                <InputLabel>Tags</InputLabel>
-                <Select
-                  multiple
-                  value={newTicket.tags || []}
-                  onChange={(e: any) =>
-                    handleInputChange("tags", e.target.value)
-                  }
-                  label="Tags"
-                  startAdornment={
-                    <LocalOffer
-                      fontSize="small"
-                      sx={{ color: "#666", mr: 1 }}
-                    />
-                  }
-                  renderValue={(selected) => selected.join(", ")}
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#dadce0",
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
-                    },
-                    backgroundColor: "#fff",
-                    fontSize: "0.875rem",
-                  }}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 300, // optional: controls the menu height
-                      },
-                    },
-                  }}
-                >
-                  {tagList?.map((option: any) => (
-                    <MenuItem
-                      key={option.tagID}
-                      value={option.tagName}
+              <Autocomplete
+                disableClearable
+                popupIcon={null}
+                sx={{ my: 1.5 }}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return option.fName + " " + option.lName || "";
+                }}
+                options={displayAgentOptions}
+                value={agentValue}
+                onChange={(event, newValue) => {
+                  handleSelectedOption(event, newValue, "agent");
+                }}
+                onInputChange={(_, value) => {
+                  setChangeAgent(value);
+                  fetchAgentOptions(value);
+                }}
+                filterOptions={(x) => x}
+                getOptionDisabled={(option) => option === "Type to search"}
+                noOptionsText={
+                  <div>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {deptLoading ? (
+                        <CircularProgress size={18} />
+                      ) : (
+                        "Type to search"
+                      )}
+                    </Typography>
+                  </div>
+                }
+                renderOption={(props, option: any) => (
+                  <li {...props}>
+                    {typeof option === "string" ? (
+                      option
+                    ) : (
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        {option.fName} {option.lName}
+                      </Typography>
+                    )}
+                  </li>
+                )}
+                renderTags={(toValue, getTagProps) =>
+                  toValue?.map((option, index) => (
+                    <Chip
+                      variant="outlined"
+                      color="primary"
+                      label={typeof option === "string" ? option : option}
+                      {...getTagProps({ index })}
                       sx={{
-                        minHeight: 40, // Adjust this value to control item height
-                        py: 1, // padding top-bottom
+                        cursor: "pointer",
+                        height: "20px",
+                        // backgroundColor: "#6EB4C9",
+                        color: "primary.main",
+                        "& .MuiChip-deleteIcon": {
+                          color: "error.main",
+                          width: "12px",
+                        },
+                        "& .MuiChip-deleteIcon:hover": {
+                          color: "#e87f8c",
+                        },
                       }}
-                    >
-                      {option.tagName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    label="Assignee"
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: (
+                        <>
+                          <Assignment
+                            fontSize="small"
+                            sx={{ color: "#666", mr: 1 }}
+                          />
+                          {params.InputProps.startAdornment}
+                        </>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
+              />
 
+              <Autocomplete
+                disableClearable
+                popupIcon={null}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return option.deptName || "";
+                }}
+                options={displayDepartmentOptions}
+                value={dept}
+                onChange={(event, newValue) => {
+                  handleSelectedOption(event, newValue, "dept");
+                }}
+                onInputChange={(_, value) => {
+                  setChangedept(value);
+                  fetchDeptOptions(value);
+                }}
+                filterOptions={(x) => x}
+                getOptionDisabled={(option) => option === "Type to search"}
+                noOptionsText={
+                  <div>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {deptLoading ? (
+                        <CircularProgress size={18} />
+                      ) : (
+                        "Type to search"
+                      )}
+                    </Typography>
+                  </div>
+                }
+                renderOption={(props, option: any) => (
+                  <li {...props}>
+                    {typeof option === "string" ? (
+                      option
+                    ) : (
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        {option.deptName}
+                      </Typography>
+                    )}
+                  </li>
+                )}
+                renderTags={(toValue, getTagProps) =>
+                  toValue?.map((option, index) => (
+                    <Chip
+                      variant="outlined"
+                      color="primary"
+                      label={typeof option === "string" ? option : option}
+                      {...getTagProps({ index })}
+                      sx={{
+                        cursor: "pointer",
+                        height: "20px",
+                        // backgroundColor: "#6EB4C9",
+                        color: "primary.main",
+                        "& .MuiChip-deleteIcon": {
+                          color: "error.main",
+                          width: "12px",
+                        },
+                        "& .MuiChip-deleteIcon:hover": {
+                          color: "#e87f8c",
+                        },
+                      }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    label="Department"
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: (
+                        <>
+                          <Business
+                            fontSize="small"
+                            sx={{ color: "#666", mr: 1 }}
+                          />
+                          {params.InputProps.startAdornment}
+                        </>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
+              />
+
+              <Autocomplete
+                sx={{ mt: 1.5 }}
+                multiple
+                disableClearable
+                popupIcon={null}
+                getOptionLabel={(option) => {
+                  if (typeof option === "string") return option;
+                  return option?.tagName || option.name || "";
+                }}
+                options={displayOptions}
+                value={tagValue}
+                onChange={(event, newValue) => {
+                  handleSelectedOption(event, newValue, "tag");
+                }}
+                onInputChange={(_, value) => {
+                  setChangeTabValue(value);
+                  fetchTagOptions(value);
+                }}
+                filterOptions={(x) => x}
+                getOptionDisabled={(option) => option === "Type to search"}
+                noOptionsText={
+                  changeTagValue.length < 3
+                    ? "Type at least 3 characters to search"
+                    : "No tags found"
+                }
+                renderOption={(props, option) => {
+                  return (
+                    <li {...props} key={option.tagID}>
+                      {typeof option === "string" ? (
+                        option
+                      ) : (
+                        <div
+                          className="flex items-center gap-3 p-1 rounded-md w-full"
+                          style={{ cursor: "pointer" }}
+                        >
+                          <div className="flex flex-col">
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ fontWeight: 600 }}
+                            >
+                              {option?.tagName}
+                            </Typography>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  );
+                }}
+                renderTags={(editTags, getTagProps) =>
+                  editTags.map((option, index) => {
+                    const label =
+                      typeof option === "string"
+                        ? option
+                        : option?.tagName || option?.name || "Unknown Tag";
+
+                    return (
+                      <Chip
+                        key={index}
+                        label={label}
+                        onDelete={() => {
+                          const newTags = editTags.filter(
+                            (_, i) => i !== index
+                          );
+                          setTagValue(newTags);
+                        }}
+                        sx={{
+                          "& .MuiChip-deleteIcon": { color: "error.main" },
+                          "& .MuiChip-deleteIcon:hover": { color: "#e87f8c" },
+                        }}
+                      />
+                    );
+                  })
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Tags"
+                    variant="outlined"
+                    size="medium"
+                    fullWidth
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: (
+                        <>
+                          <LocalOffer
+                            fontSize="small"
+                            sx={{ color: "#666", mr: 1 }}
+                          />
+                          {params.InputProps.startAdornment}
+                        </>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
+              />
             </Box>
           </Box>
         </Box>
@@ -603,7 +853,6 @@ const CreateTicketPage: React.FC = () => {
             <Box
               sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}
             >
-             
               <Autocomplete
                 disableClearable
                 popupIcon={null}

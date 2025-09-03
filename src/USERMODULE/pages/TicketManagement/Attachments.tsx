@@ -66,7 +66,8 @@ const Attachments: React.FC<AttachmentsProps> = ({
   ticketId,
 }) => {
   const [commanApi] = useCommanApiMutation();
-  const [attachedFile, { isLoading: isUploading,data: attachedFileData }] = useAttachedFileMutation();
+  const [attachedFile, { isLoading: isUploading, data: attachedFileData }] =
+    useAttachedFileMutation();
 
   const { data, refetch } = useGetAttacedFileQuery({ ticketId });
 
@@ -77,7 +78,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
   const { showToast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("uploadedAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
@@ -135,10 +136,8 @@ const Attachments: React.FC<AttachmentsProps> = ({
       }
     });
 
-
-   
   // Get unique categories
-  const categories = ["All Categories"];
+  const categories = [""]; // use empty string as 'All Categories'
 
   const getFileIcon = (type: string) => {
     if (type.startsWith("image/")) return <Image />;
@@ -158,7 +157,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
       formData.append("ticketId", ticketId.toString());
       formData.append(
         "category",
-        selectedCategory === "all" ? "Uncategorized" : selectedCategory
+        selectedCategory === "" ? "Uncategorized" : selectedCategory
       );
 
       const payload = {
@@ -289,7 +288,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
       showToast("Failed to download file", "error");
     }
   };
-  
+
   const onRemove = (fileId: string) => {
     if (!fileId || !ticketId) {
       showToast("File not exist please try again", "error");
@@ -399,11 +398,14 @@ const Attachments: React.FC<AttachmentsProps> = ({
                     label="Category"
                     onChange={(e) => setSelectedCategory(e.target.value)}
                   >
-                    {categories.map((category) => (
-                      <MenuItem key={category} value={category}>
-                        {category === "all" ? "All Categories" : category}
-                      </MenuItem>
-                    ))}
+                    <MenuItem value="">All Categories</MenuItem>
+                    {categories
+                      .filter((c) => c !== "")
+                      .map((category) => (
+                        <MenuItem key={category} value={category}>
+                          {category}
+                        </MenuItem>
+                      ))}
                   </Select>
                 </FormControl>
               </div>
@@ -455,6 +457,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
+                      disableTypography
                       primary={
                         <MuiBox
                           sx={{
@@ -464,7 +467,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
                             mb: 0.5,
                           }}
                         >
-                          <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          <Typography variant="body1" component="div" sx={{ fontWeight: 500 }}>
                             {attachment.fileName}
                           </Typography>
                           {attachment.type && (
@@ -483,7 +486,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
                       }
                       secondary={
                         <MuiBox>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography variant="body2" component="div" color="text.secondary">
                             {attachment.fileSize} • Uploaded by:{" "}
                             {attachment.uploadedBy?.name} (
                             {attachment.uploadedBy?.type == "S"
@@ -493,7 +496,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
                               : "Admin"}
                             )
                           </Typography>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography variant="body2" component="div" color="text.secondary">
                             {`${attachment.dt.ds} ${attachment.dt.ts}`} • (
                             {attachment.dt.ago}) | {attachment.downloads}{" "}
                             downloads
@@ -561,13 +564,13 @@ const Attachments: React.FC<AttachmentsProps> = ({
       >
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography variant="h6">Upload Files</Typography>{" "}
-          <IconButton>
-            <CloseIcon
-              onClick={() => {
-                setUploadDialogOpen(false);
-                setImages([]);
-              }}
-            />
+          <IconButton
+            onClick={() => {
+              setUploadDialogOpen(false);
+              setImages([]);
+            }}
+          >
+            <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent>

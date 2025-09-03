@@ -6,24 +6,22 @@ export const columns = [
     headerName: "Contact",
     flex: 1,
     minWidth: 200,
-    resizable: true ,
+    resizable: true,
     sortable: false,
     filterable: false,
 
-    renderCell: (params:any) => (
-      <TextInputCellRenderer {...params} />
-    ),
+    renderCell: (params: any) => <TextInputCellRenderer {...params} />,
   },
   {
-    field: "title",
+    field: "roleType",
     headerName: "Title",
     flex: 1,
     minWidth: 150,
-    resizable: true ,
+    resizable: true,
     sortable: false,
     filterable: false,
-  
-    renderCell: (params:any) => (
+
+    renderCell: (params: any) => (
       <span style={{ color: "#666" }}>{params.value}</span>
     ),
   },
@@ -32,28 +30,28 @@ export const columns = [
     headerName: "Company",
     flex: 1,
     minWidth: 180,
-    resizable: true ,
-    renderCell: (params:any) => (
+    resizable: true,
+    renderCell: (params: any) => (
       <span style={{ color: "#666" }}>{params.value}</span>
     ),
   },
   {
-    field: "email",
+    field: "emailAddress",
     headerName: "Email address",
     flex: 1,
     minWidth: 200,
-    resizable: true ,
-    renderCell: (params:any) => (
+    resizable: true,
+    renderCell: (params: any) => (
       <span style={{ color: "#666" }}>{params.value}</span>
     ),
   },
   {
-    field: "phone",
+    field: "phoneNumber",
     headerName: "Work phone",
     flex: 1,
     minWidth: 140,
-    resizable: true ,
-    renderCell: (params:any) => (
+    resizable: true,
+    renderCell: (params: any) => (
       <span style={{ color: "#666" }}>{params.value}</span>
     ),
   },
@@ -62,8 +60,8 @@ export const columns = [
     headerName: "Facebook",
     flex: 1,
     minWidth: 120,
-    resizable: true ,
-    renderCell: (params:any) => (
+    resizable: true,
+    renderCell: (params: any) => (
       <span style={{ color: "#666" }}>{params.value}</span>
     ),
   },
@@ -72,8 +70,8 @@ export const columns = [
     headerName: "Twitter",
     flex: 1,
     minWidth: 120,
-    resizable: true ,
-    renderCell: (params:any) => (
+    resizable: true,
+    renderCell: (params: any) => (
       <span style={{ color: "#666" }}>{params.value}</span>
     ),
   },
@@ -83,9 +81,7 @@ export const columns = [
     width: 50,
     sortable: false,
     filterable: false,
-    resizable: true ,
-    renderCell: (params:any) => (
-      <TextInputCellRenderer {...params} />
-    ),
+    resizable: true,
+    renderCell: (params: any) => <TextInputCellRenderer {...params} />,
   },
 ];

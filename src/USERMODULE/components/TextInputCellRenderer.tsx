@@ -44,18 +44,18 @@ const TextInputCellRenderer = (props: any) => {
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`${row?.id}`);
+              navigate(`${row?.agentID}`);
             }}
           >
             {row?.avatar ? (
-              <Avatar alt={row?.name} src={row?.avatar} />
+              <Avatar alt={row?.fName} src={row?.avatar} />
             ) : (
               <Avatar>
-                {row?.name ? row?.name.charAt(0).toUpperCase() : "T"}
+                {row?.fName ? row?.fName.charAt(0).toUpperCase() : "T"}
               </Avatar>
             )}
             <Typography fontWeight={500} color="text.primary">
-              {row?.name}
+              {row?.fName}
             </Typography>
           </div>
         );

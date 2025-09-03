@@ -25,102 +25,24 @@ import AddContact from "../components/AddContact";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Close, Save } from "@mui/icons-material";
-
-const rowData: any = [
-  {
-    id: 1,
-    name: "Bob Tree",
-    title: "CEO",
-    company: "Freshworks",
-    email: "bob.tree@freshdesk.com",
-    phone: "8295701297",
-    facebook: "--",
-    twitter: "--",
-    avatar: null,
-  },
-  {
-    id: 2,
-    name: "Emily Garcia",
-    title: "Associate Director",
-    company: "Acme Inc",
-    email: "emily.garcia@acme.com",
-    phone: "+1448081698824",
-    facebook: "--",
-    twitter: "--",
-    avatar: null,
-  },
-  {
-    id: 3,
-    name: "Emily Dean",
-    title: "Chartered Accountant",
-    company: "Global Learning Inc",
-    email: "emily.dean@globallearning.org",
-    phone: "257715491",
-    facebook: "--",
-    twitter: "--",
-    avatar: null,
-  },
-  {
-    id: 4,
-    name: "Johnny Appleseed",
-    title: "Manager Customer Support",
-    company: "Jet Propulsion Laboratory, NASA",
-    email: "johnny.appleseed@jpl.gov",
-    phone: "123412834",
-    facebook: "--",
-    twitter: "--",
-    avatar: null,
-  },
-  {
-    id: 5,
-    name: "Sarah James",
-    title: "Manager Public relations",
-    company: "Advanced Machinery",
-    email: "sarah.james@advancedmachinery.com",
-    phone: "1855747676",
-    facebook: "--",
-    twitter: "--",
-    avatar: null,
-  },
-  {
-    id: 6,
-    name: "Test Name",
-    title: "--",
-    company: "--",
-    email: "bobiga8081@hostbyt.com",
-    phone: "--",
-    facebook: "--",
-    twitter: "--",
-    avatar: null,
-  },
-  {
-    id: 7,
-    name: "tr4mr82aym@vwhins.com",
-    title: "--",
-    company: "--",
-    email: "tr4mr82aym@vwhins.com",
-    phone: "--",
-    facebook: "--",
-    twitter: "--",
-    avatar: null,
-  },
-];
+import { useGetAgentsQuery } from "../../services/agentServices";
 
 const ContactList = () => {
   const [isExport, setIsExport] = useState(false);
   const [isImport, setIsImport] = useState(false);
   const [isAdd, setIsAdd] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const { data: agentList, isLoading: agentListData } = useGetAgentsQuery();
+  console.log(agentList);
   const navigate = useNavigate();
 
   const filterData = searchQuery
-    ? rowData.filter((row: any) =>
+    ? agentList.filter((row: any) =>
         Object.values(row).some((value: any) =>
           value?.toString().toLowerCase().includes(searchQuery.toLowerCase())
         )
       )
-    : rowData;
+    : agentList;
 
   const paginationModel = { page: 0, pageSize: 10 };
 
@@ -185,6 +107,7 @@ const ContactList = () => {
         <div className=" h-[calc(100vh-160px)] w-full ">
           <DataGrid
             rows={filterData}
+            getRowId={(row) => row.agentID}
             columns={columns.map((col) => ({ ...col, editable: false }))}
             initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[10, 20, 30, 100]}

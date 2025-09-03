@@ -78,7 +78,7 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledInputBase = styled(InputBase, {
-  shouldForwardProp: (prop:any) => !["bgColor", "bgOpacity", "borderRadius"].includes(prop),
+  shouldForwardProp: (prop:any) => !["bgColor", "bgOpacity", "borderRadius", "textColor"].includes(prop),
 })<SearchStyleProps>(({ theme, textColor}) => ({
   color: "inherit",
   width: "100%",

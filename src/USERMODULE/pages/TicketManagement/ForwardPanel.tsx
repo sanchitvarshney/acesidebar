@@ -16,6 +16,7 @@ import {
   ListItemSecondaryAction,
   Autocomplete,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -27,8 +28,9 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { AnimatePresence, motion } from "framer-motion";
 import { useToast } from "../../../hooks/useToast";
-import { fetchOptions, isValidEmail } from "../../../utils/Utils";
+import { isValidEmail } from "../../../utils/Utils";
 import { useSelector } from "react-redux";
+import { useLazyGetAgentsBySeachQuery } from "../../../services/agentServices";
 
 interface ForwardPanelProps {
   open: boolean;
@@ -66,10 +68,14 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   const [ccChangeValue, setCcChangeValue] = React.useState("");
   const [bccChangeValue, setBccChangeValue] = React.useState("");
   const [toChangeValue, setToChangeValue] = React.useState("");
-  const [options, setOptions] = useState<any[]>([]);
+  const [optionsTo, setOptionsTo] = useState<any[]>([]);
+  const [optionsCc, setOptionsCc] = useState<any[]>([]);
+  const [optionsBcc, setOptionsBcc] = useState<any[]>([]);
   const [openCcfield, setOpenCcfield] = useState(false);
   const [openBccfield, setOpenBccfield] = useState(false);
   const { forwardData } = useSelector((state: any) => state.shotcut);
+  const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
+    useLazyGetAgentsBySeachQuery();
 
   useEffect(() => {
     if (forwardData) {
@@ -145,20 +151,48 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
 
   // simulate API call
 
-  useEffect(() => {
-    const filterValue: any = fetchOptions(
-      ccChangeValue || bccChangeValue || toChangeValue
-    );
+  const fetchOptions = async (query: string, type: "to" | "cc" | "bcc") => {
+    if (!query) {
+      if (type === "to") setOptionsTo([]);
+      else if (type === "cc") setOptionsCc([]);
+      else setOptionsBcc([]);
+      return;
+    }
 
-    filterValue?.length > 0
-      ? setOptions(filterValue)
-      : setOptions([
-          {
-            userName: ccChangeValue || bccChangeValue || toChangeValue,
-            userEmail: ccChangeValue || bccChangeValue || toChangeValue,
-          },
-        ]);
-  }, [ccChangeValue, bccChangeValue, toChangeValue]);
+    try {
+      const res = await triggerSeachAgent({ search: query }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue =
+        type === "to"
+          ? toChangeValue
+          : type === "cc"
+          ? ccChangeValue
+          : bccChangeValue;
+      const fallback = [
+        {
+          fName: currentValue,
+          emailAddress: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        if (type === "to") setOptionsTo(data.length > 0 ? data : fallback);
+        else if (type === "cc") setOptionsCc(data.length > 0 ? data : fallback);
+        else setOptionsBcc(data.length > 0 ? data : fallback);
+      } else {
+        if (type === "to") setOptionsTo([]);
+        else if (type === "cc") setOptionsCc([]);
+        else setOptionsBcc([]);
+      }
+    } catch (error) {
+      if (type === "to") setOptionsTo([]);
+      else if (type === "cc") setOptionsCc([]);
+      else setOptionsBcc([]);
+    }
+  };
+
+  // remove cross-field combined fetching to prevent stale / duplicate queries
 
   // Focus on To field when panel opens
   useEffect(() => {
@@ -179,14 +213,14 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   ) => {
     if (!value) return;
 
-    const dataValue = { name: value.userName, email: value.userEmail };
+    const dataValue = { name: value.fName, email: value.emailAddress };
     if (!isValidEmail(dataValue.email)) {
       showToast("Invalid email format", "error");
       return;
     }
 
     if (type === "cc") {
-      if (fields.cc.some((item: any) => item.email === value.userEmail)) {
+      if (fields.cc.some((item: any) => item.email === value.emailAddress)) {
         showToast("Email already Exist", "error");
         return;
       }
@@ -199,7 +233,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     } else if (type === "to") {
       onFieldChange("to", dataValue.email);
     } else {
-      if (fields.bcc.some((item: any) => item.email === value.userEmail)) {
+      if (fields.bcc.some((item: any) => item.email === value.emailAddress)) {
         showToast("Email already Exist", "error");
         return;
       }
@@ -210,6 +244,10 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
 
       onFieldChange("bcc", [...fields.bcc, dataValue]);
     }
+
+    ccChangeValue && setCcChangeValue("");
+    bccChangeValue && setBccChangeValue("");
+    toChangeValue && setToChangeValue("");
   };
 
   const handleDelete = (type: string, item: any) => {
@@ -240,9 +278,9 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     if (type?.startsWith("text/")) return <DescriptionIcon />;
     return <InsertDriveFileIcon />;
   };
-  const displayCCOptions: any = ccChangeValue ? options : [];
-  const displayBCCOptions: any = bccChangeValue ? options : [];
-  const displayToOptions: any = toChangeValue ? options : [];
+  const displayCCOptions: any = ccChangeValue ? optionsCc : [];
+  const displayBCCOptions: any = bccChangeValue ? optionsBcc : [];
+  const displayToOptions: any = toChangeValue ? optionsTo : [];
 
   const canAddMoreFiles = fields.documents?.length < MAX_FILES;
 
@@ -293,7 +331,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           fullWidth
           size="small"
           margin="dense"
-          value={fields.subject}
+          value={fields.subject ?? ""}
           onChange={(e) => onFieldChange("subject", e.target.value)}
           required
           sx={{ mb: 1 }}
@@ -305,17 +343,30 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           sx={{ my: 1.5 }}
           getOptionLabel={(option) => {
             if (typeof option === "string") return option;
-            return option.userEmail || option.userName || "";
+            return option.fName || option.fName || "";
           }}
           options={displayToOptions}
-          value={fields.to}
+          value={fields.to ?? ""}
           onChange={(event, newValue) => {
             handleSelectedOption(event, newValue, "to");
           }}
-          onInputChange={(_, value) => setToChangeValue(value)}
+          onInputChange={(_, value) => {
+            setToChangeValue(value);
+            fetchOptions(value, "to");
+          }}
           filterOptions={(x) => x}
           getOptionDisabled={(option) => option === "Type to search"}
-          noOptionsText="No Data Found"
+          noOptionsText={
+            <div>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {seachAgentLoading ? (
+                  <CircularProgress size={18} />
+                ) : (
+                  "Type to search"
+                )}
+              </Typography>
+            </div>
+          }
           renderOption={(props, option) => (
             <li {...props}>
               {typeof option === "string" ? (
@@ -332,15 +383,15 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                       backgroundColor: "primary.main",
                     }}
                   >
-                    {option.userName?.charAt(0).toUpperCase()}
+                    {option.fName?.charAt(0).toUpperCase()}
                   </Avatar>
 
                   <div className="flex flex-col">
                     <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {option.userName}
+                      {option.fName}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {option.userEmail}
+                      {option.emailAddress}
                     </Typography>
                   </div>
                 </div>
@@ -352,7 +403,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
               <Chip
                 variant="outlined"
                 color="primary"
-                label={typeof option === "string" ? option : option?.name}
+                label={typeof option === "string" ? option : option?.Admin}
                 {...getTagProps({ index })}
                 sx={{
                   cursor: "pointer",
@@ -441,7 +492,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                             backgroundColor: "primary.main",
                           }}
                         >
-                          {option.userName?.charAt(0).toUpperCase()}
+                          {option.fName?.charAt(0).toUpperCase()}
                         </Avatar>
 
                         <div className="flex flex-col">
@@ -449,10 +500,10 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                             variant="subtitle2"
                             sx={{ fontWeight: 600 }}
                           >
-                            {option.userName}
+                            {option.fName}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {option.userEmail}
+                            {option.emailAddress}
                           </Typography>
                         </div>
                       </div>
@@ -463,9 +514,23 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                 onOpen={() => setOpenCcfield(true)}
                 onClose={() => setOpenCcfield(false)}
                 inputValue={ccChangeValue}
-                onInputChange={(_, value) => setCcChangeValue(value)}
+                onInputChange={(_, value) => {
+                  setCcChangeValue(value);
+                  fetchOptions(value, "cc");
+                }}
                 onChange={(event, newValue) =>
                   handleSelectedOption(event, newValue, "cc")
+                }
+                noOptionsText={
+                  <div>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {seachAgentLoading ? (
+                        <CircularProgress size={18} />
+                      ) : (
+                        "Type to search"
+                      )}
+                    </Typography>
+                  </div>
                 }
                 filterOptions={(x) => x} // disable default filtering
                 getOptionDisabled={(option) => option === "Type to search"}
@@ -545,7 +610,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                             backgroundColor: "primary.main",
                           }}
                         >
-                          {option.userName?.charAt(0).toUpperCase()}
+                          {option.fName?.charAt(0).toUpperCase()}
                         </Avatar>
 
                         <div className="flex flex-col">
@@ -553,10 +618,10 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                             variant="subtitle2"
                             sx={{ fontWeight: 600 }}
                           >
-                            {option.userName}
+                            {option.fName}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {option.userEmail}
+                            {option.emailAddress}
                           </Typography>
                         </div>
                       </div>
@@ -567,9 +632,23 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
                 onOpen={() => setOpenBccfield(true)}
                 onClose={() => setOpenBccfield(false)}
                 inputValue={bccChangeValue}
-                onInputChange={(_, value) => setBccChangeValue(value)}
+                onInputChange={(_, value) => {
+                  setBccChangeValue(value);
+                  fetchOptions(value, "bcc");
+                }}
                 onChange={(event, value) =>
                   handleSelectedOption(event, value, "bcc")
+                }
+                noOptionsText={
+                  <div>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {seachAgentLoading ? (
+                        <CircularProgress size={18} />
+                      ) : (
+                        "Type to search"
+                      )}
+                    </Typography>
+                  </div>
                 }
                 filterOptions={(x) => x} // disable default filtering
                 getOptionDisabled={(option) => option === "Type to search"}
@@ -621,7 +700,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           margin="dense"
           multiline
           minRows={4}
-          value={fields.message}
+          value={fields.message ?? ""}
           onChange={(e) => onFieldChange("message", e.target.value)}
           sx={{ mb: 2 }}
         />
@@ -758,8 +837,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         <Button
           onClick={onClose}
           variant="text"
-         
-          sx={{ minWidth: 80, fontWeight:600 }}
+          sx={{ minWidth: 80, fontWeight: 600 }}
         >
           Cancel
         </Button>
@@ -768,15 +846,13 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           variant="contained"
           color="primary"
           disabled={!fields.subject || !fields.to}
-          sx={{ minWidth: 100, fontWeight:600 }}
+          sx={{ minWidth: 100, fontWeight: 600 }}
         >
           Forward
         </Button>
       </MuiBox>
     </MuiBox>
   );
-
-
 
   // Sidebar panel (not modal)
   return (

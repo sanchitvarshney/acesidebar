@@ -187,8 +187,8 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
 
   const [activeTab, setActiveTab] = useState(0);
   const [referralType, setReferralType] = useState<
-    "department" | "agent" | "team" | null
-  >(null);
+    "department" | "agent" | "team" | ""
+  >("");
   const [selectedDepartment, setSelectedDepartment] = useState<any>("");
   const [selectedAgent, setSelectedAgent] = useState<any>("");
   const [selectedTeam, setSelectedTeam] = useState("");
@@ -385,7 +385,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
               <FormControl fullWidth size="small">
                 <InputLabel>Select Type</InputLabel>
                 <Select
-                  value={referralType}
+                  value={referralType || ""}
                   autoFocus
                   inputRef={inputRef}
                   label="Select Type"
@@ -437,7 +437,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                   return option.userEmail || option.userName || "";
                 }}
                 options={displayContactOptions}
-                value={selectedAgent}
+                value={selectedAgent || ""}
                 onChange={(event, newValue) => {
                   handleSelectedOption(event, newValue);
                 }}
@@ -584,7 +584,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
 
             {/* Info Alert */}
             <Alert severity="info" sx={{ mb: 2 }}>
-              <Typography variant="body2">
+              <Typography variant="body2" component="div">
                 <strong>Note:</strong> Creating a referral will:
                 <ul style={{ margin: "4px 0", paddingLeft: "20px" }}>
                   <li>

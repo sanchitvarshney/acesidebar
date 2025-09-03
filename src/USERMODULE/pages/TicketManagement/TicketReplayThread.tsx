@@ -40,6 +40,7 @@ const TicketReplayThread = ({
       onMouseLeave={() => setHovered(null)}
     >
       <AccordionSummary
+        component="div"
         // expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1-content"
         id="panel1-header"
