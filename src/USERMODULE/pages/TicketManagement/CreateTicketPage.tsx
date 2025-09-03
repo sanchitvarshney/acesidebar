@@ -45,8 +45,8 @@ import { fetchOptions, isValidEmail } from "../../../utils/Utils";
 import {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
+  useLazyGetUserBySeachQuery,
 } from "../../../services/agentServices";
-import { AnyAaaaRecord } from "node:dns";
 
 interface TicketFormData {
   user_name: string;
@@ -54,12 +54,9 @@ interface TicketFormData {
   user_phone: string;
   subject: string;
   body: string;
-  priority: number;
+  priority: string;
   format: string;
-  recipients: string;
-  assignee: string;
-  department: string;
-  tags: any[];
+  recipients: any;
 }
 
 const CreateTicketPage: React.FC = () => {
@@ -70,7 +67,7 @@ const CreateTicketPage: React.FC = () => {
 
   const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+  const [selectedContacts, setSelectedContacts] = useState<any[]>([]);
   const { showToast } = useToast();
   const [fromChangeValue, setfromChangeValue] = React.useState("");
   const [contactChangeValue, setContactChangeValue] = React.useState("");
@@ -83,14 +80,17 @@ const CreateTicketPage: React.FC = () => {
   const [changeTagValue, setChangeTabValue] = useState("");
   const [agentValue, setAgentValue] = useState<any>("");
   const [changeAgent, setChangeAgent] = useState("");
-  const [dept, setDept] = useState("");
+  const [dept, setDept] = useState<any>("");
   const [changeDept, setChangedept] = useState("");
   const [departmentOptions, setDepartmentOptions] = useState<any>([]);
+  const [userOptions, setUserOptions] = useState<any>([]);
   const [AgentOptions, setAgentOptions] = useState<any>([]);
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
+  const [triggerSeachUser, { isLoading: seachUserLoading }] =
+    useLazyGetUserBySeachQuery();
 
   const [newTicket, setNewTicket] = useState<TicketFormData>({
     user_name: "",
@@ -98,12 +98,9 @@ const CreateTicketPage: React.FC = () => {
     user_phone: "",
     subject: "",
     body: "",
-    priority: 2,
+    priority: "", // Set to 0 initially, will be updated when priorityList loads
     format: "html",
-    recipients: "",
-    assignee: "",
-    department: "",
-    tags: [],
+    recipients: null,
   });
 
   // Validation function
@@ -124,10 +121,7 @@ const CreateTicketPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const displayFromOptions: any = fromChangeValue ? options : [];
-
-  const displayContactOptions: any = contactChangeValue ? options : [];
-
+  const displayContactOptions: any = contactChangeValue ? userOptions : [];
   const displayOptions = changeTagValue.length >= 3 ? tagOptions : [];
   const displayDepartmentOptions = changeDept ? departmentOptions : [];
   const displayAgentOptions = changeAgent ? AgentOptions : [];
@@ -202,20 +196,46 @@ const CreateTicketPage: React.FC = () => {
     }
   };
 
+  const fetchUserOptions = async (query: string) => {
+    if (!query) {
+      setUserOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerSeachUser({ search: query }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = contactChangeValue;
+      const fallback = [
+        {
+          name: currentValue,
+          email: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setUserOptions(data.length > 0 ? data : fallback);
+      } else {
+        setUserOptions([]);
+      }
+    } catch (error) {
+      setUserOptions([]);
+    }
+  };
+
   useEffect(() => {
-    const filterValue: any = fetchOptions(
-      fromChangeValue || contactChangeValue
-    );
+    const filterValue: any = fetchOptions(fromChangeValue);
 
     filterValue?.length > 0
       ? setOptions(filterValue)
       : setOptions([
           {
-            userName: fromChangeValue || contactChangeValue,
-            userEmail: fromChangeValue || contactChangeValue,
+            userName: fromChangeValue,
+            userEmail: fromChangeValue,
           },
         ]);
-  }, [fromChangeValue, contactChangeValue]);
+  }, [fromChangeValue]);
 
   const handleCreateTicketSubmit = async () => {
     if (!validateForm()) {
@@ -224,17 +244,17 @@ const CreateTicketPage: React.FC = () => {
 
     try {
       const payload = {
-        priority: Number(newTicket.priority),
+        priority: newTicket.priority,
         user_name: newTicket.user_name || "Guest",
         user_email: newTicket.user_email,
         user_phone: newTicket.user_phone || "0",
         subject: newTicket.subject,
         body: newTicket.body,
         format: newTicket.format,
-        recipients: selectedContacts.join(", "),
-        tags: selectedTags,
-        assignee: newTicket.assignee,
-        department: newTicket.department,
+
+        tags: tagValue.map((tag: any) => tag?.tagID),
+        assignee: agentValue?.emailAddress,
+        department: dept?.deptID,
       };
 
       const res = await createTicket(payload).unwrap();
@@ -278,30 +298,34 @@ const CreateTicketPage: React.FC = () => {
   ) => {
     if (!value) return;
 
-    const dataValue = { name: value.userName, email: value.userEmail };
-
     if (type === "from") {
+      const dataValue = {
+        name: value.name ,
+        email: value.email, 
+        phone: value.phone, 
+      };
       if (!isValidEmail(dataValue.email)) {
         showToast("Invalid email format", "error");
         return;
       }
-      setNewTicket((prev) => ({ ...prev, user_email: dataValue.email }));
-    }
-
-    if (type === "contact") {
-      if (!isValidEmail(dataValue.email)) {
-        showToast("Invalid email format", "error");
-        return;
-      }
-      if (selectedContacts.some((item: any) => item === value.userEmail)) {
+      if (selectedContacts.some((item: any) => item === value.email)) {
         showToast("Contact already Exist", "error");
         return;
       }
 
-      setSelectedContacts((prev) => [...prev, dataValue.email]);
+      setNewTicket((prev) => ({
+        ...prev,
+        user_name: dataValue.name,
+        user_email: dataValue.email,
+        user_phone: dataValue.phone,
+      }));
     }
+
     if (type === "dept") {
       setDept(value);
+    }
+    if (type === "agent") {
+      setAgentValue(value);
     }
 
     if (type === "tag") {
@@ -390,12 +414,9 @@ const CreateTicketPage: React.FC = () => {
                 user_phone: "",
                 subject: "",
                 body: "",
-                priority: 2,
+                priority: "",
                 format: "html",
-                recipients: "",
-                assignee: "",
-                department: "",
-                tags: [],
+                recipients: [],
               });
               setErrors({});
               setSelectedTags([]);
@@ -471,7 +492,7 @@ const CreateTicketPage: React.FC = () => {
                 <Select
                   value={newTicket.priority.toString()}
                   onChange={(e) =>
-                    handleInputChange("priority", parseInt(e.target.value))
+                    handleInputChange("priority", e.target.value)
                   }
                   label="Priority"
                   startAdornment={
@@ -492,20 +513,26 @@ const CreateTicketPage: React.FC = () => {
                   }}
                 >
                   {priorityList?.map((option: any) => (
-                    <MenuItem key={option.key} value={option.priorityName}>
+                    <MenuItem key={option.key} value={option.key}>
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            borderRadius: "50%",
-                            backgroundColor: option.color,
-                            flexShrink: 0,
-                          }}
-                        />
-                        {option.priorityName}
+                        {isPriorityListLoading ? (
+                          <CircularProgress size={18} />
+                        ) : (
+                          <>
+                            <Box
+                              sx={{
+                                width: 12,
+                                height: 12,
+                                borderRadius: "50%",
+                                backgroundColor: option.color,
+                                flexShrink: 0,
+                              }}
+                            />
+                            {option.specification}
+                          </>
+                        )}
                       </Box>
                     </MenuItem>
                   ))}
@@ -630,7 +657,7 @@ const CreateTicketPage: React.FC = () => {
                 noOptionsText={
                   <div>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {deptLoading ? (
+                      {seachAgentLoading ? (
                         <CircularProgress size={18} />
                       ) : (
                         "Type to search"
@@ -857,15 +884,20 @@ const CreateTicketPage: React.FC = () => {
                 disableClearable
                 popupIcon={null}
                 getOptionLabel={(option: any) => {
+                  console.log("option", option)
                   if (typeof option === "string") return option;
-                  return option.userEmail || option.userName || "";
+                  return option.email || "";
                 }}
-                options={displayFromOptions}
-                value={newTicket.user_email}
-                onChange={(event, newValue) => {
-                  handleSelectedOption(event, newValue, "tag");
+                options={displayContactOptions}
+                value={newTicket?.recipients?.email}
+                onInputChange={(_, value) => {
+                  setContactChangeValue(value);
+
+                  fetchUserOptions(value);
                 }}
-                onInputChange={(_, value) => setfromChangeValue(value)}
+                onChange={(event, newValue) =>
+                  handleSelectedOption(event, newValue, "from")
+                }
                 filterOptions={(x) => x}
                 getOptionDisabled={(option) => option === "Type to search"}
                 noOptionsText="No Data Found"
@@ -878,25 +910,15 @@ const CreateTicketPage: React.FC = () => {
                         className="flex items-center gap-3 p-2 rounded-md w-full"
                         style={{ cursor: "pointer" }}
                       >
-                        <Avatar
-                          sx={{
-                            width: 30,
-                            height: 30,
-                            backgroundColor: "primary.main",
-                          }}
-                        >
-                          {option.userName?.charAt(0).toUpperCase()}
-                        </Avatar>
-
                         <div className="flex flex-col">
                           <Typography
                             variant="subtitle2"
                             sx={{ fontWeight: 600 }}
                           >
-                            {option.userName}
+                            {option.name}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {option.userEmail}
+                            {option.email}
                           </Typography>
                         </div>
                       </div>
@@ -904,28 +926,35 @@ const CreateTicketPage: React.FC = () => {
                   </li>
                 )}
                 renderTags={(toValue, getTagProps) =>
-                  toValue?.map((option, index) => (
-                    <Chip
-                      variant="outlined"
-                      color="primary"
-                      //@ts-ignore
-                      label={typeof option === "string" ? option : option?.name}
-                      {...getTagProps({ index })}
-                      sx={{
-                        cursor: "pointer",
-                        height: "20px",
-                        // backgroundColor: "#6EB4C9",
-                        color: "primary.main",
-                        "& .MuiChip-deleteIcon": {
-                          color: "error.main",
-                          width: "12px",
-                        },
-                        "& .MuiChip-deleteIcon:hover": {
-                          color: "#e87f8c",
-                        },
-                      }}
-                    />
-                  ))
+                  toValue?.map((option: any, index) => {
+                    console.log("option", option);
+                    return (
+                      <Chip
+                        variant="outlined"
+                        color="primary"
+                        //@ts-ignore
+                        label={
+                          typeof option === "string"
+                            ? option
+                            : option?.recipients?.email
+                        }
+                        {...getTagProps({ index })}
+                        sx={{
+                          cursor: "pointer",
+                          height: "20px",
+                          // backgroundColor: "#6EB4C9",
+                          color: "primary.main",
+                          "& .MuiChip-deleteIcon": {
+                            color: "error.main",
+                            width: "12px",
+                          },
+                          "& .MuiChip-deleteIcon:hover": {
+                            color: "#e87f8c",
+                          },
+                        }}
+                      />
+                    );
+                  })
                 }
                 renderInput={(params) => (
                   <TextField
@@ -969,106 +998,6 @@ const CreateTicketPage: React.FC = () => {
                   />
                 )}
               />
-
-              {/* Contacts Field */}
-              <Autocomplete
-                size="small"
-                fullWidth
-                disablePortal
-                value={null}
-                options={displayContactOptions}
-                getOptionLabel={(option: any) => {
-                  if (typeof option === "string") return option;
-                  return "";
-                }}
-                renderOption={(props, option: any) => (
-                  <li {...props}>
-                    {typeof option === "string" ? (
-                      option
-                    ) : (
-                      <div
-                        className="flex items-center gap-3 p-2 rounded-md w-full"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 30,
-                            height: 30,
-                            backgroundColor: "primary.main",
-                          }}
-                        >
-                          {option.userName?.charAt(0).toUpperCase()}
-                        </Avatar>
-
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ fontWeight: 600 }}
-                          >
-                            {option.userName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {option.userEmail}
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                )}
-                open={openContactField}
-                onOpen={() => setOpenContactField(true)}
-                onClose={() => setOpenContactField(false)}
-                inputValue={contactChangeValue}
-                onInputChange={(_, value) => setContactChangeValue(value)}
-                onChange={(event, newValue) =>
-                  handleSelectedOption(event, newValue, "contact")
-                }
-                filterOptions={(x) => x} // disable default filtering
-                getOptionDisabled={(option) => option === "Type to search"}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Contacts *"
-                    variant="outlined"
-                    size="small"
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Person fontSize="small" sx={{ color: "#666" }} />
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "4px",
-                        backgroundColor: "#f9fafb",
-                        "&:hover fieldset": { borderColor: "#9ca3af" },
-                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                      },
-                      "& label.Mui-focused": { color: "#1a73e8" },
-                      "& label": { fontWeight: "bold" },
-                    }}
-                  />
-                )}
-              />
-              {selectedContacts.length > 0 && (
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  mt={1}
-                  sx={{ overflowX: "auto", p: 1 }}
-                >
-                  {selectedContacts.map((contact: any, index: number) => (
-                    <Chip
-                      key={index}
-                      label={contact}
-                      variant="outlined"
-                      onDelete={() => handleDeleteContact(contact)}
-                    />
-                  ))}
-                </Stack>
-              )}
 
               {/* Subject Field */}
               <TextField
