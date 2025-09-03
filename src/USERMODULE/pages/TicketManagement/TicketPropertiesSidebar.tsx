@@ -138,7 +138,6 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
     event: React.SyntheticEvent,
     newValue: number
   ) => {
-    console.log(newValue);
     setActiveTopTab(newValue);
   };
 
@@ -152,7 +151,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
   const handleSave = () => {
     const credentials = {
       ticket: ticket?.ticketId,
-      tags: editTags,
+      tags: editTags.map((tag: any) => tag.tagId || tag.key),
     };
     const payload = {
       url: `add-tag`,
@@ -162,11 +161,19 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
       },
     };
     triggerUpdateUserData(payload).then((res: any) => {
-      if (res?.data?.success !== true) {
-        showToast(res?.data?.message || "An error occurred", "error");
+      const success = res?.data?.success === true;
+      const errorSuccess = res?.error?.data?.success === true;
+
+      if (!success && !errorSuccess) {
+        const message =
+          res?.data?.message ||
+          res?.error?.data?.message ||
+          "An error occurred";
+
+        showToast(message, "error");
         return;
       }
-      // updatetag after save
+      // setTags((prevTags: any)=> [...prevTags, ...credentials.tags])
     });
 
     setIsEditing(false);

@@ -32,7 +32,12 @@ const agentServices = baseInstanceOfApi.injectEndpoints({
         url: `/department/department?search=${credentials.search}`,
         method: "GET",
       }),
-   
+    }),
+    getUserBySeach: builder.query<any, any>({
+      query: (credentials) => ({
+        url: `/user/user?search=${credentials.search}`,
+        method: "GET",
+      }),
     }),
   }),
   overrideExisting: false,
@@ -43,4 +48,5 @@ export const {
   useCommanApiMutation,
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
+  useLazyGetUserBySeachQuery,
 } = agentServices;
