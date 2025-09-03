@@ -48,6 +48,8 @@ import {
   getStatusIcon,
   getTimeAgo,
   canEditComment,
+  getStatusColor,
+  getPriorityColor,
   validateComment,
   validateFileUpload,
   validateSearchCondition,
@@ -698,9 +700,15 @@ const Tasks: React.FC = () => {
                         {selectedTask.title}
                       </h2>
                       <div className="flex items-center gap-2 mt-1">
-                        <Chip label={selectedTask.status} />
+                        <Chip
+                          label={selectedTask.status}
+                          color={getStatusColor(selectedTask.status) as any}
+                          size="small"
+                        />
                         <Chip
                           label={selectedTask.priority}
+                          color={getPriorityColor(selectedTask.priority) as any}
+                          size="small"
                           variant="outlined"
                         />
                         {selectedTask.isUrgent && (
