@@ -29,6 +29,7 @@ interface TaskListProps {
   onRowsPerPageChange: (rowsPerPage: number) => void;
   onAdvancedSearchOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
   getStatusIcon: (status: string) => React.ReactNode;
+  isAddTask?: boolean;
 }
 
 const TaskList: React.FC<TaskListProps> = ({
@@ -45,6 +46,7 @@ const TaskList: React.FC<TaskListProps> = ({
   onRowsPerPageChange,
   onAdvancedSearchOpen,
   getStatusIcon,
+  isAddTask,
 }) => {
   // Filter tasks based on search query
   const filteredTasks = React.useMemo(() => {
@@ -77,44 +79,45 @@ const TaskList: React.FC<TaskListProps> = ({
 
   return (
     <div className="w-[35%] flex flex-col border-r bg-white">
-      {/* Search and Filters Header */}
-      <div className="px-6 py-4 border-b bg-[#f5f5f5] border-b-[#ccc]">
-        <div className="flex items-center gap-2 mb-3">
-          {/* Search */}
-          <TextField
-            placeholder="Search tasks or tickets..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <ManageSearchIcon className="text-gray-400 mr-2" />
-              ),
-            }}
-            size="small"
-            fullWidth
-          />
-
-          {/* Task Advanced Search Button */}
-          <Tooltip title="Task Advanced Filters" placement="bottom">
-            <IconButton
-              onClick={(e) => onAdvancedSearchOpen(e)}
-              sx={{
-                color: "#374151",
-                backgroundColor: "#f8f9fa",
-                border: "1px solid #e9ecef",
-                "&:hover": {
-                  backgroundColor: "#e9ecef",
-                  borderColor: "#dee2e6",
-                },
-                width: 40,
-                height: 40,
+      {!isAddTask && (
+        <div className="px-6 py-4 border-b bg-[#f5f5f5] border-b-[#ccc]">
+          <div className="flex items-center gap-2 mb-3">
+            {/* Search */}
+            <TextField
+              placeholder="Search tasks or tickets..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <ManageSearchIcon className="text-gray-400 mr-2" />
+                ),
               }}
-            >
-              <FilterListIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+              size="small"
+              fullWidth
+            />
+
+            {/* Task Advanced Search Button */}
+            <Tooltip title="Task Advanced Filters" placement="bottom">
+              <IconButton
+                onClick={(e) => onAdvancedSearchOpen(e)}
+                sx={{
+                  color: "#374151",
+                  backgroundColor: "#f8f9fa",
+                  border: "1px solid #e9ecef",
+                  "&:hover": {
+                    backgroundColor: "#e9ecef",
+                    borderColor: "#dee2e6",
+                  },
+                  width: 40,
+                  height: 40,
+                }}
+              >
+                <FilterListIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Task List */}
       <div className="flex-1 overflow-y-auto">
@@ -128,6 +131,7 @@ const TaskList: React.FC<TaskListProps> = ({
               onSelect={onTaskSelect}
               onClick={onTaskClick}
               getStatusIcon={getStatusIcon}
+              isAddTask={isAddTask}
             />
           ))}
 
@@ -145,27 +149,7 @@ const TaskList: React.FC<TaskListProps> = ({
         </div>
       </div>
 
-      {/* Pagination */}
-      <Box sx={{ borderTop: "1px solid #e0e0e0", backgroundColor: "#fafafa" }}>
-        <TablePagination
-          component="div"
-          count={filteredTasks.length}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[5, 10, 20, 50]}
-          labelRowsPerPage=""
-          sx={{
-            ".MuiTablePagination-selectLabel": {
-              display: "none",
-            },
-            ".MuiTablePagination-displayedRows": {
-              margin: 0,
-            },
-          }}
-        />
-      </Box>
+  
     </div>
   );
 };

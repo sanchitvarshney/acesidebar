@@ -68,6 +68,8 @@ import {
 import { useToast } from "../../../hooks/useToast";
 import { useParams } from "react-router-dom";
 import ReplyStatusOptions from "../../components/ReplyStatusOptions";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import Tasks from "../task/Tasks";
 
 const signatureValues: any = [
   {
@@ -692,6 +694,7 @@ const TicketThreadSection = ({
   const [shouldFocusEditor, setShouldFocusEditor] = useState(false);
   const [shouldFocusNotify, setShouldFocusNotify] = useState(false);
   const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
+  const [isAddTask, setIsAddTask] = useState(false);
   const [notifyTag, setNotifyTag] = useState([]);
   const { data: shortcutList, isLoading: shortcutLoading } =
     useGetShortCutListQuery({ refetchOnMountOrArgChange: true });
@@ -1077,8 +1080,8 @@ const TicketThreadSection = ({
                   <Tooltip title="Add Tasks" placement="left">
                     <IconButton
                       onClick={(e) => {
-                        e.stopPropagation();
-                        alert("Add Tasks");
+                        e.stopPropagation(); // prevent triggering AccordionSummary click
+                        setIsAddTask(true);
                       }}
                       size="small"
                       sx={{
@@ -1537,6 +1540,14 @@ const TicketThreadSection = ({
           }}
         />
       )}
+      <CustomSideBarPanel
+        open={isAddTask}
+        close={() => setIsAddTask(false)}
+        title={"Add Task"}
+        width={"80%"}
+      >
+        <Tasks isAddTask={isAddTask} />
+      </CustomSideBarPanel>
     </div>
   );
 };
