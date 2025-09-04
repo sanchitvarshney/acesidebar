@@ -14,10 +14,10 @@ import { useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useForm } from "react-hook-form";
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -27,9 +27,7 @@ import { useAuth } from "../../../contextApi/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../hooks/useToast";
 import { useLoginMutation } from "../../../services/auth";
-
-
-
+import { decrypt } from "../../../utils/encryption";
 
 type RegisterFormData = z.infer<typeof loginSchema>;
 
@@ -60,7 +58,11 @@ const LoginComponent = () => {
   const {
     register: registerForgot,
     handleSubmit: handleForgotSubmit,
-    formState: { errors: forgotErrors, isSubmitted: isForgotSubmitted, touchedFields: forgotTouched },
+    formState: {
+      errors: forgotErrors,
+      isSubmitted: isForgotSubmitted,
+      touchedFields: forgotTouched,
+    },
   } = useForm<{ email: string }>({
     resolver: zodResolver(forgotSchema),
     mode: "onChange",
@@ -85,6 +87,7 @@ const LoginComponent = () => {
         // Store user data
         localStorage.setItem("userData", JSON.stringify(result.data.data.user));
 
+        localStorage.setItem("userId", decrypt(result.data.data.user)?.uiD);
         // Update auth context
         signIn();
 
@@ -106,44 +109,68 @@ const LoginComponent = () => {
     setIsForgot(false);
   };
 
-  return (
-    isForgot ? (
-      <Box component="form" onSubmit={handleForgotSubmit(onForgotSubmit)} noValidate sx={{ p: 0 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
-          Forgot Password
-        </Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-          Give us your email address and instructions to reset your password will be emailed to you.
-        </Typography>
-        <TextField
-          {...registerForgot("email")}
-          fullWidth
-          variant="outlined"
-          label="Your e-mail address"
-          sx={{ mb: 2, borderRadius: 1 }}
-          error={isForgotSubmitted || forgotTouched.email ? !!forgotErrors.email : false}
-          helperText={(isForgotSubmitted || forgotTouched.email) ? forgotErrors.email?.message : ""}
-        />
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
-          <Button
-            type="button"
-            variant="contained"
-            onClick={() => setIsForgot(false)}
-            sx={{ bgcolor: "#000", color: "#fff", textTransform: "none", px: 3, '&:hover': { bgcolor: "#111" } }}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ textTransform: "none", px: 3 }}
-          >
-            Reset my password
-          </Button>
-        </Box>
+  return isForgot ? (
+    <Box
+      component="form"
+      onSubmit={handleForgotSubmit(onForgotSubmit)}
+      noValidate
+      sx={{ p: 0 }}
+    >
+      <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+        Forgot Password
+      </Typography>
+      <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+        Give us your email address and instructions to reset your password will
+        be emailed to you.
+      </Typography>
+      <TextField
+        {...registerForgot("email")}
+        fullWidth
+        variant="outlined"
+        label="Your e-mail address"
+        sx={{ mb: 2, borderRadius: 1 }}
+        error={
+          isForgotSubmitted || forgotTouched.email
+            ? !!forgotErrors.email
+            : false
+        }
+        helperText={
+          isForgotSubmitted || forgotTouched.email
+            ? forgotErrors.email?.message
+            : ""
+        }
+      />
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+        <Button
+          type="button"
+          variant="contained"
+          onClick={() => setIsForgot(false)}
+          sx={{
+            bgcolor: "#000",
+            color: "#fff",
+            textTransform: "none",
+            px: 3,
+            "&:hover": { bgcolor: "#111" },
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{ textTransform: "none", px: 3 }}
+        >
+          Reset my password
+        </Button>
       </Box>
-    ) : (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ p: 0 }}>
+    </Box>
+  ) : (
+    <Box
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      sx={{ p: 0 }}
+    >
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
         Login to the support portal
       </Typography>
@@ -195,7 +222,11 @@ const LoginComponent = () => {
                   edge="end"
                   sx={{ color: "#1a73e8" }}
                 >
-                  {showPassword ? <VisibilityOffIcon sx={{color: "#1a73e8"}}/> : <VisibilityIcon sx={{color: "#1a73e8"}}/>}
+                  {showPassword ? (
+                    <VisibilityOffIcon sx={{ color: "#1a73e8" }} />
+                  ) : (
+                    <VisibilityIcon sx={{ color: "#1a73e8" }} />
+                  )}
                 </IconButton>
               </InputAdornment>
             ),
@@ -211,9 +242,29 @@ const LoginComponent = () => {
           }
         />
       </Box>
-      <FormControlLabel control={<Checkbox size="small" defaultChecked />} label={<Typography variant="body2">Remember me on this computer</Typography>} sx={{ my: 1 }} />
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-        <Link component="button" underline="hover" sx={{ color: "#1a73e8" }} onClick={() => setIsForgot(true)}>Forgot your password?</Link>
+      <FormControlLabel
+        control={<Checkbox size="small" defaultChecked />}
+        label={
+          <Typography variant="body2">Remember me on this computer</Typography>
+        }
+        sx={{ my: 1 }}
+      />
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mt: 1,
+        }}
+      >
+        <Link
+          component="button"
+          underline="hover"
+          sx={{ color: "#1a73e8" }}
+          onClick={() => setIsForgot(true)}
+        >
+          Forgot your password?
+        </Link>
         {isLoading ? (
           <div className="flex items-center justify-center">
             <CircularProgress color="success" size={"28px"} />
@@ -222,7 +273,15 @@ const LoginComponent = () => {
           <Button
             variant="contained"
             color="primary"
-            sx={{ px: 3, py: 1, fontWeight: 600, fontSize: 15, borderRadius: 1.5, boxShadow: "0 2px 8px rgba(99,102,241,0.10)", "&:hover": { background: "#1c5fba" } }}
+            sx={{
+              px: 3,
+              py: 1,
+              fontWeight: 600,
+              fontSize: 15,
+              borderRadius: 1.5,
+              boxShadow: "0 2px 8px rgba(99,102,241,0.10)",
+              "&:hover": { background: "#1c5fba" },
+            }}
             type="submit"
           >
             Login
@@ -230,15 +289,16 @@ const LoginComponent = () => {
         )}
       </Box>
       <Divider sx={{ my: 2 }} />
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <SupportAgentIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <SupportAgentIcon fontSize="small" sx={{ color: "text.secondary" }} />
         <Typography variant="body2">
-          Are you not an agent?{' '}
+          Are you not an agent?{" "}
           <Link
             component="button"
             underline="hover"
             onClick={() => {
-              const baseUrl = process.env.REACT_APP_FRONTEND_URL || window.location.origin;
+              const baseUrl =
+                process.env.REACT_APP_FRONTEND_URL || window.location.origin;
               window.location.href = `${baseUrl}/ticket/support`;
             }}
           >
@@ -247,7 +307,6 @@ const LoginComponent = () => {
         </Typography>
       </Box>
     </Box>
-    )
   );
 };
 

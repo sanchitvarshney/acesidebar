@@ -272,11 +272,12 @@ const Tickets: React.FC = () => {
 
   // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
+    const userId = localStorage.getItem("userId");
     setOpenTicketNumber(ticketNumber);
     const ticketID = ticketNumber;
     const payload = {
       url: `add-watcher/${ticketID}`,
-      body: { watchers: "" },
+      body: { watchers: userId },
     };
     triggerWatchApi(payload);
     navigate(`/tickets/${ticketNumber}`);
