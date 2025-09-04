@@ -1,9 +1,10 @@
 import React from "react";
-import { Box, Paper, Typography, Stack, Divider } from "@mui/material";
+import { Box, Paper, Typography, Stack, Divider, Button } from "@mui/material";
 import { UserProfileInfo } from "./types";
 import MailIcon from "@mui/icons-material/Mail";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationIcon from "@mui/icons-material/LocationOn";
+import AddIcon from "@mui/icons-material/Add";
 
 type ContactDetailsProps = Pick<UserProfileInfo, "email" | "phone" | "address">;
 
@@ -13,105 +14,142 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
   address,
 }) => {
   return (
-    <Box sx={{ flex: 1 }}>
+    <Box>
       <Paper
         elevation={0}
         sx={{
-          height: "100%",
-          bgcolor: "background.paper",
-          borderRadius: 2,
-          border: "1px solid #e5e7eb",
-          p: 3,
+          bgcolor: "white",
+          borderRadius: 3,
+          border: "1px solid #e8eaed",
+          boxShadow:
+            "0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15)",
+          overflow: "hidden",
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-          Contact Details
-        </Typography>
+        <Box
+          sx={{ p: 3, borderBottom: "1px solid #e8eaed", bgcolor: "#f8f9fa" }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600, color: "#202124" }}>
+            Contact Information
+          </Typography>
+        </Box>
 
-        <Divider sx={{ my: 1 }} />
-
-        <Stack spacing={3} sx={{ mt: 2 }}>
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 600, color: "text.secondary", mb: 1.5 }}
-            >
-              Email Address
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                p: 2,
-                borderRadius: 2,
-                bgcolor: "primary.50",
-                border: "1px solid",
-                borderColor: "primary.200",
-              }}
-            >
-              <MailIcon sx={{ color: "primary.main" }} />
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {email}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 600, color: "text.secondary", mb: 1.5 }}
-            >
-              Work Phone
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                p: 2,
-                borderRadius: 2,
-                bgcolor: "success.50",
-                border: "1px solid",
-                borderColor: "success.200",
-              }}
-            >
-              <PhoneIcon sx={{ color: "success.main" }} />
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {phone}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 600, color: "text.secondary", mb: 1.5 }}
-            >
-              Address
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 2,
-                p: 2,
-                borderRadius: 2,
-                bgcolor: "warning.50",
-                border: "1px solid",
-                borderColor: "warning.200",
-              }}
-            >
-              <LocationIcon sx={{ color: "warning.main", mt: 0.5 }} />
+        <Box sx={{ p: 3 }}>
+          <Stack spacing={3}>
+            <Box>
               <Typography
-                variant="body2"
-                sx={{ fontWeight: 500, lineHeight: 1.5 }}
+                variant="subtitle2"
+                sx={{ fontWeight: 600, color: "#5f6368", mb: 1.5 }}
               >
-                {address}
+                Email Address
               </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "#e8f0fe",
+                  border: "1px solid #dadce0",
+                }}
+              >
+                <MailIcon sx={{ color: "#1a73e8" }} />
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 500, color: "#202124" }}
+                >
+                  {email}
+                </Typography>
+              </Box>
             </Box>
+
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, color: "#5f6368", mb: 1.5 }}
+              >
+                Work Phone
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "#e6f4ea",
+                  border: "1px solid #dadce0",
+                }}
+              >
+                <PhoneIcon sx={{ color: "#137333" }} />
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 500, color: "#202124" }}
+                >
+                  {phone}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, color: "#5f6368", mb: 1.5 }}
+              >
+                Address
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "#fef7e0",
+                  border: "1px solid #dadce0",
+                }}
+              >
+                <LocationIcon sx={{ color: "#b06000", mt: 0.5 }} />
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 500, color: "#202124", lineHeight: 1.5 }}
+                >
+                  {address}
+                </Typography>
+              </Box>
+            </Box>
+          </Stack>
+
+          <Divider sx={{ my: 3 }} />
+
+          <Box>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: 600, color: "#5f6368", mb: 1.5 }}
+            >
+              Tags
+            </Typography>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<AddIcon />}
+              sx={{
+                borderColor: "#dadce0",
+                color: "#1a73e8",
+                fontWeight: 500,
+                borderRadius: 2,
+                textTransform: "none",
+                "&:hover": {
+                  borderColor: "#1a73e8",
+                  bgcolor: "#e8f0fe",
+                },
+              }}
+            >
+              Add tags
+            </Button>
           </Box>
-        </Stack>
+        </Box>
       </Paper>
     </Box>
   );
