@@ -152,7 +152,7 @@ const TicketDetailHeader = ({
   const [isAttachmentsModal, setIsAttachmentsModal] = useState(false);
   const [isActivityModal, setIsActivityModal] = useState(false);
   const [isSpamModal, setIsSpamModal] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [watcherEnabled, setWatcherEnabled] = useState(true);
   const [watchersAnchorEl, setWatchersAnchorEl] = useState<HTMLElement | null>(
     null
   );
@@ -174,6 +174,7 @@ const TicketDetailHeader = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
   const [moreOptionsSearchQuery, setMoreOptionsSearchQuery] = useState("");
+  const [triggerWatcherStatus] = useCommanApiMutation();
 
   // More options data
   const moreOptions = [
@@ -350,10 +351,18 @@ const TicketDetailHeader = ({
     setStatusAnchorEl(null);
   };
 
-  const handleNotificationToggle = () => {
-    setNotificationsEnabled(!notificationsEnabled);
-    // You can add API call here to update notification settings
-    console.log("Notifications", notificationsEnabled ? "disabled" : "enabled");
+  const handleWatcherToggle = () => {
+    setWatcherEnabled(!watcherEnabled);
+    const urlValues = {
+      ticketId: ticket?.ticketId,
+      status: watcherEnabled ? 1 : 2,
+    };
+    const payload = {
+      url: `watchers-status/${urlValues.ticketId}/${urlValues.status}`,
+      method: "PUT",
+    };
+    triggerWatcherStatus(payload);
+    
   };
 
   const handleWatchersClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -467,26 +476,21 @@ const TicketDetailHeader = ({
 
       <div className="flex gap-8 ml-auto">
         {/* Notification Switch with Icon */}
-        <Tooltip
-          title={
-            notificationsEnabled
-              ? "Disable Notifications"
-              : "Enable Notifications"
-          }
-          placement="left"
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            {notificationsEnabled ? (
-              <NotificationsIcon fontSize="small" sx={{ color: "#1a73e8" }} />
-            ) : (
-              <NotificationsOffIcon
-                fontSize="small"
-                sx={{ color: "#9ca3af" }}
-              />
-            )}
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <NotificationsIcon fontSize="small" sx={{ color: "#1a73e8" }} />
+        </Box>
+
+        {/* Watchers Button */}
+
+        <div className="space-x-2">
+          <Tooltip
+            title={watcherEnabled ? "Disable Watchers" : "Enable Watchers"}
+            placement="left"
+          >
             <Switch
-              checked={notificationsEnabled}
-              onChange={handleNotificationToggle}
+              checked={watcherEnabled}
+              onChange={handleWatcherToggle}
               size="small"
               sx={{
                 "& .MuiSwitch-switchBase.Mui-checked": {
@@ -500,43 +504,43 @@ const TicketDetailHeader = ({
                 },
               }}
             />
-          </Box>
-        </Tooltip>
-
-        {/* Watchers Button */}
-        <Tooltip
-          title={
-            <Box className="p-2 rounded-md text-black">
-              <Typography variant="body2" sx={{ fontWeight: "bold", mb: 0.5 }}>
-                Ticket watchers ({watchers.length})
-              </Typography>
-              <Typography variant="caption" sx={{ display: "block", mb: 1 }}>
-                Agents added as watchers will receive alerts when this ticket is
-                updated
-              </Typography>
-            </Box>
-          }
-          placement="bottom"
-          componentsProps={{
-            tooltip: {
-              sx: {
-                backgroundColor: "white",
-                color: "black",
-                boxShadow: 3,
-                border: "1px solid #e0e0e0",
+          </Tooltip>
+          <Tooltip
+            title={
+              <Box className="p-2 rounded-md text-black">
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "bold", mb: 0.5 }}
+                >
+                  Ticket watchers ({watchers.length})
+                </Typography>
+                <Typography variant="caption" sx={{ display: "block", mb: 1 }}>
+                  Agents added as watchers will receive alerts when this ticket
+                  is updated
+                </Typography>
+              </Box>
+            }
+            placement="bottom"
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  backgroundColor: "white",
+                  color: "black",
+                  boxShadow: 3,
+                  border: "1px solid #e0e0e0",
+                },
               },
-            },
-          }}
-        >
-          <IconButton
-            onClick={handleWatchersClick}
-            size="small"
-            className="text-blue-600 hover:bg-blue-50 hover:text-blue-600"
+            }}
           >
-            <VisibilityIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-
+            <IconButton
+              onClick={handleWatchersClick}
+              size="small"
+              className="text-blue-600 hover:bg-blue-50 hover:text-blue-600"
+            >
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
         {/* Previous Ticket Button */}
         <IconButton
           onClick={onPreviousTicket}
