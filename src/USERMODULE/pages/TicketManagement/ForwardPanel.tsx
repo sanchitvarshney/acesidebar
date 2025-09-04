@@ -81,6 +81,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     if (forwardData) {
       onFieldChange("subject", forwardData.subject);
       onFieldChange("message", forwardData.message);
+      onFieldChange("threadID", forwardData.threadID);
     }
   }, [forwardData]);
 
