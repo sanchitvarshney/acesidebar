@@ -1,7 +1,25 @@
-import React from "react";
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Paper,
+  Stack,
+  Typography,
+  Switch,
+  FormControlLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 
 const SettingsTab: React.FC = () => {
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [emailNotif, setEmailNotif] = useState(true);
+  const [pushNotif, setPushNotif] = useState(false);
+  const [language, setLanguage] = useState("en");
+  const [timezone, setTimezone] = useState("UTC");
+
   return (
     <Box sx={{ display: "flex", gap: 3, height: "100%" }}>
       <Box sx={{ flex: 2 }}>
@@ -19,8 +37,21 @@ const SettingsTab: React.FC = () => {
             Profile Settings
           </Typography>
           <Stack spacing={3}>
-            <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+            <Box
+              onClick={() => setNotifOpen(true)}
+              role="button"
+              tabIndex={0}
+              sx={{
+                p: 1,
+                borderRadius: 1,
+                "&:hover": { bgcolor: "action.hover" },
+                cursor: "pointer",
+              }}
+            >
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, mb: 1, color: "text.primary" }}
+              >
                 Notification Preferences
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -30,8 +61,21 @@ const SettingsTab: React.FC = () => {
                 Configure Notifications
               </Button>
             </Box>
-            <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+            <Box
+              onClick={() => setLangOpen(true)}
+              role="button"
+              tabIndex={0}
+              sx={{
+                p: 1,
+                borderRadius: 1,
+                "&:hover": { bgcolor: "action.hover" },
+                cursor: "pointer",
+              }}
+            >
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, mb: 1, color: "text.primary" }}
+              >
                 Language & Region
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -78,6 +122,78 @@ const SettingsTab: React.FC = () => {
           </Stack>
         </Paper>
       </Box>
+
+      <CustomSideBarPanel
+        open={notifOpen}
+        close={() => setNotifOpen(false)}
+        title={"Notification preferences"}
+        width={700}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Choose how you'd like to be notified.
+          </Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={emailNotif}
+                onChange={(e) => setEmailNotif(e.target.checked)}
+              />
+            }
+            label="Email notifications"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={pushNotif}
+                onChange={(e) => setPushNotif(e.target.checked)}
+              />
+            }
+            label="Push notifications"
+          />
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button variant="text" onClick={() => setNotifOpen(false)}>
+              DONE
+            </Button>
+          </Box>
+        </Box>
+      </CustomSideBarPanel>
+
+      <CustomSideBarPanel
+        open={langOpen}
+        close={() => setLangOpen(false)}
+        title={"Language & region"}
+        width={520}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Set language and timezone.
+          </Typography>
+          <Stack spacing={2}>
+            <Select
+              size="small"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as string)}
+            >
+              <MenuItem value="en">English</MenuItem>
+              <MenuItem value="hi">Hindi</MenuItem>
+            </Select>
+            <Select
+              size="small"
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value as string)}
+            >
+              <MenuItem value="UTC">UTC</MenuItem>
+              <MenuItem value="IST">IST</MenuItem>
+            </Select>
+          </Stack>
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button variant="text" onClick={() => setLangOpen(false)}>
+              DONE
+            </Button>
+          </Box>
+        </Box>
+      </CustomSideBarPanel>
     </Box>
   );
 };

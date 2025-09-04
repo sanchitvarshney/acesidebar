@@ -1,14 +1,28 @@
-import React from "react";
-import { Box, Card, CardContent, Chip, Stack, Typography } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Stack,
+  Typography,
+  Button,
+  Divider,
+} from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import { TicketItem } from "./types";
 import CustomToolTip from "../../../components/reusable/CustomToolTip";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 
 type TicketsTabProps = {
   tickets: TicketItem[];
 };
 
 const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  const selected = openIdx !== null ? tickets[openIdx] : null;
+
   return (
     <Box>
       <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
@@ -29,6 +43,7 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
               },
             }}
+            onClick={() => setOpenIdx(index)}
           >
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: "flex", alignItems: "flex-start", gap: 3 }}>
@@ -148,6 +163,58 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
           </Card>
         ))}
       </Stack>
+
+      <CustomSideBarPanel
+        open={openIdx !== null}
+        close={() => setOpenIdx(null)}
+        title={selected ? selected.title : "Ticket"}
+        width={900}
+      >
+        {selected && (
+          <Box sx={{ p: 2 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ color: "text.secondary", mb: 1 }}
+            >
+              Summary
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              {selected.description}
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+              <Chip
+                label={`Status: ${selected.status}`}
+                color={selected.status === "Open" ? "primary" : "success"}
+                variant="outlined"
+              />
+              {selected.group && (
+                <Chip
+                  label={`Group: ${selected.group}`}
+                  color="secondary"
+                  variant="outlined"
+                />
+              )}
+            </Stack>
+            <Stack direction="row" spacing={1}>
+              <Button variant="contained" size="small">
+                Open ticket
+              </Button>
+              <Button variant="outlined" size="small">
+                Change status
+              </Button>
+              <Button variant="outlined" size="small">
+                Assign
+              </Button>
+            </Stack>
+            <Box sx={{ textAlign: "right", mt: 2 }}>
+              <Button variant="text" onClick={() => setOpenIdx(null)}>
+                DONE
+              </Button>
+            </Box>
+          </Box>
+        )}
+      </CustomSideBarPanel>
     </Box>
   );
 };

@@ -8,13 +8,16 @@ import {
   Link as MuiLink,
   Divider,
   Chip,
+  TextField,
 } from "@mui/material";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import ChangePassword from "../ChangePassword";
 
 export type SecurityTabProps = {
   onChangePassword?: () => void;
   onToggleTwoFA?: (nextEnabled: boolean) => void;
-  onAddRecoveryEmail?: () => void;
-  onUpdateRecoveryPhone?: () => void;
+  onAddRecoveryEmail?: (email: string) => void;
+  onUpdateRecoveryPhone?: (phone: string) => void;
   onViewSessions?: () => void;
   twoFAEnabled?: boolean;
   recoveryEmail?: string | null;
@@ -33,10 +36,37 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
 }) => {
   const [isTwoFAEnabled, setIsTwoFAEnabled] = useState<boolean>(twoFAEnabled);
 
-  const handleToggle2FA = () => {
+  // Popover state
+  const [isPwdOpen, setIsPwdOpen] = useState(false);
+  const [isTwoFAOpen, setIsTwoFAOpen] = useState(false);
+  const [isRecoveryEmailOpen, setIsRecoveryEmailOpen] = useState(false);
+  const [isRecoveryPhoneOpen, setIsRecoveryPhoneOpen] = useState(false);
+  const [isSessionsOpen, setIsSessionsOpen] = useState(false);
+
+  // Local form state
+  const [emailInput, setEmailInput] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
+
+  const handleToggle2FAConfirm = () => {
     const next = !isTwoFAEnabled;
     setIsTwoFAEnabled(next);
     onToggleTwoFA && onToggleTwoFA(next);
+    setIsTwoFAOpen(false);
+  };
+
+  const handleAddRecoveryEmail = () => {
+    onAddRecoveryEmail && onAddRecoveryEmail(emailInput.trim());
+    setIsRecoveryEmailOpen(false);
+  };
+
+  const handleUpdateRecoveryPhone = () => {
+    onUpdateRecoveryPhone && onUpdateRecoveryPhone(phoneInput.trim());
+    setIsRecoveryPhoneOpen(false);
+  };
+
+  const handleViewSessions = () => {
+    onViewSessions && onViewSessions();
+    // keep panel open to show list below
   };
 
   return (
@@ -118,7 +148,20 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
               >
                 2-step verification
               </Typography>
-              <Box>
+              <Box
+                onClick={() => setIsTwoFAOpen(true)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") setIsTwoFAOpen(true);
+                }}
+                sx={{
+                  p: 1,
+                  borderRadius: 1,
+                  "&:hover": { bgcolor: "action.hover" },
+                  cursor: "pointer",
+                }}
+              >
                 <Stack
                   direction="row"
                   spacing={1}
@@ -146,7 +189,10 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                   variant="outlined"
                   size="small"
                   color={isTwoFAEnabled ? "warning" : "primary"}
-                  onClick={handleToggle2FA}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsTwoFAOpen(true);
+                  }}
                 >
                   {isTwoFAEnabled ? "Disable 2FA" : "Enable 2FA"}
                 </Button>
@@ -168,7 +214,22 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
               >
                 Recovery information
               </Typography>
-              <Stack spacing={1}>
+              <Stack
+                spacing={1}
+                onClick={() => setIsRecoveryEmailOpen(true)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    setIsRecoveryEmailOpen(true);
+                }}
+                sx={{
+                  p: 1,
+                  borderRadius: 1,
+                  "&:hover": { bgcolor: "action.hover" },
+                  cursor: "pointer",
+                }}
+              >
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Email
@@ -183,13 +244,21 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                       type="button"
                       underline="hover"
                       sx={{ fontSize: 14 }}
-                      onClick={onAddRecoveryEmail}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsRecoveryEmailOpen(true);
+                      }}
                     >
                       Add a recovery email
                     </MuiLink>
                   )}
                 </Box>
-                <Box>
+                <Box
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsRecoveryPhoneOpen(true);
+                  }}
+                >
                   <Typography variant="caption" color="text.secondary">
                     Phone
                   </Typography>
@@ -201,7 +270,6 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                     type="button"
                     underline="hover"
                     sx={{ fontSize: 14 }}
-                    onClick={onUpdateRecoveryPhone}
                   >
                     {recoveryPhone ? "Change phone" : "Add a phone"}
                   </MuiLink>
@@ -224,7 +292,21 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
               >
                 Login sessions
               </Typography>
-              <Box>
+              <Box
+                onClick={() => setIsSessionsOpen(true)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    setIsSessionsOpen(true);
+                }}
+                sx={{
+                  p: 1,
+                  borderRadius: 1,
+                  "&:hover": { bgcolor: "action.hover" },
+                  cursor: "pointer",
+                }}
+              >
                 <Typography
                   variant="body2"
                   sx={{ color: "text.secondary", mb: 1 }}
@@ -234,7 +316,10 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                 <Button
                   variant="outlined"
                   size="small"
-                  onClick={onViewSessions}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsSessionsOpen(true);
+                  }}
                 >
                   View sessions
                 </Button>
@@ -269,6 +354,218 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
           </Typography>
         </Paper>
       </Box>
+
+      {/* POPUPS */}
+      <CustomSideBarPanel
+        open={isPwdOpen}
+        close={() => setIsPwdOpen(false)}
+        title={"Password"}
+        width={900}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              Reset password
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => {
+                onChangePassword && onChangePassword();
+                setIsPwdOpen(false);
+              }}
+            >
+              RESET PASSWORD
+            </Button>
+          </Box>
+          <ChangePassword
+            open={isPwdOpen}
+            onClose={() => setIsPwdOpen(false)}
+            onConfirm={() => {
+              onChangePassword && onChangePassword();
+              setIsPwdOpen(false);
+            }}
+          />
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button variant="text" onClick={() => setIsPwdOpen(false)}>
+              DONE
+            </Button>
+          </Box>
+        </Box>
+      </CustomSideBarPanel>
+
+      <CustomSideBarPanel
+        open={isTwoFAOpen}
+        close={() => setIsTwoFAOpen(false)}
+        title={"2-step verification"}
+        width={700}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              {isTwoFAEnabled ? "Disable 2FA" : "Enable 2FA"}
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              color={isTwoFAEnabled ? "warning" : "primary"}
+              onClick={handleToggle2FAConfirm}
+            >
+              {isTwoFAEnabled ? "DISABLE" : "ENABLE"}
+            </Button>
+          </Box>
+          <Typography variant="body2" color="text.secondary">
+            {isTwoFAEnabled
+              ? "2FA is currently ON. Click Disable to turn it off."
+              : "2FA is currently OFF. Click Enable to secure sign-ins with an additional factor."}
+          </Typography>
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button variant="text" onClick={() => setIsTwoFAOpen(false)}>
+              DONE
+            </Button>
+          </Box>
+        </Box>
+      </CustomSideBarPanel>
+
+      <CustomSideBarPanel
+        open={isRecoveryEmailOpen}
+        close={() => setIsRecoveryEmailOpen(false)}
+        title={"Recovery email"}
+        width={520}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              Add a recovery email
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleAddRecoveryEmail}
+            >
+              SAVE
+            </Button>
+          </Box>
+          <TextField
+            size="small"
+            fullWidth
+            label="Recovery email"
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+          />
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button
+              variant="text"
+              onClick={() => setIsRecoveryEmailOpen(false)}
+            >
+              DONE
+            </Button>
+          </Box>
+        </Box>
+      </CustomSideBarPanel>
+
+      <CustomSideBarPanel
+        open={isRecoveryPhoneOpen}
+        close={() => setIsRecoveryPhoneOpen(false)}
+        title={"Recovery phone"}
+        width={520}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              {recoveryPhone ? "Change phone" : "Add a phone"}
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleUpdateRecoveryPhone}
+            >
+              {recoveryPhone ? "SAVE" : "ADD"}
+            </Button>
+          </Box>
+          <TextField
+            size="small"
+            fullWidth
+            label="Recovery phone"
+            value={phoneInput}
+            onChange={(e) => setPhoneInput(e.target.value)}
+          />
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button
+              variant="text"
+              onClick={() => setIsRecoveryPhoneOpen(false)}
+            >
+              DONE
+            </Button>
+          </Box>
+        </Box>
+      </CustomSideBarPanel>
+
+      <CustomSideBarPanel
+        open={isSessionsOpen}
+        close={() => setIsSessionsOpen(false)}
+        title={"Login sessions"}
+        width={900}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              Active sessions
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleViewSessions}
+            >
+              REFRESH
+            </Button>
+          </Box>
+          <Typography variant="body2" color="text.secondary">
+            List active sessions here (device, location, last activity) with an
+            action to sign out.
+          </Typography>
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button variant="text" onClick={() => setIsSessionsOpen(false)}>
+              DONE
+            </Button>
+          </Box>
+        </Box>
+      </CustomSideBarPanel>
     </Box>
   );
 };

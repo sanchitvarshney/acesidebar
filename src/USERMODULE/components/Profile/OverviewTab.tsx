@@ -16,7 +16,6 @@ import {
   ListItemIcon,
   ListItemText,
   Collapse,
-  TextField,
 } from "@mui/material";
 import {
   timelineOppositeContentClasses,
@@ -48,8 +47,8 @@ import GroupIcon from "@mui/icons-material/Group";
 import AppsIcon from "@mui/icons-material/Apps";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import ContactDetails from "./ContactDetails";
-import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
 type OverviewTabProps = {
   user: UserProfileInfo & { initials: string };
@@ -57,16 +56,12 @@ type OverviewTabProps = {
 };
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
-   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-    null
-  );
-  // const [open, setOpen] = React.useState(false);
-  const [expandedSections, setExpandedSections] = React.useState({
+  const [expandedSections, setExpandedSections] = useState({
     userInfo: true,
     apps: true,
   });
+  const [metricOpen, setMetricOpen] = useState<null | string>(null);
+  const [editInfoOpen, setEditInfoOpen] = useState(false);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -106,35 +101,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
               </Typography>
             </Box>
           </Box>
-
-          <Chip
-            label="Active"
-            size="small"
-            sx={{
-              bgcolor: "#e6f4ea",
-              color: "#137333",
-              fontWeight: 600,
-              mb: 2,
-            }}
-          />
-
-          <Typography variant="body2" sx={{ color: "#5f6368", mb: 1 }}>
-            Last sign in: 13 minutes ago
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#5f6368", mb: 1 }}>
-            Created: Aug 23, 2024
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#5f6368", mb: 2 }}>
-            Organizational unit: {user.company}
-          </Typography>
         </Box>
+
+        {/* Profile Actions styled list - omitted as per latest change */}
       </Box>
 
       {/* Main Content Area */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {/* Content */}
         <Box sx={{ flex: 1, p: 3, overflow: "auto" }}>
-          {/* Alerts Section */}
+          {/* Profile header card with edit */}
           <Paper
             elevation={0}
             sx={{
@@ -145,42 +121,70 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
               border: "1px solid #e8eaed",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <NotificationsIcon sx={{ color: "#5f6368" }} />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+              <Avatar
+                sx={{
+                  width: 80,
+                  height: 80,
+                  bgcolor: "#4285f4",
+                  fontSize: 32,
+                  fontWeight: "bold",
+                  border: "4px solid #e8f0fe",
+                }}
+              >
+                {user.initials}
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
                 <Typography
-                  variant="body1"
-                  sx={{ fontWeight: 500, color: "#202124" }}
+                  variant="h4"
+                  sx={{ fontWeight: 600, color: "#202124", mb: 1 }}
                 >
-                  Alerts in the last 7 days for {user.username}
+                  {user.username}
+                </Typography>
+                <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+                  <Chip
+                    icon={<WorkIcon />}
+                    label={user.role}
+                    size="medium"
+                    sx={{
+                      bgcolor: "#e8f0fe",
+                      color: "#1a73e8",
+                      fontWeight: 500,
+                      "& .MuiChip-icon": { color: "#1a73e8" },
+                    }}
+                  />
+                  <Chip
+                    icon={<BusinessIcon />}
+                    label={user.company}
+                    variant="outlined"
+                    size="medium"
+                    sx={{
+                      borderColor: "#dadce0",
+                      color: "#5f6368",
+                      fontWeight: 500,
+                      "& .MuiChip-icon": { color: "#5f6368" },
+                    }}
+                  />
+                </Stack>
+                <Typography variant="body1" sx={{ color: "#5f6368" }}>
+                  {user.email} • {user.phone}
                 </Typography>
               </Box>
               <Button
-                variant="text"
-                sx={{
-                  color: "#1a73e8",
-                  textTransform: "none",
-                  fontWeight: 500,
-                  "&:hover": { bgcolor: "#e8f0fe" },
-                }}
+                variant="outlined"
+                size="small"
+                onClick={() => setEditInfoOpen(true)}
               >
-                View alerts
+                Edit info
               </Button>
             </Box>
           </Paper>
 
-          {/* Ticket Usage */}
+          {/* Ticket metrics */}
           <Paper
             elevation={0}
             sx={{
               p: 3,
-              mb: 3,
               bgcolor: "white",
               borderRadius: 2,
               border: "1px solid #e8eaed",
@@ -188,17 +192,25 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
           >
             <Typography
               variant="h6"
-              sx={{ fontWeight: 600, color: "#202124", mb: 3 }}
+              sx={{ fontWeight: 600, color: "#202124", mb: 2 }}
             >
-              Ticket usage and statistics for {user.username}
+              Ticket metrics
             </Typography>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 4, mb: 3 }}>
-              <Box sx={{ textAlign: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 1,
+                  borderRadius: 2,
+                  cursor: "pointer",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+                onClick={() => setMetricOpen("total")}
+              >
                 <AssignmentIcon
                   sx={{ fontSize: 32, color: "#5f6368", mb: 1 }}
                 />
-                <Typography variant="body2" sx={{ color: "#5f6368", mb: 0.5 }}>
+                <Typography variant="body2" sx={{ color: "#5f6368" }}>
                   Total Tickets
                 </Typography>
                 <Typography
@@ -208,12 +220,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   47
                 </Typography>
               </Box>
-
-              <Divider orientation="vertical" flexItem />
-
-              <Box sx={{ textAlign: "center" }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 1,
+                  borderRadius: 2,
+                  cursor: "pointer",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+                onClick={() => setMetricOpen("open")}
+              >
                 <BugReportIcon sx={{ fontSize: 32, color: "#5f6368", mb: 1 }} />
-                <Typography variant="body2" sx={{ color: "#5f6368", mb: 0.5 }}>
+                <Typography variant="body2" sx={{ color: "#5f6368" }}>
                   Open Tickets
                 </Typography>
                 <Typography
@@ -223,12 +241,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   12
                 </Typography>
               </Box>
-
-              <Divider orientation="vertical" flexItem />
-
-              <Box sx={{ textAlign: "center" }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 1,
+                  borderRadius: 2,
+                  cursor: "pointer",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+                onClick={() => setMetricOpen("resolved")}
+              >
                 <SupportIcon sx={{ fontSize: 32, color: "#5f6368", mb: 1 }} />
-                <Typography variant="body2" sx={{ color: "#5f6368", mb: 0.5 }}>
+                <Typography variant="body2" sx={{ color: "#5f6368" }}>
                   Resolved
                 </Typography>
                 <Typography
@@ -238,14 +262,20 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   35
                 </Typography>
               </Box>
-
-              <Divider orientation="vertical" flexItem />
-
-              <Box sx={{ textAlign: "center" }}>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: 1,
+                  borderRadius: 2,
+                  cursor: "pointer",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+                onClick={() => setMetricOpen("overdue")}
+              >
                 <TrendingUpIcon
                   sx={{ fontSize: 32, color: "#5f6368", mb: 1 }}
                 />
-                <Typography variant="body2" sx={{ color: "#5f6368", mb: 0.5 }}>
+                <Typography variant="body2" sx={{ color: "#5f6368" }}>
                   Overdue
                 </Typography>
                 <Typography
@@ -253,34 +283,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   sx={{ fontWeight: 600, color: "#202124" }}
                 >
                   3
-                </Typography>
-              </Box>
-
-              <Divider orientation="vertical" flexItem />
-
-              <Box sx={{ textAlign: "center" }}>
-                <DescriptionIcon
-                  sx={{ fontSize: 32, color: "#5f6368", mb: 1 }}
-                />
-                <Typography variant="body2" sx={{ color: "#5f6368", mb: 0.5 }}>
-                  Avg Response
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 600, color: "#202124" }}
-                >
-                  2.3h
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ display: "flex", gap: 4 }}>
-              <Box>
-                <Typography variant="body2" sx={{ color: "#5f6368", mb: 0.5 }}>
-                  Priority level
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#202124" }}>
-                  Standard
                 </Typography>
               </Box>
             </Box>
@@ -341,38 +343,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                     }}
                     onClick={(e: any) => {
                       e.stopPropagation();
-                      setAnchorEl(e.currentTarget);
+                      // setAnchorEl(e.currentTarget); // This state was removed, so this line is removed.
                     }}
                   >
                     Add a secondary email
                   </Button>
-                  <CustomDataUpdatePopover
-                    anchorEl={anchorEl}
-                    close={() => setAnchorEl(null)}
-                  >
-                    <Paper sx={{ p: 3 }}>
-                      <Typography variant="body2" sx={{ mb: 2 }}>
-                        Add a secondary email to recover your account or receive
-                        important updates.
-                      </Typography>
-                      <TextField
-                        fullWidth
-                        label="Secondary Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        error={!!error}
-                        helperText={error || " "}
-                      />
-                    <div className="flex items-center justify-center gap-2">
-                        <Button onClick={() => setAnchorEl(null)} color="inherit">
-                        Cancel
-                      </Button>
-                      <Button onClick={()=>{}} variant="contained">
-                        Save
-                      </Button>
-                    </div>
-                    </Paper>
-                  </CustomDataUpdatePopover>
+                  {/* CustomDataUpdatePopover was removed, so this component is removed. */}
                 </Box>
 
                 <Box>
@@ -444,6 +420,57 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
           </Paper>
         </Box>
       </Box>
+
+      {/* Popovers */}
+      <CustomSideBarPanel
+        open={!!metricOpen}
+        close={() => setMetricOpen(null)}
+        title={
+          metricOpen
+            ? `${metricOpen[0].toUpperCase()}${metricOpen.slice(1)} tickets`
+            : "Tickets"
+        }
+        width={900}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Preview of {metricOpen} tickets. Use this to show a small list or
+            quick filters.
+          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setMetricOpen(null)}
+          >
+            DONE
+          </Button>
+        </Box>
+      </CustomSideBarPanel>
+
+      <CustomSideBarPanel
+        open={editInfoOpen}
+        close={() => setEditInfoOpen(false)}
+        title={"Edit profile info"}
+        width={520}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Quick edit of user information.
+          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setEditInfoOpen(false)}
+          >
+            SAVE
+          </Button>
+          <Box sx={{ textAlign: "right", mt: 2 }}>
+            <Button variant="text" onClick={() => setEditInfoOpen(false)}>
+              DONE
+            </Button>
+          </Box>
+        </Box>
+      </CustomSideBarPanel>
     </Box>
   );
 };

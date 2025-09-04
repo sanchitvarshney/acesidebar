@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Paper, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Paper, Typography, Button } from "@mui/material";
 import {
   timelineOppositeContentClasses,
   Timeline,
@@ -11,8 +11,11 @@ import {
 } from "@mui/lab";
 import CheckIcon from "@mui/icons-material/CheckCircle";
 import MailIcon from "@mui/icons-material/Mail";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 
 const ActivityTab: React.FC = () => {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
   return (
     <Box sx={{ display: "flex", gap: 3, height: "100%" }}>
       <Box sx={{ flex: 2 }}>
@@ -35,7 +38,10 @@ const ActivityTab: React.FC = () => {
               p: 0,
             }}
           >
-            <TimelineItem>
+            <TimelineItem
+              onClick={() => setOpenIdx(0)}
+              sx={{ cursor: "pointer" }}
+            >
               <TimelineSeparator>
                 <TimelineConnector sx={{ bgcolor: "success.main" }} />
                 <TimelineDot sx={{ bgcolor: "success.main" }}>
@@ -52,7 +58,10 @@ const ActivityTab: React.FC = () => {
                 </Typography>
               </TimelineContent>
             </TimelineItem>
-            <TimelineItem>
+            <TimelineItem
+              onClick={() => setOpenIdx(1)}
+              sx={{ cursor: "pointer" }}
+            >
               <TimelineSeparator>
                 <TimelineConnector sx={{ bgcolor: "primary.main" }} />
                 <TimelineDot sx={{ bgcolor: "primary.main" }}>
@@ -125,6 +134,36 @@ const ActivityTab: React.FC = () => {
           </Box>
         </Paper>
       </Box>
+
+      <CustomSideBarPanel
+        open={openIdx !== null}
+        close={() => setOpenIdx(null)}
+        title={
+          openIdx === 0
+            ? "Profile Updated"
+            : openIdx === 1
+            ? "New Ticket Created"
+            : "Activity"
+        }
+        width={700}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {openIdx === 0
+              ? "Updated contact information • 2 hours ago"
+              : openIdx === 1
+              ? "Created ticket #1234 • 1 day ago"
+              : "Details"}
+          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setOpenIdx(null)}
+          >
+            DONE
+          </Button>
+        </Box>
+      </CustomSideBarPanel>
     </Box>
   );
 };

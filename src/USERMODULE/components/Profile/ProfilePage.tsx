@@ -220,7 +220,7 @@ const ProfilePage = () => {
             startIcon={<EditIcon />}
             variant="outlined"
             onClick={() => setIsEdit(true)}
-            sx= {{
+            sx={{
               fontWeight: 500,
               color: "#1a73e8",
               fontSize: "0.875rem",
@@ -234,7 +234,7 @@ const ProfilePage = () => {
             variant="outlined"
             color="error"
             onClick={() => setIsDeleteModalOpen(true)}
-            sx= {{
+            sx={{
               fontWeight: 500,
               color: "red",
               fontSize: "0.875rem",
@@ -247,7 +247,7 @@ const ProfilePage = () => {
             startIcon={<MergeIcon />}
             variant="outlined"
             onClick={handleMergeContact}
-            sx= {{
+            sx={{
               fontWeight: 500,
               color: "#1a73e8",
               fontSize: "0.875rem",
@@ -260,7 +260,7 @@ const ProfilePage = () => {
             startIcon={<AgentIcon />}
             variant="outlined"
             onClick={() => setIsConvertProfile(true)}
-            sx= {{
+            sx={{
               fontWeight: 500,
               color: "#1a73e8",
               fontSize: "0.875rem",
@@ -273,7 +273,7 @@ const ProfilePage = () => {
             startIcon={<PasswordIcon />}
             variant="outlined"
             onClick={() => setIsChangePassword(true)}
-            sx= {{
+            sx={{
               fontWeight: 500,
               color: "#1a73e8",
               fontSize: "0.875rem",
@@ -286,7 +286,7 @@ const ProfilePage = () => {
             startIcon={<AddIcon />}
             variant="outlined"
             onClick={() => navigate("/create-ticket")}
-            sx= {{
+            sx={{
               fontWeight: 500,
               color: "#1a73e8",
               fontSize: "0.875rem",
