@@ -36,6 +36,7 @@ import {
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 import AssignTicket from "../../components/AssignTicket";
 import Mergeticket from "../../components/Mergeticket";
+import { useAuth } from "../../../contextApi/AuthContext";
 
 // Priority/Status/Agent dropdown options
 const STATUS_OPTIONS = [
@@ -49,6 +50,8 @@ const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
 const Tickets: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -96,6 +99,8 @@ const Tickets: React.FC = () => {
   const [isCloseModal, setIsCloseModal] = useState(false);
   const [ticketStatusChange] = useTicketStatusChangeMutation();
   const [commanApi] = useCommanApiMutation();
+
+  const [triggerWatchApi] = useCommanApiMutation();
 
   // Fetch live priority list
   const { data: priorityList } = useGetPriorityListQuery();
@@ -167,7 +172,7 @@ const Tickets: React.FC = () => {
   const isTicketsFetching = sortType
     ? isSortedTicketListFetching
     : isTicketListFetching;
-  console.log(ticketsToShow);
+
   // Handle filter apply
   const handleApplyFilters = (newFilters: any) => {
     // TODO: Trigger API call with newFilters
@@ -224,7 +229,7 @@ const Tickets: React.FC = () => {
     }, 200);
   };
 
-  // Handle user popup hover with delay
+  // Handle user popup hover with delayuseC
   const handleUserHover = (event: React.MouseEvent<HTMLElement>, user: any) => {
     if (userPopupTimer.current) {
       clearTimeout(userPopupTimer.current);
@@ -268,6 +273,12 @@ const Tickets: React.FC = () => {
   // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
     setOpenTicketNumber(ticketNumber);
+    const ticketID = ticketNumber;
+    const payload = {
+      url: `add-watcher/${ticketID}`,
+      body: { watchers: "" },
+    };
+    triggerWatchApi(payload);
     navigate(`/tickets/${ticketNumber}`);
   };
 
