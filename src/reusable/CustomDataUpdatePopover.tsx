@@ -1,0 +1,38 @@
+import { Fade, Popover, Popper } from "@mui/material";
+import React, { FC, useEffect, useRef } from "react";
+
+interface CustomDataUpdatePopoverProps {
+  //   open: boolean;
+  anchorEl: any;
+  placement?: any;
+  children: any;
+  close: any;
+}
+const CustomDataUpdatePopover: FC<CustomDataUpdatePopoverProps> = ({
+  anchorEl,
+  children,
+  close,
+}) => {
+ 
+  return (
+    <Popover
+      disableScrollLock={true}
+      id={Boolean(anchorEl) ? "simple" : undefined}
+      open={Boolean(anchorEl)}
+      anchorEl={anchorEl}
+      onClose={() => close()}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "center",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "center",
+      }}
+    >
+      {children}
+    </Popover>
+  );
+};
+
+export default CustomDataUpdatePopover;

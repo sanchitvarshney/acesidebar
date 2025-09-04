@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Avatar,
   Box,
@@ -16,6 +16,7 @@ import {
   ListItemIcon,
   ListItemText,
   Collapse,
+  TextField,
 } from "@mui/material";
 import {
   timelineOppositeContentClasses,
@@ -48,6 +49,7 @@ import AppsIcon from "@mui/icons-material/Apps";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ContactDetails from "./ContactDetails";
+import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
 type OverviewTabProps = {
   user: UserProfileInfo & { initials: string };
@@ -55,6 +57,12 @@ type OverviewTabProps = {
 };
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
+   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
+    null
+  );
+  // const [open, setOpen] = React.useState(false);
   const [expandedSections, setExpandedSections] = React.useState({
     userInfo: true,
     apps: true,
@@ -331,9 +339,40 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                       minWidth: "auto",
                       "&:hover": { bgcolor: "transparent" },
                     }}
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      setAnchorEl(e.currentTarget);
+                    }}
                   >
                     Add a secondary email
                   </Button>
+                  <CustomDataUpdatePopover
+                    anchorEl={anchorEl}
+                    close={() => setAnchorEl(null)}
+                  >
+                    <Paper sx={{ p: 3 }}>
+                      <Typography variant="body2" sx={{ mb: 2 }}>
+                        Add a secondary email to recover your account or receive
+                        important updates.
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="Secondary Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        error={!!error}
+                        helperText={error || " "}
+                      />
+                    <div className="flex items-center justify-center gap-2">
+                        <Button onClick={() => setAnchorEl(null)} color="inherit">
+                        Cancel
+                      </Button>
+                      <Button onClick={()=>{}} variant="contained">
+                        Save
+                      </Button>
+                    </div>
+                    </Paper>
+                  </CustomDataUpdatePopover>
                 </Box>
 
                 <Box>

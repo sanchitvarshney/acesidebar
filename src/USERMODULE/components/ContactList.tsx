@@ -33,7 +33,7 @@ const ContactList = () => {
   const [isAdd, setIsAdd] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { data: agentList, isLoading: agentListData } = useGetAgentsQuery();
-  console.log(agentList);
+ 
   const navigate = useNavigate();
 
   const filterData = searchQuery
@@ -46,7 +46,7 @@ const ContactList = () => {
 
   const paginationModel = { page: 0, pageSize: 10 };
 
-  console.log(filterData);
+ 
 
   return (
     <div className="w-full">
