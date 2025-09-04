@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import LeftMenu from "../TicketManagement/LeftMenu";
 import {
   Button,
@@ -59,7 +59,11 @@ import TaskList from "./components/TaskList";
 import TaskDetails from "./components/TaskDetails";
 import CommentForm from "./components/CommentForm";
 
-const Tasks: React.FC = () => {
+type TaskPropsType = {
+  isAddTask?: boolean;
+};
+
+const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const [taskDialogOpen, setTaskDialogOpen] = React.useState(false);
@@ -558,13 +562,21 @@ const Tasks: React.FC = () => {
     );
   };
 
-  const [rightActiveTab, setRightActiveTab] = React.useState(0);
+  const [rightActiveTab, setRightActiveTab] = React.useState<any>();
   const [attachmentsTab, setAttachmentsTab] = React.useState<
     "comments" | "attachments"
   >("comments");
 
+  useEffect(() => {
+    if (isAddTask) {
+      setRightActiveTab(1);
+    } else {
+      setRightActiveTab(0);
+    }
+  }, [isAddTask]);
+
   return (
-    <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
+    <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-96px)]">
       {/* Main Header Bar */}
       <TaskHeader
         totalTasks={filteredTasks.length}
@@ -585,7 +597,7 @@ const Tasks: React.FC = () => {
 
       {/* Main Content: Tasks + Details */}
       <div className="flex flex-1 h-0 min-h-0">
-        <LeftMenu />
+        {!isAddTask && <LeftMenu />}
 
         {/* LEFT SECTION - Task List & Filters */}
         <TaskList
@@ -607,6 +619,7 @@ const Tasks: React.FC = () => {
           }}
           onAdvancedSearchOpen={(e) => handleTaskAdvancedSearchOpen(e)}
           getStatusIcon={getStatusIcon}
+          isAddTask={isAddTask}
         />
 
         {/* RIGHT SECTION - Task Details & Actions */}
@@ -615,28 +628,30 @@ const Tasks: React.FC = () => {
             {/* Right Sidebar Tabs */}
             <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
               <div className="p-4 space-y-4">
-                <Tooltip title="Details" placement="left">
-                  <IconButton
-                    onClick={() => setRightActiveTab(0)}
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: "50%",
-                      transition: "all 0.2s",
-                      bgcolor:
-                        rightActiveTab === 0 ? "primary.main" : "transparent",
-                      color: rightActiveTab === 0 ? "#fff" : "text.secondary",
-                      boxShadow: rightActiveTab === 0 ? 3 : "none",
-                      "&:hover": {
+                {!isAddTask && (
+                  <Tooltip title="Details" placement="left">
+                    <IconButton
+                      onClick={() => setRightActiveTab(0)}
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        transition: "all 0.2s",
                         bgcolor:
-                          rightActiveTab === 0 ? "primary.dark" : "grey.100",
-                        color: rightActiveTab === 0 ? "#fff" : "text.primary",
-                      },
-                    }}
-                  >
-                    <AssignmentIcon />
-                  </IconButton>
-                </Tooltip>
+                          rightActiveTab === 0 ? "primary.main" : "transparent",
+                        color: rightActiveTab === 0 ? "#fff" : "text.secondary",
+                        boxShadow: rightActiveTab === 0 ? 3 : "none",
+                        "&:hover": {
+                          bgcolor:
+                            rightActiveTab === 0 ? "primary.dark" : "grey.100",
+                          color: rightActiveTab === 0 ? "#fff" : "text.primary",
+                        },
+                      }}
+                    >
+                      <AssignmentIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
 
                 <Tooltip title="Files" placement="left">
                   <IconButton

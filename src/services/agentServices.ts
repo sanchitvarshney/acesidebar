@@ -6,14 +6,6 @@ import { baseInstanceOfApi } from "./baseInstanceOfApi";
 
 const agentServices = baseInstanceOfApi.injectEndpoints({
   endpoints: (builder) => ({
-    commanApi: builder.mutation({
-      query: (credentials) => ({
-        url: `/ticket/staff/${credentials.url}`,
-        method: credentials.method ? credentials.method : "POST",
-        body: credentials.body,
-      }),
-    }),
-
     getAgents: builder.query<any, void>({
       query: () => ({
         url: "/staff/agent",
@@ -45,7 +37,7 @@ const agentServices = baseInstanceOfApi.injectEndpoints({
 
 export const {
   useGetAgentsQuery,
-  useCommanApiMutation,
+
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
   useLazyGetUserBySeachQuery,

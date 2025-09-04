@@ -21,6 +21,7 @@ import {
   useLazyGetDepartmentBySeachQuery,
 } from "../../../services/agentServices";
 import { useToast } from "../../../hooks/useToast";
+import { useCommanApiMutation } from "../../../services/threadsApi";
 
 const typeOptions = [
   {
@@ -30,22 +31,27 @@ const typeOptions = [
   {
     id: "question",
     label: "Question",
+    value: "TP001",
   },
   {
     id: "incident",
     label: "Incident",
+    value: "TP002",
   },
   {
     id: "problem",
     label: "Problem",
+    value: "TP003",
   },
   {
     id: "req",
     label: "Feature Request",
+    value: "TP004",
   },
   {
     id: "refund",
     label: "Refund",
+    value: "TP005",
   },
 ];
 
@@ -56,9 +62,9 @@ const StatusTab = ({ ticket }: any) => {
   const [type, setType] = useState("");
   const [priority, setPriority] = useState("");
   const [status, setStatus] = useState("");
-  const [dept, setDept] = useState("");
+  const [dept, setDept] = useState<any>("");
   const [changeDept, setChangedept] = useState("");
-  const [agent, setAgent] = useState("");
+  const [agent, setAgent] = useState<any>("");
   const [onChangeAgent, setOnChangeAgent] = useState("");
   const [agentOptions, setAgentOptions] = useState<any>([]);
   const [options, setOptions] = useState<any>([]);
@@ -70,11 +76,48 @@ const StatusTab = ({ ticket }: any) => {
     useLazyGetDepartmentBySeachQuery();
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
+  const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
 
   const displayOptions = changeTagValue.length >= 3 ? options : [];
   const displayDepartmentOptions = changeDept ? departmentOptions : [];
 
   const displayAgentOptions = onChangeAgent ? agentOptions : [];
+
+  // update status handler
+
+  const handleUpdateTicket = () => {
+    const payload = {
+      url: "edit-properties",
+      method: "PUT",
+      body: {
+        ticket: ticket?.ticketId,
+
+        type: type || "--",
+        priority: priority || "--",
+        status: status || "--",
+        tags: tagValue.map((tag: any) => tag?.tagID),
+        department: `${dept.deptID}` || "--",
+        agent: agent.agentID || "--",
+      },
+    };
+
+    triggerStatus(payload)
+      .unwrap()
+      .then((res) => {
+        if (res?.success !== true || res?.error?.data?.success !== true) {
+          showToast(res?.data?.message || res?.error?.data?.message, "error");
+          return;
+        }
+        setAgent("");
+        setDept("");
+        setTagValue([]);
+        setPriority("");
+        setStatus("");
+      })
+      .catch((err) => {
+        showToast(err?.data?.message, "error");
+      });
+  };
 
   const fetchOptions = (value: string) => {
     if (!value || value.length < 3) return [];
@@ -178,8 +221,7 @@ const StatusTab = ({ ticket }: any) => {
       setDept(newValue);
     }
     if (type === "agent") {
-      const values = newValue.fName;
-      setAgent(values);
+      setAgent(newValue);
     }
   };
 
@@ -201,7 +243,7 @@ const StatusTab = ({ ticket }: any) => {
               onChange={(e) => setType(e.target.value)}
             >
               {typeOptions.map((name) => (
-                <MenuItem key={name.id} value={name.label}>
+                <MenuItem key={name.id} value={name.value}>
                   {name.label}
                 </MenuItem>
               ))}
@@ -219,7 +261,7 @@ const StatusTab = ({ ticket }: any) => {
               onChange={(e) => setStatus(e.target.value)}
             >
               {statusList?.map((status: any) => (
-                <MenuItem key={status.key} value={status.statusName}>
+                <MenuItem key={status.key} value={status.key}>
                   <Typography
                     variant="body2"
                     sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -243,7 +285,7 @@ const StatusTab = ({ ticket }: any) => {
               onChange={(e) => setPriority(e.target.value)}
             >
               {priorityList?.map((priority: any) => (
-                <MenuItem key={priority.key} value={priority.priorityName}>
+                <MenuItem key={priority.key} value={priority.key}>
                   <Typography
                     variant="body2"
                     sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -356,7 +398,7 @@ const StatusTab = ({ ticket }: any) => {
               sx={{ my: 1.5 }}
               getOptionLabel={(option: any) => {
                 if (typeof option === "string") return option;
-                return option.deptName || "";
+                return option.fName || "";
               }}
               options={displayAgentOptions}
               value={agent}
@@ -534,7 +576,7 @@ const StatusTab = ({ ticket }: any) => {
         </div>
       </div>
       <div className="my-2">
-        <Button fullWidth variant="contained">
+        <Button fullWidth variant="contained" onClick={handleUpdateTicket}>
           Update
         </Button>
       </div>

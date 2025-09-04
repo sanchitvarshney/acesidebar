@@ -36,12 +36,13 @@ import {
   CircularProgress,
   List,
   ListItemText,
+  ToggleButton,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AddTaskIcon from '@mui/icons-material/AddTask';
+import AddTaskIcon from "@mui/icons-material/AddTask";
 import ShotCutContent from "../../components/ShotCutContent";
 import ShortcutIcon from "@mui/icons-material/Shortcut";
 import { useDispatch, useSelector } from "react-redux";
@@ -66,6 +67,9 @@ import {
 } from "../../../services/uploadDocServices";
 import { useToast } from "../../../hooks/useToast";
 import { useParams } from "react-router-dom";
+import ReplyStatusOptions from "../../components/ReplyStatusOptions";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import Tasks from "../task/Tasks";
 
 const signatureValues: any = [
   {
@@ -144,6 +148,7 @@ const ThreadItem = ({
   const { showToast } = useToast();
   const [open, setOpen] = useState(false);
   const [isReported, setIsReported] = useState<boolean>(false);
+
   const ticketId = useParams().id;
   const optionsRef = React.useRef<any>(null);
   const [hovered, setHovered] = useState<number | null>(null);
@@ -204,8 +209,8 @@ const ThreadItem = ({
     };
 
     commanApi(payload)
-      .then((response) => { })
-      .catch((error) => { });
+      .then((response) => {})
+      .catch((error) => {});
   };
 
   const downloadFile = async (fileId: string, fileName: string) => {
@@ -329,8 +334,8 @@ const ThreadItem = ({
   const bubbleBackgroundColor = isReported
     ? "#fee2e2"
     : isCurrentUser
-      ? "#f7faff"
-      : "#fafafa";
+    ? "#f7faff"
+    : "#fafafa";
   const bubbleFooter = isCurrentUser
     ? "IP: 127.0.0.1 | Location: India"
     : "IP: 127.0.0.1 | Location: India";
@@ -368,8 +373,8 @@ const ThreadItem = ({
       method: "GET",
     };
     commanApi(payload)
-      .then((response) => { })
-      .catch((error) => { });
+      .then((response) => {})
+      .catch((error) => {});
     setIsReported((v) => !v);
   };
 
@@ -378,8 +383,9 @@ const ThreadItem = ({
       {/* Email content */}
       <div className="flex-1">
         <div
-          className={`rounded flex ${isCurrentUser ? " flex-row-reverse" : "flex-row "
-            }`}
+          className={`rounded flex ${
+            isCurrentUser ? " flex-row-reverse" : "flex-row "
+          }`}
         >
           <div className=" relative flex px-4 py-2 flex-col items-center">
             <div
@@ -460,16 +466,18 @@ const ThreadItem = ({
             <div className="flex items-center justify-between  w-full px-8 py-2">
               <div className={`w-full  flex flex-col`}>
                 <div
-                  className={`flex  items-center justify-between  w-full border-b-2 border-gray-200 pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "
-                    }`}
+                  className={`flex  items-center justify-between  w-full border-b-2 border-gray-200 pb-4  ${
+                    isCurrentUser ? " flex-row-reverse" : "flex-row "
+                  }`}
                 >
                   <span className="font-semibold text-[#1a73e8] text-sm">
                     {item.repliedBy?.name || "User"}
                   </span>
                   <div className="flex flex-col ">
                     <div
-                      className={`flex items-center gap-2 ${isCurrentUser ? "justify-start" : "justify-end"
-                        }`}
+                      className={`flex items-center gap-2 ${
+                        isCurrentUser ? "justify-start" : "justify-end"
+                      }`}
                     >
                       <img src={isCurrentUser ? email : web} alt="ip" />
                       <span className="text-xs text-gray-400 ">
@@ -549,7 +557,7 @@ const ThreadItem = ({
                                   }}
                                 >
                                   {isDownloading &&
-                                    trackDownloadId === file?.fileSignature ? (
+                                  trackDownloadId === file?.fileSignature ? (
                                     <CircularProgress size={16} />
                                   ) : (
                                     <DownloadIcon fontSize="small" />
@@ -680,11 +688,13 @@ const TicketThreadSection = ({
   const { shotcutData, replyValue } = useSelector(
     (state: RootState) => state.shotcut
   );
+  const [isReplyStatusOpen, setIsReplyStatusOpen] = useState<boolean>(false);
   const [signature, setSignature] = useState("");
   const [signatureUpdateKey, setSignatureUpdateKey] = useState(0);
   const [shouldFocusEditor, setShouldFocusEditor] = useState(false);
   const [shouldFocusNotify, setShouldFocusNotify] = useState(false);
   const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
+  const [isAddTask, setIsAddTask] = useState(false);
   const [notifyTag, setNotifyTag] = useState([]);
   const { data: shortcutList, isLoading: shortcutLoading } =
     useGetShortCutListQuery({ refetchOnMountOrArgChange: true });
@@ -1070,8 +1080,8 @@ const TicketThreadSection = ({
                   <Tooltip title="Add Tasks" placement="left">
                     <IconButton
                       onClick={(e) => {
-                        e.stopPropagation();
-                        alert("Add Tasks");
+                        e.stopPropagation(); // prevent triggering AccordionSummary click
+                        setIsAddTask(true);
                       }}
                       size="small"
                       sx={{
@@ -1092,8 +1102,8 @@ const TicketThreadSection = ({
                       }}
                     >
                       <AddTaskIcon fontSize="small" />
-                       {/* Small indicator dot */}
-                       <Box
+                      {/* Small indicator dot */}
+                      <Box
                         sx={{
                           position: "absolute",
                           top: "6px",
@@ -1109,8 +1119,6 @@ const TicketThreadSection = ({
                   </Tooltip>
                 </div>
               </div>
-
-
             </AccordionSummary>
             {/* )} */}
 
@@ -1306,11 +1314,27 @@ const TicketThreadSection = ({
                   >
                     Save
                   </Button>
+                  {/* <CustomToolTip
+                    title={
+                       <div style={{ pointerEvents: 'auto' }}>
+      <ReplyStatusOptions onSetData={(value: any) => console.log(value)} />
+    </div>
+                    }
+                    placement={"bottom-end"}
+                    open={isReplyStatusOpen}
+                    close={() => setIsReplyStatusOpen(false)}
+                  >
+                    <ToggleButton
+                      value="bold"
+                      aria-label="bold"
+                      size="small"
+                      onClick={() => setIsReplyStatusOpen(true)}
+                    >
+                      <ArrowDropDownIcon />
+                    </ToggleButton>
+                  </CustomToolTip> */}
                 </div>
               </div>
-              {/* </motion.div> */}
-              {/* )} */}
-              {/* </AnimatePresence> */}
             </AccordionDetails>
           </Accordion>
         </div>
@@ -1480,9 +1504,7 @@ const TicketThreadSection = ({
                       <IconButton
                         size="small"
                         onClick={() => {
-                          dispatch(
-                            setReplyValue(replyValue + item.text)
-                          );
+                          dispatch(setReplyValue(replyValue + item.text));
                         }}
                       >
                         <AddBoxIcon fontSize="small" />
@@ -1503,12 +1525,12 @@ const TicketThreadSection = ({
       {isSuccessModal && (
         <CustomModal
           open={isSuccessModal}
-          onClose={() => { }}
+          onClose={() => {}}
           title={"Ticket Save"}
           msg="Ticket save successfully"
           primaryButton={{
             title: "Go Next",
-            onClick: () => { },
+            onClick: () => {},
           }}
           secondaryButton={{
             title: "Ticket List",
@@ -1518,6 +1540,14 @@ const TicketThreadSection = ({
           }}
         />
       )}
+      <CustomSideBarPanel
+        open={isAddTask}
+        close={() => setIsAddTask(false)}
+        title={"Add Task"}
+        width={"80%"}
+      >
+        <Tasks isAddTask={isAddTask} />
+      </CustomSideBarPanel>
     </div>
   );
 };

@@ -19,6 +19,7 @@ interface TaskCardProps {
   onSelect: (taskId: string, checked: boolean) => void;
   onClick: (task: Task) => void;
   getStatusIcon: (status: string) => React.ReactNode;
+  isAddTask: any;
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({
@@ -28,6 +29,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   onSelect,
   onClick,
   getStatusIcon,
+  isAddTask,
 }) => {
   const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -112,10 +114,12 @@ const TaskCard: React.FC<TaskCardProps> = ({
             </div>
 
             <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-              <span className="flex items-center gap-1">
-                <ConfirmationNumberIcon fontSize="small" />
-                {task.ticketId}
-              </span>
+              {!isAddTask && (
+                <span className="flex items-center gap-1">
+                  <ConfirmationNumberIcon fontSize="small" />
+                  {task.ticketId}
+                </span>
+              )}
               <span className="flex items-center gap-1">
                 <PersonIcon fontSize="small" />
                 {task.assignedTo}
@@ -169,4 +173,3 @@ const TaskCard: React.FC<TaskCardProps> = ({
 };
 
 export default TaskCard;
-
