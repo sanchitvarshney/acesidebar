@@ -185,6 +185,7 @@ const ThreadItem = ({
       const payloadForward = {
         subject: `#Forward: ${subject}`,
         message: item.message,
+        threadID: item.entryId,
       };
       dispatch(setForwardData(payloadForward));
 

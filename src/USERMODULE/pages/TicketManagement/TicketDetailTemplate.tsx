@@ -20,6 +20,7 @@ import { useGetTicketDetailStaffViewQuery } from "../../../services/ticketDetail
 import { useNavigate, useParams } from "react-router-dom";
 import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
 
+
 // interface TicketDetailTemplateProps {
 //   ticket: any; // expects { header, response, other }
 //   onBack: () => void;
@@ -46,7 +47,7 @@ const TicketDetailTemplate = () => {
     to: "",
     cc: [],
     bcc: [],
-
+    threadID: "",
     message: ticket?.header?.description || "",
     documents: [],
   });
@@ -55,7 +56,8 @@ const TicketDetailTemplate = () => {
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
-  const [commanApi] = useCommanApiMutation();
+  const [triggerForward, { isLoading: isForwardLoading }] =
+    useCommanApiMutation();
 
   const handleBack = () => {
     // setOpenTicketNumber(null);
@@ -71,15 +73,19 @@ const TicketDetailTemplate = () => {
   const handleForwardSend = () => {
     if (!ticket) return;
 
+    const urlValues = {
+      threadID: forwardFields.threadID,
+      type: forwardFields.threadID ? "thread" : "ticket",
+      ticket: ticket?.header?.ticketId,
+    };
     const payload = {
-      url: "forward-thread",
+      url: `forward/${urlValues.ticket}/${urlValues.threadID}/${urlValues.type}`,
       body: {
-        email: {
-          from: ticket?.header?.requester,
-          to: forwardFields.to,
-          cc: forwardFields.cc,
-          bcc: forwardFields.bcc,
-        },
+        from: ticket?.header?.requester,
+        to: forwardFields.to,
+        cc: forwardFields.cc,
+        bcc: forwardFields.bcc,
+
         subject: ticket?.header?.subject
           ? `FWD: ${ticket.header.subject}`
           : forwardFields.subject,
@@ -97,7 +103,7 @@ const TicketDetailTemplate = () => {
     };
 
     // Call your API
-    commanApi(payload)
+    triggerForward(payload)
       .then((response) => {})
       .catch((error) => {});
     setForwardOpen(false);
@@ -111,6 +117,7 @@ const TicketDetailTemplate = () => {
       bcc: [],
       message: ticket?.header?.description || "",
       documents: [],
+      threadID: "",
     });
   };
 
@@ -192,13 +199,13 @@ const TicketDetailTemplate = () => {
         ModalProps={{
           disableEscapeKeyDown: false,
           keepMounted: true,
-            BackdropProps: {
-          style: {
-            backgroundColor: "rgb(255 255 255 / 50%)",
-            cursor: "default",
-            pointerEvents: "none",
+          BackdropProps: {
+            style: {
+              backgroundColor: "rgb(255 255 255 / 50%)",
+              cursor: "default",
+              pointerEvents: "none",
+            },
           },
-        },
         }}
         sx={{
           "& .MuiDrawer-paper": {

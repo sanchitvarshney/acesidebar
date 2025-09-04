@@ -139,7 +139,7 @@ const TicketDetailHeader = ({
   hasNextTicket = true,
 }: any) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-
+  const [triggerDeleteWatcher] = useCommanApiMutation();
   const [isMergeModal, setIsMergeModal] = useState(false);
   const [isLinkModal, setIsLinkModal] = useState(false);
   const [statusAnchorEl, setStatusAnchorEl] =
@@ -276,9 +276,14 @@ const TicketDetailHeader = ({
   ];
 
   // Filter options based on search query
-  const filteredOptions = moreOptions.filter((option) =>
-    option.title.toLowerCase().includes(moreOptionsSearchQuery.toLowerCase()) ||
-    option.description.toLowerCase().includes(moreOptionsSearchQuery.toLowerCase())
+  const filteredOptions = moreOptions.filter(
+    (option) =>
+      option.title
+        .toLowerCase()
+        .includes(moreOptionsSearchQuery.toLowerCase()) ||
+      option.description
+        .toLowerCase()
+        .includes(moreOptionsSearchQuery.toLowerCase())
   );
 
   const [commanApi] = useCommanApiMutation();
@@ -362,7 +367,13 @@ const TicketDetailHeader = ({
   };
 
   const handleRemoveWatcher = (watcherId: number) => {
-    setWatchers(watchers.filter((watcher) => watcher.id !== watcherId));
+    const watchID = watcherId;
+    const payload = {
+      url: `remove-watcher/${watchID}`,
+      method: "DELETE",
+    };
+
+    triggerDeleteWatcher(payload);
   };
 
   const handleAddWatcher = (newWatcher: any) => {

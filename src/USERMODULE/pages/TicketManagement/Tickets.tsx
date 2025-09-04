@@ -277,7 +277,7 @@ const Tickets: React.FC = () => {
     const ticketID = ticketNumber;
     const payload = {
       url: `add-watcher/${ticketID}`,
-      body: { watchers: userId },
+      body: { watchers: [userId] },
     };
     triggerWatchApi(payload);
     navigate(`/tickets/${ticketNumber}`);
@@ -301,17 +301,7 @@ const Tickets: React.FC = () => {
     };
   }, []);
 
-  // const handleSendReply = (replyText: string, threadItem?: any) => {
 
-  //   if (replyText.trim()) {
-
-  //     console.log("Sending reply:", replyText, threadItem);
-  //     setIsSuccessModal(true);
-
-  //   } else {
-  //     showToast("Please enter a reply message", "error");
-  //   }
-  // };
 
   const handleDelete = () => {
     if (selectedTickets.length < 0) {
