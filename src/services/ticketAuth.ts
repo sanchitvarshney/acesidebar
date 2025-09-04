@@ -34,6 +34,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    getTypeList: builder.query<any, void>({
+      query: () => ({
+        url: "/type/list",
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
 
     getTicketList: builder.query<any, TicketListParams>({
       query: (params) => {
@@ -168,4 +175,5 @@ export const {
   useGetStaffListQuery,
   useAdvancedSearchMutation,
   useGetStatusListQuery,
+  useGetTypeListQuery,
 } = extendedTicketApi;

@@ -15,6 +15,7 @@ import {
   useGetPriorityListQuery,
   useGetStatusListQuery,
   useGetTagListQuery,
+  useGetTypeListQuery,
 } from "../../../services/ticketAuth";
 import {
   useLazyGetAgentsBySeachQuery,
@@ -23,45 +24,13 @@ import {
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 
-const typeOptions = [
-  {
-    id: "",
-    label: "--",
-  },
-  {
-    id: "question",
-    label: "Question",
-    value: "TP001",
-  },
-  {
-    id: "incident",
-    label: "Incident",
-    value: "TP002",
-  },
-  {
-    id: "problem",
-    label: "Problem",
-    value: "TP003",
-  },
-  {
-    id: "req",
-    label: "Feature Request",
-    value: "TP004",
-  },
-  {
-    id: "refund",
-    label: "Refund",
-    value: "TP005",
-  },
-];
-
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
   const [tagValue, setTagValue] = useState<any[]>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
   const [type, setType] = useState("");
   const [priority, setPriority] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<any>("");
   const [dept, setDept] = useState<any>("");
   const [changeDept, setChangedept] = useState("");
   const [agent, setAgent] = useState<any>("");
@@ -69,9 +38,13 @@ const StatusTab = ({ ticket }: any) => {
   const [agentOptions, setAgentOptions] = useState<any>([]);
   const [options, setOptions] = useState<any>([]);
   const [departmentOptions, setDepartmentOptions] = useState<any>([]);
+  const [isUpdate, setIsUpdate] = useState(0);
   const { data: tagList } = useGetTagListQuery();
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
+  const { data: typeList } = useGetTypeListQuery();
+ 
+
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
@@ -106,6 +79,7 @@ const StatusTab = ({ ticket }: any) => {
       .then((res) => {
         if (res?.success !== true || res?.error?.data?.success !== true) {
           showToast(res?.data?.message || res?.error?.data?.message, "error");
+          setIsUpdate((prev) => prev + 1);
           return;
         }
         setAgent("");
@@ -116,8 +90,48 @@ const StatusTab = ({ ticket }: any) => {
       })
       .catch((err) => {
         showToast(err?.data?.message, "error");
+        setIsUpdate((prev) => prev + 1);
       });
   };
+
+  useEffect(() => {
+    if (ticket) {
+      if (ticket.tags) {
+        setTagValue((prev) => [...prev, ...ticket.tags]);
+      }
+
+      if (ticket.status) {
+        setStatus(ticket.status.key);
+      }
+
+      if (ticket.priority) {
+        const key = ticket.priority.key;
+        setPriority(key);
+      }
+
+      if (ticket.type) {
+        setType(ticket.type.key);
+      }
+
+      if (ticket.deptName) {
+        const department = {
+          deptId: ticket?.deptName?.key,
+          deptName: ticket?.deptName?.name,
+        };
+        setDept(department);
+      }
+
+      if (ticket.email && ticket.username && ticket.userID) {
+        const agent = {
+          agentId: ticket.userID,
+          fName: ticket.username,
+          emailAddress: ticket.email,
+        };
+
+        setAgent(agent);
+      }
+    }
+  }, [ticket, isUpdate]);
 
   const fetchOptions = (value: string) => {
     if (!value || value.length < 3) return [];
@@ -196,6 +210,7 @@ const StatusTab = ({ ticket }: any) => {
   };
 
   const handleSelectedOption = (_: any, newValue: any, type: string) => {
+
     if (type === "tag") {
       if (!Array.isArray(newValue) || newValue.length === 0) {
         showToast("Tag already exists", "error");
@@ -242,9 +257,9 @@ const StatusTab = ({ ticket }: any) => {
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              {typeOptions.map((name) => (
-                <MenuItem key={name.id} value={name.value}>
-                  {name.label}
+              {[{ key: "--", typeName: "--" }, ...((typeList as any[]) || [])].map((name: any) => (
+                <MenuItem key={name.key} value={name.key}>
+                  {name.typeName}
                 </MenuItem>
               ))}
             </Select>
@@ -284,7 +299,7 @@ const StatusTab = ({ ticket }: any) => {
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
             >
-              {priorityList?.map((priority: any) => (
+              {[{ key: "--", specification: "--", color: "#cccccc" }, ...((priorityList as any[]) || [])].map((priority: any) => (
                 <MenuItem key={priority.key} value={priority.key}>
                   <Typography
                     variant="body2"
@@ -292,7 +307,7 @@ const StatusTab = ({ ticket }: any) => {
                   >
                     <span
                       className="w-3 h-3 inline-block"
-                      style={{ backgroundColor: priority.color }}
+                      style={{ backgroundColor: priority.color || "#cccccc" }}
                     />
                     {priority.specification}
                   </Typography>
