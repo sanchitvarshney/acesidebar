@@ -120,44 +120,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
             Organizational unit: {user.company}
           </Typography>
         </Box>
-
-        {/* Admin Actions */}
-        <List sx={{ p: 0 }}>
-          {[
-            "RESET PASSWORD",
-            "UPDATE USER",
-            "ADD ALTERNATE EMAILS",
-            "ADD TO GROUPS",
-            "EMAIL",
-            "SUSPEND USER",
-            "RESTORE DATA",
-            "DELETE USER",
-            "CHANGE ORGANIZATIONAL UNIT",
-          ].map((action) => (
-            <ListItem
-              key={action}
-              sx={{
-                py: 1.5,
-                px: 3,
-                borderBottom: "1px solid #f1f3f4",
-                "&:hover": { bgcolor: "#f8f9fa" },
-                cursor: "pointer",
-              }}
-            >
-              <ListItemText
-                primary={action}
-                primaryTypographyProps={{
-                  variant: "body2",
-                  sx: {
-                    fontWeight: 500,
-                    color: "#1a73e8",
-                    fontSize: "0.875rem",
-                  },
-                }}
-              />
-            </ListItem>
-          ))}
-        </List>
       </Box>
 
       {/* Main Content Area */}

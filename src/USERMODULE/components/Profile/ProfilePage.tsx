@@ -220,7 +220,11 @@ const ProfilePage = () => {
             startIcon={<EditIcon />}
             variant="outlined"
             onClick={() => setIsEdit(true)}
-            sx={{ justifyContent: "flex-start", textTransform: "none" }}
+            sx= {{
+              fontWeight: 500,
+              color: "#1a73e8",
+              fontSize: "0.875rem",
+            }}
           >
             Edit Profile
           </Button>
@@ -230,7 +234,11 @@ const ProfilePage = () => {
             variant="outlined"
             color="error"
             onClick={() => setIsDeleteModalOpen(true)}
-            sx={{ justifyContent: "flex-start", textTransform: "none" }}
+            sx= {{
+              fontWeight: 500,
+              color: "red",
+              fontSize: "0.875rem",
+            }}
           >
             Delete
           </Button>
@@ -239,7 +247,11 @@ const ProfilePage = () => {
             startIcon={<MergeIcon />}
             variant="outlined"
             onClick={handleMergeContact}
-            sx={{ justifyContent: "flex-start", textTransform: "none" }}
+            sx= {{
+              fontWeight: 500,
+              color: "#1a73e8",
+              fontSize: "0.875rem",
+            }}
           >
             Merge Contact
           </Button>
@@ -248,7 +260,11 @@ const ProfilePage = () => {
             startIcon={<AgentIcon />}
             variant="outlined"
             onClick={() => setIsConvertProfile(true)}
-            sx={{ justifyContent: "flex-start", textTransform: "none" }}
+            sx= {{
+              fontWeight: 500,
+              color: "#1a73e8",
+              fontSize: "0.875rem",
+            }}
           >
             Convert to Agent
           </Button>
@@ -257,7 +273,11 @@ const ProfilePage = () => {
             startIcon={<PasswordIcon />}
             variant="outlined"
             onClick={() => setIsChangePassword(true)}
-            sx={{ justifyContent: "flex-start", textTransform: "none" }}
+            sx= {{
+              fontWeight: 500,
+              color: "#1a73e8",
+              fontSize: "0.875rem",
+            }}
           >
             Change Password
           </Button>
@@ -266,7 +286,11 @@ const ProfilePage = () => {
             startIcon={<AddIcon />}
             variant="outlined"
             onClick={() => navigate("/create-ticket")}
-            sx={{ justifyContent: "flex-start", textTransform: "none" }}
+            sx= {{
+              fontWeight: 500,
+              color: "#1a73e8",
+              fontSize: "0.875rem",
+            }}
           >
             New Ticket
           </Button>
