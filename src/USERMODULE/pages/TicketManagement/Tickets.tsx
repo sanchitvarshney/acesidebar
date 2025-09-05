@@ -267,29 +267,23 @@ const Tickets: React.FC = () => {
     }
   };
 
-  const { id: routeTicketId } = useParams();
+
 
   // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
-    setOpenTicketNumber(ticketNumber);
-    const ticketID = ticketNumber;
-    const payload = {
-      url: `add-watcher/${ticketID}`,
-      //@ts-ignore
-      body: { watchers: [user?.uiD] },
-    };
-    triggerWatchApi(payload);
+  
+
     navigate(`/tickets/${ticketNumber}`);
   };
 
   // When closing a ticket, go back to /tickets
 
-  // On mount, if there is an id param, open that ticket
-  React.useEffect(() => {
-    if (routeTicketId) {
-      setOpenTicketNumber(routeTicketId);
-    }
-  }, [routeTicketId]);
+  // // On mount, if there is an id param, open that ticket
+  // React.useEffect(() => {
+  //   if (routeTicketId) {
+  //     setOpenTicketNumber(routeTicketId);
+  //   }
+  // }, [routeTicketId]);
 
   // Cleanup timer on unmount
   React.useEffect(() => {

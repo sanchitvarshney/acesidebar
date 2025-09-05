@@ -17,6 +17,7 @@ import {
   Autocomplete,
   Stack,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -822,6 +823,11 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
             </List>
           </MuiBox>
         )}
+        <Alert severity="warning" >
+          {forwardData && forwardData.threadID
+            ? "Forwarding only this thread may exclude important context from the rest of the ticket."
+            : "Once forwarded, this ticket will be visible to the selected recipient. This action cannot be undone."}
+        </Alert>
       </MuiBox>
 
       <MuiBox

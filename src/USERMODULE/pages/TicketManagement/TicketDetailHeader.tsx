@@ -43,6 +43,7 @@ import {
   Chip,
   Autocomplete,
   Drawer,
+  CircularProgress,
 } from "@mui/material";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 
@@ -51,7 +52,10 @@ import Mergeticket from "../../components/Mergeticket";
 import LinkIcon from "@mui/icons-material/Link";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import LinkTickets from "../../components/LinkTicket";
-import { useCommanApiMutation } from "../../../services/threadsApi";
+import {
+  useCommanApiMutation,
+  useGetWatcherQuery,
+} from "../../../services/threadsApi";
 import LogTimePanel from "./LogTimePanel";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import EditTicket from "../EditTicket";
@@ -59,6 +63,9 @@ import ChangeOwner from "./ChangeOwner";
 import ManageReferrals from "./ManageReferrals";
 import Attachments from "./Attachments";
 import Activity from "./Activity";
+import { useAuth } from "../../../contextApi/AuthContext";
+import { useToast } from "../../../hooks/useToast";
+import { useLazyGetAgentsBySeachQuery } from "../../../services/agentServices";
 
 const ActionButton = ({
   icon,
@@ -139,7 +146,7 @@ const TicketDetailHeader = ({
   hasNextTicket = true,
 }: any) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-  const [triggerDeleteWatcher] = useCommanApiMutation();
+  const [triggerDeleteWatcher, { isLoading: isDeletingLoading }] = useCommanApiMutation();
   const [isMergeModal, setIsMergeModal] = useState(false);
   const [isLinkModal, setIsLinkModal] = useState(false);
   const [statusAnchorEl, setStatusAnchorEl] =
@@ -156,25 +163,55 @@ const TicketDetailHeader = ({
   const [watchersAnchorEl, setWatchersAnchorEl] = useState<HTMLElement | null>(
     null
   );
+  const [onChangeAgent, setOnChangeAgent] = useState("");
+  const [agentOptions, setAgentOptions] = useState<any>([]);
+  const { showToast } = useToast();
   const [watchersOpen, setWatchersOpen] = useState(false);
-  const [watchers, setWatchers] = useState([
-    {
-      id: 1,
-      name: "Diwuebfiuekj",
-      email: "diwuebfiuekj@example.com",
-      avatar: "D",
-    },
-    {
-      id: 2,
-      name: "Me (Developer Account)",
-      email: "developer@example.com",
-      avatar: "D",
-    },
-  ]);
+  const {
+    data: watcherData,
+    refetch,
+    isLoading: watcherLoading,
+  } = useGetWatcherQuery({
+    ticket: ticket?.ticketId,
+  });
+
+  const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
+    useLazyGetAgentsBySeachQuery();
   const [searchQuery, setSearchQuery] = useState("");
   const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
   const [moreOptionsSearchQuery, setMoreOptionsSearchQuery] = useState("");
   const [triggerWatcherStatus] = useCommanApiMutation();
+  const [triggerWatchApi] = useCommanApiMutation();
+  const displayAgentOptions = onChangeAgent ? agentOptions : [];
+  const fetchAgentOptions = async (query: string) => {
+    if (!query) {
+      setAgentOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerSeachAgent({
+        search: query,
+      }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = onChangeAgent;
+      const fallback = [
+        {
+          fName: currentValue,
+          emailAddress: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setAgentOptions(data.length > 0 ? data : fallback);
+      } else {
+        setAgentOptions([]);
+      }
+    } catch (error) {
+      setAgentOptions([]);
+    }
+  };
 
   // More options data
   const moreOptions = [
@@ -362,7 +399,6 @@ const TicketDetailHeader = ({
       method: "PUT",
     };
     triggerWatcherStatus(payload);
-    
   };
 
   const handleWatchersClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -377,18 +413,52 @@ const TicketDetailHeader = ({
 
   const handleRemoveWatcher = (watcherId: number) => {
     const watchID = watcherId;
+    const ticketvalue = { ticket: ticket?.ticketId };
     const payload = {
-      url: `remove-watcher/${watchID}`,
+      url: `remove-watcher/${ticketvalue.ticket}/${watchID}`,
       method: "DELETE",
     };
 
-    triggerDeleteWatcher(payload);
+    triggerDeleteWatcher(payload)
+      //@ts-ignore
+      .unwrap()
+      .then(() => {
+        refetch();
+      })
+      .catch((error: any) => {
+        showToast(error?.message || "Failed to remove watcher", "error");
+      });
   };
 
   const handleAddWatcher = (newWatcher: any) => {
-    if (newWatcher && !watchers.find((w) => w.id === newWatcher.id)) {
-      setWatchers([...watchers, newWatcher]);
+    const selectedAgentId = newWatcher?.agentID;
+    if (!selectedAgentId) {
+      return;
     }
+
+    const isAlreadyAdded = watcherData?.some(
+      (existing: any) => existing?.watchKey === selectedAgentId
+    );
+    if (isAlreadyAdded) {
+      return;
+    }
+
+    const ticketID = ticket?.ticketId;
+    const payload = {
+      url: `add-watcher/${ticketID}`,
+      //@ts-ignore
+      body: { watchers: [selectedAgentId] },
+    };
+    triggerWatchApi(payload)
+      //@ts-ignore
+      .unwrap()
+      .then(() => {
+        setOnChangeAgent("");
+        refetch();
+      })
+      .catch((error: any) => {
+        showToast(error?.message || "An error occurred", "error");
+      });
   };
 
   const handleMoreDrawerOpen = () => {
@@ -512,7 +582,7 @@ const TicketDetailHeader = ({
                   variant="body2"
                   sx={{ fontWeight: "bold", mb: 0.5 }}
                 >
-                  Ticket watchers ({watchers.length})
+                  Ticket watchers ({watcherData?.length})
                 </Typography>
                 <Typography variant="caption" sx={{ display: "block", mb: 1 }}>
                   Agents added as watchers will receive alerts when this ticket
@@ -809,7 +879,7 @@ const TicketDetailHeader = ({
         <Box>
           {/* Header */}
           <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-            Ticket watchers ({watchers.length})
+            Ticket watchers ({watcherData?.length})
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
             Agents added as watchers will receive alerts when this ticket is
@@ -830,42 +900,75 @@ const TicketDetailHeader = ({
                 </InputAdornment>
               ),
             }}
-            sx={{ mb: 2 }}
           />
 
-          {/* Add More Dropdown */}
           <Autocomplete
-            options={[
-              {
-                id: 3,
-                name: "John Doe",
-                email: "john@example.com",
-                avatar: "J",
-              },
-              {
-                id: 4,
-                name: "Jane Smith",
-                email: "jane@example.com",
-                avatar: "J",
-              },
-              {
-                id: 5,
-                name: "Mike Johnson",
-                email: "mike@example.com",
-                avatar: "M",
-              },
-            ]}
-            getOptionLabel={(option) => option.name}
+            key={`watchers-${watcherData?.length}`}
+            disableClearable={false}
+            popupIcon={null}
+            sx={{ my: 1.5 }}
+            getOptionLabel={(option: any) => {
+              if (typeof option === "string") return option;
+              return option.fName || "";
+            }}
+            value={null}
+            inputValue={onChangeAgent}
+            isOptionEqualToValue={(option: any, value: any) =>
+              option?.agentID === value?.agentID
+            }
+            options={displayAgentOptions}
             onChange={(event, newValue) => {
               if (newValue) {
                 handleAddWatcher(newValue);
+                setOnChangeAgent("");
               }
             }}
+            onInputChange={(_, value, reason) => {
+              setOnChangeAgent(value);
+              if (reason === "input") {
+                fetchAgentOptions(value);
+              }
+            }}
+            filterOptions={(x) => x}
+            getOptionDisabled={(option) =>
+              typeof option === "string" && option === "Type to search"
+            }
+            clearOnBlur
+            selectOnFocus
+            handleHomeEndKeys
+            noOptionsText={
+              <div>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {seachAgentLoading ? (
+                    <CircularProgress size={18} />
+                  ) : (
+                    "Type to search"
+                  )}
+                </Typography>
+              </div>
+            }
+            renderOption={(props, option: any) => (
+              <li {...props}>
+                {typeof option === "string" ? (
+                  option
+                ) : (
+                  <div className="flex flex-col" key={option.agentID}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {option.fName} {option.lName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {option.emailAddress}
+                    </Typography>
+                  </div>
+                )}
+              </li>
+            )}
             renderInput={(params) => (
               <TextField
                 {...params}
                 placeholder="Add more watchers..."
                 size="small"
+                fullWidth
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (
@@ -874,70 +977,77 @@ const TicketDetailHeader = ({
                     </InputAdornment>
                   ),
                 }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "4px",
+                    backgroundColor: "#f9fafb",
+                    "&:hover fieldset": { borderColor: "#9ca3af" },
+                    "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                  },
+                  "& label.Mui-focused": { color: "#1a73e8" },
+                  "& label": { fontWeight: "bold" },
+                }}
               />
             )}
-            renderOption={(props, option) => (
-              <Box component="li" {...props}>
-                <Avatar
-                  sx={{ width: 24, height: 24, mr: 1, fontSize: "0.75rem" }}
-                >
-                  {option.avatar}
-                </Avatar>
-                <Box>
-                  <Typography variant="body2">{option.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {option.email}
-                  </Typography>
-                </Box>
-              </Box>
-            )}
-            sx={{ mb: 2 }}
           />
 
           {/* Watchers List */}
           <Box sx={{ maxHeight: 200, overflowY: "auto" }}>
-            {watchers.map((watcher) => (
-              <Box
-                key={watcher.id}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  p: 1,
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 1,
-                  mb: 1,
-                  "&:hover": {
-                    backgroundColor: "#f5f5f5",
-                  },
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleRemoveWatcher(watcher.id)}
+            {watcherLoading ? (
+              <CircularProgress size={18} />
+            ) : (
+              <>
+                {watcherData?.map((watcher: any) => (
+                  <Box
+                    key={watcher?.watchKey}
                     sx={{
-                      color: "#ef4444",
-                      mr: 1,
-                      "&:hover": { backgroundColor: "#fee2e2" },
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      p: 1,
+                      border: "1px solid #e0e0e0",
+                      borderRadius: 1,
+                      mb: 1,
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5",
+                      },
                     }}
                   >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                  <Avatar
-                    sx={{ width: 32, height: 32, mr: 1, fontSize: "0.875rem" }}
-                  >
-                    {watcher.avatar}
-                  </Avatar>
-                  <Box>
-                    <Typography variant="body2">{watcher.name}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {watcher.email}
-                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveWatcher(watcher?.watchKey)}
+                        sx={{
+                          color: "#ef4444",
+                          mr: 1,
+                          "&:hover": { backgroundColor: "#fee2e2" },
+                        }}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                      <Avatar
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          mr: 1,
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {watcher?.firstName?.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body2">
+                          {watcher.firstName} {watcher.lastName}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {watcher?.emailID}
+                        </Typography>
+                      </Box>
+                    </Box>
                   </Box>
-                </Box>
-              </Box>
-            ))}
+                ))}
+              </>
+            )}
           </Box>
         </Box>
       </Popover>

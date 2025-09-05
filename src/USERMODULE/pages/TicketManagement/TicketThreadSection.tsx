@@ -51,6 +51,7 @@ import ImageViewComponent from "../../components/ImageViewComponent";
 
 import {
   setForwardData,
+  setIsReply,
   setReplyValue,
 } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
@@ -670,7 +671,7 @@ const TicketThreadSection = ({
   const { showToast } = useToast();
   const dispatch = useDispatch();
   const { refetch } = useGetAttacedFileQuery({ ticketId: header?.ticketId });
-  const [isReply, setIsReply] = useState(true);
+
   const [commonApi] = useCommanApiMutation();
   const [showEditor, setShowEditor] = useState<any>(false);
   const [showShotcut, setShowShotcut] = useState(false);
@@ -686,7 +687,7 @@ const TicketThreadSection = ({
   const [suggest, setSuggest] = useState(false);
   const [selectedValue, setSelectedValue] = useState("public");
   //@ts-ignore
-  const { shotcutData, replyValue } = useSelector(
+  const { isReply, replyValue } = useSelector(
     (state: RootState) => state.shotcut
   );
   const [isReplyStatusOpen, setIsReplyStatusOpen] = useState<boolean>(false);
@@ -950,12 +951,11 @@ const TicketThreadSection = ({
               base64_data: images,
             },
           ],
-          note: notifyTag,
-          statusKey: "",
+          note: notifyTag.map((item: any) => item?.email) ?? [],
         },
       },
     };
-
+  
     commonApi(payload)
       .then((res: any) => {
         dispatch(setReplyValue(""));
@@ -1152,7 +1152,7 @@ const TicketThreadSection = ({
                   changeNotify={(value: any) => setNotifyTag(value)}
                   notifyTag={notifyTag}
                   ticketId={header?.ticketId}
-                  setIsReply={(value: any) => setIsReply(value)}
+                  setIsReply={(value: any) => dispatch(setIsReply(value))}
                 />
               </div>
 

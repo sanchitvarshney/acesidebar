@@ -20,15 +20,13 @@ import { useGetTicketDetailStaffViewQuery } from "../../../services/ticketDetail
 import { useNavigate, useParams } from "react-router-dom";
 import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
 import { useAuth } from "../../../contextApi/AuthContext";
-
-// interface TicketDetailTemplateProps {
-//   ticket: any; // expects { header, response, other }
-//   onBack: () => void;
-// }
+import { setIsReply } from "../../../reduxStore/Slices/shotcutSlices";
+import { useDispatch } from "react-redux";
 
 const TicketDetailTemplate = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const dispatch = useDispatch();
 
   const openTicketNumber = useParams().id;
   const { data: ticket, isFetching: isTicketDetailLoading } =
@@ -91,9 +89,10 @@ const TicketDetailTemplate = () => {
         cc: forwardFields.cc,
         bcc: forwardFields.bcc,
 
-        subject: ticket?.header?.subject && urlValues.threadID
-          ? `FWD: ${ticket.header.subject}`
-          : forwardFields.subject,
+        subject:
+          ticket?.header?.subject && urlValues.threadID
+            ? `FWD: ${ticket.header.subject}`
+            : forwardFields.subject,
         message: ticket?.header?.description || forwardFields.message,
         attachments: forwardFields.documents.map((file: any) => {
           return {
@@ -134,6 +133,7 @@ const TicketDetailTemplate = () => {
   const handleCloseReply = () => setShowReplyEditor(false);
   const handleAddNote = () => {
     setShowEditorNote(true);
+    dispatch(setIsReply(false));
     setValue("Note");
   };
   const handleAddNoteClose = () => setShowEditorNote(false);

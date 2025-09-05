@@ -3,13 +3,15 @@ import { createSlice } from "@reduxjs/toolkit";
 interface CounterState {
   shotcutData: any;
   replyValue: string;
-  forwardData: any
+  forwardData: any;
+  isReply: boolean
 }
 
 const initialState: CounterState = {
   shotcutData: [],
   replyValue: "",
-  forwardData: {}
+  forwardData: {},
+  isReply: true
 };
 
 const shotcutSlice = createSlice({
@@ -25,8 +27,11 @@ const shotcutSlice = createSlice({
     setForwardData: (state, action) => {
       state.forwardData = action.payload;
     },
+    setIsReply: (state, action) => {
+      state.isReply = action.payload;
+    },
   },
 });
 
-export const { setShotcuts,setReplyValue,setForwardData } = shotcutSlice.actions;
+export const { setShotcuts,setReplyValue,setForwardData , setIsReply} = shotcutSlice.actions;
 export default shotcutSlice.reducer;
