@@ -146,9 +146,10 @@ const ThreadItem = ({
   subject,
 }: any) => {
   const [commanApi] = useCommanApiMutation();
+  const [triggerFlag] = useCommanApiMutation();
   const { showToast } = useToast();
   const [open, setOpen] = useState(false);
-  const [isReported, setIsReported] = useState<boolean>(false);
+  const [isReported, setIsReported] = useState<boolean>(item?.isFlagged);
 
   const ticketId = useParams().id;
   const optionsRef = React.useRef<any>(null);
@@ -369,15 +370,21 @@ const ThreadItem = ({
     return out;
   };
 
-  const handleReportTicket = () => {
+  const handleReportTicket = (flagValue: boolean) => {
+    const status = isReported ? 0 : 1;
     const payload = {
-      url: `report-ticket/${item.entryId}`,
-      method: "GET",
+      url: `report-thread/${ticketId}/${item.entryId}/${status}`,
+      method: "PUT",
     };
-    commanApi(payload)
-      .then((response) => {})
+    triggerFlag(payload)
+      .then((response: any) => {
+        if (response?.type === "error") {
+          return;
+        } else {
+          setIsReported((v) => !v);
+        }
+      })
       .catch((error) => {});
-    setIsReported((v) => !v);
   };
 
   return (
@@ -451,7 +458,10 @@ const ThreadItem = ({
             >
               {!isCurrentUser && (
                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
-                  <IconButton size="small" onClick={handleReportTicket}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleReportTicket(item?.isFlagged)}
+                  >
                     <EmojiFlagsIcon
                       sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
                       fontSize="small"
@@ -955,7 +965,7 @@ const TicketThreadSection = ({
         },
       },
     };
-  
+
     commonApi(payload)
       .then((res: any) => {
         dispatch(setReplyValue(""));

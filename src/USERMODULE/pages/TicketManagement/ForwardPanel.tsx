@@ -823,10 +823,13 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
             </List>
           </MuiBox>
         )}
-        <Alert severity="warning" >
-          {forwardData && forwardData.threadID
-            ? "Forwarding only this thread may exclude important context from the rest of the ticket."
-            : "Once forwarded, this ticket will be visible to the selected recipient. This action cannot be undone."}
+        <Alert severity="warning" sx={{ backgroundColor: "rgb(254 249 195)", border:"1px solid #FFC107" }}>
+          <Typography variant="subtitle1" sx={{ fontSize: 12 }}>
+            {" "}
+            {forwardData && forwardData.threadID
+              ? "Forwarding only this thread may exclude important context from the rest of the ticket."
+              : "Once forwarded, this ticket will be visible to the selected recipient. This action cannot be undone."}
+          </Typography>
         </Alert>
       </MuiBox>
 
