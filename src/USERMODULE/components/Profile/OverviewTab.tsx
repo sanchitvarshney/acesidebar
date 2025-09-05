@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Avatar,
   Box,
@@ -47,7 +47,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import AppsIcon from "@mui/icons-material/Apps";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import CustomPopover from "../../../reusable/CustomPopover";
 import ContactDetails from "./ContactDetails";
 
 type OverviewTabProps = {
@@ -62,6 +62,10 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
   });
   const [metricOpen, setMetricOpen] = useState<null | string>(null);
   const [editInfoOpen, setEditInfoOpen] = useState(false);
+
+  // Anchor refs for popovers
+  const metricAnchorRef = useRef<HTMLDivElement>(null);
+  const editInfoAnchorRef = useRef<HTMLButtonElement>(null);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -171,6 +175,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                 </Typography>
               </Box>
               <Button
+                ref={editInfoAnchorRef}
                 variant="outlined"
                 size="small"
                 onClick={() => setEditInfoOpen(true)}
@@ -198,6 +203,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
               <Box
+                ref={metricAnchorRef}
                 sx={{
                   textAlign: "center",
                   p: 1,
@@ -422,15 +428,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
       </Box>
 
       {/* Popovers */}
-      <CustomSideBarPanel
+      <CustomPopover
         open={!!metricOpen}
         close={() => setMetricOpen(null)}
-        title={
-          metricOpen
-            ? `${metricOpen[0].toUpperCase()}${metricOpen.slice(1)} tickets`
-            : "Tickets"
-        }
-        width={900}
+        anchorEl={metricAnchorRef}
+        width={400}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -445,13 +448,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
             DONE
           </Button>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={editInfoOpen}
         close={() => setEditInfoOpen(false)}
-        title={"Edit profile info"}
-        width={520}
+        anchorEl={editInfoAnchorRef}
+        width={350}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -470,7 +474,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
             </Button>
           </Box>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
     </Box>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Box, Paper, Typography, Button } from "@mui/material";
 import {
   timelineOppositeContentClasses,
@@ -11,10 +11,11 @@ import {
 } from "@mui/lab";
 import CheckIcon from "@mui/icons-material/CheckCircle";
 import MailIcon from "@mui/icons-material/Mail";
-import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import CustomPopover from "../../../reusable/CustomPopover";
 
 const ActivityTab: React.FC = () => {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const activityAnchorRef = useRef<HTMLDivElement>(null);
 
   return (
     <Box sx={{ display: "flex", gap: 3, height: "100%" }}>
@@ -39,6 +40,7 @@ const ActivityTab: React.FC = () => {
             }}
           >
             <TimelineItem
+              ref={activityAnchorRef}
               onClick={() => setOpenIdx(0)}
               sx={{ cursor: "pointer" }}
             >
@@ -135,17 +137,12 @@ const ActivityTab: React.FC = () => {
         </Paper>
       </Box>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={openIdx !== null}
         close={() => setOpenIdx(null)}
-        title={
-          openIdx === 0
-            ? "Profile Updated"
-            : openIdx === 1
-            ? "New Ticket Created"
-            : "Activity"
-        }
-        width={700}
+        anchorEl={activityAnchorRef}
+        width={400}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -163,7 +160,7 @@ const ActivityTab: React.FC = () => {
             DONE
           </Button>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
     </Box>
   );
 };

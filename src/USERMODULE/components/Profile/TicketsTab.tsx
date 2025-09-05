@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Card,
@@ -12,7 +12,7 @@ import {
 import EmailIcon from "@mui/icons-material/Email";
 import { TicketItem } from "./types";
 import CustomToolTip from "../../../components/reusable/CustomToolTip";
-import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import CustomPopover from "../../../reusable/CustomPopover";
 
 type TicketsTabProps = {
   tickets: TicketItem[];
@@ -20,6 +20,7 @@ type TicketsTabProps = {
 
 const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const ticketAnchorRef = useRef<HTMLDivElement>(null);
 
   const selected = openIdx !== null ? tickets[openIdx] : null;
 
@@ -32,6 +33,7 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
         {tickets?.map((item, index) => (
           <Card
             key={index}
+            ref={index === 0 ? ticketAnchorRef : null}
             elevation={0}
             sx={{
               borderRadius: 2,
@@ -164,11 +166,12 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
         ))}
       </Stack>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={openIdx !== null}
         close={() => setOpenIdx(null)}
-        title={selected ? selected.title : "Ticket"}
-        width={900}
+        anchorEl={ticketAnchorRef}
+        width={500}
+        isCone={true}
       >
         {selected && (
           <Box sx={{ p: 2 }}>
@@ -214,7 +217,7 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
             </Box>
           </Box>
         )}
-      </CustomSideBarPanel>
+      </CustomPopover>
     </Box>
   );
 };
