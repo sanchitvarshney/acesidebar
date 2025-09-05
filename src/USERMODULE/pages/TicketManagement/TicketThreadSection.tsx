@@ -53,6 +53,7 @@ import {
   setForwardData,
   setIsReply,
   setReplyValue,
+  setSelectedIndex,
 } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
 import {
@@ -697,7 +698,7 @@ const TicketThreadSection = ({
   const [suggest, setSuggest] = useState(false);
   const [selectedValue, setSelectedValue] = useState("public");
   //@ts-ignore
-  const { isReply, replyValue } = useSelector(
+  const { isReply, replyValue,selectedIndex } = useSelector(
     (state: RootState) => state.shotcut
   );
   const [isReplyStatusOpen, setIsReplyStatusOpen] = useState<boolean>(false);
@@ -1163,6 +1164,13 @@ const TicketThreadSection = ({
                   notifyTag={notifyTag}
                   ticketId={header?.ticketId}
                   setIsReply={(value: any) => dispatch(setIsReply(value))}
+                  // setSelectedIndex={(value: any) =>
+                  // {
+                  //   console.log("setSelectedIndex", value)
+                  //  
+                  // }
+                  // }
+                  // selectedIndex={selectedIndex}
                 />
               </div>
 

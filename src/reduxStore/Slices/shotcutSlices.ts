@@ -4,14 +4,16 @@ interface CounterState {
   shotcutData: any;
   replyValue: string;
   forwardData: any;
-  isReply: boolean
+  isReply: boolean;
+  selectedIndex: string | number;
 }
 
 const initialState: CounterState = {
   shotcutData: [],
   replyValue: "",
   forwardData: {},
-  isReply: true
+  isReply: true,
+  selectedIndex: "1",
 };
 
 const shotcutSlice = createSlice({
@@ -30,8 +32,17 @@ const shotcutSlice = createSlice({
     setIsReply: (state, action) => {
       state.isReply = action.payload;
     },
+    setSelectedIndex: (state, action) => {
+      state.selectedIndex = action.payload;
+    },
   },
 });
 
-export const { setShotcuts,setReplyValue,setForwardData , setIsReply} = shotcutSlice.actions;
+export const {
+  setShotcuts,
+  setReplyValue,
+  setForwardData,
+  setIsReply,
+  setSelectedIndex,
+} = shotcutSlice.actions;
 export default shotcutSlice.reducer;

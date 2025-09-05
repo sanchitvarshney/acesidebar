@@ -20,14 +20,18 @@ import { useGetTicketDetailStaffViewQuery } from "../../../services/ticketDetail
 import { useNavigate, useParams } from "react-router-dom";
 import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
 import { useAuth } from "../../../contextApi/AuthContext";
-import { setIsReply } from "../../../reduxStore/Slices/shotcutSlices";
+import {
+  setIsReply,
+  setSelectedIndex,
+} from "../../../reduxStore/Slices/shotcutSlices";
 import { useDispatch } from "react-redux";
+import { useToast } from "../../../hooks/useToast";
 
 const TicketDetailTemplate = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const dispatch = useDispatch();
-
+  const { showToast } = useToast();
   const openTicketNumber = useParams().id;
   const { data: ticket, isFetching: isTicketDetailLoading } =
     useGetTicketDetailStaffViewQuery(
@@ -65,7 +69,10 @@ const TicketDetailTemplate = () => {
 
   // Pass this to children to allow opening the forward panel
   const handleOpenForward = () => setForwardOpen(true);
-  const handleCloseForward = () => setForwardOpen(false);
+  const handleCloseForward = () => {
+    dispatch(setSelectedIndex("2"));
+    setForwardOpen(false);
+  };
   const handleForwardFieldChange = (field: string, value: string) => {
     setForwardFields((prev) => ({ ...prev, [field]: value }));
   };
@@ -107,21 +114,23 @@ const TicketDetailTemplate = () => {
     };
 
     // Call your API
-    triggerForward(payload)
-      .then((response) => {})
-      .catch((error) => {});
-    setForwardOpen(false);
-    setForwardFields({
-      from:
-        ticket?.header?.requester ||
-        "MsCorpres Automation PvtLtd (support@postmanreply.com)",
-      subject: ticket?.header?.subject ? `Fwd: ${ticket.header.subject}` : "",
-      to: "",
-      cc: [],
-      bcc: [],
-      message: ticket?.header?.description || "",
-      documents: [],
-      threadID: "",
+    triggerForward(payload).then((response: any) => {
+      if (response?.type === "error") {
+        showToast(response?.message, "error");
+      } else {
+        dispatch(setSelectedIndex("2"));
+        setForwardOpen(false);
+        setForwardFields({
+          from: "",
+          subject: "",
+          to: "",
+          cc: [],
+          bcc: [],
+          message: ticket?.header?.description || "",
+          documents: [],
+          threadID: "",
+        });
+      }
     });
   };
 

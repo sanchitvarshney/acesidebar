@@ -5,7 +5,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ReplyIcon from "@mui/icons-material/Reply";
 import PrivateConnectivityIcon from "@mui/icons-material/PrivateConnectivity";
 import PublicIcon from "@mui/icons-material/Public";
-import { v4 as uuidv4 } from "uuid";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   Avatar,
@@ -24,12 +24,12 @@ import {
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ShortcutIcon from "@mui/icons-material/Shortcut";
-import { set } from "react-hook-form";
 import CustomToolTip from "../../reusable/CustomToolTip";
 import { useToast } from "../../hooks/useToast";
 import { fetchOptions, isValidEmail } from "../../utils/Utils";
 import { useUploadFileApiMutation } from "../../services/uploadDocServices";
 
+import { setSelectedIndex } from "../../reduxStore/Slices/shotcutSlices";
 export const formatName = (name) => {
   if (!name) return "";
 
@@ -98,9 +98,10 @@ const StackEditor = ({
     ticketId,
     setIsReply,
   } = props;
+
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
-
+  const dispatch = useDispatch();
   const [notifyValue, setNotifyValue] = React.useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const editorRef = useRef(null);
@@ -108,7 +109,7 @@ const StackEditor = ({
   const notifyInputRef = useRef(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const optionsRef = React.useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState("1");
+  const { selectedIndex } = useSelector((state) => state.shotcut);
   const [showCc, setShowCc] = React.useState(false);
   const [showBcc, setShowBcc] = React.useState(false);
   const [optionChangeKey, setOptionChangeKey] = useState(0);
@@ -298,9 +299,9 @@ const StackEditor = ({
   useEffect(() => {
     if (!isValues) return;
     if (isValues === "Reply") {
-      setSelectedIndex("1");
+      dispatch(setSelectedIndex("1"));
     } else {
-      setSelectedIndex("2");
+      dispatch(setSelectedIndex("2"));
     }
   }, [isValues]);
 
@@ -617,10 +618,9 @@ const StackEditor = ({
     }
 
     setIsReply(index === "2" ? false : true);
-    setSelectedIndex(index);
+    dispatch(setSelectedIndex(index));
     setIsOptionsOpen(false); // Close after selection
     setOptionChangeKey((prevKey) => prevKey + 1);
- 
   };
 
   const renderHeader = () => {
