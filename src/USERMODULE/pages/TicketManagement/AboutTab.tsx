@@ -55,15 +55,13 @@ const AboutTab = ({ ticketData }: any) => {
         internal_notes: internalNote,
       },
     };
-    updateUserData(payload)
-      .then((res: any) => {
-        if (res?.data?.success !== true) {
-          showToast(res?.data?.message || "An error occurred", "error");
-          return;
-        }
+    updateUserData(payload).then((res: any) => {
+      if (res?.data?.success !== true) {
+        showToast(res?.data?.message || "An error occurred", "error");
+        return;
+      }
+    });
 
-      })
- 
     setIsEditing(false);
   };
 
@@ -77,15 +75,7 @@ const AboutTab = ({ ticketData }: any) => {
 
   return (
     <>
-      <div
-        className="bg-white rounded border border-gray-200 p-3 mb-4 custom-scrollbar"
-        style={{
-          maxHeight: "300px",
-          overflow: "auto",
-          scrollbarWidth: "thin",
-          scrollbarColor: "#c1c1c1 #f1f1f1",
-        }}
-      >
+      <div className="bg-white  rounded border border-gray-200 p-3 custom-scrollbar">
         <div className="flex items-center justify-between mb-2">
           <div className="font-semibold text-sm text-gray-700 ">About</div>
           <div className="space-x-2">

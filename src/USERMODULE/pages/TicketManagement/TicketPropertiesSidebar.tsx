@@ -283,171 +283,17 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           </Tabs>
         </Box>
 
-        <div className="w-full h-[calc(100vh-350px)] overflow-y-scroll">
+        <div className="w-full h-[calc(100vh-160px)]  overflow-y-scroll">
           {/* Profile tab content */}
           {activeProfileTab === 0 && <AboutTab ticketData={ticket} />}
           {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
           {activeProfileTab === 2 && <InfoTab />}
           {activeProfileTab === 3 && <NotesTab ticketData={ticket} />}
 
-          {/* Organization section */}
-          <div className="bg-white rounded border border-gray-200 p-2 flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <div className="space-x-2">
-                {" "}
-                <LocalOfferIcon sx={{ fontSize: 20 }} />
-                <span className="text-sm font-medium">Tags</span>
-              </div>
-              {isUserDataLoading ? (
-                <CircularProgress size={16} />
-              ) : (
-                <div>
-                  <IconButton
-                    size="small"
-                    onClick={() => isEditing && setIsEditing(false)}
-                  >
-                    {isEditing && <Close sx={{ fontSize: 20 }} />}
-                  </IconButton>
-                  <IconButton size="small" onClick={toggleEdit}>
-                    {isEditing ? (
-                      <SaveIcon sx={{ fontSize: 20 }} />
-                    ) : (
-                      <ModeEditIcon sx={{ fontSize: 20 }} />
-                    )}
-                  </IconButton>
-                </div>
-              )}
-            </div>
-            {isEditing ? (
-              <Box sx={{ width: "100%" }}>
-                <Autocomplete
-                  multiple
-                  disableClearable
-                  popupIcon={null}
-                  getOptionLabel={(option) => {
-                    if (typeof option === "string") return option;
-                    return option.tagName || option.name || "";
-                  }}
-                  options={displayOptions}
-                  value={editTags}
-                  onChange={(event, newValue) => {
-                    handleSelectedOption(event, newValue);
-                  }}
-                  onInputChange={(_, value) => setEditChangeValue(value)}
-                  filterOptions={(x) => x}
-                  getOptionDisabled={(option) => option === "Type to search"}
-                  noOptionsText={
-                    editChangeValue.length < 3
-                      ? "Type at least 3 characters to search"
-                      : "No tags found"
-                  }
-                  renderOption={(props, option) => {
-                    return (
-                      <li {...props}>
-                        {typeof option === "string" ? (
-                          option
-                        ) : (
-                          <div
-                            className="flex items-center gap-3 p-1 rounded-md w-full"
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="flex flex-col">
-                              <Typography
-                                variant="subtitle2"
-                                sx={{ fontWeight: 600 }}
-                              >
-                                {option.tagName}
-                              </Typography>
-                            </div>
-                          </div>
-                        )}
-                      </li>
-                    );
-                  }}
-                  renderTags={(editTags, getTagProps) =>
-                    editTags?.map((option, index) => (
-                      <Chip
-                        variant="outlined"
-                        color="primary"
-                        key={index}
-                        label={
-                          typeof option === "string"
-                            ? option
-                            : option.name ?? option.tagName
-                        }
-                        onDelete={() => {
-                          const newTags = editTags.filter(
-                            (_, i) => i !== index
-                          );
-                          setEditTags(newTags);
-                        }}
-                        sx={{
-                          cursor: "pointer",
-                          height: "20px",
-                          color: "primary.main",
-                          "& .MuiChip-deleteIcon": {
-                            color: "error.main",
-                            width: "12px",
-                          },
-                          "& .MuiChip-deleteIcon:hover": {
-                            color: "#e87f8c",
-                          },
-                        }}
-                      />
-                    ))
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      placeholder="Type at least 3 characters to search tags..."
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: "4px",
-                          backgroundColor: "#f9fafb",
-                          "&:hover fieldset": { borderColor: "#9ca3af" },
-                          "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                        },
-                        "& label.Mui-focused": { color: "#1a73e8" },
-                        "& label": { fontWeight: "bold" },
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            ) : (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {tags?.map((item: any) => {
-                  return (
-                    <Chip
-                      key={item.key}
-                      label={item.name}
-                      onDelete={() => handleDeleteTag(item.key)}
-                      deleteIcon={
-                        <CloseIcon
-                          sx={{
-                            transition: "color 0.2s",
-                          }}
-                        />
-                      }
-                      sx={{
-                        "&:hover .MuiChip-deleteIcon": {
-                          color: "error.main",
-                        },
-                        "& .MuiChip-deleteIcon": {
-                          fontSize: 18,
-                        },
-                      }}
-                    />
-                  );
-                })}
-              </Box>
-            )}
+    
           </div>
         </div>
-      </div>
+   
     );
   } else if (activeTopTab === 2) {
     // knowledge

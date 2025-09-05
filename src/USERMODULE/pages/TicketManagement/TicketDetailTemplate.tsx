@@ -19,7 +19,7 @@ import { useCommanApiMutation } from "../../../services/threadsApi";
 import { useGetTicketDetailStaffViewQuery } from "../../../services/ticketDetailAuth";
 import { useNavigate, useParams } from "react-router-dom";
 import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
-
+import { useAuth } from "../../../contextApi/AuthContext";
 
 // interface TicketDetailTemplateProps {
 //   ticket: any; // expects { header, response, other }
@@ -28,6 +28,7 @@ import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
 
 const TicketDetailTemplate = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const openTicketNumber = useParams().id;
   const { data: ticket, isFetching: isTicketDetailLoading } =
@@ -77,16 +78,20 @@ const TicketDetailTemplate = () => {
       threadID: forwardFields.threadID,
       type: forwardFields.threadID ? "thread" : "ticket",
       ticket: ticket?.header?.ticketId,
+      code: "f4ed9e5da4bf4aed9e228bd1b1eae791",
     };
     const payload = {
-      url: `forward/${urlValues.ticket}/${urlValues.threadID}/${urlValues.type}`,
+      url: forwardFields.threadID
+        ? `forward/${urlValues.ticket}/ticket?code=${urlValues.code}`
+        : `forward/${urlValues.ticket}/ticket`,
       body: {
-        from: ticket?.header?.requester,
+        //@ts-ignore
+        from: user?.email,
         to: forwardFields.to,
         cc: forwardFields.cc,
         bcc: forwardFields.bcc,
 
-        subject: ticket?.header?.subject
+        subject: ticket?.header?.subject && urlValues.threadID
           ? `FWD: ${ticket.header.subject}`
           : forwardFields.subject,
         message: ticket?.header?.description || forwardFields.message,

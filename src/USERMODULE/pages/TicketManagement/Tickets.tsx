@@ -51,7 +51,6 @@ const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 const Tickets: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-
   const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -272,12 +271,12 @@ const Tickets: React.FC = () => {
 
   // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
-    const userId = localStorage.getItem("userId");
     setOpenTicketNumber(ticketNumber);
     const ticketID = ticketNumber;
     const payload = {
       url: `add-watcher/${ticketID}`,
-      body: { watchers: [userId] },
+      //@ts-ignore
+      body: { watchers: [user?.uiD] },
     };
     triggerWatchApi(payload);
     navigate(`/tickets/${ticketNumber}`);
@@ -300,8 +299,6 @@ const Tickets: React.FC = () => {
       }
     };
   }, []);
-
-
 
   const handleDelete = () => {
     if (selectedTickets.length < 0) {

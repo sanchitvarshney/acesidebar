@@ -431,7 +431,7 @@ const TicketDetailHeader = ({
 
         <ActionButton
           icon={<SwapHorizIcon fontSize="small" className="text-purple-600" />}
-          tooltip="Transfer"
+          tooltip="Forward"
           onClick={() => onForward()}
         />
         <ActionButton

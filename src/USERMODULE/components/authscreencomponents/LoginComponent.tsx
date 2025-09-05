@@ -81,13 +81,14 @@ const LoginComponent = () => {
       };
       const result = await login(payload);
 
-      if (result.data?.data?.token) {
+      if (result.data?.data?.token && result.data?.data?.user) {
         localStorage.setItem("userToken", result.data.data.token);
 
         // Store user data
-        localStorage.setItem("userData", JSON.stringify(result.data.data.user));
+        // localStorage.setItem("userData", JSON.stringify(result.data.data.user));
+        const decryptedData = JSON.stringify(decrypt(result.data.data.user));
 
-        localStorage.setItem("userId", decrypt(result.data.data.user)?.uiD);
+        localStorage.setItem("userData", decryptedData);
         // Update auth context
         signIn();
 
