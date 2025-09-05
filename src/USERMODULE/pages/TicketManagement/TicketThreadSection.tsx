@@ -698,7 +698,7 @@ const TicketThreadSection = ({
   const [suggest, setSuggest] = useState(false);
   const [selectedValue, setSelectedValue] = useState("public");
   //@ts-ignore
-  const { isReply, replyValue,selectedIndex } = useSelector(
+  const { isReply, replyValue, selectedIndex } = useSelector(
     (state: RootState) => state.shotcut
   );
   const [isReplyStatusOpen, setIsReplyStatusOpen] = useState<boolean>(false);
@@ -1167,7 +1167,7 @@ const TicketThreadSection = ({
                   // setSelectedIndex={(value: any) =>
                   // {
                   //   console.log("setSelectedIndex", value)
-                  //  
+                  //
                   // }
                   // }
                   // selectedIndex={selectedIndex}
@@ -1565,7 +1565,7 @@ const TicketThreadSection = ({
         title={"Add Task"}
         width={"80%"}
       >
-        <Tasks isAddTask={isAddTask} />
+        <Tasks isAddTask={isAddTask} ticketId={header?.ticketId} />
       </CustomSideBarPanel>
     </div>
   );

@@ -236,36 +236,36 @@ export const filterTasksBySearch = (
 ) => {
   if (!searchQuery) return tasks;
 
-  return tasks.filter((task) => {
+  return tasks?.filter((task) => {
     let matches = false;
 
     if (
       searchInFields.title &&
-      task.title.toLowerCase().includes(searchQuery.toLowerCase())
+      task?.title.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       matches = true;
     }
     if (
       searchInFields.description &&
-      task.description.toLowerCase().includes(searchQuery.toLowerCase())
+      task?.description.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       matches = true;
     }
     if (
       searchInFields.ticketId &&
-      task.ticketId.toLowerCase().includes(searchQuery.toLowerCase())
+      task?.ticketId.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       matches = true;
     }
     if (
       searchInFields.assignedTo &&
-      task.assignedTo.toLowerCase().includes(searchQuery.toLowerCase())
+      task?.assignedTo.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       matches = true;
     }
     if (
       searchInFields.tags &&
-      task.tags.some((tag: string) =>
+      task?.tags?.some((tag: string) =>
         tag.toLowerCase().includes(searchQuery.toLowerCase())
       )
     ) {
@@ -281,5 +281,5 @@ export const paginateTasks = (
   page: number,
   rowsPerPage: number
 ) => {
-  return tasks.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  return tasks?.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 };

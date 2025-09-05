@@ -69,6 +69,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    commanApiForTaskList: builder.mutation({
+      query: (credentials) => ({
+        url: `/task/ticket/${credentials.url}`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
   }),
   overrideExisting: false,
 });
@@ -83,4 +90,5 @@ export const {
   useAddShortcutMutation,
   useDeleteShortcutMutation,
   useGetWatcherQuery,
+  useCommanApiForTaskListMutation
 } = extendedTicketApi;

@@ -13,7 +13,7 @@ import { Task } from "../types/task.types";
 import { getStatusColor, getPriorityColor } from "../utils/taskUtils";
 
 interface TaskCardProps {
-  task: Task;
+  task: any;
   isSelected: boolean;
   isCurrentTask: boolean;
   onSelect: (taskId: string, checked: boolean) => void;
@@ -33,12 +33,12 @@ const TaskCard: React.FC<TaskCardProps> = ({
 }) => {
   const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
-    onSelect(task.id, event.target.checked);
+    onSelect(task.taskKey, event.target.checked);
   };
 
   const handleClick = () => {
     if (!isCurrentTask) {
-      onClick(task);
+      onClick(task?.taskID);
     }
   };
 
@@ -58,7 +58,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
-          {!task.disabled && !isCurrentTask && (
+          {!isCurrentTask && (
             <div className="flex-shrink-0 relative">
               <Checkbox
                 checked={isSelected}
@@ -80,7 +80,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 isCurrentTask ? "bg-blue-200" : "bg-blue-100"
-              } ${task.disabled ? "opacity-50" : ""}`}
+              } ${false ? "opacity-50" : ""}`}
             >
               {getStatusIcon(task.status)}
             </div>
@@ -98,17 +98,17 @@ const TaskCard: React.FC<TaskCardProps> = ({
                   isCurrentTask ? "text-blue-700" : "text-gray-900"
                 }`}
               >
-                {task.title}
+                {task?.title}
               </h3>
-              {task.isUrgent && (
+              {/* {task?.priority && (
                 <Chip
                   icon={<PriorityHighIcon />}
-                  label="Urgent"
-                  color="error"
+                  label={task?.priority?.name}
+                  sx={{ color: task?.priority?.color }}
                   size="small"
                 />
-              )}
-              {task.isOverdue && (
+              )} */}
+              {task?.isDue && (
                 <Chip label="Overdue" color="error" size="small" />
               )}
             </div>
@@ -117,50 +117,50 @@ const TaskCard: React.FC<TaskCardProps> = ({
               {!isAddTask && (
                 <span className="flex items-center gap-1">
                   <ConfirmationNumberIcon fontSize="small" />
-                  {task.ticketId}
+                  {task?.ticketID}
                 </span>
               )}
               <span className="flex items-center gap-1">
                 <PersonIcon fontSize="small" />
-                {task.assignedTo}
+                {task?.assignor}
               </span>
               <span className="flex items-center gap-1">
                 <ScheduleIcon fontSize="small" />
-                {task.dueDate}
+                {task?.due?.dt} {task?.due?.tm}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Chip
-                  label={task.status}
+                  label={task?.status?.name}
                   size="small"
-                  color={getStatusColor(task.status) as any}
+                  color={getStatusColor(task?.status?.name) as any}
                 />
                 <Chip
-                  label={task.priority}
+                  label={task?.priority?.name}
                   size="small"
-                  color={getPriorityColor(task.priority) as any}
+                  color={task?.priority?.color}
                   variant="outlined"
                 />
               </div>
 
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span>
-                  {task.actualHours}/{task.estimatedHours}h
+                  {task?.estimate}
                 </span>
                 <div className="flex items-center gap-1">
                   <IconButton size="small">
                     <CommentIcon fontSize="small" />
                   </IconButton>
-                  <span className="text-gray-500">{task.comments.length}</span>
+                  <span className="text-gray-500">{task?.other?.comment}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <IconButton size="small">
                     <AttachFileIcon fontSize="small" />
                   </IconButton>
                   <span className="text-gray-500">
-                    {task.attachments.length}
+                    {task.other?.attachment}
                   </span>
                 </div>
               </div>

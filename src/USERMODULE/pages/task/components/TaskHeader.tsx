@@ -75,7 +75,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
         {/* Pagination */}
         <TablePagination
           component="div"
-          count={totalTasks}
+          count={totalTasks ?? 0}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}

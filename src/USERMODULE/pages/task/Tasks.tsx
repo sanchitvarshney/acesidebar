@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import LeftMenu from "../TicketManagement/LeftMenu";
 import {
   Button,
@@ -17,6 +17,7 @@ import {
   Box,
   Typography,
   ListItemText,
+  CircularProgress,
 } from "@mui/material";
 import {
   FilterList as FilterListIcon,
@@ -37,7 +38,6 @@ import SortIcon from "@mui/icons-material/Sort";
 import DownloadIcon from "@mui/icons-material/Download";
 import { Task, Comment as TaskComment } from "./types/task.types";
 import {
-  mockTasks,
   CURRENT_USER,
   statusOptions,
   priorityOptions,
@@ -58,14 +58,18 @@ import TaskHeader from "./components/TaskHeader";
 import TaskList from "./components/TaskList";
 import TaskDetails from "./components/TaskDetails";
 import CommentForm from "./components/CommentForm";
+import { useCommanApiForTaskListMutation } from "../../../services/threadsApi";
+import { useToast } from "../../../hooks/useToast";
 
 type TaskPropsType = {
   isAddTask?: boolean;
+  ticketId?: string;
 };
 
-const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
+const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
+  const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
+
   const [taskDialogOpen, setTaskDialogOpen] = React.useState(false);
   const [showCommentForm, setShowCommentForm] = React.useState(false);
   const [showAttachments, setShowAttachments] = React.useState(false);
@@ -76,7 +80,13 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
   const [editingCommentId, setEditingCommentId] = React.useState<string | null>(
     null
   );
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
+  const [getTaskList, { data: taskList, isLoading: taskListLoading }] =
+    useCommanApiForTaskListMutation();
+  const [getTaskComment, { data: taskcomment, isLoading: taskcommentLoading }] =
+    useCommanApiForTaskListMutation();
 
   // Task Advanced Search State
   const [taskAdvancedSearchOpen, setTaskAdvancedSearchOpen] =
@@ -99,6 +109,33 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
   const commentTextareaRef = React.useRef<HTMLTextAreaElement>(null);
   const newTaskContentRef = React.useRef<HTMLDivElement>(null);
   const taskDetailsRef = React.useRef<HTMLDivElement>(null);
+
+  //fetch tasks
+  const fetchTasks = async () => {
+    const payload = {
+      ticket: ticketId,
+      page: page,
+      limit: rowsPerPage,
+    };
+    const url = `${payload.ticket}?page=${payload.page}&limit=${payload.limit}`;
+
+    try {
+      const response =
+        isAddTask && ticketId ? await getTaskList({ url }).unwrap() : null;
+      if (response === null) return;
+      if (response.type === "error") {
+        showToast(response.message, "error");
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      return;
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, [page, rowsPerPage, isAddTask, ticketId]);
 
   // Real-time updates for edit countdown
   React.useEffect(() => {
@@ -167,11 +204,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
 
   // Auto-scroll to top when task selection changes
   React.useEffect(() => {
-    if (selectedTask && taskDetailsRef.current) {
+    if (taskcomment && taskDetailsRef.current) {
       // Scroll to top when a new task is selected
       taskDetailsRef.current.scrollTop = 0;
     }
-  }, [selectedTask?.id]); // Only trigger when task ID changes
+  }, [taskcomment?.taskKey]); // Only trigger when task ID changes
 
   // Reset form function
   const resetCommentForm = () => {
@@ -214,29 +251,22 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
   const currentAgent = CURRENT_USER; // from shared data
 
   // Filter tasks to show only current agent's tasks
-  const tasks = mockTasks.filter((task) => task.assignedTo === currentAgent);
+  const tasks = taskList?.filter((task: any) => task.assignor === currentAgent);
 
   const handleStatusChange = (taskId: string, newStatus: Task["status"]) => {
     // In real app, this would update the backend
     console.log(`Task ${taskId} status changed to ${newStatus}`);
   };
 
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
   const filteredTasks = React.useMemo(() => {
     let filtered = tasks;
 
     if (searchQuery) {
-      filtered = filtered.filter((task) => {
+      filtered = filtered.filter((task: any) => {
         return (
           task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.ticketId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.assignedTo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.tags.some((tag) =>
-            tag.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+          task.ticketID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.assignor.toLowerCase().includes(searchQuery.toLowerCase())
         );
       });
     }
@@ -245,7 +275,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
   }, [tasks, searchQuery]);
 
   const paginatedTasks = React.useMemo(() => {
-    return filteredTasks.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+    return filteredTasks?.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
   }, [filteredTasks, page, rowsPerPage]);
 
   // Master checkbox functionality
@@ -256,8 +286,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
     if (event.target.checked) {
       // Only select enabled tasks that are NOT currently opened
       const selectableTaskIds = paginatedTasks
-        .filter((task) => !task.disabled && selectedTask?.id !== task.id)
-        .map((task) => task.id);
+        .filter((task: any) => taskcomment?.taskKey !== task.taskKey)
+        .map((task: any) => task.taskKey);
       setSelectedTasks(selectableTaskIds);
       setMasterChecked(true);
     } else {
@@ -268,8 +298,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
 
   // Update master checkbox state when individual selections change
   React.useEffect(() => {
-    const selectableTasks = paginatedTasks.filter(
-      (task) => !task.disabled && selectedTask?.id !== task.id
+    const selectableTasks = paginatedTasks?.filter(
+      (task: any) => taskcomment?.taskKey !== task.taskKey
     );
     if (selectedTasks.length === 0) {
       setMasterChecked(false);
@@ -278,7 +308,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
     } else {
       setMasterChecked(false);
     }
-  }, [selectedTasks, paginatedTasks, selectedTask]);
+  }, [selectedTasks, paginatedTasks, taskcomment]);
 
   const handleTaskSelection = (taskId: string, checked: boolean) => {
     if (checked) {
@@ -316,8 +346,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
     }
 
     // Get available fields (not already selected)
-    const usedFields = taskSearchConditions.map((c) => c.field);
-    const availableFields = fieldOptions.filter(
+    const usedFields = taskSearchConditions?.map((c) => c.field);
+    const availableFields = fieldOptions?.filter(
       (option) => !usedFields.includes(option.value)
     );
 
@@ -422,9 +452,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
 
   const getAvailableFields = (currentConditionId: string) => {
     const usedFields = taskSearchConditions
-      .filter((c) => c.id !== currentConditionId)
+      ?.filter((c) => c.id !== currentConditionId)
       .map((c) => c.field);
-    return fieldOptions.filter((option) => !usedFields.includes(option.value));
+    return fieldOptions?.filter((option) => !usedFields.includes(option.value));
   };
 
   // Render dynamic value input based on field type
@@ -575,12 +605,37 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
     }
   }, [isAddTask]);
 
+  const handleTaskClick = useCallback(
+    async (task: any) => {
+      const url =
+        rightActiveTab === 2
+          ? `${ticketId}/${task}?type=attachment`
+          : `${ticketId}/${task}?type=comment`;
+
+      try {
+        const response = await getTaskComment({ url }).unwrap();
+
+        if (response?.type === "error") {
+          showToast(response.message, "error");
+          return;
+        }
+
+        // Uncomment if needed after successful fetch
+        // setSelectedTask(task);
+        // setRightActiveTab(1);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    },
+    [rightActiveTab, ticketId, getTaskComment]
+  );
+
   return (
     <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-96px)]">
       {/* Main Header Bar */}
       <TaskHeader
-        totalTasks={filteredTasks.length}
-        selectedTasks={selectedTasks.length}
+        totalTasks={filteredTasks?.length}
+        selectedTasks={selectedTasks?.length}
         masterChecked={masterChecked}
         page={page}
         rowsPerPage={rowsPerPage}
@@ -601,9 +656,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
 
         {/* LEFT SECTION - Task List & Filters */}
         <TaskList
-          tasks={tasks}
+          tasks={taskList}
           selectedTasks={selectedTasks}
-          selectedTask={selectedTask}
+          selectedTask={taskcomment}
           searchQuery={searchQuery}
           page={page}
           rowsPerPage={rowsPerPage}
@@ -611,7 +666,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
           onTaskSelect={(taskId: string, checked: boolean) =>
             handleTaskSelection(taskId, checked)
           }
-          onTaskClick={(task: Task) => setSelectedTask(task)}
+          onTaskClick={(task: Task) => handleTaskClick(task)}
           onPageChange={(newPage: number) => setPage(newPage)}
           onRowsPerPageChange={(rpp: number) => {
             setRowsPerPage(rpp);
@@ -620,10 +675,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
           onAdvancedSearchOpen={(e) => handleTaskAdvancedSearchOpen(e)}
           getStatusIcon={getStatusIcon}
           isAddTask={isAddTask}
+          isLoading={taskListLoading}
         />
 
         {/* RIGHT SECTION - Task Details & Actions */}
-        {selectedTask && (
+        {taskcomment && (
           <div className="w-[65%] flex bg-gray-50">
             {/* Right Sidebar Tabs */}
             <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
@@ -708,32 +764,34 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                      {getStatusIcon(selectedTask.status)}
+                      {getStatusIcon(taskcomment?.status?.name)}
                     </div>
                     <div>
                       <h2 className="text-xl font-semibold text-gray-900">
-                        {selectedTask.title}
+                        {taskcomment?.title}
                       </h2>
                       <div className="flex items-center gap-2 mt-1">
                         <Chip
-                          label={selectedTask.status}
-                          color={getStatusColor(selectedTask.status) as any}
+                          label={taskcomment?.status?.name}
+                          color={
+                            getStatusColor(taskcomment?.status?.name) as any
+                          }
                           size="small"
                         />
                         <Chip
-                          label={selectedTask.priority}
-                          color={getPriorityColor(selectedTask.priority) as any}
+                          label={taskcomment?.priority?.name}
+                          color={taskcomment?.priority?.color}
                           size="small"
                           variant="outlined"
                         />
-                        {selectedTask.isUrgent && (
+                        {/* {selectedTask.isUrgent && (
                           <Chip
                             icon={<PriorityHighIcon />}
                             label="Urgent"
                             color="error"
                             size="small"
                           />
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </div>
@@ -741,10 +799,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                   <div className="flex gap-2">
                     <FormControl size="small">
                       <Select
-                        value={selectedTask.status}
+                        value={taskcomment?.status?.name}
                         onChange={(e) =>
                           handleStatusChange(
-                            selectedTask.id,
+                            taskcomment?.key,
                             e.target.value as Task["status"]
                           )
                         }
@@ -774,7 +832,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                   ref={taskDetailsRef}
                 >
                   <TaskDetails
-                    task={selectedTask}
+                    task={taskcomment}
                     getStatusIcon={getStatusIcon}
                     onStatusChange={(taskId, newStatus) =>
                       handleStatusChange(taskId, newStatus)
@@ -786,7 +844,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="text-gray-900 font-bold">
-                          Latest 3 Comments ({selectedTask.comments.length})
+                          Latest 3 Comments ({taskcomment?.comments.length})
                         </h3>
 
                         <Button
@@ -852,129 +910,133 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                       />
 
                       <div className="space-y-4 max-h-60 overflow-y-auto">
-                        {selectedTask.comments.slice(0, 3).map((comment) => (
-                          <div
-                            key={comment.id}
-                            className="flex items-start gap-3"
-                          >
-                            {/* Avatar */}
-                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                              {comment.author.charAt(0).toUpperCase()}
-                            </div>
+                        {taskcomment?.comments
+                          ?.slice(0, 3)
+                          .map((comment: any) => (
+                            <div
+                              key={comment.id}
+                              className="flex items-start gap-3"
+                            >
+                              {/* Avatar */}
+                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                                {comment.author.charAt(0).toUpperCase()}
+                              </div>
 
-                            {/* Comment Bubble */}
-                            <div className="flex-1 min-w-0">
-                              <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="font-medium text-sm text-gray-900">
-                                    {comment.author}
-                                  </span>
-                                  <div className="flex items-center gap-2">
-                                    {canEditComment(
-                                      comment.createdAt,
-                                      currentTime
-                                    ) && (
-                                      <IconButton
-                                        size="small"
-                                        onClick={() =>
-                                          startEditingComment(comment)
-                                        }
-                                        sx={{
-                                          color: "#6b7280",
-                                          padding: "2px",
-                                        }}
-                                      >
-                                        <EditIcon fontSize="small" />
-                                      </IconButton>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {editingCommentId === comment.id ? (
-                                  <div className="space-y-2">
-                                    <TextField
-                                      multiline
-                                      rows={2}
-                                      value={comment.editText || comment.text}
-                                      onChange={(e) => {
-                                        // In real app, update the comment editText
-                                        console.log(
-                                          "Editing comment:",
-                                          e.target.value
-                                        );
-                                      }}
-                                      fullWidth
-                                      size="small"
-                                    />
-                                    <div className="flex gap-2">
-                                      <Button
-                                        size="small"
-                                        variant="contained"
-                                        startIcon={
-                                          <SaveIcon fontSize="small" />
-                                        }
-                                        onClick={() =>
-                                          saveEditedComment(
-                                            comment.id,
-                                            comment.editText || comment.text
-                                          )
-                                        }
-                                      >
-                                        Save
-                                      </Button>
-                                      <Button
-                                        size="small"
-                                        variant="text"
-                                        sx={{
-                                          fontWeight: 550,
-                                        }}
-                                        startIcon={
-                                          <CloseIcon fontSize="small" />
-                                        }
-                                        onClick={cancelEditingComment}
-                                      >
-                                        Cancel
-                                      </Button>
+                              {/* Comment Bubble */}
+                              <div className="flex-1 min-w-0">
+                                <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="font-medium text-sm text-gray-900">
+                                      {comment.author}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      {canEditComment(
+                                        comment.createdAt,
+                                        currentTime
+                                      ) && (
+                                        <IconButton
+                                          size="small"
+                                          onClick={() =>
+                                            startEditingComment(comment)
+                                          }
+                                          sx={{
+                                            color: "#6b7280",
+                                            padding: "2px",
+                                          }}
+                                        >
+                                          <EditIcon fontSize="small" />
+                                        </IconButton>
+                                      )}
                                     </div>
                                   </div>
-                                ) : (
-                                  <p className="text-sm text-gray-700 font-medium">
-                                    {comment.text}
-                                  </p>
-                                )}
-                              </div>
 
-                              {/* Timestamp */}
-                              <div className="flex items-center gap-2 mt-2 ml-1">
-                                <span className="text-xs text-gray-500">
-                                  {comment.timestamp}
-                                </span>
-                                <span className="text-xs text-gray-400">•</span>
-                                <span className="text-xs text-gray-400">
-                                  {getTimeAgo(comment.createdAt)}
-                                </span>
-                                <span className="text-xs text-gray-400">
-                                  -{" "}
-                                </span>
+                                  {editingCommentId === comment.id ? (
+                                    <div className="space-y-2">
+                                      <TextField
+                                        multiline
+                                        rows={2}
+                                        value={comment.editText || comment.text}
+                                        onChange={(e) => {
+                                          // In real app, update the comment editText
+                                          console.log(
+                                            "Editing comment:",
+                                            e.target.value
+                                          );
+                                        }}
+                                        fullWidth
+                                        size="small"
+                                      />
+                                      <div className="flex gap-2">
+                                        <Button
+                                          size="small"
+                                          variant="contained"
+                                          startIcon={
+                                            <SaveIcon fontSize="small" />
+                                          }
+                                          onClick={() =>
+                                            saveEditedComment(
+                                              comment.id,
+                                              comment.editText || comment.text
+                                            )
+                                          }
+                                        >
+                                          Save
+                                        </Button>
+                                        <Button
+                                          size="small"
+                                          variant="text"
+                                          sx={{
+                                            fontWeight: 550,
+                                          }}
+                                          startIcon={
+                                            <CloseIcon fontSize="small" />
+                                          }
+                                          onClick={cancelEditingComment}
+                                        >
+                                          Cancel
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="text-sm text-gray-700 font-medium">
+                                      {comment.text}
+                                    </p>
+                                  )}
+                                </div>
 
-                                {comment.isInternal && (
-                                  <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
-                                    Internal
+                                {/* Timestamp */}
+                                <div className="flex items-center gap-2 mt-2 ml-1">
+                                  <span className="text-xs text-gray-500">
+                                    {comment.timestamp}
                                   </span>
-                                )}
+                                  <span className="text-xs text-gray-400">
+                                    •
+                                  </span>
+                                  <span className="text-xs text-gray-400">
+                                    {getTimeAgo(comment.createdAt)}
+                                  </span>
+                                  <span className="text-xs text-gray-400">
+                                    -{" "}
+                                  </span>
+
+                                  {comment.isInternal && (
+                                    <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                                      Internal
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
 
-                        {selectedTask.comments.length === 0 && (
+                        {taskcomment?.comments.length === 0 && (
                           <div className="text-center py-6 text-gray-500">
                             <CommentIcon className="text-2xl mx-auto mb-2" />
                             <p>No comments yet</p>
                           </div>
                         )}
 
-                        {selectedTask.comments.length > 3 && (
+                        {taskcomment?.comments.length > 3 && (
                           <div className="text-center py-3">
                             <Button
                               size="small"
@@ -988,7 +1050,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                                 },
                               }}
                             >
-                              View All {selectedTask.comments.length} Comments
+                              View All {taskcomment?.comments?.length} Comments
                             </Button>
                           </div>
                         )}
@@ -1043,9 +1105,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                     {/* Comments Tab Content */}
                     {attachmentsTab === "comments" && (
                       <div className="space-y-4">
-                        {selectedTask.comments.length > 0 ? (
+                        {taskcomment?.comment?.length > 0 ? (
                           <div className="space-y-4">
-                            {selectedTask.comments.map((comment) => (
+                            {taskcomment?.comment?.map((comment: any) => (
                               <div
                                 key={comment.id}
                                 className="flex items-start gap-3"
@@ -1105,9 +1167,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                     {/* Attachments Tab Content */}
                     {attachmentsTab === "attachments" && (
                       <div className="space-y-4">
-                        {selectedTask.attachments.length > 0 ? (
+                        {taskcomment?.attachments.length > 0 ? (
                           <div className="space-y-4">
-                            {selectedTask.attachments.map((attachment) => (
+                            {taskcomment?.attachment.map((attachment: any) => (
                               <Card key={attachment.id}>
                                 <CardContent className="p-4">
                                   <div className="flex items-center justify-between">
@@ -1171,7 +1233,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                         }`}
                         onClick={() => setAttachmentsTab("comments")}
                       >
-                        Comments ({selectedTask.comments.length})
+                        Comments ({taskcomment?.comment?.length})
                       </button>
                       <button
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -1181,7 +1243,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask }) => {
                         }`}
                         onClick={() => setAttachmentsTab("attachments")}
                       >
-                        Attachments ({selectedTask.attachments.length})
+                        Attachments ({taskcomment?.attachment?.length})
                       </button>
                     </div>
                   </div>
