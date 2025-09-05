@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -10,7 +10,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import CustomPopover from "../../../reusable/CustomPopover";
 
 const SettingsTab: React.FC = () => {
   const [notifOpen, setNotifOpen] = useState(false);
@@ -19,6 +19,10 @@ const SettingsTab: React.FC = () => {
   const [pushNotif, setPushNotif] = useState(false);
   const [language, setLanguage] = useState("en");
   const [timezone, setTimezone] = useState("UTC");
+
+  // Anchor refs for popovers
+  const notifAnchorRef = useRef<HTMLDivElement>(null);
+  const langAnchorRef = useRef<HTMLDivElement>(null);
 
   return (
     <Box sx={{ display: "flex", gap: 3, height: "100%" }}>
@@ -38,6 +42,7 @@ const SettingsTab: React.FC = () => {
           </Typography>
           <Stack spacing={3}>
             <Box
+              ref={notifAnchorRef}
               onClick={() => setNotifOpen(true)}
               role="button"
               tabIndex={0}
@@ -62,6 +67,7 @@ const SettingsTab: React.FC = () => {
               </Button>
             </Box>
             <Box
+              ref={langAnchorRef}
               onClick={() => setLangOpen(true)}
               role="button"
               tabIndex={0}
@@ -123,11 +129,12 @@ const SettingsTab: React.FC = () => {
         </Paper>
       </Box>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={notifOpen}
         close={() => setNotifOpen(false)}
-        title={"Notification preferences"}
-        width={700}
+        anchorEl={notifAnchorRef}
+        width={350}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -157,13 +164,14 @@ const SettingsTab: React.FC = () => {
             </Button>
           </Box>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={langOpen}
         close={() => setLangOpen(false)}
-        title={"Language & region"}
-        width={520}
+        anchorEl={langAnchorRef}
+        width={300}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -193,7 +201,7 @@ const SettingsTab: React.FC = () => {
             </Button>
           </Box>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
     </Box>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -11,6 +11,7 @@ import {
   TextField,
 } from "@mui/material";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import CustomPopover from "../../../reusable/CustomPopover";
 import ChangePassword from "../ChangePassword";
 
 export type SecurityTabProps = {
@@ -46,6 +47,12 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
   // Local form state
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
+
+  // Anchor refs for popovers
+  const twoFAAnchorRef = useRef<HTMLDivElement>(null);
+  const recoveryEmailAnchorRef = useRef<HTMLDivElement>(null);
+  const recoveryPhoneAnchorRef = useRef<HTMLDivElement>(null);
+  const sessionsAnchorRef = useRef<HTMLDivElement>(null);
 
   const handleToggle2FAConfirm = () => {
     const next = !isTwoFAEnabled;
@@ -149,6 +156,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                 2-step verification
               </Typography>
               <Box
+                ref={twoFAAnchorRef}
                 onClick={() => setIsTwoFAOpen(true)}
                 role="button"
                 tabIndex={0}
@@ -215,6 +223,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                 Recovery information
               </Typography>
               <Stack
+                ref={recoveryEmailAnchorRef}
                 spacing={1}
                 onClick={() => setIsRecoveryEmailOpen(true)}
                 role="button"
@@ -254,6 +263,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                   )}
                 </Box>
                 <Box
+                  ref={recoveryPhoneAnchorRef}
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsRecoveryPhoneOpen(true);
@@ -293,6 +303,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                 Login sessions
               </Typography>
               <Box
+                ref={sessionsAnchorRef}
                 onClick={() => setIsSessionsOpen(true)}
                 role="button"
                 tabIndex={0}
@@ -401,11 +412,12 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
         </Box>
       </CustomSideBarPanel>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={isTwoFAOpen}
         close={() => setIsTwoFAOpen(false)}
-        title={"2-step verification"}
-        width={700}
+        anchorEl={twoFAAnchorRef}
+        width={400}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Box
@@ -439,13 +451,14 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
             </Button>
           </Box>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={isRecoveryEmailOpen}
         close={() => setIsRecoveryEmailOpen(false)}
-        title={"Recovery email"}
-        width={520}
+        anchorEl={recoveryEmailAnchorRef}
+        width={350}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Box
@@ -483,13 +496,14 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
             </Button>
           </Box>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={isRecoveryPhoneOpen}
         close={() => setIsRecoveryPhoneOpen(false)}
-        title={"Recovery phone"}
-        width={520}
+        anchorEl={recoveryPhoneAnchorRef}
+        width={350}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Box
@@ -527,13 +541,14 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
             </Button>
           </Box>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
 
-      <CustomSideBarPanel
+      <CustomPopover
         open={isSessionsOpen}
         close={() => setIsSessionsOpen(false)}
-        title={"Login sessions"}
-        width={900}
+        anchorEl={sessionsAnchorRef}
+        width={400}
+        isCone={true}
       >
         <Box sx={{ p: 2 }}>
           <Box
@@ -565,7 +580,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
             </Button>
           </Box>
         </Box>
-      </CustomSideBarPanel>
+      </CustomPopover>
     </Box>
   );
 };
