@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import LeftMenu from "../TicketManagement/LeftMenu";
 import {
   Button,
@@ -102,7 +102,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       value: string | string[];
     }>
   >([]);
-
+  const [taskId, setTaskId] = useState<string>("");
   const [logicOperator, setLogicOperator] = React.useState<"AND" | "OR">("AND");
 
   // Refs for auto-focus and auto-scroll
@@ -598,12 +598,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   >("comments");
 
   useEffect(() => {
-    if (isAddTask) {
+    if (!taskId) {
+      return;
+    }
+    if (isAddTask || taskId) {
       setRightActiveTab(1);
+      handleTaskClick(taskId);
     } else {
       setRightActiveTab(0);
     }
-  }, [isAddTask]);
+  }, [isAddTask, taskId]);
 
   const handleTaskClick = useCallback(
     async (task: any) => {
@@ -666,7 +670,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
           onTaskSelect={(taskId: string, checked: boolean) =>
             handleTaskSelection(taskId, checked)
           }
-          onTaskClick={(task: Task) => handleTaskClick(task)}
+          onTaskClick={(task: any) => setTaskId(task)}
           onPageChange={(newPage: number) => setPage(newPage)}
           onRowsPerPageChange={(rpp: number) => {
             setRowsPerPage(rpp);
@@ -711,7 +715,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
                 <Tooltip title="Files" placement="left">
                   <IconButton
-                    onClick={() => setRightActiveTab(1)}
+                    onClick={() => {
+                      setRightActiveTab(1);
+                      handleTaskClick(taskId);
+                    }}
                     sx={{
                       width: 48,
                       height: 48,
@@ -734,7 +741,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
                 <Tooltip title="History" placement="left">
                   <IconButton
-                    onClick={() => setRightActiveTab(2)}
+                    onClick={() => {
+                      setRightActiveTab(2);
+
+                      handleTaskClick(taskId);
+                    }}
                     sx={{
                       width: 48,
                       height: 48,
