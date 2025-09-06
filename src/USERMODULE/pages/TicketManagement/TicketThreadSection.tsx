@@ -72,6 +72,7 @@ import { useParams } from "react-router-dom";
 import ReplyStatusOptions from "../../components/ReplyStatusOptions";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import Tasks from "../task/Tasks";
+import EmptyThread from "../../components/EmptyThread";
 
 const signatureValues: any = [
   {
@@ -663,7 +664,8 @@ const ThreadList = ({ thread, onReplyClick, onForward, subject }: any) => (
         );
       })
     ) : (
-      <div className="text-gray-400">No thread items.</div>
+      // <div className="text-gray-400">No thread items.</div>
+      <EmptyThread subject={subject} />
     )}
   </div>
 );
