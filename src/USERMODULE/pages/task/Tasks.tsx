@@ -603,36 +603,29 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
     if (isAddTask || taskId) {
       setRightActiveTab(1);
-      handleTaskClick(taskId);
+      handleTaskClick(taskId, "comments");
     } else {
       setRightActiveTab(0);
     }
   }, [isAddTask, taskId]);
 
-  const handleTaskClick = useCallback(
-    async (task: any) => {
-      const url =
-        rightActiveTab === 2
-          ? `${ticketId}/${task}?type=attachment`
-          : `${ticketId}/${task}?type=comment`;
+  const handleTaskClick = async (task: any, type?: string) => {
+    const url =
+      type === "attachments"
+        ? `${ticketId}/${task}?type=attachment`
+        : `${ticketId}/${task}?type=comment`;
 
-      try {
-        const response = await getTaskComment({ url }).unwrap();
+    try {
+      const response = await getTaskComment({ url }).unwrap();
 
-        if (response?.type === "error") {
-          showToast(response.message, "error");
-          return;
-        }
-
-        // Uncomment if needed after successful fetch
-        // setSelectedTask(task);
-        // setRightActiveTab(1);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
+      if (response?.type === "error") {
+        showToast(response.message, "error");
+        return;
       }
-    },
-    [rightActiveTab, ticketId, getTaskComment]
-  );
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-96px)]">
@@ -743,8 +736,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   <IconButton
                     onClick={() => {
                       setRightActiveTab(2);
-
-                      handleTaskClick(taskId);
                     }}
                     sx={{
                       width: 48,
@@ -1242,7 +1233,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             ? "border-blue-500 text-blue-600"
                             : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                         }`}
-                        onClick={() => setAttachmentsTab("comments")}
+                        onClick={() => {
+                          setAttachmentsTab("comments");
+                          handleTaskClick(taskId, "comments");
+                        }}
                       >
                         Comments ({taskcomment?.comment?.length})
                       </button>
@@ -1252,7 +1246,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             ? "border-blue-500 text-blue-600"
                             : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                         }`}
-                        onClick={() => setAttachmentsTab("attachments")}
+                        onClick={() => {
+                          setAttachmentsTab("attachments");
+
+                          handleTaskClick(taskId, "attachments");
+                        }}
                       >
                         Attachments ({taskcomment?.attachment?.length})
                       </button>
