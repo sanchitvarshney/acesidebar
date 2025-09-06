@@ -38,8 +38,6 @@ import SortIcon from "@mui/icons-material/Sort";
 import DownloadIcon from "@mui/icons-material/Download";
 import { Task, Comment as TaskComment } from "./types/task.types";
 import {
-  CURRENT_USER,
-  statusOptions,
   priorityOptions,
   fieldOptions,
   getConditionOptions,
@@ -60,6 +58,8 @@ import TaskDetails from "./components/TaskDetails";
 import CommentForm from "./components/CommentForm";
 import { useCommanApiForTaskListMutation } from "../../../services/threadsApi";
 import { useToast } from "../../../hooks/useToast";
+import { useGetStatusListQuery } from "../../../services/ticketAuth";
+import { useAuth } from "../../../contextApi/AuthContext";
 
 type TaskPropsType = {
   isAddTask?: boolean;
@@ -68,8 +68,9 @@ type TaskPropsType = {
 
 const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = React.useState("");
-
+  const { data: statusList } = useGetStatusListQuery();
   const [taskDialogOpen, setTaskDialogOpen] = React.useState(false);
   const [showCommentForm, setShowCommentForm] = React.useState(false);
   const [showAttachments, setShowAttachments] = React.useState(false);
@@ -80,6 +81,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [editingCommentId, setEditingCommentId] = React.useState<string | null>(
     null
   );
+  const [taskStaus, setTaskStatus] = useState<string>("");
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
@@ -87,6 +89,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     useCommanApiForTaskListMutation();
   const [getTaskComment, { data: taskcomment, isLoading: taskcommentLoading }] =
     useCommanApiForTaskListMutation();
+  const [changeStatus] = useCommanApiForTaskListMutation();
 
   // Task Advanced Search State
   const [taskAdvancedSearchOpen, setTaskAdvancedSearchOpen] =
@@ -109,6 +112,12 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const commentTextareaRef = React.useRef<HTMLTextAreaElement>(null);
   const newTaskContentRef = React.useRef<HTMLDivElement>(null);
   const taskDetailsRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (taskcomment?.status?.key !== "--") {
+      setTaskStatus(taskcomment?.status?.key);
+    }
+  }, [taskcomment?.status]);
 
   //fetch tasks
   const fetchTasks = async () => {
@@ -248,18 +257,35 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   // Current agent - in real app this would come from authentication context
-  const currentAgent = CURRENT_USER; // from shared data
+  //@ts-ignore
+  const currentAgent = user?.name; // from shared data
 
   // Filter tasks to show only current agent's tasks
   const tasks = taskList?.filter((task: any) => task.assignor === currentAgent);
 
-  const handleStatusChange = (taskId: string, newStatus: Task["status"]) => {
-    // In real app, this would update the backend
-    console.log(`Task ${taskId} status changed to ${newStatus}`);
+  const handleStatusChange = async (
+    taskId: string,
+    newStatus: Task["status"]
+  ) => {
+    const url = `${ticketId}/${taskId}?status=${newStatus}`;
+
+    try {
+      const response = await changeStatus({ url, method: "PUT" }).unwrap();
+
+      if (response?.type === "error") {
+        showToast(response.message, "error");
+        return;
+      } else {
+        setTaskStatus(newStatus);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
   };
 
   const filteredTasks = React.useMemo(() => {
     let filtered = tasks;
+    console.log("Filtered tasks:", filtered);
 
     if (searchQuery) {
       filtered = filtered.filter((task: any) => {
@@ -527,7 +553,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
     // Select fields (Status, Priority)
     if (["status", "priority"].includes(field)) {
-      const options = field === "status" ? statusOptions : priorityOptions;
+      const options = field === "status" ? statusList || [] : priorityOptions;
       const isMultiple = ["any_of", "none_of"].includes(conditionType);
       const currentValue = isMultiple
         ? Array.isArray(value)
@@ -556,17 +582,28 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                 )}
               </Box>
             )}
+            displayEmpty
           >
-            {options.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
+            <MenuItem value="" disabled>
+              <em>
+                {field === "status"
+                  ? "Loading status..."
+                  : field === "status" &&
+                    (!statusList || statusList.length === 0)
+                  ? "No status available"
+                  : `Select ${field}`}
+              </em>
+            </MenuItem>
+            {options.map((option: any) => (
+              <MenuItem key={option.key} value={option.key}>
                 <Checkbox
                   checked={
                     isMultiple
-                      ? currentValue.includes(option.value)
-                      : currentValue === option.value
+                      ? currentValue.includes(option.key)
+                      : currentValue === option.key
                   }
                 />
-                <ListItemText primary={option.label} />
+                <ListItemText primary={option.statusName} />
               </MenuItem>
             ))}
           </Select>
@@ -653,7 +690,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
         {/* LEFT SECTION - Task List & Filters */}
         <TaskList
-          tasks={taskList}
+          tasks={tasks}
           selectedTasks={selectedTasks}
           selectedTask={taskcomment}
           searchQuery={searchQuery}
@@ -801,23 +838,28 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   <div className="flex gap-2">
                     <FormControl size="small">
                       <Select
-                        value={taskcomment?.status?.name}
+                        value={taskStaus || ""}
                         onChange={(e) =>
                           handleStatusChange(
-                            taskcomment?.key,
+                            taskcomment?.taskID,
                             e.target.value as Task["status"]
                           )
                         }
                         sx={{ minWidth: 120 }}
+                        displayEmpty
+                        disabled={!statusList || statusList.length === 0}
                       >
-                        {statusOptions.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
+                        <MenuItem value="" disabled>
+                          <em>
+                            {!statusList || statusList.length === 0
+                              ? "No status available"
+                              : "Select Status"}
+                          </em>
+                        </MenuItem>
+                        {statusList?.map((option: any) => (
+                          <MenuItem key={option.key} value={option.key}>
                             <div className="flex items-center">
-                              <div
-                                className="w-3 h-3 rounded-full mr-2"
-                                style={{ backgroundColor: option.color }}
-                              ></div>
-                              {option.label}
+                              {option.statusName}
                             </div>
                           </MenuItem>
                         ))}
@@ -1169,10 +1211,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                     {/* Attachments Tab Content */}
                     {attachmentsTab === "attachments" && (
                       <div className="space-y-4">
-                        {taskcomment?.attachments.length > 0 ? (
+                        {taskcomment?.attachments?.length > 0 ? (
                           <div className="space-y-4">
-                            {taskcomment?.attachment.map((attachment: any) => (
-                              <Card key={attachment.id}>
+                            {taskcomment?.attachment?.map((attachment: any) => (
+                              <Card key={attachment?.taskKey}>
                                 <CardContent className="p-4">
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
@@ -1181,10 +1223,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                       </div>
                                       <div>
                                         <div className="font-medium text-gray-900">
-                                          {attachment.name}
+                                          {attachment?.name}
                                         </div>
                                         <div className="text-sm text-gray-500">
-                                          {attachment.size} • {attachment.type}
+                                          {attachment?.size} •{" "}
+                                          {attachment?.type}
                                         </div>
                                         <div className="text-xs text-gray-400">
                                           Uploaded by {attachment.uploadedBy} on{" "}

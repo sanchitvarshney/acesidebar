@@ -300,5 +300,4 @@ export const COMMENT_CONFIG = {
 // Pagination options
 export const PAGINATION_OPTIONS = [5, 10, 20, 50];
 
-// Current user (in real app, this would come from authentication context)
-export const CURRENT_USER = "John Doe";
+

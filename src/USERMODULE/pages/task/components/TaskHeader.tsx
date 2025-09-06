@@ -25,6 +25,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   onRowsPerPageChange,
   onCreateTask,
 }) => {
+  console.log("Selected tasks:", totalTasks,page,rowsPerPage)
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number

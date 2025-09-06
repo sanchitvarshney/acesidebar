@@ -72,7 +72,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     commanApiForTaskList: builder.mutation({
       query: (credentials) => ({
         url: `/task/ticket/${credentials.url}`,
-        method: "GET",
+        method: credentials.method ? credentials.method : "GET",
       }),
       transformResponse: (response: any) => response?.data,
     }),
