@@ -39,13 +39,7 @@ import Mergeticket from "../../components/Mergeticket";
 import { useAuth } from "../../../contextApi/AuthContext";
 
 // Priority/Status/Agent dropdown options
-const STATUS_OPTIONS = [
-  { label: "Open", value: "open" },
-  { label: "Pending", value: "pending" },
-  { label: "Resolved", value: "resolved" },
-  { label: "Closed", value: "closed" },
-  { label: "Waiting on Third Party", value: "waiting" },
-];
+
 const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
 const Tickets: React.FC = () => {
@@ -98,12 +92,13 @@ const Tickets: React.FC = () => {
   const [isCloseModal, setIsCloseModal] = useState(false);
   const [ticketStatusChange] = useTicketStatusChangeMutation();
   const [commanApi] = useCommanApiMutation();
-
-  const [triggerWatchApi] = useCommanApiMutation();
-
   // Fetch live priority list
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
+  const STATUS_OPTIONS = statusList?.map((item: any) => ({
+    label: item.statusName,
+    value: item.key,
+  }));
 
   // Fetch sorting options
   const { data: sortingOptions } = useGetTicketSortingOptionsQuery();
@@ -267,12 +262,8 @@ const Tickets: React.FC = () => {
     }
   };
 
-
-
   // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
-  
-
     navigate(`/tickets/${ticketNumber}`);
   };
 

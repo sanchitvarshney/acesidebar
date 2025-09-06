@@ -20,6 +20,11 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: credentials.method ? credentials.method : "POST",
         body: credentials.body,
       }),
+      transformResponse: (response: any) => {
+        if (response?.error) {
+          return response?.error?.data;
+        }
+      },
     }),
     updateUserData: builder.mutation({
       query: (credentials) => ({
@@ -68,11 +73,16 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         url: `/shortcut/delete/${credentials.key}`,
         method: "DELETE",
       }),
+      transformResponse: (response: any) => {
+        if (response?.error) {
+          return response?.error?.data;
+        }
+      },
     }),
     commanApiForTaskList: builder.mutation({
       query: (credentials) => ({
         url: `/task/ticket/${credentials.url}`,
-        method: "GET",
+        method: credentials.method ? credentials.method : "GET",
       }),
       transformResponse: (response: any) => response?.data,
     }),
@@ -90,5 +100,5 @@ export const {
   useAddShortcutMutation,
   useDeleteShortcutMutation,
   useGetWatcherQuery,
-  useCommanApiForTaskListMutation
+  useCommanApiForTaskListMutation,
 } = extendedTicketApi;

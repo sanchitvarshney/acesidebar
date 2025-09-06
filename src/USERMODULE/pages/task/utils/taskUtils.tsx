@@ -11,24 +11,25 @@ import { TaskStatus, TaskPriority } from "../types/task.types";
 import { COMMENT_CONFIG, FILE_UPLOAD_CONFIG } from "../data/taskData";
 
 // Color mapping functions
-export const getStatusColor = (status: TaskStatus) => {
-  switch (status) {
+export const getStatusColor = (status: any): string => {
+  const lowerCase = status.toLowerCase().replace(" ", "-");
+  switch (lowerCase) {
     case "pending":
-      return "default";
+      return "#ac97bdff"; // Grey (default)
     case "hold":
-      return "warning";
-    case "progress":
-      return "primary";
+      return "#FFC107"; // Amber (warning)
+    case "in-process":
+      return "#1976D2"; // Blue (primary)
     case "postponed":
-      return "secondary";
-    case "queue":
-      return "secondary";
+      return "#91e2deff"; // Greyish (secondary)
+    case "in-queue":
+      return "#abcfc4ff"; // Greyish (secondary)
     case "completed":
-      return "success";
+      return "#4CAF50"; // Green (success)
     case "terminated":
-      return "error";
+      return "#F44336"; // Red (error)
     default:
-      return "default";
+      return "#dfdfdfff"; // Grey (default)
   }
 };
 

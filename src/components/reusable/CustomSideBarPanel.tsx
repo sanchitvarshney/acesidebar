@@ -64,7 +64,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            p: 2,
+            p: 1.7,
             borderBottom: "1px solid #ccc",
             pointerEvents: "auto",
             backgroundColor: "#e8f0fe",

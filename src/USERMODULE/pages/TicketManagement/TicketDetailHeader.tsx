@@ -17,12 +17,11 @@ import AddAlarmIcon from "@mui/icons-material/AddAlarm";
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 import {
   IconButton,
@@ -146,7 +145,8 @@ const TicketDetailHeader = ({
   hasNextTicket = true,
 }: any) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-  const [triggerDeleteWatcher, { isLoading: isDeletingLoading }] = useCommanApiMutation();
+  const [triggerDeleteWatcher, { isLoading: isDeletingLoading }] =
+    useCommanApiMutation();
   const [isMergeModal, setIsMergeModal] = useState(false);
   const [isLinkModal, setIsLinkModal] = useState(false);
   const [statusAnchorEl, setStatusAnchorEl] =
@@ -180,7 +180,8 @@ const TicketDetailHeader = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
   const [moreOptionsSearchQuery, setMoreOptionsSearchQuery] = useState("");
-  const [triggerWatcherStatus] = useCommanApiMutation();
+  const [triggerWatcherStatus, { isLoading: watcherStatusLoading }] =
+    useCommanApiMutation();
   const [triggerWatchApi] = useCommanApiMutation();
   const displayAgentOptions = onChangeAgent ? agentOptions : [];
   const fetchAgentOptions = async (query: string) => {
@@ -543,16 +544,9 @@ const TicketDetailHeader = ({
       </div>
 
       {/* Navigation buttons - Right side */}
-
-      <div className="flex gap-8 ml-auto">
-        {/* Notification Switch with Icon */}
-
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <NotificationsIcon fontSize="small" sx={{ color: "#1a73e8" }} />
-        </Box>
-
-        {/* Watchers Button */}
-
+   
+      <div className="flex gap-8 ml-auto items-center">
+           {watcherStatusLoading && <CircularProgress size={15} />}
         <div className="space-x-2">
           <Tooltip
             title={watcherEnabled ? "Disable Watchers" : "Enable Watchers"}
@@ -602,13 +596,17 @@ const TicketDetailHeader = ({
               },
             }}
           >
-            <IconButton
-              onClick={handleWatchersClick}
-              size="small"
-              className="text-blue-600 hover:bg-blue-50 hover:text-blue-600"
-            >
-              <VisibilityIcon fontSize="small" />
-            </IconButton>
+            {watcherEnabled ? (
+              <IconButton
+                onClick={handleWatchersClick}
+                size="small"
+                className="text-blue-600 hover:bg-blue-50 hover:text-blue-600"
+              >
+                <VisibilityIcon fontSize="small" />
+              </IconButton>
+            ) : (
+              <VisibilityOffIcon fontSize="small" />
+            )}
           </Tooltip>
         </div>
         {/* Previous Ticket Button */}
@@ -885,22 +883,6 @@ const TicketDetailHeader = ({
             Agents added as watchers will receive alerts when this ticket is
             updated
           </Typography>
-
-          {/* Search Bar */}
-          <TextField
-            fullWidth
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            size="small"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-          />
 
           <Autocomplete
             key={`watchers-${watcherData?.length}`}

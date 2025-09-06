@@ -138,7 +138,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl ,us
                 fontWeight: 600,
               }}
             >
-              {userData?.username.split(' ').map((n:any) => n[0]).join('')}
+              {userData?.username?.split(' ')?.map((n:any) => n[0]).join('')}
             </Avatar>
             <IconButton
               size="small"
