@@ -212,7 +212,6 @@ const ThreadItem = ({
     };
 
     reviewThread(payload).then((response: any) => {
-      console.log(response);
       if (
         response?.type === "error" ||
         response?.error?.data?.type === "error"
