@@ -390,7 +390,6 @@ const TicketDetailHeader = ({
   };
 
   const handleWatcherToggle = () => {
-    setWatcherEnabled(!watcherEnabled);
     const urlValues = {
       ticketId: ticket?.ticketId,
       status: watcherEnabled ? 1 : 2,
@@ -399,7 +398,13 @@ const TicketDetailHeader = ({
       url: `watchers-status/${urlValues.ticketId}/${urlValues.status}`,
       method: "PUT",
     };
-    triggerWatcherStatus(payload);
+    triggerWatcherStatus(payload).then((res:any) => {
+      if (res?.error?.data?.type === "error") {
+        return;
+      } else {
+        setWatcherEnabled(!watcherEnabled);
+      }
+    });
   };
 
   const handleWatchersClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -544,9 +549,9 @@ const TicketDetailHeader = ({
       </div>
 
       {/* Navigation buttons - Right side */}
-   
+
       <div className="flex gap-8 ml-auto items-center">
-           {watcherStatusLoading && <CircularProgress size={15} />}
+        {watcherStatusLoading && <CircularProgress size={15} />}
         <div className="space-x-2">
           <Tooltip
             title={watcherEnabled ? "Disable Watchers" : "Enable Watchers"}
@@ -605,7 +610,9 @@ const TicketDetailHeader = ({
                 <VisibilityIcon fontSize="small" />
               </IconButton>
             ) : (
-              <VisibilityOffIcon fontSize="small" />
+              <IconButton disabled size="small" disableRipple>
+                <VisibilityOffIcon fontSize="small" />
+              </IconButton>
             )}
           </Tooltip>
         </div>
