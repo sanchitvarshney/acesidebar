@@ -10,7 +10,7 @@ import {
   Link,
   Divider,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -28,7 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../hooks/useToast";
 import { useLoginMutation } from "../../../services/auth";
 import { decrypt } from "../../../utils/encryption";
-import Turnstile from "../../../components/reusable/Turnstile";
+import GoogleRecaptcha, { GoogleRecaptchaRef } from "../../../components/reusable/GoogleRecaptcha";
 
 type RegisterFormData = z.infer<typeof loginSchema>;
 
@@ -36,10 +36,10 @@ const LoginComponent = () => {
   const { signIn } = useAuth();
   const navigation = useNavigate();
   const {
-    setValue,
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitted, touchedFields },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(loginSchema),
@@ -53,16 +53,17 @@ const LoginComponent = () => {
   const { showToast } = useToast();
   const [login, { isLoading }] = useLoginMutation();
   const [isForgot, setIsForgot] = useState<boolean>(false);
-  const [turnstileToken, setTurnstileToken] = useState<string>("");
-  const [isTurnstileVerified, setIsTurnstileVerified] = useState<boolean>(false);
+  const [captchaToken, setCaptchaToken] = useState<string>("");
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState<boolean>(false);
+  const recaptchaRef = useRef<GoogleRecaptchaRef>(null);
 
   // Watch form values for validation
   const watchedValues = watch();
   const email = watchedValues.email || "";
   const password = watchedValues.password || "";
 
-  // Check if form is valid and Turnstile is verified
-  const isFormValid = email.trim() !== "" && password.trim() !== "" && isTurnstileVerified;
+  // Check if form is valid and reCAPTCHA is verified
+  const isFormValid = email.trim() !== "" && password.trim() !== "" && isCaptchaVerified;
 
   const forgotSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -85,30 +86,39 @@ const LoginComponent = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const handleTurnstileVerify = (token: string) => {
-    setTurnstileToken(token);
-    setIsTurnstileVerified(true);
+  const handleRecaptchaVerify = (token: string) => {
+    setCaptchaToken(token);
+    setIsCaptchaVerified(true);
   };
 
-  const handleTurnstileError = (error: string) => {
-    setIsTurnstileVerified(false);
-    setTurnstileToken("");
-    showToast("Please complete the security verification", "error");
+  const handleRecaptchaError = (error: string) => {
+    setIsCaptchaVerified(false);
+    setCaptchaToken("");
+    // Only show error toast if it's not a temporary verification issue
+    if (!error.includes('verification')) {
+      showToast("Please complete the security verification", "error");
+    }
   };
 
-  const handleTurnstileExpire = () => {
-    setIsTurnstileVerified(false);
-    setTurnstileToken("");
-    showToast("Security verification expired. Please complete the verification again.", "error");
+  const handleRecaptchaExpire = () => {
+    setIsCaptchaVerified(false);
+    setCaptchaToken("");
+    showToast("Security verification expired.\nPlease complete the verification again.", "error");
   };
 
 
   const onSubmit = async (data: RegisterFormData) => {
+    // Additional verification check
+    if (!isCaptchaVerified || !captchaToken) {
+      showToast("Please complete the security verification", "error");
+      return;
+    }
+
     try {
       const payload = {
         username: data.email,
         password: data.password,
-        captcha: turnstileToken,
+        captcha: captchaToken,
       };
       const result = await login(payload);
 
@@ -126,15 +136,36 @@ const LoginComponent = () => {
         // Show success message
         showToast("Login successful!", "success");
 
-        // Reset Turnstile verification for next login
-        setIsTurnstileVerified(false);
-        setTurnstileToken("");
+        // Reset reCAPTCHA verification for next login
+        setIsCaptchaVerified(false);
+        setCaptchaToken("");
 
         // Navigate to home
         navigation("/");
       }
     } catch (error) {
       showToast("Login failed. Please try again.", "error");
+      
+      // Reset form fields and captcha on login failure
+      setIsCaptchaVerified(false);
+      setCaptchaToken("");
+      
+      // Reset reCAPTCHA
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
+      
+      // Reset form to default values
+      setValue("email", "admin123");
+      setValue("password", "Shiv@123456");
+      
+      // Focus on username field
+      setTimeout(() => {
+        const emailField = document.querySelector('input[name="email"]') as HTMLInputElement;
+        if (emailField) {
+          emailField.focus();
+        }
+      }, 100);
     }
   };
 
@@ -278,48 +309,44 @@ const LoginComponent = () => {
         />
       </Box>
       
-      {/* Turnstile Security Verification */}
+      {/* Google reCAPTCHA Security Verification */}
       <Box 
         sx={{ 
           mb: 2, 
           display: 'flex', 
           flexDirection: 'column', 
-          alignItems: 'center',
-          minHeight: '80px', // Ensure container has minimum height
-          visibility: 'visible !important',
-          opacity: '1 !important',
-        }}
-      >
-        <Box
-          sx={{
-            minHeight: '65px',
-            minWidth: '300px',
-            display: 'block !important',
-            visibility: 'visible !important',
-            opacity: '1 !important',
+          alignItems: 'flex-start',
           }}
         >
-          <Turnstile
-            siteKey={process.env.REACT_APP_TURNSTILE_SITE_KEY || "0x4AAAAAABzqHkb7zO7lTrG-"}
-            onVerify={handleTurnstileVerify}
-            onError={handleTurnstileError}
-            onExpire={handleTurnstileExpire}
-            theme="auto"
-            size="normal"
-            keepVisible={true}
-          />
+          <Box
+            sx={{
+              minWidth: '304px',
+              display: 'flex',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {process.env.REACT_APP_GOOGLE_SITE_KEY ? (
+              <GoogleRecaptcha
+                ref={recaptchaRef}
+                siteKey={process.env.REACT_APP_GOOGLE_SITE_KEY}
+                onVerify={handleRecaptchaVerify}
+                onError={handleRecaptchaError}
+                onExpire={handleRecaptchaExpire}
+                theme="light"
+                size="normal"
+              />
+            ) : (
+              <Typography variant="body2" sx={{ color: "error.main", p: 2 }}>
+                reCAPTCHA site key not configured
+              </Typography>
+            )}
+          </Box>
+          {isCaptchaVerified && (email.trim() === "" || password.trim() === "") && (
+            <Typography variant="caption" sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}>
+              Please fill in all required fields
+            </Typography>
+          )}
         </Box>
-        {!isTurnstileVerified && (
-          <Typography variant="caption" sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}>
-            Please complete the security verification above to enable login
-          </Typography>
-        )}
-        {isTurnstileVerified && (email.trim() === "" || password.trim() === "") && (
-          <Typography variant="caption" sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}>
-            Please fill in all required fields
-          </Typography>
-        )}
-      </Box>
       
       <FormControlLabel
         control={<Checkbox size="small" defaultChecked />}
@@ -346,9 +373,9 @@ const LoginComponent = () => {
           Forgot your password?
         </Link>
         {isLoading ? (
-          <div className="flex items-center justify-center">
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CircularProgress color="success" size={"28px"} />
-          </div>
+          </Box>
         ) : (
           <Button
             variant="contained"

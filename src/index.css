@@ -231,25 +231,3 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
-
-/* Turnstile Widget Styles - Prevent Hiding */
-.cf-turnstile {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  min-height: 65px !important;
-  min-width: 300px !important;
-}
-
-.cf-turnstile iframe {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Ensure Turnstile container is always visible */
-[data-sitekey] {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
