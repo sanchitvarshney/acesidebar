@@ -54,7 +54,8 @@ const LoginComponent = () => {
   const [login, { isLoading }] = useLoginMutation();
   const [isForgot, setIsForgot] = useState<boolean>(false);
   const [turnstileToken, setTurnstileToken] = useState<string>("");
-  const [isTurnstileVerified, setIsTurnstileVerified] = useState<boolean>(false);
+  const [isTurnstileVerified, setIsTurnstileVerified] =
+    useState<boolean>(false);
 
   // Watch form values for validation
   const watchedValues = watch();
@@ -62,7 +63,8 @@ const LoginComponent = () => {
   const password = watchedValues.password || "";
 
   // Check if form is valid and Turnstile is verified
-  const isFormValid = email.trim() !== "" && password.trim() !== "" && isTurnstileVerified;
+  const isFormValid =
+    email.trim() !== "" && password.trim() !== "" && isTurnstileVerified;
 
   const forgotSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -100,9 +102,11 @@ const LoginComponent = () => {
   const handleTurnstileExpire = () => {
     setIsTurnstileVerified(false);
     setTurnstileToken("");
-    showToast("Security verification expired. Please complete the verification again.", "error");
+    showToast(
+      "Security verification expired. Please complete the verification again.",
+      "error"
+    );
   };
-
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -142,7 +146,7 @@ const LoginComponent = () => {
     setIsForgot(false);
   };
 
-  console.log("=======",process.env.TURNSTILE_SITE_KEY);
+  console.log("=======",process.env.REACT_APP_TURNSTILE_SITE_KEY);
 
   return isForgot ? (
     <Box
@@ -277,11 +281,18 @@ const LoginComponent = () => {
           }
         />
       </Box>
-      
+
       {/* Turnstile Security Verification */}
-      <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <Turnstile
-          siteKey={process.env.TURNSTILE_SITE_KEY || ""}
+          siteKey={process.env.REACT_APP_TURNSTILE_SITE_KEY || ""}
           onVerify={handleTurnstileVerify}
           onError={handleTurnstileError}
           onExpire={handleTurnstileExpire}
@@ -289,17 +300,24 @@ const LoginComponent = () => {
           size="normal"
         />
         {!isTurnstileVerified && (
-          <Typography variant="caption" sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}>
+          <Typography
+            variant="caption"
+            sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}
+          >
             Please complete the security verification above
           </Typography>
         )}
-        {isTurnstileVerified && (email.trim() === "" || password.trim() === "") && (
-          <Typography variant="caption" sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}>
-            Please fill in all required fields
-          </Typography>
-        )}
+        {isTurnstileVerified &&
+          (email.trim() === "" || password.trim() === "") && (
+            <Typography
+              variant="caption"
+              sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}
+            >
+              Please fill in all required fields
+            </Typography>
+          )}
       </Box>
-      
+
       <FormControlLabel
         control={<Checkbox size="small" defaultChecked />}
         label={
@@ -307,7 +325,7 @@ const LoginComponent = () => {
         }
         sx={{ my: 1 }}
       />
-      
+
       <Box
         sx={{
           display: "flex",
