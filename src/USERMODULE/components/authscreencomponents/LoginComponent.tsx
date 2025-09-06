@@ -73,6 +73,7 @@ const LoginComponent = () => {
     setShowPassword((prev) => !prev);
   };
 
+
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const payload = {
@@ -250,6 +251,7 @@ const LoginComponent = () => {
         }
         sx={{ my: 1 }}
       />
+      
       <Box
         sx={{
           display: "flex",
@@ -282,6 +284,10 @@ const LoginComponent = () => {
               borderRadius: 1.5,
               boxShadow: "0 2px 8px rgba(99,102,241,0.10)",
               "&:hover": { background: "#1c5fba" },
+              "&:disabled": {
+                backgroundColor: "rgba(0, 0, 0, 0.12)",
+                color: "rgba(0, 0, 0, 0.26)",
+              },
             }}
             type="submit"
           >

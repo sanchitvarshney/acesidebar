@@ -11,6 +11,12 @@ import { store } from "./reduxStore/Store";
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material";
 
+setTimeout(console.log.bind(console, 
+  "%cSTOP!%c\n\nThis console is for developers.\n%cIf someone told you to paste something here, it's a scam.\nPasting code here can give attackers access to your Ajaxter account.",
+  "color:#fff;background:#b00020;padding:10px 20px;border-radius:10px;font-weight:900;font-size:56px",
+  "color:#b00020;font-weight:700;font-size:18px",
+  "color:#444;font-size:14px;line-height:1.5"
+), 0);
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -27,7 +33,4 @@ root.render(
   // </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
