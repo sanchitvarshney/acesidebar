@@ -54,8 +54,7 @@ const LoginComponent = () => {
   const [login, { isLoading }] = useLoginMutation();
   const [isForgot, setIsForgot] = useState<boolean>(false);
   const [turnstileToken, setTurnstileToken] = useState<string>("");
-  const [isTurnstileVerified, setIsTurnstileVerified] =
-    useState<boolean>(false);
+  const [isTurnstileVerified, setIsTurnstileVerified] = useState<boolean>(false);
 
   // Watch form values for validation
   const watchedValues = watch();
@@ -63,8 +62,7 @@ const LoginComponent = () => {
   const password = watchedValues.password || "";
 
   // Check if form is valid and Turnstile is verified
-  const isFormValid =
-    email.trim() !== "" && password.trim() !== "" && isTurnstileVerified;
+  const isFormValid = email.trim() !== "" && password.trim() !== "" && isTurnstileVerified;
 
   const forgotSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -93,7 +91,6 @@ const LoginComponent = () => {
   };
 
   const handleTurnstileError = (error: string) => {
-    console.error("Turnstile error:", error);
     setIsTurnstileVerified(false);
     setTurnstileToken("");
     showToast("Please complete the security verification", "error");
@@ -102,18 +99,16 @@ const LoginComponent = () => {
   const handleTurnstileExpire = () => {
     setIsTurnstileVerified(false);
     setTurnstileToken("");
-    showToast(
-      "Security verification expired. Please complete the verification again.",
-      "error"
-    );
+    showToast("Security verification expired. Please complete the verification again.", "error");
   };
+
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const payload = {
         username: data.email,
         password: data.password,
-        turnstileToken: turnstileToken, // Include Turnstile token in the payload
+        captcha: turnstileToken,
       };
       const result = await login(payload);
 
@@ -131,11 +126,14 @@ const LoginComponent = () => {
         // Show success message
         showToast("Login successful!", "success");
 
+        // Reset Turnstile verification for next login
+        setIsTurnstileVerified(false);
+        setTurnstileToken("");
+
         // Navigate to home
         navigation("/");
       }
     } catch (error) {
-      console.error("Error logging in:", error);
       showToast("Login failed. Please try again.", "error");
     }
   };
@@ -145,8 +143,6 @@ const LoginComponent = () => {
     showToast(`Password reset instructions sent to ${email}`, "success");
     setIsForgot(false);
   };
-
-  console.log("=======",process.env.REACT_APP_TURNSTILE_SITE_KEY);
 
   return isForgot ? (
     <Box
@@ -281,43 +277,50 @@ const LoginComponent = () => {
           }
         />
       </Box>
-
+      
       {/* Turnstile Security Verification */}
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+      <Box 
+        sx={{ 
+          mb: 2, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center',
+          minHeight: '80px', // Ensure container has minimum height
+          visibility: 'visible !important',
+          opacity: '1 !important',
         }}
       >
-        <Turnstile
-          siteKey={process.env.REACT_APP_TURNSTILE_SITE_KEY || ""}
-          onVerify={handleTurnstileVerify}
-          onError={handleTurnstileError}
-          onExpire={handleTurnstileExpire}
-          theme="auto"
-          size="normal"
-        />
+        <Box
+          sx={{
+            minHeight: '65px',
+            minWidth: '300px',
+            display: 'block !important',
+            visibility: 'visible !important',
+            opacity: '1 !important',
+          }}
+        >
+          <Turnstile
+            siteKey={process.env.REACT_APP_TURNSTILE_SITE_KEY || "0x4AAAAAABzqHkb7zO7lTrG-"}
+            onVerify={handleTurnstileVerify}
+            onError={handleTurnstileError}
+            onExpire={handleTurnstileExpire}
+            theme="auto"
+            size="normal"
+            keepVisible={true}
+          />
+        </Box>
         {!isTurnstileVerified && (
-          <Typography
-            variant="caption"
-            sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}
-          >
-            Please complete the security verification above
+          <Typography variant="caption" sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}>
+            Please complete the security verification above to enable login
           </Typography>
         )}
-        {isTurnstileVerified &&
-          (email.trim() === "" || password.trim() === "") && (
-            <Typography
-              variant="caption"
-              sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}
-            >
-              Please fill in all required fields
-            </Typography>
-          )}
+        {isTurnstileVerified && (email.trim() === "" || password.trim() === "") && (
+          <Typography variant="caption" sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}>
+            Please fill in all required fields
+          </Typography>
+        )}
       </Box>
-
+      
       <FormControlLabel
         control={<Checkbox size="small" defaultChecked />}
         label={
@@ -325,7 +328,7 @@ const LoginComponent = () => {
         }
         sx={{ my: 1 }}
       />
-
+      
       <Box
         sx={{
           display: "flex",

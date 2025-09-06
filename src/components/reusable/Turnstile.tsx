@@ -8,6 +8,7 @@ interface TurnstileProps {
   theme?: 'light' | 'dark' | 'auto';
   size?: 'normal' | 'compact';
   className?: string;
+  keepVisible?: boolean;
 }
 
 declare global {
@@ -29,6 +30,7 @@ const Turnstile: React.FC<TurnstileProps> = ({
   theme = 'auto',
   size = 'normal',
   className = '',
+  keepVisible = false,
 }) => {
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
@@ -72,6 +74,9 @@ const Turnstile: React.FC<TurnstileProps> = ({
         'expired-callback': () => {
           onExpire?.();
         },
+        // Force the widget to stay visible
+        'retry': 'auto',
+        'retry-interval': 8000,
       });
 
       widgetIdRef.current = widgetId;
@@ -91,6 +96,51 @@ const Turnstile: React.FC<TurnstileProps> = ({
     };
   }, [isLoaded, siteKey, theme, size, onVerify, onError, onExpire]);
 
+  // Force visibility of Turnstile widget
+  useEffect(() => {
+    const forceVisibility = () => {
+      if (turnstileRef.current) {
+        const element = turnstileRef.current;
+        element.style.display = 'block';
+        element.style.visibility = 'visible';
+        element.style.opacity = '1';
+        
+        // Also force visibility of any iframes inside
+        const iframes = element.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+          iframe.style.display = 'block';
+          iframe.style.visibility = 'visible';
+          iframe.style.opacity = '1';
+        });
+      }
+    };
+
+    // Force visibility immediately
+    forceVisibility();
+
+    // Set up interval to continuously force visibility
+    const interval = setInterval(forceVisibility, 1000);
+
+    // Set up MutationObserver to watch for changes and force visibility
+    const observer = new MutationObserver(() => {
+      forceVisibility();
+    });
+
+    if (turnstileRef.current) {
+      observer.observe(turnstileRef.current, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+        attributeFilter: ['style', 'class']
+      });
+    }
+
+    return () => {
+      clearInterval(interval);
+      observer.disconnect();
+    };
+  }, [isLoaded]);
+
   const reset = () => {
     if (widgetIdRef.current && window.turnstile) {
       try {
@@ -100,6 +150,9 @@ const Turnstile: React.FC<TurnstileProps> = ({
       }
     }
   };
+
+  // Note: Reset method is available internally
+  // If you need to access reset() from parent, consider using a ref or callback pattern
 
   const getResponse = () => {
     if (widgetIdRef.current && window.turnstile) {
@@ -122,6 +175,13 @@ const Turnstile: React.FC<TurnstileProps> = ({
       ref={turnstileRef}
       className={`cf-turnstile ${className}`}
       data-sitekey={siteKey}
+      style={{
+        minHeight: '65px',
+        minWidth: '300px',
+        display: 'block',
+        visibility: 'visible',
+        opacity: 1,
+      }}
     />
   );
 };
