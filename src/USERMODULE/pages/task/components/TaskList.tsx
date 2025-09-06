@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo, useCallback } from "react";
 import {
   TextField,
   IconButton,
@@ -32,9 +32,11 @@ interface TaskListProps {
   getStatusIcon: (status: string) => React.ReactNode;
   isAddTask?: boolean;
   isLoading?: boolean;
+  loadingTaskId?: string | null;
+  loadingAttachmentTaskId?: string | null;
 }
 
-const TaskList: React.FC<TaskListProps> = ({
+const TaskList: React.FC<TaskListProps> = memo(({
   tasks,
   selectedTasks,
   selectedTask,
@@ -50,9 +52,11 @@ const TaskList: React.FC<TaskListProps> = ({
   getStatusIcon,
   isAddTask,
   isLoading,
+  loadingTaskId,
+  loadingAttachmentTaskId,
 }) => {
   // Filter tasks based on search query
-  const filteredTasks = React.useMemo(() => {
+  const filteredTasks = useMemo(() => {
     return filterTasksBySearch(tasks, searchQuery, {
       title: true,
       description: true,
@@ -63,22 +67,22 @@ const TaskList: React.FC<TaskListProps> = ({
   }, [tasks, searchQuery]);
 
   // Paginate filtered tasks
-  const paginatedTasks = React.useMemo(() => {
+  const paginatedTasks = useMemo(() => {
     return paginateTasks(filteredTasks, page, rowsPerPage);
   }, [filteredTasks, page, rowsPerPage]);
 
-  const handleChangePage = (
+  const handleChangePage = useCallback((
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
     onPageChange(newPage);
-  };
+  }, [onPageChange]);
 
-  const handleChangeRowsPerPage = (
+  const handleChangeRowsPerPage = useCallback((
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     onRowsPerPageChange(parseInt(event.target.value, 10));
-  };
+  }, [onRowsPerPageChange]);
 
   return (
     <div className="w-[35%] flex flex-col border-r bg-white">
@@ -140,6 +144,8 @@ const TaskList: React.FC<TaskListProps> = ({
                   onClick={onTaskClick}
                   getStatusIcon={getStatusIcon}
                   isAddTask={isAddTask}
+                  isLoading={loadingTaskId === task.taskID}
+                  isAttachmentLoading={loadingAttachmentTaskId === task.taskID}
                 />
               ))}{" "}
             </>
@@ -160,6 +166,8 @@ const TaskList: React.FC<TaskListProps> = ({
       </div>
     </div>
   );
-};
+});
+
+TaskList.displayName = 'TaskList';
 
 export default TaskList;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import LeftMenu from "../TicketManagement/LeftMenu";
 import {
   Button,
@@ -90,6 +90,12 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [getTaskComment, { data: taskcomment, isLoading: taskcommentLoading }] =
     useCommanApiForTaskListMutation();
   const [changeStatus] = useCommanApiForTaskListMutation();
+
+  // Loading states for individual task interactions
+  const [loadingTaskId, setLoadingTaskId] = React.useState<string | null>(null);
+  const [loadingAttachmentTaskId, setLoadingAttachmentTaskId] = React.useState<
+    string | null
+  >(null);
 
   // Task Advanced Search State
   const [taskAdvancedSearchOpen, setTaskAdvancedSearchOpen] =
@@ -261,7 +267,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const currentAgent = user?.name; // from shared data
 
   // Filter tasks to show only current agent's tasks
-  const tasks = taskList?.filter((task: any) => task.assignor === currentAgent);
+  // const tasks = taskList?.filter((task: any) => task.assignor === currentAgent);
 
   const handleStatusChange = async (
     taskId: string,
@@ -283,8 +289,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
   };
 
-  const filteredTasks = React.useMemo(() => {
-    let filtered = tasks;
+  const filteredTasks = useMemo(() => {
+    let filtered = taskList;
     console.log("Filtered tasks:", filtered);
 
     if (searchQuery) {
@@ -298,9 +304,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
 
     return filtered;
-  }, [tasks, searchQuery]);
+  }, [taskList, searchQuery]);
 
-  const paginatedTasks = React.useMemo(() => {
+  const paginatedTasks = useMemo(() => {
     return filteredTasks?.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
   }, [filteredTasks, page, rowsPerPage]);
 
@@ -308,19 +314,22 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [selectedTasks, setSelectedTasks] = React.useState<string[]>([]);
   const [masterChecked, setMasterChecked] = React.useState(false);
 
-  const handleMasterCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      // Only select enabled tasks that are NOT currently opened
-      const selectableTaskIds = paginatedTasks
-        .filter((task: any) => taskcomment?.taskKey !== task.taskKey)
-        .map((task: any) => task.taskKey);
-      setSelectedTasks(selectableTaskIds);
-      setMasterChecked(true);
-    } else {
-      setSelectedTasks([]);
-      setMasterChecked(false);
-    }
-  };
+  const handleMasterCheckbox = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.checked) {
+        // Only select enabled tasks that are NOT currently opened
+        const selectableTaskIds = paginatedTasks
+          .filter((task: any) => taskcomment?.taskKey !== task.taskKey)
+          .map((task: any) => task.taskKey);
+        setSelectedTasks(selectableTaskIds);
+        setMasterChecked(true);
+      } else {
+        setSelectedTasks([]);
+        setMasterChecked(false);
+      }
+    },
+    [paginatedTasks, taskcomment?.taskKey]
+  );
 
   // Update master checkbox state when individual selections change
   React.useEffect(() => {
@@ -336,13 +345,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
   }, [selectedTasks, paginatedTasks, taskcomment]);
 
-  const handleTaskSelection = (taskId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedTasks((prev) => [...prev, taskId]);
-    } else {
-      setSelectedTasks((prev) => prev.filter((id) => id !== taskId));
-    }
-  };
+  const handleTaskSelection = useCallback(
+    (taskId: string, checked: boolean) => {
+      if (checked) {
+        setSelectedTasks((prev) => [...prev, taskId]);
+      } else {
+        setSelectedTasks((prev) => prev.filter((id) => id !== taskId));
+      }
+    },
+    []
+  );
 
   // Task Advanced Search Handlers
   const handleTaskAdvancedSearchOpen = (
@@ -646,23 +658,40 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
   }, [isAddTask, taskId]);
 
-  const handleTaskClick = async (task: any, type?: string) => {
-    const url =
-      type === "attachments"
-        ? `${ticketId}/${task}?type=attachment`
-        : `${ticketId}/${task}?type=comment`;
+  const handleTaskClick = useCallback(
+    async (task: any, type?: string) => {
+      const url =
+        type === "attachments"
+          ? `${ticketId}/${task}?type=attachment`
+          : `${ticketId}/${task}?type=comment`;
 
-    try {
-      const response = await getTaskComment({ url }).unwrap();
-
-      if (response?.type === "error") {
-        showToast(response.message, "error");
-        return;
+      // Set loading state
+      if (type === "attachments") {
+        setLoadingAttachmentTaskId(task);
+      } else {
+        setLoadingTaskId(task);
       }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-    }
-  };
+
+      try {
+        const response = await getTaskComment({ url }).unwrap();
+
+        if (response?.type === "error") {
+          showToast(response.message, "error");
+          return;
+        }
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      } finally {
+        // Clear loading state
+        if (type === "attachments") {
+          setLoadingAttachmentTaskId(null);
+        } else {
+          setLoadingTaskId(null);
+        }
+      }
+    },
+    [ticketId, getTaskComment, showToast]
+  );
 
   return (
     <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-96px)]">
@@ -690,7 +719,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
         {/* LEFT SECTION - Task List & Filters */}
         <TaskList
-          tasks={tasks}
+          tasks={taskList}
           selectedTasks={selectedTasks}
           selectedTask={taskcomment}
           searchQuery={searchQuery}
@@ -710,6 +739,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
           getStatusIcon={getStatusIcon}
           isAddTask={isAddTask}
           isLoading={taskListLoading}
+          loadingTaskId={loadingTaskId}
+          loadingAttachmentTaskId={loadingAttachmentTaskId}
         />
 
         {/* RIGHT SECTION - Task Details & Actions */}
@@ -747,8 +778,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   <IconButton
                     onClick={() => {
                       setRightActiveTab(1);
-                      handleTaskClick(taskId);
+                      handleTaskClick(taskId, "comments");
                     }}
+                    disabled={loadingAttachmentTaskId === taskId}
                     sx={{
                       width: 48,
                       height: 48,
@@ -763,9 +795,17 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           rightActiveTab === 1 ? "primary.dark" : "grey.100",
                         color: rightActiveTab === 1 ? "#fff" : "text.primary",
                       },
+                      "&:disabled": {
+                        opacity: 0.6,
+                        cursor: "not-allowed",
+                      },
                     }}
                   >
-                    <AttachFileIcon />
+                    {loadingAttachmentTaskId === taskId ? (
+                      <CircularProgress size={20} sx={{ color: "inherit" }} />
+                    ) : (
+                      <AttachFileIcon />
+                    )}
                   </IconButton>
                 </Tooltip>
 
@@ -1271,30 +1311,51 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   <div className="border-t border-gray-200 bg-white">
                     <div className="flex space-x-8 px-6 py-3">
                       <button
-                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                        className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
                           attachmentsTab === "comments"
                             ? "border-blue-500 text-blue-600"
                             : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        } ${
+                          loadingAttachmentTaskId === taskId
+                            ? "opacity-60 cursor-wait"
+                            : ""
                         }`}
                         onClick={() => {
-                          setAttachmentsTab("comments");
-                          handleTaskClick(taskId, "comments");
+                          if (loadingAttachmentTaskId !== taskId) {
+                            setAttachmentsTab("comments");
+                            handleTaskClick(taskId, "comments");
+                          }
                         }}
+                        disabled={loadingAttachmentTaskId === taskId}
                       >
+                        {loadingAttachmentTaskId === taskId &&
+                        attachmentsTab === "comments" ? (
+                          <CircularProgress size={12} />
+                        ) : null}
                         Comments ({taskcomment?.comment?.length})
                       </button>
                       <button
-                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                        className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
                           attachmentsTab === "attachments"
                             ? "border-blue-500 text-blue-600"
                             : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        } ${
+                          loadingAttachmentTaskId === taskId
+                            ? "opacity-60 cursor-wait"
+                            : ""
                         }`}
                         onClick={() => {
-                          setAttachmentsTab("attachments");
-
-                          handleTaskClick(taskId, "attachments");
+                          if (loadingAttachmentTaskId !== taskId) {
+                            setAttachmentsTab("attachments");
+                            handleTaskClick(taskId, "attachments");
+                          }
                         }}
+                        disabled={loadingAttachmentTaskId === taskId}
                       >
+                        {loadingAttachmentTaskId === taskId &&
+                        attachmentsTab === "attachments" ? (
+                          <CircularProgress size={12} />
+                        ) : null}
                         Attachments ({taskcomment?.attachment?.length})
                       </button>
                     </div>

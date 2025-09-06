@@ -37,6 +37,7 @@ import {
   List,
   ListItemText,
   ToggleButton,
+  Rating,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -72,7 +73,6 @@ import { useParams } from "react-router-dom";
 import ReplyStatusOptions from "../../components/ReplyStatusOptions";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import Tasks from "../task/Tasks";
-import EmptyThread from "../../components/EmptyThread";
 
 const signatureValues: any = [
   {
@@ -145,9 +145,9 @@ const ThreadItem = ({
   onReplyClick,
   onForward,
   marginBottomClass,
-  subject,
+  subjectTitle,
 }: any) => {
-  const [commanApi] = useCommanApiMutation();
+  const [reviewThread] = useCommanApiMutation();
   const [triggerFlag] = useCommanApiMutation();
   const { showToast } = useToast();
   const [open, setOpen] = useState(false);
@@ -155,10 +155,8 @@ const ThreadItem = ({
 
   const ticketId = useParams().id;
   const optionsRef = React.useRef<any>(null);
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [selected, setSelected] = useState<number>(0);
   const [trackDownloadId, setTrackDownloadId] = useState<string>("");
-
+  const [ratingValue, setRatingValue] = useState(item?.score ?? 0);
   const dispatch = useDispatch();
   const [triggerDownload, { isLoading: isDownloading }] =
     useLazyDownloadAttachedFileQuery();
@@ -187,7 +185,7 @@ const ThreadItem = ({
   const handleSelect = (value: string) => {
     if (value === "1") {
       const payloadForward = {
-        subject: `#Forward: ${subject}`,
+        subject: `#Forward: ${subjectTitle}`,
         message: item.message,
         threadID: item.entryId,
       };
@@ -203,9 +201,9 @@ const ThreadItem = ({
   const handleReview = (value: any) => {
     const pathId = window.location.pathname.split("/").pop();
 
-    setSelected(value);
     const payload = {
-      url: "review-ticket",
+      url: "rate-ticket",
+      method: "PUT",
       body: {
         ticket: pathId,
         rate: value,
@@ -213,9 +211,21 @@ const ThreadItem = ({
       },
     };
 
-    commanApi(payload)
-      .then((response) => {})
-      .catch((error) => {});
+    reviewThread(payload).then((response: any) => {
+      console.log(response);
+      if (
+        response?.type === "error" ||
+        response?.error?.data?.type === "error"
+      ) {
+        showToast(
+          response?.error?.data?.message || "Something went wrong",
+          "error"
+        );
+        return;
+      } else {
+        setRatingValue(value);
+      }
+    });
   };
 
   const downloadFile = async (fileId: string, fileName: string) => {
@@ -292,12 +302,11 @@ const ThreadItem = ({
           aria-labelledby="composition-button"
           onKeyDown={handleListKeyDown}
         >
-          {replyOptions.map((item, index) => {
-            // const isSelected = selectedIndex === item.value;
+          {replyOptions.map((option, index) => {
             return (
               <MenuItem
                 key={index}
-                onClick={() => handleSelect(item.value)}
+                onClick={() => handleSelect(option.value)}
                 // selected={isSelected}
                 sx={{
                   mb: 0.5,
@@ -325,8 +334,8 @@ const ThreadItem = ({
                 }}
               >
                 {/* <CheckIcon sx={{ color: "#000", fontSize: 18, ml: 2 }} /> */}
-                {item.icon}
-                <span className="ml-2">{item.name}</span>
+                {option.icon}
+                <span className="ml-2">{option.name}</span>
               </MenuItem>
             );
           })}
@@ -451,27 +460,29 @@ const ThreadItem = ({
                 </div>
               )}
             </div>
-            <div
-              style={{
-                position: "absolute",
-                top: "60px",
-                [isCurrentUser ? "left" : "right"]: `-16px`,
-              }}
-            >
-              {!isCurrentUser && (
-                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
-                  <IconButton
-                    size="small"
-                    onClick={() => handleReportTicket(item?.isFlagged)}
-                  >
-                    <EmojiFlagsIcon
-                      sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
-                      fontSize="small"
-                    />
-                  </IconButton>
-                </div>
-              )}
-            </div>
+            {!item?.subject && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "60px",
+                  [isCurrentUser ? "left" : "right"]: `-16px`,
+                }}
+              >
+                {!isCurrentUser && (
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleReportTicket(item?.isFlagged)}
+                    >
+                      <EmojiFlagsIcon
+                        sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
+                        fontSize="small"
+                      />
+                    </IconButton>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div
             className="w-[100%] flex flex-col items-center justify-between border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)] rounded-lg"
@@ -485,35 +496,39 @@ const ThreadItem = ({
                   }`}
                 >
                   <span className="font-semibold text-[#1a73e8] text-sm">
-                    {item.repliedBy?.name || "User"}
+                    {item.repliedBy?.name ?? item?.ticketId ?? "User"}
                   </span>
                   <div className="flex flex-col ">
-                    <div
-                      className={`flex items-center gap-2 ${
-                        isCurrentUser ? "justify-start" : "justify-end"
-                      }`}
-                    >
-                      <img src={isCurrentUser ? email : web} alt="ip" />
-                      <span className="text-xs text-gray-400 ">
-                        {item.repliedAt?.timestamp}
-                      </span>{" "}
-                      <CustomToolTip
-                        title={renderReplyOption}
-                        open={open}
-                        placement={"bottom-end"}
-                      >
-                        <IconButton
-                          size="small"
-                          onClick={() => setOpen(true)}
-                          ref={optionsRef}
+                    {!item?.subject && (
+                      <>
+                        <div
+                          className={`flex items-center gap-2 ${
+                            isCurrentUser ? "justify-start" : "justify-end"
+                          }`}
                         >
-                          <ArrowDropDownIcon fontSize="small" />
-                        </IconButton>
-                      </CustomToolTip>
-                    </div>
-                    <span className="text-xs text-gray-500">
-                      {bubbleFooter}
-                    </span>
+                          <img src={isCurrentUser ? email : web} alt="ip" />
+                          <span className="text-xs text-gray-400 ">
+                            {item.repliedAt?.timestamp}
+                          </span>{" "}
+                          <CustomToolTip
+                            title={renderReplyOption}
+                            open={open}
+                            placement={"bottom-end"}
+                          >
+                            <IconButton
+                              size="small"
+                              onClick={() => setOpen(true)}
+                              ref={optionsRef}
+                            >
+                              <ArrowDropDownIcon fontSize="small" />
+                            </IconButton>
+                          </CustomToolTip>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {bubbleFooter}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -521,11 +536,12 @@ const ThreadItem = ({
                   className="w-4/5 text-xs text-gray-500 my-3 message-container"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeMessageHtml(
-                      decodeHtmlEntities(item?.message)
+                      decodeHtmlEntities(item?.message ?? item?.body)
                     ),
                   }}
                 />
-                {item?.attachments.length > 0 && (
+
+                {item?.attachments?.length > 0 && (
                   <div className="mt-4">
                     <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                       Attachments ({item?.attachments?.length} files)
@@ -587,52 +603,31 @@ const ThreadItem = ({
                 )}
               </div>
             </div>
-            <div
-              className="flex items-center justify-between w-full py-3 px-8 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
-              style={{ borderTopColor: isReported ? "#ffb6b6" : "#c3d9ff" }}
-            >
-              {/* {item?.attachments.length > 0 ? (
+            {!item?.subject && (
+              <div
+                className="flex items-center justify-between w-full py-3 px-8 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
+                style={{ borderTopColor: isReported ? "#ffb6b6" : "#c3d9ff" }}
+              >
+                {/* {item?.attachments.length > 0 ? (
                 <span className="text-xs text-gray-500 cursor-pointer hover:text-decoration-underline ">
                   {item?.attachments.fileName}
                 </span>
               ) : ( */}
-              <span />
-              {/* )} */}
-              {!isCurrentUser && (
-                <span className="flex gap-1">
-                  {Array.from({ length: 5 }).map((_, idx) => {
-                    const isActive =
-                      hovered !== null ? idx <= hovered : idx < selected;
-
-                    return (
-                      <StarIcon
-                        key={idx}
-                        sx={{
-                          color: isActive ? "#fbbf24" : "#a4a4a4ff",
-                          cursor: "pointer",
-                          opacity: 1,
-                          fontSize: "18px",
-                          transition: "all 0.2s ease",
-                          pointerEvents: "auto",
-                          "&:hover": {
-                            color: "#fbbf24",
-                            transform: "scale(1.1)",
-                          },
-                        }}
-                        onMouseEnter={() => setHovered(idx)}
-                        onMouseLeave={() => setHovered(null)}
-                        onClick={() => handleReview(idx + 1)}
-                      />
-                    );
-                  })}
-                  {selected > 0 && (
-                    <span className="ml-2 text-xs text-gray-600">
-                      {selected} star{selected > 1 ? "s" : ""}
-                    </span>
-                  )}
-                </span>
-              )}
-            </div>
+                <span />
+                {/* )} */}
+                {!isCurrentUser && (
+                  <span className="flex gap-1">
+                    <Rating
+                      name="rate-of-thread"
+                      value={ratingValue}
+                      onChange={(event, newValue: any) =>
+                        handleReview(newValue)
+                      }
+                    />
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -640,35 +635,43 @@ const ThreadItem = ({
   );
 };
 
-const ThreadList = ({ thread, onReplyClick, onForward, subject }: any) => (
-  <div className="">
-    {thread && thread.length > 0 ? (
-      thread.map((item: any, idx: number) => {
-        const next = thread[idx + 1];
-        const isCurrentStaff = item?.replyType === "S";
-        const isNextStaff = next ? next?.replyType === "S" : undefined;
-        const marginBottomClass =
-          next === undefined || isCurrentStaff !== isNextStaff
-            ? "mb-10"
-            : "mb-3";
+const ThreadList = ({ thread, onReplyClick, onForward, subject }: any) => {
+  return (
+    <div className="">
+      {thread && thread.length > 0 ? (
+        thread.map((item: any, idx: number) => {
+          const next = thread[idx + 1];
+          const isCurrentStaff = item?.replyType === "S";
+          const isNextStaff = next ? next?.replyType === "S" : undefined;
+          const marginBottomClass =
+            next === undefined || isCurrentStaff !== isNextStaff
+              ? "mb-10"
+              : "mb-3";
 
-        return (
-          <ThreadItem
-            key={idx}
-            item={item}
-            onReplyClick={onReplyClick}
-            onForward={onForward}
-            marginBottomClass={marginBottomClass}
-            subject={subject}
-          />
-        );
-      })
-    ) : (
-      // <div className="text-gray-400">No thread items.</div>
-      <EmptyThread subject={subject} />
-    )}
-  </div>
-);
+          return (
+            <ThreadItem
+              key={idx}
+              item={item}
+              onReplyClick={onReplyClick}
+              onForward={onForward}
+              marginBottomClass={marginBottomClass}
+              subjectTitle={subject.subject}
+            />
+          );
+        })
+      ) : (
+        // <div className="text-gray-400">No thread items.</div>
+        <ThreadItem
+          item={subject}
+          onReplyClick={onReplyClick}
+          onForward={onForward}
+          marginBottomClass={""}
+          // subjectTitle={subject.subject}
+        />
+      )}
+    </div>
+  );
+};
 
 const TicketThreadSection = ({
   thread,
@@ -1010,11 +1013,7 @@ const TicketThreadSection = ({
           <TicketSubjectBar header={header} />
         </div>
         <div className="flex flex-col gap-0 w-full h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
-          <ThreadList
-            thread={thread}
-            onForward={onForward}
-            subject={header.subject}
-          />
+          <ThreadList thread={thread} onForward={onForward} subject={header} />
         </div>
         <div className="rounded   p-1 w-[74%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
           <Accordion

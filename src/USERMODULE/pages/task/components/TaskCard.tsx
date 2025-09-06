@@ -1,5 +1,5 @@
-import React from "react";
-import { Card, CardContent, Checkbox, Chip, IconButton } from "@mui/material";
+import React, { memo, useCallback } from "react";
+import { Card, CardContent, Checkbox, Chip, IconButton, CircularProgress } from "@mui/material";
 import {
   Assignment as AssignmentIcon,
   Person as PersonIcon,
@@ -20,9 +20,11 @@ interface TaskCardProps {
   onClick: (task: Task) => void;
   getStatusIcon: (status: string) => React.ReactNode;
   isAddTask: any;
+  isLoading?: boolean;
+  isAttachmentLoading?: boolean;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({
+const TaskCard: React.FC<TaskCardProps> = memo(({
   task,
   isSelected,
   isCurrentTask,
@@ -30,30 +32,36 @@ const TaskCard: React.FC<TaskCardProps> = ({
   onClick,
   getStatusIcon,
   isAddTask,
+  isLoading = false,
+  isAttachmentLoading = false,
 }) => {
-  const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     onSelect(task.taskKey, event.target.checked);
-  };
+  }, [onSelect, task.taskKey]);
 
-  const handleClick = () => {
-    if (!isCurrentTask) {
+  const handleClick = useCallback(() => {
+    if (!isCurrentTask && !isLoading && !isAttachmentLoading) {
       onClick(task?.taskID);
     }
-  };
+  }, [isCurrentTask, isLoading, isAttachmentLoading, onClick, task?.taskID]);
 
   return (
     <Card
-      className={`relative border mb-3 transition-shadow cursor-pointer transition-all duration-200
+      className={`relative border mb-3 transition-shadow transition-all duration-200
         ${
           isCurrentTask
             ? "border-[#1a73e8] shadow-lg scale-[1.02] before:bg-[#1a73e8]"
+            : isLoading || isAttachmentLoading
+            ? "border-orange-300 bg-orange-50 before:bg-orange-400"
             : "border-gray-300 hover:shadow-md hover:bg-gray-100 before:bg-gray-300"
-        } before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:rounded-l`}
+        } before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:rounded-l ${
+        isLoading || isAttachmentLoading ? "cursor-wait" : "cursor-pointer"
+      }`}
       onClick={handleClick}
       sx={{
-        pointerEvents: isCurrentTask ? "none" : "auto",
-        opacity: isCurrentTask ? 0.9 : 1,
+        pointerEvents: isCurrentTask || isLoading || isAttachmentLoading ? "none" : "auto",
+        opacity: isCurrentTask ? 0.9 : isLoading || isAttachmentLoading ? 0.8 : 1,
       }}
     >
       <CardContent className="p-4">
@@ -79,13 +87,22 @@ const TaskCard: React.FC<TaskCardProps> = ({
           <div className="flex-shrink-0 relative">
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                isCurrentTask ? "bg-blue-200" : "bg-blue-100"
+                isCurrentTask ? "bg-blue-200" : isLoading || isAttachmentLoading ? "bg-orange-200" : "bg-blue-100"
               } ${false ? "opacity-50" : ""}`}
             >
-              {getStatusIcon(task.status)}
+              {isLoading || isAttachmentLoading ? (
+                <CircularProgress size={20} sx={{ color: "#f97316" }} />
+              ) : (
+                getStatusIcon(task.status)
+              )}
             </div>
             {isCurrentTask && (
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+            )}
+            {(isLoading || isAttachmentLoading) && (
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
                 <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
             )}
@@ -95,10 +112,15 @@ const TaskCard: React.FC<TaskCardProps> = ({
             <div className="flex items-center gap-2 mb-2">
               <h3
                 className={`text-base font-medium truncate ${
-                  isCurrentTask ? "text-blue-700" : "text-gray-900"
+                  isCurrentTask ? "text-blue-700" : isLoading || isAttachmentLoading ? "text-orange-700" : "text-gray-900"
                 }`}
               >
                 {task?.title}
+                {(isLoading || isAttachmentLoading) && (
+                  <span className="ml-2 text-sm text-orange-600">
+                    {isLoading ? "Loading..." : "Loading attachments..."}
+                  </span>
+                )}
               </h3>
               {/* {task?.priority && (
                 <Chip
@@ -170,6 +192,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+TaskCard.displayName = 'TaskCard';
 
 export default TaskCard;
