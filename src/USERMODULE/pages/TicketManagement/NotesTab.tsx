@@ -16,7 +16,7 @@ const NotesTab = ({ ticketData }: any) => {
   const [triggerAddNote, { isLoading: addingLoading }] = useCommanApiMutation();
   const [triggerdeleteNote, { isLoading: isDeletingNote }] =
     useCommanApiMutation();
-  const [triggerEditNote, { isLoading: isEditLoading }] =
+  const [triggerEditNote, { isLoading: isEditLoading, error }] =
     useCommanApiMutation();
 
   const handleInputText = (text: string) => {
@@ -27,7 +27,6 @@ const NotesTab = ({ ticketData }: any) => {
 
   useEffect(() => {
     if (ticketData?.notes.length <= 0) return;
-
     setNoteList(ticketData?.notes);
   }, [ticketData]);
 
@@ -41,12 +40,13 @@ const NotesTab = ({ ticketData }: any) => {
         };
         const payloadUpdate = {
           url: `internal-note/${valueofPayload.noteID}/${valueofPayload.ticket}`,
+          method: "PUT",
           body: {
             note: valueofPayload.note, // Updated text entered by the use
           },
         };
         triggerEditNote(payloadUpdate).then((res) => {
-          if (res?.data?.success !== true) {
+          if (res?.data?.type === "error") {
             showToast(res?.data?.message || "An error occurred", "error");
             return;
           }
@@ -69,11 +69,11 @@ const NotesTab = ({ ticketData }: any) => {
         };
         // Create new note
         triggerAddNote(payload).then((res) => {
-          if (res?.data?.success !== true) {
+          if (res?.data?.type === "error") {
             showToast(res?.data?.message || "An error occurred", "error");
             return;
           }
-          console.log(res.data.data);
+
           setNoteList((prev) => [res?.data?.data, ...prev]);
         });
       }
@@ -95,7 +95,7 @@ const NotesTab = ({ ticketData }: any) => {
       method: "DELETE",
     };
     triggerdeleteNote(payload).then((res) => {
-      if (res?.data?.success !== true) {
+      if (res?.data?.type === true) {
         showToast(res?.data?.message || "An error occurred", "error");
         return;
       }
@@ -104,7 +104,6 @@ const NotesTab = ({ ticketData }: any) => {
   };
 
   const handleEdit = (id: number) => {
-  
     setIsNotes(false);
     const noteToEdit = noteList.find((item) => item.key === id);
     if (noteToEdit) {
@@ -126,6 +125,14 @@ const NotesTab = ({ ticketData }: any) => {
     setEditNoteId(null);
     setNote("");
   };
+
+  useEffect(() => {
+    if (error) {
+      //@ts-ignore
+      showToast(error?.data?.message || "An error occurred", "error");
+      return;
+    }
+  }, [error]);
 
   return (
     <div className="bg-white rounded border border-gray-200 p-3 mb-4">

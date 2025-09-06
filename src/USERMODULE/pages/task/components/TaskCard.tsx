@@ -61,125 +61,124 @@ const TaskCard: React.FC<TaskCardProps> = memo(
     return (
       <Card
         elevation={0}
-         className={`relative border mb-3 transition-shadow transition-all duration-200
-           ${
-             isCurrentTask
-               ? "shadow-lg scale-[1.02]"
-               : "border-gray-300 hover:shadow-md hover:bg-gray-100"
-           } ${
-             isLoading || loadingAttachmentTaskId
-               ? "cursor-wait"
-               : "cursor-pointer"
-           }`}
+        className={`relative border mb-3 transition-shadow transition-all duration-200
+        ${
+          isCurrentTask
+            ? "border-[#1a73e8] shadow-lg scale-[1.02] before:bg-[#1a73e8]"
+            : isLoading || loadingAttachmentTaskId
+            ? "border-gray-300 bg-gray-50 before:bg-gray-400"
+            : "border-gray-300 hover:shadow-md hover:bg-gray-100 before:bg-gray-300"
+        } before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:rounded-l ${
+          isLoading || loadingAttachmentTaskId
+            ? "cursor-wait"
+            : "cursor-pointer"
+        }`}
         onClick={handleClick}
-         sx={{
-           pointerEvents:
-             isCurrentTask || isLoading || loadingAttachmentTaskId
-               ? "none"
-               : "auto",
-           opacity: isCurrentTask ? 0.9 : 1,
-           borderLeftColor: task?.priority?.color || "#d1d5db",
-           borderLeftWidth: "4px",
-           borderLeftStyle: "solid",
-           borderColor: isCurrentTask
-             ? task?.priority?.color || "#1a73e8"
-             : task?.priority?.color || "#d1d5db",
-         }}
+        sx={{
+          pointerEvents:
+            isCurrentTask || isLoading || loadingAttachmentTaskId
+              ? "none"
+              : "auto",
+          opacity: isCurrentTask ? 0.9 : isLoading ? 0.8 : 1,
+        }}
       >
         <CardContent className="p-4">
           {isLoading || loadingAttachmentTaskId ? (
             <TaskCardSkeleton />
           ) : (
             <div className="flex items-start gap-3">
-              {!isCurrentTask && (
-                <div className="flex-shrink-0 relative">
-                  <Checkbox
-                    checked={isSelected}
-                    onChange={handleSelect}
-                    sx={{
-                      color: "#666",
-                      "&.Mui-checked": {
-                        color: "#1a73e8",
-                      },
-                      "&:hover": {
-                        backgroundColor: "rgba(26, 115, 232, 0.04)",
-                      },
-                    }}
-                  />
-                </div>
-              )}
-
-              <div className="flex-shrink-0 relative">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    isCurrentTask ? "bg-blue-200" : "bg-blue-100"
-                  }`}
-                >
-                  {getStatusIcon(task.status)}
-                </div>
-                {isCurrentTask && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div>
+                {!isCurrentTask && (
+                  <div className="flex-shrink-0 relative">
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={handleSelect}
+                      sx={{
+                        color: "#666",
+                        "&.Mui-checked": {
+                          color: "#1a73e8",
+                        },
+                        "&:hover": {
+                          backgroundColor: "rgba(26, 115, 232, 0.04)",
+                        },
+                      }}
+                    />
                   </div>
                 )}
               </div>
+              <div className="space-x-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-shrink-0 relative">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          isCurrentTask ? "bg-blue-200" : "bg-blue-100"
+                        }`}
+                      >
+                        {getStatusIcon(task.status)}
+                      </div>
+                      {isCurrentTask && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
+                    <h3
+                      className={`text-base font-medium truncate ${
+                        isCurrentTask ? "text-blue-700" : "text-gray-900"
+                      }`}
+                    >
+                      {task?.title}
+                    </h3>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3
-                    className={`text-base font-medium truncate ${
-                      isCurrentTask ? "text-blue-700" : "text-gray-900"
-                    }`}
-                  >
-                    {task?.title}
-                  </h3>
-                  {/* {task?.priority && (
-                <Chip
-                  icon={<PriorityHighIcon />}
-                  label={task?.priority?.name}
-                  sx={{ color: task?.priority?.color }}
-                  size="small"
-                />
-              )} */}
-                  {task?.isDue && (
-                    <Chip label="Overdue" color="error" size="small" />
-                  )}
-                </div>
-
-                <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                  {!isAddTask && (
-                    <span className="flex items-center gap-1">
-                      <ConfirmationNumberIcon fontSize="small" />
-                      {task?.ticketID}
-                    </span>
-                  )}
-                  <span className="flex items-center gap-1">
-                    <PersonIcon fontSize="small" />
-                    {task?.assignor}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <ScheduleIcon fontSize="small" />
-                    {task?.due?.dt} {task?.due?.tm}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Chip
-                      label={task?.status?.name}
-                      size="small"
-                      color={getStatusColor(task?.status?.name) as any}
-                    />
-                    <Chip
-                      label={task?.priority?.name}
-                      size="small"
-                      color={task?.priority?.color}
-                      variant="outlined"
-                    />
+                    {task?.isDue && (
+                      <Chip label="Overdue" color="error" size="small" />
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <span>{task?.estimate}</span>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                    {!isAddTask && (
+                      <span className="flex items-center gap-1">
+                        <ConfirmationNumberIcon fontSize="small" />
+                        {task?.ticketID}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <PersonIcon fontSize="small" />
+                      {task?.assignor}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <ScheduleIcon fontSize="small" />
+                      {task?.due?.dt} {task?.due?.tm}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <Chip
+                        label={task?.status?.name}
+                        size="small"
+                        sx={{
+                          color: "#000",
+                          backgroundColor: getStatusColor(task?.status?.name) as any,
+                        }}
+                      />
+                      <Chip
+                        label={task?.priority?.name}
+                        size="small"
+                        sx={{
+                          color: "#000",
+                          backgroundColor: task?.priority?.color,
+                        }}
+                        variant="filled"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span>{task?.estimate}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2">
                     <div className="flex items-center gap-1">
                       <IconButton size="small">
                         <CommentIcon fontSize="small" />

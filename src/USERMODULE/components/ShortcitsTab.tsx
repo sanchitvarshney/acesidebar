@@ -83,7 +83,8 @@ const ShortcutsTab = () => {
       key: id,
     };
     deleteShortcut(payload).then((res: any) => {
-      if (res?.data?.success !== true) {
+      console.log("res", res)
+      if (res?.data?.type === "error") {
         showToast(res?.data?.message || "An error occurred", "error");
         return;
       }

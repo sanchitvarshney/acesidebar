@@ -56,8 +56,9 @@ const AboutTab = ({ ticketData }: any) => {
       },
     };
     updateUserData(payload).then((res: any) => {
-      if (res?.data?.success !== true) {
-        showToast(res?.data?.message || "An error occurred", "error");
+     
+      if ( res?.error?.data?.type === "error") {
+        showToast(res?.error?.data?.message  || "An error occurred", "error");
         return;
       }
     });

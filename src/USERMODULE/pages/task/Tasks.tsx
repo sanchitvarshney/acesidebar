@@ -88,10 +88,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [currentTime, setCurrentTime] = React.useState(new Date());
   const [getTaskList, { data: taskList, isLoading: taskListLoading }] =
     useCommanApiForTaskListMutation();
-  const [
-    getTaskComment,
-    { data: taskcomment, isLoading: taskcommentLoading,  },
-  ] = useCommanApiForTaskListMutation();
+  const [getTaskComment, { data: taskcomment, isLoading: taskcommentLoading }] =
+    useCommanApiForTaskListMutation();
   const [changeStatus] = useCommanApiForTaskListMutation();
 
   // Loading states for individual task interactions
@@ -294,7 +292,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
   const filteredTasks = useMemo(() => {
     let filtered = taskList;
-    console.log("Filtered tasks:", filtered);
 
     if (searchQuery) {
       filtered = filtered.filter((task: any) => {
@@ -339,9 +336,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     const selectableTasks = paginatedTasks?.filter(
       (task: any) => taskcomment?.taskKey !== task.taskKey
     );
-    if (selectedTasks.length === 0) {
+    if (selectedTasks?.length === 0) {
       setMasterChecked(false);
-    } else if (selectedTasks.length === selectableTasks.length) {
+    } else if (selectedTasks?.length === selectableTasks?.length) {
       setMasterChecked(true);
     } else {
       setMasterChecked(false);
@@ -881,16 +878,22 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           <div className="flex items-center gap-2 mt-1">
                             <Chip
                               label={taskcomment?.status?.name}
-                              color={
-                                getStatusColor(taskcomment?.status?.name) as any
-                              }
+                              sx={{
+                                color: "#000",
+                                backgroundColor: getStatusColor(
+                                  taskcomment?.status?.name
+                                ) as any,
+                              }}
                               size="small"
                             />
                             <Chip
                               label={taskcomment?.priority?.name}
-                              color={taskcomment?.priority?.color}
+                              sx={{
+                                color: "#000",
+                                backgroundColor: taskcomment?.priority?.color,
+                              }}
                               size="small"
-                              variant="outlined"
+                              variant="filled"
                             />
                             {/* {selectedTask.isUrgent && (
                           <Chip
@@ -919,11 +922,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             disabled={!statusList || statusList.length === 0}
                           >
                             <MenuItem value="" disabled>
-                              <em>
-                                {!statusList || statusList.length === 0
-                                  ? "No status available"
-                                  : "Select Status"}
-                              </em>
+                              {!statusList || statusList.length === 0
+                                ? "No status available"
+                                : "Select Status"}
                             </MenuItem>
                             {statusList?.map((option: any) => (
                               <MenuItem key={option.key} value={option.key}>
@@ -1173,7 +1174,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     },
                                   }}
                                 >
-                                  View All {taskcomment?.comments?.length}{" "}
+                                  View All {taskcomment?.comments?.length ?? 0}{" "}
                                   Comments
                                 </Button>
                               </div>
@@ -1218,6 +1219,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                 backgroundColor: "#f9fafb",
                               },
                             }}
+                            onClick={() =>
+                              handleTaskClick(taskId, attachmentsTab)
+                            }
                           >
                             <RefreshIcon fontSize="small" />
                           </IconButton>
@@ -1378,7 +1382,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             attachmentsTab === "comments" ? (
                               <CircularProgress size={12} />
                             ) : null}
-                            Comments ({taskcomment?.comment?.length})
+                            Comments ({taskcomment?.comment?.length ?? 0})
                           </button>
                           <button
                             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
@@ -1402,7 +1406,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             attachmentsTab === "attachments" ? (
                               <CircularProgress size={12} />
                             ) : null}
-                            Attachments ({taskcomment?.attachment?.length})
+                            Attachments ({taskcomment?.attachment?.length ?? 0})
                           </button>
                         </div>
                       </div>

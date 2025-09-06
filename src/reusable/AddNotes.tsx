@@ -12,9 +12,7 @@ const getCharacters = (text: string) => {
     return val;
   }
 };
-const AddNotes = ({ label = "Write your note here", rows = 4, ...props }) => {
-  const { inputText, note, onCancel, handleSave } = props;
-
+const AddNotes = ({ label = "Write your note here", rows = 4, inputText, note, onCancel, handleSave, ...props }:any) => {
   return (
     <>
       <TextField
