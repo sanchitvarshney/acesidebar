@@ -73,6 +73,7 @@ const LoginComponent = () => {
     setShowPassword((prev) => !prev);
   };
 
+
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const payload = {
@@ -81,13 +82,14 @@ const LoginComponent = () => {
       };
       const result = await login(payload);
 
-      if (result.data?.data?.token) {
+      if (result.data?.data?.token && result.data?.data?.user) {
         localStorage.setItem("userToken", result.data.data.token);
 
         // Store user data
-        localStorage.setItem("userData", JSON.stringify(result.data.data.user));
+        // localStorage.setItem("userData", JSON.stringify(result.data.data.user));
+        const decryptedData = JSON.stringify(decrypt(result.data.data.user));
 
-        localStorage.setItem("userId", decrypt(result.data.data.user)?.uiD);
+        localStorage.setItem("userData", decryptedData);
         // Update auth context
         signIn();
 
@@ -249,6 +251,7 @@ const LoginComponent = () => {
         }
         sx={{ my: 1 }}
       />
+      
       <Box
         sx={{
           display: "flex",
@@ -281,6 +284,10 @@ const LoginComponent = () => {
               borderRadius: 1.5,
               boxShadow: "0 2px 8px rgba(99,102,241,0.10)",
               "&:hover": { background: "#1c5fba" },
+              "&:disabled": {
+                backgroundColor: "rgba(0, 0, 0, 0.12)",
+                color: "rgba(0, 0, 0, 0.26)",
+              },
             }}
             type="submit"
           >

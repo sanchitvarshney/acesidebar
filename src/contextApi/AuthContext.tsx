@@ -35,24 +35,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<any | null>(null);
 
   const signIn = useCallback(() => {
-    const encryptedUserData = localStorage.getItem("userData");
+    const encryptedUserData = JSON.parse(localStorage.getItem("userData") as string)  ;
 
-    if ( encryptedUserData) {
-      try {
-      
-
-        // Decrypt the user data
-        const userData = decrypt(encryptedUserData);
-
-        if (userData) {
-        
-          setUser(userData);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        setUser(null);
-      }
+    if (encryptedUserData) {
+      setUser(encryptedUserData);
     } else {
       setUser(null);
     }

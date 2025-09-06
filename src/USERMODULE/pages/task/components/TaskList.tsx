@@ -5,6 +5,7 @@ import {
   Tooltip,
   TablePagination,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import {
   FilterList as FilterListIcon,
@@ -18,7 +19,7 @@ import { filterTasksBySearch, paginateTasks } from "../utils/taskUtils";
 interface TaskListProps {
   tasks: Task[];
   selectedTasks: string[];
-  selectedTask: Task | null;
+  selectedTask: any | null;
   searchQuery: string;
   page: number;
   rowsPerPage: number;
@@ -30,6 +31,7 @@ interface TaskListProps {
   onAdvancedSearchOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
   getStatusIcon: (status: string) => React.ReactNode;
   isAddTask?: boolean;
+  isLoading?: boolean;
 }
 
 const TaskList: React.FC<TaskListProps> = ({
@@ -47,6 +49,7 @@ const TaskList: React.FC<TaskListProps> = ({
   onAdvancedSearchOpen,
   getStatusIcon,
   isAddTask,
+  isLoading,
 }) => {
   // Filter tasks based on search query
   const filteredTasks = React.useMemo(() => {
@@ -122,20 +125,27 @@ const TaskList: React.FC<TaskListProps> = ({
       {/* Task List */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-3">
-          {paginatedTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              isSelected={selectedTasks.includes(task.id)}
-              isCurrentTask={selectedTask?.id === task.id}
-              onSelect={onTaskSelect}
-              onClick={onTaskClick}
-              getStatusIcon={getStatusIcon}
-              isAddTask={isAddTask}
-            />
-          ))}
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <>
+              {" "}
+              {paginatedTasks?.map((task) => (
+                <TaskCard
+                  key={task.taskKey}
+                  task={task}
+                  isSelected={selectedTasks.includes(task.taskKey)}
+                  isCurrentTask={selectedTask?.taskKey === task.taskKey}
+                  onSelect={onTaskSelect}
+                  onClick={onTaskClick}
+                  getStatusIcon={getStatusIcon}
+                  isAddTask={isAddTask}
+                />
+              ))}{" "}
+            </>
+          )}
 
-          {paginatedTasks.length === 0 && (
+          {paginatedTasks?.length === 0 && (
             <div className="text-center py-12">
               <AssignmentIcon className="text-gray-400 text-4xl mx-auto mb-3" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -148,8 +158,6 @@ const TaskList: React.FC<TaskListProps> = ({
           )}
         </div>
       </div>
-
-  
     </div>
   );
 };

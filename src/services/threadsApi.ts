@@ -35,6 +35,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getWatcher: builder.query({
+      query: (credentials) => ({
+        url: `/ticket/staff/list-watcher/${credentials.ticket}`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
     getShortCutList: builder.query({
       query: () => ({
         url: `/shortcut/list`,
@@ -56,12 +63,18 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
-        deleteShortcut: builder.mutation({
+    deleteShortcut: builder.mutation({
       query: (credentials) => ({
         url: `/shortcut/delete/${credentials.key}`,
         method: "DELETE",
-   
       }),
+    }),
+    commanApiForTaskList: builder.mutation({
+      query: (credentials) => ({
+        url: `/task/ticket/${credentials.url}`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
     }),
   }),
   overrideExisting: false,
@@ -75,5 +88,7 @@ export const {
   useGetShortCutListQuery,
   useEditShortcutMutation,
   useAddShortcutMutation,
-  useDeleteShortcutMutation
+  useDeleteShortcutMutation,
+  useGetWatcherQuery,
+  useCommanApiForTaskListMutation
 } = extendedTicketApi;

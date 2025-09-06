@@ -9,6 +9,7 @@ import {
   MenuItem,
   Box,
   useTheme,
+  Avatar,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -29,9 +30,10 @@ import NotificationPopup from "../popup/NotificationPopup";
 import TasksPopup from "../popup/TasksPopup";
 import AdvancedSearchPopup from "../popup/AdvancedSearchPopup";
 import { useNavigate } from "react-router-dom";
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { usePopupContext } from "../../contextApi/PopupContext";
+import { useAuth } from "../../contextApi/AuthContext";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -42,6 +44,8 @@ interface TopBarProps {
 }
 
 const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
+const { user} =  useAuth();
+const userData:any = user;
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -58,9 +62,19 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
 
   // Update global popup state whenever any popup state changes
   useEffect(() => {
-    const isAnyOpen = notificationOpen || accountPopupOpen || tasksPopupOpen || advancedSearchOpen;
+    const isAnyOpen =
+      notificationOpen ||
+      accountPopupOpen ||
+      tasksPopupOpen ||
+      advancedSearchOpen;
     setIsAnyPopupOpen(isAnyOpen);
-  }, [notificationOpen, accountPopupOpen, tasksPopupOpen, advancedSearchOpen, setIsAnyPopupOpen]);
+  }, [
+    notificationOpen,
+    accountPopupOpen,
+    tasksPopupOpen,
+    advancedSearchOpen,
+    setIsAnyPopupOpen,
+  ]);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -211,7 +225,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           <div
             className={` transition-all duration-200 ml-30 w-[340px] relative`}
           >
-            <div 
+            <div
               ref={advancedSearchRef}
               className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] "
             >
@@ -229,19 +243,16 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         <Box sx={{ flexGrow: 0 }} />
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <IconButton
-            size="large"
-            sx={{color: "#3f4346"  , mr: 2}}
-          >
+          <IconButton size="large" sx={{ color: "#3f4346", mr: 2 }}>
             <DarkModeIcon />
           </IconButton>
-          
+
           <IconButton
             ref={notificationRef}
             onClick={handleNotificationButtonClick}
             size="large"
             aria-label="show notifications"
-            sx={{color: "#3f4346" , mr: 2}}
+            sx={{ color: "#3f4346", mr: 2 }}
           >
             <Badge badgeContent={17} color="error">
               <NotificationsIcon />
@@ -253,48 +264,57 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             onClick={handleTasksButtonClick}
             size="large"
             aria-label="show tasks"
-            sx={{color: "#3f4346" , mr: 2}}
+            sx={{ color: "#3f4346", mr: 2 }}
           >
             <HourglassEmptyIcon />
           </IconButton>
 
           <IconButton
             ref={accountButtonRef}
-            size="large"
+            size="small"
             edge="end"
             aria-label="account of current user"
             aria-controls={menuId}
             aria-haspopup="true"
             onClick={handleAccountButtonClick}
-            sx={{color: "#3f4346" , mr: 2}}
+            sx={{ color: "#3f4346", mr: 2 }}
           >
-            <AccountCircle />
+            {userData?.image ? (
+              <Avatar sizes="small" alt={userData?.username} src={userData?.image} />
+            ) : (
+              <Avatar sizes="small" sx={{ backgroundColor: "primary.main", width: 30, height: 30 }}>
+                {userData?.username
+                  ? userData?.username.charAt(0).toUpperCase()
+                  : "T"}
+              </Avatar>
+            )}
           </IconButton>
         </Box>
       </Toolbar>
       {renderMenu}
-      
+
       {/* Notification Popup */}
       <NotificationPopup
         open={notificationOpen}
         onClose={handleNotificationPopupClose}
         anchorEl={notificationRef.current}
       />
-      
+
       {/* Account Popup */}
       <AccountPopup
         open={accountPopupOpen}
         onClose={handleAccountPopupClose}
         anchorEl={accountButtonRef.current}
+        userData={userData}
       />
-      
+
       {/* Tasks Popup */}
       <TasksPopup
         open={tasksPopupOpen}
         onClose={handleTasksPopupClose}
         anchorEl={tasksButtonRef.current}
       />
-      
+
       {/* Advanced Search Popup */}
       <AdvancedSearchPopup
         open={advancedSearchOpen}

@@ -51,7 +51,9 @@ import ImageViewComponent from "../../components/ImageViewComponent";
 
 import {
   setForwardData,
+  setIsReply,
   setReplyValue,
+  setSelectedIndex,
 } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
 import {
@@ -145,9 +147,10 @@ const ThreadItem = ({
   subject,
 }: any) => {
   const [commanApi] = useCommanApiMutation();
+  const [triggerFlag] = useCommanApiMutation();
   const { showToast } = useToast();
   const [open, setOpen] = useState(false);
-  const [isReported, setIsReported] = useState<boolean>(false);
+  const [isReported, setIsReported] = useState<boolean>(item?.isFlagged);
 
   const ticketId = useParams().id;
   const optionsRef = React.useRef<any>(null);
@@ -368,15 +371,21 @@ const ThreadItem = ({
     return out;
   };
 
-  const handleReportTicket = () => {
+  const handleReportTicket = (flagValue: boolean) => {
+    const status = isReported ? 0 : 1;
     const payload = {
-      url: `report-ticket/${item.entryId}`,
-      method: "GET",
+      url: `report-thread/${ticketId}/${item.entryId}/${status}`,
+      method: "PUT",
     };
-    commanApi(payload)
-      .then((response) => {})
+    triggerFlag(payload)
+      .then((response: any) => {
+        if (response?.type === "error") {
+          return;
+        } else {
+          setIsReported((v) => !v);
+        }
+      })
       .catch((error) => {});
-    setIsReported((v) => !v);
   };
 
   return (
@@ -450,7 +459,10 @@ const ThreadItem = ({
             >
               {!isCurrentUser && (
                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
-                  <IconButton size="small" onClick={handleReportTicket}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleReportTicket(item?.isFlagged)}
+                  >
                     <EmojiFlagsIcon
                       sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
                       fontSize="small"
@@ -670,7 +682,7 @@ const TicketThreadSection = ({
   const { showToast } = useToast();
   const dispatch = useDispatch();
   const { refetch } = useGetAttacedFileQuery({ ticketId: header?.ticketId });
-  const [isReply, setIsReply] = useState(true);
+
   const [commonApi] = useCommanApiMutation();
   const [showEditor, setShowEditor] = useState<any>(false);
   const [showShotcut, setShowShotcut] = useState(false);
@@ -686,7 +698,7 @@ const TicketThreadSection = ({
   const [suggest, setSuggest] = useState(false);
   const [selectedValue, setSelectedValue] = useState("public");
   //@ts-ignore
-  const { shotcutData, replyValue } = useSelector(
+  const { isReply, replyValue, selectedIndex } = useSelector(
     (state: RootState) => state.shotcut
   );
   const [isReplyStatusOpen, setIsReplyStatusOpen] = useState<boolean>(false);
@@ -950,8 +962,7 @@ const TicketThreadSection = ({
               base64_data: images,
             },
           ],
-          note: notifyTag,
-          statusKey: "",
+          note: notifyTag.map((item: any) => item?.email) ?? [],
         },
       },
     };
@@ -1152,7 +1163,14 @@ const TicketThreadSection = ({
                   changeNotify={(value: any) => setNotifyTag(value)}
                   notifyTag={notifyTag}
                   ticketId={header?.ticketId}
-                  setIsReply={(value: any) => setIsReply(value)}
+                  setIsReply={(value: any) => dispatch(setIsReply(value))}
+                  // setSelectedIndex={(value: any) =>
+                  // {
+                  //   console.log("setSelectedIndex", value)
+                  //
+                  // }
+                  // }
+                  // selectedIndex={selectedIndex}
                 />
               </div>
 
@@ -1547,7 +1565,7 @@ const TicketThreadSection = ({
         title={"Add Task"}
         width={"80%"}
       >
-        <Tasks isAddTask={isAddTask} />
+        <Tasks isAddTask={isAddTask} ticketId={header?.ticketId} />
       </CustomSideBarPanel>
     </div>
   );

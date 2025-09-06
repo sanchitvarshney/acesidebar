@@ -8,15 +8,14 @@ interface AccountPopupProps {
   open: boolean;
   onClose: () => void;
   anchorEl: HTMLElement | null;
+  userData: any;
 }
 
-const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) => {
+const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl ,userData}) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const { signOut } = useAuth();
   const navigate = useNavigate();
-  const userEmail = "shiv.kumar@mscorpres.in";
-  const userName = "Shiv Kumar";
-  const managedBy = "companyName";
+  
 
   // Status state
   const [currentStatus, setCurrentStatus] = useState<string>("available");
@@ -111,10 +110,10 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 600, color: '#000' }}>
-                {userEmail}
+                {userData?.email}
               </Typography>
               <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
-                Managed by {managedBy}
+                Managed by {userData?.company ?? "--"}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -139,7 +138,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
                 fontWeight: 600,
               }}
             >
-              {userName.split(' ').map(n => n[0]).join('')}
+              {userData?.username.split(' ').map((n:any) => n[0]).join('')}
             </Avatar>
             <IconButton
               size="small"
@@ -157,7 +156,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl }) 
           </Box>
 
           <Typography variant="h6" sx={{ fontWeight: 600, color: '#000', mb: 2 }}>
-            Hi, {userName}!
+            Hi, {userData?.username}!
           </Typography>
 
           {/* Status Selector */}

@@ -206,7 +206,7 @@ const ShortcutsTab = () => {
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} 
       />
 
-      <div className="my-3 wi-full h-[calc(100vh-360px)] overflow-y-auto">
+      <div className="my-3 wi-full h-[calc(100vh-350px)] overflow-y-auto">
         {isAddShortcutOpen || isEditShortCut ? (
           <div className="flex flex-col gap-3">
             <div>

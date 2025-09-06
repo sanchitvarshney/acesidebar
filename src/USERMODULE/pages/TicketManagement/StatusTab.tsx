@@ -43,13 +43,13 @@ const StatusTab = ({ ticket }: any) => {
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
   const { data: typeList } = useGetTypeListQuery();
- 
 
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
+   
 
   const displayOptions = changeTagValue.length >= 3 ? options : [];
   const displayDepartmentOptions = changeDept ? departmentOptions : [];
@@ -69,7 +69,7 @@ const StatusTab = ({ ticket }: any) => {
         priority: priority || "--",
         status: status || "--",
         tags: tagValue.map((tag: any) => tag?.tagID),
-        department: `${dept.deptID}` || "--",
+        department: `${dept.deptId}` || "--",
         agent: agent.agentID || "--",
       },
     };
@@ -77,16 +77,19 @@ const StatusTab = ({ ticket }: any) => {
     triggerStatus(payload)
       .unwrap()
       .then((res) => {
-        if (res?.success !== true || res?.error?.data?.success !== true) {
-          showToast(res?.data?.message || res?.error?.data?.message, "error");
+       
+        if (res?.type === "error") {
+          console.log(res?.message || res?.error?.data?.message, "error")
+          showToast(res?.message || res?.error?.message, "error");
           setIsUpdate((prev) => prev + 1);
           return;
         }
-        setAgent("");
-        setDept("");
-        setTagValue([]);
-        setPriority("");
-        setStatus("");
+        // setAgent(res?.ticket?.);
+        // setDept("");
+        // setTagValue([]);
+        // setPriority("");
+        // setStatus("");
+              //  setIsUpdate((prev) => prev + 1);
       })
       .catch((err) => {
         showToast(err?.data?.message, "error");
@@ -210,7 +213,6 @@ const StatusTab = ({ ticket }: any) => {
   };
 
   const handleSelectedOption = (_: any, newValue: any, type: string) => {
-
     if (type === "tag") {
       if (!Array.isArray(newValue) || newValue.length === 0) {
         showToast("Tag already exists", "error");
@@ -242,8 +244,8 @@ const StatusTab = ({ ticket }: any) => {
 
   return (
     <div className="w-full h-[calc(100vh-100px)] overflow-hidden ">
-      <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-265px)] overflow-y-auto  ">
-        <div className="w-full space-y-3 p-3">
+      <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-255px)] overflow-y-auto  ">
+        <div className="w-full space-y-3 p-2">
           <Typography variant="subtitle1">Properties</Typography>
 
           <div>
@@ -257,7 +259,10 @@ const StatusTab = ({ ticket }: any) => {
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              {[{ key: "--", typeName: "--" }, ...((typeList as any[]) || [])].map((name: any) => (
+              {[
+                { key: "--", typeName: "--" },
+                ...((typeList as any[]) || []),
+              ].map((name: any) => (
                 <MenuItem key={name.key} value={name.key}>
                   {name.typeName}
                 </MenuItem>
@@ -299,7 +304,10 @@ const StatusTab = ({ ticket }: any) => {
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
             >
-              {[{ key: "--", specification: "--", color: "#cccccc" }, ...((priorityList as any[]) || [])].map((priority: any) => (
+              {[
+                { key: "--", specification: "--", color: "#cccccc" },
+                ...((priorityList as any[]) || []),
+              ].map((priority: any) => (
                 <MenuItem key={priority.key} value={priority.key}>
                   <Typography
                     variant="body2"
@@ -591,8 +599,14 @@ const StatusTab = ({ ticket }: any) => {
         </div>
       </div>
       <div className="my-2">
-        <Button fullWidth variant="contained" onClick={handleUpdateTicket}>
-          Update
+        <Button fullWidth variant="contained" onClick={handleUpdateTicket} disabled={statusLoading}>
+          {
+            statusLoading ? (
+              <CircularProgress color="primary" size={20} />
+            ) : (
+              "Update"
+            )
+          }
         </Button>
       </div>
     </div>

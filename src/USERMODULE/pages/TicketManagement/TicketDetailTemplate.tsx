@@ -19,16 +19,19 @@ import { useCommanApiMutation } from "../../../services/threadsApi";
 import { useGetTicketDetailStaffViewQuery } from "../../../services/ticketDetailAuth";
 import { useNavigate, useParams } from "react-router-dom";
 import TicketDetailSkeleton from "../../skeleton/TicketDetailSkeleton";
-
-
-// interface TicketDetailTemplateProps {
-//   ticket: any; // expects { header, response, other }
-//   onBack: () => void;
-// }
+import { useAuth } from "../../../contextApi/AuthContext";
+import {
+  setIsReply,
+  setSelectedIndex,
+} from "../../../reduxStore/Slices/shotcutSlices";
+import { useDispatch } from "react-redux";
+import { useToast } from "../../../hooks/useToast";
 
 const TicketDetailTemplate = () => {
   const navigate = useNavigate();
-
+  const { user } = useAuth();
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
   const openTicketNumber = useParams().id;
   const { data: ticket, isFetching: isTicketDetailLoading } =
     useGetTicketDetailStaffViewQuery(
@@ -66,7 +69,10 @@ const TicketDetailTemplate = () => {
 
   // Pass this to children to allow opening the forward panel
   const handleOpenForward = () => setForwardOpen(true);
-  const handleCloseForward = () => setForwardOpen(false);
+  const handleCloseForward = () => {
+    dispatch(setSelectedIndex("2"));
+    setForwardOpen(false);
+  };
   const handleForwardFieldChange = (field: string, value: string) => {
     setForwardFields((prev) => ({ ...prev, [field]: value }));
   };
@@ -77,18 +83,23 @@ const TicketDetailTemplate = () => {
       threadID: forwardFields.threadID,
       type: forwardFields.threadID ? "thread" : "ticket",
       ticket: ticket?.header?.ticketId,
+      code: "f4ed9e5da4bf4aed9e228bd1b1eae791",
     };
     const payload = {
-      url: `forward/${urlValues.ticket}/${urlValues.threadID}/${urlValues.type}`,
+      url: forwardFields.threadID
+        ? `forward/${urlValues.ticket}/ticket?code=${urlValues.code}`
+        : `forward/${urlValues.ticket}/ticket`,
       body: {
-        from: ticket?.header?.requester,
+        //@ts-ignore
+        from: user?.email,
         to: forwardFields.to,
         cc: forwardFields.cc,
         bcc: forwardFields.bcc,
 
-        subject: ticket?.header?.subject
-          ? `FWD: ${ticket.header.subject}`
-          : forwardFields.subject,
+        subject:
+          ticket?.header?.subject && urlValues.threadID
+            ? `FWD: ${ticket.header.subject}`
+            : forwardFields.subject,
         message: ticket?.header?.description || forwardFields.message,
         attachments: forwardFields.documents.map((file: any) => {
           return {
@@ -103,21 +114,23 @@ const TicketDetailTemplate = () => {
     };
 
     // Call your API
-    triggerForward(payload)
-      .then((response) => {})
-      .catch((error) => {});
-    setForwardOpen(false);
-    setForwardFields({
-      from:
-        ticket?.header?.requester ||
-        "MsCorpres Automation PvtLtd (support@postmanreply.com)",
-      subject: ticket?.header?.subject ? `Fwd: ${ticket.header.subject}` : "",
-      to: "",
-      cc: [],
-      bcc: [],
-      message: ticket?.header?.description || "",
-      documents: [],
-      threadID: "",
+    triggerForward(payload).then((response: any) => {
+      if (response?.type === "error") {
+        showToast(response?.message, "error");
+      } else {
+        dispatch(setSelectedIndex("2"));
+        setForwardOpen(false);
+        setForwardFields({
+          from: "",
+          subject: "",
+          to: "",
+          cc: [],
+          bcc: [],
+          message: ticket?.header?.description || "",
+          documents: [],
+          threadID: "",
+        });
+      }
     });
   };
 
@@ -129,6 +142,7 @@ const TicketDetailTemplate = () => {
   const handleCloseReply = () => setShowReplyEditor(false);
   const handleAddNote = () => {
     setShowEditorNote(true);
+    dispatch(setIsReply(false));
     setValue("Note");
   };
   const handleAddNoteClose = () => setShowEditorNote(false);

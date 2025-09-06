@@ -51,7 +51,6 @@ const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 const Tickets: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-
   const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -268,29 +267,23 @@ const Tickets: React.FC = () => {
     }
   };
 
-  const { id: routeTicketId } = useParams();
+
 
   // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
-    const userId = localStorage.getItem("userId");
-    setOpenTicketNumber(ticketNumber);
-    const ticketID = ticketNumber;
-    const payload = {
-      url: `add-watcher/${ticketID}`,
-      body: { watchers: [userId] },
-    };
-    triggerWatchApi(payload);
+  
+
     navigate(`/tickets/${ticketNumber}`);
   };
 
   // When closing a ticket, go back to /tickets
 
-  // On mount, if there is an id param, open that ticket
-  React.useEffect(() => {
-    if (routeTicketId) {
-      setOpenTicketNumber(routeTicketId);
-    }
-  }, [routeTicketId]);
+  // // On mount, if there is an id param, open that ticket
+  // React.useEffect(() => {
+  //   if (routeTicketId) {
+  //     setOpenTicketNumber(routeTicketId);
+  //   }
+  // }, [routeTicketId]);
 
   // Cleanup timer on unmount
   React.useEffect(() => {
@@ -300,8 +293,6 @@ const Tickets: React.FC = () => {
       }
     };
   }, []);
-
-
 
   const handleDelete = () => {
     if (selectedTickets.length < 0) {
