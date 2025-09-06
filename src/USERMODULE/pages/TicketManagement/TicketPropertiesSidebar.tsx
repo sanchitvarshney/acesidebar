@@ -222,7 +222,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
     // profile
     mainContent = (
       <div className="w-full overflow-hidden ">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 my-3">
           <Avatar
             sx={{
               bgcolor: "#FFC107",
