@@ -328,10 +328,10 @@ const LoginComponent = () => {
             minWidth: '304px',
           }}
         >
-          {process.env.REACT_APP_GOOGLE_SITE_KEY ? (
+          {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
             <GoogleRecaptcha
               ref={forgotRecaptchaRef}
-              siteKey={process.env.REACT_APP_GOOGLE_SITE_KEY}
+              siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
               onVerify={handleForgotRecaptchaVerify}
               onError={handleForgotRecaptchaError}
               onExpire={handleForgotRecaptchaExpire}
@@ -473,10 +473,10 @@ const LoginComponent = () => {
               justifyContent: 'flex-start',
             }}
           >
-            {process.env.REACT_APP_GOOGLE_SITE_KEY ? (
+            {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
               <GoogleRecaptcha
                 ref={recaptchaRef}
-                siteKey={process.env.REACT_APP_GOOGLE_SITE_KEY}
+                siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
                 onVerify={handleRecaptchaVerify}
                 onError={handleRecaptchaError}
                 onExpire={handleRecaptchaExpire}
