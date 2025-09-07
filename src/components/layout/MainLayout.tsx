@@ -6,6 +6,7 @@ import { Outlet } from "react-router-dom";
 import BottomBar from "./BottomBar";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import logo from "../../assets/image/ajaxter-logo.webp";
+import PrivateTurnstile from "../common/PrivateTurnstile";
 
 const drawerWidth = 0;
 
@@ -86,6 +87,7 @@ const MainLayout = () => {
         </MainContent>
       </Main>
       {/* <BottomBar /> */}
+      <PrivateTurnstile />
     </Box>
   );
 };

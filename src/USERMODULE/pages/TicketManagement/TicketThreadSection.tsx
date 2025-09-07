@@ -63,7 +63,7 @@ import {
   useGetShortCutListQuery,
 } from "../../../services/threadsApi";
 import CustomToolTip from "../../../reusable/CustomToolTip";
-import { v4 as uuidv4 } from "uuid";
+import { createFormDataHeaders } from "../../../utils/requestHeaders";
 import {
   useAttachedFileMutation,
   useLazyDownloadAttachedFileQuery,
@@ -873,10 +873,7 @@ const TicketThreadSection = ({
     formData.append("image", file, file.name);
     formData.append("ticket", String(ticket));
 
-    const headers = new Headers();
-    const token = localStorage.getItem("userToken");
-    if (token) headers.append("Authorization", `Bearer ${token}`);
-    headers.append("x-request-key", uuidv4());
+    const headers = createFormDataHeaders(true);
 
     const endpoint = `${process.env.REACT_APP_API_URL}ticket/reply/image/upload`;
     const resp = await fetch(endpoint, {

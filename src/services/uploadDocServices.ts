@@ -1,7 +1,6 @@
-// src/services/auth/authApi.ts
+// src/services/uploadDocServices.ts
 
 import { baseInstanceOfApi } from "./baseInstanceOfApi";
-import { v4 as uuidv4 } from "uuid";
 
 // Define the interface for ticket list query parameters
 

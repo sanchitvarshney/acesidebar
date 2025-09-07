@@ -4,36 +4,98 @@ import {
   BaseQueryFn,
 } from "@reduxjs/toolkit/query/react";
 import { decrypt } from "../utils/encryption";
-import { v4 as uuidv4 } from "uuid";
+import { createRequestHeaders, addTurnstileToHeaders } from "../utils/requestHeaders";
+import { getTurnstileToken } from "../utils/turnstile";
 
-const baseUrl = process.env.REACT_APP_API_URL;
+/**
+ * API Configuration
+ */
+const API_CONFIG = {
+  baseUrl: process.env.REACT_APP_API_URL,
+  stateChangingMethods: ['POST', 'PUT', 'DELETE', 'PATCH'] as const,
+  authTokenKey: 'userToken',
+  userDataKey: 'userData',
+  loginPath: '/login',
+} as const;
 
-// Custom base query with 401 handling
+/**
+ * Add authentication and request tracking headers
+ * @param headers - The headers object to modify
+ */
+const addAuthHeaders = (headers: Headers): void => {
+  // Create standardized headers
+  const standardHeaders = createRequestHeaders(true);
+  
+  // Copy all headers from the standard headers
+  standardHeaders.forEach((value, key) => {
+    headers.set(key, value);
+  });
+};
+
+/**
+ * Add Turnstile token to state-changing requests
+ * @param headers - The headers object to modify
+ * @param method - The HTTP method
+ * @param url - The request URL
+ */
+const addTurnstileHeaders = async (headers: Headers, method: string, url: string): Promise<void> => {
+  const isStateChangingRequest = API_CONFIG.stateChangingMethods.includes(method.toUpperCase() as any);
+  
+  if (isStateChangingRequest) {
+    try {
+      // Get Turnstile token for state-changing requests
+      const turnstileToken = await getTurnstileToken('api_request');
+      
+      if (turnstileToken) {
+        // Add the x-challenge header with the Turnstile token
+        addTurnstileToHeaders(headers, turnstileToken);
+      }
+      // If no token available, continue without it rather than making additional calls
+    } catch (error) {
+      // Failed to get Turnstile token - continue without it
+    }
+  }
+};
+
+/**
+ * Handle 401 Unauthorized responses
+ * Clears authentication data and redirects to login
+ */
+const handleUnauthorizedResponse = (): void => {
+  localStorage.removeItem(API_CONFIG.authTokenKey);
+  localStorage.removeItem(API_CONFIG.userDataKey);
+  window.location.href = API_CONFIG.loginPath;
+};
+
+/**
+ * Custom base query with authentication, Turnstile, and error handling
+ * 
+ * Features:
+ * - Automatic authentication headers
+ * - Turnstile tokens for state-changing requests only
+ * - 401 error handling with automatic logout
+ * - Request logging for debugging
+ */
 const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
   const baseQuery = fetchBaseQuery({
-    baseUrl,
-    prepareHeaders: (headers) => {
-      // Read token from localStorage
-      const token = localStorage.getItem("userToken");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      headers.set("x-request-key", uuidv4());
+    baseUrl: API_CONFIG.baseUrl,
+    prepareHeaders: async (headers) => {
+      // Add authentication headers
+      addAuthHeaders(headers);
+      
+      // Add Turnstile headers for state-changing requests
+      const method = args.method || 'GET';
+      await addTurnstileHeaders(headers, method, args.url || '');
+      
       return headers;
     },
   });
 
   const result = await baseQuery(args, api, extraOptions);
 
-  // Check for 401 Unauthorized response
+  // Handle 401 Unauthorized responses
   if (result.error && result.error.status === 401) {
-    // Clear all auth data
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userData");
-
-    // Redirect to login page
-    window.location.href = "/login";
+    handleUnauthorizedResponse();
   }
 
   return result;

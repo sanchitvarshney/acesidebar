@@ -463,9 +463,9 @@ const LoginComponent = () => {
           mb: 2, 
           display: 'flex', 
           flexDirection: 'column', 
-          alignItems: 'flex-start',
-          }}
-        >
+          alignItems: 'flex-start'
+        }}
+      >
           <Box
             sx={{
               minWidth: '304px',
