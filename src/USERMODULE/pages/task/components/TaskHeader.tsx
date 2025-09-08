@@ -32,7 +32,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    onPageChange(newPage);
+    // Translate MUI's 0-based page to app's 1-based page
+    onPageChange(newPage + 1);
   };
 
   const handleChangeRowsPerPage = (

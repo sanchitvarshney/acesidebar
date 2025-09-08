@@ -85,7 +85,8 @@ const TaskList: React.FC<TaskListProps> = memo(
 
     const handleChangePage = useCallback(
       (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-        onPageChange(newPage);
+        // Translate MUI's 0-based page to app's 1-based page
+        onPageChange(newPage + 1);
       },
       [onPageChange]
     );
@@ -98,7 +99,7 @@ const TaskList: React.FC<TaskListProps> = memo(
     );
 
     return (
-      <div className="w-[35%] flex flex-col border-r bg-white">
+      <div className="w-[35%] flex flex-col border-r h-[calc(100vh-150px)] bg-white ">
         {!isAddTask && (
           <div className="px-6 py-4 border-b bg-[#f5f5f5] border-b-[#ccc]">
             <div className="flex items-center gap-2 mb-3">
@@ -140,8 +141,8 @@ const TaskList: React.FC<TaskListProps> = memo(
         )}
 
         {/* Task List */}
-        <div className="flex-1  overflow-y-auto">
-          <div className="p-4  space-y-3">
+        {/* <div className="flex-1  h-[calc(100vh-200px)] z-99  overflow-y-auto"> */}
+          <div className="p-4  h-[calc(100vh-165px)] z-99  overflow-y-auto  space-y-3">
             { isLoading ? (
               <TaskListSkeleton count={8} />
             ) : (
@@ -166,7 +167,7 @@ const TaskList: React.FC<TaskListProps> = memo(
               </>
             )}
           </div>
-        </div>
+        {/* </div> */}
       </div>
     );
   }

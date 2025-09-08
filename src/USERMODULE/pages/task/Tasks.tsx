@@ -382,10 +382,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   const handleTaskAdvancedSearchApply = () => {
-    console.log("Task advanced search conditions:", taskSearchConditions);
-    console.log("Logic operator:", logicOperator);
-    // Apply the filters to the task list
-    // You can implement the filtering logic here
+
     handleTaskAdvancedSearchClose();
   };
 
@@ -728,7 +725,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   );
 
   return (
-    <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-96px)]">
+    <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-95px)]">
       {/* Main Header Bar */}
       <TaskHeader
         totalTasks={paginationData.totalCount}
@@ -786,7 +783,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
         {/* RIGHT SECTION - Task Details & Actions */}
         {(taskcomment || taskcommentLoading || (taskId && loadingTaskId)) && (
-          <div className="w-[65%] flex bg-gray-50">
+          <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
             {/* Right Sidebar Tabs */}
             <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
               <div className="p-4 space-y-4">
@@ -1082,7 +1079,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                 >
                                   {/* Avatar */}
                                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                                    {comment.author.charAt(0).toUpperCase()}
+                                    {comment?.timestamp?.by?.name
+                                      ?.charAt(0)
+                                      .toUpperCase()}
                                   </div>
 
                                   {/* Comment Bubble */}
@@ -1090,11 +1089,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
                                       <div className="flex items-center justify-between mb-2">
                                         <span className="font-medium text-sm text-gray-900">
-                                          {comment.author}
+                                          {comment?.timestamp?.by?.name}
                                         </span>
                                         <div className="flex items-center gap-2">
                                           {canEditComment(
-                                            comment.createdAt,
+                                            comment?.timestamp?.tm,
                                             currentTime
                                           ) && (
                                             <IconButton
@@ -1119,15 +1118,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                             multiline
                                             rows={2}
                                             value={
-                                              comment.editText || comment.text
+                                              comment.editText ||
+                                              comment?.comment
                                             }
-                                            onChange={(e) => {
-                                              // In real app, update the comment editText
-                                              console.log(
-                                                "Editing comment:",
-                                                e.target.value
-                                              );
-                                            }}
+                                            onChange={(e) => {}}
                                             fullWidth
                                             size="small"
                                           />
@@ -1142,7 +1136,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                                 saveEditedComment(
                                                   comment.id,
                                                   comment.editText ||
-                                                    comment.text
+                                                    comment.comment
                                                 )
                                               }
                                             >
@@ -1165,7 +1159,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                         </div>
                                       ) : (
                                         <p className="text-sm text-gray-700 font-medium">
-                                          {comment.text}
+                                          {comment?.comment}
                                         </p>
                                       )}
                                     </div>
@@ -1173,13 +1167,14 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     {/* Timestamp */}
                                     <div className="flex items-center gap-2 mt-2 ml-1">
                                       <span className="text-xs text-gray-500">
-                                        {comment.timestamp}
+                                        {comment?.timestamp?.dt}{" "}
+                                        {comment?.timestamp?.tm}
                                       </span>
                                       <span className="text-xs text-gray-400">
                                         •
                                       </span>
                                       <span className="text-xs text-gray-400">
-                                        {getTimeAgo(comment.createdAt)}
+                                        {comment?.timestamp?.ago}
                                       </span>
                                       <span className="text-xs text-gray-400">
                                         -{" "}
@@ -1231,7 +1226,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
                   {/* Attachments Tab */}
                   {rightActiveTab === 1 && (
-                    <div className="flex flex-col h-full">
+                    <div className="flex flex-col h-[calc(100vh-240px)]">
                       {/* Header */}
                       <div className="flex items-center justify-between p-6 border-b">
                         <h3 className="text-lg font-semibold text-gray-900">
@@ -1295,57 +1290,60 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                         {/* Comments Tab Content */}
                         {attachmentsTab === "comments" && (
                           <div className="space-y-4">
-                            {taskcomment?.data?.comment?.length > 0 ? (
+                            {taskcomment?.data?.comments?.length > 0 ? (
                               <div className="space-y-4">
-                                {getSortedComments(
-                                  taskcomment?.data?.comment || []
-                                ).map((comment: any) => (
-                                  <div
-                                    key={comment.id}
-                                    className="flex items-start gap-3"
-                                  >
-                                    {/* Avatar */}
-                                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-                                      {comment.author.charAt(0).toUpperCase()}
-                                    </div>
+                                {(taskcomment?.data?.comments || []).map(
+                                  (comment: any, index: any) => (
+                                    <div
+                                      key={index}
+                                      className="flex items-start gap-3"
+                                    >
+                                      {/* Avatar */}
+                                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                        {comment?.timestamp?.by?.name
+                                          ?.charAt(0)
+                                          .toUpperCase()}
+                                      </div>
 
-                                    {/* Comment Bubble */}
-                                    <div className="flex-1 min-w-0">
-                                      <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                                        <div className="flex items-center justify-between mb-2">
-                                          <span className="font-medium text-sm text-gray-900">
-                                            {comment.author}
-                                          </span>
-                                          <div className="flex items-center gap-2">
-                                            {comment.isInternal && (
-                                              <Chip
-                                                label="Internal"
-                                                size="small"
-                                                color="warning"
-                                              />
-                                            )}
+                                      {/* Comment Bubble */}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                          <div className="flex items-center justify-between mb-2">
+                                            <span className="font-medium text-sm text-gray-900">
+                                              {comment?.timestamp?.by?.name}
+                                            </span>
+                                            <div className="flex items-center gap-2">
+                                              {comment.isInternal && (
+                                                <Chip
+                                                  label="Internal"
+                                                  size="small"
+                                                  color="warning"
+                                                />
+                                              )}
+                                            </div>
                                           </div>
+                                          <p className="text-sm text-gray-700">
+                                            {comment?.comment}
+                                          </p>
                                         </div>
-                                        <p className="text-sm text-gray-700">
-                                          {comment.text}
-                                        </p>
-                                      </div>
 
-                                      {/* Timestamp */}
-                                      <div className="flex items-center gap-2 mt-2 ml-1">
-                                        <span className="text-xs text-gray-500">
-                                          {comment.timestamp}
-                                        </span>
-                                        <span className="text-xs text-gray-400">
-                                          •
-                                        </span>
-                                        <span className="text-xs text-gray-400">
-                                          {getTimeAgo(comment.createdAt)}
-                                        </span>
+                                        {/* Timestamp */}
+                                        <div className="flex items-center gap-2 mt-2 ml-1">
+                                          <span className="text-xs text-gray-500">
+                                            {comment.timestamp?.dt}{" "}
+                                            {comment?.timestamp?.tm}
+                                          </span>
+                                          <span className="text-xs text-gray-400">
+                                            •
+                                          </span>
+                                          <span className="text-xs text-gray-400">
+                                            {comment?.timestamp?.ago}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  )
+                                )}
                               </div>
                             ) : (
                               <div className="text-center py-6 text-gray-500">
@@ -1446,7 +1444,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             attachmentsTab === "comments" ? (
                               <CircularProgress size={12} />
                             ) : null}
-                            Comments ({taskcomment?.data?.comment?.length ?? 0})
+                            Comments ({taskcomment?.data?.comments?.length ?? 0}
+                            )
                           </button>
                           <button
                             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
@@ -1471,7 +1470,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               <CircularProgress size={12} />
                             ) : null}
                             Attachments (
-                            {taskcomment?.data?.attachment?.length ?? 0})
+                            {taskcomment?.data?.attachments?.length ?? 0})
                           </button>
                         </div>
                       </div>
