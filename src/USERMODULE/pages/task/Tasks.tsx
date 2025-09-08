@@ -382,7 +382,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   const handleTaskAdvancedSearchApply = () => {
-
     handleTaskAdvancedSearchClose();
   };
 
@@ -511,13 +510,31 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
   // Sort comments based on current sort order
   const getSortedComments = (comments: any[]) => {
-    if (!comments) return [];
+    if (!Array.isArray(comments)) return [];
+
+    const toMillis = (c: any) => {
+      const dt: string | undefined = c?.timestamp?.dt; // expected dd-mm-yyyy
+      const tm: string | undefined = c?.timestamp?.tm; // expected HH:MM:SS
+      if (!dt) return 0;
+
+      const [ddStr, mmStr, yyyyStr] = dt.split("-") || [];
+      const [hhStr = "0", minStr = "0", ssStr = "0"] = (tm || "").split(":");
+
+      const dd = parseInt(ddStr || "0", 10);
+      const mm = parseInt(mmStr || "0", 10);
+      const yyyy = parseInt(yyyyStr || "0", 10);
+      const hh = parseInt(hhStr || "0", 10);
+      const min = parseInt(minStr || "0", 10);
+      const ss = parseInt(ssStr || "0", 10);
+
+      const millis = new Date(yyyy, Math.max(0, (mm || 1) - 1), dd || 1, hh || 0, min || 0, ss || 0).getTime();
+      return Number.isFinite(millis) ? millis : 0;
+    };
 
     return [...comments].sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-
-      return commentSortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      const aMs = toMillis(a);
+      const bMs = toMillis(b);
+      return commentSortOrder === "asc" ? aMs - bMs : bMs - aMs;
     });
   };
 
@@ -1070,125 +1087,122 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           <div className="space-y-4 max-h-60 overflow-y-auto">
                             {getSortedComments(
                               taskcomment?.data?.comments || []
-                            )
-                              ?.slice(0, 3)
-                              .map((comment: any) => (
-                                <div
-                                  key={comment.id}
-                                  className="flex items-start gap-3"
-                                >
-                                  {/* Avatar */}
-                                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                                    {comment?.timestamp?.by?.name
-                                      ?.charAt(0)
-                                      .toUpperCase()}
-                                  </div>
+                            )?.map((comment: any) => (
+                              <div
+                                key={comment.id}
+                                className="flex items-start gap-3"
+                              >
+                                {/* Avatar */}
+                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                                  {comment?.timestamp?.by?.name
+                                    ?.charAt(0)
+                                    .toUpperCase()}
+                                </div>
 
-                                  {/* Comment Bubble */}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className="font-medium text-sm text-gray-900">
-                                          {comment?.timestamp?.by?.name}
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                          {canEditComment(
-                                            comment?.timestamp?.tm,
-                                            currentTime
-                                          ) && (
-                                            <IconButton
-                                              size="small"
-                                              onClick={() =>
-                                                startEditingComment(comment)
-                                              }
-                                              sx={{
-                                                color: "#6b7280",
-                                                padding: "2px",
-                                              }}
-                                            >
-                                              <EditIcon fontSize="small" />
-                                            </IconButton>
-                                          )}
+                                {/* Comment Bubble */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="font-medium text-sm text-gray-900">
+                                        {comment?.timestamp?.by?.name}
+                                      </span>
+                                      <div className="flex items-center gap-2">
+                                        {canEditComment(
+                                          comment?.timestamp?.tm,
+                                          currentTime
+                                        ) && (
+                                          <IconButton
+                                            size="small"
+                                            onClick={() =>
+                                              startEditingComment(comment)
+                                            }
+                                            sx={{
+                                              color: "#6b7280",
+                                              padding: "2px",
+                                            }}
+                                          >
+                                            <EditIcon fontSize="small" />
+                                          </IconButton>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {editingCommentId === comment.id ? (
+                                      <div className="space-y-2">
+                                        <TextField
+                                          multiline
+                                          rows={2}
+                                          value={
+                                            comment.editText || comment?.comment
+                                          }
+                                          onChange={(e) => {}}
+                                          fullWidth
+                                          size="small"
+                                        />
+                                        <div className="flex gap-2">
+                                          <Button
+                                            size="small"
+                                            variant="contained"
+                                            startIcon={
+                                              <SaveIcon fontSize="small" />
+                                            }
+                                            onClick={() =>
+                                              saveEditedComment(
+                                                comment.id,
+                                                comment.editText ||
+                                                  comment.comment
+                                              )
+                                            }
+                                          >
+                                            Save
+                                          </Button>
+                                          <Button
+                                            size="small"
+                                            variant="text"
+                                            sx={{
+                                              fontWeight: 550,
+                                            }}
+                                            startIcon={
+                                              <CloseIcon fontSize="small" />
+                                            }
+                                            onClick={cancelEditingComment}
+                                          >
+                                            Cancel
+                                          </Button>
                                         </div>
                                       </div>
+                                    ) : (
+                                      <p className="text-sm text-gray-700 font-medium">
+                                        {comment?.comment}
+                                      </p>
+                                    )}
+                                  </div>
 
-                                      {editingCommentId === comment.id ? (
-                                        <div className="space-y-2">
-                                          <TextField
-                                            multiline
-                                            rows={2}
-                                            value={
-                                              comment.editText ||
-                                              comment?.comment
-                                            }
-                                            onChange={(e) => {}}
-                                            fullWidth
-                                            size="small"
-                                          />
-                                          <div className="flex gap-2">
-                                            <Button
-                                              size="small"
-                                              variant="contained"
-                                              startIcon={
-                                                <SaveIcon fontSize="small" />
-                                              }
-                                              onClick={() =>
-                                                saveEditedComment(
-                                                  comment.id,
-                                                  comment.editText ||
-                                                    comment.comment
-                                                )
-                                              }
-                                            >
-                                              Save
-                                            </Button>
-                                            <Button
-                                              size="small"
-                                              variant="text"
-                                              sx={{
-                                                fontWeight: 550,
-                                              }}
-                                              startIcon={
-                                                <CloseIcon fontSize="small" />
-                                              }
-                                              onClick={cancelEditingComment}
-                                            >
-                                              Cancel
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <p className="text-sm text-gray-700 font-medium">
-                                          {comment?.comment}
-                                        </p>
-                                      )}
-                                    </div>
+                                  {/* Timestamp */}
+                                  <div className="flex items-center gap-2 mt-2 ml-1">
+                                    <span className="text-xs text-gray-500">
+                                      {comment?.timestamp?.dt}{" "}
+                                      {comment?.timestamp?.tm}
+                                    </span>
+                                    <span className="text-xs text-gray-400">
+                                      •
+                                    </span>
+                                    <span className="text-xs text-gray-400">
+                                      {comment?.timestamp?.ago}
+                                    </span>
+                                    <span className="text-xs text-gray-400">
+                                      -{" "}
+                                    </span>
 
-                                    {/* Timestamp */}
-                                    <div className="flex items-center gap-2 mt-2 ml-1">
-                                      <span className="text-xs text-gray-500">
-                                        {comment?.timestamp?.dt}{" "}
-                                        {comment?.timestamp?.tm}
+                                    {comment.isInternal && (
+                                      <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                                        Internal
                                       </span>
-                                      <span className="text-xs text-gray-400">
-                                        •
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        {comment?.timestamp?.ago}
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        -{" "}
-                                      </span>
-
-                                      {comment.isInternal && (
-                                        <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
-                                          Internal
-                                        </span>
-                                      )}
-                                    </div>
+                                    )}
                                   </div>
                                 </div>
-                              ))}
+                              </div>
+                            ))}
 
                             {taskcomment?.data?.comments.length === 0 && (
                               <div className="text-center py-6 text-gray-500">
@@ -1292,58 +1306,58 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           <div className="space-y-4">
                             {taskcomment?.data?.comments?.length > 0 ? (
                               <div className="space-y-4">
-                                {(taskcomment?.data?.comments || []).map(
-                                  (comment: any, index: any) => (
-                                    <div
-                                      key={index}
-                                      className="flex items-start gap-3"
-                                    >
-                                      {/* Avatar */}
-                                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-                                        {comment?.timestamp?.by?.name
-                                          ?.charAt(0)
-                                          .toUpperCase()}
+                                {getSortedComments(
+                                  taskcomment?.data?.comments || []
+                                ).map((comment: any, index: any) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-start gap-3"
+                                  >
+                                    {/* Avatar */}
+                                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                      {comment?.timestamp?.by?.name
+                                        ?.charAt(0)
+                                        .toUpperCase()}
+                                    </div>
+
+                                    {/* Comment Bubble */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <span className="font-medium text-sm text-gray-900">
+                                            {comment?.timestamp?.by?.name}
+                                          </span>
+                                          <div className="flex items-center gap-2">
+                                            {comment.isInternal && (
+                                              <Chip
+                                                label="Internal"
+                                                size="small"
+                                                color="warning"
+                                              />
+                                            )}
+                                          </div>
+                                        </div>
+                                        <p className="text-sm text-gray-700">
+                                          {comment?.comment}
+                                        </p>
                                       </div>
 
-                                      {/* Comment Bubble */}
-                                      <div className="flex-1 min-w-0">
-                                        <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                                          <div className="flex items-center justify-between mb-2">
-                                            <span className="font-medium text-sm text-gray-900">
-                                              {comment?.timestamp?.by?.name}
-                                            </span>
-                                            <div className="flex items-center gap-2">
-                                              {comment.isInternal && (
-                                                <Chip
-                                                  label="Internal"
-                                                  size="small"
-                                                  color="warning"
-                                                />
-                                              )}
-                                            </div>
-                                          </div>
-                                          <p className="text-sm text-gray-700">
-                                            {comment?.comment}
-                                          </p>
-                                        </div>
-
-                                        {/* Timestamp */}
-                                        <div className="flex items-center gap-2 mt-2 ml-1">
-                                          <span className="text-xs text-gray-500">
-                                            {comment.timestamp?.dt}{" "}
-                                            {comment?.timestamp?.tm}
-                                          </span>
-                                          <span className="text-xs text-gray-400">
-                                            •
-                                          </span>
-                                          <span className="text-xs text-gray-400">
-                                            {comment?.timestamp?.ago}
-                                          </span>
-                                        </div>
+                                      {/* Timestamp */}
+                                      <div className="flex items-center gap-2 mt-2 ml-1">
+                                        <span className="text-xs text-gray-500">
+                                          {comment.timestamp?.dt}{" "}
+                                          {comment?.timestamp?.tm}
+                                        </span>
+                                        <span className="text-xs text-gray-400">
+                                          •
+                                        </span>
+                                        <span className="text-xs text-gray-400">
+                                          {comment?.timestamp?.ago}
+                                        </span>
                                       </div>
                                     </div>
-                                  )
-                                )}
+                                  </div>
+                                ))}
                               </div>
                             ) : (
                               <div className="text-center py-6 text-gray-500">
