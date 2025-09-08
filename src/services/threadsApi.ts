@@ -84,7 +84,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         url: `/task/ticket/${credentials.url}`,
         method: credentials.method ? credentials.method : "GET",
       }),
-      transformResponse: (response: any) => response?.data,
+      // transformResponse: (response: any) => response?.data,
     }),
   }),
   overrideExisting: false,

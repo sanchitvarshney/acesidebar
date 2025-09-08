@@ -17,14 +17,15 @@ import TaskCard from "./TaskCard";
 import { filterTasksBySearch, paginateTasks } from "../utils/taskUtils";
 import TaskListSkeleton from "../../../skeleton/TaskListSkeleton";
 
-
 interface TaskListProps {
-  tasks: Task[];
+  tasks: any;
   selectedTasks: string[];
   selectedTask: any | null;
   searchQuery: string;
   page: number;
   rowsPerPage: number;
+  totalPages?: any;
+  totalCount?: number;
   onSearchChange: (query: string) => void;
   onTaskSelect: (taskId: string, checked: boolean) => void;
   onTaskClick: (task: Task) => void;
@@ -46,6 +47,8 @@ const TaskList: React.FC<TaskListProps> = memo(
     searchQuery,
     page,
     rowsPerPage,
+    totalPages,
+    totalCount,
     onSearchChange,
     onTaskSelect,
     onTaskClick,
@@ -58,21 +61,27 @@ const TaskList: React.FC<TaskListProps> = memo(
     loadingTaskId,
     loadingAttachmentTaskId,
   }) => {
-    // Filter tasks based on search query
+    // Use tasks data directly from API since pagination is handled by backend
+    const taskData = useMemo(() => {
+      return tasks?.data || [];
+    }, [tasks]);
+
+    // Filter tasks based on search query (client-side filtering for search)
     const filteredTasks = useMemo(() => {
-      return filterTasksBySearch(tasks, searchQuery, {
+      if (!searchQuery) return taskData;
+      return filterTasksBySearch(taskData, searchQuery, {
         title: true,
         description: true,
         ticketId: true,
         assignedTo: true,
         tags: true,
       });
-    }, [tasks, searchQuery]);
+    }, [taskData, searchQuery]);
 
-    // Paginate filtered tasks
+    // Use filtered tasks directly since pagination is handled by backend
     const paginatedTasks = useMemo(() => {
-      return paginateTasks(filteredTasks, page, rowsPerPage);
-    }, [filteredTasks, page, rowsPerPage]);
+      return filteredTasks;
+    }, [filteredTasks]);
 
     const handleChangePage = useCallback(
       (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -138,7 +147,7 @@ const TaskList: React.FC<TaskListProps> = memo(
             ) : (
               <>
                 {" "}
-                {paginatedTasks?.map((task) => (
+                {paginatedTasks?.map((task:any) => (
                   <TaskCard
                     key={task.taskKey}
                     task={task}
@@ -155,18 +164,6 @@ const TaskList: React.FC<TaskListProps> = memo(
                   />
                 ))}{" "}
               </>
-            )}
-
-            {paginatedTasks?.length === 0 && (
-              <div className="text-center py-12">
-                <AssignmentIcon className="text-gray-400 text-4xl mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No tasks found
-                </h3>
-                <p className="text-gray-600">
-                  Try adjusting your search or filters
-                </p>
-              </div>
             )}
           </div>
         </div>

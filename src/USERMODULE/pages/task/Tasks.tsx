@@ -83,11 +83,19 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     null
   );
   const [taskStaus, setTaskStatus] = useState<string>("");
-  const [page, setPage] = React.useState(0);
+  const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
   const [getTaskList, { data: taskList, isLoading: taskListLoading }] =
     useCommanApiForTaskListMutation();
+
+  // Extract pagination data from API response
+  const paginationData = taskList?.pagination || {
+    currentPage: 1,
+    limit: 10,
+    totalCount: 0,
+    totalPages: 0,
+  };
   const [getTaskComment, { data: taskcomment, isLoading: taskcommentLoading }] =
     useCommanApiForTaskListMutation();
   const [changeStatus] = useCommanApiForTaskListMutation();
@@ -97,6 +105,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [loadingAttachmentTaskId, setLoadingAttachmentTaskId] = React.useState<
     string | null
   >(null);
+
 
   // Task Advanced Search State
   const [taskAdvancedSearchOpen, setTaskAdvancedSearchOpen] =
@@ -121,10 +130,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const taskDetailsRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (taskcomment?.status?.key !== "--") {
-      setTaskStatus(taskcomment?.status?.key);
+    if (taskcomment?.data?.status?.key !== "--") {
+      setTaskStatus(taskcomment?.data?.status?.key);
     }
-  }, [taskcomment?.status]);
+  }, [taskcomment?.data?.status]);
 
   //fetch tasks
   const fetchTasks = async () => {
@@ -139,7 +148,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       const response =
         isAddTask && ticketId ? await getTaskList({ url }).unwrap() : null;
       if (response === null) return;
-      if (response.type === "error") {
+      if (response?.type === "error") {
         showToast(response.message, "error");
         return;
       }
@@ -224,7 +233,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       // Scroll to top when a new task is selected
       taskDetailsRef.current.scrollTop = 0;
     }
-  }, [taskcomment?.taskKey]); // Only trigger when task ID changes
+  }, [taskcomment?.data?.taskKey]); // Only trigger when task ID changes
 
   // Reset form function
   const resetCommentForm = () => {
@@ -291,14 +300,14 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   const filteredTasks = useMemo(() => {
-    let filtered = taskList;
+    let filtered = taskList?.data || [];
 
     if (searchQuery) {
       filtered = filtered.filter((task: any) => {
         return (
-          task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.ticketID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.assignor.toLowerCase().includes(searchQuery.toLowerCase())
+          task.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.ticketID?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.assignor?.toLowerCase().includes(searchQuery.toLowerCase())
         );
       });
     }
@@ -306,9 +315,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     return filtered;
   }, [taskList, searchQuery]);
 
+  // Use API data directly since pagination is handled by the backend
   const paginatedTasks = useMemo(() => {
-    return filteredTasks?.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
-  }, [filteredTasks, page, rowsPerPage]);
+    return filteredTasks;
+  }, [filteredTasks]);
 
   // Master checkbox functionality
   const [selectedTasks, setSelectedTasks] = React.useState<string[]>([]);
@@ -319,7 +329,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       if (event.target.checked) {
         // Only select enabled tasks that are NOT currently opened
         const selectableTaskIds = paginatedTasks
-          .filter((task: any) => taskcomment?.taskKey !== task.taskKey)
+          .filter((task: any) => taskcomment?.data?.taskKey !== task.taskKey)
           .map((task: any) => task.taskKey);
         setSelectedTasks(selectableTaskIds);
         setMasterChecked(true);
@@ -328,13 +338,13 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
         setMasterChecked(false);
       }
     },
-    [paginatedTasks, taskcomment?.taskKey]
+    [paginatedTasks, taskcomment?.data?.taskKey]
   );
 
   // Update master checkbox state when individual selections change
   React.useEffect(() => {
     const selectableTasks = paginatedTasks?.filter(
-      (task: any) => taskcomment?.taskKey !== task.taskKey
+      (task: any) => taskcomment?.data?.taskKey !== task.taskKey
     );
     if (selectedTasks?.length === 0) {
       setMasterChecked(false);
@@ -699,18 +709,19 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-96px)]">
       {/* Main Header Bar */}
       <TaskHeader
-        totalTasks={filteredTasks?.length}
+        totalTasks={paginationData.totalCount}
         selectedTasks={selectedTasks?.length}
         masterChecked={masterChecked}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        page={paginationData.currentPage}
+        rowsPerPage={paginationData.limit}
+        totalPages={paginationData.totalPages}
         onMasterCheckboxChange={(checked: boolean) =>
           handleMasterCheckbox({ target: { checked } } as any)
         }
         onPageChange={(newPage: number) => setPage(newPage)}
         onRowsPerPageChange={(rpp: number) => {
           setRowsPerPage(rpp);
-          setPage(0);
+          setPage(1);
         }}
         onCreateTask={() => setTaskDialogOpen(true)}
       />
@@ -723,10 +734,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
         <TaskList
           tasks={taskList}
           selectedTasks={selectedTasks}
-          selectedTask={taskcomment}
+          selectedTask={taskcomment?.data}
           searchQuery={searchQuery}
-          page={page}
-          rowsPerPage={rowsPerPage}
+          page={paginationData.currentPage}
+          rowsPerPage={paginationData.limit}
+          {...(paginationData.totalPages && {
+            totalPages: paginationData.totalPages,
+          })}
+          {...(paginationData.totalCount && {
+            totalCount: paginationData.totalCount,
+          })}
           onSearchChange={(q: string) => setSearchQuery(q)}
           onTaskSelect={(taskId: string, checked: boolean) =>
             handleTaskSelection(taskId, checked)
@@ -735,7 +752,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
           onPageChange={(newPage: number) => setPage(newPage)}
           onRowsPerPageChange={(rpp: number) => {
             setRowsPerPage(rpp);
-            setPage(0);
+            setPage(1);
           }}
           onAdvancedSearchOpen={(e) => handleTaskAdvancedSearchOpen(e)}
           getStatusIcon={getStatusIcon}
@@ -869,28 +886,28 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                          {getStatusIcon(taskcomment?.status?.name)}
+                          {getStatusIcon(taskcomment?.data?.status?.name)}
                         </div>
                         <div>
                           <h2 className="text-xl font-semibold text-gray-900">
-                            {taskcomment?.title}
+                            {taskcomment?.data?.title}
                           </h2>
                           <div className="flex items-center gap-2 mt-1">
                             <Chip
-                              label={taskcomment?.status?.name}
+                              label={taskcomment?.data?.status?.name}
                               sx={{
                                 color: "#000",
                                 backgroundColor: getStatusColor(
-                                  taskcomment?.status?.name
+                                  taskcomment?.data?.status?.name
                                 ) as any,
                               }}
                               size="small"
                             />
                             <Chip
-                              label={taskcomment?.priority?.name}
+                              label={taskcomment?.data?.priority?.name}
                               sx={{
                                 color: "#000",
-                                backgroundColor: taskcomment?.priority?.color,
+                                backgroundColor: taskcomment?.data?.priority?.color,
                               }}
                               size="small"
                               variant="filled"
@@ -913,7 +930,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             value={taskStaus || ""}
                             onChange={(e) =>
                               handleStatusChange(
-                                taskcomment?.taskID,
+                                taskcomment?.data?.taskID,
                                 e.target.value as Task["status"]
                               )
                             }
@@ -946,7 +963,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                       ref={taskDetailsRef}
                     >
                       <TaskDetails
-                        task={taskcomment}
+                        task={taskcomment?.data}
                         getStatusIcon={getStatusIcon}
                         onStatusChange={(taskId, newStatus) =>
                           handleStatusChange(taskId, newStatus)
@@ -958,7 +975,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-3">
                             <h3 className="text-gray-900 font-bold">
-                              Latest 3 Comments ({taskcomment?.comments.length})
+                              Latest 3 Comments ({taskcomment?.data?.comments.length})
                             </h3>
 
                             <Button
@@ -1030,7 +1047,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           />
 
                           <div className="space-y-4 max-h-60 overflow-y-auto">
-                            {taskcomment?.comments
+                            {taskcomment?.data?.comments
                               ?.slice(0, 3)
                               .map((comment: any) => (
                                 <div
@@ -1152,14 +1169,14 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                 </div>
                               ))}
 
-                            {taskcomment?.comments.length === 0 && (
+                            {taskcomment?.data?.comments.length === 0 && (
                               <div className="text-center py-6 text-gray-500">
                                 <CommentIcon className="text-2xl mx-auto mb-2" />
                                 <p>No comments yet</p>
                               </div>
                             )}
 
-                            {taskcomment?.comments.length > 3 && (
+                            {taskcomment?.data?.comments.length > 3 && (
                               <div className="text-center py-3">
                                 <Button
                                   size="small"
@@ -1174,7 +1191,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     },
                                   }}
                                 >
-                                  View All {taskcomment?.comments?.length ?? 0}{" "}
+                                  View All {taskcomment?.data?.comments?.length ?? 0}{" "}
                                   Comments
                                 </Button>
                               </div>
@@ -1233,9 +1250,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                         {/* Comments Tab Content */}
                         {attachmentsTab === "comments" && (
                           <div className="space-y-4">
-                            {taskcomment?.comment?.length > 0 ? (
+                            {taskcomment?.data?.comment?.length > 0 ? (
                               <div className="space-y-4">
-                                {taskcomment?.comment?.map((comment: any) => (
+                                {taskcomment?.data?.comment?.map((comment: any) => (
                                   <div
                                     key={comment.id}
                                     className="flex items-start gap-3"
@@ -1295,9 +1312,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                         {/* Attachments Tab Content */}
                         {attachmentsTab === "attachments" && (
                           <div className="space-y-4">
-                            {taskcomment?.attachments?.length > 0 ? (
+                            {taskcomment?.data?.attachments?.length > 0 ? (
                               <div className="space-y-4">
-                                {taskcomment?.attachment?.map(
+                                {taskcomment?.data?.attachment?.map(
                                   (attachment: any) => (
                                     <Card key={attachment?.taskKey}>
                                       <CardContent className="p-4">
@@ -1382,7 +1399,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             attachmentsTab === "comments" ? (
                               <CircularProgress size={12} />
                             ) : null}
-                            Comments ({taskcomment?.comment?.length ?? 0})
+                            Comments ({taskcomment?.data?.comment?.length ?? 0})
                           </button>
                           <button
                             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
@@ -1406,7 +1423,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             attachmentsTab === "attachments" ? (
                               <CircularProgress size={12} />
                             ) : null}
-                            Attachments ({taskcomment?.attachment?.length ?? 0})
+                            Attachments ({taskcomment?.data?.attachment?.length ?? 0})
                           </button>
                         </div>
                       </div>
