@@ -82,7 +82,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [editingCommentId, setEditingCommentId] = React.useState<string | null>(
     null
   );
-  const [taskStaus, setTaskStatus] = useState<string>("");
+  const [taskStatus, setTaskStatus] = useState<string>("");
   const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
@@ -105,7 +105,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [loadingAttachmentTaskId, setLoadingAttachmentTaskId] = React.useState<
     string | null
   >(null);
-
 
   // Task Advanced Search State
   const [taskAdvancedSearchOpen, setTaskAdvancedSearchOpen] =
@@ -505,6 +504,23 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     return fieldOptions?.filter((option) => !usedFields.includes(option.value));
   };
 
+  // Comment sorting function
+  const handleCommentSort = () => {
+    setCommentSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
+  // Sort comments based on current sort order
+  const getSortedComments = (comments: any[]) => {
+    if (!comments) return [];
+
+    return [...comments].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+
+      return commentSortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    });
+  };
+
   // Render dynamic value input based on field type
   const renderValueInput = (condition: any) => {
     const { field, condition: conditionType, value } = condition;
@@ -655,6 +671,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [attachmentsTab, setAttachmentsTab] = React.useState<
     "comments" | "attachments"
   >("comments");
+  const [commentSortOrder, setCommentSortOrder] = React.useState<
+    "asc" | "desc"
+  >("desc");
 
   useEffect(() => {
     if (!taskId) {
@@ -732,7 +751,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
         {/* LEFT SECTION - Task List & Filters */}
         <TaskList
-          tasks={taskList}
+          tasks={{ ...taskList, data: filteredTasks }}
           selectedTasks={selectedTasks}
           selectedTask={taskcomment?.data}
           searchQuery={searchQuery}
@@ -907,7 +926,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               label={taskcomment?.data?.priority?.name}
                               sx={{
                                 color: "#000",
-                                backgroundColor: taskcomment?.data?.priority?.color,
+                                backgroundColor:
+                                  taskcomment?.data?.priority?.color,
                               }}
                               size="small"
                               variant="filled"
@@ -927,7 +947,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                       <div className="flex gap-2">
                         <FormControl size="small">
                           <Select
-                            value={taskStaus || ""}
+                            value={taskStatus || ""}
                             onChange={(e) =>
                               handleStatusChange(
                                 taskcomment?.data?.taskID,
@@ -975,7 +995,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-3">
                             <h3 className="text-gray-900 font-bold">
-                              Latest 3 Comments ({taskcomment?.data?.comments.length})
+                              Latest 3 Comments (
+                              {taskcomment?.data?.comments.length})
                             </h3>
 
                             <Button
@@ -1047,7 +1068,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           />
 
                           <div className="space-y-4 max-h-60 overflow-y-auto">
-                            {taskcomment?.data?.comments
+                            {getSortedComments(
+                              taskcomment?.data?.comments || []
+                            )
                               ?.slice(0, 3)
                               .map((comment: any) => (
                                 <div
@@ -1191,7 +1214,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     },
                                   }}
                                 >
-                                  View All {taskcomment?.data?.comments?.length ?? 0}{" "}
+                                  View All{" "}
+                                  {taskcomment?.data?.comments?.length ?? 0}{" "}
                                   Comments
                                 </Button>
                               </div>
@@ -1213,19 +1237,37 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             : "Attachments"}
                         </h3>
                         <div className="flex items-center gap-2">
-                          <IconButton
-                            size="small"
-                            sx={{
-                              color: "#6b7280",
-                              border: "1px solid #d1d5db",
-                              "&:hover": {
-                                borderColor: "#9ca3af",
-                                backgroundColor: "#f9fafb",
-                              },
-                            }}
+                          <Tooltip
+                            title={`Sort comments ${
+                              commentSortOrder === "asc"
+                                ? "newest first"
+                                : "oldest first"
+                            }`}
                           >
-                            <SortIcon fontSize="small" />
-                          </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={handleCommentSort}
+                              sx={{
+                                color: "#6b7280",
+                                border: "1px solid #d1d5db",
+                                "&:hover": {
+                                  borderColor: "#9ca3af",
+                                  backgroundColor: "#f9fafb",
+                                },
+                              }}
+                            >
+                              <SortIcon
+                                fontSize="small"
+                                sx={{
+                                  transform:
+                                    commentSortOrder === "asc"
+                                      ? "rotate(180deg)"
+                                      : "rotate(0deg)",
+                                  transition: "transform 0.3s ease-in-out",
+                                }}
+                              />
+                            </IconButton>
+                          </Tooltip>
                           <IconButton
                             size="small"
                             sx={{
@@ -1252,7 +1294,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           <div className="space-y-4">
                             {taskcomment?.data?.comment?.length > 0 ? (
                               <div className="space-y-4">
-                                {taskcomment?.data?.comment?.map((comment: any) => (
+                                {getSortedComments(
+                                  taskcomment?.data?.comment || []
+                                ).map((comment: any) => (
                                   <div
                                     key={comment.id}
                                     className="flex items-start gap-3"
@@ -1423,7 +1467,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             attachmentsTab === "attachments" ? (
                               <CircularProgress size={12} />
                             ) : null}
-                            Attachments ({taskcomment?.data?.attachment?.length ?? 0})
+                            Attachments (
+                            {taskcomment?.data?.attachment?.length ?? 0})
                           </button>
                         </div>
                       </div>

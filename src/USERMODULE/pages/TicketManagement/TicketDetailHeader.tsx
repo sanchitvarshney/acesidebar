@@ -178,6 +178,7 @@ const TicketDetailHeader = ({
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
   const [searchQuery, setSearchQuery] = useState("");
+  const [trackId, setTrackId] = useState("");
   const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
   const [moreOptionsSearchQuery, setMoreOptionsSearchQuery] = useState("");
   const [triggerWatcherStatus, { isLoading: watcherStatusLoading }] =
@@ -398,7 +399,7 @@ const TicketDetailHeader = ({
       url: `watchers-status/${urlValues.ticketId}/${urlValues.status}`,
       method: "PUT",
     };
-    triggerWatcherStatus(payload).then((res:any) => {
+    triggerWatcherStatus(payload).then((res: any) => {
       if (res?.error?.data?.type === "error") {
         return;
       } else {
@@ -1003,17 +1004,24 @@ const TicketDetailHeader = ({
                     }}
                   >
                     <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleRemoveWatcher(watcher?.watchKey)}
-                        sx={{
-                          color: "#ef4444",
-                          mr: 1,
-                          "&:hover": { backgroundColor: "#fee2e2" },
-                        }}
-                      >
-                        <CloseIcon fontSize="small" />
-                      </IconButton>
+                      {isDeletingLoading && trackId === watcher?.watchKey ? (
+                        <CircularProgress size={16} sx={{ mr: 1 }} />
+                      ) : (
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setTrackId(watcher?.watchKey);
+                            handleRemoveWatcher(watcher?.watchKey);
+                          }}
+                          sx={{
+                            color: "#ef4444",
+                            mr: 1,
+                            "&:hover": { backgroundColor: "#fee2e2" },
+                          }}
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      )}
                       <Avatar
                         sx={{
                           width: 32,

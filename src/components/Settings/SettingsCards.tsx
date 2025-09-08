@@ -33,6 +33,9 @@ const SettingsCards: React.FC = ({ cards }: any) => {
       case "tags":
         navigate("/manage-tags");
         break;
+      case "ticket-fields":
+        navigate("/settings/ticket-fields");
+        break;
     }
   };
 

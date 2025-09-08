@@ -39,6 +39,7 @@ import SupportOperationsPage from "../USERMODULE/pages/settingPages/SupportOpera
 import AccountDayPasses from "../USERMODULE/pages/settingPages/AccountDayPasses";
 import AccountSecurity from "../USERMODULE/pages/settingPages/AccountSecurity";
 import AccountHelpCenter from "../USERMODULE/pages/settingPages/AccountHelpCenter";
+import TicketFieldsPage from "../USERMODULE/pages/settingPages/TicketFieldsPage";
 import ManageTags from "../USERMODULE/pages/settingPages/ManageTags";
 
 export const router = createBrowserRouter([
@@ -130,6 +131,10 @@ export const router = createBrowserRouter([
           {
             path: "support-operations",
             element: <SupportOperationsPage />,
+          },
+          {
+            path: "ticket-fields",
+            element: <TicketFieldsPage />,
           },
         ],
       },

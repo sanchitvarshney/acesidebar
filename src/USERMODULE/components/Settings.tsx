@@ -63,7 +63,7 @@ const menuSections: MenuSection[] = [
 
 const Settings: React.FC = () => {
   const [activeId, setActiveId] = useState<string>(menuSections[0].id);
- 
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -82,6 +82,8 @@ const Settings: React.FC = () => {
       setActiveId("agent-productivity");
     } else if (pathname === "/settings/support-operations") {
       setActiveId("support-operations");
+    } else if (pathname === "/settings/ticket-fields") {
+      setActiveId("workflows");
     } else if (
       pathname === "/account-settings" ||
       pathname === "/groups" ||
@@ -91,10 +93,6 @@ const Settings: React.FC = () => {
       setActiveId("accounts");
     }
   }, [location.pathname]);
-
- 
-
-
 
   // Handle menu navigation
   const handleMenuNavigation = useCallback(
@@ -122,8 +120,6 @@ const Settings: React.FC = () => {
     [navigate]
   );
 
-
-
   // Handle menu item selection
   const handleMenuSelect = useCallback(
     (id: string) => {
@@ -141,7 +137,6 @@ const Settings: React.FC = () => {
         activeId={activeId}
       />
       <main className="flex-1 p-4 overflow-y-auto">
-   
         <div className="my-4">
           <Outlet />
         </div>
