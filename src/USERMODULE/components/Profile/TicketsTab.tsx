@@ -12,7 +12,8 @@ import {
 import EmailIcon from "@mui/icons-material/Email";
 import { TicketItem } from "./types";
 import CustomToolTip from "../../../components/reusable/CustomToolTip";
-import CustomPopover from "../../../reusable/CustomPopover";
+
+import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
 type TicketsTabProps = {
   tickets: TicketItem[];
@@ -20,9 +21,10 @@ type TicketsTabProps = {
 
 const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [cardClick, setCardClick] = useState(null);
   const ticketAnchorRef = useRef<HTMLDivElement>(null);
 
-  const selected = openIdx !== null ? tickets[openIdx] : null;
+  const selected =  openIdx !== null ? tickets[openIdx] : null;
 
   return (
     <Box>
@@ -45,7 +47,10 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
               },
             }}
-            onClick={() => setOpenIdx(index)}
+            onClick={(e: any) => {
+              setOpenIdx(index);
+              setCardClick(e.currentTarget);
+            }}
           >
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: "flex", alignItems: "flex-start", gap: 3 }}>
@@ -166,12 +171,12 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
         ))}
       </Stack>
 
-      <CustomPopover
-        open={openIdx !== null}
-        close={() => setOpenIdx(null)}
-        anchorEl={ticketAnchorRef}
-        width={500}
-        isCone={true}
+      <CustomDataUpdatePopover
+        close={() => {
+          setOpenIdx(null);
+          setCardClick(null);
+        }}
+        anchorEl={cardClick}
       >
         {selected && (
           <Box sx={{ p: 2 }}>
@@ -211,13 +216,19 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
               </Button>
             </Stack>
             <Box sx={{ textAlign: "right", mt: 2 }}>
-              <Button variant="text" onClick={() => setOpenIdx(null)}>
+              <Button
+                variant="text"
+                onClick={() => {
+                  setOpenIdx(null);
+                  setCardClick(null);
+                }}
+              >
                 DONE
               </Button>
             </Box>
           </Box>
         )}
-      </CustomPopover>
+      </CustomDataUpdatePopover>
     </Box>
   );
 };

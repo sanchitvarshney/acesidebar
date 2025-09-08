@@ -1,36 +1,6 @@
-import React, { useMemo, useState } from "react";
-import {
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Paper,
-  Tab,
-  Tabs,
-  Typography,
-  IconButton,
-  Card,
-  CardContent,
-  Stack,
-  Badge,
-} from "@mui/material";
+import { useMemo, useState } from "react";
+import { Box, Button, Tab, Tabs, Typography, IconButton } from "@mui/material";
 
-import {
-  TimelineItem,
-  TimelineSeparator,
-  TimelineConnector,
-  TimelineDot,
-  TimelineContent,
-  timelineOppositeContentClasses,
-  Timeline,
-} from "@mui/lab";
-import EmailIcon from "@mui/icons-material/Email";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
@@ -38,14 +8,6 @@ import {
   PersonAdd as AgentIcon,
   Password as PasswordIcon,
   Add as AddIcon,
-  Phone as PhoneIcon,
-  Mail as MailIcon,
-  LocationOn as LocationIcon,
-  CheckCircle as CheckIcon,
-  Business as BusinessIcon,
-  Work as WorkIcon,
-  Schedule as ScheduleIcon,
-  PriorityHigh as PriorityIcon,
   ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
@@ -54,9 +16,8 @@ import EditUser from "../../pages/EditUser";
 import ConvertProfile from "../ConvertProfile";
 import ChangePassword from "../ChangePassword";
 import MergeContact from "../MergeContact";
-import CustomToolTip from "../../../reusable/CustomToolTip";
+
 import { useNavigate, useParams } from "react-router-dom";
-import { common } from "@mui/material/colors";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import OverviewTab from "./OverviewTab";
 import TicketsTab from "./TicketsTab";

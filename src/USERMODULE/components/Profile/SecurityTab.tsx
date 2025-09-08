@@ -11,8 +11,8 @@ import {
   TextField,
 } from "@mui/material";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
-import CustomPopover from "../../../reusable/CustomPopover";
 import ChangePassword from "../ChangePassword";
+import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
 export type SecurityTabProps = {
   onChangePassword?: () => void;
@@ -39,36 +39,31 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
 
   // Popover state
   const [isPwdOpen, setIsPwdOpen] = useState(false);
-  const [isTwoFAOpen, setIsTwoFAOpen] = useState(false);
-  const [isRecoveryEmailOpen, setIsRecoveryEmailOpen] = useState(false);
-  const [isRecoveryPhoneOpen, setIsRecoveryPhoneOpen] = useState(false);
-  const [isSessionsOpen, setIsSessionsOpen] = useState(false);
+  const [isTwoFAOpen, setIsTwoFAOpen] = useState(null);
+  const [isRecoveryEmailOpen, setIsRecoveryEmailOpen] = useState(null);
+  const [isRecoveryPhoneOpen, setIsRecoveryPhoneOpen] = useState(null);
+  const [isSessionsOpen, setIsSessionsOpen] = useState(null);
 
   // Local form state
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
 
-  // Anchor refs for popovers
-  const twoFAAnchorRef = useRef<HTMLDivElement>(null);
-  const recoveryEmailAnchorRef = useRef<HTMLDivElement>(null);
-  const recoveryPhoneAnchorRef = useRef<HTMLDivElement>(null);
-  const sessionsAnchorRef = useRef<HTMLDivElement>(null);
 
   const handleToggle2FAConfirm = () => {
     const next = !isTwoFAEnabled;
     setIsTwoFAEnabled(next);
     onToggleTwoFA && onToggleTwoFA(next);
-    setIsTwoFAOpen(false);
+    setIsTwoFAOpen(null);
   };
 
   const handleAddRecoveryEmail = () => {
     onAddRecoveryEmail && onAddRecoveryEmail(emailInput.trim());
-    setIsRecoveryEmailOpen(false);
+    setIsRecoveryEmailOpen(null);
   };
 
-  const handleUpdateRecoveryPhone = () => {
+  const handleUpdateRecoveryPhone = (e: any) => {
     onUpdateRecoveryPhone && onUpdateRecoveryPhone(phoneInput.trim());
-    setIsRecoveryPhoneOpen(false);
+    setIsRecoveryPhoneOpen(e.currentTarget);
   };
 
   const handleViewSessions = () => {
@@ -156,18 +151,9 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                 2-step verification
               </Typography>
               <Box
-                ref={twoFAAnchorRef}
-                onClick={() => setIsTwoFAOpen(true)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") setIsTwoFAOpen(true);
-                }}
                 sx={{
                   p: 1,
                   borderRadius: 1,
-                  "&:hover": { bgcolor: "action.hover" },
-                  cursor: "pointer",
                 }}
               >
                 <Stack
@@ -197,9 +183,9 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                   variant="outlined"
                   size="small"
                   color={isTwoFAEnabled ? "warning" : "primary"}
-                  onClick={(e) => {
+                  onClick={(e: any) => {
                     e.stopPropagation();
-                    setIsTwoFAOpen(true);
+                    setIsTwoFAOpen(e.currentTarget);
                   }}
                 >
                   {isTwoFAEnabled ? "Disable 2FA" : "Enable 2FA"}
@@ -223,20 +209,10 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                 Recovery information
               </Typography>
               <Stack
-                ref={recoveryEmailAnchorRef}
                 spacing={1}
-                onClick={() => setIsRecoveryEmailOpen(true)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ")
-                    setIsRecoveryEmailOpen(true);
-                }}
                 sx={{
                   p: 1,
                   borderRadius: 1,
-                  "&:hover": { bgcolor: "action.hover" },
-                  cursor: "pointer",
                 }}
               >
                 <Box>
@@ -253,22 +229,16 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                       type="button"
                       underline="hover"
                       sx={{ fontSize: 14 }}
-                      onClick={(e) => {
+                      onClick={(e: any) => {
                         e.stopPropagation();
-                        setIsRecoveryEmailOpen(true);
+                        setIsRecoveryEmailOpen(e.currentTarget);
                       }}
                     >
                       Add a recovery email
                     </MuiLink>
                   )}
                 </Box>
-                <Box
-                  ref={recoveryPhoneAnchorRef}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsRecoveryPhoneOpen(true);
-                  }}
-                >
+                <Box>
                   <Typography variant="caption" color="text.secondary">
                     Phone
                   </Typography>
@@ -280,6 +250,10 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                     type="button"
                     underline="hover"
                     sx={{ fontSize: 14 }}
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      setIsRecoveryPhoneOpen(e.currentTarget);
+                    }}
                   >
                     {recoveryPhone ? "Change phone" : "Add a phone"}
                   </MuiLink>
@@ -303,19 +277,9 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                 Login sessions
               </Typography>
               <Box
-                ref={sessionsAnchorRef}
-                onClick={() => setIsSessionsOpen(true)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ")
-                    setIsSessionsOpen(true);
-                }}
                 sx={{
                   p: 1,
                   borderRadius: 1,
-                  "&:hover": { bgcolor: "action.hover" },
-                  cursor: "pointer",
                 }}
               >
                 <Typography
@@ -327,9 +291,9 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
                 <Button
                   variant="outlined"
                   size="small"
-                  onClick={(e) => {
+                  onClick={(e: any) => {
                     e.stopPropagation();
-                    setIsSessionsOpen(true);
+                    setIsSessionsOpen(e.currentTarget);
                   }}
                 >
                   View sessions
@@ -412,12 +376,9 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
         </Box>
       </CustomSideBarPanel>
 
-      <CustomPopover
-        open={isTwoFAOpen}
-        close={() => setIsTwoFAOpen(false)}
-        anchorEl={twoFAAnchorRef}
-        width={400}
-        isCone={true}
+      <CustomDataUpdatePopover
+        close={() => setIsTwoFAOpen(null)}
+        anchorEl={isTwoFAOpen}
       >
         <Box sx={{ p: 2 }}>
           <Box
@@ -446,19 +407,16 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
               : "2FA is currently OFF. Click Enable to secure sign-ins with an additional factor."}
           </Typography>
           <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button variant="text" onClick={() => setIsTwoFAOpen(false)}>
+            <Button variant="text" onClick={() => setIsTwoFAOpen(null)}>
               DONE
             </Button>
           </Box>
         </Box>
-      </CustomPopover>
+      </CustomDataUpdatePopover>
 
-      <CustomPopover
-        open={isRecoveryEmailOpen}
-        close={() => setIsRecoveryEmailOpen(false)}
-        anchorEl={recoveryEmailAnchorRef}
-        width={350}
-        isCone={true}
+      <CustomDataUpdatePopover
+        close={() => setIsRecoveryEmailOpen(null)}
+        anchorEl={isRecoveryEmailOpen}
       >
         <Box sx={{ p: 2 }}>
           <Box
@@ -467,6 +425,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
               justifyContent: "space-between",
               alignItems: "center",
               mb: 2,
+              gap: 2,
             }}
           >
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -488,22 +447,16 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
             onChange={(e) => setEmailInput(e.target.value)}
           />
           <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button
-              variant="text"
-              onClick={() => setIsRecoveryEmailOpen(false)}
-            >
+            <Button variant="text" onClick={() => setIsRecoveryEmailOpen(null)}>
               DONE
             </Button>
           </Box>
         </Box>
-      </CustomPopover>
+      </CustomDataUpdatePopover>
 
-      <CustomPopover
-        open={isRecoveryPhoneOpen}
-        close={() => setIsRecoveryPhoneOpen(false)}
-        anchorEl={recoveryPhoneAnchorRef}
-        width={350}
-        isCone={true}
+      <CustomDataUpdatePopover
+        close={() => setIsRecoveryPhoneOpen(null)}
+        anchorEl={isRecoveryPhoneOpen}
       >
         <Box sx={{ p: 2 }}>
           <Box
@@ -520,7 +473,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
             <Button
               variant="contained"
               size="small"
-              onClick={handleUpdateRecoveryPhone}
+              onClick={(e: any) => handleUpdateRecoveryPhone(e)}
             >
               {recoveryPhone ? "SAVE" : "ADD"}
             </Button>
@@ -533,22 +486,16 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
             onChange={(e) => setPhoneInput(e.target.value)}
           />
           <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button
-              variant="text"
-              onClick={() => setIsRecoveryPhoneOpen(false)}
-            >
+            <Button variant="text" onClick={() => setIsRecoveryPhoneOpen(null)}>
               DONE
             </Button>
           </Box>
         </Box>
-      </CustomPopover>
+      </CustomDataUpdatePopover>
 
-      <CustomPopover
-        open={isSessionsOpen}
-        close={() => setIsSessionsOpen(false)}
-        anchorEl={sessionsAnchorRef}
-        width={400}
-        isCone={true}
+      <CustomDataUpdatePopover
+        close={() => setIsSessionsOpen(null)}
+        anchorEl={isSessionsOpen}
       >
         <Box sx={{ p: 2 }}>
           <Box
@@ -575,12 +522,12 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
             action to sign out.
           </Typography>
           <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button variant="text" onClick={() => setIsSessionsOpen(false)}>
+            <Button variant="text" onClick={() => setIsSessionsOpen(null)}>
               DONE
             </Button>
           </Box>
         </Box>
-      </CustomPopover>
+      </CustomDataUpdatePopover>
     </Box>
   );
 };

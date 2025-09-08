@@ -287,8 +287,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     try {
       const response = await changeStatus({ url, method: "PUT" }).unwrap();
 
-      if (response?.type === "error") {
-        showToast(response.message, "error");
+      if (
+        response?.error?.data?.type === "error" ||
+        response?.success === false
+      ) {
+        showToast(response.error?.data?.message || response?.message, "error");
         return;
       } else {
         setTaskStatus(newStatus);
