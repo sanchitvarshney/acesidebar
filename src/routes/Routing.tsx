@@ -132,10 +132,6 @@ export const router = createBrowserRouter([
             path: "support-operations",
             element: <SupportOperationsPage />,
           },
-          {
-            path: "ticket-fields",
-            element: <TicketFieldsPage />,
-          },
         ],
       },
       {
@@ -169,6 +165,10 @@ export const router = createBrowserRouter([
       {
         path: "manage-tags",
         element: <ManageTags />,
+      },
+      {
+        path: "ticket-fields",
+        element: <TicketFieldsPage />,
       },
     ],
   },

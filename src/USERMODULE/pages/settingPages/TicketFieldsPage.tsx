@@ -36,6 +36,8 @@ import {
   DialogActions,
   Divider,
   Grid,
+  Tooltip,
+  InputAdornment,
 } from "@mui/material";
 
 // Field types that can be dragged and dropped
@@ -190,7 +192,7 @@ const TicketFieldsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const dragRef = useRef<HTMLDivElement>(null);
+  const [isDropActive, setIsDropActive] = useState(false);
 
   const getFieldIcon = (type: string) => {
     const fieldType = fieldTypes.find((ft) => ft.id === type);
@@ -257,11 +259,40 @@ const TicketFieldsPage: React.FC = () => {
 
     setDraggedItem(null);
     setDragOverIndex(null);
+    setIsDropActive(false);
+  };
+
+  const handleAddField = (e: any, fieldId: any) => {
+    const fieldType = fieldTypes.find((ft) => ft.id === fieldId);
+    if (fieldType) {
+      const newField: FieldConfig = {
+        id: `${fieldType.id}-${Date.now()}`,
+        name: `New ${fieldType.name.toLowerCase()}`,
+        type: fieldType.id,
+        isDefault: false,
+        isDisabled: false,
+        isVisible: true,
+        labelForAgents: "",
+        labelForCustomers: "",
+        requiredForAgents: false,
+        requiredForCustomers: false,
+        requiredWhenClosing: false,
+        canView: true,
+        canEdit: true,
+      };
+
+      const newFields = [...fields];
+
+      newFields.push(newField);
+
+      setFields(newFields);
+    }
   };
 
   const handleDragEnd = () => {
     setDraggedItem(null);
     setDragOverIndex(null);
+    setIsDropActive(false);
   };
 
   const handleFieldClick = (field: FieldConfig) => {
@@ -303,165 +334,222 @@ const TicketFieldsPage: React.FC = () => {
   });
 
   return (
-    <Box sx={{  bgcolor: 'grey.50', minHeight: '100vh' }}>
-      <Box sx={{ maxWidth: '1400px', mx: 'auto' }}>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="h4" component="h1" sx={{ mb: 1, fontWeight: 'bold' }}>
-            Ticket Fields
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Customize your ticket type to categorize, prioritize, and route
-            tickets efficiently.
-          </Typography>
-        </Box>
+    <Box sx={{ bgcolor: "grey.50", height: "calc(100vh - 100px)" }}>
+      <Box sx={{ mb: 2 }}>
+        <Typography
+          variant="h5"
+          component="h1"
+          sx={{ mb: 1, fontWeight: "bold" }}
+        >
+          Ticket Fields
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Customize your ticket type to categorize, prioritize, and route
+          tickets efficiently.
+        </Typography>
+      </Box>
 
-        <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', lg: 'row' } }}>
-          {/* Left Panel - Field Types */}
-          <Box sx={{ flex: { xs: 1, lg: '0 0 300px' } }}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'semibold' }}>
-                  Drag and drop to create fields
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {fieldTypes.map((fieldType, index) => {
-                    const IconComponent = fieldType.icon;
-                    return (
-                      <Card
-                        key={fieldType.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, fieldType.id)}
-                        onDragEnd={handleDragEnd}
-                        sx={{
-                          p: 2,
-                          cursor: 'grab',
-                          '&:hover': { bgcolor: 'grey.50' },
-                          border: '1px solid',
-                          borderColor: 'grey.300',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 2,
-                        }}
-                      >
-                        <IconComponent color="action" />
-                        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                          {fieldType.name}
-                        </Typography>
-                      </Card>
-                    );
-                  })}
-                </Box>
-              </CardContent>
-            </Card>
-          </Box>
-
-          {/* Right Panel - Existing Fields */}
-          <Box sx={{ flex: 1 }}>
-            <Card>
-              {/* Header with filters and search */}
-              <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'grey.200' }}>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' } }}>
-                  <FormControl size="small" sx={{ minWidth: 150 }}>
-                    <InputLabel>Filter</InputLabel>
-                    <Select
-                      value={filter}
-                      onChange={(e) => setFilter(e.target.value)}
-                      label="Filter"
-                    >
-                      <MenuItem value="all">All fields</MenuItem>
-                      <MenuItem value="default">Default fields</MenuItem>
-                      <MenuItem value="custom">Custom fields</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    size="small"
-                    placeholder="Search fields"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    InputProps={{
-                      startAdornment: <Search sx={{ mr: 1, color: 'grey.400' }} />,
-                    }}
-                    sx={{ width: { xs: '100%', sm: '300px' } }}
-                  />
-                </Box>
-              </Box>
-
-              {/* Fields List */}
-              <Box sx={{ p: 2 }}>
-                {/* Drop Zone for new fields */}
-                <Box
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOverIndex(-1);
-                  }}
-                  onDrop={(e) => handleDrop(e)}
-                  sx={{
-                    minHeight: 60,
-                    border: '2px dashed',
-                    borderColor: dragOverIndex === -1 ? 'primary.main' : 'grey.300',
-                    borderRadius: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mb: 2,
-                    bgcolor: dragOverIndex === -1 ? 'primary.50' : 'transparent',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  <Typography variant="body2" color="text.secondary">
-                    Drop new fields here
-                  </Typography>
-                </Box>
-
-                {filteredFields.map((field, index) => {
-                  const IconComponent = getFieldIcon(field.type);
+      <Box
+        sx={{
+          display: "flex",
+          gap: 3,
+          flexDirection: { xs: "column", lg: "row" },
+        }}
+      >
+        {/* Left Panel - Field Types */}
+        <Box
+          sx={{
+            flex: { xs: 1, lg: "0 0 300px" },
+            maxHeight: "calc(100vh - 170px)",
+            overflowY: "auto",
+          }}
+        >
+          <Card>
+            <CardContent>
+              <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                Drag and drop to create fields
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {fieldTypes.map((fieldType) => {
+                  const IconComponent = fieldType.icon;
                   return (
                     <Card
-                      key={field.id}
-                      draggable={!field.isDisabled}
-                      onDragStart={(e) =>
-                        !field.isDisabled && handleDragStart(e, field.id)
-                      }
-                      onDragOver={(e) => handleDragOver(e, index)}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, index)}
+                      key={fieldType.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, fieldType.id)}
                       onDragEnd={handleDragEnd}
-                      onClick={() =>
-                        !field.isDisabled && handleFieldClick(field)
-                      }
+                      onClick={(e) => handleAddField(e as any, fieldType.id)}
                       sx={{
-                        mb: 1,
-                        cursor: field.isDisabled ? 'default' : 'pointer',
-                        opacity: field.isDisabled ? 0.6 : 1,
-                        border: '1px solid',
-                        borderColor: dragOverIndex === index ? 'primary.main' : 'grey.300',
-                        bgcolor: dragOverIndex === index ? 'primary.50' : 'white',
-                        '&:hover': { bgcolor: field.isDisabled ? 'white' : 'grey.50' },
-                        transition: 'all 0.2s',
+                        p: 2,
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "grey.50" },
+                        border: "1px solid",
+                        borderColor: "grey.300",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
                       }}
                     >
-                      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <DragIndicator color="action" sx={{ cursor: 'grab' }} />
-                          <IconComponent color="action" />
-                          <Typography variant="body1" sx={{ flexGrow: 1, fontWeight: 'medium' }}>
-                            {field.name}
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            {field.isDefault && (
-                              <Chip label="Default" size="small" color="default" />
-                            )}
+                      <IconComponent sx={{ color: "primary.main" }} />
+                      <Typography variant="body2" sx={{ fontWeight: "medium" }}>
+                        {fieldType.name}
+                      </Typography>
+                    </Card>
+                  );
+                })}
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Right Panel - Existing Fields */}
+        <Box sx={{ flex: 1,  }}>
+          <Card elevation={0}>
+            {/* Header with filters and search */}
+            <Box
+              sx={{
+                p: 2,
+                borderBottom: "1px solid",
+                borderColor: "grey.200",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  alignItems: "center",
+                  flexDirection: { xs: "column", sm: "row" },
+                }}
+              >
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>Filter</InputLabel>
+                  <Select
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    label="Filter"
+                  >
+                    <MenuItem value="all">All fields</MenuItem>
+                    <MenuItem value="default">Default fields</MenuItem>
+                    <MenuItem value="custom">Custom fields</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  size="small"
+                  placeholder="Search fields"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search sx={{ color: "grey.500" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ width: { xs: "100%", sm: "300px" } }}
+                />
+              </Box>
+            </Box>
+
+            {/* Fields List */}
+            <Box  sx={{ p: 2,maxHeight: "calc(100vh - 235px)", overflowY: "auto" }}>
+              <Box
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDropActive(true);
+                }}
+                onDragLeave={() => setIsDropActive(false)}
+                onDrop={(e) => handleDrop(e)}
+                sx={{
+                  mb: 2,
+                  p: 2,
+                  border: "1.5px dashed",
+                  borderColor: isDropActive ? "primary.main" : "grey.300",
+                  bgcolor: isDropActive ? "primary.50" : "grey.50",
+                  color: "text.secondary",
+                  borderRadius: 1,
+                  textAlign: "center",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <Typography variant="body2">
+                  Drag here to add a new field
+                </Typography>
+              </Box>
+
+              {filteredFields.map((field, index) => {
+                const IconComponent = getFieldIcon(field.type);
+                return (
+                  <Card
+                
+                    key={field.id}
+                    draggable={!field.isDisabled}
+                    onDragStart={(e) =>
+                      !field.isDisabled && handleDragStart(e, field.id)
+                    }
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, index)}
+                    onDragEnd={handleDragEnd}
+                    onClick={() => !field.isDisabled && handleFieldClick(field)}
+                    sx={{
+                      mb: 1,
+                      cursor: field.isDisabled ? "default" : "pointer",
+                      opacity: field.isDisabled ? 0.6 : 1,
+                      border: "1px solid",
+                      borderColor:
+                        dragOverIndex === index ? "primary.main" : "grey.300",
+                      bgcolor: dragOverIndex === index ? "primary.50" : "white",
+                      "&:hover": {
+                        bgcolor: field.isDisabled ? "white" : "grey.50",
+                      },
+                      transition: "all 0.2s",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                      >
+                        <DragIndicator color="action" sx={{ cursor: "grab" }} />
+                        <IconComponent sx={{ color: "primary.main" }} />
+                        <Typography
+                          variant="body1"
+                          sx={{ flexGrow: 1, fontWeight: "medium" }}
+                        >
+                          {field.name}
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          {field.isDefault && (
+                            <Chip
+                              label="Default"
+                              size="small"
+                              color="default"
+                            />
+                          )}
+                          <Tooltip title={field.isVisible ? "Hide" : "Show"}>
                             <IconButton
                               size="small"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleToggleVisibility(field.id);
                               }}
-                              color={field.isVisible ? 'default' : 'primary'}
+                              color={field.isVisible ? "default" : "primary"}
                             >
-                              {field.isVisible ? <Visibility /> : <VisibilityOff />}
+                              {field.isVisible ? (
+                                <Visibility />
+                              ) : (
+                                <VisibilityOff />
+                              )}
                             </IconButton>
-                            {!field.isDefault && (
+                          </Tooltip>
+                          {!field.isDefault && (
+                            <Tooltip title="Delete field">
                               <IconButton
                                 size="small"
                                 onClick={(e) => {
@@ -472,16 +560,22 @@ const TicketFieldsPage: React.FC = () => {
                               >
                                 <Close />
                               </IconButton>
-                            )}
-                          </Box>
+                            </Tooltip>
+                          )}
                         </Box>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </Box>
-            </Card>
-          </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {filteredFields.length === 0 && (
+                <Box sx={{ textAlign: "center", py: 6, color: "text.secondary" }}>
+                  <Typography variant="body2">No fields match your filters.</Typography>
+                </Box>
+              )}
+            </Box>
+          </Card>
         </Box>
       </Box>
 
@@ -540,28 +634,39 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconComponent color="action" />
-          <Typography variant="h6">{formData.name}</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <IconComponent sx={{ color: "primary.main" }} />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="h6">{formData.name}</Typography>
+            {formData.isDefault ? (
+              <Chip label="Default" size="small" />
+            ) : (
+              <Chip label="Custom" size="small" color="primary" variant="outlined" />
+            )}
+          </Box>
         </Box>
       </DialogTitle>
       <DialogContent>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
           {/* Behavior for Agents */}
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'medium' }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
               BEHAVIOR FOR AGENTS
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <FormControlLabel
                 control={
                   <Checkbox
                     checked={formData.requiredForAgents || false}
                     onChange={(e) =>
-                      setFormData((prev) => prev ? ({
-                        ...prev,
-                        requiredForAgents: e.target.checked,
-                      }) : null)
+                      setFormData((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              requiredForAgents: e.target.checked,
+                            }
+                          : null
+                      )
                     }
                   />
                 }
@@ -572,10 +677,14 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
                   <Checkbox
                     checked={formData.requiredWhenClosing || false}
                     onChange={(e) =>
-                      setFormData((prev) => prev ? ({
-                        ...prev,
-                        requiredWhenClosing: e.target.checked,
-                      }) : null)
+                      setFormData((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              requiredWhenClosing: e.target.checked,
+                            }
+                          : null
+                      )
                     }
                   />
                 }
@@ -588,19 +697,23 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
 
           {/* Behavior for Customers */}
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'medium' }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
               BEHAVIOR FOR CUSTOMERS
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <FormControlLabel
                 control={
                   <Checkbox
                     checked={formData.canView || false}
                     onChange={(e) =>
-                      setFormData((prev) => prev ? ({
-                        ...prev,
-                        canView: e.target.checked,
-                      }) : null)
+                      setFormData((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              canView: e.target.checked,
+                            }
+                          : null
+                      )
                     }
                   />
                 }
@@ -611,10 +724,14 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
                   <Checkbox
                     checked={formData.canEdit || false}
                     onChange={(e) =>
-                      setFormData((prev) => prev ? ({
-                        ...prev,
-                        canEdit: e.target.checked,
-                      }) : null)
+                      setFormData((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              canEdit: e.target.checked,
+                            }
+                          : null
+                      )
                     }
                   />
                 }
@@ -625,10 +742,14 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
                   <Checkbox
                     checked={formData.requiredForCustomers || false}
                     onChange={(e) =>
-                      setFormData((prev) => prev ? ({
-                        ...prev,
-                        requiredForCustomers: e.target.checked,
-                      }) : null)
+                      setFormData((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              requiredForCustomers: e.target.checked,
+                            }
+                          : null
+                      )
                     }
                   />
                 }
@@ -641,19 +762,23 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
 
           {/* Labels */}
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'medium' }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
               LABEL
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <TextField
                 label="Label for agents"
                 required
                 value={formData.labelForAgents || ""}
                 onChange={(e) =>
-                  setFormData((prev) => prev ? ({
-                    ...prev,
-                    labelForAgents: e.target.value,
-                  }) : null)
+                  setFormData((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          labelForAgents: e.target.value,
+                        }
+                      : null
+                  )
                 }
                 placeholder="Enter label for agents"
                 fullWidth
@@ -663,10 +788,14 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
                 required
                 value={formData.labelForCustomers || ""}
                 onChange={(e) =>
-                  setFormData((prev) => prev ? ({
-                    ...prev,
-                    labelForCustomers: e.target.value,
-                  }) : null)
+                  setFormData((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          labelForCustomers: e.target.value,
+                        }
+                      : null
+                  )
                 }
                 placeholder="Enter label for customers"
                 fullWidth
@@ -676,14 +805,10 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
         </Box>
       </DialogContent>
       <DialogActions sx={{ p: 3 }}>
-        <Button onClick={onClose} color="inherit">
+        <Button onClick={onClose} color="inherit" size="small">
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          color="primary"
-        >
+        <Button onClick={handleSubmit} variant="contained" color="primary" size="small">
           Save field
         </Button>
       </DialogActions>
