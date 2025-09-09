@@ -848,9 +848,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
             />
 
             {/* RIGHT SECTION - Task Details & Actions */}
-            {(taskcomment ||
-              taskcommentLoading ||
-              (taskId && loadingTaskId)) && (
+            {(taskcomment || taskcommentLoading || (taskId && loadingTaskId)) ? (
               <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
                 {/* Right Sidebar Tabs */}
                 <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
@@ -1709,11 +1707,20 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   ) : (
                     <div className="flex-1 flex items-center justify-center">
                       <div className="text-center text-gray-500">
-                        <AssignmentIcon className="text-4xl mx-auto mb-2" />
+                        <img src={noTask} alt="No Task Selected" className="w-[30%] mx-auto mb-3" />
                         <p>Select a task to view details</p>
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            ) : (
+              <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <img src={noTask} alt="No Task Selected" className="w-[30%] mx-auto mb-3" />
+                    <p>Select a task to view details</p>
+                  </div>
                 </div>
               </div>
             )}

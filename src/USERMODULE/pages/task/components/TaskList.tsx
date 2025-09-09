@@ -153,7 +153,10 @@ const TaskList: React.FC<TaskListProps> = memo(
                     key={task.taskKey}
                     task={task}
                     isSelected={selectedTasks.includes(task.taskKey)}
-                    isCurrentTask={selectedTask?.taskKey === task.taskKey}
+                    isCurrentTask={
+                      selectedTask?.taskKey === task.taskKey ||
+                      loadingTaskId === task.taskID
+                    }
                     onSelect={onTaskSelect}
                     onClick={onTaskClick}
                     getStatusIcon={getStatusIcon}
