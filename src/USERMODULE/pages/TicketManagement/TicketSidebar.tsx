@@ -21,6 +21,8 @@ import Popover from "@mui/material/Popover";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 
+import { Menu, MenuList } from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const {
     data: searchCriteria,
@@ -35,7 +37,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
   const topAnchorRef = React.useRef<HTMLDivElement>(null);
   const [commanApi] = useCommanApiMutation();
-
+  const [filterSelectValue, setFilterSelectValue] = useState<any>({});
+  const [isSelectFilterValueOpen, setIsSelectFilterValueOpen] = useState(null);
+  const [isSelectFilterValueOpen2, setIsSelectFilterValueOpen2] =
+    useState(false);
+  const [openTrackId, setOpenTrackId] = useState("");
   useEffect(() => {
     if (searchCriteria && Array.isArray(searchCriteria)) {
       const initialFilters: Record<string, any> = {};
@@ -46,6 +52,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       setFilters(initialFilters);
     }
   }, [searchCriteria]);
+
+  console.log("criteria", searchCriteria);
 
   // When searchCriteria loads, initialize masterFilters as well, but do not overwrite regular filters
   useEffect(() => {
@@ -64,6 +72,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   ) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name as string]: value }));
+  };
+
+  const handleFilterValueSelect = (e: any, name: any) => {
+    const { value } = e.target;
+    setFilterSelectValue((prev: any) => ({ ...prev, [name as string]: value }));
   };
 
   // Add a handler for MUI Select (dropdown) fields
@@ -501,12 +514,63 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   (f: any) => f.name === filterName
                 );
                 if (!field) return null;
+
                 return (
                   <Box className="p-2" key={field.name}>
                     <Box className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-700">
-                        {field.label}
-                      </span>
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {field.label}
+                        </span>
+
+                        <IconButton
+                          size="small"
+                          disableRipple
+                          onClick={(e: any) => {
+                            setOpenTrackId(field.name);
+                            setIsSelectFilterValueOpen(e.currentTarget);
+                            setIsSelectFilterValueOpen2(
+                              !isSelectFilterValueOpen2
+                            );
+                          }}
+                        >
+                          <KeyboardArrowDownIcon
+                            fontSize="small"
+                            sx={{
+                              transform:
+                                isSelectFilterValueOpen2 &&
+                                openTrackId === field.name
+                                  ? "rotate(-180deg)"
+                                  : "rotate(0deg)",
+                              transition: "transform 0.4s ease-out",
+                            }}
+                          />
+                        </IconButton>
+
+                        {openTrackId === field.name && (
+                          <Menu
+                            anchorEl={isSelectFilterValueOpen}
+                            open={isSelectFilterValueOpen2}
+                            onClose={() => {
+                              setIsSelectFilterValueOpen(null);
+                              setIsSelectFilterValueOpen2(false);
+                            }}
+                            anchorOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                            transformOrigin={{
+                              vertical: "top",
+                              horizontal: "left",
+                            }}
+                          >
+                            <MenuItem
+                              defaultValue={field.name}
+                            >{`${field.label} Include`}</MenuItem>
+                            <MenuItem>{`${field.label} does not Include`}</MenuItem>
+                          </Menu>
+                        )}
+                      </div>
                       <IconButton
                         size="small"
                         color="error"
