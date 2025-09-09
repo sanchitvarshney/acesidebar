@@ -10,11 +10,14 @@ import {
   Alert,
   Autocomplete,
   InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import { Search, SwapHoriz } from "@mui/icons-material";
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import { fetchOptions, isValidEmail } from "../../../utils/Utils";
+import { useLazyGetUserBySeachQuery } from "../../../services/agentServices";
+import { error } from "console";
 
 interface ChangeOwnerProps {
   open: boolean;
@@ -34,17 +37,25 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
   ticketId,
   currentOwner,
 }) => {
-  const [commanApi] = useCommanApiMutation();
+  const [
+    triggerChangeOwner,
+    { isLoading: changeOwnerLoading, error: changeOwnerError },
+  ] = useCommanApiMutation();
   const { showToast } = useToast();
 
   const [selectedAgent, setSelectedAgent] = useState<any>("");
   const [transferReason, setTransferReason] = useState("");
   const [contactChangeValue, setContactChangeValue] = useState("");
 
-  const [options, setOptions] = useState<any>();
+  const [options, setOptions] = useState<any[]>([]);
 
-  const displayContactOptions: any = contactChangeValue ? options : [];
-
+  const displayContactOptions: any = contactChangeValue
+    ? Array.isArray(options)
+      ? options
+      : []
+    : [];
+  const [triggerSeachUser, { isLoading: seachUserLoading }] =
+    useLazyGetUserBySeachQuery();
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -54,23 +65,40 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
     }
   }, [open]);
 
-  useEffect(() => {
-    const filterValue: any = fetchOptions(contactChangeValue);
+  const fetchUserOptions = async (query: any) => {
+    if (!query) {
+      setOptions([]);
+      return;
+    }
 
-    filterValue?.length > 0
-      ? setOptions(filterValue)
-      : setOptions([
-          {
-            userName: contactChangeValue,
-            userEmail: contactChangeValue,
-          },
-        ]);
-  }, [contactChangeValue]);
+    try {
+      const res = await triggerSeachUser({ search: query }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+      console.log(data);
+
+      const currentValue = contactChangeValue;
+
+      const fallback = [
+        {
+          name: currentValue,
+          email: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setOptions(data.length > 0 ? data : fallback);
+      } else {
+        setOptions([]);
+      }
+    } catch (error) {
+      setOptions([]);
+    }
+  };
 
   const handleSelectedOption = (_: React.SyntheticEvent, value: any) => {
     if (!value) return;
 
-    const dataValue = { name: value.userName, email: value.userEmail };
+    const dataValue = { name: value.name, email: value.email };
     if (!isValidEmail(dataValue.email)) {
       showToast("Invalid email format", "error");
       return;
@@ -91,23 +119,30 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
     }
 
     const payload = {
-      url: `tickets/${ticketId}/change-owner`,
+      url: `change-owner/${ticketId}`,
       method: "PUT",
       body: {
-        newOwnerId: selectedAgent.id,
+        owner: selectedAgent,
         reason: transferReason,
-        transferredAt: new Date().toISOString(),
       },
     };
 
-    commanApi(payload);
+    triggerChangeOwner(payload).then((res) => {
+      if (changeOwnerError) {
+        const msg =
+          //@ts-ignore
+          changeOwnerError?.data?.message || changeOwnerError?.message;
+        showToast(msg || "An error occurred", "error");
+        return;
+      } else {
+        showToast("Ticket ownership transferred successfully", "success");
+        onClose();
 
-    showToast("Ticket ownership transferred successfully", "success");
-    onClose();
-
-    // Reset form
-    setSelectedAgent("");
-    setTransferReason("");
+        // Reset form
+        setSelectedAgent("");
+        setTransferReason("");
+      }
+    });
   };
 
   const handleClose = () => {
@@ -177,23 +212,25 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
             disableClearable
             popupIcon={null}
             sx={{ my: 1.5 }}
-            getOptionLabel={(option) => {
+            getOptionLabel={(option: any) => {
               if (typeof option === "string") return option;
-              return option.userEmail || option.userName || "";
+              return option?.email || "";
             }}
             options={displayContactOptions}
             value={selectedAgent}
             onChange={(event, newValue) => {
               handleSelectedOption(event, newValue);
             }}
-            onInputChange={(_, value) => setContactChangeValue(value)}
+            onInputChange={(_, value) => {
+              setContactChangeValue(value);
+              fetchUserOptions(value);
+            }}
             filterOptions={(x) => x}
             getOptionDisabled={(option) => option === "Type to search"}
             noOptionsText="No Data Found"
             renderOption={(props, option) => {
-              console.log("Option:", option);
               return (
-                <li {...props}>
+                <li {...props} key={option.userID}>
                   {typeof option === "string" ? (
                     option
                   ) : (
@@ -201,25 +238,15 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
                       className="flex items-center gap-3 p-2 rounded-md w-full"
                       style={{ cursor: "pointer" }}
                     >
-                      <Avatar
-                        sx={{
-                          width: 30,
-                          height: 30,
-                          backgroundColor: "primary.main",
-                        }}
-                      >
-                        {option.userName?.charAt(0).toUpperCase()}
-                      </Avatar>
-
                       <div className="flex flex-col">
                         <Typography
                           variant="subtitle2"
                           sx={{ fontWeight: 600 }}
                         >
-                          {option.userName}
+                          {option.name}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {option.userEmail}
+                          {option.email}
                         </Typography>
                       </div>
                     </div>
@@ -338,10 +365,14 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
           variant="contained"
           color="primary"
           disabled={!selectedAgent || !transferReason.trim()}
-          startIcon={<SwapHoriz />}
+          startIcon={!changeOwnerLoading && <SwapHoriz />}
           sx={{ minWidth: 120, fontWeight: 600 }}
         >
-          Transfer Ownership
+          {changeOwnerLoading ? (
+            <CircularProgress size={20} color="inherit" />
+          ) : (
+            "Transfer Ownership"
+          )}
         </Button>
       </MuiBox>
     </MuiBox>

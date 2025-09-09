@@ -688,19 +688,22 @@ const TicketDetailHeader = ({
         </List>
       </Popover>
 
-      <LinkTickets
+      <CustomSideBarPanel
         open={isLinkModal}
-        onClose={() => setIsLinkModal(false)}
-        currentTicket={{
-          id: "T-1001",
-          title: "Unable to login to portal",
-          group: "Support",
-          agent: "John Doe",
-          closedAgo: "2 days ago",
-          resolvedOnTime: true,
-          isPrimary: true, // this is your main ticket
-        }}
-      />
+        close={() => setIsLinkModal(false)}
+        title={"Link Ticket"}
+        width={600}
+      >
+        <LinkTickets
+          open={isLinkModal}
+          onClose={() => setIsLinkModal(false)}
+          currentTicket={{
+            id: ticket?.ticketId,
+            title: ticket?.subject,
+            subject: ticket?.subject,
+          }}
+        />
+      </CustomSideBarPanel>
 
       <CustomSideBarPanel
         open={isLogTimeModal}
