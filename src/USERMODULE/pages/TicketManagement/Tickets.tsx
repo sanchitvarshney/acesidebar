@@ -335,7 +335,6 @@ const Tickets: React.FC = () => {
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
-    console.log("ticket", ticket);
     // Sentiment emoji logic
     const sentiment: keyof typeof SENTIMENT_EMOJI = ticket.sentiment || "NEU";
     const emoji = SENTIMENT_EMOJI[sentiment] || "😐";

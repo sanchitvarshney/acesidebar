@@ -39,8 +39,6 @@ const TaskCardSkeleton: React.FC = () => {
               <div className="h-3 w-8 bg-gray-100 rounded" />
               <div className="h-6 w-6 bg-gray-100 rounded" />
               <div className="h-3 w-4 bg-gray-100 rounded" />
-              <div className="h-6 w-6 bg-gray-100 rounded" />
-              <div className="h-3 w-4 bg-gray-100 rounded" />
             </div>
           </div>
         </div>

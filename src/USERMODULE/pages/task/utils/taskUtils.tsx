@@ -12,7 +12,7 @@ import { COMMENT_CONFIG, FILE_UPLOAD_CONFIG } from "../data/taskData";
 
 // Color mapping functions
 export const getStatusColor = (status: any): string => {
-  const lowerCase = status.toLowerCase().replace(" ", "-");
+  const lowerCase = status?.toLowerCase().replace(" ", "-");
   switch (lowerCase) {
     case "pending":
       return "#ac97bdff"; // Grey (default)
@@ -267,7 +267,7 @@ export const filterTasksBySearch = (
     if (
       searchInFields.tags &&
       task?.tags?.some((tag: string) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
+        tag?.toLowerCase().includes(searchQuery?.toLowerCase())
       )
     ) {
       matches = true;

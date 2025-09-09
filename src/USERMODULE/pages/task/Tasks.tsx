@@ -57,9 +57,15 @@ import TaskList from "./components/TaskList";
 import TaskDetails from "./components/TaskDetails";
 import CommentForm from "./components/CommentForm";
 import TaskDetailsSkeleton from "./components/TaskDetailsSkeleton";
-import { useCommanApiForTaskListMutation } from "../../../services/threadsApi";
+import {
+  useCommanApiForTaskListMutation,
+  useGetTaskListMutation,
+} from "../../../services/threadsApi";
 import { useToast } from "../../../hooks/useToast";
-import { useGetStatusListQuery } from "../../../services/ticketAuth";
+import {
+  useGetStatusListQuery,
+  useGetTagListQuery,
+} from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/empty.svg";
 
@@ -90,13 +96,19 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [getTaskList, { data: taskList, isLoading: taskListLoading }] =
     useCommanApiForTaskListMutation();
 
+  const [
+    getAllTaskList,
+    { data: taskListData, isLoading: taskListDataLoading },
+  ] = useGetTaskListMutation();
+
   // Extract pagination data from API response
-  const paginationData = taskList?.pagination || {
-    currentPage: 1,
-    limit: 10,
-    totalCount: 0,
-    totalPages: 0,
-  };
+  const paginationData = taskList?.pagination ||
+    taskListData?.pagination || {
+      currentPage: 1,
+      limit: 10,
+      totalCount: 0,
+      totalPages: 0,
+    };
   const [getTaskComment, { data: taskcomment, isLoading: taskcommentLoading }] =
     useCommanApiForTaskListMutation();
   const [changeStatus] = useCommanApiForTaskListMutation();
@@ -142,11 +154,15 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       page: page,
       limit: rowsPerPage,
     };
-    const url = `${payload.ticket}?page=${payload.page}&limit=${payload.limit}`;
+    const url = isAddTask
+      ? `${payload.ticket}?page=${payload.page}&limit=${payload.limit}`
+      : `?page=${payload.page}&limit=${payload.limit}`;
 
     try {
       const response =
-        isAddTask && ticketId ? await getTaskList({ url }).unwrap() : null;
+        isAddTask && ticketId
+          ? await getTaskList({ url }).unwrap()
+          : getAllTaskList({ url }).unwrap();
       if (response === null) return;
       if (response?.type === "error") {
         showToast(response.message, "error");
@@ -303,7 +319,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   const filteredTasks = useMemo(() => {
-    let filtered = taskList?.data || [];
+    let filtered = taskList?.data || taskListData?.data || [];
 
     if (searchQuery) {
       filtered = filtered.filter((task: any) => {
@@ -316,7 +332,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
 
     return filtered;
-  }, [taskList, searchQuery]);
+  }, [taskList, searchQuery, taskListData]);
 
   // Use API data directly since pagination is handled by the backend
   const paginatedTasks = useMemo(() => {
@@ -713,19 +729,19 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   }, [isAddTask, taskId]);
 
   const handleTaskClick = useCallback(
-    async (task: any, type?: string) => {
-      const url =
-        type === "attachments"
-          ? `${ticketId}/${task}?type=attachment`
-          : `${ticketId}/${task}?type=comment`;
+    async (task: string, type: "attachments" | "comments" = "comments") => {
+      // Build URL safely
+      const basePath = isAddTask && ticketId ? ticketId : null;
+      const url = `${basePath}/${task}?type=${
+        type === "attachments" ? "attachment" : "comment"
+      }`;
 
       // Set loading state
       if (type === "attachments") {
         setLoadingAttachmentTaskId(task);
       } else {
         setLoadingTaskId(task);
-        // Clear previous task data to show skeleton
-        setTaskId(task);
+        setTaskId(task); // Clear previous task data for skeleton
       }
 
       try {
@@ -733,10 +749,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
         if (response?.type === "error") {
           showToast(response.message, "error");
-          return;
         }
       } catch (error) {
         console.error("Error fetching tasks:", error);
+     
       } finally {
         // Clear loading state
         if (type === "attachments") {
@@ -746,12 +762,12 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
         }
       }
     },
-    [ticketId, getTaskComment, showToast]
+    [ticketId, isAddTask, getTaskComment, showToast]
   );
 
   return (
     <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-95px)]">
-      {taskList?.data.length === 0 ? (
+      {taskList?.data.length === 0 || taskListData?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-gray-500">
           <img src={noTask} alt="No Tasks" className="w-[30%] my-3" />
           <p>No tasks found</p>
@@ -798,7 +814,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
             {/* LEFT SECTION - Task List & Filters */}
             <TaskList
-              tasks={{ ...taskList, data: filteredTasks }}
+              tasks={{
+                ...(taskList ? { ...taskList } : { ...taskListData }),
+                data: filteredTasks,
+              }}
               selectedTasks={selectedTasks}
               selectedTask={taskcomment?.data}
               searchQuery={searchQuery}
@@ -823,7 +842,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               onAdvancedSearchOpen={(e) => handleTaskAdvancedSearchOpen(e)}
               getStatusIcon={getStatusIcon}
               isAddTask={isAddTask}
-              isLoading={taskListLoading}
+              isLoading={taskListLoading || taskListDataLoading}
               loadingTaskId={loadingTaskId}
               loadingAttachmentTaskId={loadingAttachmentTaskId}
             />

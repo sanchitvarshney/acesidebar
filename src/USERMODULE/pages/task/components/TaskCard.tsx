@@ -44,6 +44,8 @@ const TaskCard: React.FC<TaskCardProps> = memo(
     isLoading = false,
     loadingAttachmentTaskId,
   }) => {
+
+  
     const handleSelect = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
         event.stopPropagation();
@@ -83,9 +85,9 @@ const TaskCard: React.FC<TaskCardProps> = memo(
         }}
       >
         <CardContent className="p-4">
-          {isLoading || loadingAttachmentTaskId ? (
+          {/* {isLoading || loadingAttachmentTaskId ? (
             <TaskCardSkeleton />
-          ) : (
+          ) : ( */}
             <div className="flex items-start gap-3">
               <div className="space-x-2">
                 <div className="flex-1 min-w-0 ">
@@ -204,7 +206,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                 </div>
               </div>
             </div>
-          )}
+          {/* )} */}
         </CardContent>
       </Card>
     );

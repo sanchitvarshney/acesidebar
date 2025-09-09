@@ -53,7 +53,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     }
   }, [searchCriteria]);
 
-  console.log("criteria", searchCriteria);
 
   // When searchCriteria loads, initialize masterFilters as well, but do not overwrite regular filters
   useEffect(() => {
