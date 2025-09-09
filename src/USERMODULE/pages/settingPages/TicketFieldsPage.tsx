@@ -38,7 +38,13 @@ import {
   Grid,
   Tooltip,
   InputAdornment,
+  Paper,
+  AccordionSummary,
+  AccordionDetails,
+  Accordion,
+  Backdrop,
 } from "@mui/material";
+import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
 // Field types that can be dragged and dropped
 const fieldTypes = [
@@ -187,12 +193,13 @@ interface FieldConfig {
 const TicketFieldsPage: React.FC = () => {
   const [fields, setFields] = useState<FieldConfig[]>(defaultFields);
   const [selectedField, setSelectedField] = useState<FieldConfig | null>(null);
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isConfigOpen, setIsConfigOpen] = useState(null);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isDropActive, setIsDropActive] = useState(false);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const getFieldIcon = (type: string) => {
     const fieldType = fieldTypes.find((ft) => ft.id === type);
@@ -295,16 +302,16 @@ const TicketFieldsPage: React.FC = () => {
     setIsDropActive(false);
   };
 
-  const handleFieldClick = (field: FieldConfig) => {
+  const handleFieldClick = (e: any, field: FieldConfig) => {
     setSelectedField(field);
-    setIsConfigOpen(true);
+    setIsConfigOpen(e.currentTarget);
   };
 
   const handleSaveField = (updatedField: FieldConfig) => {
     setFields((prev) =>
       prev.map((field) => (field.id === updatedField.id ? updatedField : field))
     );
-    setIsConfigOpen(false);
+    setIsConfigOpen(null);
     setSelectedField(null);
   };
 
@@ -403,7 +410,7 @@ const TicketFieldsPage: React.FC = () => {
         </Box>
 
         {/* Right Panel - Existing Fields */}
-        <Box sx={{ flex: 1,  }}>
+        <Box sx={{ flex: 1 }}>
           <Card elevation={0}>
             {/* Header with filters and search */}
             <Box
@@ -450,8 +457,21 @@ const TicketFieldsPage: React.FC = () => {
               </Box>
             </Box>
 
+            {/* Backdrop when any accordion is expanded */}
+            <Backdrop
+              open={expandedIndex !== null}
+              onClick={() => setExpandedIndex(null)}
+              sx={{
+                zIndex: (theme) => theme.zIndex.drawer + 1,
+                // backdropFilter: "blur(1px)",
+                bgcolor: "rgba(0, 0, 0, 0.08)",
+              }}
+            />
+
             {/* Fields List */}
-            <Box  sx={{ p: 2,maxHeight: "calc(100vh - 235px)", overflowY: "auto" }}>
+            <Box
+              sx={{ p: 2, maxHeight: "calc(100vh - 235px)", overflowY: "auto" }}
+            >
               <Box
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -479,130 +499,167 @@ const TicketFieldsPage: React.FC = () => {
               {filteredFields.map((field, index) => {
                 const IconComponent = getFieldIcon(field.type);
                 return (
-                  <Card
-                
-                    key={field.id}
-                    draggable={!field.isDisabled}
-                    onDragStart={(e) =>
-                      !field.isDisabled && handleDragStart(e, field.id)
+                  <Accordion
+                    elevation={0}
+                    expanded={expandedIndex === index}
+                    onChange={(_, isExpanded) =>
+                      setExpandedIndex(isExpanded ? index : null)
                     }
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, index)}
-                    onDragEnd={handleDragEnd}
-                    onClick={() => !field.isDisabled && handleFieldClick(field)}
                     sx={{
-                      mb: 1,
-                      cursor: field.isDisabled ? "default" : "pointer",
-                      opacity: field.isDisabled ? 0.6 : 1,
-                      border: "1px solid",
-                      borderColor:
-                        dragOverIndex === index ? "primary.main" : "grey.300",
-                      bgcolor: dragOverIndex === index ? "primary.50" : "white",
-                      "&:hover": {
-                        bgcolor: field.isDisabled ? "white" : "grey.50",
-                      },
-                      transition: "all 0.2s",
-                      borderRadius: 1,
+                      border: "none",
+                      boxShadow: "none",
+                      "&:before": { display: "none" },
+                      position: "relative",
+                      zIndex: expandedIndex === index ? (theme) => theme.zIndex.modal + 1 : "auto",
                     }}
                   >
-                    <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                    <AccordionSummary>
+                      <Card
+                        elevation={0}
+                        key={field.id}
+                        draggable={!field.isDisabled}
+                        onDragStart={(e) =>
+                          !field.isDisabled && handleDragStart(e, field.id)
+                        }
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, index)}
+                        onDragEnd={handleDragEnd}
+                        onClick={(e) =>
+                          !field.isDisabled && handleFieldClick(e, field)
+                        }
+                        sx={{
+                          width: "100%",
+
+                          cursor: field.isDisabled ? "default" : "pointer",
+                          opacity: field.isDisabled ? 0.6 : 1,
+                          border: "1px solid",
+                          borderColor:
+                            dragOverIndex === index
+                              ? "primary.main"
+                              : "grey.300",
+                          bgcolor:
+                            dragOverIndex === index ? "primary.50" : "white",
+                          "&:hover": {
+                            bgcolor: field.isDisabled ? "white" : "grey.50",
+                          },
+                          transition: "all 0.2s",
+                          borderRadius: 1,
+                        }}
                       >
-                        <DragIndicator color="action" sx={{ cursor: "grab" }} />
-                        <IconComponent sx={{ color: "primary.main" }} />
-                        <Typography
-                          variant="body1"
-                          sx={{ flexGrow: 1, fontWeight: "medium" }}
+                        <CardContent
+                          sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}
                         >
-                          {field.name}
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
-                          }}
-                        >
-                          {field.isDefault && (
-                            <Chip
-                              label="Default"
-                              size="small"
-                              color="default"
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 2,
+                            }}
+                          >
+                            <DragIndicator
+                              color="action"
+                              sx={{ cursor: "grab" }}
                             />
-                          )}
-                          <Tooltip title={field.isVisible ? "Hide" : "Show"}>
-                            <IconButton
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleToggleVisibility(field.id);
-                              }}
-                              color={field.isVisible ? "default" : "primary"}
+                            <IconComponent sx={{ color: "primary.main" }} />
+                            <Typography
+                              variant="body1"
+                              sx={{ flexGrow: 1, fontWeight: "medium" }}
                             >
-                              {field.isVisible ? (
-                                <Visibility />
-                              ) : (
-                                <VisibilityOff />
+                              {field.name}
+                            </Typography>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              {field.isDefault && (
+                                <Chip
+                                  label="Default"
+                                  size="small"
+                                  color="default"
+                                />
                               )}
-                            </IconButton>
-                          </Tooltip>
-                          {!field.isDefault && (
-                            <Tooltip title="Delete field">
-                              <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteField(field.id);
-                                }}
-                                color="error"
+                              <Tooltip
+                                title={field.isVisible ? "Hide" : "Show"}
                               >
-                                <Close />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                        </Box>
-                      </Box>
-                    </CardContent>
-                  </Card>
+                                <IconButton
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleToggleVisibility(field.id);
+                                  }}
+                                  color={
+                                    field.isVisible ? "default" : "primary"
+                                  }
+                                >
+                                  {field.isVisible ? (
+                                    <Visibility />
+                                  ) : (
+                                    <VisibilityOff />
+                                  )}
+                                </IconButton>
+                              </Tooltip>
+                              {!field.isDefault && (
+                                <Tooltip title="Delete field">
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteField(field.id);
+                                    }}
+                                    color="error"
+                                  >
+                                    <Close />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{}}>
+                      <FieldConfigurationModal
+                        field={selectedField}
+                        onSave={handleSaveField}
+                        onClose={() => {
+                          setIsConfigOpen(null);
+                          setSelectedField(null);
+                        }}
+                      />
+                    </AccordionDetails>
+                  </Accordion>
                 );
               })}
 
               {filteredFields.length === 0 && (
-                <Box sx={{ textAlign: "center", py: 6, color: "text.secondary" }}>
-                  <Typography variant="body2">No fields match your filters.</Typography>
+                <Box
+                  sx={{ textAlign: "center", py: 6, color: "text.secondary" }}
+                >
+                  <Typography variant="body2">
+                    No fields match your filters.
+                  </Typography>
                 </Box>
               )}
             </Box>
           </Card>
         </Box>
       </Box>
-
-      {/* Field Configuration Modal */}
-      <FieldConfigurationModal
-        open={isConfigOpen}
-        field={selectedField}
-        onSave={handleSaveField}
-        onClose={() => {
-          setIsConfigOpen(false);
-          setSelectedField(null);
-        }}
-      />
     </Box>
   );
 };
 
 // Field Configuration Modal Component
 interface FieldConfigurationModalProps {
-  open: boolean;
+  onClose: () => void;
   field: FieldConfig | null;
   onSave: (field: FieldConfig) => void;
-  onClose: () => void;
 }
 
 const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
-  open,
   field,
   onSave,
   onClose,
@@ -632,187 +689,177 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
   const IconComponent = getFieldIcon(field.type);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconComponent sx={{ color: "primary.main" }} />
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="h6">{formData.name}</Typography>
-            {formData.isDefault ? (
-              <Chip label="Default" size="small" />
-            ) : (
-              <Chip label="Custom" size="small" color="primary" variant="outlined" />
-            )}
+    <Paper sx={{ p: 4, width: "100%" }}>
+      <Box component="form" onSubmit={handleSubmit}>
+        {/* Behavior for Agents */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
+            BEHAVIOR FOR AGENTS
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.requiredForAgents || false}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            requiredForAgents: e.target.checked,
+                          }
+                        : null
+                    )
+                  }
+                />
+              }
+              label="Required when submitting the ticket"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.requiredWhenClosing || false}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            requiredWhenClosing: e.target.checked,
+                          }
+                        : null
+                    )
+                  }
+                />
+              }
+              label="Required when closing the ticket"
+            />
           </Box>
         </Box>
-      </DialogTitle>
-      <DialogContent>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-          {/* Behavior for Agents */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
-              BEHAVIOR FOR AGENTS
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.requiredForAgents || false}
-                    onChange={(e) =>
-                      setFormData((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              requiredForAgents: e.target.checked,
-                            }
-                          : null
-                      )
-                    }
-                  />
-                }
-                label="Required when submitting the ticket"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.requiredWhenClosing || false}
-                    onChange={(e) =>
-                      setFormData((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              requiredWhenClosing: e.target.checked,
-                            }
-                          : null
-                      )
-                    }
-                  />
-                }
-                label="Required when closing the ticket"
-              />
-            </Box>
-          </Box>
 
-          <Divider sx={{ my: 3 }} />
+        <Divider sx={{ my: 3 }} />
 
-          {/* Behavior for Customers */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
-              BEHAVIOR FOR CUSTOMERS
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.canView || false}
-                    onChange={(e) =>
-                      setFormData((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              canView: e.target.checked,
-                            }
-                          : null
-                      )
-                    }
-                  />
-                }
-                label="Can view"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.canEdit || false}
-                    onChange={(e) =>
-                      setFormData((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              canEdit: e.target.checked,
-                            }
-                          : null
-                      )
-                    }
-                  />
-                }
-                label="Can edit"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.requiredForCustomers || false}
-                    onChange={(e) =>
-                      setFormData((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              requiredForCustomers: e.target.checked,
-                            }
-                          : null
-                      )
-                    }
-                  />
-                }
-                label="Required when submitting a ticket"
-              />
-            </Box>
-          </Box>
-
-          <Divider sx={{ my: 3 }} />
-
-          {/* Labels */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
-              LABEL
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <TextField
-                label="Label for agents"
-                required
-                value={formData.labelForAgents || ""}
-                onChange={(e) =>
-                  setFormData((prev) =>
-                    prev
-                      ? {
-                          ...prev,
-                          labelForAgents: e.target.value,
-                        }
-                      : null
-                  )
-                }
-                placeholder="Enter label for agents"
-                fullWidth
-              />
-              <TextField
-                label="Label for customers"
-                required
-                value={formData.labelForCustomers || ""}
-                onChange={(e) =>
-                  setFormData((prev) =>
-                    prev
-                      ? {
-                          ...prev,
-                          labelForCustomers: e.target.value,
-                        }
-                      : null
-                  )
-                }
-                placeholder="Enter label for customers"
-                fullWidth
-              />
-            </Box>
+        {/* Behavior for Customers */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
+            BEHAVIOR FOR CUSTOMERS
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.canView || false}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            canView: e.target.checked,
+                          }
+                        : null
+                    )
+                  }
+                />
+              }
+              label="Can view"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.canEdit || false}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            canEdit: e.target.checked,
+                          }
+                        : null
+                    )
+                  }
+                />
+              }
+              label="Can edit"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.requiredForCustomers || false}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            requiredForCustomers: e.target.checked,
+                          }
+                        : null
+                    )
+                  }
+                />
+              }
+              label="Required when submitting a ticket"
+            />
           </Box>
         </Box>
-      </DialogContent>
-      <DialogActions sx={{ p: 3 }}>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Labels */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
+            LABEL
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+            <TextField
+              label="Label for agents"
+              required
+              value={formData.labelForAgents || ""}
+              onChange={(e) =>
+                setFormData((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        labelForAgents: e.target.value,
+                      }
+                    : null
+                )
+              }
+              placeholder="Enter label for agents"
+              fullWidth
+            />
+            <TextField
+              label="Label for customers"
+              required
+              value={formData.labelForCustomers || ""}
+              onChange={(e) =>
+                setFormData((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        labelForCustomers: e.target.value,
+                      }
+                    : null
+                )
+              }
+              placeholder="Enter label for customers"
+              fullWidth
+            />
+          </Box>
+        </Box>
+      </Box>
+      <div className="flex justify-center">
         <Button onClick={onClose} color="inherit" size="small">
           Cancel
         </Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary" size="small">
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          size="small"
+        >
           Save field
         </Button>
-      </DialogActions>
-    </Dialog>
+      </div>
+    </Paper>
   );
 };
 

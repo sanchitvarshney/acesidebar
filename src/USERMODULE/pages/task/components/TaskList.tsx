@@ -142,9 +142,9 @@ const TaskList: React.FC<TaskListProps> = memo(
 
         {/* Task List */}
         {/* <div className="flex-1  h-[calc(100vh-200px)] z-99  overflow-y-auto"> */}
-          <div className="p-4  h-[calc(100vh-165px)] z-99  overflow-y-auto  space-y-3">
+          <div className="p-4  h-[calc(100vh-155px)] z-99  overflow-y-auto  space-y-3">
             { isLoading ? (
-              <TaskListSkeleton count={8} />
+              <TaskListSkeleton count={4} />
             ) : (
               <>
                 {" "}
