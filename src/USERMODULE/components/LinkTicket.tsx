@@ -329,7 +329,11 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
           backgroundColor: "#fafafa",
         }}
       >
-        <Button variant="text" onClick={onClose}>
+        <Button
+          onClick={onClose}
+          variant="text"
+          sx={{ minWidth: 80, fontWeight: 600 }}
+        >
           Cancel
         </Button>
 
@@ -339,6 +343,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
           onClick={handleLink}
           disabled={selectedTickets.length === 0}
           startIcon={!linkTicketLoading && <LinkIcon />}
+          sx={{ minWidth: 120, fontWeight: 600 }}
         >
           {linkTicketLoading ? (
             <CircularProgress size={20} color="inherit" />

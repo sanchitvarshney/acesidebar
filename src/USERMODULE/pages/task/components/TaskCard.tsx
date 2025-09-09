@@ -73,10 +73,11 @@ const TaskCard: React.FC<TaskCardProps> = memo(
             isCurrentTask || isLoading || loadingAttachmentTaskId
               ? "none"
               : "auto",
-          opacity: isCurrentTask ? 0.9 : isLoading ? 0.8 : 1,
+          opacity: isCurrentTask ? 0.9 : isLoading ? 0.8 : 1
         }}
       >
-        <CardContent className="p-4">
+        <CardContent className="p-2" sx={{marginBottom: "-15px"
+        }}>
           {/* {isLoading || loadingAttachmentTaskId ? (
             <TaskCardSkeleton />
           ) : ( */}
@@ -84,7 +85,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
             <div className="space-x-2">
               <div className="flex-1 min-w-0 ">
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-5">
                     <div>
                       {!isCurrentTask && (
                         <div className="flex-shrink-0 relative">
@@ -176,7 +177,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                       <span>{task?.estimate}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 mt-2">
+                  <div className="flex items-center gap-4 mt-4">
                     <div className="flex items-center gap-1">
                       <IconButton size="small">
                         <CommentIcon fontSize="small" />
