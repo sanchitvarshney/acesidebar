@@ -9,6 +9,9 @@ import {
   FormControlLabel,
   Link,
   Divider,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -28,7 +31,9 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../hooks/useToast";
 import { useLoginMutation } from "../../../services/auth";
 import { decrypt } from "../../../utils/encryption";
-import GoogleRecaptcha, { GoogleRecaptchaRef } from "../../../components/reusable/GoogleRecaptcha";
+import GoogleRecaptcha, {
+  GoogleRecaptchaRef,
+} from "../../../components/reusable/GoogleRecaptcha";
 
 type RegisterFormData = z.infer<typeof loginSchema>;
 
@@ -56,10 +61,25 @@ const LoginComponent = () => {
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [isCaptchaVerified, setIsCaptchaVerified] = useState<boolean>(false);
   const [forgotCaptchaToken, setForgotCaptchaToken] = useState<string>("");
-  const [isForgotCaptchaVerified, setIsForgotCaptchaVerified] = useState<boolean>(false);
+  const [isForgotCaptchaVerified, setIsForgotCaptchaVerified] =
+    useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const recaptchaRef = useRef<GoogleRecaptchaRef>(null);
   const forgotRecaptchaRef = useRef<GoogleRecaptchaRef>(null);
+  const [baseUrl, setBaseUrl] = useState<any>(null);
+
+  const handleChange = (event: any) => {
+    setBaseUrl(event.target.value as string);
+  };
+
+  useEffect(() => {
+    if (!baseUrl || baseUrl === "" || baseUrl === null) {
+      localStorage.removeItem("baseUrl");
+      return;
+    } else {
+      localStorage.setItem("baseUrl", baseUrl);
+    }
+  }, [baseUrl]);
 
   // Watch form values for validation
   const watchedValues = watch();
@@ -67,13 +87,14 @@ const LoginComponent = () => {
   const password = watchedValues.password || "";
 
   // Check if form is valid and reCAPTCHA is verified
-  const isFormValid = email.trim() !== "" && password.trim() !== "" && isCaptchaVerified;
+  const isFormValid =
+    email.trim() !== "" && password.trim() !== "" && isCaptchaVerified;
 
   // Check for remembered email on component mount
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     const isRemembered = localStorage.getItem("rememberMe") === "true";
-    
+
     if (rememberedEmail && isRemembered) {
       setValue("email", rememberedEmail);
       setRememberMe(true);
@@ -110,7 +131,7 @@ const LoginComponent = () => {
     setIsCaptchaVerified(false);
     setCaptchaToken("");
     // Only show error toast if it's not a temporary verification issue
-    if (!error.includes('verification')) {
+    if (!error.includes("verification")) {
       showToast("Please complete the security verification", "error");
     }
   };
@@ -118,7 +139,10 @@ const LoginComponent = () => {
   const handleRecaptchaExpire = () => {
     setIsCaptchaVerified(false);
     setCaptchaToken("");
-    showToast("Security verification expired.\nPlease complete the verification again.", "error");
+    showToast(
+      "Security verification expired.\nPlease complete the verification again.",
+      "error"
+    );
   };
 
   // Forgot password captcha handlers
@@ -130,7 +154,7 @@ const LoginComponent = () => {
   const handleForgotRecaptchaError = (error: string) => {
     setIsForgotCaptchaVerified(false);
     setForgotCaptchaToken("");
-    if (!error.includes('verification')) {
+    if (!error.includes("verification")) {
       showToast("Please complete the security verification", "error");
     }
   };
@@ -138,9 +162,11 @@ const LoginComponent = () => {
   const handleForgotRecaptchaExpire = () => {
     setIsForgotCaptchaVerified(false);
     setForgotCaptchaToken("");
-    showToast("Security verification expired.\nPlease complete the verification again.", "error");
+    showToast(
+      "Security verification expired.\nPlease complete the verification again.",
+      "error"
+    );
   };
-
 
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -168,7 +194,7 @@ const LoginComponent = () => {
         localStorage.setItem("userToken", result.data.data.token);
         const decryptedData = JSON.stringify(decrypt(result.data.data.user));
         localStorage.setItem("userData", decryptedData);
-        
+
         // Handle "Remember me" functionality
         if (rememberMe) {
           // Store remember me preference
@@ -179,7 +205,7 @@ const LoginComponent = () => {
           localStorage.removeItem("rememberMe");
           localStorage.removeItem("rememberedEmail");
         }
-        
+
         signIn();
 
         setIsCaptchaVerified(false);
@@ -187,51 +213,58 @@ const LoginComponent = () => {
 
         navigation("/");
         return;
-        } else {
-          const errorMessage = result.data?.message || "Login failed. Please try again.";
-          showToast(errorMessage, "error");
-          
-          // Reset form fields and captcha on login failure
-          setIsCaptchaVerified(false);
-          setCaptchaToken("");
-          
-          // Reset reCAPTCHA
-          if (recaptchaRef.current) {
-            recaptchaRef.current.reset();
-          }
-          
-          // Reset form to empty values
-          setValue("email", "");
-          setValue("password", "");
-          
-          // Focus on username field
-          setTimeout(() => {
-            const emailField = document.querySelector('input[name="email"]') as HTMLInputElement;
-            if (emailField) {
-              emailField.focus();
-            }
-          }, 100);
-          return;
+      } else {
+        const errorMessage =
+          result.data?.message || "Login failed. Please try again.";
+        showToast(errorMessage, "error");
+        // Reset form fields and captcha on login failure
+        setIsCaptchaVerified(false);
+        setCaptchaToken("");
+
+        // Reset reCAPTCHA
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset();
         }
+
+        // Reset form to empty values
+        setValue("email", "");
+        setValue("password", "");
+        localStorage.removeItem("baseUrl");
+        // Focus on username field
+        setTimeout(() => {
+          const emailField = document.querySelector(
+            'input[name="email"]'
+          ) as HTMLInputElement;
+          if (emailField) {
+            emailField.focus();
+          }
+        }, 100);
+        return;
+      }
     } catch (error) {
-      showToast("Network error. Please check your connection and try again.", "error");
-      
+      showToast(
+        "Network error. Please check your connection and try again.",
+        "error"
+      );
+
       // Reset form fields and captcha on login failure
       setIsCaptchaVerified(false);
       setCaptchaToken("");
-      
+
       // Reset reCAPTCHA
       if (recaptchaRef.current) {
         recaptchaRef.current.reset();
       }
-      
+
       // Reset form to empty values
       setValue("email", "");
       setValue("password", "");
-      
+
       // Focus on username field
       setTimeout(() => {
-        const emailField = document.querySelector('input[name="email"]') as HTMLInputElement;
+        const emailField = document.querySelector(
+          'input[name="email"]'
+        ) as HTMLInputElement;
         if (emailField) {
           emailField.focus();
         }
@@ -253,21 +286,24 @@ const LoginComponent = () => {
         email: email,
         captcha: forgotCaptchaToken,
       };
-      
+
       // For now, just show success message
       showToast(`Password reset instructions sent to ${email}`, "success");
-      
+
       // Reset captcha and form
       setIsForgotCaptchaVerified(false);
       setForgotCaptchaToken("");
       if (forgotRecaptchaRef.current) {
         forgotRecaptchaRef.current.reset();
       }
-      
+
       setIsForgot(false);
     } catch (error) {
-      showToast("Failed to send reset instructions. Please try again.", "error");
-      
+      showToast(
+        "Failed to send reset instructions. Please try again.",
+        "error"
+      );
+
       // Reset captcha on error
       setIsForgotCaptchaVerified(false);
       setForgotCaptchaToken("");
@@ -308,24 +344,24 @@ const LoginComponent = () => {
             : ""
         }
       />
-      
+
       {/* reCAPTCHA for forgot password */}
       <Box
         sx={{
-          minHeight: '70px',
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
+          minHeight: "70px",
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "flex-start",
           mb: 1,
         }}
       >
         <Box
           sx={{
-            minHeight: '65px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'flex-start',
-            minWidth: '304px',
+            minHeight: "65px",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            minWidth: "304px",
           }}
         >
           {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
@@ -345,7 +381,7 @@ const LoginComponent = () => {
           )}
         </Box>
       </Box>
-      
+
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
         <Button
           type="button"
@@ -365,8 +401,8 @@ const LoginComponent = () => {
           type="submit"
           variant="contained"
           disabled={!isForgotCaptchaVerified}
-          sx={{ 
-            textTransform: "none", 
+          sx={{
+            textTransform: "none",
             px: 3,
             "&:disabled": {
               backgroundColor: "rgba(0, 0, 0, 0.12)",
@@ -379,12 +415,16 @@ const LoginComponent = () => {
       </Box>
     </Box>
   ) : (
-    <Box
-      component="form"
-      onSubmit={handleFormSubmit}
-      noValidate
-      sx={{ p: 0 }}
-    >
+    <Box component="form" onSubmit={handleFormSubmit} noValidate sx={{ p: 0 }}>
+      <TextField
+        label="Change Url"
+        variant="standard"
+        value={baseUrl}
+        onChange={handleChange}
+        size="small"
+        sx={{ width: 300, my: 1 }}
+      />
+
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
         Login to the support portal
       </Typography>
@@ -456,46 +496,50 @@ const LoginComponent = () => {
           }
         />
       </Box>
-      
+
       {/* Google reCAPTCHA Security Verification */}
-      <Box 
-        sx={{ 
-          mb: 2, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'flex-start'
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
         }}
       >
-          <Box
-            sx={{
-              minWidth: '304px',
-              display: 'flex',
-              justifyContent: 'flex-start',
-            }}
-          >
-            {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
-              <GoogleRecaptcha
-                ref={recaptchaRef}
-                siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
-                onVerify={handleRecaptchaVerify}
-                onError={handleRecaptchaError}
-                onExpire={handleRecaptchaExpire}
-                theme="light"
-                size="normal"
-              />
-            ) : (
-              <Typography variant="body2" sx={{ color: "error.main", p: 2 }}>
-                reCAPTCHA site key not configured
-              </Typography>
-            )}
-          </Box>
-          {isCaptchaVerified && (email.trim() === "" || password.trim() === "") && (
-            <Typography variant="caption" sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}>
-              Please fill in all required fields
+        <Box
+          sx={{
+            minWidth: "304px",
+            display: "flex",
+            justifyContent: "flex-start",
+          }}
+        >
+          {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
+            <GoogleRecaptcha
+              ref={recaptchaRef}
+              siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
+              onVerify={handleRecaptchaVerify}
+              onError={handleRecaptchaError}
+              onExpire={handleRecaptchaExpire}
+              theme="light"
+              size="normal"
+            />
+          ) : (
+            <Typography variant="body2" sx={{ color: "error.main", p: 2 }}>
+              reCAPTCHA site key not configured
             </Typography>
           )}
         </Box>
-      
+        {isCaptchaVerified &&
+          (email.trim() === "" || password.trim() === "") && (
+            <Typography
+              variant="caption"
+              sx={{ color: "text.secondary", mt: 1, textAlign: "center" }}
+            >
+              Please fill in all required fields
+            </Typography>
+          )}
+      </Box>
+
       <FormControlLabel
         control={<Checkbox size="small" defaultChecked />}
         label={
@@ -503,7 +547,7 @@ const LoginComponent = () => {
         }
         sx={{ my: 1 }}
       />
-      
+
       <Box
         sx={{
           display: "flex",
@@ -521,7 +565,13 @@ const LoginComponent = () => {
           Forgot your password?
         </Link>
         {isLoading ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <CircularProgress color="success" size={"28px"} />
           </Box>
         ) : (

@@ -8,9 +8,9 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
   endpoints: (builder) => ({
     ticketStatusChange: builder.mutation({
       query: (credentials) => ({
-        url: `/ticket/staff/${credentials.type}`,
-        method: "POST",
-        body: credentials.body,
+        url: `/ticket/staff/${credentials.url}`,
+        method: "PUT",
+    
       }),
     }),
 
@@ -20,6 +20,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: credentials.method ? credentials.method : "POST",
         body: credentials.body,
       }),
+
       transformResponse: (response: any) => {
         if (response?.error) {
           return response?.error?.data;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
 import { Avatar, IconButton, Button, Checkbox } from "@mui/material";
 import LeftMenu from "./LeftMenu";
@@ -37,6 +37,7 @@ import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 import AssignTicket from "../../components/AssignTicket";
 import Mergeticket from "../../components/Mergeticket";
 import { useAuth } from "../../../contextApi/AuthContext";
+import { useToast } from "../../../hooks/useToast";
 
 // Priority/Status/Agent dropdown options
 
@@ -55,7 +56,7 @@ const Tickets: React.FC = () => {
   >({});
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
+  const { showToast } = useToast();
   const openAssign = Boolean(anchorEl);
 
   const handleAssignClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -91,10 +92,12 @@ const Tickets: React.FC = () => {
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isCloseModal, setIsCloseModal] = useState(false);
   const [ticketStatusChange] = useTicketStatusChangeMutation();
+
   const [commanApi] = useCommanApiMutation();
   // Fetch live priority list
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
+
   const STATUS_OPTIONS = statusList?.map((item: any) => ({
     label: item.statusName,
     value: item.key,
@@ -106,7 +109,7 @@ const Tickets: React.FC = () => {
   // Map API priorities to dropdown options
   const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
     label: item.specification,
-    value: item.priorityName,
+    value: item.key,
     color: item.color,
     key: item?.key,
   }));
@@ -311,10 +314,18 @@ const Tickets: React.FC = () => {
 
   const handleDropdownChange = (value: any, ticket: any, type: any) => {
     const payload = {
-      type,
-      body: { ticketId: ticket.ticketNumber, priority: value },
+      url: `edit-property/${ticket.ticketNumber}?${type}=${value}`,
     };
-    ticketStatusChange(payload);
+    ticketStatusChange(payload).then((res: any) => {
+      if (res?.data?.type === "error") {
+        showToast(res?.message || res?.data?.message, "error");
+        return;
+      }
+      setTicketDropdowns((prev) => ({
+        ...prev,
+        [ticket.ticketNumber]: { ...ticketDropdowns, [type]: value },
+      }));
+    });
 
     // setTicketDropdowns((prev) => ({
     //   ...prev,
@@ -324,17 +335,18 @@ const Tickets: React.FC = () => {
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
+    console.log("ticket", ticket);
     // Sentiment emoji logic
     const sentiment: keyof typeof SENTIMENT_EMOJI = ticket.sentiment || "NEU";
     const emoji = SENTIMENT_EMOJI[sentiment] || "😐";
     // State for dropdowns
     const dropdownState = ticketDropdowns[ticket.ticketNumber] || {
-      priority: ticket.priority?.value || ticket.priority?.name || "low",
+      priority: ticket.priority?.key,
       agent: ticket.assignedTo?.name || "",
       status:
         typeof ticket.status === "object" && ticket.status !== null
-          ? (ticket.status as any).name || ticket.status
-          : ticket.status || "open",
+          ? (ticket.status as any).key || ticket.key
+          : ticket.key,
     };
     return (
       <div

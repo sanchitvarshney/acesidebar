@@ -4,7 +4,10 @@ import {
   BaseQueryFn,
 } from "@reduxjs/toolkit/query/react";
 import { decrypt } from "../utils/encryption";
-import { createRequestHeaders, addTurnstileToHeaders } from "../utils/requestHeaders";
+import {
+  createRequestHeaders,
+  addTurnstileToHeaders,
+} from "../utils/requestHeaders";
 import { getTurnstileToken } from "../utils/turnstile";
 
 /**
@@ -12,10 +15,10 @@ import { getTurnstileToken } from "../utils/turnstile";
  */
 const API_CONFIG = {
   baseUrl: process.env.REACT_APP_API_URL,
-  stateChangingMethods: ['POST', 'PUT', 'DELETE', 'PATCH'] as const,
-  authTokenKey: 'userToken',
-  userDataKey: 'userData',
-  loginPath: '/login',
+  stateChangingMethods: ["POST", "PUT", "DELETE", "PATCH"] as const,
+  authTokenKey: "userToken",
+  userDataKey: "userData",
+  loginPath: "/login",
 } as const;
 
 /**
@@ -25,7 +28,7 @@ const API_CONFIG = {
 const addAuthHeaders = (headers: Headers): void => {
   // Create standardized headers
   const standardHeaders = createRequestHeaders(true);
-  
+
   // Copy all headers from the standard headers
   standardHeaders.forEach((value, key) => {
     headers.set(key, value);
@@ -38,14 +41,20 @@ const addAuthHeaders = (headers: Headers): void => {
  * @param method - The HTTP method
  * @param url - The request URL
  */
-const addTurnstileHeaders = async (headers: Headers, method: string, url: string): Promise<void> => {
-  const isStateChangingRequest = API_CONFIG.stateChangingMethods.includes(method.toUpperCase() as any);
-  
+const addTurnstileHeaders = async (
+  headers: Headers,
+  method: string,
+  url: string
+): Promise<void> => {
+  const isStateChangingRequest = API_CONFIG.stateChangingMethods.includes(
+    method.toUpperCase() as any
+  );
+
   if (isStateChangingRequest) {
     try {
       // Get Turnstile token for state-changing requests
-      const turnstileToken = await getTurnstileToken('api_request');
-      
+      const turnstileToken = await getTurnstileToken("api_request");
+
       if (turnstileToken) {
         // Add the x-challenge header with the Turnstile token
         addTurnstileToHeaders(headers, turnstileToken);
@@ -69,7 +78,7 @@ const handleUnauthorizedResponse = (): void => {
 
 /**
  * Custom base query with authentication, Turnstile, and error handling
- * 
+ *
  * Features:
  * - Automatic authentication headers
  * - Turnstile tokens for state-changing requests only
@@ -77,16 +86,17 @@ const handleUnauthorizedResponse = (): void => {
  * - Request logging for debugging
  */
 const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
+  const baseUrl = localStorage.getItem("baseUrl");
   const baseQuery = fetchBaseQuery({
-    baseUrl: API_CONFIG.baseUrl,
+    baseUrl: baseUrl || API_CONFIG.baseUrl,
     prepareHeaders: async (headers) => {
       // Add authentication headers
       addAuthHeaders(headers);
-      
+
       // Add Turnstile headers for state-changing requests
-      const method = args.method || 'GET';
-      await addTurnstileHeaders(headers, method, args.url || '');
-      
+      const method = args.method || "GET";
+      await addTurnstileHeaders(headers, method, args.url || "");
+
       return headers;
     },
   });
