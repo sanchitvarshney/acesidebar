@@ -67,7 +67,7 @@ import {
   useGetTagListQuery,
 } from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
-import noTask from "../../../assets/empty.svg";
+import noTask from "../../../assets/empty_task.svg";
 
 type TaskPropsType = {
   isAddTask?: boolean;
