@@ -1,8 +1,9 @@
+// index.tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import "./font.css"
-import "./App.css"
+import "./font.css";
+import "./App.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import ReplyContext from "./contextApi/ReplyContext";
@@ -11,7 +12,20 @@ import { store } from "./reduxStore/Store";
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material";
 
-setTimeout(console.log.bind(console, 
+/* ---------- Sentry ---------- */
+import * as Sentry from "@sentry/react";
+Sentry.init({
+  dsn: process.env.REACT_APP_SENTRY_DNS || "",
+  integrations: [Sentry.browserTracingIntegration()],
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+});
+/* ---------------------------- */
+
+setTimeout(console.log.bind(console,
   "%cSTOP!%c\n\nThis console is for developers.\n%cIf someone told you to paste something here, it's a scam.\nPasting code here can give attackers access to your Ajaxter account.",
   "color:#fff;background:#b00020;padding:10px 20px;border-radius:10px;font-weight:900;font-size:56px",
   "color:#b00020;font-weight:700;font-size:18px",
@@ -21,16 +35,19 @@ setTimeout(console.log.bind(console,
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
+
 root.render(
-  // <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <Provider store={store}>
-        <ReplyContext>
-          <App />
-        </ReplyContext>
-      </Provider>
-    </ThemeProvider>
-  // </React.StrictMode>
+  <Sentry.ErrorBoundary fallback={<p>Something went wrong</p>}>
+    {/* <React.StrictMode> */}
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <ReplyContext>
+            <App />
+          </ReplyContext>
+        </Provider>
+      </ThemeProvider>
+    {/* </React.StrictMode> */}
+  </Sentry.ErrorBoundary>
 );
 
 reportWebVitals();
