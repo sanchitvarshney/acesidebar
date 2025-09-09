@@ -8,6 +8,7 @@ interface TaskHeaderProps {
   masterChecked: boolean;
   page: number;
   rowsPerPage: number;
+  totalPages?: number;
   onMasterCheckboxChange: (checked: boolean) => void;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rowsPerPage: number) => void;
@@ -20,6 +21,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   masterChecked,
   page,
   rowsPerPage,
+  totalPages,
   onMasterCheckboxChange,
   onPageChange,
   onRowsPerPageChange,
@@ -30,7 +32,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    onPageChange(newPage);
+    // Translate MUI's 0-based page to app's 1-based page
+    onPageChange(newPage + 1);
   };
 
   const handleChangeRowsPerPage = (
@@ -77,7 +80,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
         <TablePagination
           component="div"
           count={totalTasks ?? 0}
-          page={page}
+          page={page - 1} // MUI TablePagination uses 0-based indexing
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={handleChangeRowsPerPage}

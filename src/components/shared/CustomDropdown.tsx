@@ -38,7 +38,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
     handleClose();
   };
   const selected =
-    options.find((o: DropdownOption) => o.value === value) || options[0];
+    options?.find((o: DropdownOption) => o.value === value) || options?.[0];
   return (
     <>
       <button

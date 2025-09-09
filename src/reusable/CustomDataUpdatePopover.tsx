@@ -13,11 +13,9 @@ const CustomDataUpdatePopover: FC<CustomDataUpdatePopoverProps> = ({
   children,
   close,
 }) => {
- 
   return (
     <Popover
       disableScrollLock={true}
-      id={Boolean(anchorEl) ? "simple" : undefined}
       open={Boolean(anchorEl)}
       anchorEl={anchorEl}
       onClose={() => close()}

@@ -5,50 +5,21 @@ import {
   Chip,
   Paper,
   Typography,
-  Card,
-  CardContent,
   Stack,
-  Divider,
   Button,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Collapse,
 } from "@mui/material";
-import {
-  timelineOppositeContentClasses,
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineConnector,
-  TimelineDot,
-  TimelineContent,
-} from "@mui/lab";
+
 import { UserProfileInfo, TicketItem } from "./types";
 import WorkIcon from "@mui/icons-material/Work";
 import BusinessIcon from "@mui/icons-material/Business";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import PriorityIcon from "@mui/icons-material/PriorityHigh";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
-import EmailIcon from "@mui/icons-material/Email";
-import EditIcon from "@mui/icons-material/Edit";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import BugReportIcon from "@mui/icons-material/BugReport";
 import SupportIcon from "@mui/icons-material/Support";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import DescriptionIcon from "@mui/icons-material/Description";
-import PhoneIcon from "@mui/icons-material/Phone";
-import LocationIcon from "@mui/icons-material/LocationOn";
-import SecurityIcon from "@mui/icons-material/Security";
-import GroupIcon from "@mui/icons-material/Group";
-import AppsIcon from "@mui/icons-material/Apps";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import CustomPopover from "../../../reusable/CustomPopover";
-import ContactDetails from "./ContactDetails";
+import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
 type OverviewTabProps = {
   user: UserProfileInfo & { initials: string };
@@ -61,7 +32,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
     apps: true,
   });
   const [metricOpen, setMetricOpen] = useState<null | string>(null);
-  const [editInfoOpen, setEditInfoOpen] = useState(false);
+  const [editInfoOpen, setEditInfoOpen] = useState(null);
 
   // Anchor refs for popovers
   const metricAnchorRef = useRef<HTMLDivElement>(null);
@@ -178,7 +149,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                 ref={editInfoAnchorRef}
                 variant="outlined"
                 size="small"
-                onClick={() => setEditInfoOpen(true)}
+                onClick={(e: any) => setEditInfoOpen(e.currentTarget)}
               >
                 Edit info
               </Button>
@@ -211,7 +182,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   cursor: "pointer",
                   "&:hover": { bgcolor: "action.hover" },
                 }}
-                onClick={() => setMetricOpen("total")}
+                onClick={(e: any) => setMetricOpen(e.currentTarget)}
               >
                 <AssignmentIcon
                   sx={{ fontSize: 32, color: "#5f6368", mb: 1 }}
@@ -234,7 +205,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   cursor: "pointer",
                   "&:hover": { bgcolor: "action.hover" },
                 }}
-                onClick={() => setMetricOpen("open")}
+                onClick={(e: any) => setMetricOpen(e.currentTarget)}
               >
                 <BugReportIcon sx={{ fontSize: 32, color: "#5f6368", mb: 1 }} />
                 <Typography variant="body2" sx={{ color: "#5f6368" }}>
@@ -255,7 +226,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   cursor: "pointer",
                   "&:hover": { bgcolor: "action.hover" },
                 }}
-                onClick={() => setMetricOpen("resolved")}
+                onClick={(e: any) => setMetricOpen(e.currentTarget)}
               >
                 <SupportIcon sx={{ fontSize: 32, color: "#5f6368", mb: 1 }} />
                 <Typography variant="body2" sx={{ color: "#5f6368" }}>
@@ -276,7 +247,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   cursor: "pointer",
                   "&:hover": { bgcolor: "action.hover" },
                 }}
-                onClick={() => setMetricOpen("overdue")}
+                onClick={(e: any) => setMetricOpen(e.currentTarget)}
               >
                 <TrendingUpIcon
                   sx={{ fontSize: 32, color: "#5f6368", mb: 1 }}
@@ -428,16 +399,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
       </Box>
 
       {/* Popovers */}
-      <CustomPopover
-        open={!!metricOpen}
+      <CustomDataUpdatePopover
         close={() => setMetricOpen(null)}
-        anchorEl={metricAnchorRef}
-        width={400}
-        isCone={true}
+        anchorEl={metricOpen}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Preview of {metricOpen} tickets. Use this to show a small list or
+            Preview of metric tickets. Use this to show a small list or
             quick filters.
           </Typography>
           <Button
@@ -448,14 +416,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
             DONE
           </Button>
         </Box>
-      </CustomPopover>
+      </CustomDataUpdatePopover>
 
-      <CustomPopover
-        open={editInfoOpen}
-        close={() => setEditInfoOpen(false)}
-        anchorEl={editInfoAnchorRef}
-        width={350}
-        isCone={true}
+      <CustomDataUpdatePopover
+        close={() => setEditInfoOpen(null)}
+        anchorEl={editInfoOpen}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -464,17 +429,17 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
           <Button
             variant="contained"
             size="small"
-            onClick={() => setEditInfoOpen(false)}
+            onClick={() => setEditInfoOpen(null)}
           >
             SAVE
           </Button>
           <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button variant="text" onClick={() => setEditInfoOpen(false)}>
+            <Button variant="text" onClick={() => setEditInfoOpen(null)}>
               DONE
             </Button>
           </Box>
         </Box>
-      </CustomPopover>
+      </CustomDataUpdatePopover>
     </Box>
   );
 };

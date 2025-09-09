@@ -87,113 +87,118 @@ const TaskCard: React.FC<TaskCardProps> = memo(
             <TaskCardSkeleton />
           ) : (
             <div className="flex items-start gap-3">
-              <div>
-                {!isCurrentTask && (
-                  <div className="flex-shrink-0 relative">
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={handleSelect}
-                      sx={{
-                        color: "#666",
-                        "&.Mui-checked": {
-                          color: "#1a73e8",
-                        },
-                        "&:hover": {
-                          backgroundColor: "rgba(26, 115, 232, 0.04)",
-                        },
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
               <div className="space-x-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex-shrink-0 relative">
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          isCurrentTask ? "bg-blue-200" : "bg-blue-100"
+                <div className="flex-1 min-w-0 ">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div>
+                        {!isCurrentTask && (
+                          <div className="flex-shrink-0 relative">
+                            <Checkbox
+                              checked={isSelected}
+                              onChange={handleSelect}
+                              sx={{
+                                color: "#666",
+                                "&.Mui-checked": {
+                                  color: "#1a73e8",
+                                },
+                                "&:hover": {
+                                  backgroundColor: "rgba(26, 115, 232, 0.04)",
+                                },
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-shrink-0 relative">
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            isCurrentTask ? "bg-blue-200" : "bg-blue-100"
+                          }`}
+                        >
+                          {getStatusIcon(task.status)}
+                        </div>
+                        {isCurrentTask && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        )}
+                      </div>
+                      <h3
+                        className={`text-base font-medium truncate ${
+                          isCurrentTask ? "text-blue-700" : "text-gray-900"
                         }`}
                       >
-                        {getStatusIcon(task.status)}
-                      </div>
-                      {isCurrentTask && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
-                        </div>
+                        {task?.title}
+                      </h3>
+
+                      {task?.isDue && (
+                        <Chip label="Overdue" color="error" size="small" />
                       )}
                     </div>
-                    <h3
-                      className={`text-base font-medium truncate ${
-                        isCurrentTask ? "text-blue-700" : "text-gray-900"
-                      }`}
-                    >
-                      {task?.title}
-                    </h3>
-
-                    {task?.isDue && (
-                      <Chip label="Overdue" color="error" size="small" />
-                    )}
                   </div>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                    {!isAddTask && (
+                  <div>
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                      {!isAddTask && (
+                        <span className="flex items-center gap-1">
+                          <ConfirmationNumberIcon fontSize="small" />
+                          {task?.ticketID}
+                        </span>
+                      )}
                       <span className="flex items-center gap-1">
-                        <ConfirmationNumberIcon fontSize="small" />
-                        {task?.ticketID}
+                        <PersonIcon fontSize="small" />
+                        {task?.assignor}
                       </span>
-                    )}
-                    <span className="flex items-center gap-1">
-                      <PersonIcon fontSize="small" />
-                      {task?.assignor}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ScheduleIcon fontSize="small" />
-                      {task?.due?.dt} {task?.due?.tm}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                      <Chip
-                        label={task?.status?.name}
-                        size="small"
-                        sx={{
-                          color: "#000",
-                          backgroundColor: getStatusColor(task?.status?.name) as any,
-                        }}
-                      />
-                      <Chip
-                        label={task?.priority?.name}
-                        size="small"
-                        sx={{
-                          color: "#000",
-                          backgroundColor: task?.priority?.color,
-                        }}
-                        variant="filled"
-                      />
+                      <span className="flex items-center gap-1">
+                        <ScheduleIcon fontSize="small" />
+                        {task?.due?.dt} {task?.due?.tm}
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <span>{task?.estimate}</span>
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-2">
+                        <Chip
+                          label={task?.status?.name}
+                          size="small"
+                          sx={{
+                            color: "#000",
+                            backgroundColor: getStatusColor(
+                              task?.status?.name
+                            ) as any,
+                          }}
+                        />
+                        <Chip
+                          label={task?.priority?.name}
+                          size="small"
+                          sx={{
+                            color: "#000",
+                            backgroundColor: task?.priority?.color,
+                          }}
+                          variant="filled"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <span>{task?.estimate}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4 mt-2">
-                    <div className="flex items-center gap-1">
-                      <IconButton size="small">
-                        <CommentIcon fontSize="small" />
-                      </IconButton>
-                      <span className="text-gray-500">
-                        {task?.other?.comment}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <IconButton size="small">
-                        <AttachFileIcon fontSize="small" />
-                      </IconButton>
-                      <span className="text-gray-500">
-                        {task.other?.attachment}
-                      </span>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="flex items-center gap-1">
+                        <IconButton size="small">
+                          <CommentIcon fontSize="small" />
+                        </IconButton>
+                        <span className="text-gray-500">
+                          {task?.other?.comment}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <IconButton size="small">
+                          <AttachFileIcon fontSize="small" />
+                        </IconButton>
+                        <span className="text-gray-500">
+                          {task.other?.attachment}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

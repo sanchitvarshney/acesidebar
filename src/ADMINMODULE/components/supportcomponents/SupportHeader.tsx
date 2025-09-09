@@ -42,7 +42,7 @@ const SupportHeader = () => {
       );
     }
   }, [path]);
-console.log(tabs)
+
 
   return (
     <Box sx={{ flexGrow: 1 }}>

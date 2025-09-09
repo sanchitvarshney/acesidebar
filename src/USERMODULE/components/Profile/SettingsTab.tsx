@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -10,19 +10,16 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import CustomPopover from "../../../reusable/CustomPopover";
+
+import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
 const SettingsTab: React.FC = () => {
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(null);
+  const [langOpen, setLangOpen] = useState(null);
   const [emailNotif, setEmailNotif] = useState(true);
-  const [pushNotif, setPushNotif] = useState(false);
+const [pushNotif, setPushNotif] = useState(false);
   const [language, setLanguage] = useState("en");
   const [timezone, setTimezone] = useState("UTC");
-
-  // Anchor refs for popovers
-  const notifAnchorRef = useRef<HTMLDivElement>(null);
-  const langAnchorRef = useRef<HTMLDivElement>(null);
 
   return (
     <Box sx={{ display: "flex", gap: 3, height: "100%" }}>
@@ -42,15 +39,9 @@ const SettingsTab: React.FC = () => {
           </Typography>
           <Stack spacing={3}>
             <Box
-              ref={notifAnchorRef}
-              onClick={() => setNotifOpen(true)}
-              role="button"
-              tabIndex={0}
               sx={{
                 p: 1,
                 borderRadius: 1,
-                "&:hover": { bgcolor: "action.hover" },
-                cursor: "pointer",
               }}
             >
               <Typography
@@ -62,20 +53,18 @@ const SettingsTab: React.FC = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Manage how you receive notifications about tickets and updates.
               </Typography>
-              <Button variant="outlined" size="small">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={(e: any) => setNotifOpen(e.currentTarget)}
+              >
                 Configure Notifications
               </Button>
             </Box>
             <Box
-              ref={langAnchorRef}
-              onClick={() => setLangOpen(true)}
-              role="button"
-              tabIndex={0}
               sx={{
                 p: 1,
                 borderRadius: 1,
-                "&:hover": { bgcolor: "action.hover" },
-                cursor: "pointer",
               }}
             >
               <Typography
@@ -87,7 +76,11 @@ const SettingsTab: React.FC = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Set your preferred language and timezone.
               </Typography>
-              <Button variant="outlined" size="small">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={(e: any) => setLangOpen(e.currentTarget)}
+              >
                 Change Settings
               </Button>
             </Box>
@@ -129,12 +122,9 @@ const SettingsTab: React.FC = () => {
         </Paper>
       </Box>
 
-      <CustomPopover
-        open={notifOpen}
-        close={() => setNotifOpen(false)}
-        anchorEl={notifAnchorRef}
-        width={350}
-        isCone={true}
+      <CustomDataUpdatePopover
+        close={() => setNotifOpen(null)}
+        anchorEl={notifOpen}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -159,19 +149,16 @@ const SettingsTab: React.FC = () => {
             label="Push notifications"
           />
           <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button variant="text" onClick={() => setNotifOpen(false)}>
+            <Button variant="text" onClick={() => setNotifOpen(null)}>
               DONE
             </Button>
           </Box>
         </Box>
-      </CustomPopover>
+      </CustomDataUpdatePopover>
 
-      <CustomPopover
-        open={langOpen}
-        close={() => setLangOpen(false)}
-        anchorEl={langAnchorRef}
-        width={300}
-        isCone={true}
+      <CustomDataUpdatePopover
+        close={() => setLangOpen(null)}
+        anchorEl={langOpen}
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -196,12 +183,12 @@ const SettingsTab: React.FC = () => {
             </Select>
           </Stack>
           <Box sx={{ textAlign: "right", mt: 2 }}>
-            <Button variant="text" onClick={() => setLangOpen(false)}>
+            <Button variant="text" onClick={() => setLangOpen(null)}>
               DONE
             </Button>
           </Box>
         </Box>
-      </CustomPopover>
+      </CustomDataUpdatePopover>
     </Box>
   );
 };
