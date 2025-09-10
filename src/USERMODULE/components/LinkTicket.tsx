@@ -117,7 +117,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   useEffect(() => {
     if (open) {
       fetchOptions(inputValue);
-
+  setSelectedTickets([]);
       setLinkRelationships({});
     }
   }, [open, currentTicket]);
@@ -133,9 +133,10 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
 
   const handleSelectTicket = (_: any, value: Ticket | null) => {
     if (!value) return;
-
+ // Check if ticket is already selected
+    if (selectedTickets.some((t) => t.id === value.id)) return;
     const newTicket = { ...value };
-
+ setSelectedTickets((prev) => [...prev, newTicket]);
     // Initialize link relationship for the new ticket
     setLinkRelationships((prev) => ({
       ...prev,
@@ -148,6 +149,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   };
 
   const handleRemoveTicket = (ticketId: string) => {
+     setSelectedTickets((prev) => prev.filter((t) => t.id !== ticketId));
     setLinkRelationships((prev) => {
       const newRelationships = { ...prev };
       delete newRelationships[ticketId];
@@ -287,13 +289,13 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
             )}
           />
 
-          {linkTicketData?.length > 0 && (
+          {selectedTickets?.length > 0 && (
             <Box>
               <Typography variant="subtitle2" gutterBottom>
                 Selected Tickets to Link
               </Typography>
               <List>
-                {linkTicketData?.map((ticket: any) => (
+                {selectedTickets?.map((ticket: any) => (
                   <ListItem
                     key={ticket.id}
                     sx={{
@@ -371,13 +373,13 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
           spacing={2}
           sx={{ minHeight: "calc(100vh - 182px)", p: 4, overflowY: "auto" }}
         >
-          {linkedTicketsSample.length === 0 ? (
+          {linkTicketData.length === 0 ? (
             <div className=" h-[calc(100vh-210px)] flex justify-center items-center">
               <img src={emptyimg} alt="No Linked Tickets" className="w-60 " />
             </div>
           ) : (
             <List>
-              {linkedTicketsSample.map((ticket) => (
+              {linkTicketData.map((ticket:any) => (
                 <ListItem
                   key={ticket.id}
                   sx={{ border: "1px solid #e4e4e4", mb: 1, borderRadius: 1 }}
@@ -429,6 +431,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
             onClick={handleLink}
             startIcon={!linkTicketLoading && <LinkIcon />}
             sx={{ minWidth: 120, fontWeight: 600 }}
+            disabled={selectedTickets?.length === 0}
           >
             {linkTicketLoading ? (
               <CircularProgress size={20} color="inherit" />
