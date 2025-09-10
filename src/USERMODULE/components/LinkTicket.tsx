@@ -160,7 +160,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   const handleLink = () => {
     const payload = {
       url: `link-ticket/${currentTicket?.id}`,
-      method: "PUT",
+      method: "POST",
       body: {
         reason,
         linkedTicket: Object.values(linkRelationships).map((rel) => rel.id),
