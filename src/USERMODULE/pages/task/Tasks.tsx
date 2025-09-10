@@ -769,8 +769,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-95px)]">
       {taskList?.data.length === 0 || taskListData?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-gray-500">
-          <img src={noTask} alt="No Tasks" className="w-[30%] my-3" />
-          <p>No tasks found</p>
+          <img src={noTask} alt="No Tasks" className="my-3 w-[30%]" />
           <Button
             variant="contained"
             size="small"
@@ -1707,8 +1706,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   ) : (
                     <div className="flex-1 flex items-center justify-center">
                       <div className="text-center text-gray-500">
-                        <img src={noTask} alt="No Task Selected" className="w-[30%] mx-auto mb-3" />
-                        <p>Select a task to view details</p>
+                        <img src={noTask} alt="No Task Selected" className="w-full mx-auto mb-3" />
                       </div>
                     </div>
                   )}
@@ -1718,8 +1716,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
                 <div className="flex-1 flex items-center justify-center">
                   <div className="text-center text-gray-500">
-                    <img src={noTask} alt="No Task Selected" className="w-[30%] mx-auto mb-3" />
-                    <p>Select a task to view details</p>
+                    <img src={noTask} alt="No Task Selected" className="w-full mx-auto mb-3" />
                   </div>
                 </div>
               </div>
