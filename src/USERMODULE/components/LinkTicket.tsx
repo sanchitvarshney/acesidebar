@@ -3,11 +3,8 @@ import {
   Autocomplete,
   Avatar,
   Button,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Tabs,
+  Tab,
   IconButton,
   List,
   ListItem,
@@ -23,9 +20,13 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import LinkIcon from "@mui/icons-material/Link";
 import CloseIcon from "@mui/icons-material/Close";
 import { useCommanApiMutation } from "../../services/threadsApi";
-import { useTicketSearchMutation } from "../../services/ticketAuth";
+import {
+  useGetLinkTicketQuery,
+  useTicketSearchMutation,
+} from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
-
+import CustomAlert from "../../components/reusable/CustomAlert";
+import emptyimg from "../../assets/empty_task.svg";
 interface Ticket {
   id: string;
   title: string;
@@ -64,6 +65,10 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
     Record<string, LinkRelationship>
   >({});
   const [reason, setReason] = useState("");
+  const [activeTab, setActiveTab] = useState(0);
+  const { data: linkTicketData } = useGetLinkTicketQuery({
+    ticketNumber: currentTicket?.id,
+  });
 
   const [searchTickets, { isLoading }] = useTicketSearchMutation();
 
@@ -112,7 +117,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   useEffect(() => {
     if (open) {
       fetchOptions(inputValue);
-      setSelectedTickets([]);
+
       setLinkRelationships({});
     }
   }, [open, currentTicket]);
@@ -129,11 +134,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   const handleSelectTicket = (_: any, value: Ticket | null) => {
     if (!value) return;
 
-    // Check if ticket is already selected
-    if (selectedTickets.some((t) => t.id === value.id)) return;
-
     const newTicket = { ...value };
-    setSelectedTickets((prev) => [...prev, newTicket]);
 
     // Initialize link relationship for the new ticket
     setLinkRelationships((prev) => ({
@@ -147,7 +148,6 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   };
 
   const handleRemoveTicket = (ticketId: string) => {
-    setSelectedTickets((prev) => prev.filter((t) => t.id !== ticketId));
     setLinkRelationships((prev) => {
       const newRelationships = { ...prev };
       delete newRelationships[ticketId];
@@ -182,198 +182,262 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
     });
   };
 
+  // Placeholder for existing linked tickets list (replace with API data)
+  const linkedTicketsSample: Ticket[] = [];
+
   return (
     <div className=" w-full h-full">
-      <Stack
-        spacing={2}
-        sx={{ minHeight: "calc(100vh - 130px)", p: 4, overflowY: "auto" }}
-      >
-        <Alert severity="info">
-          Link tickets to create relationships without merging them. Linked
-          tickets remain separate but are connected for better tracking and
-          reference.
-        </Alert>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}>
+        <Tabs
+          value={activeTab}
+          style={{ maxHeight: "60px" }}
+          onChange={(_, v) => setActiveTab(v)}
+        >
+          <Tab
+            label="Link Ticket"
+            icon={<LinkIcon fontSize="small" />}
+            iconPosition="start"
+          />
+          <Tab
+            label="Linked Tickets"
+            icon={<SearchIcon fontSize="small" />}
+            iconPosition="start"
+          />
+        </Tabs>
+      </Box>
 
-        <Box>
-          <Typography variant="subtitle2" gutterBottom>
-            Current Ticket: #{currentTicket?.id} -{" "}
-            {currentTicket?.subject || currentTicket?.title}
-          </Typography>
-        </Box>
+      {activeTab === 0 && (
+        <Stack
+          spacing={2}
+          sx={{ minHeight: "calc(100vh - 195px)", p: 2, overflowY: "auto" }}
+        >
+          <CustomAlert
+            title=" Link tickets to create relationships without merging them. Linked
+            tickets remain separate but are connected for better tracking and
+            reference."
+          />
 
-        <Autocomplete
-          size="small"
-          fullWidth
-          value={null}
-          disablePortal={false}
-          options={options}
-          loading={isLoading}
-          getOptionLabel={(option) => `#${option.id} - ${option.title}`}
-          renderOption={(props, option) => (
-            <li
-              {...props}
-              className="flex items-center gap-2 p-2 cursor-pointer"
-            >
-              <Avatar sx={{ width: 30, height: 30, bgcolor: "primary.main" }}>
-                {option.title?.charAt(0).toUpperCase()}
-              </Avatar>
-              <div>
-                <Typography variant="subtitle2">#{option.id}</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {option.title}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  display="block"
-                  color="text.secondary"
-                >
-                  Status: {option.status} • Priority: {option.priority}
-                </Typography>
-              </div>
-            </li>
-          )}
-          inputValue={inputValue}
-          onInputChange={(_, value) => setInputValue(value)}
-          onChange={handleSelectTicket}
-          filterOptions={(x) => x}
-          slotProps={{
-            popper: {
-              sx: {
-                zIndex: 9999,
-              },
-            },
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              autoFocus
-              // inputRef={inputRef}
-              label="Search tickets to link"
-              InputProps={{
-                ...params.InputProps,
-                startAdornment: (
-                  <>
-                    <SearchIcon
-                      sx={{ color: "gray", mr: 1 }}
-                      fontSize="small"
-                    />
-                    {params.InputProps.startAdornment}
-                  </>
-                ),
-              }}
-            />
-          )}
-        />
-
-        {selectedTickets.length > 0 && (
           <Box>
             <Typography variant="subtitle2" gutterBottom>
-              Selected Tickets to Link
+              Current Ticket: #{currentTicket?.id} -{" "}
+              {currentTicket?.subject || currentTicket?.title}
             </Typography>
-            <List>
-              {selectedTickets.map((ticket) => (
-                <ListItem
-                  key={ticket.id}
-                  sx={{
-                    border: "1px solid #e4e4e4",
-                    mb: 1,
-                    borderRadius: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                  }}
-                >
-                  <IconButton
-                    onClick={() => handleRemoveTicket(ticket.id)}
+          </Box>
+
+          <Autocomplete
+            size="small"
+            fullWidth
+            value={null}
+            disablePortal={false}
+            options={options}
+            loading={isLoading}
+            getOptionLabel={(option) => `#${option.id} - ${option.title}`}
+            renderOption={(props, option) => (
+              <li
+                {...props}
+                className="flex items-center gap-2 p-2 cursor-pointer"
+              >
+                <Avatar sx={{ width: 30, height: 30, bgcolor: "primary.main" }}>
+                  {option.title?.charAt(0).toUpperCase()}
+                </Avatar>
+                <div>
+                  <Typography variant="subtitle2">#{option.id}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {option.title}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    color="text.secondary"
+                  >
+                    Status: {option.status} • Priority: {option.priority}
+                  </Typography>
+                </div>
+              </li>
+            )}
+            inputValue={inputValue}
+            onInputChange={(_, value) => setInputValue(value)}
+            onChange={handleSelectTicket}
+            filterOptions={(x) => x}
+            slotProps={{
+              popper: {
+                sx: {
+                  zIndex: 9999,
+                },
+              },
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                autoFocus
+                label="Search tickets to link"
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      <SearchIcon
+                        sx={{ color: "gray", mr: 1 }}
+                        fontSize="small"
+                      />
+                      {params.InputProps.startAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+          />
+
+          {linkTicketData?.length > 0 && (
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Selected Tickets to Link
+              </Typography>
+              <List>
+                {linkTicketData?.map((ticket: any) => (
+                  <ListItem
+                    key={ticket.id}
                     sx={{
-                      border: "1px solid #d32f2f",
-                      color: "#d32f2f",
-                      width: 24,
-                      height: 24,
+                      border: "1px solid #e4e4e4",
+                      mb: 1,
+                      borderRadius: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
                     }}
                   >
-                    <RemoveIcon fontSize="small" />
-                  </IconButton>
+                    <IconButton
+                      onClick={() => handleRemoveTicket(ticket.id)}
+                      sx={{
+                        border: "1px solid #d32f2f",
+                        color: "#d32f2f",
+                        width: 24,
+                        height: 24,
+                      }}
+                    >
+                      <RemoveIcon fontSize="small" />
+                    </IconButton>
 
-                  <ListItemText
-                    primary={
-                      <div className="flex items-center gap-3">
-                        <Avatar
-                          sx={{
-                            bgcolor: "primary.main",
-                            width: 30,
-                            height: 30,
-                          }}
-                        >
-                          {ticket.title.charAt(0).toUpperCase()}
-                        </Avatar>
-                        <div>
-                          <Typography variant="subtitle2">
-                            #{ticket.id} - {ticket.title}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            Status: {ticket.status} • Priority:{" "}
-                            {ticket.priority}
-                          </Typography>
+                    <ListItemText
+                      primary={
+                        <div className="flex items-center gap-3">
+                          <Avatar
+                            sx={{
+                              bgcolor: "primary.main",
+                              width: 30,
+                              height: 30,
+                            }}
+                          >
+                            {ticket.title.charAt(0).toUpperCase()}
+                          </Avatar>
+                          <div>
+                            <Typography variant="subtitle2">
+                              #{ticket.id} - {ticket.title}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              Status: {ticket.status} • Priority:{" "}
+                              {ticket.priority}
+                            </Typography>
+                          </div>
                         </div>
-                      </div>
-                    }
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          )}
+
+          <TextField
+            id="reason-field"
+            label="Reason for linking tickets"
+            variant="outlined"
+            multiline
+            rows={4}
+            fullWidth
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            sx={{
+              my: 2,
+            }}
+          />
+        </Stack>
+      )}
+
+      {activeTab === 1 && (
+        <Stack
+          spacing={2}
+          sx={{ minHeight: "calc(100vh - 182px)", p: 4, overflowY: "auto" }}
+        >
+          {linkedTicketsSample.length === 0 ? (
+            <div className=" h-[calc(100vh-210px)] flex justify-center items-center">
+              <img src={emptyimg} alt="No Linked Tickets" className="w-60 " />
+            </div>
+          ) : (
+            <List>
+              {linkedTicketsSample.map((ticket) => (
+                <ListItem
+                  key={ticket.id}
+                  sx={{ border: "1px solid #e4e4e4", mb: 1, borderRadius: 1 }}
+                >
+                  <Avatar
+                    sx={{
+                      width: 30,
+                      height: 30,
+                      bgcolor: "primary.main",
+                      mr: 2,
+                    }}
+                  >
+                    {ticket.title?.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <ListItemText
+                    primary={`#${ticket.id} - ${ticket.title}`}
+                    secondary={`Status: ${ticket.status} • Priority: ${ticket.priority}`}
                   />
                 </ListItem>
               ))}
             </List>
-          </Box>
-        )}
-
-        <TextField
-          id="reason-field"
-          label="Reason for linking tickets"
-          variant="outlined"
-          multiline
-          rows={4}
-          fullWidth
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          sx={{
-            my: 2,
-          }}
-        />
-      </Stack>
-
-      <Box
-        sx={{
-          p: 2,
-          borderTop: "1px solid #eee",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 1,
-          backgroundColor: "#fafafa",
-        }}
-      >
-        <Button
-          onClick={onClose}
-          variant="text"
-          sx={{ minWidth: 80, fontWeight: 600 }}
-        >
-          Cancel
-        </Button>
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleLink}
-          disabled={selectedTickets.length === 0}
-          startIcon={!linkTicketLoading && <LinkIcon />}
-          sx={{ minWidth: 120, fontWeight: 600 }}
-        >
-          {linkTicketLoading ? (
-            <CircularProgress size={20} color="inherit" />
-          ) : (
-            "Create Links"
           )}
-        </Button>
-      </Box>
+        </Stack>
+      )}
+
+      {activeTab === 0 && (
+        <Box
+          sx={{
+            p: 2,
+            borderTop: "1px solid #eee",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1,
+            backgroundColor: "#fafafa",
+          }}
+        >
+          <Button
+            onClick={onClose}
+            variant="text"
+            sx={{ minWidth: 80, fontWeight: 600 }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleLink}
+            startIcon={!linkTicketLoading && <LinkIcon />}
+            sx={{ minWidth: 120, fontWeight: 600 }}
+          >
+            {linkTicketLoading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Create Links"
+            )}
+          </Button>
+        </Box>
+      )}
     </div>
   );
 };

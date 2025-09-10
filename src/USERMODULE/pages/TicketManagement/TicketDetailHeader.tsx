@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
@@ -159,6 +159,7 @@ const TicketDetailHeader = ({
   const [isAttachmentsModal, setIsAttachmentsModal] = useState(false);
   const [isActivityModal, setIsActivityModal] = useState(false);
   const [isSpamModal, setIsSpamModal] = useState(false);
+
   const [watcherEnabled, setWatcherEnabled] = useState(true);
   const [watchersAnchorEl, setWatchersAnchorEl] = useState<HTMLElement | null>(
     null
@@ -174,7 +175,7 @@ const TicketDetailHeader = ({
   } = useGetWatcherQuery({
     ticket: ticket?.ticketId,
   });
-
+  const [spamValue, setSpamValue] = useState<any>(null);
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
   const [searchQuery, setSearchQuery] = useState("");
@@ -296,8 +297,8 @@ const TicketDetailHeader = ({
     },
     {
       id: "spam",
-      title: "Spam",
-      description: "Mark ticket as spam",
+      title: ` ${spamValue ? "Unmark" : "Mark"} Spam`,
+      description: `${spamValue ? "Unmark" : "Mark"} ticket as spam`,
       icon: <BlockIcon sx={{ color: "#dc2626" }} />,
       iconBg: "#fef2f2",
       onClick: () => {
@@ -327,6 +328,15 @@ const TicketDetailHeader = ({
   );
 
   const [commanApi] = useCommanApiMutation();
+  const [spamTicket, { isLoading: isSpamTicketLoading }] =
+    useCommanApiMutation();
+  const [spamTicketSuccess, setSpamTicketSuccess] = useState(false);
+
+  useEffect(() => {
+    if (ticket?.isSpam) {
+      setSpamValue(ticket?.isSpam);
+    }
+  }, [ticket?.isSpam]);
 
   const handlePrintData = (ticketId: any) => {
     if (!ticketId || ticketId === "") {
@@ -350,15 +360,26 @@ const TicketDetailHeader = ({
     commanApi(payload);
   };
 
-  const handleSpamTicket = (ticketId: any) => {
+  const handleSpamTicket = (ticketId: any, status: any) => {
+    const statusValue = status ? 0 : 1;
     if (!ticketId || ticketId === "") {
+      showToast(" Status or ticket missing", "error");
       return;
     }
     const payload = {
-      url: `${ticketId}/spam`,
+      url: `spam/${ticketId}/${statusValue}`,
       method: "PUT",
     };
-    commanApi(payload);
+    spamTicket(payload).then((res: any) => {
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message, "error");
+        return;
+      }
+      if (res?.data?.type === "success") {
+        setSpamTicketSuccess(true);
+        setSpamValue(!spamValue);
+      }
+    });
   };
 
   // Status dropdown options
@@ -867,11 +888,21 @@ const TicketDetailHeader = ({
       </CustomSideBarPanel>
       <ConfirmationModal
         open={isSpamModal}
-        onClose={() => setIsSpamModal(false)}
-        onConfirm={() => handleSpamTicket(ticketNumber)}
+        onClose={() => {
+          setIsSpamModal(false);
+          setSpamTicketSuccess(false);
+        }}
+        onConfirm={() => handleSpamTicket(ticketNumber, spamValue)}
         type="custom"
-        title="Spam Ticket"
-        message="Are you sure you want to spam this ticket?"
+        title={`${spamValue ? "Unspam" : "Spam"} Ticket`}
+        message={`Are you sure you want to ${
+          spamValue ? "unspam" : "spam"
+        } this ticket?`}
+        isSuccess={spamTicketSuccess}
+        isLoading={isSpamTicketLoading}
+        successMessage={`Ticket ${
+          spamValue ? "unspammed" : "spammed"
+        } successfully`}
       />
 
       {/* Watchers Popover */}

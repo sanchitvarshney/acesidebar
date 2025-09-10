@@ -120,8 +120,6 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
         contact: dataValue.email,
       }));
     }
-
-  
   };
 
   const handleSave = async () => {
@@ -208,7 +206,6 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
             disableClearable
             popupIcon={null}
             getOptionLabel={(option: any) => {
-              console.log("option", option);
               if (typeof option === "string") return option;
               return option.email || "";
             }}

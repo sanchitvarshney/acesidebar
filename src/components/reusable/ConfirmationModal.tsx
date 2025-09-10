@@ -33,7 +33,9 @@ interface ConfirmationModalProps {
   message?: string;
   successMessage?: string;
   icon?: React.ReactNode;
-  loading?: boolean;
+
+  isSuccess?: boolean;
+  isLoading?: boolean;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -45,7 +47,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   message,
   successMessage,
   icon,
-  loading = false,
+
+  isSuccess = false,
+  isLoading = false,
 }) => {
   const [step, setStep] = useState<"confirm" | "success">("confirm");
 
@@ -54,9 +58,12 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   }, [open]);
 
   const handleConfirm = () => {
-    setStep("success");
     onConfirm?.();
   };
+
+  useEffect(() => {
+    if (isSuccess) setStep("success");
+  }, [isSuccess]);
 
   // Dynamic background color based on type
   const typeBgColor =
@@ -93,10 +100,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const defaultIcon =
     type === "delete" ? (
       <DeleteForeverIcon sx={{ fontSize: 50, color: "error.main" }} />
-    ) : type === "close" ||
-      type ===
-        "custom" ? // <CloseIcon sx={{ fontSize: 50, color: "info.main" }} />
-    null : (
+    ) : type === "close" || type === "custom" ? null : ( // <CloseIcon sx={{ fontSize: 50, color: "info.main" }} />
       <CheckCircleIcon sx={{ fontSize: 50, color: "success.main" }} />
     );
 
@@ -251,9 +255,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             }
             onClick={handleConfirm}
             sx={{ borderRadius: 5, textTransform: "none", px: 3 }}
-            disabled={loading}
+            disabled={isLoading}
           >
-            {loading ? (
+            {isLoading ? (
               <CircularProgress size={24} color="inherit" />
             ) : type === "delete" ? (
               "Delete"

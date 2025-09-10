@@ -157,6 +157,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     //     body: credentials,
     //   }),
     // }),
+   getLinkTicket: builder.query<any, { ticketNumber: string | number }>({
+  query: ({ ticketNumber }) => ({
+    url: `/ticket/staff/link-ticket/${ticketNumber}`,
+    method: "GET",
+  }),
+  transformResponse: (response: any) => response?.data,
+}),
   }),
   overrideExisting: false,
 });
@@ -176,4 +183,5 @@ export const {
   useAdvancedSearchMutation,
   useGetStatusListQuery,
   useGetTypeListQuery,
+  useGetLinkTicketQuery
 } = extendedTicketApi;
