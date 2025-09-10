@@ -19,12 +19,6 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: credentials.method ? credentials.method : "POST",
         body: credentials.body,
       }),
-
-      transformResponse: (response: any) => {
-        if (response?.error) {
-          return response?.error?.data;
-        }
-      },
     }),
     updateUserData: builder.mutation({
       query: (credentials) => ({
@@ -91,6 +85,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    editTicket: builder.mutation({
+      query: (credentials) => ({
+        url: `/ticket/edit/${credentials.ticket}/${credentials.client}`,
+        method: "PUT",
+        body: credentials.body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -107,4 +108,5 @@ export const {
   useGetWatcherQuery,
   useCommanApiForTaskListMutation,
   useGetTaskListMutation,
+  useEditTicketMutation,
 } = extendedTicketApi;

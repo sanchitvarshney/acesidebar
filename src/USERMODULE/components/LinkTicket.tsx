@@ -63,6 +63,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   const [linkRelationships, setLinkRelationships] = useState<
     Record<string, LinkRelationship>
   >({});
+  const [reason, setReason] = useState("");
 
   const [searchTickets, { isLoading }] = useTicketSearchMutation();
 
@@ -156,30 +157,37 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
 
   const handleLink = () => {
     const payload = {
-      url: `link-ticket/${currentTicket?.ticketID}`,
+      url: `link-ticket/${currentTicket?.id}`,
+      method: "PUT",
       body: {
-        reason: "",
-        linkedTickets: Object.values(linkRelationships).map((rel) => rel.id),
+        reason,
+        linkedTicket: Object.values(linkRelationships).map((rel) => rel.id),
       },
     };
 
-    triggerLinkTicket(payload).then((res) => {
-      if (res?.data?.type === "error") {
-        showToast(res?.data?.message || "An error occurred", "error");
+    triggerLinkTicket(payload).then((res: any) => {
+      if (res?.data?.type === "error" || res?.type === "error") {
+        showToast(
+          res?.data?.message || res?.message || "An error occurred",
+          "error"
+        );
         return;
       } else {
         showToast(
-          res?.data?.message || "Tickets linked successfully",
+          res?.data?.message || res?.message || "Tickets linked successfully",
           "success"
         );
+        onClose();
       }
     });
-    onClose();
   };
 
   return (
     <div className=" w-full h-full">
-      <Stack spacing={2} sx={{ minHeight: "calc(100vh - 130px)",p:4 }}>
+      <Stack
+        spacing={2}
+        sx={{ minHeight: "calc(100vh - 130px)", p: 4, overflowY: "auto" }}
+      >
         <Alert severity="info">
           Link tickets to create relationships without merging them. Linked
           tickets remain separate but are connected for better tracking and
@@ -316,6 +324,20 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
             </List>
           </Box>
         )}
+
+        <TextField
+          id="reason-field"
+          label="Reason for linking tickets"
+          variant="outlined"
+          multiline
+          rows={4}
+          fullWidth
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          sx={{
+            my: 2,
+          }}
+        />
       </Stack>
 
       <Box
