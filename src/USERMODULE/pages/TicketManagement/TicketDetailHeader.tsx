@@ -737,7 +737,7 @@ const TicketDetailHeader = ({
             <EditDocumentIcon fontSize="small" />
             <Typography variant="subtitle1" fontWeight={600}>
               {" "}
-              Edit Ticket
+              Edit Ticket (#{ticketNumber})
             </Typography>
           </div>
         }
@@ -747,6 +747,16 @@ const TicketDetailHeader = ({
           open={isEditTicket}
           onClose={() => {
             setIsEditTicket(false);
+          }}
+          ticket={{
+            subject: ticket?.subject,
+            description: ticket?.body,
+            client: {
+              id: ticket?.userID,
+              name: ticket?.username,
+              email: ticket?.email,
+            },
+            ticketId: ticket?.ticketId,
           }}
         />
       </CustomSideBarPanel>
@@ -774,9 +784,9 @@ const TicketDetailHeader = ({
           }}
           ticketId={ticketNumber}
           currentOwner={{
-            id: "1",
-            name: "John Doe",
-            email: "john.doe@example.com",
+            id: ticket?.userID,
+            name: ticket?.username,
+            email: ticket?.email,
           }}
         />
       </CustomSideBarPanel>

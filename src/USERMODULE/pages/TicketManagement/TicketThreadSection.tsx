@@ -212,12 +212,13 @@ const ThreadItem = ({
     };
 
     reviewThread(payload).then((response: any) => {
+   
       if (
         response?.type === "error" ||
-        response?.error?.data?.type === "error"
+        response?.data?.type === "error"
       ) {
         showToast(
-          response?.error?.data?.message || "Something went wrong",
+          response?.data?.message || response?.message || "Something went wrong",
           "error"
         );
         return;

@@ -188,10 +188,10 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
               }}
             >
               <Avatar
-                src={currentOwner.avatar}
+                src={currentOwner?.avatar}
                 sx={{ width: 40, height: 40, bgcolor: "#1976d2" }}
               >
-                {currentOwner.name.charAt(0)}
+                {currentOwner?.name?.charAt(0)}
               </Avatar>
               <MuiBox>
                 <Typography variant="body1" sx={{ fontWeight: 500 }}>

@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   FormHelperText,
   InputAdornment,
   Stack,
@@ -16,23 +17,24 @@ import React, { useEffect, useRef, useState } from "react";
 import StackEditor from "../../components/reusable/Editor";
 import { fetchOptions, isValidEmail } from "../../utils/Utils";
 import { useToast } from "../../hooks/useToast";
+import { useEditTicketMutation } from "../../services/threadsApi";
+import { useLazyGetUserBySeachQuery } from "../../services/agentServices";
 
-const EditTicket = ({ onClose,open }: any) => {
+const EditTicket = ({ onClose, open, ticket }: any) => {
   const { showToast } = useToast();
   const [contactChangeValue, setContactChangeValue] = useState("");
-
   const [options, setOptions] = useState<any>();
-
   const [errors, setErrors] = useState<{ subject?: string; body?: string }>({});
   const [editData, setEditData] = useState<any>({
     contact: "",
     subject: "",
     body: "",
   });
-
   const displayContactOptions: any = contactChangeValue ? options : [];
-
   const inputRef = useRef(null);
+  const [editTicket, { isLoading: isUpdating }] = useEditTicketMutation();
+  const [triggerSeachUser, { isLoading: seachUserLoading }] =
+    useLazyGetUserBySeachQuery();
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -42,17 +44,43 @@ const EditTicket = ({ onClose,open }: any) => {
   }, [open]);
 
   useEffect(() => {
-    const filterValue: any = fetchOptions(contactChangeValue);
+    if (ticket) {
+      setEditData({
+        client: ticket?.client?.id,
+        contact: ticket?.client?.email,
+        subject: ticket?.subject,
+        body: ticket?.description,
+      });
+    }
+  }, [ticket]);
 
-    filterValue?.length > 0
-      ? setOptions(filterValue)
-      : setOptions([
-          {
-            userName: contactChangeValue,
-            userEmail: contactChangeValue,
-          },
-        ]);
-  }, [contactChangeValue]);
+  const fetchUserOptions = async (query: string) => {
+    if (!query) {
+      setOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerSeachUser({ search: query }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = contactChangeValue;
+      const fallback = [
+        {
+          name: currentValue,
+          email: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setOptions(data.length > 0 ? data : fallback);
+      } else {
+        setOptions([]);
+      }
+    } catch (error) {
+      setOptions([]);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setEditData((prev: any) => ({
@@ -76,21 +104,27 @@ const EditTicket = ({ onClose,open }: any) => {
   ) => {
     if (!value) return;
 
-    const dataValue = { name: value.userName, email: value.userEmail };
-    if (!isValidEmail(dataValue.email)) {
-      showToast("Invalid email format", "error");
-      return;
-    }
+    if (type === "from") {
+      const dataValue = {
+        name: value.name,
+        email: value.email,
+        phone: value.phone,
+      };
+      if (!isValidEmail(dataValue.email)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
 
-    if (type === "contact") {
       setEditData((prev: any) => ({
         ...prev,
         contact: dataValue.email,
       }));
     }
+
+  
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validate required fields
     const newErrors: { subject?: string; body?: string } = {};
 
@@ -112,8 +146,36 @@ const EditTicket = ({ onClose,open }: any) => {
       return;
     }
 
-    // Save logic here
-    showToast("Ticket updated successfully", "success");
+    const payload = {
+      ticket: ticket?.ticketId,
+      client: ticket?.client?.id,
+      body: {
+        subject: editData.subject,
+        body: editData.body,
+      },
+    };
+
+    const editDataRes = await editTicket(payload).unwrap();
+
+    if (editDataRes?.data?.type === "error" || editDataRes?.type === "error") {
+      showToast(
+        editDataRes?.data?.message ||
+          editDataRes?.message ||
+          "An error occurred",
+        "error"
+      );
+      return;
+    } else {
+      showToast(
+        editDataRes?.data?.message ||
+          editDataRes?.message ||
+          "Ticket updated successfully",
+        "success"
+      );
+      setEditData({ contact: "", subject: "", body: "" });
+      onClose();
+    }
+
     console.log("Saving ticket data:", editData);
   };
 
@@ -145,96 +207,87 @@ const EditTicket = ({ onClose,open }: any) => {
           <Autocomplete
             disableClearable
             popupIcon={null}
-            sx={{ my: 1.5 }}
-            getOptionLabel={(option) => {
+            getOptionLabel={(option: any) => {
+              console.log("option", option);
               if (typeof option === "string") return option;
-              return option.userEmail || option.userName || "";
+              return option.email || "";
             }}
             options={displayContactOptions}
             value={editData.contact}
-            onChange={(event, newValue) => {
-              handleSelectedOption(event, newValue, "contact");
+            onInputChange={(_, value) => {
+              setContactChangeValue(value);
+
+              fetchUserOptions(value);
             }}
-            onInputChange={(_, value) => setContactChangeValue(value)}
+            onChange={(event, newValue) =>
+              handleSelectedOption(event, newValue, "from")
+            }
             filterOptions={(x) => x}
             getOptionDisabled={(option) => option === "Type to search"}
             noOptionsText="No Data Found"
-            renderOption={(props, option) => {
-              console.log("Option:", option);
-              return (
-                <li {...props}>
-                  {typeof option === "string" ? (
-                    option
-                  ) : (
-                    <div
-                      className="flex items-center gap-3 p-2 rounded-md w-full"
-                      style={{ cursor: "pointer" }}
-                    >
-                      <Avatar
-                        sx={{
-                          width: 30,
-                          height: 30,
-                          backgroundColor: "primary.main",
-                        }}
-                      >
-                        {option.userName?.charAt(0).toUpperCase()}
-                      </Avatar>
-
-                      <div className="flex flex-col">
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 600 }}
-                        >
-                          {option.userName}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {option.userEmail}
-                        </Typography>
-                      </div>
+            renderOption={(props, option: any) => (
+              <li {...props}>
+                {typeof option === "string" ? (
+                  option
+                ) : (
+                  <div
+                    className="flex items-center gap-3 p-2 rounded-md w-full"
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="flex flex-col">
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        {option.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {option.email}
+                      </Typography>
                     </div>
-                  )}
-                </li>
-              );
-            }}
-            renderTags={(value, getTagProps) =>
-              value?.map((option, index) => (
-                <Chip
-                  variant="outlined"
-                  color="primary"
-                  label={typeof option === "string" ? option : option?.name}
-                  {...getTagProps({ index })}
-                  sx={{
-                    cursor: "pointer",
-                    height: "20px",
-                    // backgroundColor: "#6EB4C9",
-                    color: "primary.main",
-                    "& .MuiChip-deleteIcon": {
-                      color: "error.main",
-                      width: "12px",
-                    },
-                    "& .MuiChip-deleteIcon:hover": {
-                      color: "#e87f8c",
-                    },
-                  }}
-                />
-              ))
+                  </div>
+                )}
+              </li>
+            )}
+            renderTags={(toValue, getTagProps) =>
+              toValue?.map((option: any, index) => {
+                console.log("option", option);
+                return (
+                  <Chip
+                    variant="outlined"
+                    color="primary"
+                    //@ts-ignore
+                    label={
+                      typeof option === "string"
+                        ? option
+                        : option?.recipients?.email
+                    }
+                    {...getTagProps({ index })}
+                    sx={{
+                      cursor: "pointer",
+                      height: "20px",
+                      // backgroundColor: "#6EB4C9",
+                      color: "primary.main",
+                      "& .MuiChip-deleteIcon": {
+                        color: "error.main",
+                        width: "12px",
+                      },
+                      "& .MuiChip-deleteIcon:hover": {
+                        color: "#e87f8c",
+                      },
+                    }}
+                  />
+                );
+              })
             }
             renderInput={(params) => (
               <TextField
                 {...params}
-                autoFocus
-                inputRef={inputRef}
-                label="Contact"
+                label="From *"
                 variant="outlined"
                 fullWidth
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Person
-                        fontSize="small"
-                        sx={{ color: errors.subject ? "#d32f2f" : "#666" }}
-                      />
+                      <Email fontSize="small" />
                     </InputAdornment>
                   ),
                 }}
@@ -344,7 +397,7 @@ const EditTicket = ({ onClose,open }: any) => {
           }
           sx={{ minWidth: 100, fontWeight: 600 }}
         >
-          Save
+          {isUpdating ? <CircularProgress size={20} color="inherit" /> : "Save"}
         </Button>
       </Box>
     </Box>
