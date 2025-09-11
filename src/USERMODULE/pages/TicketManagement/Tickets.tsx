@@ -337,7 +337,7 @@ const Tickets: React.FC = () => {
                   {ticket?.subject || ""}
                 </h3>
                 <span className="text-gray-400 text-sm">
-                  ({ticket?.stats?.threadCount || 0})
+                  ({ticket?.stats?.totalThreads || 0})
                 </span>
                 <span className="text-sm text-gray-500">
                   {ticket?.lastupdate?.timeAgo || ""}
