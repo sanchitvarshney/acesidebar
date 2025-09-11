@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
-import { Avatar, IconButton, Button, Checkbox } from "@mui/material";
+import { Avatar, IconButton, Button, Checkbox, Popover, FormControl, InputLabel, Select, MenuItem, Tooltip } from "@mui/material";
 import LeftMenu from "./LeftMenu";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 import {
   useGetTicketListQuery,
   useGetPriorityListQuery,
@@ -33,13 +37,24 @@ import {
   useCommanApiMutation,
   useTicketStatusChangeMutation,
 } from "../../../services/threadsApi";
-import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
+
 import AssignTicket from "../../components/AssignTicket";
 import Mergeticket from "../../components/Mergeticket";
 import { useAuth } from "../../../contextApi/AuthContext";
 import { useToast } from "../../../hooks/useToast";
 
 // Priority/Status/Agent dropdown options
+interface PriorityOption {
+  label: string;
+  value: string;
+  color: string;
+  key: string;
+}
+
+interface StatusOption {
+  label: string;
+  value: string;
+}
 
 const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
 
@@ -93,21 +108,31 @@ const Tickets: React.FC = () => {
   const [isCloseModal, setIsCloseModal] = useState(false);
   const [ticketStatusChange] = useTicketStatusChangeMutation();
 
+  // Quick update popup state
+  const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] = useState<HTMLElement | null>(null);
+  const [selectedTicketForUpdate, setSelectedTicketForUpdate] = useState<any>(null);
+  const [quickUpdateValues, setQuickUpdateValues] = useState({
+    priority: '',
+    status: '',
+    group: '',
+    agent: ''
+  });
+
   const [commanApi] = useCommanApiMutation();
   // Fetch live priority list
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
 
-  const STATUS_OPTIONS = statusList?.map((item: any) => ({
+  const STATUS_OPTIONS: StatusOption[] = statusList?.map((item: any) => ({
     label: item.statusName,
     value: item.key,
-  }));
+  })) || [];
 
   // Fetch sorting options
   const { data: sortingOptions } = useGetTicketSortingOptionsQuery();
 
   // Map API priorities to dropdown options
-  const PRIORITY_OPTIONS = (priorityList || []).map((item: any) => ({
+  const PRIORITY_OPTIONS: PriorityOption[] = (priorityList || []).map((item: any) => ({
     label: item.specification,
     value: item.key,
     color: item.color,
@@ -312,6 +337,52 @@ const Tickets: React.FC = () => {
     commanApi(payload);
   };
 
+  // Quick update handlers
+  const handleQuickUpdateOpen = (event: React.MouseEvent<HTMLElement>, ticket: any) => {
+    event.stopPropagation();
+    setQuickUpdateAnchorEl(event.currentTarget);
+    setSelectedTicketForUpdate(ticket);
+    setQuickUpdateValues({
+      priority: ticket.priority?.key || '',
+      status: ticket.status?.key || '',
+      group: ticket.group || 'Billing',
+      agent: ticket.assignedTo?.name || ''
+    });
+  };
+
+  const handleQuickUpdateClose = () => {
+    setQuickUpdateAnchorEl(null);
+    setSelectedTicketForUpdate(null);
+  };
+
+  const handleQuickUpdateChange = (field: string, value: string) => {
+    setQuickUpdateValues(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle toggle important status
+  const handleToggleImportant = (ticket: any) => {
+    const newImportantStatus = !ticket.important;
+    const payload = {
+      url: `edit-property/${ticket.ticketNumber}?important=${newImportantStatus}`,
+    };
+    
+    commanApi(payload).then((res: any) => {
+      if (res?.data?.type === "error") {
+        showToast(res?.message || res?.data?.message, "error");
+        return;
+      }
+      showToast(
+        `Ticket ${newImportantStatus ? 'marked as important' : 'removed from important'}`, 
+        "success"
+      );
+    }).catch(() => {
+      showToast("Failed to update ticket importance", "error");
+    });
+  };
+
   const handleDropdownChange = (value: any, ticket: any, type: any) => {
     const payload = {
       url: `edit-property/${ticket.ticketNumber}?${type}=${value}`,
@@ -341,250 +412,204 @@ const Tickets: React.FC = () => {
     // State for dropdowns
     const dropdownState = ticketDropdowns[ticket.ticketNumber] || {
       priority: ticket.priority?.key,
-      agent: ticket.assignedTo?.name || "",
-      status:
-        typeof ticket.status === "object" && ticket.status !== null
-          ? (ticket.status as any).key || ticket.key
-          : ticket.key,
+      agent: ticket.assignee?.name || "",
+      status: ticket.status?.key,
     };
+
+    // Get priority color and label - use actual API data
+    const priorityColor = ticket.priority?.color || '#6b7280'; // Default gray
+    const priorityLabel = ticket.priority?.name || 'LOW';
+
+    // Get status label - use actual API data
+    const statusLabel = ticket?.status?.name || 'Open';
+
+    // Get status color and label
+    const getStatusStyle = (status: string | any) => {
+      const statusKey = typeof status === "object" && status ? status.key : status;
+      switch (statusKey?.toLowerCase()) {
+        case 'open':
+          return { bg: 'bg-blue-500', text: 'text-white', label: 'OPEN' };
+        case 'new':
+          return { bg: 'bg-orange-500', text: 'text-white', label: 'NEW' };
+        case 'solved':
+        case 'resolved':
+          return { bg: 'bg-green-500', text: 'text-white', label: 'SOLVED' };
+        case 'pending':
+          return { bg: 'bg-yellow-500', text: 'text-white', label: 'PENDING' };
+        case 'closed':
+          return { bg: 'bg-gray-500', text: 'text-white', label: 'CLOSED' };
+        default:
+          return { bg: 'bg-orange-500', text: 'text-white', label: 'NEW' };
+      }
+    };
+
+    const statusStyle = getStatusStyle(ticket.status || dropdownState.status);
+
+    // Get priority color
+    const getPriorityColor = (priority: string) => {
+      switch (priority?.toLowerCase()) {
+        case 'low':
+          return 'text-gray-500';
+        case 'medium':
+          return 'text-blue-600';
+        case 'high':
+          return 'text-orange-600';
+        case 'critical':
+        case 'urgent':
+          return 'text-red-600';
+        default:
+          return 'text-gray-500';
+      }
+    };
+
     return (
       <div
         key={ticket?.ticketNumber}
-        className="relative bg-white rounded border border-blue-200 mb-3 flex items-center px-4 py-2 shadow-sm transition-shadow
-    hover:shadow-[inset_1px_0_0_rgb(218,220,224),inset_-1px_0_0_rgb(218,220,224),0_1px_2px_0_rgba(60,64,67,0.3),0_1px_3px_1px_rgba(60,64,67,0.15)]
-    before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:bg-[#1a73e8] before:rounded-l"
+        className="bg-white border-2 border-blue-200 rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative"
+        onClick={() => handleTicketSubjectClick(ticket.ticketNumber)}
       >
-        {/* Left: Checkbox, Avatar, Sentiment */}
-        <div className="flex items-center mr-4 min-w-[60px]">
-          <Checkbox
-            checked={selectedTickets.includes(ticket.ticketNumber)}
-            onChange={() => handleTicketCheckbox(ticket.ticketNumber)}
-            sx={{
-              mr: 1,
-              color: "#666",
-              "&.Mui-checked": {
-                color: "#1a73e8",
-              },
-              "&:hover": {
-                backgroundColor: "rgba(26, 115, 232, 0.04)",
-              },
-            }}
-          />
-          <div className="relative">
-            {ticket?.avatarUrl ? (
-              <Avatar src={ticket?.avatarUrl} className="w-10 h-10" />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-lg font-bold text-pink-600">
-                {ticket?.fromUser?.name?.[0] || "D"}
-              </div>
-            )}
-            {/* Sentiment emoji overlay */}
-            <span
-              className="absolute -bottom-1 -right-1 text-xl"
-              title="Sentiment"
+        {/* Top section */}
+        <div className="flex gap-4 mb-3">
+          {/* Left column: Priority badge and ticket number */}
+          <div className="flex flex-col items-start gap-1">
+            <div 
+              className="px-3 py-1 text-xs font-bold rounded text-white"
+              style={{ backgroundColor: priorityColor }}
             >
-              {emoji}
+              {priorityLabel.toUpperCase()}
+            </div>
+            <span className="text-sm font-medium text-gray-700">
+              #{ticket?.ticketNumber || "88517825"}
             </span>
           </div>
-        </div>
-        {/* Middle: Ticket info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {ticket.status === "open" && (
-              <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded mr-2">
-                First response due
-              </span>
-            )}
-            {ticket.status === "undelivered" && (
-              <span className="bg-gray-200 text-pink-600 text-xs font-semibold px-2 py-0.5 rounded mr-2">
-                Undelivered
-              </span>
-            )}
-            <TicketSubjectPopover
-              anchorEl={popoverAnchorEl}
-              open={Boolean(popoverAnchorEl) && popoverHovered}
-              onClose={handlePopoverClose}
-              onPopoverEnter={handlePopoverEnter}
-              onPopoverLeave={handlePopoverLeave}
-              name={ticket.fromUser?.name || "Unknown"}
-              actionType={"forwarded"}
-              date={ticket.createdDt?.timestamp || ""}
-              message={
-                typeof ticket.description === "string"
-                  ? ticket.description
-                  : ticket.description?.name || ""
-              }
-              avatar={ticket.avatarUrl}
-              children={({ onMouseEnter, onMouseLeave }) => (
-                <span
-                  className="font-semibold text-gray-800 truncate text-lg max-w-[320px] overflow-hidden whitespace-nowrap cursor-pointer"
-                  title={ticket?.subject}
-                  onClick={() => handleTicketSubjectClick(ticket.ticketNumber)}
-                >
-                  {ticket?.subject}
+          
+          {/* Right column: Title and description */}
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {ticket?.subject || "This is test ticket"}
+                </h3>
+                <span className="text-gray-400 text-sm">
+                  ({ticket?.stats?.threadCount || 1})
                 </span>
-              )}
-            />
+                <span className="text-sm text-gray-500">
+                  {ticket?.lastupdate?.timeAgo || "a day ago"}
+                </span>
+              </div>
+              <IconButton
+                size="small"
+                onClick={(e) => handleQuickUpdateOpen(e, ticket)}
+                className="text-gray-400 hover:text-gray-600 p-1"
+              >
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            </div>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {typeof ticket.description === "string" 
+                ? ticket.description 
+                : (ticket.description?.name || "Hi, I received a coupon code through email and am trying to apply it on checkout. But it looks like its")}
+            </p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
-            <span className="flex items-center gap-1">
-              <span className="flex items-center gap-1">
-                <span className="text-xs text-gray-800 text-base">
-                  #{ticket?.ticketNumber}
+        </div>
+
+        {/* Divider line */}
+        <div className="border-t border-gray-200 my-3"></div>
+
+        {/* Bottom section with counts and user info */}
+        <div className="flex items-center gap-8 text-xs">
+          {/* Important Pin */}
+          <Tooltip 
+            title={ticket?.important ? "Remove from important" : "Mark as important"}
+            placement="right"
+          >
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleImportant(ticket);
+              }}
+              className={ticket?.important ? "text-amber-500 hover:text-amber-600" : "text-gray-400 hover:text-amber-500"}
+            >
+              {ticket?.important ? (
+                <PushPinIcon fontSize="small" />
+              ) : (
+                <PushPinOutlinedIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Tooltip>
+
+          {/* Separator */}
+          <div className="text-gray-300">|</div>
+
+          {/* Thread Count */}
+          <div className="flex flex-col">
+            <span className="text-gray-500 mb-1">threads</span>
+            <span className="text-gray-700 font-medium">{ticket?.stats?.threadCount || 2}</span>
+          </div>
+
+          {/* Separator */}
+          <div className="text-gray-300">|</div>
+
+          {/* Assignee */}
+          <div className="flex flex-col">
+            <span className="text-gray-500 mb-1">assignee</span>
+            <span className="text-gray-700">{ticket?.assignee?.name || "~"}</span>
+          </div>
+
+          {/* Separator */}
+          <div className="text-gray-300">|</div>
+
+          {/* Raised by */}
+          <div className="flex flex-col">
+            <span className="text-gray-500 mb-1">raised by</span>
+            <div className="flex items-center gap-1">
+              <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center">
+                <span className="text-xs font-medium text-purple-700">
+                  {(ticket?.fromUser?.name || "Amy")?.[0]?.toUpperCase()}
                 </span>
-                <IconButton
-                  size="small"
-                  onClick={() => handleCopyTicketNumber(ticket?.ticketNumber)}
-                  sx={{
-                    p: 0.5,
-                    color:
-                      copiedTicketNumber === ticket?.ticketNumber
-                        ? "#4caf50"
-                        : "#666",
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.04)",
-                    },
-                  }}
-                >
-                  {copiedTicketNumber === ticket?.ticketNumber ? (
-                    <CheckCircleOutlineIcon sx={{ fontSize: 14 }} />
-                  ) : (
-                    <ContentCopyIcon sx={{ fontSize: 14 }} />
-                  )}
-                </IconButton>
-                <span className="text-xs text-gray-800"></span>
-              </span>
-              {/* <UserPopover
-                anchorEl={userPopoverAnchorEl}
-                open={Boolean(userPopoverAnchorEl) && userPopoverHovered}
-                onClose={handleUserPopoverClose}
-                onPopoverEnter={handleUserPopoverEnter}
-                onPopoverLeave={handleUserPopoverLeave}
-                avatar={ticket.fromUser?.avatarUrl}
-                name={ticket.fromUser?.name || ""}
-                company={ticket.fromUser?.company}
-                email={ticket.fromUser?.email}
-                phone={ticket.fromUser?.phone}
-                children={({ onMouseEnter, onMouseLeave }) => (
-                  <span
-                    className="font-medium max-w-[120px] truncate overflow-hidden whitespace-nowrap cursor-pointer hover:underline"
-                    title={ticket.fromUser?.name}
-                    onMouseEnter={(e) => {
-                      onMouseEnter(e);
-                      handleUserPopoverOpen(e, ticket.fromUser);
-                    }}
-                    onMouseLeave={(e) => {
-                      onMouseLeave(e);
-                      handleUserPopoverLeave();
-                    }}
-                  >
-                    {ticket.fromUser?.name}
-                  </span>
-                )}
-              /> */}
-              <span
-                className="text-xs max-w-[120px] truncate overflow-hidden whitespace-nowrap cursor-pointer hover:underline"
+              </div>
+              <span 
+                className="text-gray-700 font-medium cursor-pointer hover:underline"
                 onMouseEnter={(e) => handleUserHover(e, ticket.fromUser)}
                 onMouseLeave={handleUserLeave}
               >
-                {ticket.fromUser?.name}
+                {ticket?.fromUser?.name || "Amy"}
               </span>
-              <span className="text-xs text-gray-500">
-                • Created: {ticket?.createdDt?.timestamp}
-              </span>
-              {ticket.updatedAt && (
-                <span className="text-xs">
-                  • Agent responded: {ticket?.stats?.agentRespondedAt?.timeAgo}
-                </span>
-              )}
-              <span className="text-xs"> {ticket?.lastupdate?.timeAgo}</span>
-            </span>
+            </div>
           </div>
+
+          {/* Separator */}
+          <div className="text-gray-300">|</div>
+
+          {/* Department */}
+          <div className="flex flex-col">
+            <span className="text-gray-500 mb-1">department</span>
+            <span className="text-gray-700">{ticket?.department?.name || "Support"}</span>
+          </div>
+
+          {/* Separator */}
+          <div className="text-gray-300">|</div>
+
+          {/* Status */}
+          <div className="flex flex-col">
+            <span className="text-gray-500 mb-1">status</span>
+            <span className="text-gray-700">{ticket?.status?.name || 'Open'}</span>
+          </div>
+
+          {/* Separator */}
+          <div className="text-gray-300">|</div>
+
+          {/* Due Date */}
+          <div className="flex flex-col">
+            <span className="text-gray-500 mb-1">due date</span>
+            <span className="text-gray-700">~</span>
+          </div>
+
+          {/* Red dot at the end */}
+          <div className="w-3 h-3 bg-red-500 rounded-full ml-auto"></div>
         </div>
-        {/* Right: Priority, Agent, Status dropdowns */}
-        <div className="flex flex-col gap-1 w-[140px] ml-4 flex-shrink-0">
-          <div className="flex items-center w-full">
-            <CustomDropdown
-              value={dropdownState.priority}
-              onChange={(val) => handleDropdownChange(val, ticket, "priority")}
-              options={PRIORITY_OPTIONS}
-              colorDot={true}
-              width={90}
-            />
-          </div>
-          <div className="flex items-center w-full">
-            <AgentAssignPopover
-              value={dropdownState.agent || "Unassigned"}
-              onChange={(val) => handleDropdownChange(val, ticket, "agent")}
-              // onChange={(val) =>
-              //   setTicketDropdowns((prev) => ({
-              //     ...prev,
-              //     [ticket.ticketNumber]: { ...dropdownState, agent: val },
-              //   }))
-              // }
-              agentList={["Admin", "Agent 1", "Agent 2"]}
-              departmentList={["Support", "Sales", "Billing"]}
-              trigger={
-                <Button
-                  variant="text"
-                  size="small"
-                  fullWidth
-                  startIcon={
-                    <PersonIcon fontSize="small" sx={{ color: "#666" }} />
-                  }
-                  endIcon={<ArrowDropDownIcon fontSize="small" />}
-                  sx={{
-                    textTransform: "none",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    color: "#333",
-                    justifyContent: "flex-start",
-                    minHeight: "25px",
-                    padding: "4px 8px",
-                    "&:hover": {
-                      backgroundColor: "#f5f5f5",
-                    },
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: "13px",
-                      maxWidth: "80px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {dropdownState.agent || "Unassigned"}
-                  </span>
-                </Button>
-              }
-            />
-          </div>
-          <div className="flex items-center w-full">
-            <CustomDropdown
-              value={
-                typeof dropdownState.status === "object" &&
-                dropdownState.status !== null
-                  ? (dropdownState.status as any).name || dropdownState.status
-                  : dropdownState.status
-              }
-              onChange={
-                (val) => handleDropdownChange(val, ticket, "status")
-                // setTicketDropdowns((prev) => ({
-                //   ...prev,
-                //   [ticket.ticketNumber]: { ...dropdownState, status: val },
-                // }))
-              }
-              options={STATUS_OPTIONS}
-              colorDot={false}
-              width={110}
-              icon={
-                <MonitorHeartIcon fontSize="small" className="text-gray-500" />
-              }
-            />
-          </div>
-        </div>
+
       </div>
     );
   };
@@ -598,15 +623,14 @@ const Tickets: React.FC = () => {
       ) : ( */}
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)]">
         {/* Main Header Bar */}
-        <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-#f0f4f9">
+        <div className="flex items-center justify-between px-6 py-3 border-b bg-white shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             <Checkbox
               checked={masterChecked}
               onChange={handleMasterCheckbox}
               aria-label="Select all tickets"
               sx={{
-                mr: 1,
                 color: "#666",
                 "&.Mui-checked": {
                   color: "#1a73e8",
@@ -616,11 +640,11 @@ const Tickets: React.FC = () => {
                 },
               }}
             />
-            <span className="text-xl font-semibold whitespace-nowrap">
-              All tickets
-            </span>
-            <span className="bg-[#f0f4f9] text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">
-              {ticketList?.data?.length}
+            <h1 className="text-xl font-medium text-gray-900">
+              Tickets
+            </h1>
+            <span className="bg-gray-100 text-gray-600 rounded-full px-2 py-1 text-xs font-medium">
+              {ticketList?.data?.length || 0}
             </span>
             {selectedTickets.length > 0 && (
               <div className="flex items-center gap-2 ml-4 flex-wrap">
@@ -800,20 +824,27 @@ const Tickets: React.FC = () => {
         {/* Main Content: Tickets + Filters */}
         <div className="flex flex-1 h-0 min-h-0">
           <LeftMenu />
-          <div className="flex-1 p-2 h-full overflow-y-auto bg-[#fafafa]">
+          <div className="flex-1 h-full overflow-y-auto bg-gray-50">
+            <div className="max-w-6xl mx-auto">
             {isTicketsFetching ? (
               <TicketSkeleton />
             ) : (
+                <div className="p-4">
+                  {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
               <div>
-                {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
-                  ticketsToShow?.data?.map(renderTicketCard)
-                ) : (
-                  <div className="text-gray-400 text-center py-8">
-                    No tickets found.
+                      {ticketsToShow?.data?.map(renderTicketCard)}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="text-gray-400 text-lg">No tickets found</div>
+                      <div className="text-gray-500 text-sm mt-2">
+                        Try adjusting your filters or create a new ticket
+                      </div>
                   </div>
                 )}
               </div>
             )}
+            </div>
           </div>
           {filtersOpen && (
             <div className="w-80 min-w-[300px] border-l bg-white flex flex-col h-full">
@@ -848,6 +879,263 @@ const Tickets: React.FC = () => {
         onConfirm={handleClose}
         type="close"
       />
+
+      {/* Quick Update Popup */}
+      <Popover
+        open={Boolean(quickUpdateAnchorEl)}
+        anchorEl={quickUpdateAnchorEl}
+        onClose={handleQuickUpdateClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        PaperProps={{
+          elevation: 8,
+          sx: {
+            mt: 1,
+            borderRadius: 2,
+            border: '1px solid #e0e0e0',
+            maxWidth: 400,
+            minWidth: 380,
+          }
+        }}
+      >
+        <div className="p-6 bg-white">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-semibold text-gray-900">Quick update properties</h3>
+            <IconButton
+              size="small"
+              onClick={handleQuickUpdateClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </IconButton>
+          </div>
+          
+          {/* Form Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Priority */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Priority</label>
+              <FormControl fullWidth size="small" variant="outlined">
+                <Select
+                  value={quickUpdateValues.priority}
+                  onChange={(e) => handleQuickUpdateChange('priority', e.target.value)}
+                  displayEmpty
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#9ca3af',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <span className="text-gray-500">Select priority</span>
+                  </MenuItem>
+                  {PRIORITY_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: option.color }}
+                        ></div>
+                        <span className="text-gray-700">{option.label}</span>
+                      </div>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            {/* Status */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Status</label>
+              <FormControl fullWidth size="small" variant="outlined">
+                <Select
+                  value={quickUpdateValues.status}
+                  onChange={(e) => handleQuickUpdateChange('status', e.target.value)}
+                  displayEmpty
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#9ca3af',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <span className="text-gray-500">Select status</span>
+                  </MenuItem>
+                  {STATUS_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      <span className="text-gray-700">{option.label}</span>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            {/* Groups */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Groups</label>
+              <FormControl fullWidth size="small" variant="outlined">
+                <Select
+                  value={quickUpdateValues.group}
+                  onChange={(e) => handleQuickUpdateChange('group', e.target.value)}
+                  displayEmpty
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#9ca3af',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <span className="text-gray-500">Select group</span>
+                  </MenuItem>
+                  <MenuItem value="Billing">
+                    <span className="text-gray-700">Billing</span>
+                  </MenuItem>
+                  <MenuItem value="Support">
+                    <span className="text-gray-700">Support</span>
+                  </MenuItem>
+                  <MenuItem value="Sales">
+                    <span className="text-gray-700">Sales</span>
+                  </MenuItem>
+                  <MenuItem value="Technical">
+                    <span className="text-gray-700">Technical</span>
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+
+            {/* Agents */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Agents</label>
+              <FormControl fullWidth size="small" variant="outlined">
+                <Select
+                  value={quickUpdateValues.agent}
+                  onChange={(e) => handleQuickUpdateChange('agent', e.target.value)}
+                  displayEmpty
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#9ca3af',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#3b82f6',
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="">
+                    <span className="text-gray-500">Unassigned</span>
+                  </MenuItem>
+                  <MenuItem value="Amy">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
+                        <span className="text-xs font-medium text-purple-700">A</span>
+                      </div>
+                      <span className="text-gray-700">Amy</span>
+                    </div>
+                  </MenuItem>
+                  <MenuItem value="John">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-xs font-medium text-blue-700">J</span>
+                      </div>
+                      <span className="text-gray-700">John</span>
+                    </div>
+                  </MenuItem>
+                  <MenuItem value="Sarah">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                        <span className="text-xs font-medium text-green-700">S</span>
+                      </div>
+                      <span className="text-gray-700">Sarah</span>
+                    </div>
+                  </MenuItem>
+                  <MenuItem value="Mike">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
+                        <span className="text-xs font-medium text-orange-700">M</span>
+                      </div>
+                      <span className="text-gray-700">Mike</span>
+                    </div>
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleQuickUpdateClose}
+              sx={{
+                textTransform: 'none',
+                borderColor: '#d1d5db',
+                color: '#6b7280',
+                '&:hover': {
+                  borderColor: '#9ca3af',
+                  backgroundColor: '#f9fafb',
+                },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => {
+                // Handle save logic here
+                console.log('Saving:', quickUpdateValues);
+                handleQuickUpdateClose();
+                showToast('Properties updated successfully', 'success');
+              }}
+              sx={{
+                textTransform: 'none',
+                backgroundColor: '#3b82f6',
+                '&:hover': {
+                  backgroundColor: '#2563eb',
+                },
+              }}
+            >
+              Update
+            </Button>
+          </div>
+        </div>
+      </Popover>
     </>
   );
 };
