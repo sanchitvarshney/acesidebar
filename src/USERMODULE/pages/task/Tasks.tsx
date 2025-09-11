@@ -717,16 +717,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   >("desc");
 
   useEffect(() => {
-    if (!taskId) {
-      return;
-    }
-    if (isAddTask || taskId) {
+  
+    if (isAddTask && taskId) {
       setRightActiveTab(1);
       handleTaskClick(taskId, "comments");
     } else {
       setRightActiveTab(0);
     }
   }, [isAddTask, taskId]);
+
+  
 
   const handleTaskClick = useCallback(
     async (task: string, type: "attachments" | "comments" = "comments") => {
@@ -1084,7 +1084,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-gray-900 font-bold">
                                   Latest 3 Comments (
-                                  {taskcomment?.data?.comments.length})
+                                  {taskcomment?.data?.comments?.length})
                                 </h3>
 
                                 <Button
@@ -1276,14 +1276,14 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                   </div>
                                 ))}
 
-                                {taskcomment?.data?.comments.length === 0 && (
+                                {taskcomment?.data?.comment?.length === 0 && (
                                   <div className="text-center py-6 text-gray-500">
                                     <CommentIcon className="text-2xl mx-auto mb-2" />
                                     <p>No comments yet</p>
                                   </div>
                                 )}
 
-                                {taskcomment?.data?.comments.length > 3 && (
+                                {taskcomment?.data?.comment?.length > 3 && (
                                   <div className="text-center py-3">
                                     <Button
                                       size="small"
@@ -1299,7 +1299,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                       }}
                                     >
                                       View All{" "}
-                                      {taskcomment?.data?.comments?.length ?? 0}{" "}
+                                      {taskcomment?.data?.comment?.length ?? 0}{" "}
                                       Comments
                                     </Button>
                                   </div>
@@ -1376,10 +1376,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             {/* Comments Tab Content */}
                             {attachmentsTab === "comments" && (
                               <div className="space-y-4">
-                                {taskcomment?.data?.comments?.length > 0 ? (
+                                {taskcomment?.data?.comment?.length > 0 ? (
                                   <div className="space-y-4">
                                     {getSortedComments(
-                                      taskcomment?.data?.comments || []
+                                      taskcomment?.data?.comment || []
                                     ).map((comment: any, index: any) => (
                                       <div
                                         key={index}
@@ -1531,7 +1531,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                   <CircularProgress size={12} />
                                 ) : null}
                                 Comments (
-                                {taskcomment?.data?.comments?.length ?? 0})
+                                {taskcomment?.data?.other?.comment ?? 0})
                               </button>
                               <button
                                 className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
@@ -1556,7 +1556,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                   <CircularProgress size={12} />
                                 ) : null}
                                 Attachments (
-                                {taskcomment?.data?.attachments?.length ?? 0})
+                                {taskcomment?.data?.other?.attachment ?? 0})
                               </button>
                             </div>
                           </div>
