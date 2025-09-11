@@ -26,7 +26,7 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Dayjs } from "dayjs";
@@ -655,27 +655,37 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                 </Select>
               </FormControl>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
+                <DatePicker
                   label="Due Date (Optional)"
                   value={dueDate}
-                  onChange={(newValue) => setDueDate(newValue)}
+                  
+                  onChange={(newValue, _context) => setDueDate(newValue)}
+                  format="DD-MM-YYYY"
                   slotProps={{
                     textField: {
+                      variant: "outlined",
                       size: "small",
                       sx: {
                         width: 200,
                         "& .MuiOutlinedInput-root": {
                           borderRadius: "4px",
                           backgroundColor: "#f9fafb",
-                          "&:hover fieldset": { borderColor: "#9ca3af" },
-                          "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#9ca3af",
+                          },
+                          "&:hover .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#9ca3af",
+                          },
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#1a73e8",
+                          },
                         },
                         "& label.Mui-focused": { color: "#1a73e8" },
                         "& label": { fontWeight: "bold" },
                       },
                     },
                   }}
-                  minDateTime={dayjs()}
+                
                 />
               </LocalizationProvider>
             </MuiBox>

@@ -258,7 +258,7 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
           label="On Date"
           format="DD-MM-YYYY"
           value={logTimeFields.date ? dayjs(logTimeFields.date) : dayjs()}
-          onChange={(newValue: Dayjs | null) => {
+          onChange={(newValue, _context) => {
             handleLogTimeFieldChange("date", newValue?.toDate() || new Date());
           }}
           slotProps={{

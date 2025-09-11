@@ -66,7 +66,6 @@ import Activity from "./Activity";
 import { useToast } from "../../../hooks/useToast";
 import { useLazyGetAgentsBySeachQuery } from "../../../services/agentServices";
 
-
 const ActionButton = ({
   icon,
   tooltip,
@@ -188,7 +187,6 @@ const TicketDetailHeader = ({
   const [triggerWatchApi] = useCommanApiMutation();
   const displayAgentOptions = onChangeAgent ? agentOptions : [];
 
- 
   const fetchAgentOptions = async (query: string) => {
     if (!query) {
       setAgentOptions([]);
@@ -715,7 +713,14 @@ const TicketDetailHeader = ({
       <CustomSideBarPanel
         open={isLinkModal}
         close={() => setIsLinkModal(false)}
-        title={"Link Ticket"}
+        title={
+          <div className="flex items-center gap-2">
+            <LinkIcon fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={600}>
+              Link Ticket
+            </Typography>
+          </div>
+        }
         width={600}
       >
         <LinkTickets
