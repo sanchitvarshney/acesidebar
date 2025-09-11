@@ -23,7 +23,7 @@ import { useLazyGetUserBySeachQuery } from "../../services/agentServices";
 const EditTicket = ({ onClose, open, ticket }: any) => {
   const { showToast } = useToast();
   const [contactChangeValue, setContactChangeValue] = useState("");
-  const [options, setOptions] = useState<any>();
+  const [options, setOptions] = useState<any>([]);
   const [errors, setErrors] = useState<{ subject?: string; body?: string }>({});
   const [editData, setEditData] = useState<any>({
     contact: "",
@@ -206,6 +206,7 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
             disableClearable
             popupIcon={null}
             getOptionLabel={(option: any) => {
+          
               if (typeof option === "string") return option;
               return option.email || "";
             }}

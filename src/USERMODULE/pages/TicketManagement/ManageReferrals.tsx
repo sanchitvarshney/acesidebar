@@ -41,6 +41,10 @@ import {
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import { fetchOptions, isValidEmail } from "../../../utils/Utils";
+import {
+  useLazyGetDepartmentBySeachQuery,
+  useLazyGetUserBySeachQuery,
+} from "../../../services/agentServices";
 
 interface ManageReferralsProps {
   open: boolean;
@@ -199,10 +203,14 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
 
   const [contactChangeValue, setContactChangeValue] = useState("");
 
-  const [options, setOptions] = useState<any>();
+  const [options, setOptions] = useState<any[]>([]);
 
   const displayContactOptions: any = contactChangeValue ? options : [];
   const inputRef = useRef(null);
+  const [triggerSeachUser, { isLoading: seachUserLoading }] =
+    useLazyGetUserBySeachQuery();
+  const [triggerDept, { isLoading: deptLoading }] =
+    useLazyGetDepartmentBySeachQuery();
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -210,19 +218,38 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
       setTimeout(() => inputRef.current.focus(), 100);
     }
   }, [open]);
+  const fetchUserOptions = async (query: string) => {
+    if (!query) {
+      setOptions([]);
+      return;
+    }
 
-  useEffect(() => {
-    const filterValue: any = fetchOptions(contactChangeValue);
+    try {
+      const res =
+        (await referralType) === "department"
+          ? triggerDept({ search: query }).unwrap()
+          : triggerSeachUser({ search: query }).unwrap();
 
-    filterValue?.length > 0
-      ? setOptions(filterValue)
-      : setOptions([
-          {
-            userName: contactChangeValue,
-            userEmail: contactChangeValue,
-          },
-        ]);
-  }, [contactChangeValue]);
+      //@ts-ignore
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = contactChangeValue;
+      const fallback = [
+        {
+          name: currentValue,
+          email: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setOptions(data.length > 0 ? data : fallback);
+      } else {
+        setOptions([]);
+      }
+    } catch (error) {
+      setOptions([]);
+    }
+  };
 
   const handleSelectedOption = (_: React.SyntheticEvent, value: any) => {
     if (!value) return;
@@ -441,7 +468,10 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                 onChange={(event, newValue) => {
                   handleSelectedOption(event, newValue);
                 }}
-                onInputChange={(_, value) => setContactChangeValue(value)}
+                onInputChange={(_, value) => {
+                  setContactChangeValue(value);
+                  fetchUserOptions(value);
+                }}
                 filterOptions={(x) => x}
                 getOptionDisabled={(option) => option === "Type to search"}
                 noOptionsText="No Data Found"

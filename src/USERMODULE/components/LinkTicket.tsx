@@ -18,6 +18,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveIcon from "@mui/icons-material/Remove";
 import LinkIcon from "@mui/icons-material/Link";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import { useCommanApiMutation } from "../../services/threadsApi";
 import {
@@ -58,9 +59,12 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   const { showToast } = useToast();
   const [triggerLinkTicket, { isLoading: linkTicketLoading }] =
     useCommanApiMutation();
+  const [deleteLinkTicket, { isLoading: deleteLinkTicketLoading }] =
+    useCommanApiMutation();
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<Ticket[]>([]);
   const [selectedTickets, setSelectedTickets] = useState<Ticket[]>([]);
+  const [linkTicket, setLinkTicket] = useState<any>([]);
   const [linkRelationships, setLinkRelationships] = useState<
     Record<string, LinkRelationship>
   >({});
@@ -69,8 +73,15 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   const { data: linkTicketData } = useGetLinkTicketQuery({
     ticketNumber: currentTicket?.id,
   });
+  const [trackId, setTrackId] = useState<any>("");
 
   const [searchTickets, { isLoading }] = useTicketSearchMutation();
+
+  useEffect(() => {
+    if (linkTicketData?.length > 0) {
+      setLinkTicket(linkTicketData);
+    }
+  }, [linkTicketData]);
 
   // Fetch tickets using API by ID
   const fetchOptions = async (query: string) => {
@@ -117,7 +128,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   useEffect(() => {
     if (open) {
       fetchOptions(inputValue);
-  setSelectedTickets([]);
+      setSelectedTickets([]);
       setLinkRelationships({});
     }
   }, [open, currentTicket]);
@@ -133,10 +144,10 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
 
   const handleSelectTicket = (_: any, value: Ticket | null) => {
     if (!value) return;
- // Check if ticket is already selected
+    // Check if ticket is already selected
     if (selectedTickets.some((t) => t.id === value.id)) return;
     const newTicket = { ...value };
- setSelectedTickets((prev) => [...prev, newTicket]);
+    setSelectedTickets((prev) => [...prev, newTicket]);
     // Initialize link relationship for the new ticket
     setLinkRelationships((prev) => ({
       ...prev,
@@ -149,7 +160,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   };
 
   const handleRemoveTicket = (ticketId: string) => {
-     setSelectedTickets((prev) => prev.filter((t) => t.id !== ticketId));
+    setSelectedTickets((prev) => prev.filter((t) => t.id !== ticketId));
     setLinkRelationships((prev) => {
       const newRelationships = { ...prev };
       delete newRelationships[ticketId];
@@ -184,8 +195,30 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
     });
   };
 
-  // Placeholder for existing linked tickets list (replace with API data)
-  const linkedTicketsSample: Ticket[] = [];
+  const handleUnlink = (linkedTicketId: string | number) => {
+    const payload = {
+      url: `link-ticket/${currentTicket?.id}/${linkedTicketId}`,
+      method: "DELETE",
+    };
+
+    deleteLinkTicket(payload).then((res: any) => {
+      if (res?.data?.type === "error" || res?.type === "error") {
+        showToast(
+          res?.data?.message || res?.message || "Failed to unlink ticket",
+          "error"
+        );
+        return;
+      }
+
+      if (res?.data?.type === "success" || res?.type === "success") {
+        setLinkTicket((prev: any) =>
+          prev.filter((t: any) => t.id !== linkedTicketId)
+        );
+      }
+    });
+  };
+
+
 
   return (
     <div className=" w-full h-full">
@@ -371,35 +404,81 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
       {activeTab === 1 && (
         <Stack
           spacing={2}
-          sx={{ minHeight: "calc(100vh - 182px)", p: 4, overflowY: "auto" }}
+          sx={{ minHeight: "calc(100vh - 182px)", p: 2, overflowY: "auto" }}
         >
-          {linkTicketData.length === 0 ? (
+          {!Array.isArray(linkTicket) || linkTicket?.length === 0 ? (
             <div className=" h-[calc(100vh-210px)] flex justify-center items-center">
               <img src={emptyimg} alt="No Linked Tickets" className="w-60 " />
             </div>
           ) : (
             <List>
-              {linkTicketData.map((ticket:any) => (
-                <ListItem
-                  key={ticket.id}
-                  sx={{ border: "1px solid #e4e4e4", mb: 1, borderRadius: 1 }}
-                >
-                  <Avatar
-                    sx={{
-                      width: 30,
-                      height: 30,
-                      bgcolor: "primary.main",
-                      mr: 2,
-                    }}
+              {linkTicket?.map((item: any) => {
+                const id = item?.key;
+                const title = item?.title;
+                const reasonText = item?.reason;
+                const createdDt = item?.create?.by?.dt;
+                const createdTm = item?.create?.by?.tm;
+                const createdAgo = item?.create?.by?.ago;
+                const createdBy = item?.create?.by?.by?.name;
+                return (
+                  <ListItem
+                    key={id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        color="error"
+                        sx={{ color: "error.main" }}
+                        onClick={() => {
+                          setTrackId(id);
+                          handleUnlink(id);
+                        }}
+                      >
+                        {deleteLinkTicketLoading && trackId === id ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <DeleteOutlineIcon />
+                        )}
+                      </IconButton>
+                    }
+                    sx={{ border: "1px solid #e4e4e4", mb: 1, borderRadius: 1 }}
                   >
-                    {ticket.title?.charAt(0).toUpperCase()}
-                  </Avatar>
-                  <ListItemText
-                    primary={`#${ticket.id} - ${ticket.title}`}
-                    secondary={`Status: ${ticket.status} • Priority: ${ticket.priority}`}
-                  />
-                </ListItem>
-              ))}
+                    <Avatar
+                      sx={{
+                        width: 30,
+                        height: 30,
+                        bgcolor: "primary.main",
+                        mr: 2,
+                      }}
+                    >
+                      {title?.charAt(0).toUpperCase()}
+                    </Avatar>
+                    <ListItemText
+                      primary={`#${id} - ${title}`}
+                      secondary={
+                        <div>
+                          {reasonText && (
+                            <Typography
+                              variant="caption"
+                              display="block"
+                              color="text.secondary"
+                            >
+                              Reason: {reasonText}
+                            </Typography>
+                          )}
+                          <Typography
+                            variant="caption"
+                            display="block"
+                            color="text.secondary"
+                          >
+                            Created: {createdDt} {createdTm} ({createdAgo}) •
+                            By: {createdBy}
+                          </Typography>
+                        </div>
+                      }
+                    />
+                  </ListItem>
+                );
+              })}
             </List>
           )}
         </Stack>

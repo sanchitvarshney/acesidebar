@@ -303,7 +303,7 @@ const ContactList = () => {
 
   return (
     <Box sx={{ 
-      height: '100vh', 
+      height: 'calc(100vh - 100px)', 
       display: 'flex', 
       flexDirection: 'column',
       overflow: 'hidden'
@@ -311,12 +311,12 @@ const ContactList = () => {
       {/* Header Section - Like your images */}
       <Box sx={{ 
         backgroundColor: '#f8f9fa', 
-        p: 3, 
+        p: 2, 
         mb: 0, 
         borderRadius: 1,
         flexShrink: 0 
       }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', my: 2 }}>
           {/* Left side - Users title */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#333' }}>
@@ -669,7 +669,7 @@ const ContactList = () => {
       }}>
         {/* DataGrid Section */}
         <Box sx={{ 
-          flex: columnOrganizerOpen ? '0 0 calc(100% - 400px)' : '1 1 100%',
+          width:  columnOrganizerOpen ? 'calc(100% - 90px)' : '100%',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -768,7 +768,7 @@ const ContactList = () => {
             }}
             sx={{
               border: 0,
-              width: '100%',
+              width: columnOrganizerOpen ? 'calc(100% - 300px)' : '100%',
               height: '100%',
 
               // Loading overlay styling
@@ -1142,7 +1142,7 @@ const ContactList = () => {
           </Box>
 
           {/* Content */}
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 2 }}>
             {/* Field Label */}
             <Typography 
               variant="body2" 
