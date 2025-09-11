@@ -2,14 +2,6 @@
 
 import { baseInstanceOfApi } from "./baseInstanceOfApi";
 
-// Define the interface for ticket list query parameters
-interface TicketListParams {
-  priority?: string;
-  department?: string;
-  page?: number;
-  limit?: number;
-}
-
 const extendedTicketDetailApi = baseInstanceOfApi.injectEndpoints({
   endpoints: (builder) => ({
     getTicketDetailStaffView: builder.query<any, { ticketNumber: string }>({

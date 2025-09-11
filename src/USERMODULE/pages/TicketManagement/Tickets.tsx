@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
-import { Avatar, IconButton, Button, Checkbox, Popover, FormControl, InputLabel, Select, MenuItem, Tooltip } from "@mui/material";
+import { IconButton, Button, Checkbox, Popover, FormControl, Select, MenuItem, Tooltip } from "@mui/material";
 import LeftMenu from "./LeftMenu";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PushPinIcon from '@mui/icons-material/PushPin';
@@ -21,26 +19,18 @@ import TablePagination from "@mui/material/TablePagination";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CallMergeIcon from "@mui/icons-material/CallMerge";
-import CustomDropdown from "../../../components/shared/CustomDropdown";
-import PersonIcon from "@mui/icons-material/Person";
-import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
-import AgentAssignPopover from "../../../components/shared/AgentAssignPopover";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import TicketSubjectPopover from "../../../components/shared/TicketSubjectPopover";
 import TicketSortingPopover from "../../../components/shared/TicketSortingPopover";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 
 import {
   useCommanApiMutation,
-  useTicketStatusChangeMutation,
 } from "../../../services/threadsApi";
 
 import AssignTicket from "../../components/AssignTicket";
 import Mergeticket from "../../components/Mergeticket";
-import { useAuth } from "../../../contextApi/AuthContext";
 import { useToast } from "../../../hooks/useToast";
 
 // Priority/Status/Agent dropdown options
@@ -56,19 +46,13 @@ interface StatusOption {
   value: string;
 }
 
-const SENTIMENT_EMOJI = { POS: "🙂", NEU: "😐", NEG: "🙁" };
-
 const Tickets: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
-  const [ticketDropdowns, setTicketDropdowns] = useState<
-    Record<string, { priority: string; agent: string; status: string }>
-  >({});
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { showToast } = useToast();
@@ -83,11 +67,6 @@ const Tickets: React.FC = () => {
 
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState<string | null>(null);
-  const [popoverAnchorEl, setPopoverAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
-  const [popoverHovered, setPopoverHovered] = useState(false);
-  const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [isMergeModal, setIsMergeModal] = useState(false);
 
@@ -95,22 +74,14 @@ const Tickets: React.FC = () => {
   const [sortingPopoverAnchorEl, setSortingPopoverAnchorEl] =
     useState<HTMLElement | null>(null);
   const [sortingPopoverOpen, setSortingPopoverOpen] = useState(false);
-  const [openTicketNumber, setOpenTicketNumber] = useState<string | null>(null);
-
   const [userPopupAnchorEl, setUserPopupAnchorEl] =
     useState<HTMLElement | null>(null);
   const [userPopupUser, setUserPopupUser] = useState<any>(null);
   const userPopupTimer = React.useRef<NodeJS.Timeout | null>(null);
-  const [copiedTicketNumber, setCopiedTicketNumber] = useState<string | null>(
-    null
-  );
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isCloseModal, setIsCloseModal] = useState(false);
-  const [ticketStatusChange] = useTicketStatusChangeMutation();
-
   // Quick update popup state
   const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] = useState<HTMLElement | null>(null);
-  const [selectedTicketForUpdate, setSelectedTicketForUpdate] = useState<any>(null);
   const [quickUpdateValues, setQuickUpdateValues] = useState({
     priority: '',
     status: '',
@@ -200,15 +171,6 @@ const Tickets: React.FC = () => {
     // TODO: Trigger API call with newFilters
   };
 
-  // Handle ticket checkbox change
-  const handleTicketCheckbox = (ticketId: string) => {
-    setSelectedTickets((prev) =>
-      prev.includes(ticketId)
-        ? prev.filter((id) => id !== ticketId)
-        : [...prev, ticketId]
-    );
-  };
-
   // Handle master checkbox change
   const handleMasterCheckbox = () => {
     if (selectedTickets.length === ticketList?.data?.length) {
@@ -230,26 +192,6 @@ const Tickets: React.FC = () => {
         selectedTickets.length === ticketList.data.length
     );
   }, [selectedTickets, ticketList]);
-
-  const handlePopoverClose = () => {
-    setPopoverAnchorEl(null);
-    setPopoverHovered(false);
-  };
-
-  const handlePopoverEnter = () => {
-    if (closePopoverTimer.current) {
-      clearTimeout(closePopoverTimer.current);
-      closePopoverTimer.current = null;
-    }
-    setPopoverHovered(true);
-  };
-
-  const handlePopoverLeave = () => {
-    closePopoverTimer.current = setTimeout(() => {
-      setPopoverHovered(false);
-      setPopoverAnchorEl(null);
-    }, 200);
-  };
 
   // Handle user popup hover with delayuseC
   const handleUserHover = (event: React.MouseEvent<HTMLElement>, user: any) => {
@@ -280,31 +222,11 @@ const Tickets: React.FC = () => {
     setUserPopupUser(null);
   };
 
-  const handleCopyTicketNumber = async (ticketNumber: string) => {
-    try {
-      await navigator.clipboard.writeText(ticketNumber);
-      setCopiedTicketNumber(ticketNumber);
-      setTimeout(() => setCopiedTicketNumber(null), 2000); // Reset after 2 seconds
-    } catch (err) {
-      console.error("Failed to copy ticket number:", err);
-    }
-  };
-
   // When a ticket is opened, update the URL
   const handleTicketSubjectClick = (ticketNumber: string) => {
     navigate(`/tickets/${ticketNumber}`);
   };
 
-  // When closing a ticket, go back to /tickets
-
-  // // On mount, if there is an id param, open that ticket
-  // React.useEffect(() => {
-  //   if (routeTicketId) {
-  //     setOpenTicketNumber(routeTicketId);
-  //   }
-  // }, [routeTicketId]);
-
-  // Cleanup timer on unmount
   React.useEffect(() => {
     return () => {
       if (userPopupTimer.current) {
@@ -341,7 +263,6 @@ const Tickets: React.FC = () => {
   const handleQuickUpdateOpen = (event: React.MouseEvent<HTMLElement>, ticket: any) => {
     event.stopPropagation();
     setQuickUpdateAnchorEl(event.currentTarget);
-    setSelectedTicketForUpdate(ticket);
     setQuickUpdateValues({
       priority: ticket.priority?.key || '',
       status: ticket.status?.key || '',
@@ -352,7 +273,6 @@ const Tickets: React.FC = () => {
 
   const handleQuickUpdateClose = () => {
     setQuickUpdateAnchorEl(null);
-    setSelectedTicketForUpdate(null);
   };
 
   const handleQuickUpdateChange = (field: string, value: string) => {
@@ -383,85 +303,11 @@ const Tickets: React.FC = () => {
     });
   };
 
-  const handleDropdownChange = (value: any, ticket: any, type: any) => {
-    const payload = {
-      url: `edit-property/${ticket.ticketNumber}?${type}=${value}`,
-    };
-    ticketStatusChange(payload).then((res: any) => {
-      if (res?.data?.type === "error") {
-        showToast(res?.message || res?.data?.message, "error");
-        return;
-      }
-      setTicketDropdowns((prev) => ({
-        ...prev,
-        [ticket.ticketNumber]: { ...ticketDropdowns, [type]: value },
-      }));
-    });
-
-    // setTicketDropdowns((prev) => ({
-    //   ...prev,
-    //   [ticket.ticketNumber]: { ...dropdownState, priority: value },
-    // }));
-  };
-
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
-    // Sentiment emoji logic
-    const sentiment: keyof typeof SENTIMENT_EMOJI = ticket.sentiment || "NEU";
-    const emoji = SENTIMENT_EMOJI[sentiment] || "😐";
-    // State for dropdowns
-    const dropdownState = ticketDropdowns[ticket.ticketNumber] || {
-      priority: ticket.priority?.key,
-      agent: ticket.assignee?.name || "",
-      status: ticket.status?.key,
-    };
-
     // Get priority color and label - use actual API data
     const priorityColor = ticket.priority?.color || '#6b7280'; // Default gray
     const priorityLabel = ticket.priority?.name || 'LOW';
-
-    // Get status label - use actual API data
-    const statusLabel = ticket?.status?.name || 'Open';
-
-    // Get status color and label
-    const getStatusStyle = (status: string | any) => {
-      const statusKey = typeof status === "object" && status ? status.key : status;
-      switch (statusKey?.toLowerCase()) {
-        case 'open':
-          return { bg: 'bg-blue-500', text: 'text-white', label: 'OPEN' };
-        case 'new':
-          return { bg: 'bg-orange-500', text: 'text-white', label: 'NEW' };
-        case 'solved':
-        case 'resolved':
-          return { bg: 'bg-green-500', text: 'text-white', label: 'SOLVED' };
-        case 'pending':
-          return { bg: 'bg-yellow-500', text: 'text-white', label: 'PENDING' };
-        case 'closed':
-          return { bg: 'bg-gray-500', text: 'text-white', label: 'CLOSED' };
-        default:
-          return { bg: 'bg-orange-500', text: 'text-white', label: 'NEW' };
-      }
-    };
-
-    const statusStyle = getStatusStyle(ticket.status || dropdownState.status);
-
-    // Get priority color
-    const getPriorityColor = (priority: string) => {
-      switch (priority?.toLowerCase()) {
-        case 'low':
-          return 'text-gray-500';
-        case 'medium':
-          return 'text-blue-600';
-        case 'high':
-          return 'text-orange-600';
-        case 'critical':
-        case 'urgent':
-          return 'text-red-600';
-        default:
-          return 'text-gray-500';
-      }
-    };
-
     return (
       <div
         key={ticket?.ticketNumber}
