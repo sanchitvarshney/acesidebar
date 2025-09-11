@@ -65,6 +65,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   const [options, setOptions] = useState<Ticket[]>([]);
   const [selectedTickets, setSelectedTickets] = useState<Ticket[]>([]);
   const [linkTicket, setLinkTicket] = useState<any>([]);
+  
   const [linkRelationships, setLinkRelationships] = useState<
     Record<string, LinkRelationship>
   >({});
@@ -79,6 +80,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
 
   useEffect(() => {
     if (linkTicketData?.length > 0) {
+     
       setLinkTicket(linkTicketData);
     }
   }, [linkTicketData]);
@@ -420,6 +422,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
                 const createdTm = item?.create?.by?.tm;
                 const createdAgo = item?.create?.by?.ago;
                 const createdBy = item?.create?.by?.by?.name;
+                const ticketId = item?.ticket;
                 return (
                   <ListItem
                     key={id}
@@ -453,7 +456,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
                       {title?.charAt(0).toUpperCase()}
                     </Avatar>
                     <ListItemText
-                      primary={`#${id} - ${title}`}
+                      primary={`#${ticketId} - ${title}`}
                       secondary={
                         <div>
                           {reasonText && (

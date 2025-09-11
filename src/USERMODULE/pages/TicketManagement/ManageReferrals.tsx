@@ -23,7 +23,14 @@ import {
   Tab,
   InputAdornment,
   Autocomplete,
+  Box,
+  CircularProgress,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import {
   Person,
   Search,
@@ -45,11 +52,12 @@ import {
   useLazyGetDepartmentBySeachQuery,
   useLazyGetUserBySeachQuery,
 } from "../../../services/agentServices";
+import { useGetPriorityListQuery } from "../../../services/ticketAuth";
 
 interface ManageReferralsProps {
   open: boolean;
   onClose: () => void;
-  ticketId: string | number;
+  ticket: any;
 }
 
 interface Referral {
@@ -184,7 +192,7 @@ const existingReferrals: Referral[] = [
 const ManageReferrals: React.FC<ManageReferralsProps> = ({
   open,
   onClose,
-  ticketId,
+  ticket,
 }) => {
   const [commanApi] = useCommanApiMutation();
   const { showToast } = useToast();
@@ -193,14 +201,15 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
   const [referralType, setReferralType] = useState<
     "department" | "agent" | "team" | ""
   >("");
-  const [selectedDepartment, setSelectedDepartment] = useState<any>("");
-  const [selectedAgent, setSelectedAgent] = useState<any>("");
-  const [selectedTeam, setSelectedTeam] = useState("");
-  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
-  const [dueDate, setDueDate] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
+  const [selectedAgent, setSelectedAgent] = useState<any>(null);
+  const [selectedTeam, setSelectedTeam] = useState<any>(null);
+  const [priority, setPriority] = useState<any>();
+  const [dueDate, setDueDate] = useState<Dayjs | null>(null);
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const { data: priorityList, isLoading: isPriorityListLoading } =
+    useGetPriorityListQuery();
   const [contactChangeValue, setContactChangeValue] = useState("");
 
   const [options, setOptions] = useState<any[]>([]);
@@ -213,11 +222,19 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
     useLazyGetDepartmentBySeachQuery();
 
   useEffect(() => {
+    if (ticket?.status) {
+      setPriority(ticket?.status);
+    }
+  }, [ticket?.status]);
+
+  useEffect(() => {
     if (open && inputRef.current) {
       //@ts-ignore
       setTimeout(() => inputRef.current.focus(), 100);
     }
   }, [open]);
+  console.log("selectedDepartment", selectedDepartment);
+
   const fetchUserOptions = async (query: string) => {
     if (!query) {
       setOptions([]);
@@ -226,20 +243,27 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
 
     try {
       const res =
-        (await referralType) === "department"
-          ? triggerDept({ search: query }).unwrap()
-          : triggerSeachUser({ search: query }).unwrap();
+        referralType === "department"
+          ? await triggerDept({ search: query }).unwrap()
+          : await triggerSeachUser({ search: query }).unwrap();
 
       //@ts-ignore
       const data = Array.isArray(res) ? res : res?.data;
 
       const currentValue = contactChangeValue;
-      const fallback = [
-        {
+      const fallback: any = [];
+
+      referralType === "department" &&
+        fallback.push({
+          id: currentValue,
+          name: currentValue,
+        });
+
+      referralType === "agent" &&
+        fallback.push({
           name: currentValue,
           email: currentValue,
-        },
-      ];
+        });
 
       if (Array.isArray(data)) {
         setOptions(data.length > 0 ? data : fallback);
@@ -253,18 +277,24 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
 
   const handleSelectedOption = (_: React.SyntheticEvent, value: any) => {
     if (!value) return;
-
-    const dataValue = { name: value.userName, email: value.userEmail };
-    if (!isValidEmail(dataValue.email)) {
-      showToast("Invalid email format", "error");
-      return;
-    }
+    console.log(value, "value");
 
     if (referralType === "team") {
-      setSelectedTeam(dataValue.email);
+      const dataValue = { name: value.name, email: value.userEmail };
+      if (!isValidEmail(dataValue.email)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
+      setSelectedTeam(dataValue);
     } else if (referralType === "agent") {
-      setSelectedAgent(dataValue.email);
+      const dataValue = { name: value.name, email: value.email };
+      if (!isValidEmail(dataValue.email)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
+      setSelectedAgent(dataValue);
     } else {
+      setSelectedDepartment(value);
     }
   };
 
@@ -287,7 +317,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
     }
 
     const payload = {
-      url: `tickets/${ticketId}/referrals`,
+      url: `tickets/${ticket.id}/referrals`,
       method: "POST",
       body: {
         type: referralType,
@@ -299,7 +329,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
             : null,
         targetEmail: referralType === "team" ? selectedTeam : "",
         priority,
-        dueDate: dueDate || null,
+        dueDate: dueDate ? dueDate.toISOString() : null,
         notes,
         status: "pending",
       },
@@ -313,7 +343,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
     newStatus: Referral["status"]
   ) => {
     const payload = {
-      url: `tickets/${ticketId}/referrals/${referralId}/status`,
+      url: `tickets/${ticket?.id}/referrals/${referralId}/status`,
       method: "PUT",
       body: { status: newStatus },
     };
@@ -324,9 +354,9 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
   const resetForm = () => {
     setSelectedDepartment(null);
     setSelectedAgent(null);
-    setSelectedAgent("");
-    setPriority("medium");
-    setDueDate("");
+    setSelectedTeam("");
+    setPriority("");
+    setDueDate(null);
     setNotes("");
     setSearchQuery("");
   };
@@ -461,10 +491,16 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                 sx={{ my: 1.5 }}
                 getOptionLabel={(option) => {
                   if (typeof option === "string") return option;
-                  return option.userEmail || option.userName || "";
+                  return option.name || option.deptName || "";
                 }}
                 options={displayContactOptions}
-                value={selectedAgent || ""}
+                value={
+                  referralType === "department"
+                    ? selectedDepartment
+                    : referralType === "agent"
+                    ? selectedAgent
+                    : selectedTeam
+                }
                 onChange={(event, newValue) => {
                   handleSelectedOption(event, newValue);
                 }}
@@ -476,7 +512,6 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                 getOptionDisabled={(option) => option === "Type to search"}
                 noOptionsText="No Data Found"
                 renderOption={(props, option) => {
-                  console.log("Option:", option);
                   return (
                     <li {...props}>
                       {typeof option === "string" ? (
@@ -486,29 +521,21 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                           className="flex items-center gap-3 p-2 rounded-md w-full"
                           style={{ cursor: "pointer" }}
                         >
-                          <Avatar
-                            sx={{
-                              width: 30,
-                              height: 30,
-                              backgroundColor: "primary.main",
-                            }}
-                          >
-                            {option.userName?.charAt(0).toUpperCase()}
-                          </Avatar>
-
                           <div className="flex flex-col">
                             <Typography
                               variant="subtitle2"
                               sx={{ fontWeight: 600 }}
                             >
-                              {option.userName}
+                              {option.name ?? option?.deptName}
                             </Typography>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              {option.userEmail}
-                            </Typography>
+                            {option.email && (
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {option.userEmail}
+                              </Typography>
+                            )}
                           </div>
                         </div>
                       )}
@@ -575,26 +602,92 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
 
             {/* Priority and Due Date */}
             <MuiBox sx={{ display: "flex", gap: 2, mb: 3 }}>
-              <FormControl size="small" sx={{ minWidth: 120 }}>
+              <FormControl  size="small" variant="outlined">
                 <InputLabel>Priority</InputLabel>
                 <Select
                   value={priority}
+                  onChange={(e) =>
+                    setPriority(e.target.value)
+                  }
                   label="Priority"
-                  onChange={(e) => setPriority(e.target.value as any)}
+                  // startAdornment={
+                  //   <PriorityHigh
+                  //     fontSize="small"
+                  //     sx={{ color: "#666", mr: 1 }}
+                  //   />
+                  // }
+                  sx={{
+                    width:300,
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#9ca3af",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#1976d2",
+                    },
+                    backgroundColor: "#fff",
+                    fontSize: "0.875rem",
+                  }}
                 >
-                  <MenuItem value="low">Low</MenuItem>
-                  <MenuItem value="medium">Medium</MenuItem>
-                  <MenuItem value="high">High</MenuItem>
+                  {priorityList?.map((option: any) => (
+                    <MenuItem key={option.key} value={option.key}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        {isPriorityListLoading ? (
+                          <CircularProgress size={18} />
+                        ) : (
+                          <>
+                            <Box
+                              sx={{
+                                width: 12,
+                                height: 12,
+                                borderRadius: "50%",
+                                backgroundColor: option.color,
+                                flexShrink: 0,
+                              }}
+                            />
+                            {option.specification}
+                          </>
+                        )}
+                      </Box>
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
-              <TextField
-                size="small"
-                type="date"
-                label="Due Date (Optional)"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Due Date (Optional)"
+                  value={dueDate}
+                  
+                  onChange={(newValue, _context) => setDueDate(newValue)}
+                  format="DD-MM-YYYY"
+                  slotProps={{
+                    textField: {
+                      variant: "outlined",
+                      size: "small",
+                      sx: {
+                        width: 200,
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "4px",
+                          backgroundColor: "#f9fafb",
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#9ca3af",
+                          },
+                          "&:hover .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#9ca3af",
+                          },
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#1a73e8",
+                          },
+                        },
+                        "& label.Mui-focused": { color: "#1a73e8" },
+                        "& label": { fontWeight: "bold" },
+                      },
+                    },
+                  }}
+                
+                />
+              </LocalizationProvider>
             </MuiBox>
 
             {/* Notes */}
