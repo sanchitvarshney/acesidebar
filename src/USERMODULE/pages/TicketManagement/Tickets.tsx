@@ -388,15 +388,6 @@ const Tickets: React.FC = () => {
           {/* Separator */}
           <div className="text-gray-300">|</div>
 
-          {/* Thread Count */}
-          <div className="flex flex-col">
-            <span className="text-gray-500 mb-1">threads</span>
-            <span className="text-gray-700 font-medium">{ticket?.stats?.threadCount || 2}</span>
-          </div>
-
-          {/* Separator */}
-          <div className="text-gray-300">|</div>
-
           {/* Assignee */}
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">assignee</span>
