@@ -62,9 +62,10 @@ import ChangeOwner from "./ChangeOwner";
 import ManageReferrals from "./ManageReferrals";
 import Attachments from "./Attachments";
 import Activity from "./Activity";
-import { useAuth } from "../../../contextApi/AuthContext";
+
 import { useToast } from "../../../hooks/useToast";
 import { useLazyGetAgentsBySeachQuery } from "../../../services/agentServices";
+
 
 const ActionButton = ({
   icon,
@@ -186,6 +187,8 @@ const TicketDetailHeader = ({
     useCommanApiMutation();
   const [triggerWatchApi] = useCommanApiMutation();
   const displayAgentOptions = onChangeAgent ? agentOptions : [];
+
+ 
   const fetchAgentOptions = async (query: string) => {
     if (!query) {
       setAgentOptions([]);
@@ -833,7 +836,10 @@ const TicketDetailHeader = ({
           onClose={() => {
             setIsManageReferralsModal(false);
           }}
-          ticketId={ticketNumber}
+          ticket={{
+            id: ticket?.ticketId,
+            status: ticket?.status?.key,
+          }}
         />
       </CustomSideBarPanel>
 
