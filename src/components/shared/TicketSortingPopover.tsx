@@ -3,9 +3,7 @@ import Popover from "@mui/material/Popover";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import Box from "@mui/material/Box";
 import CheckIcon from "@mui/icons-material/Check";
 
 interface SortField {

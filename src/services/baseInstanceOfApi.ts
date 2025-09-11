@@ -3,7 +3,6 @@ import {
   fetchBaseQuery,
   BaseQueryFn,
 } from "@reduxjs/toolkit/query/react";
-import { decrypt } from "../utils/encryption";
 import {
   createRequestHeaders,
   addTurnstileToHeaders,

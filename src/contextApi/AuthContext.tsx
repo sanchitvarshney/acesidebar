@@ -7,9 +7,6 @@ import React, {
 } from "react";
 import type { ReactNode } from "react";
 
-import { useAppDispatch } from "../hooks/useReduxHook";
-import { decrypt } from "../utils/encryption";
-
 interface AuthContextType {
   user: string | null;
   signIn: any;
@@ -31,7 +28,6 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const dispatch = useAppDispatch();
   const [user, setUser] = useState<any | null>(null);
 
   const signIn = useCallback(() => {

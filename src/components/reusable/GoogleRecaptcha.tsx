@@ -81,7 +81,6 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
         theme: theme,
         size: size,
         callback: (token: string) => {
-          setIsVerifying(false);
           if (token && token.length > 0) {
             onVerify(token);
           } else {

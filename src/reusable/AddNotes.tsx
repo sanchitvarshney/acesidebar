@@ -1,8 +1,5 @@
-// StyledTextField.jsx
-import React from "react";
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
-import { useParams } from "react-router-dom";
 
 const getCharacters = (text: string) => {
   const val = 100 - text.length;
