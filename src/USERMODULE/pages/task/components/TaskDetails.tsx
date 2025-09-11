@@ -187,7 +187,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
       </Card>
 
       {/* Tags */}
-      {task.tags.length > 0 && (
+      {task?.tags?.length > 0 && (
         <Card>
           <CardContent className="p-4">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100 mb-3">
