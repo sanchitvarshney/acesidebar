@@ -60,7 +60,7 @@ const StatusTab = ({ ticket }: any) => {
 
   const handleUpdateTicket = () => {
     const payload = {
-      url: "edit-properties",
+      url: "edit-properties/" + ticket?.ticketId,
       method: "PUT",
       body: {
         ticket: ticket?.ticketId,
