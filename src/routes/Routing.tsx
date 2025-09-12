@@ -43,6 +43,7 @@ import TicketFieldsPage from "../USERMODULE/pages/settingPages/TicketFieldsPage"
 import ManageTags from "../USERMODULE/pages/settingPages/ManageTags";
 import AgentsMasterPage from "../USERMODULE/pages/settingManangePages/AgentsMasterPage";
 import TeamPage from "../USERMODULE/pages/settingPages/TeamPage";
+import CreateDepartmentPage from "../USERMODULE/pages/settingManangePages/CreateDepartmentPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -143,6 +144,10 @@ export const router = createBrowserRouter([
       {
         path: "departments",
         element: <DepartmentsManagement />,
+      },
+      {
+        path: "create-department",
+        element: <CreateDepartmentPage />,
       },
       {
         path: "agents",

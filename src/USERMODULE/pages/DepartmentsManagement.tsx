@@ -465,13 +465,13 @@ const DepartmentsManagement = () => {
             >
               {isGetDepartmentListLoading ? 'Loading...' : 'Refresh'}
             </Button>
-            <Button
-              variant="contained"
+            <Button 
+              variant="contained" 
               color="primary"
-              onClick={() => setIsAdd(true)}
-              sx={{
-                px: 3,
-                py: 1.5,
+              onClick={() => navigate('/create-department')}
+              sx={{ 
+                px: 3, 
+                py: 1.5, 
                 borderRadius: 2,
                 textTransform: 'none',
                 fontWeight: 600,
