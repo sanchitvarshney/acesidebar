@@ -494,7 +494,7 @@ const DepartmentsManagement = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/departments")}>
+            <IconButton onClick={() => navigate("/settings/team")}>
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
