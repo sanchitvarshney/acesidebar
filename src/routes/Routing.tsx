@@ -44,6 +44,7 @@ import ManageTags from "../USERMODULE/pages/settingPages/ManageTags";
 import AgentsMasterPage from "../USERMODULE/pages/settingManangePages/AgentsMasterPage";
 import TeamPage from "../USERMODULE/pages/settingPages/TeamPage";
 import CreateDepartmentPage from "../USERMODULE/pages/settingManangePages/CreateDepartmentPage";
+import AddAgentPage from "../USERMODULE/pages/settingManangePages/AddAgentPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -152,6 +153,10 @@ export const router = createBrowserRouter([
       {
         path: "agents",
         element: <AgentsMasterPage />,
+      },
+      {
+        path: "add-agent",
+        element: <AddAgentPage />,
       },
       {
         path: "account-settings",
