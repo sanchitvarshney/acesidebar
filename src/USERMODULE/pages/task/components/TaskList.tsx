@@ -1,16 +1,20 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useCallback } from "react";
 import {
   TextField,
   IconButton,
   Tooltip,
+  TablePagination,
+  Box,
+  CircularProgress,
 } from "@mui/material";
 import {
   FilterList as FilterListIcon,
   ManageSearch as ManageSearchIcon,
+  Assignment as AssignmentIcon,
 } from "@mui/icons-material";
 import { Task } from "../types/task.types";
 import TaskCard from "./TaskCard";
-import { filterTasksBySearch } from "../utils/taskUtils";
+import { filterTasksBySearch, paginateTasks } from "../utils/taskUtils";
 import TaskListSkeleton from "../../../skeleton/TaskListSkeleton";
 
 interface TaskListProps {
@@ -41,9 +45,15 @@ const TaskList: React.FC<TaskListProps> = memo(
     selectedTasks,
     selectedTask,
     searchQuery,
+    page,
+    rowsPerPage,
+    totalPages,
+    totalCount,
     onSearchChange,
     onTaskSelect,
-    onTaskClick,  
+    onTaskClick,
+    onPageChange,
+    onRowsPerPageChange,
     onAdvancedSearchOpen,
     getStatusIcon,
     isAddTask,
@@ -72,6 +82,21 @@ const TaskList: React.FC<TaskListProps> = memo(
     const paginatedTasks = useMemo(() => {
       return filteredTasks;
     }, [filteredTasks]);
+
+    const handleChangePage = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+        // Translate MUI's 0-based page to app's 1-based page
+        onPageChange(newPage + 1);
+      },
+      [onPageChange]
+    );
+
+    const handleChangeRowsPerPage = useCallback(
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        onRowsPerPageChange(parseInt(event.target.value, 10));
+      },
+      [onRowsPerPageChange]
+    );
 
     return (
       <div className="w-[35%] flex flex-col border-r h-[calc(100vh-150px)] bg-white ">

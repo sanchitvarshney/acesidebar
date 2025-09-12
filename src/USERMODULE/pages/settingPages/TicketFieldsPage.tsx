@@ -1,8 +1,9 @@
-import React, { useState} from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   DragIndicator,
   VisibilityOff,
   Close,
+  Check,
   CalendarToday,
   List,
   CheckBox,
@@ -29,7 +30,12 @@ import {
   IconButton,
   Checkbox,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Divider,
+  Grid,
   Tooltip,
   InputAdornment,
   Paper,
@@ -38,6 +44,7 @@ import {
   Accordion,
   Backdrop,
 } from "@mui/material";
+import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
 // Field types that can be dragged and dropped
 const fieldTypes = [
@@ -186,6 +193,7 @@ interface FieldConfig {
 const TicketFieldsPage: React.FC = () => {
   const [fields, setFields] = useState<FieldConfig[]>(defaultFields);
   const [selectedField, setSelectedField] = useState<FieldConfig | null>(null);
+  const [isConfigOpen, setIsConfigOpen] = useState(null);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
@@ -296,13 +304,15 @@ const TicketFieldsPage: React.FC = () => {
 
   const handleFieldClick = (e: any, field: FieldConfig) => {
     setSelectedField(field);
+    setIsConfigOpen(e.currentTarget);
   };
 
   const handleSaveField = (updatedField: FieldConfig) => {
     setFields((prev) =>
       prev.map((field) => (field.id === updatedField.id ? updatedField : field))
     );
-     setSelectedField(null);
+    setIsConfigOpen(null);
+    setSelectedField(null);
   };
 
   const handleDeleteField = (fieldId: string) => {
@@ -616,7 +626,8 @@ const TicketFieldsPage: React.FC = () => {
                         field={selectedField}
                         onSave={handleSaveField}
                         onClose={() => {
-                           setSelectedField(null);
+                          setIsConfigOpen(null);
+                          setSelectedField(null);
                         }}
                       />
                     </AccordionDetails>
@@ -674,6 +685,8 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
   };
 
   if (!field || !formData) return null;
+
+  const IconComponent = getFieldIcon(field.type);
 
   return (
     <Paper sx={{ p: 4, width: "100%" }}>

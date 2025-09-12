@@ -1,5 +1,6 @@
 import React from "react";
 import { Checkbox, Button, TablePagination } from "@mui/material";
+import { Task } from "../types/task.types";
 
 interface TaskHeaderProps {
   totalTasks: number;

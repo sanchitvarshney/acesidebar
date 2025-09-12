@@ -85,6 +85,7 @@ const StackEditor = ({
 }) => {
   const {
     isEditorExpended,
+    isExpended,
     onCloseReply,
     signatureValue,
     isValues,
@@ -391,6 +392,7 @@ const StackEditor = ({
       }
 
       const url = response?.data?.data?.url;
+      console.log(url);
       if (!url) showToast("Upload succeeded but URL missing", "error");
       return url;
     } finally {

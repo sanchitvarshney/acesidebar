@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  IconButton,
   Button,
   Box,
   Typography,
   CircularProgress,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { motion } from "framer-motion";
 
@@ -33,11 +35,25 @@ interface CustomModalProps {
 
 const CustomModal: React.FC<CustomModalProps> = ({
   open,
+  onClose,
   title,
   msg,
   primaryButton,
   secondaryButton,
 }) => {
+  const [showCheckIcon, setShowCheckIcon] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      // Reset check icon state when modal opens
+      setShowCheckIcon(false);
+      // Show check icon after a short delay
+      const timer = setTimeout(() => {
+        setShowCheckIcon(true);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   return (
     <Dialog

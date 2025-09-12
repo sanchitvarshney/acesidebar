@@ -35,6 +35,7 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
   const recaptchaRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<number | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const reset = () => {
     if (widgetIdRef.current !== null && window.grecaptcha) {
@@ -95,6 +96,21 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
       });
 
       widgetIdRef.current = widgetId;
+      
+      // Add event listener to detect when user starts interacting
+      const recaptchaElement = recaptchaRef.current;
+      if (recaptchaElement) {
+        const handleClick = () => {
+          setIsVerifying(true);
+        };
+        
+        recaptchaElement.addEventListener('click', handleClick);
+        
+        // Cleanup event listener
+        return () => {
+          recaptchaElement.removeEventListener('click', handleClick);
+        };
+      }
     } catch (error) {
       onError?.('Failed to load reCAPTCHA');
     }

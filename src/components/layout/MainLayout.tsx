@@ -1,8 +1,9 @@
-import { Suspense, useState } from "react";
-import { Box, CssBaseline, styled } from "@mui/material";
+import React, { Suspense, useState } from "react";
+import { Box, CssBaseline, useTheme, styled } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { Outlet } from "react-router-dom";
+import BottomBar from "./BottomBar";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import logo from "../../assets/image/ajaxter-logo.webp";
 import PrivateTurnstile from "../common/PrivateTurnstile";
@@ -59,6 +60,7 @@ const MainContent = styled(Box)(({ theme }) => ({
 
 const MainLayout = () => {
   const [open, setOpen] = useState(true);
+  const theme = useTheme();
   const { isAnyPopupOpen } = usePopupContext();
 
   const handleDrawerToggle = () => {

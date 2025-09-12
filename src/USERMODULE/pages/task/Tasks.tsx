@@ -44,9 +44,12 @@ import {
 } from "./data/taskData";
 import {
   getStatusIcon,
+  getTimeAgo,
   canEditComment,
   getStatusColor,
+  getPriorityColor,
   validateComment,
+  validateFileUpload,
   validateSearchCondition,
 } from "./utils/taskUtils";
 import TaskHeader from "./components/TaskHeader";
@@ -61,6 +64,7 @@ import {
 import { useToast } from "../../../hooks/useToast";
 import {
   useGetStatusListQuery,
+  useGetTagListQuery,
 } from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/empty_task.svg";
@@ -261,6 +265,17 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     setIsInternalComment(false);
     setShowCommentForm(false);
     setShowAttachments(false);
+  };
+
+  // File upload handler using shared utils
+  const handleFileUpload = (files: File[]) => {
+    const validation = validateFileUpload(files, attachments);
+    if (validation.errors.length > 0) {
+      validation.errors.forEach((error) => alert(error));
+    }
+    if (validation.validFiles.length > 0) {
+      setAttachments((prev) => [...prev, ...validation.validFiles]);
+    }
   };
 
   // Comment editing functions

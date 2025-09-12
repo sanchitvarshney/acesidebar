@@ -8,6 +8,8 @@ import {
   Drawer,
   Button,
   Typography,
+  Box as MuiBox,
+  Avatar,
   Modal,
 } from "@mui/material";
 
@@ -57,7 +59,7 @@ const TicketDetailTemplate = () => {
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
-  const [triggerForward] =
+  const [triggerForward, { isLoading: isForwardLoading }] =
     useCommanApiMutation();
 
   const handleBack = () => {

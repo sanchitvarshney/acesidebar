@@ -55,10 +55,12 @@ import {
   Select, 
   MenuItem, 
   FormControl, 
+  InputLabel,
   TextField,
   Button,
   Checkbox,
   FormControlLabel,
+  Divider,
   Stepper,
   Step,
   StepLabel,
@@ -91,6 +93,16 @@ interface FilterRow {
   field: string;
   operator: string;
   value: string;
+}
+
+interface SearchPayload {
+  searchType: string;
+  logicOperator: string;
+  filters: Array<{
+    field: string;
+    operator: string;
+    value: string | string[] | Date;
+  }>;
 }
 
 interface SearchResult {
@@ -512,6 +524,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
   };
 
   const renderValueInput = (filter: FilterRow) => {
+    const currentFieldOptions = fieldOptionsMap[selectedSearchType];
     const currentStatusOptions = statusOptionsMap[selectedSearchType];
 
     if (filter.field === 'Status') {
@@ -683,7 +696,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
 
           {/* Filter Rows */}
            <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
-            {filters.map((filter) => (
+            {filters.map((filter, index) => (
                <Box 
                  key={filter.id} 
                  sx={{ 
