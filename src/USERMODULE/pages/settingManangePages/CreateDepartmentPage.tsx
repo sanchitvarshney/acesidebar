@@ -200,7 +200,7 @@ const CreateDepartmentPage = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        height: "calc(100vh - 200px)",
         bgcolor: "#f5f5f5",
       }}
     >
@@ -249,6 +249,8 @@ const CreateDepartmentPage = () => {
           flexDirection: "column",
           gap: 2,
           backgroundColor: "#fff",
+          overflow: "auto",
+          maxHeight: "calc(100vh - 250px)",
         }}
       >
         {/* Tab 1: Department Configuration with Stepper */}
