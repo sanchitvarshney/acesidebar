@@ -506,11 +506,11 @@ const DepartmentsManagement = () => {
             >
               {isGetDepartmentListLoading ? "Loading..." : "Refresh"}
             </Button>
-            <Button
-              variant="contained"
+            <Button 
+              variant="contained" 
               color="primary"
-              onClick={() => setIsAdd(true)}
-              size="small"
+              onClick={() => navigate('/create-department')}
+             size="small"
             >
               New Department
             </Button>
