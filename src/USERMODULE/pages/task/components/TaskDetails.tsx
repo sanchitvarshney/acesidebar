@@ -3,15 +3,11 @@ import {
   Card,
   CardContent,
   Chip,
-  FormControl,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import {
   Assignment as AssignmentIcon,
   Person as PersonIcon,
   Schedule as ScheduleIcon,
-  PriorityHigh as PriorityHighIcon,
   ConfirmationNumber as ConfirmationNumberIcon,
   DisplaySettings as DisplaySettingsIcon,
   Event as EventIcon,
@@ -19,8 +15,6 @@ import {
   Timer as TimerIcon,
 } from "@mui/icons-material";
 import { Task, TaskStatus } from "../types/task.types";
-import { getStatusColor, getPriorityColor } from "../utils/taskUtils";
-import { statusOptions } from "../data/taskData";
 
 interface TaskDetailsProps {
   task: Task;

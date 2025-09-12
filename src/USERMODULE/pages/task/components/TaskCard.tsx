@@ -5,20 +5,16 @@ import {
   Checkbox,
   Chip,
   IconButton,
-  CircularProgress,
 } from "@mui/material";
 import {
-  Assignment as AssignmentIcon,
   Person as PersonIcon,
   Schedule as ScheduleIcon,
-  PriorityHigh as PriorityHighIcon,
   Comment as CommentIcon,
   AttachFile as AttachFileIcon,
   ConfirmationNumber as ConfirmationNumberIcon,
 } from "@mui/icons-material";
 import { Task } from "../types/task.types";
-import { getStatusColor, getPriorityColor } from "../utils/taskUtils";
-import TaskCardSkeleton from "../../../skeleton/TaskCardSkeleton";
+import { getStatusColor } from "../utils/taskUtils";
 
 interface TaskCardProps {
   task: any;

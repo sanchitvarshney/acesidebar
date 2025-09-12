@@ -1,24 +1,9 @@
 import {
   Box,
-  Button,
-  Checkbox,
-  InputAdornment,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  TextField,
-  Typography,
   Paper,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
-import { FC, JSX, useState } from "react";
-import PersonIcon from "@mui/icons-material/Person";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import EmailIcon from "@mui/icons-material/Email";
-import LockIcon from "@mui/icons-material/Lock";
-import logo from "../../assets/buildings.png";
+import { FC, JSX } from "react";
+
 interface AuthenticateScreenWapperProps {
   leftElement: JSX.Element;
   rightElement: JSX.Element;
