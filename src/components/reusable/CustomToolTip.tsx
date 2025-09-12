@@ -1,4 +1,4 @@
-import { Fade, Slide } from "@mui/material";
+import { Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";

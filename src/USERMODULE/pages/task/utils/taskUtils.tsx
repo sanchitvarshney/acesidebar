@@ -7,7 +7,7 @@ import {
   CheckCircle as CheckCircleIcon,
   Stop as StopIcon,
 } from "@mui/icons-material";
-import { TaskStatus, TaskPriority } from "../types/task.types";
+import { TaskPriority } from "../types/task.types";
 import { COMMENT_CONFIG, FILE_UPLOAD_CONFIG } from "../data/taskData";
 
 // Color mapping functions

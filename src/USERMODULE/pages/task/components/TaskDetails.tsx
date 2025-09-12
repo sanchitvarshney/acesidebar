@@ -3,15 +3,11 @@ import {
   Card,
   CardContent,
   Chip,
-  FormControl,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import {
   Assignment as AssignmentIcon,
   Person as PersonIcon,
   Schedule as ScheduleIcon,
-  PriorityHigh as PriorityHighIcon,
   ConfirmationNumber as ConfirmationNumberIcon,
   DisplaySettings as DisplaySettingsIcon,
   Event as EventIcon,
@@ -19,11 +15,9 @@ import {
   Timer as TimerIcon,
 } from "@mui/icons-material";
 import { Task, TaskStatus } from "../types/task.types";
-import { getStatusColor, getPriorityColor } from "../utils/taskUtils";
-import { statusOptions } from "../data/taskData";
 
 interface TaskDetailsProps {
-  task: Task;
+  task: Task | null | undefined;
   getStatusIcon: (status: string) => React.ReactNode;
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
 }
@@ -33,6 +27,17 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   getStatusIcon,
   onStatusChange,
 }) => {
+  // Early return if task is not available
+  if (!task) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-8 text-gray-500">
+          <p>No task data available</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Task Description */}
@@ -47,7 +52,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
             </div>
           </div>
           <p className="text-gray-600 text-sm font-medium">
-            {task.description}
+            {task.description || "No description available"}
           </p>
         </CardContent>
       </Card>
@@ -67,16 +72,16 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-blue-900 font-bold">{task.ticketId}</div>
+                <div className="text-blue-900 font-bold">{task.ticketId || "N/A"}</div>
                 <div
                   className="text-blue-700 font-bold"
                   style={{ fontSize: "12px" }}
                 >
-                  {task.ticketTitle}
+                  {task.ticketTitle || "No title"}
                 </div>
               </div>
               <Chip
-                label={task.ticketStatus}
+                label={task.ticketStatus || "Unknown"}
                 size="small"
                 color={task.ticketStatus === "Open" ? "error" : "default"}
               />
@@ -111,7 +116,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {task.assignedTo}
+                    {task.assignedTo || "Unassigned"}
                   </span>
                 </div>
 
@@ -123,7 +128,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {task.assignedBy}
+                    {task.assignedBy || "Unknown"}
                   </span>
                 </div>
               </div>
@@ -138,7 +143,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {task.createdAt}
+                    {task.createdAt || "Unknown"}
                   </span>
                 </div>
 
@@ -150,7 +155,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {task.dueDate}
+                    {task.dueDate || "No due date"}
                   </span>
                 </div>
               </div>
@@ -165,7 +170,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-bold text-blue-900">
-                    {task.estimatedHours}h
+                    {task.estimatedHours || 0}h
                   </span>
                 </div>
 
@@ -177,7 +182,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-bold text-green-900">
-                    {task.actualHours}h
+                    {task.actualHours || 0}h
                   </span>
                 </div>
               </div>

@@ -5,20 +5,16 @@ import {
   Checkbox,
   Chip,
   IconButton,
-  CircularProgress,
 } from "@mui/material";
 import {
-  Assignment as AssignmentIcon,
   Person as PersonIcon,
   Schedule as ScheduleIcon,
-  PriorityHigh as PriorityHighIcon,
   Comment as CommentIcon,
   AttachFile as AttachFileIcon,
   ConfirmationNumber as ConfirmationNumberIcon,
 } from "@mui/icons-material";
 import { Task } from "../types/task.types";
-import { getStatusColor, getPriorityColor } from "../utils/taskUtils";
-import TaskCardSkeleton from "../../../skeleton/TaskCardSkeleton";
+import { getStatusColor } from "../utils/taskUtils";
 
 interface TaskCardProps {
   task: any;
@@ -53,8 +49,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
     );
 
     const handleClick = useCallback(() => {
-
-      console.log("call")
+      console.log("call");
       if (!isCurrentTask) {
         onClick(task?.taskID);
       }
@@ -75,11 +70,10 @@ const TaskCard: React.FC<TaskCardProps> = memo(
             isCurrentTask || isLoading || loadingAttachmentTaskId
               ? "none"
               : "auto",
-          opacity: isCurrentTask ? 0.9 : isLoading ? 0.8 : 1
+          opacity: isCurrentTask ? 0.9 : isLoading ? 0.8 : 1,
         }}
       >
-        <CardContent className="p-2" sx={{marginBottom: "-15px"
-        }}>
+        <CardContent className="p-2" sx={{ marginBottom: "-15px" }}>
           {/* {isLoading || loadingAttachmentTaskId ? (
             <TaskCardSkeleton />
           ) : ( */}

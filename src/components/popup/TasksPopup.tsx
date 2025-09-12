@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Popper, Paper, Box, Typography, IconButton, Tabs, Tab, Chip, List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
+import { Popper, Paper, Box, Typography, IconButton, Tabs, Tab, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import { 
   Close as CloseIcon, 
   CheckCircle as CheckCircleIcon,
@@ -125,19 +125,6 @@ const TasksPopup: React.FC<TasksPopupProps> = ({ open, onClose, anchorEl }) => {
         return <UploadIcon sx={{ color: '#4caf50', fontSize: 16 }} />;
       default:
         return <DescriptionIcon sx={{ color: '#9e9e9e', fontSize: 16 }} />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return '#4caf50';
-      case 'in-progress':
-        return '#ff9800';
-      case 'pending':
-        return '#9e9e9e';
-      default:
-        return '#9e9e9e';
     }
   };
 

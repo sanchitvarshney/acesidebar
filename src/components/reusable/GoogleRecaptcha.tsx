@@ -37,6 +37,7 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
   const [isLoaded, setIsLoaded] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
+
   const reset = () => {
     if (widgetIdRef.current !== null && window.grecaptcha) {
       try {
@@ -96,7 +97,7 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
       });
 
       widgetIdRef.current = widgetId;
-      
+       
       // Add event listener to detect when user starts interacting
       const recaptchaElement = recaptchaRef.current;
       if (recaptchaElement) {

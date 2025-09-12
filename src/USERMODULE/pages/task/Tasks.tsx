@@ -44,12 +44,9 @@ import {
 } from "./data/taskData";
 import {
   getStatusIcon,
-  getTimeAgo,
   canEditComment,
   getStatusColor,
-  getPriorityColor,
   validateComment,
-  validateFileUpload,
   validateSearchCondition,
 } from "./utils/taskUtils";
 import TaskHeader from "./components/TaskHeader";
@@ -64,7 +61,6 @@ import {
 import { useToast } from "../../../hooks/useToast";
 import {
   useGetStatusListQuery,
-  useGetTagListQuery,
 } from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/empty_task.svg";
@@ -265,17 +261,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     setIsInternalComment(false);
     setShowCommentForm(false);
     setShowAttachments(false);
-  };
-
-  // File upload handler using shared utils
-  const handleFileUpload = (files: File[]) => {
-    const validation = validateFileUpload(files, attachments);
-    if (validation.errors.length > 0) {
-      validation.errors.forEach((error) => alert(error));
-    }
-    if (validation.validFiles.length > 0) {
-      setAttachments((prev) => [...prev, ...validation.validFiles]);
-    }
   };
 
   // Comment editing functions
@@ -716,7 +701,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
   const [rightActiveTab, setRightActiveTab] = React.useState<any>();
   const [attachmentsTab, setAttachmentsTab] = React.useState<
-    "comments" | "attachments"
+    "comments" | "attachments" | "ticket"
   >("comments");
   const [commentSortOrder, setCommentSortOrder] = React.useState<
     "asc" | "desc"
@@ -726,17 +711,26 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     if (isAddTask && taskId) {
       setRightActiveTab(1);
       handleTaskClick(taskId, "comments");
-    } else {
+    }
+    if (taskId && !isAddTask) {
       setRightActiveTab(0);
+      handleTaskClick(taskId, "ticket");
     }
   }, [isAddTask, taskId]);
 
   const handleTaskClick = useCallback(
-    async (task: string, type: "attachments" | "comments" = "comments") => {
+    async (
+      task: string,
+      type: "ticket" | "attachments" | "comments" = "comments"
+    ) => {
       // Build URL safely
       const basePath = isAddTask && ticketId ? ticketId : null;
       const url = `${basePath}/${task}?type=${
-        type === "attachments" ? "attachment" : "comment"
+        type === "attachments"
+          ? "attachment"
+          : type === "comments"
+          ? "comment"
+          : "ticket"
       }`;
 
       // Set loading state
@@ -834,7 +828,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               onTaskSelect={(taskId: string, checked: boolean) =>
                 handleTaskSelection(taskId, checked)
               }
-              onTaskClick={(task: any) => setTaskId(task)}
+              onTaskClick={(task: any) => {
+                setTaskId(task);
+              }}
               onPageChange={(newPage: number) => setPage(newPage)}
               onRowsPerPageChange={(rpp: number) => {
                 setRowsPerPage(rpp);
@@ -1365,7 +1361,13 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                   },
                                 }}
                                 onClick={() =>
-                                  handleTaskClick(taskId, attachmentsTab)
+                                  handleTaskClick(
+                                    taskId,
+                                    attachmentsTab as
+                                      | "ticket"
+                                      | "attachments"
+                                      | "comments"
+                                  )
                                 }
                               >
                                 <RefreshIcon fontSize="small" />
