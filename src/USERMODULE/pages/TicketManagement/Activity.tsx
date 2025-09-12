@@ -2,33 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   IconButton,
   TextField,
-  Button,
   Typography,
   Box as MuiBox,
   Avatar,
   Chip,
-  Divider,
-  Alert,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  ListItemSecondaryAction,
-  Tabs,
-  Tab,
   Paper,
-  Tooltip,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Badge,
 } from "@mui/material";
 import SystemUpdateAltIcon from "@mui/icons-material/SystemUpdateAlt";
-import RefreshIcon from "@mui/icons-material/Refresh";
 
 import {
   Search,
@@ -38,20 +22,16 @@ import {
   SwapHoriz,
   Share,
   CheckCircle,
-  Cancel,
-  Warning,
   Info,
   Schedule,
   PriorityHigh,
   Label,
   Comment,
-  Visibility,
-  Download,
+  
   Print,
   Block,
   Merge,
   Link,
-  Folder,
   Description,
   VideoFile,
   Image,
@@ -59,7 +39,6 @@ import {
   Archive,
   Code,
 } from "@mui/icons-material";
-import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import SearchIcon from "@mui/icons-material/Search";
 
@@ -367,7 +346,6 @@ const sampleActivities: ActivityItem[] = [
 
 const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
   const [commanApi] = useCommanApiMutation();
-  const { showToast } = useToast();
 
   const [activities, setActivities] =
     useState<ActivityItem[]>(sampleActivities);
@@ -440,18 +418,6 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
     { value: "transfer", label: "Transfers" },
   ];
 
-  const users = [
-    { value: "all", label: "All Users" },
-    ...Array.from(new Set(activities.map((a) => a.performedBy.id))).map(
-      (id) => {
-        const user = activities.find(
-          (a) => a.performedBy.id === id
-        )?.performedBy;
-        return { value: id, label: user?.name || "Unknown User" };
-      }
-    ),
-  ];
-
   const getActivityIcon = (type: ActivityItem["type"]) => {
     switch (type) {
       case "status_change":
@@ -513,15 +479,6 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
   const handleExportActivities = () => {
     const payload = {
       url: `tickets/${ticketId}/activities/export`,
-      method: "GET",
-    };
-    commanApi(payload);
-  };
-
-  // Refresh activities
-  const handleRefreshActivities = () => {
-    const payload = {
-      url: `tickets/${ticketId}/activities`,
       method: "GET",
     };
     commanApi(payload);

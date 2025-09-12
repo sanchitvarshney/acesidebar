@@ -1,15 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { SearchIcon, X } from "lucide-react";
-import { IconType } from "react-icons";
-
-// Define the searchable item type
-type SearchableItem = {
-  id: string;
-  title: string;
-  description: string;
-  icon: IconType;
-  iconClass: string;
-};
 
 type SettingsSearchBarProps = {
   onSearchResultSelect?: (sectionId: string) => void;
@@ -21,11 +11,8 @@ type SettingsSearchBarProps = {
 };
 
 const SettingsSearchBar: React.FC<SettingsSearchBarProps> = ({
-  onSearchResultSelect,
-
   searchQuery: externalSearchQuery,
   onSearchQueryChange,
-  showResults: externalShowResults,
   onShowResultsChange,
 }) => {
   const [internalSearchQuery, setInternalSearchQuery] = useState("");
@@ -38,7 +25,6 @@ const SettingsSearchBar: React.FC<SettingsSearchBarProps> = ({
   const setSearchQuery = onSearchQueryChange || setInternalSearchQuery;
 
   const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isClickingResultRef = useRef(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -52,27 +38,6 @@ const SettingsSearchBar: React.FC<SettingsSearchBarProps> = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-  };
-
-  // Handle search result selection
-  const handleResultClick = (item: SearchableItem) => {
-    isClickingResultRef.current = true;
-
-    if (blurTimeoutRef.current) {
-      clearTimeout(blurTimeoutRef.current);
-      blurTimeoutRef.current = null;
-    }
-
-    if (onSearchResultSelect) {
-      onSearchResultSelect(item.id);
-    }
-
-    setSearchQuery("");
-
-    // Reset the flag after a short delay
-    setTimeout(() => {
-      isClickingResultRef.current = false;
-    }, 100);
   };
 
   // Handle clear search

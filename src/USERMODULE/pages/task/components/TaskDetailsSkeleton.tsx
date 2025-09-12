@@ -3,8 +3,6 @@ import {
   Card,
   CardContent,
   Skeleton,
-  Box,
-  Divider,
 } from '@mui/material';
 
 const TaskDetailsSkeleton: React.FC = () => {

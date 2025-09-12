@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Popper, Paper, Box, Typography, IconButton, Avatar, Button, Divider, List, ListItem, ListItemAvatar, ListItemText, FormControl, Select, MenuItem } from '@mui/material';
-import { Close as CloseIcon, CameraAlt as CameraIcon, KeyboardArrowDown as KeyboardArrowDownIcon } from '@mui/icons-material';
+import { Popper, Paper, Box, Typography, IconButton, Avatar, Button, Divider, FormControl, Select, MenuItem } from '@mui/material';
+import { Close as CloseIcon, CameraAlt as CameraIcon} from '@mui/icons-material';
 import { useAuth } from '../../contextApi/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
