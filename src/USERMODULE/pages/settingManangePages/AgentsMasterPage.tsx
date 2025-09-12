@@ -146,7 +146,7 @@ const AgentsMasterPage = () => {
                   agentList?.map((row: any) => (
                     <TableRow
                       hover
-                      onMouseEnter={() => setHoveredRow(row?.key)}
+                      onMouseEnter={() => setHoveredRow(row?.email)}
                       onMouseLeave={() => setHoveredRow(null)}
                       key={row.key}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -156,7 +156,7 @@ const AgentsMasterPage = () => {
                       <TableCell>{row.email}</TableCell>
                       <TableCell>{"--"}</TableCell>
                       <TableCell align="right" sx={{ width: "10%" }}>
-                        {hoveredRow === row.key ? (
+                        {hoveredRow === row.email ? (
                           <ToggleButtonGroup
                             value={""}
                             onChange={() => {}}
