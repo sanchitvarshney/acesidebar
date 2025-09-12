@@ -27,7 +27,7 @@ import TicketDetailTemplate from "../USERMODULE/pages/TicketManagement/TicketDet
 
 import ContactList from "../USERMODULE/components/ContactList";
 import ProfilePage from "../USERMODULE/components/Profile/ProfilePage";
-import GroupsPage from "../USERMODULE/pages/settingManangePages/GroupsPage";
+import DepartmentsManagement from "../USERMODULE/pages/DepartmentsManagement";
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
 import BillAndPlanPage from "../USERMODULE/pages/settingManangePages/BillAndPlanPage";
 import AccountExport from "../USERMODULE/pages/settingManangePages/AccountExport";
@@ -136,7 +136,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "departments",
-        element: <GroupsPage />,
+        element: <DepartmentsManagement />,
       },
       {
         path: "account-settings",
