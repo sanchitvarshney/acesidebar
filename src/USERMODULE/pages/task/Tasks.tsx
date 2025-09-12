@@ -169,6 +169,12 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       return;
     }
   };
+  // when component unmount taskId set to empty
+  useEffect(() => {
+    return () => {
+      setTaskId("");
+    };
+  }, []);
 
   useEffect(() => {
     fetchTasks();
@@ -702,7 +708,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   >("desc");
 
   useEffect(() => {
-  
     if (isAddTask && taskId) {
       setRightActiveTab(1);
       handleTaskClick(taskId, "comments");
@@ -710,8 +715,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       setRightActiveTab(0);
     }
   }, [isAddTask, taskId]);
-
-  
 
   const handleTaskClick = useCallback(
     async (task: string, type: "attachments" | "comments" = "comments") => {
@@ -737,7 +740,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
         }
       } catch (error) {
         console.error("Error fetching tasks:", error);
-     
       } finally {
         // Clear loading state
         if (type === "attachments") {
@@ -832,7 +834,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
             />
 
             {/* RIGHT SECTION - Task Details & Actions */}
-            {(taskcomment || taskcommentLoading || (taskId && loadingTaskId)) ? (
+            {taskcomment || taskcommentLoading || (taskId && loadingTaskId) ? (
               <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
                 {/* Right Sidebar Tabs */}
                 <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
@@ -1691,7 +1693,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   ) : (
                     <div className="flex-1 flex items-center justify-center">
                       <div className="text-center text-gray-500">
-                        <img src={noTask} alt="No Task Selected" className="w-full mx-auto mb-3" />
+                        <img
+                          src={noTask}
+                          alt="No Task Selected"
+                          className="w-full mx-auto mb-3"
+                        />
                       </div>
                     </div>
                   )}
@@ -1701,7 +1707,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
                 <div className="flex-1 flex items-center justify-center">
                   <div className="text-center text-gray-500">
-                    <img src={noTask} alt="No Task Selected" className="w-full mx-auto mb-3" />
+                    <img
+                      src={noTask}
+                      alt="No Task Selected"
+                      className="w-full mx-auto mb-3"
+                    />
                   </div>
                 </div>
               </div>

@@ -127,7 +127,7 @@ const Tickets: React.FC = () => {
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-        "Date created"
+      "Date created"
     );
     setSortOrder("desc"); // Reset to default order
     setPage(1); // Reset to first page
@@ -189,7 +189,7 @@ const Tickets: React.FC = () => {
     if (!ticketList?.data) return;
     setMasterChecked(
       ticketList.data.length > 0 &&
-        selectedTickets.length === ticketList.data.length
+      selectedTickets.length === ticketList.data.length
     );
   }, [selectedTickets, ticketList]);
 
@@ -266,7 +266,7 @@ const Tickets: React.FC = () => {
     setQuickUpdateValues({
       priority: ticket.priority?.key || '',
       status: ticket.status?.key || '',
-      group: ticket.group || 'Billing',
+      group: ticket.group || '',
       agent: ticket.assignedTo?.name || ''
     });
   };
@@ -288,14 +288,14 @@ const Tickets: React.FC = () => {
     const payload = {
       url: `edit-property/${ticket.ticketNumber}?important=${newImportantStatus}`,
     };
-    
+
     commanApi(payload).then((res: any) => {
       if (res?.data?.type === "error") {
         showToast(res?.message || res?.data?.message, "error");
         return;
       }
       showToast(
-        `Ticket ${newImportantStatus ? 'marked as important' : 'removed from important'}`, 
+        `Ticket ${newImportantStatus ? 'marked as important' : 'removed from important'}`,
         "success"
       );
     }).catch(() => {
@@ -307,7 +307,7 @@ const Tickets: React.FC = () => {
   const renderTicketCard = (ticket: any) => {
     // Get priority color and label - use actual API data
     const priorityColor = ticket.priority?.color || '#6b7280'; // Default gray
-    const priorityLabel = ticket.priority?.name || 'LOW';
+    const priorityLabel = ticket.priority?.name || 'Low';
     return (
       <div
         key={ticket?.ticketNumber}
@@ -318,29 +318,29 @@ const Tickets: React.FC = () => {
         <div className="flex gap-4 mb-3">
           {/* Left column: Priority badge and ticket number */}
           <div className="flex flex-col items-start gap-1">
-            <div 
+            <div
               className="px-3 py-1 text-xs font-bold rounded text-white"
               style={{ backgroundColor: priorityColor }}
             >
               {priorityLabel.toUpperCase()}
             </div>
             <span className="text-sm font-medium text-gray-700">
-              #{ticket?.ticketNumber || "88517825"}
+              #{ticket?.ticketNumber || ""}
             </span>
           </div>
-          
+
           {/* Right column: Title and description */}
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {ticket?.subject || "This is test ticket"}
+                <h3 className="text-md font-medium text-gray-900">
+                  {ticket?.subject || ""}
                 </h3>
                 <span className="text-gray-400 text-sm">
-                  ({ticket?.stats?.threadCount || 1})
+                  ({ticket?.stats?.totalThreads || 0})
                 </span>
                 <span className="text-sm text-gray-500">
-                  {ticket?.lastupdate?.timeAgo || "a day ago"}
+                  {ticket?.lastupdate?.timeAgo || ""}
                 </span>
               </div>
               <IconButton
@@ -352,9 +352,9 @@ const Tickets: React.FC = () => {
               </IconButton>
             </div>
             <p className="text-sm text-gray-600 leading-relaxed">
-              {typeof ticket.description === "string" 
-                ? ticket.description 
-                : (ticket.description?.name || "Hi, I received a coupon code through email and am trying to apply it on checkout. But it looks like its")}
+              {typeof ticket.description === "string"
+                ? ticket.description
+                : (ticket.body || "")}
             </p>
           </div>
         </div>
@@ -365,7 +365,7 @@ const Tickets: React.FC = () => {
         {/* Bottom section with counts and user info */}
         <div className="flex items-center gap-8 text-xs">
           {/* Important Pin */}
-          <Tooltip 
+          <Tooltip
             title={ticket?.important ? "Remove from important" : "Mark as important"}
             placement="right"
           >
@@ -388,15 +388,6 @@ const Tickets: React.FC = () => {
           {/* Separator */}
           <div className="text-gray-300">|</div>
 
-          {/* Thread Count */}
-          <div className="flex flex-col">
-            <span className="text-gray-500 mb-1">threads</span>
-            <span className="text-gray-700 font-medium">{ticket?.stats?.threadCount || 2}</span>
-          </div>
-
-          {/* Separator */}
-          <div className="text-gray-300">|</div>
-
           {/* Assignee */}
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">assignee</span>
@@ -412,15 +403,15 @@ const Tickets: React.FC = () => {
             <div className="flex items-center gap-1">
               <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center">
                 <span className="text-xs font-medium text-purple-700">
-                  {(ticket?.fromUser?.name || "Amy")?.[0]?.toUpperCase()}
+                  {(ticket?.fromUser?.name || "")?.[0]?.toUpperCase()}
                 </span>
               </div>
-              <span 
+              <span
                 className="text-gray-700 font-medium cursor-pointer hover:underline"
                 onMouseEnter={(e) => handleUserHover(e, ticket.fromUser)}
                 onMouseLeave={handleUserLeave}
               >
-                {ticket?.fromUser?.name || "Amy"}
+                {ticket?.fromUser?.name || ""}
               </span>
             </div>
           </div>
@@ -440,7 +431,7 @@ const Tickets: React.FC = () => {
           {/* Status */}
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">status</span>
-            <span className="text-gray-700">{ticket?.status?.name || 'Open'}</span>
+            <span className="text-gray-700">{ticket?.status?.name || 'Review'}</span>
           </div>
 
           {/* Separator */}
@@ -672,12 +663,12 @@ const Tickets: React.FC = () => {
           <LeftMenu />
           <div className="flex-1 h-full overflow-y-auto bg-gray-50">
             <div className="max-w-6xl mx-auto">
-            {isTicketsFetching ? (
-              <TicketSkeleton />
-            ) : (
+              {isTicketsFetching ? (
+                <TicketSkeleton />
+              ) : (
                 <div className="p-4">
                   {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
-              <div>
+                    <div>
                       {ticketsToShow?.data?.map(renderTicketCard)}
                     </div>
                   ) : (
@@ -686,10 +677,10 @@ const Tickets: React.FC = () => {
                       <div className="text-gray-500 text-sm mt-2">
                         Try adjusting your filters or create a new ticket
                       </div>
-                  </div>
-                )}
-              </div>
-            )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           {filtersOpen && (
@@ -762,7 +753,7 @@ const Tickets: React.FC = () => {
               ✕
             </IconButton>
           </div>
-          
+
           {/* Form Grid */}
           <div className="grid grid-cols-2 gap-4">
             {/* Priority */}
@@ -793,8 +784,8 @@ const Tickets: React.FC = () => {
                   {PRIORITY_OPTIONS.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
+                        <div
+                          className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: option.color }}
                         ></div>
                         <span className="text-gray-700">{option.label}</span>
@@ -945,18 +936,10 @@ const Tickets: React.FC = () => {
           {/* Footer Actions */}
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
             <Button
-              variant="outlined"
+              variant="text"
               size="small"
               onClick={handleQuickUpdateClose}
-              sx={{
-                textTransform: 'none',
-                borderColor: '#d1d5db',
-                color: '#6b7280',
-                '&:hover': {
-                  borderColor: '#9ca3af',
-                  backgroundColor: '#f9fafb',
-                },
-              }}
+              sx={{ minWidth: 80, fontWeight: 600 }}
             >
               Cancel
             </Button>

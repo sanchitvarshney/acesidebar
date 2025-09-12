@@ -65,13 +65,13 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   const [options, setOptions] = useState<Ticket[]>([]);
   const [selectedTickets, setSelectedTickets] = useState<Ticket[]>([]);
   const [linkTicket, setLinkTicket] = useState<any>([]);
-  
+
   const [linkRelationships, setLinkRelationships] = useState<
     Record<string, LinkRelationship>
   >({});
   const [reason, setReason] = useState("");
   const [activeTab, setActiveTab] = useState(0);
-  const { data: linkTicketData } = useGetLinkTicketQuery({
+  const { data: linkTicketData, refetch: refetchLinkedTickets } = useGetLinkTicketQuery({
     ticketNumber: currentTicket?.id,
   });
   const [trackId, setTrackId] = useState<any>("");
@@ -80,7 +80,6 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
 
   useEffect(() => {
     if (linkTicketData?.length > 0) {
-     
       setLinkTicket(linkTicketData);
     }
   }, [linkTicketData]);
@@ -192,6 +191,12 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
           res?.data?.message || res?.message || "Tickets linked successfully",
           "success"
         );
+        // Refresh linked tickets list
+        try {
+          refetchLinkedTickets();
+        } catch (err) {
+          // no-op
+        }
         onClose();
       }
     });
@@ -211,16 +216,16 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
         );
         return;
       }
-
+   
       if (res?.data?.type === "success" || res?.type === "success") {
         setLinkTicket((prev: any) =>
-          prev.filter((t: any) => t.id !== linkedTicketId)
+          prev.filter(
+            (t: any) => String(t?.key ?? t?.id) !== String(linkedTicketId)
+          )
         );
       }
     });
   };
-
-
 
   return (
     <div className=" w-full h-full">
