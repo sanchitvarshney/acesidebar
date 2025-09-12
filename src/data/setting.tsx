@@ -20,7 +20,6 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import SecurityIcon from "@mui/icons-material/Security";
 import SettingsIcon from "@mui/icons-material/Settings";
 import GroupsIcon from "@mui/icons-material/Groups";
-
 import StarIcon from "@mui/icons-material/Star";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 
@@ -158,6 +157,13 @@ export const settingAgentProductivityData = [
         icon: ForumIcon,
         action: "Collaborate",
       },
+ {
+  title: "Departments",
+  description:
+    "Organize agents by departments and receive notifications on unattended tickets.",
+  icon: BusinessIcon ,
+  action: "Manage",
+}
     ],
   },
 ];

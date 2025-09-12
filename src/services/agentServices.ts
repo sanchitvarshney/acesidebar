@@ -31,6 +31,13 @@ const agentServices = baseInstanceOfApi.injectEndpoints({
         method: "GET",
       }),
     }),
+        getDepartmentList: builder.query<any, void>({
+      query: () => ({
+        url: `/department/list`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
   }),
   overrideExisting: false,
 });
@@ -41,4 +48,6 @@ export const {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
   useLazyGetUserBySeachQuery,
+  useLazyGetDepartmentListQuery
+  
 } = agentServices;

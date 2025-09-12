@@ -135,7 +135,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "groups",
+        path: "departments",
         element: <GroupsPage />,
       },
       {
