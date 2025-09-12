@@ -41,6 +41,8 @@ import AccountSecurity from "../USERMODULE/pages/settingPages/AccountSecurity";
 import AccountHelpCenter from "../USERMODULE/pages/settingPages/AccountHelpCenter";
 import TicketFieldsPage from "../USERMODULE/pages/settingPages/TicketFieldsPage";
 import ManageTags from "../USERMODULE/pages/settingPages/ManageTags";
+import AgentsMasterPage from "../USERMODULE/pages/settingManangePages/AgentsMasterPage";
+import TeamPage from "../USERMODULE/pages/settingPages/TeamPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -132,11 +134,19 @@ export const router = createBrowserRouter([
             path: "support-operations",
             element: <SupportOperationsPage />,
           },
+          {
+            path: "team",
+            element: <TeamPage />,
+          },
         ],
       },
       {
         path: "departments",
         element: <DepartmentsManagement />,
+      },
+      {
+        path: "agents",
+        element: <AgentsMasterPage />,
       },
       {
         path: "account-settings",

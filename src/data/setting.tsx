@@ -157,13 +157,27 @@ export const settingAgentProductivityData = [
         icon: ForumIcon,
         action: "Collaborate",
       },
- {
-  title: "Departments",
-  description:
-    "Organize agents by departments and receive notifications on unattended tickets.",
-  icon: BusinessIcon ,
-  action: "Manage",
-}
+    ],
+  },
+];
+export const settingTeamData = [
+  {
+    section: "Team",
+    items: [
+      {
+        title: "Agents",
+        description:
+          "Manage agents' scope of work Type language, and other details",
+        icon: AssignmentIcon,
+        action: "Manage",
+      },
+      {
+        title: "Departments",
+        description:
+          "Organize agents by departments and receive notifications on unattended tickets.",
+        icon: BusinessIcon,
+        action: "Manage",
+      },
     ],
   },
 ];
