@@ -32,7 +32,7 @@ import BusinessIcon from "@mui/icons-material/Business";
 import WorkIcon from "@mui/icons-material/Work";
 import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
 import { useNavigate } from "react-router-dom";
-import CircularProgress from "@mui/material/CircularProgress";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Close } from "@mui/icons-material";
 import { useLazyGetDepartmentListQuery } from "../../services/agentServices";
 
@@ -493,9 +493,15 @@ const DepartmentsManagement = () => {
             mb: 1,
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
-            Departments
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton onClick={() => navigate("/departments")}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+              Departments
+            </Typography>
+          </Box>
+
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               variant="outlined"
@@ -506,11 +512,11 @@ const DepartmentsManagement = () => {
             >
               {isGetDepartmentListLoading ? "Loading..." : "Refresh"}
             </Button>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               color="primary"
-              onClick={() => navigate('/create-department')}
-             size="small"
+              onClick={() => navigate("/create-department")}
+              size="small"
             >
               New Department
             </Button>

@@ -100,7 +100,7 @@ const Settings: React.FC = () => {
     ) {
       setActiveId("accounts");
     }
-    if (pathname === "team") {
+    if (pathname === "/settings/team") {
       setActiveId("team");
     }
   }, [location.pathname]);

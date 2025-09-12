@@ -7,7 +7,7 @@ const SettingsCards: React.FC = ({ cards }: any) => {
 
   const handleRoute = (title: string) => {
     const path = title.toLowerCase().replace(" ", "-");
-    console.log(path);
+
     switch (path) {
       case "departments":
         navigate("/departments");
