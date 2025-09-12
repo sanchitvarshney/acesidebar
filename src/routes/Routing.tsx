@@ -147,6 +147,10 @@ export const router = createBrowserRouter([
         element: <DepartmentsManagement />,
       },
       {
+        path: "add-agent",
+        element: <AddAgentPage />,
+      },
+      {
         path: "create-department",
         element: <CreateDepartmentPage />,
       },
@@ -154,10 +158,7 @@ export const router = createBrowserRouter([
         path: "agents",
         element: <AgentsMasterPage />,
       },
-      {
-        path: "add-agent",
-        element: <AddAgentPage />,
-      },
+
       {
         path: "account-settings",
         element: <AccountSettings />,

@@ -44,8 +44,8 @@ interface TopBarProps {
 }
 
 const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
-const { user} =  useAuth();
-const userData:any = user;
+  const { user } = useAuth();
+  const userData: any = user;
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -211,20 +211,18 @@ const userData:any = user;
           >
             <MenuIcon />
           </IconButton>
-          <Typography
+          {/* <Typography
             variant="h6"
             noWrap
             component="div"
             sx={{ display: { xs: "block", sm: "block" }, color: "#3f4346" }}
           >
             Ticket Management System
-          </Typography>
+          </Typography> */}
         </div>
         {/* Expanding Search Bar */}
         <div>
-          <div
-            className={` transition-all duration-200 ml-30 w-[340px] relative`}
-          >
+          <div className={` transition-all duration-200  w-[340px] relative`}>
             <div
               ref={advancedSearchRef}
               className="flex items-center w-full bg-white border border-gray-300 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.28)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)] "
@@ -239,8 +237,6 @@ const userData:any = user;
             </div>
           </div>
         </div>
-
-        <Box sx={{ flexGrow: 0 }} />
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton size="large" sx={{ color: "#3f4346", mr: 2 }}>
@@ -280,9 +276,16 @@ const userData:any = user;
             sx={{ color: "#3f4346", mr: 2 }}
           >
             {userData?.image ? (
-              <Avatar sizes="small" alt={userData?.username} src={userData?.image} />
+              <Avatar
+                sizes="small"
+                alt={userData?.username}
+                src={userData?.image}
+              />
             ) : (
-              <Avatar sizes="small" sx={{ backgroundColor: "primary.main", width: 30, height: 30 }}>
+              <Avatar
+                sizes="small"
+                sx={{ backgroundColor: "primary.main", width: 30, height: 30 }}
+              >
                 {userData?.username
                   ? userData?.username.charAt(0).toUpperCase()
                   : "T"}
