@@ -10,6 +10,7 @@ import {
   FaCogs,
   FaLifeRing,
   FaSearch,
+  FaUsers,
 } from "react-icons/fa";
 import { IconType } from "react-icons";
 
@@ -30,6 +31,13 @@ const menuSections: MenuSection[] = [
     iconClass: "text-blue-500 text-xl",
     title: "Search",
     description: "Search all settings",
+  },
+  {
+    id: "team",
+    icon: FaUsers,
+    iconClass: "text-blue-500 text-xl",
+    title: "Team",
+    description: "Define agents access levels and working hours",
   },
   {
     id: "accounts",
@@ -92,6 +100,9 @@ const Settings: React.FC = () => {
     ) {
       setActiveId("accounts");
     }
+    if (pathname === "team") {
+      setActiveId("team");
+    }
   }, [location.pathname]);
 
   // Handle menu navigation
@@ -100,6 +111,9 @@ const Settings: React.FC = () => {
       switch (sectionId) {
         case "recent":
           navigate("/settings");
+          break;
+        case "team":
+          navigate("/settings/team");
           break;
         case "accounts":
           navigate(`/settings/account/accounts`);

@@ -12,6 +12,9 @@ const SettingsCards: React.FC = ({ cards }: any) => {
       case "departments":
         navigate("/departments");
         break;
+      case "agents":
+        navigate("/agents");
+        break;
       case "account-details":
         navigate("/account-settings");
         break;
