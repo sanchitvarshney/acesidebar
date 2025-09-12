@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { TextField, Button, Checkbox, IconButton, Box } from "@mui/material";
+import { TextField, Button, Checkbox, IconButton } from "@mui/material";
 import {
   AttachFile as AttachFileIcon,
   Close as CloseIcon,
