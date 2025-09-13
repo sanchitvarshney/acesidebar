@@ -9,6 +9,7 @@ import { router } from "./routes/Routing";
 import { ToastContext } from "./contextApi/ToastContext";
 import { AuthProvider } from "./contextApi/AuthContext";
 import { PopupProvider } from "./contextApi/PopupContext";
+import { PermissionProvider } from "./contextApi/PermissionContext";
 import theme from "./theme";
 import "./font.css"
 import { TabsProvider } from "./contextApi/TabsContext";
@@ -24,10 +25,12 @@ function App() {
         <TabsProvider>
           <AuthProvider>
             <PopupProvider>
-              <ToastContext>
-                <CssBaseline />
-                <RouterProvider router={router} />
-              </ToastContext>
+              <PermissionProvider>
+                <ToastContext>
+                  <CssBaseline />
+                  <RouterProvider router={router} />
+                </ToastContext>
+              </PermissionProvider>
             </PopupProvider>
           </AuthProvider>
         </TabsProvider>

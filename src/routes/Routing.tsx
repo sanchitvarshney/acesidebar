@@ -19,6 +19,11 @@ import ViewExistingTicket from "../ADMINMODULE/pages/ViewExistingTicket";
 import SubmitTicketPage from "../ADMINMODULE/pages/SubmitTicketPage";
 import SupportForms from "../ADMINMODULE/pages/forms/SupportForms";
 import ArticleViewPage from "../ADMINMODULE/pages/ArticalViewPage";
+import AdminDashboard from "../ADMINMODULE/pages/AdminDashboard";
+import UserManagement from "../ADMINMODULE/pages/UserManagement";
+import RoleManagement from "../ADMINMODULE/pages/RoleManagement";
+import PermissionVisualization from "../ADMINMODULE/pages/PermissionVisualization";
+import TeamManagement from "../ADMINMODULE/pages/TeamManagement";
 
 // import ProfilePage from "../USERMODULE/components/ProfilePage";
 import NotFound from "../components/common/NotFound";
@@ -232,6 +237,42 @@ export const router = createBrowserRouter([
       {
         path: "knowledge-base/:id",
         element: <ArticleViewPage />,
+      },
+    ],
+  },
+
+  // Admin Management Routes
+  {
+    path: "/admin",
+    element: (
+      <Protected>
+        <MainLayout />
+      </Protected>
+    ),
+    children: [
+      {
+        index: true,
+        element: <AdminDashboard />,
+      },
+      {
+        path: "dashboard",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "user-management",
+        element: <UserManagement />,
+      },
+      {
+        path: "role-management",
+        element: <RoleManagement />,
+      },
+      {
+        path: "permission-visualization",
+        element: <PermissionVisualization />,
+      },
+      {
+        path: "team-management",
+        element: <TeamManagement />,
       },
     ],
   },
