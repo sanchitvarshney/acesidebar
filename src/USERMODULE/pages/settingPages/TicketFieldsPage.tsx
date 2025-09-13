@@ -13,6 +13,8 @@ import {
   Search,
   Settings,
   Visibility,
+  Delete,
+  Add,
 } from "@mui/icons-material";
 import {
   Box,
@@ -37,9 +39,17 @@ import {
   AccordionDetails,
   Accordion,
   Backdrop,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reduxStore/Store";
+import { id } from "zod/v4/locales";
 
 // Field types that can be dragged and dropped
 const fieldTypes = [
@@ -130,7 +140,17 @@ const defaultFields = [
   {
     id: "status",
     name: "Status",
-    type: "dropdown",
+    agents: {
+      subReq: true,
+      closeReq: false,
+      isField: true,
+    },
+    customers: {
+      view: true,
+      edit: false,
+      subReq: false,
+      isField: false,
+    },
     isDefault: true,
     isDisabled: false,
     isVisible: true,
@@ -138,7 +158,17 @@ const defaultFields = [
   {
     id: "priority",
     name: "Priority",
-    type: "dropdown",
+    agents: {
+      subReq: true,
+      closeReq: false,
+      isField: true,
+    },
+    customers: {
+      view: true,
+      edit: true,
+      subReq: false,
+      isField: false,
+    },
     isDefault: true,
     isDisabled: false,
     isVisible: true,
@@ -169,31 +199,49 @@ const defaultFields = [
   },
 ];
 
-interface FieldConfig {
-  id: string;
-  name: string;
-  type: string;
-  isDefault: boolean;
-  isDisabled: boolean;
-  isVisible: boolean;
-  labelForAgents?: string;
-  labelForCustomers?: string;
-  requiredForAgents?: boolean;
-  requiredForCustomers?: boolean;
-  requiredWhenClosing?: boolean;
-  canView?: boolean;
-  canEdit?: boolean;
-}
+// Default status dropdown choices
+const defaultStatusChoices = [
+  {
+    id: "open",
+    labelForAgents: "Open",
+    labelForCustomers: "Open",
+    hasSlaTimer: false,
+    isDefault: true,
+  },
+  {
+    id: "pending",
+    labelForAgents: "Pending",
+    labelForCustomers: "Pending",
+    hasSlaTimer: true,
+    isDefault: true,
+  },
+  {
+    id: "resolved",
+    labelForAgents: "Resolved",
+    labelForCustomers: "Resolved",
+    hasSlaTimer: false,
+    isDefault: true,
+  },
+  {
+    id: "closed",
+    labelForAgents: "Closed",
+    labelForCustomers: "Closed",
+    hasSlaTimer: false,
+    isDefault: true,
+  },
+];
 
 const TicketFieldsPage: React.FC = () => {
-  const [fields, setFields] = useState<FieldConfig[]>(defaultFields);
-  const [selectedField, setSelectedField] = useState<FieldConfig | null>(null);
+  const [fields, setFields] = useState<any[]>(defaultFields);
+  const [selectedField, setSelectedField] = useState<any | null>(null);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isDropActive, setIsDropActive] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [statusChoices, setStatusChoices] = useState<any[]>(defaultStatusChoices);
+  const [newChoiceText, setNewChoiceText] = useState("");
   const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const getFieldIcon = (type: string) => {
     const fieldType = fieldTypes.find((ft) => ft.id === type);
@@ -225,7 +273,7 @@ const TicketFieldsPage: React.FC = () => {
     // Check if it's a field type being added
     const fieldType = fieldTypes.find((ft) => ft.id === draggedItem);
     if (fieldType) {
-      const newField: FieldConfig = {
+      const newField = {
         id: `${fieldType.id}-${Date.now()}`,
         name: `New ${fieldType.name.toLowerCase()}`,
         type: fieldType.id,
@@ -270,7 +318,7 @@ const TicketFieldsPage: React.FC = () => {
     if (!!selectedField) return;
     const fieldType = fieldTypes.find((ft) => ft.id === fieldId);
     if (fieldType) {
-      const newField: FieldConfig = {
+      const newField = {
         id: `${fieldType.id}-${Date.now()}`,
         name: `New ${fieldType.name.toLowerCase()}`,
         type: fieldType.id,
@@ -300,11 +348,11 @@ const TicketFieldsPage: React.FC = () => {
     setIsDropActive(false);
   };
 
-  const handleFieldClick = (e: any, field: FieldConfig) => {
+  const handleFieldClick = (e: any, field: any) => {
     setSelectedField(field);
   };
 
-  const handleSaveField = (updatedField: FieldConfig) => {
+  const handleSaveField = (updatedField: any) => {
     setFields((prev) =>
       prev.map((field) => (field.id === updatedField.id ? updatedField : field))
     );
@@ -325,15 +373,68 @@ const TicketFieldsPage: React.FC = () => {
     );
   };
 
+  // Dropdown choices handlers
+  const handleAddChoice = () => {
+    if (newChoiceText.trim()) {
+      const newChoice = {
+        id: `choice-${Date.now()}`,
+        labelForAgents: newChoiceText.trim(),
+        labelForCustomers: newChoiceText.trim(),
+        hasSlaTimer: false,
+        isDefault: false,
+      };
+      setStatusChoices((prev) => [...prev, newChoice]);
+      setNewChoiceText("");
+    }
+  };
+
+  const handleDeleteChoice = (choiceId: string) => {
+    setStatusChoices((prev) => prev.filter((choice) => choice.id !== choiceId));
+  };
+
+  const handleUpdateChoice = (choiceId: string, field: string, value: any) => {
+    setStatusChoices((prev) =>
+      prev.map((choice) =>
+        choice.id === choiceId ? { ...choice, [field]: value } : choice
+      )
+    );
+  };
+
+  const handleChoiceDragStart = (e: React.DragEvent, choiceId: string) => {
+    setDraggedItem(choiceId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleChoiceDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleChoiceDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (!draggedItem) return;
+
+    const draggedIndex = statusChoices.findIndex((choice) => choice.id === draggedItem);
+    if (draggedIndex !== -1) {
+      const newChoices = [...statusChoices];
+      const [reorderedChoice] = newChoices.splice(draggedIndex, 1);
+      newChoices.splice(targetIndex, 0, reorderedChoice);
+      setStatusChoices(newChoices);
+    }
+
+    setDraggedItem(null);
+    setDragOverIndex(null);
+  };
+
   const filteredFields = fields.filter((field) => {
     const matchesFilter =
       filter === "all" ||
       (filter === "default" && field.isDefault) ||
       (filter === "custom" && !field.isDefault);
 
-    const matchesSearch = field.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const matchesSearch = field?.name
+      ?.toLowerCase()
+      ?.includes(searchTerm?.toLowerCase());
 
     return matchesFilter && matchesSearch;
   });
@@ -681,8 +782,8 @@ const TicketFieldsPage: React.FC = () => {
 // Field Configuration Modal Component
 interface FieldConfigurationModalProps {
   onClose: () => void;
-  field: FieldConfig | null;
-  onSave: (field: FieldConfig) => void;
+  field: any | null;
+  onSave: (field: any) => void;
 }
 
 const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
@@ -690,13 +791,42 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
   onSave,
   onClose,
 }) => {
-  const [formData, setFormData] = useState<FieldConfig | null>(null);
+  const [formData, setFormData] = useState<any | null>(null);
+  const [statusChoices, setStatusChoices] = useState<any[]>(defaultStatusChoices);
+  const [newChoiceText, setNewChoiceText] = useState("");
 
   React.useEffect(() => {
     if (field) {
       setFormData(field);
     }
   }, [field]);
+
+  // Dropdown choices handlers
+  const handleAddChoice = () => {
+    if (newChoiceText.trim()) {
+      const newChoice = {
+        id: `choice-${Date.now()}`,
+        labelForAgents: newChoiceText.trim(),
+        labelForCustomers: newChoiceText.trim(),
+        hasSlaTimer: false,
+        isDefault: false,
+      };
+      setStatusChoices((prev) => [...prev, newChoice]);
+      setNewChoiceText("");
+    }
+  };
+
+  const handleDeleteChoice = (choiceId: string) => {
+    setStatusChoices((prev) => prev.filter((choice) => choice.id !== choiceId));
+  };
+
+  const handleUpdateChoice = (choiceId: string, field: string, value: any) => {
+    setStatusChoices((prev) =>
+      prev.map((choice) =>
+        choice.id === choiceId ? { ...choice, [field]: value } : choice
+      )
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -708,24 +838,27 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
   if (!field || !formData) return null;
 
   return (
-    <Paper elevation={5} sx={{ p: 4, width: "100%" }}>
+    <Paper elevation={5} sx={{ p: 3, width: "100%" }}>
       <Box component="form" onSubmit={handleSubmit}>
         {/* Behavior for Agents */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: "medium" }}>
             BEHAVIOR FOR AGENTS
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={formData.requiredForAgents || false}
+                  checked={formData.agents?.subReq || false}
                   onChange={(e) =>
-                    setFormData((prev) =>
+                    setFormData((prev: any) =>
                       prev
                         ? {
                             ...prev,
-                            requiredForAgents: e.target.checked,
+                            agents: {
+                              ...prev.agents,
+                              subReq: e.target.checked,
+                            },
                           }
                         : null
                     )
@@ -737,13 +870,16 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={formData.requiredWhenClosing || false}
+                  checked={formData.agents?.closeReq || false}
                   onChange={(e) =>
-                    setFormData((prev) =>
+                    setFormData((prev: any) =>
                       prev
                         ? {
                             ...prev,
-                            requiredWhenClosing: e.target.checked,
+                            agents: {
+                              ...prev.agents,
+                              closeReq: e.target.checked,
+                            },
                           }
                         : null
                     )
@@ -755,24 +891,27 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
           </Box>
         </Box>
 
-        <Divider sx={{ my: 3 }} />
+        <Divider sx={{ my: 2 }} />
 
         {/* Behavior for Customers */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: "medium" }}>
             BEHAVIOR FOR CUSTOMERS
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={formData.canView || false}
+                  checked={formData.customers?.view || false}
                   onChange={(e) =>
-                    setFormData((prev) =>
+                    setFormData((prev: any) =>
                       prev
                         ? {
                             ...prev,
-                            canView: e.target.checked,
+                            customers: {
+                              ...prev.customers,
+                              view: e.target.checked,
+                            },
                           }
                         : null
                     )
@@ -784,13 +923,16 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={formData.canEdit || false}
+                  checked={formData.customers?.edit || false}
                   onChange={(e) =>
-                    setFormData((prev) =>
+                    setFormData((prev: any) =>
                       prev
                         ? {
                             ...prev,
-                            canEdit: e.target.checked,
+                            customers: {
+                              ...prev.customers,
+                              edit: e.target.checked,
+                            },
                           }
                         : null
                     )
@@ -802,13 +944,16 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={formData.requiredForCustomers || false}
+                  checked={formData.customers?.subReq || false}
                   onChange={(e) =>
-                    setFormData((prev) =>
+                    setFormData((prev: any) =>
                       prev
                         ? {
                             ...prev,
-                            requiredForCustomers: e.target.checked,
+                            customers: {
+                              ...prev.customers,
+                              subReq: e.target.checked,
+                            },
                           }
                         : null
                     )
@@ -823,21 +968,22 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
         <Divider sx={{ my: 3 }} />
 
         {/* Labels */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "medium" }}>
             LABEL
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
             <TextField
+              disabled={formData?.agents?.isField}
               label="Label for agents"
               required
-              value={formData.labelForAgents || ""}
+              value={formData?.name || ""}
               onChange={(e) =>
-                setFormData((prev) =>
+                setFormData((prev: any) =>
                   prev
                     ? {
                         ...prev,
-                        labelForAgents: e.target.value,
+                        name: e.target.value,
                       }
                     : null
                 )
@@ -848,13 +994,13 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
             <TextField
               label="Label for customers"
               required
-              value={formData.labelForCustomers || ""}
+              value={formData?.name || ""}
               onChange={(e) =>
-                setFormData((prev) =>
+                setFormData((prev: any) =>
                   prev
                     ? {
                         ...prev,
-                        labelForCustomers: e.target.value,
+                        name: e.target.value,
                       }
                     : null
                 )
@@ -864,6 +1010,122 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
             />
           </Box>
         </Box>
+
+        {/* Dropdown Choices for Status field */}
+        {formData?.id === "status" && (
+          <>
+            <Divider sx={{ my: 3 }} />
+            <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{fontWeight:600}}
+                >
+                  Dropdown choices
+                </Typography>
+          
+              </Box>
+
+              <TableContainer component={Paper} elevation={0} sx={{ border: "1px solid", borderColor: "grey.300" }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: "grey.50" }}>
+                      <TableCell sx={{ fontWeight: "bold", borderRight: "1px solid", borderColor: "grey.300" }}>
+                        Label for agents
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold", borderRight: "1px solid", borderColor: "grey.300" }}>
+                        Label for customers
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>
+                        SLA timer
+                      </TableCell>
+                      <TableCell sx={{ width: 50 }}></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {statusChoices.map((choice, index) => (
+                      <TableRow key={choice.id} sx={{ "&:hover": { bgcolor: "grey.50" } }}>
+                        <TableCell sx={{ borderRight: "1px solid", borderColor: "grey.300" }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <DragIndicator sx={{ color: "grey.500", cursor: "grab" }} />
+                            <TextField
+                              size="small"
+                              value={choice.labelForAgents}
+                              onChange={(e) => handleUpdateChoice(choice.id, "labelForAgents", e.target.value)}
+                              disabled={choice.isDefault}
+                              sx={{
+                                "& .MuiInputBase-input": {
+                                  py:0.6,
+                                  px:1,
+                                  color: choice.isDefault ? "grey.500" : "text.primary",
+                                },
+                              }}
+                              variant="standard"
+                              InputProps={{ disableUnderline: true }}
+                            />
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ borderRight: "1px solid", borderColor: "grey.300" }}>
+                          <TextField
+                            size="small"
+                            value={choice.labelForCustomers}
+                            onChange={(e) => handleUpdateChoice(choice.id, "labelForCustomers", e.target.value)}
+                            variant="standard"
+                            InputProps={{ disableUnderline: true }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={choice.hasSlaTimer}
+                            onChange={(e) => handleUpdateChoice(choice.id, "hasSlaTimer", e.target.checked)}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteChoice(choice.id)}
+                            disabled={choice.isDefault}
+                            color="error"
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {/* Add new choice */}
+              <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}>
+                <TextField
+                  size="small"
+                  placeholder="Add a choice"
+                  value={newChoiceText}
+                  onChange={(e) => setNewChoiceText(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleAddChoice()}
+                  sx={{ flexGrow: 1 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Add sx={{ color: "grey.500" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleAddChoice}
+                  disabled={!newChoiceText.trim()}
+                >
+                  Add
+                </Button>
+              </Box>
+            </Box>
+          </>
+        )}
       </Box>
       <div className="flex justify-center gap-2">
         <Button onClick={onClose} variant="text" color="inherit">
