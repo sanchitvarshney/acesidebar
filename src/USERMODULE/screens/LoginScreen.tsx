@@ -724,38 +724,7 @@ const LoginScreen = () => {
                       </Typography>
                     )}
                 </Box>
-
-                <Button
-                  variant="contained"
-                  disabled={!isFormValid || isLoading}
-                  sx={{
-                    width: "100%",
-                    py: 1.5,
-                    mb: 2,
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    backgroundColor: "#1877f2",
-                    "&:hover": {
-                      backgroundColor: "#166fe5",
-                    },
-                    "&:disabled": {
-                      backgroundColor: "rgba(0, 0, 0, 0.12)",
-                      color: "rgba(0, 0, 0, 0.26)",
-                    },
-                  }}
-                  type="submit"
-                  onClick={handleSubmit(onSubmit)}
-                >
-                  {isLoading ? (
-                    <CircularProgress size={20} sx={{ color: "white" }} />
-                  ) : (
-                    "Log in"
-                  )}
-            </Button>
-
-                {/* Terms & Conditions Checkbox */}
+                   {/* Terms & Conditions Checkbox */}
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -801,6 +770,38 @@ const LoginScreen = () => {
                   }
                   sx={{ mb: 2, alignItems: "flex-start" }}
                 />
+
+                <Button
+                  variant="contained"
+                  disabled={!isFormValid || isLoading}
+                  sx={{
+                    width: "100%",
+                    py: 1.5,
+                    mb: 2,
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    backgroundColor: "#1877f2",
+                    "&:hover": {
+                      backgroundColor: "#166fe5",
+                    },
+                    "&:disabled": {
+                      backgroundColor: "rgba(0, 0, 0, 0.12)",
+                      color: "rgba(0, 0, 0, 0.26)",
+                    },
+                  }}
+                  type="submit"
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  {isLoading ? (
+                    <CircularProgress size={20} sx={{ color: "white" }} />
+                  ) : (
+                    "Log in"
+                  )}
+            </Button>
+
+             
 
                 <Box sx={{ textAlign: "center", mb: 2 }}>
                   <Link

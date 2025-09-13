@@ -133,7 +133,7 @@ const ShortcutsTab = () => {
             return;
           }
           refetch();
-
+  showToast(res?.data?.message || "Add shortcut successfully", "success");
           resetForm();
           setIsAddShortcutOpen(false);
         });

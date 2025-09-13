@@ -22,6 +22,10 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import GroupsIcon from "@mui/icons-material/Groups";
 import StarIcon from "@mui/icons-material/Star";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import {
+  Group as GroupIcon,
+
+} from '@mui/icons-material';
 
 export const settingSupportData = [
   {
@@ -177,6 +181,13 @@ export const settingTeamData = [
           "Organize agents by departments and receive notifications on unattended tickets.",
         icon: BusinessIcon,
         action: "Manage",
+      },
+      {
+        title: "Teams",
+        description:
+          "Manage teams and their members, assign roles and permissions",
+        icon: GroupIcon,
+        action: "Manage Teams",
       },
     ],
   },

@@ -50,6 +50,8 @@ import AgentsMasterPage from "../USERMODULE/pages/settingManangePages/AgentsMast
 import TeamPage from "../USERMODULE/pages/settingPages/TeamPage";
 import CreateDepartmentPage from "../USERMODULE/pages/settingManangePages/CreateDepartmentPage";
 import AddAgentPage from "../USERMODULE/pages/settingManangePages/AddAgentPage";
+import TeamsManagement from "../USERMODULE/pages/TeamsManagement";
+import CreateTeamPage from "../USERMODULE/pages/settingManangePages/CreateTeamPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -158,6 +160,14 @@ export const router = createBrowserRouter([
       {
         path: "create-department",
         element: <CreateDepartmentPage />,
+      },
+      {
+        path: "teams",
+        element: <TeamsManagement />,
+      },
+      {
+        path: "create-team",
+        element: <CreateTeamPage />,
       },
       {
         path: "agents",
