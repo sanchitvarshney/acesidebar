@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import {
   DragIndicator,
   VisibilityOff,
@@ -38,6 +38,8 @@ import {
   Accordion,
   Backdrop,
 } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../reduxStore/Store";
 
 // Field types that can be dragged and dropped
 const fieldTypes = [
@@ -192,13 +194,16 @@ const TicketFieldsPage: React.FC = () => {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isDropActive, setIsDropActive] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-
+  const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const getFieldIcon = (type: string) => {
     const fieldType = fieldTypes.find((ft) => ft.id === type);
     return fieldType ? fieldType.icon : TextFields;
   };
 
   const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    if (!!selectedField) {
+      return;
+    }
     setDraggedItem(itemId);
     e.dataTransfer.effectAllowed = "move";
   };
@@ -262,6 +267,7 @@ const TicketFieldsPage: React.FC = () => {
   };
 
   const handleAddField = (e: any, fieldId: any) => {
+    if (!!selectedField) return;
     const fieldType = fieldTypes.find((ft) => ft.id === fieldId);
     if (fieldType) {
       const newField: FieldConfig = {
@@ -302,7 +308,9 @@ const TicketFieldsPage: React.FC = () => {
     setFields((prev) =>
       prev.map((field) => (field.id === updatedField.id ? updatedField : field))
     );
-     setSelectedField(null);
+
+    setSelectedField(null);
+    setExpandedIndex(null);
   };
 
   const handleDeleteField = (fieldId: string) => {
@@ -378,8 +386,10 @@ const TicketFieldsPage: React.FC = () => {
                       onClick={(e) => handleAddField(e as any, fieldType.id)}
                       sx={{
                         p: 2,
-                        cursor: "pointer",
-                        "&:hover": { bgcolor: "grey.50" },
+                        cursor: !!selectedField ? "" : "pointer",
+                        "&:hover": {
+                          bgcolor: !!selectedField ? "" : "grey.50",
+                        },
                         border: "1px solid",
                         borderColor: "grey.300",
                         display: "flex",
@@ -422,8 +432,11 @@ const TicketFieldsPage: React.FC = () => {
                   <InputLabel>Filter</InputLabel>
                   <Select
                     value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
+                    onChange={(e) => {
+                      setFilter(e.target.value);
+                    }}
                     label="Filter"
+                    disabled={!!selectedField}
                   >
                     <MenuItem value="all">All fields</MenuItem>
                     <MenuItem value="default">Default fields</MenuItem>
@@ -431,6 +444,7 @@ const TicketFieldsPage: React.FC = () => {
                   </Select>
                 </FormControl>
                 <TextField
+                  disabled={!!selectedField}
                   size="small"
                   placeholder="Search fields"
                   value={searchTerm}
@@ -452,9 +466,13 @@ const TicketFieldsPage: React.FC = () => {
               open={expandedIndex !== null}
               onClick={() => setExpandedIndex(null)}
               sx={{
+                top: 64,
+                left: isOpen ? 78 : 0,
                 zIndex: (theme) => theme.zIndex.drawer + 1,
                 // backdropFilter: "blur(1px)",
                 bgcolor: "rgba(0, 0, 0, 0.08)",
+                pointerEvents: "none",
+                transition: "left 600ms ease-in-out",
               }}
             />
 
@@ -490,17 +508,32 @@ const TicketFieldsPage: React.FC = () => {
                 const IconComponent = getFieldIcon(field.type);
                 return (
                   <Accordion
+                    disabled={!!selectedField}
                     elevation={0}
                     expanded={expandedIndex === index}
-                    onChange={(_, isExpanded) =>
-                      setExpandedIndex(isExpanded ? index : null)
-                    }
+                    onChange={(_, isExpanded: any) => {
+                      if (!!selectedField) {
+                        return;
+                      }
+                      setExpandedIndex(isExpanded ? index : null);
+                    }}
                     sx={{
+                      "&.Mui-disabled": {
+                        backgroundColor: "#f5f5f5", // light grey background
+                        cursor: "default",
+                        opacity: 1,
+                      },
+                      // pointerEvents: expandedIndex === index ? "auto" : "none", // block clicks
+
+                      cursor: !!selectedField ? "pointer" : " ",
                       border: "none",
                       boxShadow: "none",
                       "&:before": { display: "none" },
                       position: "relative",
-                      zIndex: expandedIndex === index ? (theme) => theme.zIndex.modal + 1 : "auto",
+                      zIndex:
+                        expandedIndex === index
+                          ? (theme) => theme.zIndex.modal + 0
+                          : "auto",
                     }}
                   >
                     <AccordionSummary>
@@ -515,13 +548,16 @@ const TicketFieldsPage: React.FC = () => {
                         onDragLeave={handleDragLeave}
                         onDrop={(e) => handleDrop(e, index)}
                         onDragEnd={handleDragEnd}
-                        onClick={(e) =>
-                          !field.isDisabled && handleFieldClick(e, field)
-                        }
+                        onClick={(e) => {
+                          !field.isDisabled && handleFieldClick(e, field);
+                        }}
                         sx={{
                           width: "100%",
 
-                          cursor: field.isDisabled ? "default" : "pointer",
+                          cursor:
+                            field.isDisabled || !!selectedField
+                              ? ""
+                              : "pointer",
                           opacity: field.isDisabled ? 0.6 : 1,
                           border: "1px solid",
                           borderColor:
@@ -616,7 +652,8 @@ const TicketFieldsPage: React.FC = () => {
                         field={selectedField}
                         onSave={handleSaveField}
                         onClose={() => {
-                           setSelectedField(null);
+                          setSelectedField(null);
+                          setExpandedIndex(null);
                         }}
                       />
                     </AccordionDetails>
@@ -668,15 +705,10 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
     }
   };
 
-  const getFieldIcon = (type: string) => {
-    const fieldType = fieldTypes.find((ft) => ft.id === type);
-    return fieldType ? fieldType.icon : TextFields;
-  };
-
   if (!field || !formData) return null;
 
   return (
-    <Paper sx={{ p: 4, width: "100%" }}>
+    <Paper elevation={5} sx={{ p: 4, width: "100%" }}>
       <Box component="form" onSubmit={handleSubmit}>
         {/* Behavior for Agents */}
         <Box sx={{ mb: 4 }}>
@@ -833,16 +865,11 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
           </Box>
         </Box>
       </Box>
-      <div className="flex justify-center">
-        <Button onClick={onClose} color="inherit" size="small">
+      <div className="flex justify-center gap-2">
+        <Button onClick={onClose} variant="text" color="inherit">
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          color="primary"
-          size="small"
-        >
+        <Button onClick={handleSubmit} variant="contained" color="primary">
           Save field
         </Button>
       </div>

@@ -465,13 +465,7 @@ const DepartmentsManagement = () => {
   let filterData = filteredDepartments;
   filterData = applyFilters(filterData);
 
-  // Filter columns based on visibility
-  const filteredColumns = departmentColumns.filter(
-    (column) =>
-      column.field === "__check__" || visibleColumns.includes(column.field)
-  );
 
-  const paginationModel = { page: 0, pageSize: 10 };
 
   return (
     <Box

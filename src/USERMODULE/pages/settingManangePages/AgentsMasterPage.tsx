@@ -24,6 +24,7 @@ import {
   TableHead,
   TableRow,
   LinearProgress,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -230,7 +231,7 @@ const DepartmentsManagement = () => {
     "email",
     "isActive",
   ]);
-  const [getAgentList, { data: agentList, isLoading: agentListLoading }] =
+  const [getAgentList, { data: agentList, isLoading: agentListLoading,  }] =
     useLazyGetAgentListQuery();
 
   useEffect(() => {
@@ -474,20 +475,25 @@ const DepartmentsManagement = () => {
               Agents
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => getAgentList()}
-              disabled={agentListLoading}
-              size="small"
-            >
-              {agentListLoading ? "Loading..." : "Refresh"}
-            </Button>
+          <Box sx={{ display: "flex", gap: 2,alignItems:"center" }}>
+            {agentListLoading ? (
+              <CircularProgress size={16} />
+            ) : (
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => getAgentList()}
+                disabled={agentListLoading}
+                size="small"
+              >
+                Refresh
+              </Button>
+            )}
+
             <Button
               variant="contained"
               color="primary"
-              onClick={() => setIsAdd(true)}
+              onClick={() => navigate("/add-agent")}
               size="small"
             >
               New Agent
