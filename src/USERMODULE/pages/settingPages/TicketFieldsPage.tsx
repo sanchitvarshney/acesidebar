@@ -38,6 +38,8 @@ import {
   Accordion,
   Backdrop,
 } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../reduxStore/Store";
 
 // Field types that can be dragged and dropped
 const fieldTypes = [
@@ -192,7 +194,7 @@ const TicketFieldsPage: React.FC = () => {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isDropActive, setIsDropActive] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-
+  const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const getFieldIcon = (type: string) => {
     const fieldType = fieldTypes.find((ft) => ft.id === type);
     return fieldType ? fieldType.icon : TextFields;
@@ -306,7 +308,9 @@ const TicketFieldsPage: React.FC = () => {
     setFields((prev) =>
       prev.map((field) => (field.id === updatedField.id ? updatedField : field))
     );
+
     setSelectedField(null);
+    setExpandedIndex(null);
   };
 
   const handleDeleteField = (fieldId: string) => {
@@ -462,10 +466,13 @@ const TicketFieldsPage: React.FC = () => {
               open={expandedIndex !== null}
               onClick={() => setExpandedIndex(null)}
               sx={{
+                top: 64,
+                left: isOpen ? 78 : 0,
                 zIndex: (theme) => theme.zIndex.drawer + 1,
                 // backdropFilter: "blur(1px)",
                 bgcolor: "rgba(0, 0, 0, 0.08)",
                 pointerEvents: "none",
+                transition: "left 600ms ease-in-out",
               }}
             />
 
@@ -514,7 +521,7 @@ const TicketFieldsPage: React.FC = () => {
                       "&.Mui-disabled": {
                         backgroundColor: "#f5f5f5", // light grey background
                         cursor: "default",
-                         opacity: 1,
+                        opacity: 1,
                       },
                       // pointerEvents: expandedIndex === index ? "auto" : "none", // block clicks
 
@@ -859,15 +866,10 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
         </Box>
       </Box>
       <div className="flex justify-center gap-2">
-        <Button onClick={onClose} variant="text" color="inherit" >
+        <Button onClick={onClose} variant="text" color="inherit">
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          color="primary"
-     
-        >
+        <Button onClick={handleSubmit} variant="contained" color="primary">
           Save field
         </Button>
       </div>

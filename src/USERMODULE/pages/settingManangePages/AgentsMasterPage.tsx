@@ -231,7 +231,7 @@ const DepartmentsManagement = () => {
     "email",
     "isActive",
   ]);
-  const [getAgentList, { data: agentList, isLoading: agentListLoading }] =
+  const [getAgentList, { data: agentList, isLoading: agentListLoading,  }] =
     useLazyGetAgentListQuery();
 
   useEffect(() => {

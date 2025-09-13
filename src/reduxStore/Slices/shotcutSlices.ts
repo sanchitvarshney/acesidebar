@@ -6,6 +6,7 @@ interface CounterState {
   forwardData: any;
   isReply: boolean;
   selectedIndex: string | number;
+  isOpen: boolean
 }
 
 const initialState: CounterState = {
@@ -14,6 +15,7 @@ const initialState: CounterState = {
   forwardData: {},
   isReply: true,
   selectedIndex: "1",
+  isOpen: true
 };
 
 const shotcutSlice = createSlice({
@@ -35,6 +37,9 @@ const shotcutSlice = createSlice({
     setSelectedIndex: (state, action) => {
       state.selectedIndex = action.payload;
     },
+        setToggle: (state, action) => {
+      state.isOpen = action.payload;
+    },
   },
 });
 
@@ -44,5 +49,6 @@ export const {
   setForwardData,
   setIsReply,
   setSelectedIndex,
+  setToggle
 } = shotcutSlice.actions;
 export default shotcutSlice.reducer;

@@ -6,6 +6,9 @@ import { Outlet } from "react-router-dom";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import logo from "../../assets/image/ajaxter-logo.webp";
 import PrivateTurnstile from "../common/PrivateTurnstile";
+import { useDispatch, useSelector } from "react-redux";
+import { setToggle } from "../../reduxStore/Slices/shotcutSlices";
+import { RootState } from "../../reduxStore/Store";
 
 const drawerWidth = 0;
 
@@ -58,19 +61,21 @@ const MainContent = styled(Box)(({ theme }) => ({
 }));
 
 const MainLayout = () => {
-  const [open, setOpen] = useState(true);
+
   const { isAnyPopupOpen } = usePopupContext();
+  const { isOpen } = useSelector((state:RootState) => state.shotcut);
+  const dispatch = useDispatch();
 
   const handleDrawerToggle = () => {
-    setOpen(!open);
+   dispatch(setToggle(!isOpen));  
   };
 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <TopBar open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Sidebar open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Main open={open} isPopupOpen={isAnyPopupOpen}>
+      <TopBar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
+      <Sidebar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
+      <Main open={isOpen} isPopupOpen={isAnyPopupOpen}>
         <MainContent>
           <Suspense
             fallback={

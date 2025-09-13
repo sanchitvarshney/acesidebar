@@ -139,11 +139,12 @@ const CreateDepartmentPage = () => {
 
   const handleSave = () => {
     // Here you would typically save the department data
+    // setActiveTab(1);
     console.log("Saving department:", formData);
     setShowSuccess(true);
-    setTimeout(() => {
-      navigate("/departments");
-    }, 2000);
+    // setTimeout(() => {
+    //   navigate("/departments");
+    // }, 2000);
   };
 
   const handleCancel = () => {

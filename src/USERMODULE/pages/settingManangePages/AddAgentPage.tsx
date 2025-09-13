@@ -94,44 +94,56 @@ const AddAgentPage = () => {
     phone: "",
     mobile: "",
     extension: "",
-    
+
     // Authentication
     username: "",
-    
+
     // Status & Settings
     status: "Active",
     locked: false,
     limitTicketAccess: false,
     vacationMode: false,
-    
+
     // Internal Notes
     internalNotes: "",
-    
+
     // Primary Department
     primaryDepartment: "",
     primaryRole: "",
-    
+
     // Extended Access
     extendedDepartments: [] as string[],
     extendedRoles: [] as string[],
-    
+
     // Permissions
     canCreate: false,
     canDelete: false,
     canEdit: false,
     canManageAccount: false,
     canAccessUserDirectory: false,
-    
+
     // Assigned Teams
     assignedTeams: [] as string[],
   });
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [departments] = useState([
-    { id: "support", name: "Support", roles: ["Agent", "Senior Agent", "Manager"] },
+    {
+      id: "support",
+      name: "Support",
+      roles: ["Agent", "Senior Agent", "Manager"],
+    },
     { id: "sales", name: "Sales", roles: ["Agent", "Senior Agent", "Manager"] },
-    { id: "technical", name: "Technical", roles: ["Agent", "Senior Agent", "Manager"] },
-    { id: "billing", name: "Billing", roles: ["Agent", "Senior Agent", "Manager"] },
+    {
+      id: "technical",
+      name: "Technical",
+      roles: ["Agent", "Senior Agent", "Manager"],
+    },
+    {
+      id: "billing",
+      name: "Billing",
+      roles: ["Agent", "Senior Agent", "Manager"],
+    },
   ]);
 
   const [teams] = useState([
@@ -156,11 +168,12 @@ const AddAgentPage = () => {
   };
 
   const handleSave = () => {
+    setActiveTab(1);
     console.log("Saving agent:", formData);
     setShowSuccess(true);
-    setTimeout(() => {
-      navigate("/agents");
-    }, 2000);
+    // setTimeout(() => {
+    //   navigate("/agents");
+    // }, 2000);
   };
 
   const handleCancel = () => {
@@ -293,84 +306,86 @@ const AddAgentPage = () => {
                             variant="h6"
                             sx={{ fontWeight: 600, mb: 3, color: "#1a1a1a" }}
                           >
-                            <PersonIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+                            <PersonIcon
+                              sx={{ mr: 1, verticalAlign: "middle" }}
+                            />
                             Basic Information
                           </Typography>
 
-                           <Grid container spacing={3}>
-                             <Grid size={{ xs: 12, sm: 6 }}>
-                               <TextField
-                                 fullWidth
-                                 label="Name"
-                                 value={formData.name}
-                                 onChange={(e) =>
-                                   handleInputChange("name", e.target.value)
-                                 }
-                                 placeholder="Enter agent name"
-                                 required
-                               />
-                             </Grid>
-                             <Grid size={{ xs: 12, sm: 6 }}>
-                               <TextField
-                                 fullWidth
-                                 label="Email"
-                                 type="email"
-                                 value={formData.email}
-                                 onChange={(e) =>
-                                   handleInputChange("email", e.target.value)
-                                 }
-                                 placeholder="Enter email address"
-                                 required
-                               />
-                             </Grid>
-                             <Grid size={{ xs: 12, sm: 4 }}>
-                               <TextField
-                                 fullWidth
-                                 label="Phone"
-                                 value={formData.phone}
-                                 onChange={(e) =>
-                                   handleInputChange("phone", e.target.value)
-                                 }
-                                 placeholder="Enter phone number"
-                                 InputProps={{
-                                   startAdornment: (
-                                     <InputAdornment position="start">
-                                       <PhoneIcon />
-                                     </InputAdornment>
-                                   ),
-                                 }}
-                               />
-                             </Grid>
-                             <Grid size={{ xs: 12, sm: 4 }}>
-                               <TextField
-                                 fullWidth
-                                 label="Mobile"
-                                 value={formData.mobile}
-                                 onChange={(e) =>
-                                   handleInputChange("mobile", e.target.value)
-                                 }
-                                 placeholder="Enter mobile number"
-                                 InputProps={{
-                                   startAdornment: (
-                                     <InputAdornment position="start">
-                                       <PhoneIcon />
-                                     </InputAdornment>
-                                   ),
-                                 }}
-                               />
-                             </Grid>
-                             <Grid size={{ xs: 12, sm: 4 }}>
-                               <TextField
-                                 fullWidth
-                                 label="Extension"
-                                 value={formData.extension}
-                                 onChange={(e) =>
-                                   handleInputChange("extension", e.target.value)
-                                 }
-                                 placeholder="Enter extension"
-                               />
-                             </Grid>
-                           </Grid>
+                          <Grid container spacing={3}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                              <TextField
+                                fullWidth
+                                label="Name"
+                                value={formData.name}
+                                onChange={(e) =>
+                                  handleInputChange("name", e.target.value)
+                                }
+                                placeholder="Enter agent name"
+                                required
+                              />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                              <TextField
+                                fullWidth
+                                label="Email"
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) =>
+                                  handleInputChange("email", e.target.value)
+                                }
+                                placeholder="Enter email address"
+                                required
+                              />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 4 }}>
+                              <TextField
+                                fullWidth
+                                label="Phone"
+                                value={formData.phone}
+                                onChange={(e) =>
+                                  handleInputChange("phone", e.target.value)
+                                }
+                                placeholder="Enter phone number"
+                                InputProps={{
+                                  startAdornment: (
+                                    <InputAdornment position="start">
+                                      <PhoneIcon />
+                                    </InputAdornment>
+                                  ),
+                                }}
+                              />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 4 }}>
+                              <TextField
+                                fullWidth
+                                label="Mobile"
+                                value={formData.mobile}
+                                onChange={(e) =>
+                                  handleInputChange("mobile", e.target.value)
+                                }
+                                placeholder="Enter mobile number"
+                                InputProps={{
+                                  startAdornment: (
+                                    <InputAdornment position="start">
+                                      <PhoneIcon />
+                                    </InputAdornment>
+                                  ),
+                                }}
+                              />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 4 }}>
+                              <TextField
+                                fullWidth
+                                label="Extension"
+                                value={formData.extension}
+                                onChange={(e) =>
+                                  handleInputChange("extension", e.target.value)
+                                }
+                                placeholder="Enter extension"
+                              />
+                            </Grid>
+                          </Grid>
 
                           <Divider sx={{ my: 3 }} />
 
@@ -404,7 +419,9 @@ const AddAgentPage = () => {
                             variant="h6"
                             sx={{ fontWeight: 600, mb: 3, color: "#1a1a1a" }}
                           >
-                            <SettingsIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+                            <SettingsIcon
+                              sx={{ mr: 1, verticalAlign: "middle" }}
+                            />
                             Status & Settings
                           </Typography>
 
@@ -431,7 +448,10 @@ const AddAgentPage = () => {
                                 <Switch
                                   checked={formData.locked}
                                   onChange={(e) =>
-                                    handleInputChange("locked", e.target.checked)
+                                    handleInputChange(
+                                      "locked",
+                                      e.target.checked
+                                    )
                                   }
                                 />
                               }
@@ -451,7 +471,10 @@ const AddAgentPage = () => {
                                 <Switch
                                   checked={formData.limitTicketAccess}
                                   onChange={(e) =>
-                                    handleInputChange("limitTicketAccess", e.target.checked)
+                                    handleInputChange(
+                                      "limitTicketAccess",
+                                      e.target.checked
+                                    )
                                   }
                                 />
                               }
@@ -461,7 +484,8 @@ const AddAgentPage = () => {
                               variant="caption"
                               sx={{ color: "#65676b", ml: 4, display: "block" }}
                             >
-                              Restrict agent to only view tickets assigned to them
+                              Restrict agent to only view tickets assigned to
+                              them
                             </Typography>
                           </Box>
 
@@ -471,7 +495,10 @@ const AddAgentPage = () => {
                                 <Switch
                                   checked={formData.vacationMode}
                                   onChange={(e) =>
-                                    handleInputChange("vacationMode", e.target.checked)
+                                    handleInputChange(
+                                      "vacationMode",
+                                      e.target.checked
+                                    )
                                   }
                                 />
                               }
@@ -481,7 +508,8 @@ const AddAgentPage = () => {
                               variant="caption"
                               sx={{ color: "#65676b", ml: 4, display: "block" }}
                             >
-                              Enable vacation mode to temporarily disable ticket assignments
+                              Enable vacation mode to temporarily disable ticket
+                              assignments
                             </Typography>
                           </Box>
 
@@ -502,7 +530,10 @@ const AddAgentPage = () => {
                               label="Internal Notes"
                               value={formData.internalNotes}
                               onChange={(e) =>
-                                handleInputChange("internalNotes", e.target.value)
+                                handleInputChange(
+                                  "internalNotes",
+                                  e.target.value
+                                )
                               }
                               placeholder="Enter internal notes about this agent..."
                               helperText="These notes are internal and will not be visible to the agent"
@@ -511,62 +542,71 @@ const AddAgentPage = () => {
                         </Box>
                       )}
 
-                       {index === 2 && (
-                         <Box sx={{ maxWidth: 600 }}>
-                           {/* Department & Roles */}
-                           <Typography
-                             variant="h6"
-                             sx={{ fontWeight: 600, mb: 3, color: "#1a1a1a" }}
-                           >
-                             <BusinessIcon sx={{ mr: 1, verticalAlign: "middle" }} />
-                             Primary Department
-                           </Typography>
+                      {index === 2 && (
+                        <Box sx={{ maxWidth: 600 }}>
+                          {/* Department & Roles */}
+                          <Typography
+                            variant="h6"
+                            sx={{ fontWeight: 600, mb: 3, color: "#1a1a1a" }}
+                          >
+                            <BusinessIcon
+                              sx={{ mr: 1, verticalAlign: "middle" }}
+                            />
+                            Primary Department
+                          </Typography>
 
-                           <Grid container spacing={3}>
-                             <Grid size={{ xs: 12, sm: 6 }}>
-                               <FormControl fullWidth required>
-                                 <InputLabel>Select Department</InputLabel>
-                                 <Select
-                                   value={formData.primaryDepartment}
-                                   onChange={(e) =>
-                                     handleInputChange("primaryDepartment", e.target.value)
-                                   }
-                                   label="Select Department"
-                                 >
-                                   {departments.map((dept) => (
-                                     <MenuItem key={dept.id} value={dept.id}>
-                                       {dept.name}
-                                     </MenuItem>
-                                   ))}
-                                 </Select>
-                               </FormControl>
-                             </Grid>
-                             <Grid size={{ xs: 12, sm: 6 }}>
-                               <FormControl fullWidth required>
-                                 <InputLabel>Select Role</InputLabel>
-                                 <Select
-                                   value={formData.primaryRole}
-                                   onChange={(e) =>
-                                     handleInputChange("primaryRole", e.target.value)
-                                   }
-                                   label="Select Role"
-                                 >
-                                   {formData.primaryDepartment && 
-                                     departments
-                                       .find(d => d.id === formData.primaryDepartment)
-                                       ?.roles.map((role) => (
-                                         <MenuItem key={role} value={role}>
-                                           {role}
-                                         </MenuItem>
-                                       ))
-                                   }
-                                 </Select>
-                               </FormControl>
-                             </Grid>
-                           </Grid>
-                         </Box>
-                       )}
-
+                          <Grid container spacing={3}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                              <FormControl fullWidth required>
+                                <InputLabel>Select Department</InputLabel>
+                                <Select
+                                  value={formData.primaryDepartment}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      "primaryDepartment",
+                                      e.target.value
+                                    )
+                                  }
+                                  label="Select Department"
+                                >
+                                  {departments.map((dept) => (
+                                    <MenuItem key={dept.id} value={dept.id}>
+                                      {dept.name}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                              <FormControl fullWidth required>
+                                <InputLabel>Select Role</InputLabel>
+                                <Select
+                                  value={formData.primaryRole}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      "primaryRole",
+                                      e.target.value
+                                    )
+                                  }
+                                  label="Select Role"
+                                >
+                                  {formData.primaryDepartment &&
+                                    departments
+                                      .find(
+                                        (d) =>
+                                          d.id === formData.primaryDepartment
+                                      )
+                                      ?.roles.map((role) => (
+                                        <MenuItem key={role} value={role}>
+                                          {role}
+                                        </MenuItem>
+                                      ))}
+                                </Select>
+                              </FormControl>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      )}
 
                       <Box sx={{ mb: 2, mt: 3 }}>
                         <div>
@@ -602,25 +642,47 @@ const AddAgentPage = () => {
 
         {/* Tab 2: Permissions & Access - Google-style UI */}
         <TabPanel value={activeTab} index={1}>
-          <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+          <Box sx={{ maxWidth: 800, mx: "auto" }}>
             {/* Department Access Card */}
-            <Card sx={{ mb: 3, borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}>
+            <Card
+              sx={{
+                mb: 3,
+                borderRadius: 2,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+              }}
+            >
               <Box sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#1a1a1a' }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 600, mb: 3, color: "#1a1a1a" }}
+                >
                   Department Access
                 </Typography>
 
                 {/* Primary Department */}
-                <Box sx={{ display: 'flex', alignItems: 'center', py: 2, borderBottom: '1px solid #e8eaed' }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    py: 2,
+                    borderBottom: "1px solid #e8eaed",
+                  }}
+                >
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       Primary Department
                     </Typography>
                     <Typography variant="body1">
-                      {formData.primaryDepartment ? 
-                        `${departments.find(d => d.id === formData.primaryDepartment)?.name} (${formData.primaryRole})` : 
-                        'Select primary department'
-                      }
+                      {formData.primaryDepartment
+                        ? `${
+                            departments.find(
+                              (d) => d.id === formData.primaryDepartment
+                            )?.name
+                          } (${formData.primaryRole})`
+                        : "Select primary department"}
                     </Typography>
                   </Box>
                   <IconButton size="small">
@@ -629,23 +691,37 @@ const AddAgentPage = () => {
                 </Box>
 
                 {/* Extended Departments */}
-                <Box sx={{ display: 'flex', alignItems: 'center', py: 2, borderBottom: '1px solid #e8eaed' }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    py: 2,
+                    borderBottom: "1px solid #e8eaed",
+                  }}
+                >
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       Extended Access
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                    <Box
+                      sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}
+                    >
                       {formData.extendedDepartments.length > 0 ? (
                         formData.extendedDepartments.map((deptId) => (
-                          <Chip 
+                          <Chip
                             key={deptId}
-                            label={departments.find(d => d.id === deptId)?.name}
+                            label={
+                              departments.find((d) => d.id === deptId)?.name
+                            }
                             size="small"
                             variant="outlined"
                           />
                         ))
                       ) : (
-                        <Typography variant="body2" sx={{ color: '#5f6368' }}>
+                        <Typography variant="body2" sx={{ color: "#5f6368" }}>
                           No extended departments selected
                         </Typography>
                       )}
@@ -657,23 +733,28 @@ const AddAgentPage = () => {
                 </Box>
 
                 {/* Assigned Teams */}
-                <Box sx={{ display: 'flex', alignItems: 'center', py: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", py: 2 }}>
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       Assigned Teams
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                    <Box
+                      sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}
+                    >
                       {formData.assignedTeams.length > 0 ? (
                         formData.assignedTeams.map((teamId) => (
-                          <Chip 
+                          <Chip
                             key={teamId}
-                            label={teams.find(t => t.id === teamId)?.name}
+                            label={teams.find((t) => t.id === teamId)?.name}
                             size="small"
                             variant="outlined"
                           />
                         ))
                       ) : (
-                        <Typography variant="body2" sx={{ color: '#5f6368' }}>
+                        <Typography variant="body2" sx={{ color: "#5f6368" }}>
                           No teams assigned
                         </Typography>
                       )}
@@ -687,101 +768,173 @@ const AddAgentPage = () => {
             </Card>
 
             {/* Permissions Card */}
-            <Card sx={{ mb: 3, borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}>
+            <Card
+              sx={{
+                mb: 3,
+                borderRadius: 2,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+              }}
+            >
               <Box sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#1a1a1a' }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 600, mb: 3, color: "#1a1a1a" }}
+                >
                   Permissions
                 </Typography>
 
                 {/* Create Permission */}
-                <Box sx={{ display: 'flex', alignItems: 'center', py: 2, borderBottom: '1px solid #e8eaed' }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    py: 2,
+                    borderBottom: "1px solid #e8eaed",
+                  }}
+                >
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       Create
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#5f6368' }}>
+                    <Typography variant="body2" sx={{ color: "#5f6368" }}>
                       Allow agent to create new tickets and records
                     </Typography>
                   </Box>
                   <Switch
                     checked={formData.canCreate}
-                    onChange={(e) => handleInputChange("canCreate", e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("canCreate", e.target.checked)
+                    }
                   />
                 </Box>
 
                 {/* Edit Permission */}
-                <Box sx={{ display: 'flex', alignItems: 'center', py: 2, borderBottom: '1px solid #e8eaed' }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    py: 2,
+                    borderBottom: "1px solid #e8eaed",
+                  }}
+                >
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       Edit
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#5f6368' }}>
+                    <Typography variant="body2" sx={{ color: "#5f6368" }}>
                       Allow agent to edit tickets and records
                     </Typography>
                   </Box>
                   <Switch
                     checked={formData.canEdit}
-                    onChange={(e) => handleInputChange("canEdit", e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("canEdit", e.target.checked)
+                    }
                   />
                 </Box>
 
                 {/* Delete Permission */}
-                <Box sx={{ display: 'flex', alignItems: 'center', py: 2, borderBottom: '1px solid #e8eaed' }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    py: 2,
+                    borderBottom: "1px solid #e8eaed",
+                  }}
+                >
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       Delete
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#5f6368' }}>
+                    <Typography variant="body2" sx={{ color: "#5f6368" }}>
                       Allow agent to delete tickets and records
                     </Typography>
                   </Box>
                   <Switch
                     checked={formData.canDelete}
-                    onChange={(e) => handleInputChange("canDelete", e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("canDelete", e.target.checked)
+                    }
                   />
                 </Box>
 
                 {/* Manage Account Permission */}
-                <Box sx={{ display: 'flex', alignItems: 'center', py: 2, borderBottom: '1px solid #e8eaed' }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    py: 2,
+                    borderBottom: "1px solid #e8eaed",
+                  }}
+                >
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       Manage Account
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#5f6368' }}>
+                    <Typography variant="body2" sx={{ color: "#5f6368" }}>
                       Allow agent to manage account settings
                     </Typography>
                   </Box>
                   <Switch
                     checked={formData.canManageAccount}
-                    onChange={(e) => handleInputChange("canManageAccount", e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("canManageAccount", e.target.checked)
+                    }
                   />
                 </Box>
 
                 {/* User Directory Permission */}
-                <Box sx={{ display: 'flex', alignItems: 'center', py: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", py: 2 }}>
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, mb: 0.5 }}
+                    >
                       User Directory
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#5f6368' }}>
+                    <Typography variant="body2" sx={{ color: "#5f6368" }}>
                       Allow agent to access user directory
                     </Typography>
                   </Box>
                   <Switch
                     checked={formData.canAccessUserDirectory}
-                    onChange={(e) => handleInputChange("canAccessUserDirectory", e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "canAccessUserDirectory",
+                        e.target.checked
+                      )
+                    }
                   />
                 </Box>
               </Box>
             </Card>
 
             {/* Action Buttons */}
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                justifyContent: "flex-end",
+                mt: 3,
+              }}
+            >
               <Button
                 variant="outlined"
                 onClick={handleCancel}
                 startIcon={<CancelIcon />}
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: "none" }}
               >
                 Cancel
               </Button>
@@ -789,7 +942,7 @@ const AddAgentPage = () => {
                 variant="contained"
                 onClick={handleSave}
                 startIcon={<SaveIcon />}
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: "none" }}
               >
                 Save Agent
               </Button>
@@ -803,7 +956,7 @@ const AddAgentPage = () => {
         open={showSuccess}
         autoHideDuration={6000}
         onClose={() => setShowSuccess(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert onClose={() => setShowSuccess(false)} severity="success">
           Agent created successfully!
