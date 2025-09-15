@@ -1,11 +1,20 @@
 import React, { useState } from "react";
 import TicketFilterPanel from "./TicketSidebar";
-import { IconButton, Button, Checkbox, Popover, FormControl, Select, MenuItem, Tooltip } from "@mui/material";
+import {
+  IconButton,
+  Button,
+  Checkbox,
+  Popover,
+  FormControl,
+  Select,
+  MenuItem,
+  Tooltip,
+} from "@mui/material";
 import LeftMenu from "./LeftMenu";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import PushPinIcon from '@mui/icons-material/PushPin';
-import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import PushPinIcon from "@mui/icons-material/PushPin";
+import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
 import {
   useGetTicketListQuery,
@@ -25,9 +34,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 
-import {
-  useCommanApiMutation,
-} from "../../../services/threadsApi";
+import { useCommanApiMutation } from "../../../services/threadsApi";
 
 import AssignTicket from "../../components/AssignTicket";
 import Mergeticket from "../../components/Mergeticket";
@@ -81,12 +88,13 @@ const Tickets: React.FC = () => {
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isCloseModal, setIsCloseModal] = useState(false);
   // Quick update popup state
-  const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] = useState<HTMLElement | null>(null);
+  const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] =
+    useState<HTMLElement | null>(null);
   const [quickUpdateValues, setQuickUpdateValues] = useState({
-    priority: '',
-    status: '',
-    group: '',
-    agent: ''
+    priority: "",
+    status: "",
+    group: "",
+    agent: "",
   });
 
   const [commanApi] = useCommanApiMutation();
@@ -94,21 +102,36 @@ const Tickets: React.FC = () => {
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
 
-  const STATUS_OPTIONS: StatusOption[] = statusList?.map((item: any) => ({
-    label: item.statusName,
-    value: item.key,
-  })) || [];
+  const STATUS_OPTIONS: StatusOption[] =
+    statusList?.map((item: any) => ({
+      label: item.statusName,
+      value: item.key,
+    })) || [];
 
   // Fetch sorting options
   const { data: sortingOptions } = useGetTicketSortingOptionsQuery();
 
   // Map API priorities to dropdown options
-  const PRIORITY_OPTIONS: PriorityOption[] = (priorityList || []).map((item: any) => ({
-    label: item.specification,
-    value: item.key,
-    color: item.color,
-    key: item?.key,
-  }));
+  const PRIORITY_OPTIONS: PriorityOption[] = (priorityList || []).map(
+    (item: any) => ({
+      label: item.specification,
+      value: item.key,
+      color: item.color,
+      key: item?.key,
+    })
+  );
+
+  // Resolve option value key by matching label text (case-insensitive)
+  const resolveValueByLabel = (
+    options: Array<{ label: string; value: string }>,
+    label?: string
+  ): string => {
+    if (!label) return "";
+    const found = options.find(
+      (o) => o.label?.toLowerCase() === label?.toLowerCase()
+    );
+    return found?.value || "";
+  };
 
   // Handle sorting popover open
   const handleSortingPopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -127,7 +150,7 @@ const Tickets: React.FC = () => {
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-      "Date created"
+        "Date created"
     );
     setSortOrder("desc"); // Reset to default order
     setPage(1); // Reset to first page
@@ -189,7 +212,7 @@ const Tickets: React.FC = () => {
     if (!ticketList?.data) return;
     setMasterChecked(
       ticketList.data.length > 0 &&
-      selectedTickets.length === ticketList.data.length
+        selectedTickets.length === ticketList.data.length
     );
   }, [selectedTickets, ticketList]);
 
@@ -260,14 +283,24 @@ const Tickets: React.FC = () => {
   };
 
   // Quick update handlers
-  const handleQuickUpdateOpen = (event: React.MouseEvent<HTMLElement>, ticket: any) => {
+  const handleQuickUpdateOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    ticket: any
+  ) => {
     event.stopPropagation();
     setQuickUpdateAnchorEl(event.currentTarget);
     setQuickUpdateValues({
-      priority: ticket.priority?.key || '',
-      status: ticket.status?.key || '',
-      group: ticket.group || '',
-      agent: ticket.assignedTo?.name || ''
+      // Map by label when key is absent in ticket object
+      priority:
+        ticket.priority?.key ||
+        resolveValueByLabel(PRIORITY_OPTIONS, ticket.priority?.name),
+      status:
+        ticket.status?.key ||
+        resolveValueByLabel(STATUS_OPTIONS as any, ticket.status?.name),
+      // Group/department may be a plain name; use it directly
+      group: ticket?.department?.key || ticket?.department?.name || "",
+      // Fallback empty if no id is present
+      agent: ticket.fromUser?.UserId || "",
     });
   };
 
@@ -276,9 +309,9 @@ const Tickets: React.FC = () => {
   };
 
   const handleQuickUpdateChange = (field: string, value: string) => {
-    setQuickUpdateValues(prev => ({
+    setQuickUpdateValues((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -289,25 +322,31 @@ const Tickets: React.FC = () => {
       url: `edit-property/${ticket.ticketNumber}?important=${newImportantStatus}`,
     };
 
-    commanApi(payload).then((res: any) => {
-      if (res?.data?.type === "error") {
-        showToast(res?.message || res?.data?.message, "error");
-        return;
-      }
-      showToast(
-        `Ticket ${newImportantStatus ? 'marked as important' : 'removed from important'}`,
-        "success"
-      );
-    }).catch(() => {
-      showToast("Failed to update ticket importance", "error");
-    });
+    commanApi(payload)
+      .then((res: any) => {
+        if (res?.data?.type === "error") {
+          showToast(res?.message || res?.data?.message, "error");
+          return;
+        }
+        showToast(
+          `Ticket ${
+            newImportantStatus
+              ? "marked as important"
+              : "removed from important"
+          }`,
+          "success"
+        );
+      })
+      .catch(() => {
+        showToast("Failed to update ticket importance", "error");
+      });
   };
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
     // Get priority color and label - use actual API data
-    const priorityColor = ticket.priority?.color || '#6b7280'; // Default gray
-    const priorityLabel = ticket.priority?.name || 'Low';
+    const priorityColor = ticket.priority?.color || "#6b7280"; // Default gray
+    const priorityLabel = ticket.priority?.name || "Low";
     return (
       <div
         key={ticket?.ticketNumber}
@@ -354,7 +393,7 @@ const Tickets: React.FC = () => {
             <p className="text-sm text-gray-600 leading-relaxed">
               {typeof ticket.description === "string"
                 ? ticket.description
-                : (ticket.body || "")}
+                : ticket.body || ""}
             </p>
           </div>
         </div>
@@ -366,7 +405,9 @@ const Tickets: React.FC = () => {
         <div className="flex items-center gap-8 text-xs">
           {/* Important Pin */}
           <Tooltip
-            title={ticket?.important ? "Remove from important" : "Mark as important"}
+            title={
+              ticket?.important ? "Remove from important" : "Mark as important"
+            }
             placement="right"
           >
             <IconButton
@@ -375,7 +416,11 @@ const Tickets: React.FC = () => {
                 e.stopPropagation();
                 handleToggleImportant(ticket);
               }}
-              className={ticket?.important ? "text-amber-500 hover:text-amber-600" : "text-gray-400 hover:text-amber-500"}
+              className={
+                ticket?.important
+                  ? "text-amber-500 hover:text-amber-600"
+                  : "text-gray-400 hover:text-amber-500"
+              }
             >
               {ticket?.important ? (
                 <PushPinIcon fontSize="small" />
@@ -391,7 +436,9 @@ const Tickets: React.FC = () => {
           {/* Assignee */}
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">assignee</span>
-            <span className="text-gray-700">{ticket?.assignee?.name || "~"}</span>
+            <span className="text-gray-700">
+              {ticket?.assignee?.name || "~"}
+            </span>
           </div>
 
           {/* Separator */}
@@ -422,7 +469,9 @@ const Tickets: React.FC = () => {
           {/* Department */}
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">department</span>
-            <span className="text-gray-700">{ticket?.department?.name || "Support"}</span>
+            <span className="text-gray-700">
+              {ticket?.department?.name || "Support"}
+            </span>
           </div>
 
           {/* Separator */}
@@ -431,7 +480,9 @@ const Tickets: React.FC = () => {
           {/* Status */}
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">status</span>
-            <span className="text-gray-700">{ticket?.status?.name || 'Review'}</span>
+            <span className="text-gray-700">
+              {ticket?.status?.name || "Review"}
+            </span>
           </div>
 
           {/* Separator */}
@@ -446,7 +497,6 @@ const Tickets: React.FC = () => {
           {/* Red dot at the end */}
           <div className="w-3 h-3 bg-red-500 rounded-full ml-auto"></div>
         </div>
-
       </div>
     );
   };
@@ -477,9 +527,7 @@ const Tickets: React.FC = () => {
                 },
               }}
             />
-            <h1 className="text-xl font-medium text-gray-900">
-              Tickets
-            </h1>
+            <h1 className="text-xl font-medium text-gray-900">Tickets</h1>
             <span className="bg-gray-100 text-gray-600 rounded-full px-2 py-1 text-xs font-medium">
               {ticketList?.data?.length || 0}
             </span>
@@ -668,12 +716,12 @@ const Tickets: React.FC = () => {
               ) : (
                 <div className="p-4">
                   {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
-                    <div>
-                      {ticketsToShow?.data?.map(renderTicketCard)}
-                    </div>
+                    <div>{ticketsToShow?.data?.map(renderTicketCard)}</div>
                   ) : (
                     <div className="text-center py-12">
-                      <div className="text-gray-400 text-lg">No tickets found</div>
+                      <div className="text-gray-400 text-lg">
+                        No tickets found
+                      </div>
                       <div className="text-gray-500 text-sm mt-2">
                         Try adjusting your filters or create a new ticket
                       </div>
@@ -723,28 +771,30 @@ const Tickets: React.FC = () => {
         anchorEl={quickUpdateAnchorEl}
         onClose={handleQuickUpdateClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: "bottom",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         PaperProps={{
           elevation: 8,
           sx: {
             mt: 1,
             borderRadius: 2,
-            border: '1px solid #e0e0e0',
+            border: "1px solid #e0e0e0",
             maxWidth: 400,
             minWidth: 380,
-          }
+          },
         }}
       >
         <div className="p-6 bg-white">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg font-semibold text-gray-900">Quick update properties</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Quick update properties
+            </h3>
             <IconButton
               size="small"
               onClick={handleQuickUpdateClose}
@@ -758,22 +808,26 @@ const Tickets: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             {/* Priority */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Priority</label>
+              <label className="text-sm font-medium text-gray-700">
+                Priority
+              </label>
               <FormControl fullWidth size="small" variant="outlined">
                 <Select
                   value={quickUpdateValues.priority}
-                  onChange={(e) => handleQuickUpdateChange('priority', e.target.value)}
+                  onChange={(e) =>
+                    handleQuickUpdateChange("priority", e.target.value)
+                  }
                   displayEmpty
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#d1d5db',
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#d1d5db",
                       },
-                      '&:hover fieldset': {
-                        borderColor: '#9ca3af',
+                      "&:hover fieldset": {
+                        borderColor: "#9ca3af",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#3b82f6',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#3b82f6",
                       },
                     },
                   }}
@@ -798,22 +852,26 @@ const Tickets: React.FC = () => {
 
             {/* Status */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Status</label>
+              <label className="text-sm font-medium text-gray-700">
+                Status
+              </label>
               <FormControl fullWidth size="small" variant="outlined">
                 <Select
                   value={quickUpdateValues.status}
-                  onChange={(e) => handleQuickUpdateChange('status', e.target.value)}
+                  onChange={(e) =>
+                    handleQuickUpdateChange("status", e.target.value)
+                  }
                   displayEmpty
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#d1d5db',
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#d1d5db",
                       },
-                      '&:hover fieldset': {
-                        borderColor: '#9ca3af',
+                      "&:hover fieldset": {
+                        borderColor: "#9ca3af",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#3b82f6',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#3b82f6",
                       },
                     },
                   }}
@@ -832,22 +890,26 @@ const Tickets: React.FC = () => {
 
             {/* Groups */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Groups</label>
+              <label className="text-sm font-medium text-gray-700">
+                Groups
+              </label>
               <FormControl fullWidth size="small" variant="outlined">
                 <Select
                   value={quickUpdateValues.group}
-                  onChange={(e) => handleQuickUpdateChange('group', e.target.value)}
+                  onChange={(e) =>
+                    handleQuickUpdateChange("group", e.target.value)
+                  }
                   displayEmpty
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#d1d5db',
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#d1d5db",
                       },
-                      '&:hover fieldset': {
-                        borderColor: '#9ca3af',
+                      "&:hover fieldset": {
+                        borderColor: "#9ca3af",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#3b82f6',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#3b82f6",
                       },
                     },
                   }}
@@ -873,22 +935,26 @@ const Tickets: React.FC = () => {
 
             {/* Agents */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Agents</label>
+              <label className="text-sm font-medium text-gray-700">
+                Agents
+              </label>
               <FormControl fullWidth size="small" variant="outlined">
                 <Select
                   value={quickUpdateValues.agent}
-                  onChange={(e) => handleQuickUpdateChange('agent', e.target.value)}
+                  onChange={(e) =>
+                    handleQuickUpdateChange("agent", e.target.value)
+                  }
                   displayEmpty
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#d1d5db',
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#d1d5db",
                       },
-                      '&:hover fieldset': {
-                        borderColor: '#9ca3af',
+                      "&:hover fieldset": {
+                        borderColor: "#9ca3af",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#3b82f6',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#3b82f6",
                       },
                     },
                   }}
@@ -899,7 +965,9 @@ const Tickets: React.FC = () => {
                   <MenuItem value="Amy">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span className="text-xs font-medium text-purple-700">A</span>
+                        <span className="text-xs font-medium text-purple-700">
+                          A
+                        </span>
                       </div>
                       <span className="text-gray-700">Amy</span>
                     </div>
@@ -907,7 +975,9 @@ const Tickets: React.FC = () => {
                   <MenuItem value="John">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-xs font-medium text-blue-700">J</span>
+                        <span className="text-xs font-medium text-blue-700">
+                          J
+                        </span>
                       </div>
                       <span className="text-gray-700">John</span>
                     </div>
@@ -915,7 +985,9 @@ const Tickets: React.FC = () => {
                   <MenuItem value="Sarah">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                        <span className="text-xs font-medium text-green-700">S</span>
+                        <span className="text-xs font-medium text-green-700">
+                          S
+                        </span>
                       </div>
                       <span className="text-gray-700">Sarah</span>
                     </div>
@@ -923,7 +995,9 @@ const Tickets: React.FC = () => {
                   <MenuItem value="Mike">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
-                        <span className="text-xs font-medium text-orange-700">M</span>
+                        <span className="text-xs font-medium text-orange-700">
+                          M
+                        </span>
                       </div>
                       <span className="text-gray-700">Mike</span>
                     </div>
@@ -948,15 +1022,15 @@ const Tickets: React.FC = () => {
               size="small"
               onClick={() => {
                 // Handle save logic here
-                console.log('Saving:', quickUpdateValues);
+                console.log("Saving:", quickUpdateValues);
                 handleQuickUpdateClose();
-                showToast('Properties updated successfully', 'success');
+                showToast("Properties updated successfully", "success");
               }}
               sx={{
-                textTransform: 'none',
-                backgroundColor: '#3b82f6',
-                '&:hover': {
-                  backgroundColor: '#2563eb',
+                textTransform: "none",
+                backgroundColor: "#3b82f6",
+                "&:hover": {
+                  backgroundColor: "#2563eb",
                 },
               }}
             >

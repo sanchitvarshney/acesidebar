@@ -291,7 +291,7 @@ const SLAPoliciesPage = () => {
         >
           Edit
         </MenuItem>
-        <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
+        {/* <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem> */}
         <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
           Delete
         </MenuItem>
