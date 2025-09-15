@@ -49,6 +49,7 @@ const ToastShow: React.FC<ToastShowProps> = ({ isOpen, msg, onClose, type="succe
             py: 1.5,
             borderRadius: 1,
             borderTop: `4px solid ${type === "success" ? "#2e7d32" : "#d32f2f"}`,
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
           }}
         >
           <Icon
@@ -60,7 +61,7 @@ const ToastShow: React.FC<ToastShowProps> = ({ isOpen, msg, onClose, type="succe
             }}
             
           />
-          <Typography variant="subtitle2">{msg}</Typography>
+          <Typography variant="subtitle2">{msg.replace(/\\n/g, "\n")}</Typography>
            <CloseIcon className="w-3 h-3 ml-2 cursor-pointer " onClick={onClose} />
         </Box>
       </Snackbar>

@@ -37,6 +37,8 @@ import {
 } from "@mui/icons-material";
 import { Transition } from "../pages/EditUser";
 import { useState } from "react";
+import { useCommanApiMutation } from "../../services/threadsApi";
+import { useToast } from "../../hooks/useToast";
 
 // Zod schema
 const schema = z.object({
@@ -107,12 +109,15 @@ const mockTags = [
 ];
 
 const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
+  const { showToast } = useToast();
   const [emails, setEmails] = useState<
     Array<{ value: string; primary: boolean; label: string | undefined }>
   >([{ value: "", primary: true, label: undefined }]);
   const [otherPhones, setOtherPhones] = useState<
     Array<{ value: string; primary: boolean; original_value: string }>
   >([]);
+
+  const [triggerAddContact] = useCommanApiMutation();
 
   const {
     control,
@@ -174,31 +179,39 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
   const onSubmit = (data: FormData) => {
     // Transform data to match the expected payload structure
     const payload = {
-     url: "add-contact",
-     body:{
-       name: data.name,
-      emails: data.emails.map((email) => ({
-        value: email.value,
-        primary: email.primary,
-        label: email.label,
-      })),
-      work_number: data.work_number,
-      mobile_number: data.mobile_number,
-      external_id: data.external_id,
-      address: data.address || "",
+      url: "add-contact",
+      body: {
+        name: data.name,
+        emails: data.emails.map((email) => ({
+          value: email.value,
+          primary: email.primary,
+          label: email.label,
+        })),
+        work_number: data.work_number,
+        mobile_number: data.mobile_number,
+        external_id: data.external_id,
+        address: data.address || "",
 
-      internal_fields: {
-        job_title: data.job_title || "",
-        tags: data.tags ? [data.tags] : [],
-        description: data.description || "",
+        internal_fields: {
+          job_title: data.job_title || "",
+          tags: data.tags ? [data.tags] : [],
+          description: data.description || "",
+        },
+        mcr_company_ids: [],
+        other_phone_numbers: data.other_phone_numbers || [],
+        twitter: data.twitter || "",
       },
-      mcr_company_ids: [],
-      other_phone_numbers: data.other_phone_numbers || [],
-      twitter: data.twitter || "",
-     }
     };
 
-    console.log("Form submitted", payload);
+    triggerAddContact(payload).then((res: any) => {
+      console.log("res", res);
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message || "An error occurred", "error");
+        return;
+      }
+      showToast(res?.data?.message || "Contact added successfully", "success");
+      close();
+    });
   };
 
   return (
@@ -232,7 +245,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
           <Button
             autoFocus
             color="inherit"
-            onClick={() => handleSubmit(onSubmit)()}
+            onClick={handleSubmit(onSubmit)}
           >
             Save
           </Button>
@@ -380,24 +393,26 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                     key={index}
                     sx={{
                       display: "flex",
-                      gap: 1,
+                      gap: 2,
                       mb: 1,
-                      alignItems: "center",
+                      alignItems: "flex-start",
                     }}
                   >
-                    <TextField
-                      value={email.value}
-                      onChange={(e) =>
-                        updateEmail(index, "value", e.target.value)
-                      }
-                      placeholder="Enter email address"
-                      size="small"
-                      variant="outlined"
-                      sx={{ flex: 1 }}
-                      error={!!errors.emails?.[index]?.value}
-                      helperText={errors.emails?.[index]?.value?.message}
-                    />
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <Box sx={{ flex: 1 }}>
+                      <TextField
+                        value={email.value}
+                        onChange={(e) =>
+                          updateEmail(index, "value", e.target.value)
+                        }
+                        placeholder="Enter email address"
+                        size="small"
+                        variant="outlined"
+                        fullWidth
+                        error={!!errors.emails?.[index]?.value}
+                        helperText={errors.emails?.[index]?.value?.message}
+                      />
+                    </Box>
+                    <FormControl size="small" sx={{ flex: 1 }}>
                       <InputLabel>Type</InputLabel>
                       <Select
                         value={email.primary ? "primary" : "secondary"}
@@ -410,6 +425,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                         }
                         label="Type"
                         size="small"
+                        fullWidth
                       >
                         <MenuItem value="secondary">--</MenuItem>
                         <MenuItem value="primary">Primary</MenuItem>
@@ -420,6 +436,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                         onClick={() => removeEmail(index)}
                         size="small"
                         color="error"
+                        sx={{ mt: 0.5 }}
                       >
                         <Delete fontSize="small" />
                       </IconButton>
@@ -499,6 +516,15 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                       variant="outlined"
                       error={!!errors.work_number}
                       helperText={errors.work_number?.message}
+                      type="tel"
+                      inputProps={{
+                        pattern: "[0-9]*",
+                        inputMode: "numeric"
+                      }}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        field.onChange(value);
+                      }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -529,6 +555,15 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                       variant="outlined"
                       error={!!errors.mobile_number}
                       helperText={errors.mobile_number?.message}
+                      type="tel"
+                      inputProps={{
+                        pattern: "[0-9]*",
+                        inputMode: "numeric"
+                      }}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        field.onChange(value);
+                      }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -558,12 +593,18 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                   >
                     <TextField
                       value={phone.value}
-                      onChange={(e) =>
-                        updateOtherPhone(index, "value", e.target.value)
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        updateOtherPhone(index, "value", value);
+                      }}
                       placeholder="Enter a phone number"
                       size="small"
                       variant="outlined"
+                      type="tel"
+                      inputProps={{
+                        pattern: "[0-9]*",
+                        inputMode: "numeric"
+                      }}
                       sx={{ flex: 1 }}
                     />
                     <FormControl size="small" sx={{ minWidth: 120 }}>

@@ -19,17 +19,6 @@ import {
   Divider,
   Chip,
   IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Avatar,
-  Stack,
-  Alert,
-  Snackbar,
   Stepper,
   Step,
   StepLabel,
@@ -39,7 +28,10 @@ import {
   Switch,
   OutlinedInput,
   InputAdornment,
+  Collapse,
+  Backdrop,
 } from "@mui/material";
+import SplitscreenIcon from "@mui/icons-material/Splitscreen";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -57,9 +49,12 @@ import {
   Business as BusinessIcon,
   Work as WorkIcon,
   ChevronRight as ChevronRightIcon,
+  Close,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import zIndex from "@mui/material/styles/zIndex";
+import { useSelector } from "react-redux";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -87,6 +82,8 @@ const AddAgentPage = () => {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
+  const [isOpen, setIsOpen] = useState<any>(false);
+  const { isOpen: isAnyPopupOpen } = useSelector((state: any) => state.shotcut);
   const [formData, setFormData] = useState({
     // Basic Information
     name: "",
@@ -126,7 +123,6 @@ const AddAgentPage = () => {
     assignedTeams: [] as string[],
   });
 
-  const [showSuccess, setShowSuccess] = useState(false);
   const [departments] = useState([
     {
       id: "support",
@@ -170,10 +166,6 @@ const AddAgentPage = () => {
   const handleSave = () => {
     setActiveTab(1);
     console.log("Saving agent:", formData);
-    setShowSuccess(true);
-    // setTimeout(() => {
-    //   navigate("/agents");
-    // }, 2000);
   };
 
   const handleCancel = () => {
@@ -242,13 +234,39 @@ const AddAgentPage = () => {
         >
           <Tab
             label="Agent Configuration"
-            icon={<SettingsIcon />}
+            icon={
+              <div>
+                {" "}
+                <Chip
+                  variant="outlined"
+                  size="small"
+                  label="1"
+                  color="primary"
+                  disabled={activeTab !== 0}
+                  sx={{ mr: 1 }}
+                />{" "}
+                <SettingsIcon />
+              </div>
+            }
             iconPosition="start"
             sx={{ textTransform: "none", fontWeight: 500 }}
           />
           <Tab
             label="Permissions & Access"
-            icon={<SecurityIcon />}
+            icon={
+              <div>
+                {" "}
+                <Chip
+                  variant="outlined"
+                  size="small"
+                  label="2"
+                  color="primary"
+                  disabled={activeTab !== 1}
+                  sx={{ mr: 1 }}
+                />{" "}
+                <SecurityIcon />
+              </div>
+            }
             iconPosition="start"
             sx={{ textTransform: "none", fontWeight: 500 }}
           />
@@ -642,10 +660,23 @@ const AddAgentPage = () => {
 
         {/* Tab 2: Permissions & Access - Google-style UI */}
         <TabPanel value={activeTab} index={1}>
-          <Box sx={{ maxWidth: 800, mx: "auto" }}>
+          <Box
+            sx={{
+              maxWidth: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+
+              mr: isOpen ? "320px" : "",
+              transition: "margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          >
             {/* Department Access Card */}
+
             <Card
               sx={{
+                width: "80%",
                 mb: 3,
                 borderRadius: 2,
                 boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
@@ -662,6 +693,7 @@ const AddAgentPage = () => {
                 {/* Primary Department */}
                 <Box
                   sx={{
+                    width: "100%",
                     display: "flex",
                     alignItems: "center",
                     py: 2,
@@ -685,8 +717,13 @@ const AddAgentPage = () => {
                         : "Select primary department"}
                     </Typography>
                   </Box>
-                  <IconButton size="small">
-                    <ChevronRightIcon />
+                  <IconButton size="small" onClick={() => setIsOpen(!isOpen)}>
+                    <ChevronRightIcon
+                      sx={{
+                        transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                        transition: "transform 0.3s ease-in-out",
+                      }}
+                    />
                   </IconButton>
                 </Box>
 
@@ -727,7 +764,7 @@ const AddAgentPage = () => {
                       )}
                     </Box>
                   </Box>
-                  <IconButton size="small">
+                  <IconButton size="small" onClick={() => setIsOpen(!isOpen)}>
                     <ChevronRightIcon />
                   </IconButton>
                 </Box>
@@ -760,7 +797,7 @@ const AddAgentPage = () => {
                       )}
                     </Box>
                   </Box>
-                  <IconButton size="small">
+                  <IconButton size="small" onClick={() => setIsOpen(!isOpen)}>
                     <ChevronRightIcon />
                   </IconButton>
                 </Box>
@@ -770,6 +807,7 @@ const AddAgentPage = () => {
             {/* Permissions Card */}
             <Card
               sx={{
+                width: "80%",
                 mb: 3,
                 borderRadius: 2,
                 boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
@@ -921,6 +959,84 @@ const AddAgentPage = () => {
               </Box>
             </Card>
 
+            <Box
+              sx={{
+                width: { xs: "100%", sm: "40%", md: "30%" },
+                borderLeft: "1px solid #e0e0e0",
+                display: "flex",
+                flexDirection: "column",
+                backgroundColor: "#fff",
+                transform: isOpen ? "translateX(0)" : "translateX(100%)",
+                transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                position: "fixed",
+                right: 0,
+                top: 240,
+                bottom: 0,
+                height: "100vh",
+                zIndex: 1300,
+                // boxShadow: columnOrganizerOpen ? "-4px 0 12px rgba(0, 0, 0, 0.15)" : "none",
+                visibility: isOpen ? "visible" : "hidden",
+                minWidth: { xs: "280px", sm: "300px", md: "450px" },
+                maxWidth: { xs: "100%", sm: "400px", md: "450px" },
+              }}
+            >
+              {/* Header */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  p: 3,
+                  pb: 2,
+                  borderBottom: "1px solid #e0e0e0",
+                }}
+              >
+                {/* <SplitscreenIcon sx={{ color: "#666" }} /> */}
+                <Typography variant="h6" sx={{ fontWeight: 600, flex: 1 }}>
+                  Collaps
+                </Typography>
+                <IconButton onClick={() => setIsOpen(false)} size="small">
+                  <Close />
+                </IconButton>
+              </Box>
+
+              {/* Footer */}
+              <Box
+                sx={{
+                  p: 3,
+                  borderTop: "1px solid #e0e0e0",
+                  display: "flex",
+                  gap: 2,
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  onClick={() => setIsOpen(false)}
+                  sx={{
+                    textTransform: "none",
+                    borderColor: "#e0e0e0",
+                    color: "#666",
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    // Apply column changes and close
+                    setIsOpen(false);
+                  }}
+                  sx={{
+                    textTransform: "none",
+                    backgroundColor: "#1976d2",
+                  }}
+                >
+                  Save
+                </Button>
+              </Box>
+            </Box>
+
             {/* Action Buttons */}
             <Box
               sx={{
@@ -950,18 +1066,17 @@ const AddAgentPage = () => {
           </Box>
         </TabPanel>
       </Box>
-
-      {/* Success Snackbar */}
-      <Snackbar
-        open={showSuccess}
-        autoHideDuration={6000}
-        onClose={() => setShowSuccess(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={() => setShowSuccess(false)} severity="success">
-          Agent created successfully!
-        </Alert>
-      </Snackbar>
+      <Backdrop
+        open={isOpen}
+        sx={{
+          top: 64,
+          left: isAnyPopupOpen ? 78 : 0,
+          zIndex: 1200,
+          bgcolor: "rgba(0, 0, 0, 0.08)",
+          pointerEvents: "auto",
+          transition: "left 600ms ease-in-out",
+        }}
+      />
     </Box>
   );
 };
