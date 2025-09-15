@@ -26,6 +26,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
+import CustomToolTip from "../../../reusable/CustomToolTip";
 
 type SlaPolicy = {
   id: number;
@@ -50,24 +51,6 @@ const samplePolicies: SlaPolicy[] = [
     isDefault: true,
     isActive: true,
   },
-  {
-    id: 2,
-    name: "VIP Customers",
-    description: "Stricter targets for VIP accounts and key customers.",
-    priority: "High",
-    responseInHrs: 1,
-    resolveInHrs: 8,
-    isActive: true,
-  },
-  {
-    id: 3,
-    name: "Low Priority",
-    description: "Relaxed targets for non-urgent requests.",
-    priority: "Low",
-    responseInHrs: 8,
-    resolveInHrs: 72,
-    isActive: false,
-  },
 ];
 
 const SLAPoliciesPage = () => {
@@ -79,14 +62,21 @@ const SLAPoliciesPage = () => {
 
   const orderedPolicies = useMemo(() => {
     // Default first, then others in insertion order
-    return [...policies].sort((a, b) => (a.isDefault ? -1 : b.isDefault ? 1 : 0));
+    return [...policies].sort((a, b) =>
+      a.isDefault ? -1 : b.isDefault ? 1 : 0
+    );
   }, [policies]);
 
   const togglePolicy = (id: number) => {
-    setPolicies((prev) => prev.map((p) => (p.id === id ? { ...p, isActive: !p.isActive } : p)));
+    setPolicies((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, isActive: !p.isActive } : p))
+    );
   };
 
-  const openMenu = (event: React.MouseEvent<HTMLButtonElement>, policy: SlaPolicy) => {
+  const openMenu = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    policy: SlaPolicy
+  ) => {
     setAnchorEl(event.currentTarget);
     setSelectedPolicy(policy);
   };
@@ -140,7 +130,9 @@ const SLAPoliciesPage = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings/support-operations")}>
+            <IconButton
+              onClick={() => navigate("/settings/support-operations")}
+            >
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
@@ -149,91 +141,90 @@ const SLAPoliciesPage = () => {
           </Box>
 
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <IconButton size="small" aria-label="Refresh" title="Refresh" sx={{ border: "1px solid #e0e0e0" }}>
+            <IconButton
+              size="small"
+              aria-label="Refresh"
+              title="Refresh"
+              sx={{ border: "1px solid #e0e0e0" }}
+            >
               <RefreshIcon fontSize="small" />
             </IconButton>
-            <Button variant="contained" size="small" startIcon={<AddIcon />}
+            {/* <Button
+              variant="contained"
+              size="small"
+              startIcon={<AddIcon />}
               onClick={() => alert("Create SLA Policy - to be implemented")}
             >
               New Policy
-            </Button>
+            </Button> */}
           </Box>
         </Box>
 
-        {/* Table */}
-        <Paper sx={{ flex: 1, overflow: "hidden" }}>
-          <TableContainer sx={{ height: "100%", position: "relative" }}>
-            {/* If loading in future */}
-            {/* <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} /> */}
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow sx={{ bgcolor: "#f8f9fa" }}>
-                  <TableCell sx={{ fontWeight: 600 }}>Policy</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Targets</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Priority</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }} align="center">Enabled</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }} align="center">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {orderedPolicies.map((policy, idx) => (
-                  <TableRow key={policy.id} hover>
-                    <TableCell>
-                      <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                            {idx + 1}. {policy.name}
-                          </Typography>
-                          {policy.isDefault && (
-                            <Chip label="Default" size="small" color="primary" variant="outlined" />
-                          )}
-                        </Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {policy.description}
+        <TableContainer sx={{ height: "100%", position: "relative", border: "none" }} >
+          {/* If loading in future */}
+          {/* <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} /> */}
+          <Table
+            stickyHeader
+            sx={{
+              "& .MuiTableCell-root": { borderBottom: "none" },
+            }}
+          >
+            <TableHead>
+              <TableRow sx={{ bgcolor: "#f8f9fa" }}>
+                <TableCell sx={{ fontWeight: 600 }}>Policy</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {orderedPolicies.map((policy, idx) => (
+                <TableRow key={policy.id} sx={{ "&:hover": { backgroundColor: "transparent" } }}>
+                  <TableCell>
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          {idx + 1}. {policy.name}
                         </Typography>
+                        {policy.isDefault && (
+                          <Chip
+                            label="Default"
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        )}
                       </Box>
-                    </TableCell>
-                    <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        Respond within {policy.responseInHrs}h • Resolve within {policy.resolveInHrs}h
+                        {policy.description}
                       </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={policy.priority}
-                        size="small"
-                        sx={{
-                          bgcolor:
-                            policy.priority === "High" || policy.priority === "Urgent"
-                              ? "#ffebee"
-                              : policy.priority === "Low"
-                              ? "#e8f5e8"
-                              : "#e3f2fd",
-                          color:
-                            policy.priority === "High" || policy.priority === "Urgent"
-                              ? "#d32f2f"
-                              : policy.priority === "Low"
-                              ? "#2e7d32"
-                              : "#1976d2",
-                          fontWeight: 600,
-                          fontSize: "11px",
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Switch checked={policy.isActive} onChange={() => togglePolicy(policy.id)} />
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton size="small" onClick={(e) => openMenu(e as any, policy)}>
-                        <MoreVertIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+                    </Box>
+                  </TableCell>
+            
+                
+                  <TableCell align="center">
+                    <CustomToolTip title={<Typography variant="body2" sx={{p:0.5}}>Default Policy cannot be turnned off</Typography>}>
+                      <Box component="span" sx={{ display: "inline-block", cursor: "not-allowed" }}>
+                        <Switch
+                          checked={policy.isActive}
+                          onChange={() => togglePolicy(policy.id)}
+                          disabled
+                        />
+                      </Box>
+                    </CustomToolTip>
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => openMenu(e as any, policy)}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
 
       {/* Right Sidebar */}
@@ -253,10 +244,11 @@ const SLAPoliciesPage = () => {
                 SLA policy
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                A service level agreement (SLA) lets you set response and resolution
-                targets for your support team. You can have multiple policies that
-                trigger on conditions like priority, requester type, group, or product.
-                The first matching policy will be applied to a ticket.
+                A service level agreement (SLA) lets you set response and
+                resolution targets for your support team. You can have multiple
+                policies that trigger on conditions like priority, requester
+                type, group, or product. The first matching policy will be
+                applied to a ticket.
               </Typography>
             </CardContent>
           </Card>
@@ -267,8 +259,9 @@ const SLAPoliciesPage = () => {
                 Using Multiple SLA Policies
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Order your policies carefully. Move the most specific rules higher so
-                they match before generic ones like the default policy.
+                Order your policies carefully. Move the most specific rules
+                higher so they match before generic ones like the default
+                policy.
               </Typography>
             </CardContent>
           </Card>
@@ -279,8 +272,8 @@ const SLAPoliciesPage = () => {
                 SLA reminders
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Configure notifications when a ticket is nearing or breaching its target
-                to keep agents on track.
+                Configure notifications when a ticket is nearing or breaching
+                its target to keep agents on track.
               </Typography>
             </CardContent>
           </Card>
@@ -289,11 +282,15 @@ const SLAPoliciesPage = () => {
 
       {/* Actions menu */}
       <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={closeMenu}>
-        <MenuItem onClick={() => {
-          const id = selectedPolicy?.id ?? 0;
-          closeMenu();
-          navigate(`/sla-policies/${id}`);
-        }}>Edit</MenuItem>
+        <MenuItem
+          onClick={() => {
+            const id = selectedPolicy?.id ?? 0;
+            closeMenu();
+            navigate(`/sla-policies/${id}`);
+          }}
+        >
+          Edit
+        </MenuItem>
         <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
         <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
           Delete
@@ -304,5 +301,3 @@ const SLAPoliciesPage = () => {
 };
 
 export default SLAPoliciesPage;
-
-
