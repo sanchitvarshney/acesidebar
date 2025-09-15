@@ -52,6 +52,8 @@ import CreateDepartmentPage from "../USERMODULE/pages/settingManangePages/Create
 import AddAgentPage from "../USERMODULE/pages/settingManangePages/AddAgentPage";
 import TeamsManagement from "../USERMODULE/pages/TeamsManagement";
 import CreateTeamPage from "../USERMODULE/pages/settingManangePages/CreateTeamPage";
+import SLAPoliciesPage from "../USERMODULE/pages/settingManangePages/SLAPoliciesPage";
+import SLAEditPage from "../USERMODULE/pages/settingManangePages/SLAEditPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -164,6 +166,14 @@ export const router = createBrowserRouter([
       {
         path: "teams",
         element: <TeamsManagement />,
+      },
+      {
+        path: "sla-policies",
+        element: <SLAPoliciesPage />,
+      },
+      {
+        path: "sla-policies/:id",
+        element: <SLAEditPage />,
       },
       {
         path: "create-team",

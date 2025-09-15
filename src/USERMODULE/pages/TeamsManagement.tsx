@@ -38,6 +38,7 @@ import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Close } from "@mui/icons-material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 // Column definitions for teams
 const teamColumns = [
@@ -291,14 +292,16 @@ const TeamsManagement = () => {
           </Box>
 
           <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              variant="outlined"
+            <IconButton
+              size="small"
               color="primary"
               onClick={() => window.location.reload()}
-              size="small"
+              sx={{ border: "1px solid #e0e0e0" }}
+              aria-label="Refresh"
+              title="Refresh"
             >
-              Refresh
-            </Button>
+              <RefreshIcon fontSize="small" />
+            </IconButton>
             <Button
               variant="contained"
               color="primary"

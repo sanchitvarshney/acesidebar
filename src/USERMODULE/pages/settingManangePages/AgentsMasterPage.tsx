@@ -32,6 +32,7 @@ import PersonIcon from "@mui/icons-material/Person";
 
 import WorkIcon from "@mui/icons-material/Work";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import { Close, Email } from "@mui/icons-material";
 import { useLazyGetAgentListQuery } from "../../../services/agentServices";
@@ -222,6 +223,7 @@ const DepartmentsManagement = () => {
     defaultOperator?: string;
   } | null>(null);
   const [lastChipRef, setLastChipRef] = useState<null | HTMLElement>(null);
+    const [modelOpenref, setModelOpenref] = useState<null | HTMLElement>(null);
   const [filterValue, setFilterValue] = useState("");
   const [selectedOperator, setSelectedOperator] = useState("startsWith");
   const [checkboxValues, setCheckboxValues] = useState<string[]>([]);
@@ -313,6 +315,7 @@ const DepartmentsManagement = () => {
 
   // Apply filter from dialog
   const applyFilter = () => {
+    setModelOpenref(null);
     let valueToUse = "";
     let isValidFilter = false;
 
@@ -479,15 +482,17 @@ const DepartmentsManagement = () => {
             {agentListLoading ? (
               <CircularProgress size={16} />
             ) : (
-              <Button
-                variant="outlined"
+              <IconButton
+                size="small"
                 color="primary"
                 onClick={() => getAgentList()}
                 disabled={agentListLoading}
-                size="small"
+                sx={{ border: "1px solid #e0e0e0" }}
+                aria-label="Refresh"
+                title="Refresh"
               >
-                Refresh
-              </Button>
+                <RefreshIcon fontSize="small" />
+              </IconButton>
             )}
 
             <Button
@@ -1100,6 +1105,7 @@ const DepartmentsManagement = () => {
             key={option.value}
             onClick={(e) => {
               e.stopPropagation();
+              setModelOpenref(filterMenuAnchor)
               setFilterMenuAnchor(null);
               openFilterDialog(option.value, option.label);
             }}
@@ -1128,8 +1134,11 @@ const DepartmentsManagement = () => {
       {/* Filter Popover */}
       <Popover
         open={filterDialogOpen}
-        anchorEl={lastChipRef || filterMenuAnchor}
-        onClose={() => setFilterDialogOpen(false)}
+        anchorEl={modelOpenref}
+        onClose={() => {
+          setFilterDialogOpen(false);
+          setModelOpenref(null);
+        }}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: lastChipRef ? "right" : "left",
@@ -1141,6 +1150,7 @@ const DepartmentsManagement = () => {
         disablePortal={false}
         PaperProps={{
           sx: {
+            mt:0.5,
             borderRadius: 1,
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
             width: 400,
@@ -1170,7 +1180,10 @@ const DepartmentsManagement = () => {
               {selectedFilterField?.label || "Filter"}
             </Typography>
             <IconButton
-              onClick={() => setFilterDialogOpen(false)}
+              onClick={() => {
+                setFilterDialogOpen(false);
+                setModelOpenref(null);
+              }}
               sx={{
                 color: "#fff",
                 padding: "4px",

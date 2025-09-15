@@ -168,29 +168,29 @@ const CreateTeamPage = () => {
   };
 
   const handleAddMembers = () => {
-    const newMembers = availableAgents.filter(agent => 
+    const newMembers = availableAgents.filter((agent) =>
       selectedAgents.includes(agent.id)
     );
     setTeamMembers([...teamMembers, ...newMembers]);
-    setAvailableAgents(availableAgents.filter(agent => 
-      !selectedAgents.includes(agent.id)
-    ));
+    setAvailableAgents(
+      availableAgents.filter((agent) => !selectedAgents.includes(agent.id))
+    );
     setSelectedAgents([]);
     setShowAddMemberDialog(false);
   };
 
   const handleRemoveMember = (memberId: number) => {
-    const member = teamMembers.find(m => m.id === memberId);
+    const member = teamMembers.find((m) => m.id === memberId);
     if (member) {
-      setTeamMembers(teamMembers.filter(m => m.id !== memberId));
+      setTeamMembers(teamMembers.filter((m) => m.id !== memberId));
       setAvailableAgents([...availableAgents, member]);
     }
   };
 
   const handleAgentSelection = (agentId: number) => {
-    setSelectedAgents(prev => 
-      prev.includes(agentId) 
-        ? prev.filter(id => id !== agentId)
+    setSelectedAgents((prev) =>
+      prev.includes(agentId)
+        ? prev.filter((id) => id !== agentId)
         : [...prev, agentId]
     );
   };
@@ -198,8 +198,10 @@ const CreateTeamPage = () => {
   return (
     <Box
       sx={{
-        height: "calc(100vh - 200px)",
+        height: "calc(100vh - 96px)",
         bgcolor: "#f5f5f5",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* Header */}
@@ -242,14 +244,15 @@ const CreateTeamPage = () => {
       {/* Main Content */}
       <Box
         sx={{
-          p: 3,
+          p: 2,
           display: "flex",
           gap: 3,
-          height: "calc(100% - 120px)",
+          flex: 1,
+          overflow: "hidden",
         }}
       >
         {/* Left Panel - Form */}
-        <Box sx={{ flex: 2 }}>
+        <Box sx={{ flex: 2, overflowY: "auto", minHeight: 0 }}>
           <TabPanel value={activeTab} index={0}>
             <Stack spacing={3}>
               {/* Basic Information */}
@@ -263,7 +266,9 @@ const CreateTeamPage = () => {
                       fullWidth
                       label="Team Name"
                       value={formData.name}
-                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       placeholder="Enter team name"
                     />
                     <TextField
@@ -272,7 +277,9 @@ const CreateTeamPage = () => {
                       rows={3}
                       label="Description"
                       value={formData.description}
-                      onChange={(e) => handleInputChange("description", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("description", e.target.value)
+                      }
                       placeholder="Enter team description"
                     />
                     <Box sx={{ display: "flex", gap: 2 }}>
@@ -281,7 +288,9 @@ const CreateTeamPage = () => {
                         fullWidth
                         label="Department"
                         value={formData.department}
-                        onChange={(e) => handleInputChange("department", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("department", e.target.value)
+                        }
                       >
                         {departments.map((dept) => (
                           <MenuItem key={dept} value={dept}>
@@ -294,7 +303,9 @@ const CreateTeamPage = () => {
                         fullWidth
                         label="Status"
                         value={formData.status}
-                        onChange={(e) => handleInputChange("status", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("status", e.target.value)
+                        }
                       >
                         <MenuItem value="Active">Active</MenuItem>
                         <MenuItem value="Inactive">Inactive</MenuItem>
@@ -316,7 +327,9 @@ const CreateTeamPage = () => {
                       fullWidth
                       label="Team Lead"
                       value={formData.teamLead}
-                      onChange={(e) => handleInputChange("teamLead", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("teamLead", e.target.value)
+                      }
                     >
                       {teamMembers.map((member) => (
                         <MenuItem key={member.id} value={member.name}>
@@ -330,7 +343,9 @@ const CreateTeamPage = () => {
                         fullWidth
                         label="Ticket Assignment"
                         value={formData.ticketAssignment}
-                        onChange={(e) => handleInputChange("ticketAssignment", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("ticketAssignment", e.target.value)
+                        }
                       >
                         <MenuItem value="Round Robin">Round Robin</MenuItem>
                         <MenuItem value="Least Busy">Least Busy</MenuItem>
@@ -341,7 +356,12 @@ const CreateTeamPage = () => {
                         fullWidth
                         label="Max Members"
                         value={formData.maxMembers}
-                        onChange={(e) => handleInputChange("maxMembers", parseInt(e.target.value))}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "maxMembers",
+                            parseInt(e.target.value)
+                          )
+                        }
                       />
                     </Box>
                     <Box sx={{ display: "flex", gap: 2 }}>
@@ -349,14 +369,18 @@ const CreateTeamPage = () => {
                         fullWidth
                         label="Working Hours"
                         value={formData.workingHours}
-                        onChange={(e) => handleInputChange("workingHours", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("workingHours", e.target.value)
+                        }
                       />
                       <TextField
                         select
                         fullWidth
                         label="Timezone"
                         value={formData.timezone}
-                        onChange={(e) => handleInputChange("timezone", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("timezone", e.target.value)
+                        }
                       >
                         {timezones.map((tz) => (
                           <MenuItem key={tz} value={tz}>
@@ -369,7 +393,12 @@ const CreateTeamPage = () => {
                       control={
                         <Checkbox
                           checked={formData.autoAssignment}
-                          onChange={(e) => handleInputChange("autoAssignment", e.target.checked)}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "autoAssignment",
+                              e.target.checked
+                            )
+                          }
                         />
                       }
                       label="Enable Auto Assignment"
@@ -389,7 +418,12 @@ const CreateTeamPage = () => {
                       control={
                         <Checkbox
                           checked={formData.emailNotifications}
-                          onChange={(e) => handleInputChange("emailNotifications", e.target.checked)}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "emailNotifications",
+                              e.target.checked
+                            )
+                          }
                         />
                       }
                       label="Email Notifications"
@@ -398,7 +432,12 @@ const CreateTeamPage = () => {
                       control={
                         <Checkbox
                           checked={formData.slackNotifications}
-                          onChange={(e) => handleInputChange("slackNotifications", e.target.checked)}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "slackNotifications",
+                              e.target.checked
+                            )
+                          }
                         />
                       }
                       label="Slack Notifications"
@@ -407,7 +446,9 @@ const CreateTeamPage = () => {
                       fullWidth
                       label="Notification Email"
                       value={formData.notificationEmail}
-                      onChange={(e) => handleInputChange("notificationEmail", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("notificationEmail", e.target.value)
+                      }
                       placeholder="team-notifications@company.com"
                     />
                   </Stack>
@@ -421,7 +462,14 @@ const CreateTeamPage = () => {
               {/* Team Members */}
               <Card>
                 <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      mb: 2,
+                    }}
+                  >
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Team Members ({teamMembers.length})
                     </Typography>
@@ -448,15 +496,27 @@ const CreateTeamPage = () => {
                         {teamMembers.map((member) => (
                           <TableRow key={member.id}>
                             <TableCell>
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 2,
+                                }}
+                              >
                                 <Avatar sx={{ width: 32, height: 32 }}>
                                   {member.name.charAt(0)}
                                 </Avatar>
                                 <Box>
-                                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: 500 }}
+                                  >
                                     {member.name}
                                   </Typography>
-                                  <Typography variant="caption" color="text.secondary">
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
                                     {member.email}
                                   </Typography>
                                 </Box>
@@ -474,7 +534,11 @@ const CreateTeamPage = () => {
                               <Chip
                                 label={member.status}
                                 size="small"
-                                color={member.status === "Active" ? "success" : "default"}
+                                color={
+                                  member.status === "Active"
+                                    ? "success"
+                                    : "default"
+                                }
                                 variant="filled"
                               />
                             </TableCell>
@@ -505,7 +569,7 @@ const CreateTeamPage = () => {
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Actions
               </Typography>
-              
+
               <Stack spacing={2}>
                 <Button
                   variant="contained"
@@ -531,7 +595,7 @@ const CreateTeamPage = () => {
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Team Summary
               </Typography>
-              
+
               <Stack spacing={1}>
                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                   <Typography variant="body2" color="text.secondary">
@@ -582,7 +646,13 @@ const CreateTeamPage = () => {
         fullWidth
       >
         <DialogTitle>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
               Add Team Members
             </Typography>
@@ -602,10 +672,7 @@ const CreateTeamPage = () => {
                 <ListItemAvatar>
                   <Avatar>{agent.name.charAt(0)}</Avatar>
                 </ListItemAvatar>
-                <ListItemText
-                  primary={agent.name}
-                  secondary={agent.email}
-                />
+                <ListItemText primary={agent.name} secondary={agent.email} />
                 <Chip
                   label={agent.role}
                   size="small"
@@ -617,9 +684,7 @@ const CreateTeamPage = () => {
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowAddMemberDialog(false)}>
-            Cancel
-          </Button>
+          <Button onClick={() => setShowAddMemberDialog(false)}>Cancel</Button>
           <Button
             variant="contained"
             onClick={handleAddMembers}
