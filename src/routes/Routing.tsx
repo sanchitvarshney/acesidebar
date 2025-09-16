@@ -54,6 +54,7 @@ import TeamsManagement from "../USERMODULE/pages/TeamsManagement";
 import CreateTeamPage from "../USERMODULE/pages/settingManangePages/CreateTeamPage";
 import SLAPoliciesPage from "../USERMODULE/pages/settingManangePages/SLAPoliciesPage";
 import SLAEditPage from "../USERMODULE/pages/settingManangePages/SLAEditPage";
+import BusinessDayIntegration from "../USERMODULE/components/BusinessDayIntegration";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -215,6 +216,10 @@ export const router = createBrowserRouter([
       {
         path: "ticket-fields",
         element: <TicketFieldsPage />,
+      },
+      {
+        path: "business-day",
+        element: <BusinessDayIntegration />,
       },
     ],
   },

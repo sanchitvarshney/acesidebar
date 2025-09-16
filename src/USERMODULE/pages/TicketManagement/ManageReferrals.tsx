@@ -659,7 +659,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                   label="Due Date (Optional)"
                   value={dueDate}
                   
-                  onChange={(newValue, _context) => setDueDate(newValue)}
+                  onChange={(newValue:any, _context) => setDueDate(newValue)}
                   format="DD-MM-YYYY"
                   slotProps={{
                     textField: {

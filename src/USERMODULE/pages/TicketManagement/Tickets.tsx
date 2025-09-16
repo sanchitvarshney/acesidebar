@@ -9,6 +9,11 @@ import {
   Select,
   MenuItem,
   Tooltip,
+  Autocomplete,
+  Typography,
+  CircularProgress,
+  Chip,
+  TextField,
 } from "@mui/material";
 import LeftMenu from "./LeftMenu";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
@@ -39,6 +44,11 @@ import { useCommanApiMutation } from "../../../services/threadsApi";
 import AssignTicket from "../../components/AssignTicket";
 import Mergeticket from "../../components/Mergeticket";
 import { useToast } from "../../../hooks/useToast";
+import {
+  useLazyGetAgentsBySeachQuery,
+  useLazyGetDepartmentBySeachQuery,
+} from "../../../services/agentServices";
+import { Assignment, Business } from "@mui/icons-material";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -60,11 +70,12 @@ const Tickets: React.FC = () => {
   const [limit, setLimit] = useState(10);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
-
+  const [dept, setDept] = useState<any>("");
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { showToast } = useToast();
   const openAssign = Boolean(anchorEl);
-
+  const [triggerDept, { isLoading: deptLoading }] =
+    useLazyGetDepartmentBySeachQuery();
   const handleAssignClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -76,7 +87,8 @@ const Tickets: React.FC = () => {
   const [sortType, setSortType] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [isMergeModal, setIsMergeModal] = useState(false);
-
+  const [departmentOptions, setDepartmentOptions] = useState<any>([]);
+  const [changeDept, setChangedept] = useState("");
   // Sorting popover state
   const [sortingPopoverAnchorEl, setSortingPopoverAnchorEl] =
     useState<HTMLElement | null>(null);
@@ -87,21 +99,21 @@ const Tickets: React.FC = () => {
   const userPopupTimer = React.useRef<NodeJS.Timeout | null>(null);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isCloseModal, setIsCloseModal] = useState(false);
-  // Quick update popup state
+  const [agentValue, setAgentValue] = useState<any>(null);
+  const [changeAgent, setChangeAgent] = useState("");
   const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] =
     useState<HTMLElement | null>(null);
   const [quickUpdateValues, setQuickUpdateValues] = useState({
     priority: "",
     status: "",
-    group: "",
-    agent: "",
   });
-
+  const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
+    useLazyGetAgentsBySeachQuery();
   const [commanApi] = useCommanApiMutation();
   // Fetch live priority list
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
-
+  const [AgentOptions, setAgentOptions] = useState<any>([]);
   const STATUS_OPTIONS: StatusOption[] =
     statusList?.map((item: any) => ({
       label: item.statusName,
@@ -120,7 +132,8 @@ const Tickets: React.FC = () => {
       key: item?.key,
     })
   );
-
+  const displayDepartmentOptions = changeDept ? departmentOptions : [];
+  const displayAgentOptions = changeAgent ? AgentOptions : [];
   // Resolve option value key by matching label text (case-insensitive)
   const resolveValueByLabel = (
     options: Array<{ label: string; value: string }>,
@@ -131,6 +144,35 @@ const Tickets: React.FC = () => {
       (o) => o.label?.toLowerCase() === label?.toLowerCase()
     );
     return found?.value || "";
+  };
+
+  const fetchDeptOptions = async (query: string) => {
+    if (!query) {
+      setDepartmentOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerDept({
+        search: query,
+      }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = changeDept;
+      const fallback = [
+        {
+          deptName: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setDepartmentOptions(data.length > 0 ? data : fallback);
+      } else {
+        setDepartmentOptions([]);
+      }
+    } catch (error) {
+      setDepartmentOptions([]);
+    }
   };
 
   // Handle sorting popover open
@@ -297,15 +339,24 @@ const Tickets: React.FC = () => {
       status:
         ticket.status?.key ||
         resolveValueByLabel(STATUS_OPTIONS as any, ticket.status?.name),
-      // Group/department may be a plain name; use it directly
-      group: ticket?.department?.key || ticket?.department?.name || "",
-      // Fallback empty if no id is present
-      agent: ticket.fromUser?.UserId || "",
     });
+    // Set agent value as an object if assignee exists, otherwise null
+    setAgentValue(
+      ticket.assignee
+        ? {
+            fName: ticket.assignee.name?.split(" ")[0] || "",
+            lName: ticket.assignee.name?.split(" ").slice(1).join(" ") || "",
+            UserId: ticket.assignee.id || ticket.assignee.UserId,
+          }
+        : null
+    );
+    setDept(ticket?.department?.key || ticket?.department?.name || "");
   };
 
   const handleQuickUpdateClose = () => {
     setQuickUpdateAnchorEl(null);
+    setAgentValue(null);
+    setDept("");
   };
 
   const handleQuickUpdateChange = (field: string, value: string) => {
@@ -340,6 +391,47 @@ const Tickets: React.FC = () => {
       .catch(() => {
         showToast("Failed to update ticket importance", "error");
       });
+  };
+  const handleSelectedOption = (
+    _: React.SyntheticEvent,
+    value: any,
+    type: string
+  ) => {
+    if (!value) return;
+
+    if (type === "dept") {
+      setDept(value);
+    }
+    if (type === "agent") {
+      setAgentValue(value);
+    }
+  };
+  const fetchAgentOptions = async (query: string) => {
+    if (!query) {
+      setAgentOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerSeachAgent({ search: query }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = changeAgent;
+      const fallback = [
+        {
+          fName: currentValue,
+          emailAddress: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setAgentOptions(data.length > 0 ? data : fallback);
+      } else {
+        setAgentOptions([]);
+      }
+    } catch (error) {
+      setAgentOptions([]);
+    }
   };
 
   // Card-style ticket rendering
@@ -889,122 +981,188 @@ const Tickets: React.FC = () => {
             </div>
 
             {/* Groups */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Groups
-              </label>
-              <FormControl fullWidth size="small" variant="outlined">
-                <Select
-                  value={quickUpdateValues.group}
-                  onChange={(e) =>
-                    handleQuickUpdateChange("group", e.target.value)
-                  }
-                  displayEmpty
+
+            <Autocomplete
+              disableClearable
+              sx={{ my: 1.5 }}
+              popupIcon={null}
+              getOptionLabel={(option: any) => {
+                if (typeof option === "string") return option;
+                return option.deptName || "";
+              }}
+              options={displayDepartmentOptions}
+              value={dept}
+              onChange={(event, newValue) => {
+                handleSelectedOption(event, newValue, "dept");
+              }}
+              onInputChange={(_, value) => {
+                setChangedept(value);
+                fetchDeptOptions(value);
+              }}
+              filterOptions={(x) => x}
+              getOptionDisabled={(option) => option === "Type to search"}
+              noOptionsText={
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {deptLoading ? (
+                      <CircularProgress size={18} />
+                    ) : (
+                      "Type to search"
+                    )}
+                  </Typography>
+                </div>
+              }
+              renderOption={(props, option: any) => (
+                <li {...props}>
+                  {typeof option === "string" ? (
+                    option
+                  ) : (
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {option.deptName}
+                    </Typography>
+                  )}
+                </li>
+              )}
+              renderTags={(toValue, getTagProps) =>
+                toValue?.map((option, index) => (
+                  <Chip
+                    variant="outlined"
+                    color="primary"
+                    label={typeof option === "string" ? option : option}
+                    {...getTagProps({ index })}
+                    sx={{
+                      cursor: "pointer",
+                      height: "20px",
+                      // backgroundColor: "#6EB4C9",
+                      color: "primary.main",
+                      "& .MuiChip-deleteIcon": {
+                        color: "error.main",
+                        width: "12px",
+                      },
+                      "& .MuiChip-deleteIcon:hover": {
+                        color: "#e87f8c",
+                      },
+                    }}
+                  />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  fullWidth
+                  size="small"
+                  label="Department"
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        borderColor: "#d1d5db",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "#9ca3af",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#3b82f6",
-                      },
+                      borderRadius: "4px",
+                      backgroundColor: "#f9fafb",
+                      "&:hover fieldset": { borderColor: "#9ca3af" },
+                      "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
                     },
+                    "& label.Mui-focused": { color: "#1a73e8" },
+                    "& label": { fontWeight: "bold" },
                   }}
-                >
-                  <MenuItem value="">
-                    <span className="text-gray-500">Select group</span>
-                  </MenuItem>
-                  <MenuItem value="Billing">
-                    <span className="text-gray-700">Billing</span>
-                  </MenuItem>
-                  <MenuItem value="Support">
-                    <span className="text-gray-700">Support</span>
-                  </MenuItem>
-                  <MenuItem value="Sales">
-                    <span className="text-gray-700">Sales</span>
-                  </MenuItem>
-                  <MenuItem value="Technical">
-                    <span className="text-gray-700">Technical</span>
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            </div>
+                />
+              )}
+            />
 
             {/* Agents */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Agents
-              </label>
-              <FormControl fullWidth size="small" variant="outlined">
-                <Select
-                  value={quickUpdateValues.agent}
-                  onChange={(e) =>
-                    handleQuickUpdateChange("agent", e.target.value)
-                  }
-                  displayEmpty
+            <Autocomplete
+              disableClearable
+              popupIcon={null}
+              sx={{ my: 1.5 }}
+              getOptionLabel={(option: any) => {
+                if (typeof option === "string") return option;
+                return (option.fName + " " + option.lName).trim() || "";
+              }}
+              options={displayAgentOptions}
+              value={agentValue}
+              onChange={(event, newValue) => {
+                handleSelectedOption(event, newValue, "agent");
+              }}
+              onInputChange={(_, value) => {
+                setChangeAgent(value);
+                fetchAgentOptions(value);
+              }}
+              filterOptions={(x) => x}
+              getOptionDisabled={(option) => option === "Type to search"}
+              isOptionEqualToValue={(option, value) => {
+                if (!option || !value) return false;
+                return (
+                  option.UserId === value.UserId ||
+                  (option.fName === value.fName && option.lName === value.lName)
+                );
+              }}
+              noOptionsText={
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {seachAgentLoading ? (
+                      <CircularProgress size={18} />
+                    ) : (
+                      "Type to search"
+                    )}
+                  </Typography>
+                </div>
+              }
+              renderOption={(props, option: any) => (
+                <li {...props}>
+                  {typeof option === "string" ? (
+                    option
+                  ) : (
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {option.fName} {option.lName}
+                    </Typography>
+                  )}
+                </li>
+              )}
+              renderTags={(toValue, getTagProps) =>
+                toValue?.map((option, index) => (
+                  <Chip
+                    variant="outlined"
+                    color="primary"
+                    label={
+                      typeof option === "string"
+                        ? option
+                        : `${option.fName} ${option.lName}`
+                    }
+                    {...getTagProps({ index })}
+                    sx={{
+                      cursor: "pointer",
+                      height: "20px",
+                      // backgroundColor: "#6EB4C9",
+                      color: "primary.main",
+                      "& .MuiChip-deleteIcon": {
+                        color: "error.main",
+                        width: "12px",
+                      },
+                      "& .MuiChip-deleteIcon:hover": {
+                        color: "#e87f8c",
+                      },
+                    }}
+                  />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  fullWidth
+                  size="small"
+                  label="Assignee"
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      "& fieldset": {
-                        borderColor: "#d1d5db",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "#9ca3af",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#3b82f6",
-                      },
+                      borderRadius: "4px",
+                      backgroundColor: "#f9fafb",
+                      "&:hover fieldset": { borderColor: "#9ca3af" },
+                      "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
                     },
+                    "& label.Mui-focused": { color: "#1a73e8" },
+                    "& label": { fontWeight: "bold" },
                   }}
-                >
-                  <MenuItem value="">
-                    <span className="text-gray-500">Unassigned</span>
-                  </MenuItem>
-                  <MenuItem value="Amy">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span className="text-xs font-medium text-purple-700">
-                          A
-                        </span>
-                      </div>
-                      <span className="text-gray-700">Amy</span>
-                    </div>
-                  </MenuItem>
-                  <MenuItem value="John">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-xs font-medium text-blue-700">
-                          J
-                        </span>
-                      </div>
-                      <span className="text-gray-700">John</span>
-                    </div>
-                  </MenuItem>
-                  <MenuItem value="Sarah">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                        <span className="text-xs font-medium text-green-700">
-                          S
-                        </span>
-                      </div>
-                      <span className="text-gray-700">Sarah</span>
-                    </div>
-                  </MenuItem>
-                  <MenuItem value="Mike">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
-                        <span className="text-xs font-medium text-orange-700">
-                          M
-                        </span>
-                      </div>
-                      <span className="text-gray-700">Mike</span>
-                    </div>
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            </div>
+                />
+              )}
+            />
           </div>
 
           {/* Footer Actions */}
