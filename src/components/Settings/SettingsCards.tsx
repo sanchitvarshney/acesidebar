@@ -9,13 +9,16 @@ const SettingsCards: React.FC = ({ cards }: any) => {
     const path = title.toLowerCase().replace(" ", "-");
 
     switch (path) {
-         case "sla-policies":
+      case "sla-policies":
         navigate("/sla-policies");
+        break;
+      case "email-notifications":
+        navigate("/email_notifications");
         break;
       case "departments":
         navigate("/departments");
         break;
-          case "teams":
+      case "teams":
         navigate("/teams");
         break;
       case "agents":

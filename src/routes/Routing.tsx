@@ -55,6 +55,7 @@ import CreateTeamPage from "../USERMODULE/pages/settingManangePages/CreateTeamPa
 import SLAPoliciesPage from "../USERMODULE/pages/settingManangePages/SLAPoliciesPage";
 import SLAEditPage from "../USERMODULE/pages/settingManangePages/SLAEditPage";
 import BusinessDayIntegration from "../USERMODULE/components/BusinessDayIntegration";
+import EmailNotificationsPage from "../USERMODULE/pages/settingManangePages/EmailNotificationsPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -171,6 +172,10 @@ export const router = createBrowserRouter([
       {
         path: "sla-policies",
         element: <SLAPoliciesPage />,
+      },
+          {
+        path: "email_notifications",
+        element: <EmailNotificationsPage />,
       },
       {
         path: "sla-policies/:id",
