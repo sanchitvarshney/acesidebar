@@ -56,6 +56,7 @@ import SLAPoliciesPage from "../USERMODULE/pages/settingManangePages/SLAPolicies
 import SLAEditPage from "../USERMODULE/pages/settingManangePages/SLAEditPage";
 import BusinessDayIntegration from "../USERMODULE/components/BusinessDayIntegration";
 import EmailNotificationsPage from "../USERMODULE/pages/settingManangePages/EmailNotificationsPage";
+import CanenResponseMasterPage from "../USERMODULE/pages/settingManangePages/CanenResponseMasterPage";
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -176,6 +177,10 @@ export const router = createBrowserRouter([
           {
         path: "email_notifications",
         element: <EmailNotificationsPage />,
+      },
+         {
+        path: "cannen_response",
+        element: <CanenResponseMasterPage />,
       },
       {
         path: "sla-policies/:id",

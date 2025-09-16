@@ -12,6 +12,9 @@ const SettingsCards: React.FC = ({ cards }: any) => {
       case "sla-policies":
         navigate("/sla-policies");
         break;
+      case "canned-responses":
+        navigate("/cannen_response");
+        break;
       case "email-notifications":
         navigate("/email_notifications");
         break;
