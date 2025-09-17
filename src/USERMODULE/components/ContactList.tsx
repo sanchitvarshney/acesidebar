@@ -951,18 +951,20 @@ const ContactList = () => {
                   },
                 },
 
-                // Set checkbox column width to 200px
-                "& .MuiDataGrid-columnHeader--checkboxSelection": {
-                  width: "200px !important",
-                  minWidth: "200px !important",
-                  maxWidth: "200px !important",
+                // Force compact checkbox selection column width
+                "& .MuiDataGrid-columnHeaderCheckbox, & .MuiDataGrid-columnHeader[data-field='__check__']": {
+                  width: "48px !important",
+                  minWidth: "48px !important",
+                  maxWidth: "48px !important",
+                  paddingLeft: 0,
+                  paddingRight: 0,
                 },
-
-                "& .MuiDataGrid-cell--checkboxSelection": {
-                  width: "200px !important",
-                  minWidth: "200px !important",
-                  maxWidth: "200px !important",
-                  paddingLeft: "16px",
+                "& .MuiDataGrid-cellCheckbox, & .MuiDataGrid-cell[data-field='__check__']": {
+                  width: "48px !important",
+                  minWidth: "48px !important",
+                  maxWidth: "48px !important",
+                  paddingLeft: 0,
+                  paddingRight: 0,
                 },
 
                 // Header styling

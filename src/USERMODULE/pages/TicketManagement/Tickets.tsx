@@ -82,6 +82,7 @@ const Tickets: React.FC = () => {
   const handleAssignClose = () => {
     setAnchorEl(null);
   };
+  const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
 
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState<string | null>(null);
@@ -101,6 +102,7 @@ const Tickets: React.FC = () => {
   const [isCloseModal, setIsCloseModal] = useState(false);
   const [agentValue, setAgentValue] = useState<any>(null);
   const [changeAgent, setChangeAgent] = useState("");
+  const [trackTicketId, setTrackTicketId] = useState("");
   const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] =
     useState<HTMLElement | null>(null);
   const [quickUpdateValues, setQuickUpdateValues] = useState({
@@ -144,6 +146,47 @@ const Tickets: React.FC = () => {
       (o) => o.label?.toLowerCase() === label?.toLowerCase()
     );
     return found?.value || "";
+  };
+
+  const handleQuickUpdateProperty = () => {
+    const payload = {
+      url: "edit-properties/" + trackTicketId,
+      method: "PUT",
+      body: {
+        ticket: trackTicketId,
+        priority: quickUpdateValues.priority || "--",
+        status: quickUpdateValues.status || "--",
+        department:
+          typeof dept === "string" ? dept : String(dept?.deptID) || "--",
+        agent: agentValue?.agentID || "--",
+      },
+    };
+
+    triggerStatus(payload)
+      .unwrap()
+      .then((res) => {
+        if (!res?.success) {
+          showToast(res?.message || res?.error?.message, "error");
+
+          return;
+        }
+        if (res?.success) {
+          showToast(res?.message, "success");
+          setQuickUpdateValues({
+            priority: quickUpdateValues.priority,
+            status: quickUpdateValues.status,
+          });
+          //localy change state
+          setDept(
+            res?.ticket?.department?.key || res?.ticket?.department?.name
+          );
+          setAgentValue(res?.ticket?.agent);
+          handleQuickUpdateClose();
+        }
+      })
+      .catch((err) => {
+        showToast(err?.data?.message, "error");
+      });
   };
 
   const fetchDeptOptions = async (query: string) => {
@@ -330,6 +373,7 @@ const Tickets: React.FC = () => {
     ticket: any
   ) => {
     event.stopPropagation();
+    setTrackTicketId(ticket?.ticketNumber);
     setQuickUpdateAnchorEl(event.currentTarget);
     setQuickUpdateValues({
       // Map by label when key is absent in ticket object
@@ -350,13 +394,12 @@ const Tickets: React.FC = () => {
           }
         : null
     );
-    setDept(ticket?.department?.key || ticket?.department?.name || "");
+    setDept(ticket?.department?.deptId || ticket?.department?.name || "");
   };
 
   const handleQuickUpdateClose = () => {
     setQuickUpdateAnchorEl(null);
-    setAgentValue(null);
-    setDept("");
+    setTrackTicketId("");
   };
 
   const handleQuickUpdateChange = (field: string, value: string) => {
@@ -1178,12 +1221,7 @@ const Tickets: React.FC = () => {
             <Button
               variant="contained"
               size="small"
-              onClick={() => {
-                // Handle save logic here
-                console.log("Saving:", quickUpdateValues);
-                handleQuickUpdateClose();
-                showToast("Properties updated successfully", "success");
-              }}
+              onClick={handleQuickUpdateProperty}
               sx={{
                 textTransform: "none",
                 backgroundColor: "#3b82f6",
@@ -1192,7 +1230,11 @@ const Tickets: React.FC = () => {
                 },
               }}
             >
-              Update
+              {statusLoading ? (
+                <CircularProgress size={18} color="inherit" />
+              ) : (
+                "Update"
+              )}
             </Button>
           </div>
         </div>

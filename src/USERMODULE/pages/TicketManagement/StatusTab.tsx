@@ -49,7 +49,6 @@ const StatusTab = ({ ticket }: any) => {
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
-   
 
   const displayOptions = changeTagValue.length >= 3 ? options : [];
   const displayDepartmentOptions = changeDept ? departmentOptions : [];
@@ -77,9 +76,8 @@ const StatusTab = ({ ticket }: any) => {
     triggerStatus(payload)
       .unwrap()
       .then((res) => {
-       
-        if (res?.type === "error") {
-          console.log(res?.message || res?.error?.data?.message, "error")
+        if (!res?.success) {
+          console.log(res?.message || res?.error?.data?.message, "error");
           showToast(res?.message || res?.error?.message, "error");
           setIsUpdate((prev) => prev + 1);
           return;
@@ -89,7 +87,7 @@ const StatusTab = ({ ticket }: any) => {
         // setTagValue([]);
         // setPriority("");
         // setStatus("");
-              //  setIsUpdate((prev) => prev + 1);
+        //  setIsUpdate((prev) => prev + 1);
       })
       .catch((err) => {
         showToast(err?.data?.message, "error");
@@ -599,14 +597,17 @@ const StatusTab = ({ ticket }: any) => {
         </div>
       </div>
       <div className="my-2">
-        <Button fullWidth variant="contained" onClick={handleUpdateTicket} disabled={statusLoading}>
-          {
-            statusLoading ? (
-              <CircularProgress color="primary" size={20} />
-            ) : (
-              "Update"
-            )
-          }
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={handleUpdateTicket}
+          disabled={statusLoading}
+        >
+          {statusLoading ? (
+            <CircularProgress color="primary" size={20} />
+          ) : (
+            "Update"
+          )}
         </Button>
       </div>
     </div>
