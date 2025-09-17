@@ -43,6 +43,8 @@ import ImageViewComponent from "../../components/ImageViewComponent";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CloseIcon from "@mui/icons-material/Close";
 import empty from "../../../assets/image/overview-empty-state.svg";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 type Folder = {
   id: string;
   name: string;
@@ -71,6 +73,7 @@ const formatDate = (iso: string) => {
 };
 
 const CanenResponseMasterPage = () => {
+  const navigate = useNavigate();
   const [folders] = useState<Folder[]>([
     { id: "personal", name: "Personal" },
     { id: "general", name: "General" },
@@ -191,17 +194,89 @@ const CanenResponseMasterPage = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", height: "100%" }}>
+    <Box
+      sx={{ width: "100%", height: "calc(100vh - 96px)", overflow: "hidden" }}
+    >
+      {/* Toolbar */}
+      <Toolbar
+        sx={{
+     
+
+          py: 2,
+          justifyContent: "space-between",
+        }}
+      >
+        {" "}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <IconButton onClick={() => navigate("/settings/agent-productivity")}>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+            Canned Responses
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={2} alignItems="center">
+          {selectedCount > 0 ? (
+            <>
+              <Typography variant="body2" color="text.secondary">
+                {selectedCount} selected
+              </Typography>
+              <Button size="small">Move to</Button>
+              <Button size="small" color="error">
+                Delete
+              </Button>
+            </>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              &nbsp;
+            </Typography>
+          )}
+        </Stack>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Typography variant="body2" color="text.secondary">
+            Sort by:
+          </Typography>
+          <Select
+            size="small"
+            variant="standard"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+          >
+            <MenuItem value="title">Title</MenuItem>
+            <MenuItem value="created">Created</MenuItem>
+            <MenuItem value="updated">Updated</MenuItem>
+          </Select>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setNewFolderOpen(true)}
+          >
+            New Folder
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => {
+              setDrawerMode("create");
+              setEditingId(null);
+              setFormTitle("");
+              setFormFolderId(activeFolderId);
+              setFormAvailability("all");
+              setFormMessage("");
+              setDrawerOpen(true);
+            }}
+          >
+            New Canned Response
+          </Button>
+        </Stack>
+      </Toolbar>
+
       <Stack
         direction="row"
-        sx={{ minHeight: "calc(100vh - 96px)", bgcolor: "background.paper" }}
+        sx={{ minHeight: "calc(100vh - 170px)", bgcolor: "background.paper" }}
       >
         {/* Left: Folders */}
-        <Paper
-          variant="outlined"
-          square
-          sx={{ width: 340, borderRight: 1, borderColor: "divider" }}
-        >
+        <Paper variant="outlined" square sx={{ width: 340 }}>
           <Box sx={{ px: 3, py: 2.5 }}>
             <Typography
               variant="subtitle2"
@@ -253,72 +328,6 @@ const CanenResponseMasterPage = () => {
 
         {/* Right: List */}
         <Box sx={{ flex: 1 }}>
-          {/* Toolbar */}
-          <Toolbar
-            sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-              px: 3,
-              py: 2,
-              justifyContent: "space-between",
-            }}
-          >
-            <Stack direction="row" spacing={2} alignItems="center">
-              {selectedCount > 0 ? (
-                <>
-                  <Typography variant="body2" color="text.secondary">
-                    {selectedCount} selected
-                  </Typography>
-                  <Button size="small">Move to</Button>
-                  <Button size="small" color="error">
-                    Delete
-                  </Button>
-                </>
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  &nbsp;
-                </Typography>
-              )}
-            </Stack>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Typography variant="body2" color="text.secondary">
-                Sort by:
-              </Typography>
-              <Select
-                size="small"
-                variant="standard"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-              >
-                <MenuItem value="title">Title</MenuItem>
-                <MenuItem value="created">Created</MenuItem>
-                <MenuItem value="updated">Updated</MenuItem>
-              </Select>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => setNewFolderOpen(true)}
-              >
-                New Folder
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => {
-                  setDrawerMode("create");
-                  setEditingId(null);
-                  setFormTitle("");
-                  setFormFolderId(activeFolderId);
-                  setFormAvailability("all");
-                  setFormMessage("");
-                  setDrawerOpen(true);
-                }}
-              >
-                New Canned Response
-              </Button>
-            </Stack>
-          </Toolbar>
-
           {/* Empty state for folders without items */}
           {visibleResponses.length === 0 ? (
             <Stack
@@ -344,7 +353,7 @@ const CanenResponseMasterPage = () => {
               </Button>
             </Stack>
           ) : (
-            <Box sx={{ px: 3, py: 2 }}>
+            <Box sx={{ px: 2, py: 0 }}>
               <TableContainer component={Paper} variant="outlined">
                 <Table size="small">
                   <TableHead>

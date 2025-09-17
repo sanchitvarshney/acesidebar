@@ -131,7 +131,7 @@ const SLAPoliciesPage = () => {
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <IconButton
-              onClick={() => navigate("/settings/support-operations")}
+              onClick={() => navigate("/settings/workflow")}
             >
               <ArrowBackIcon />
             </IconButton>

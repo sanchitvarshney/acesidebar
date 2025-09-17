@@ -33,7 +33,7 @@ import TicketDetailTemplate from "../USERMODULE/pages/TicketManagement/TicketDet
 import ContactList from "../USERMODULE/components/ContactList";
 import ProfilePage from "../USERMODULE/components/Profile/ProfilePage";
 import DepartmentsManagement from "../USERMODULE/pages/DepartmentsManagement";
-import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
+
 import BillAndPlanPage from "../USERMODULE/pages/settingManangePages/BillAndPlanPage";
 import AccountExport from "../USERMODULE/pages/settingManangePages/AccountExport";
 import RecentPage from "../USERMODULE/pages/settingPages/RecentPage";
@@ -57,6 +57,8 @@ import SLAEditPage from "../USERMODULE/pages/settingManangePages/SLAEditPage";
 import BusinessDayIntegration from "../USERMODULE/components/BusinessDayIntegration";
 import EmailNotificationsPage from "../USERMODULE/pages/settingManangePages/EmailNotificationsPage";
 import CanenResponseMasterPage from "../USERMODULE/pages/settingManangePages/CanenResponseMasterPage";
+import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
+
 
 export const router = createBrowserRouter([
   // Auth Routes
@@ -174,11 +176,11 @@ export const router = createBrowserRouter([
         path: "sla-policies",
         element: <SLAPoliciesPage />,
       },
-          {
+      {
         path: "email_notifications",
         element: <EmailNotificationsPage />,
       },
-         {
+      {
         path: "cannen_response",
         element: <CanenResponseMasterPage />,
       },

@@ -49,8 +49,9 @@ import {
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reduxStore/Store";
-import { id } from "zod/v4/locales";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 // Field types that can be dragged and dropped
 const fieldTypes = [
   {
@@ -232,6 +233,7 @@ const defaultStatusChoices = [
 ];
 
 const TicketFieldsPage: React.FC = () => {
+const navigate = useNavigate();
   const [fields, setFields] = useState<any[]>(defaultFields);
   const [selectedField, setSelectedField] = useState<any | null>(null);
   const [filter, setFilter] = useState("all");
@@ -240,7 +242,8 @@ const TicketFieldsPage: React.FC = () => {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isDropActive, setIsDropActive] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [statusChoices, setStatusChoices] = useState<any[]>(defaultStatusChoices);
+  const [statusChoices, setStatusChoices] =
+    useState<any[]>(defaultStatusChoices);
   const [newChoiceText, setNewChoiceText] = useState("");
   const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const getFieldIcon = (type: string) => {
@@ -315,6 +318,7 @@ const TicketFieldsPage: React.FC = () => {
   };
 
   const handleAddField = (e: any, fieldId: any) => {
+
     if (!!selectedField) return;
     const fieldType = fieldTypes.find((ft) => ft.id === fieldId);
     if (fieldType) {
@@ -414,7 +418,9 @@ const TicketFieldsPage: React.FC = () => {
     e.preventDefault();
     if (!draggedItem) return;
 
-    const draggedIndex = statusChoices.findIndex((choice) => choice.id === draggedItem);
+    const draggedIndex = statusChoices.findIndex(
+      (choice) => choice.id === draggedItem
+    );
     if (draggedIndex !== -1) {
       const newChoices = [...statusChoices];
       const [reorderedChoice] = newChoices.splice(draggedIndex, 1);
@@ -442,13 +448,15 @@ const TicketFieldsPage: React.FC = () => {
   return (
     <Box sx={{ bgcolor: "grey.50", height: "calc(100vh - 100px)" }}>
       <Box sx={{ mb: 2 }}>
-        <Typography
-          variant="h5"
-          component="h1"
-          sx={{ mb: 1, fontWeight: "bold" }}
-        >
-          Ticket Fields
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <IconButton onClick={() => navigate("/settings/workflow")}>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+           Ticket Fields
+
+          </Typography>
+        </Box>
         <Typography variant="body1" color="text.secondary">
           Customize your ticket type to categorize, prioritize, and route
           tickets efficiently.
@@ -792,7 +800,8 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
   onClose,
 }) => {
   const [formData, setFormData] = useState<any | null>(null);
-  const [statusChoices, setStatusChoices] = useState<any[]>(defaultStatusChoices);
+  const [statusChoices, setStatusChoices] =
+    useState<any[]>(defaultStatusChoices);
   const [newChoiceText, setNewChoiceText] = useState("");
 
   React.useEffect(() => {
@@ -1016,24 +1025,38 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
           <>
             <Divider sx={{ my: 3 }} />
             <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{fontWeight:600}}
-                >
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                   Dropdown choices
                 </Typography>
-          
               </Box>
 
-              <TableContainer component={Paper} elevation={0} sx={{ border: "1px solid", borderColor: "grey.300" }}>
+              <TableContainer
+                component={Paper}
+                elevation={0}
+                sx={{ border: "1px solid", borderColor: "grey.300" }}
+              >
                 <Table>
                   <TableHead>
                     <TableRow sx={{ bgcolor: "grey.50" }}>
-                      <TableCell sx={{ fontWeight: "bold", borderRight: "1px solid", borderColor: "grey.300" }}>
+                      <TableCell
+                        sx={{
+                          fontWeight: "bold",
+                          borderRight: "1px solid",
+                          borderColor: "grey.300",
+                        }}
+                      >
                         Label for agents
                       </TableCell>
-                      <TableCell sx={{ fontWeight: "bold", borderRight: "1px solid", borderColor: "grey.300" }}>
+                      <TableCell
+                        sx={{
+                          fontWeight: "bold",
+                          borderRight: "1px solid",
+                          borderColor: "grey.300",
+                        }}
+                      >
                         Label for customers
                       </TableCell>
                       <TableCell sx={{ fontWeight: "bold" }}>
@@ -1044,20 +1067,44 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
                   </TableHead>
                   <TableBody>
                     {statusChoices.map((choice, index) => (
-                      <TableRow key={choice.id} sx={{ "&:hover": { bgcolor: "grey.50" } }}>
-                        <TableCell sx={{ borderRight: "1px solid", borderColor: "grey.300" }}>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <DragIndicator sx={{ color: "grey.500", cursor: "grab" }} />
+                      <TableRow
+                        key={choice.id}
+                        sx={{ "&:hover": { bgcolor: "grey.50" } }}
+                      >
+                        <TableCell
+                          sx={{
+                            borderRight: "1px solid",
+                            borderColor: "grey.300",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <DragIndicator
+                              sx={{ color: "grey.500", cursor: "grab" }}
+                            />
                             <TextField
                               size="small"
                               value={choice.labelForAgents}
-                              onChange={(e) => handleUpdateChoice(choice.id, "labelForAgents", e.target.value)}
+                              onChange={(e) =>
+                                handleUpdateChoice(
+                                  choice.id,
+                                  "labelForAgents",
+                                  e.target.value
+                                )
+                              }
                               disabled={choice.isDefault}
                               sx={{
                                 "& .MuiInputBase-input": {
-                                  py:0.6,
-                                  px:1,
-                                  color: choice.isDefault ? "grey.500" : "text.primary",
+                                  py: 0.6,
+                                  px: 1,
+                                  color: choice.isDefault
+                                    ? "grey.500"
+                                    : "text.primary",
                                 },
                               }}
                               variant="standard"
@@ -1065,11 +1112,22 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
                             />
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ borderRight: "1px solid", borderColor: "grey.300" }}>
+                        <TableCell
+                          sx={{
+                            borderRight: "1px solid",
+                            borderColor: "grey.300",
+                          }}
+                        >
                           <TextField
                             size="small"
                             value={choice.labelForCustomers}
-                            onChange={(e) => handleUpdateChoice(choice.id, "labelForCustomers", e.target.value)}
+                            onChange={(e) =>
+                              handleUpdateChoice(
+                                choice.id,
+                                "labelForCustomers",
+                                e.target.value
+                              )
+                            }
                             variant="standard"
                             InputProps={{ disableUnderline: true }}
                           />
@@ -1077,7 +1135,13 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
                         <TableCell>
                           <Switch
                             checked={choice.hasSlaTimer}
-                            onChange={(e) => handleUpdateChoice(choice.id, "hasSlaTimer", e.target.checked)}
+                            onChange={(e) =>
+                              handleUpdateChoice(
+                                choice.id,
+                                "hasSlaTimer",
+                                e.target.checked
+                              )
+                            }
                             size="small"
                           />
                         </TableCell>
@@ -1098,7 +1162,9 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
               </TableContainer>
 
               {/* Add new choice */}
-              <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}
+              >
                 <TextField
                   size="small"
                   placeholder="Add a choice"

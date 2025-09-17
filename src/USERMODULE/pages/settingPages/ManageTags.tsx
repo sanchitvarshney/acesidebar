@@ -12,6 +12,10 @@ import {
   TableBody,
   Paper,
   CircularProgress,
+  Box,
+  CardActions,
+  CardContent,
+  Card,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -24,7 +28,10 @@ import { useCommanApiMutation } from "../../../services/threadsApi";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import PersonIcon from "@mui/icons-material/Person";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 const ManageTags = () => {
+  const navigate = useNavigate();
   const [tagInput, setTagInput] = useState<string>("");
   const [editingTag, setEditingTag] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>("");
@@ -117,9 +124,16 @@ const ManageTags = () => {
     <div className="w-full h-full grid grid-cols-[3fr_1fr] ">
       <div className=" min-h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-y-auto p-4  space-y-6 border-r border-gray-200">
         <section className="space-y-4">
-          <Typography variant="h6" fontWeight={600}>
-            Tags
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton
+              onClick={() => navigate("/settings/agent-productivity")}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+              Tags
+            </Typography>
+          </Box>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={1}
@@ -237,11 +251,7 @@ const ManageTags = () => {
                           </TableCell>{" "}
                           <TableCell>
                             {isEditing ? (
-                              <Stack
-                                direction="row"
-                                spacing={0.5}
-                           
-                              >
+                              <Stack direction="row" spacing={0.5}>
                                 <IconButton
                                   color="primary"
                                   aria-label="save"
@@ -265,11 +275,7 @@ const ManageTags = () => {
                                 </IconButton>
                               </Stack>
                             ) : (
-                              <Stack
-                                direction="row"
-                                spacing={0.5}
-                         
-                              >
+                              <Stack direction="row" spacing={0.5}>
                                 <IconButton
                                   aria-label="edit"
                                   onClick={() => startEdit(tag)}
@@ -304,21 +310,102 @@ const ManageTags = () => {
 
       <div className="max-h-[calc(100vh-100px)] overflow-y-auto p-4 space-y-6">
         <div className="space-y-4">
-          <section>
-            <Typography variant="subtitle1" fontWeight={600}>
-              Managing Tags
-            </Typography>
-            <Typography variant="body2">
-              This page shows you a list of all tags that are currently being
-              used in your helpdesk. By default, you can get the usage count for
-              every tag, including the number of linked tickets, customers or
-              solution articles at a glance by looking them up from the list. If
-              you want to, you can also open up a complete list of tagged items
-              by clicking on the corresponding numbers. When you want to rename
-              them altogether, click on the tag names to update all of their
-              instances automatically. Additionally, you can choose to merge two
-              or more tags together by giving them the same name.
-            </Typography>
+          <section className="space-y-2">
+            <Card>
+              <CardContent>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  Ticket Tags
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  Tags let you categorize and organize tickets for easier
+                  filtering and reporting. Add multiple tags to a ticket to
+                  capture context such as product, issue type, or priority.
+                </Typography>
+
+                <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+                  <Box
+                    sx={{
+                      bgcolor: "rgb(226 232 240)",
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: 2,
+                      fontSize: 14,
+                    }}
+                  >
+                    Billing
+                  </Box>
+                  <Box
+                    sx={{
+                      bgcolor: "rgb(226 232 240)",
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: 2,
+                      fontSize: 14,
+                    }}
+                  >
+                    Urgent
+                  </Box>
+                  <Box
+                    sx={{
+                      bgcolor: "rgb(226 232 240)",
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: 2,
+                      fontSize: 14,
+                    }}
+                  >
+                    Feature Request
+                  </Box>
+                </Stack>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  Managing Tags
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  Keep your workspace organized by managing your tags. Rename,
+                  merge, or delete unused tags. Ensure consistency so your team
+                  applies the correct tags to tickets.
+                </Typography>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  Auto-tagging Rules
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  Set up rules to automatically add tags when a ticket matches
+                  certain conditions (e.g., subject contains "payment" → add
+                  "Billing").
+                </Typography>
+
+                <Stack spacing={1}>
+                  <Typography variant="body2">
+                    Rule: Subject contains “refund” → Tag: <b>Billing</b>
+                  </Typography>
+                  <Typography variant="body2">
+                    Rule: Priority is High → Tag: <b>Urgent</b>
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
           </section>
         </div>
       </div>
