@@ -103,7 +103,10 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
   const result = await baseQuery(args, api, extraOptions);
 
   // Handle 401 Unauthorized responses
-  if (result.error && result.error.status === 401) {
+  if (
+    result.error?.status === 401 &&
+    (result.error?.data as { status?: string })?.status === "logout"
+  ) {
     handleUnauthorizedResponse();
   }
 
