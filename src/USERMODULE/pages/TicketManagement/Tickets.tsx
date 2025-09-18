@@ -48,7 +48,7 @@ import {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
 } from "../../../services/agentServices";
-import { Assignment, Business } from "@mui/icons-material";
+
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -148,17 +148,55 @@ const Tickets: React.FC = () => {
     return found?.value || "";
   };
 
+  // Local UI overrides for tickets (do NOT mutate RTK Query cache objects)
+  const [ticketOverrides, setTicketOverrides] = useState<Record<string, any>>({});
+
+  // Merge helper: applies local overrides to a ticket object for rendering
+  const applyOverrides = (ticket: any) => {
+
+    const override = ticketOverrides[ticket?.ticketNumber];
+  
+    
+    if (!override) return ticket;
+    return {
+      ...ticket,
+      // override only the fields we care about for display
+      status: override.status ?? ticket.status,
+      priority: override.priority ?? ticket.priority,
+      department: override.department ?? ticket.department,
+      agent: override.agent ?? ticket.agent,
+    };
+  };
+
+  const updateData = (updateValues: any) => {
+    // updateValues example: { ticketId, status, priority, department, agent, ... }
+    const ticketId = updateValues.ticketId || trackTicketId;
+    if (!ticketId) return;
+    setTicketOverrides((prev) => ({
+      ...prev,
+      [ticketId]: {
+        ...(prev[ticketId] || {}),
+        status: updateValues.status,
+        priority: updateValues.priority,
+        department: updateValues.department,
+        agent: updateValues.agent,
+      },
+    }));
+  };
+
   const handleQuickUpdateProperty = () => {
     const payload = {
       url: "edit-properties/" + trackTicketId,
       method: "PUT",
       body: {
         ticket: trackTicketId,
-        priority: quickUpdateValues.priority || "--",
-        status: quickUpdateValues.status || "--",
+        priority: quickUpdateValues.priority ,
+        status: quickUpdateValues.status ,
         department:
-          typeof dept === "string" ? dept : String(dept?.deptID) || "--",
-        agent: agentValue?.agentID || "--",
+          typeof dept?.deptID === "number"
+            ? String(dept?.deptID)
+            : dept?.deptID ,
+        agent: agentValue?.agentID ,
       },
     };
 
@@ -176,16 +214,23 @@ const Tickets: React.FC = () => {
             priority: quickUpdateValues.priority,
             status: quickUpdateValues.status,
           });
-          //localy change state
-          setDept(
-            res?.ticket?.department?.key || res?.ticket?.department?.name
-          );
+          // apply local UI overrides for immediate render without mutating cache
+          setDept(res?.ticket?.department);
           setAgentValue(res?.ticket?.agent);
+          updateData({
+            ticketId: String(res?.ticket?.ticketId || trackTicketId),
+            status: res?.ticket?.status,
+            priority: res?.ticket?.priority,
+            department: res?.ticket?.department,
+            agent: res?.ticket?.agent ?? null,
+          });
           handleQuickUpdateClose();
         }
       })
       .catch((err) => {
         showToast(err?.data?.message, "error");
+        console.log(err);
+        handleQuickUpdateClose();
       });
   };
 
@@ -373,28 +418,32 @@ const Tickets: React.FC = () => {
     ticket: any
   ) => {
     event.stopPropagation();
-    setTrackTicketId(ticket?.ticketNumber);
+    const merged = applyOverrides(ticket);
+    setTrackTicketId(merged?.ticketNumber);
     setQuickUpdateAnchorEl(event.currentTarget);
     setQuickUpdateValues({
       // Map by label when key is absent in ticket object
       priority:
-        ticket.priority?.key ||
-        resolveValueByLabel(PRIORITY_OPTIONS, ticket.priority?.name),
+        merged.priority?.key ||
+        resolveValueByLabel(PRIORITY_OPTIONS, merged.priority?.name),
       status:
-        ticket.status?.key ||
-        resolveValueByLabel(STATUS_OPTIONS as any, ticket.status?.name),
+        merged.status?.key ||
+        resolveValueByLabel(STATUS_OPTIONS as any, merged.status?.name),
     });
     // Set agent value as an object if assignee exists, otherwise null
     setAgentValue(
-      ticket.assignee
+      merged.assignee
         ? {
-            fName: ticket.assignee.name?.split(" ")[0] || "",
-            lName: ticket.assignee.name?.split(" ").slice(1).join(" ") || "",
-            UserId: ticket.assignee.id || ticket.assignee.UserId,
+            fName: merged.assignee.name?.split(" ")[0] || "",
+            lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
+            UserId: merged.assignee.id || merged.assignee.UserId,
           }
         : null
     );
-    setDept(ticket?.department?.deptId || ticket?.department?.name || "");
+
+    setDept(
+      merged?.department?.deptId || merged?.department?.name || ""
+    );
   };
 
   const handleQuickUpdateClose = () => {
@@ -479,14 +528,15 @@ const Tickets: React.FC = () => {
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
+    const merged = applyOverrides(ticket);
     // Get priority color and label - use actual API data
-    const priorityColor = ticket.priority?.color || "#6b7280"; // Default gray
-    const priorityLabel = ticket.priority?.name || "Low";
+    const priorityColor = merged.priority?.color || "#6b7280"; // Default gray
+    const priorityLabel = merged.priority?.name || "Low";
     return (
       <div
-        key={ticket?.ticketNumber}
+        key={merged?.ticketNumber}
         className="bg-white border-2 border-blue-200 rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative"
-        onClick={() => handleTicketSubjectClick(ticket.ticketNumber)}
+        onClick={() => handleTicketSubjectClick(merged.ticketNumber)}
       >
         {/* Top section */}
         <div className="flex gap-4 mb-3">
@@ -499,7 +549,7 @@ const Tickets: React.FC = () => {
               {priorityLabel.toUpperCase()}
             </div>
             <span className="text-sm font-medium text-gray-700">
-              #{ticket?.ticketNumber || ""}
+              #{merged?.ticketNumber || ""}
             </span>
           </div>
 
@@ -508,27 +558,27 @@ const Tickets: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h3 className="text-md font-medium text-gray-900">
-                  {ticket?.subject || ""}
+                  {merged?.subject || ""}
                 </h3>
                 <span className="text-gray-400 text-sm">
-                  ({ticket?.stats?.totalThreads || 0})
+                  ({merged?.stats?.totalThreads || 0})
                 </span>
                 <span className="text-sm text-gray-500">
-                  {ticket?.lastupdate?.timeAgo || ""}
+                  {merged?.lastupdate?.timeAgo || ""}
                 </span>
               </div>
               <IconButton
                 size="small"
-                onClick={(e) => handleQuickUpdateOpen(e, ticket)}
+                onClick={(e) => handleQuickUpdateOpen(e, merged)}
                 className="text-gray-400 hover:text-gray-600 p-1"
               >
                 <MoreVertIcon fontSize="small" />
               </IconButton>
             </div>
             <p className="text-sm text-gray-600 leading-relaxed">
-              {typeof ticket.description === "string"
-                ? ticket.description
-                : ticket.body || ""}
+              {typeof merged.description === "string"
+                ? merged.description
+                : merged.body || ""}
             </p>
           </div>
         </div>
@@ -541,7 +591,7 @@ const Tickets: React.FC = () => {
           {/* Important Pin */}
           <Tooltip
             title={
-              ticket?.important ? "Remove from important" : "Mark as important"
+              merged?.important ? "Remove from important" : "Mark as important"
             }
             placement="right"
           >
@@ -552,12 +602,12 @@ const Tickets: React.FC = () => {
                 handleToggleImportant(ticket);
               }}
               className={
-                ticket?.important
+                merged?.important
                   ? "text-amber-500 hover:text-amber-600"
                   : "text-gray-400 hover:text-amber-500"
               }
             >
-              {ticket?.important ? (
+              {merged?.important ? (
                 <PushPinIcon fontSize="small" />
               ) : (
                 <PushPinOutlinedIcon fontSize="small" />
@@ -572,7 +622,7 @@ const Tickets: React.FC = () => {
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">assignee</span>
             <span className="text-gray-700">
-              {ticket?.assignee?.name || "~"}
+              {merged?.assignee?.name || "~"}
             </span>
           </div>
 
@@ -590,10 +640,10 @@ const Tickets: React.FC = () => {
               </div>
               <span
                 className="text-gray-700 font-medium cursor-pointer hover:underline"
-                onMouseEnter={(e) => handleUserHover(e, ticket.fromUser)}
+                onMouseEnter={(e) => handleUserHover(e, merged.fromUser)}
                 onMouseLeave={handleUserLeave}
               >
-                {ticket?.fromUser?.name || ""}
+                {merged?.fromUser?.name || ""}
               </span>
             </div>
           </div>
@@ -605,7 +655,7 @@ const Tickets: React.FC = () => {
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">department</span>
             <span className="text-gray-700">
-              {ticket?.department?.name || "Support"}
+              {merged?.department?.name || "Support"}
             </span>
           </div>
 
@@ -616,7 +666,7 @@ const Tickets: React.FC = () => {
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">status</span>
             <span className="text-gray-700">
-              {ticket?.status?.name || "Review"}
+              {merged?.status?.name || "Review"}
             </span>
           </div>
 

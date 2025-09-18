@@ -61,7 +61,7 @@ const ToastShow: React.FC<ToastShowProps> = ({ isOpen, msg, onClose, type="succe
             }}
             
           />
-          <Typography variant="subtitle2">{msg.replace(/\\n/g, "\n")}</Typography>
+          <Typography variant="subtitle2">{msg?.replace(/\\n/g, "\n")}</Typography>
            <CloseIcon className="w-3 h-3 ml-2 cursor-pointer " onClick={onClose} />
         </Box>
       </Snackbar>
