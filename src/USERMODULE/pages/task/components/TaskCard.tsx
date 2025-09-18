@@ -73,15 +73,15 @@ const TaskCard: React.FC<TaskCardProps> = memo(
           opacity: isCurrentTask ? 0.9 : isLoading ? 0.8 : 1,
         }}
       >
-        <CardContent className="p-2" sx={{ marginBottom: "-15px" }}>
+        <CardContent className="p-1.5" sx={{ marginBottom: "-15px" }}>
           {/* {isLoading || loadingAttachmentTaskId ? (
             <TaskCardSkeleton />
           ) : ( */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-2">
             <div className="space-x-2">
               <div className="flex-1 min-w-0 ">
                 <div>
-                  <div className="flex items-center gap-2 mb-5">
+                  <div className="flex items-center gap-2 mb-2">
                     <div>
                       {!isCurrentTask && (
                         <div className="flex-shrink-0 relative">
@@ -129,7 +129,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                  <div className="flex items-center gap-3 text-sm text-gray-600 mb-1">
                     {!isAddTask && (
                       <span className="flex items-center gap-1">
                         <ConfirmationNumberIcon fontSize="small" />
@@ -146,7 +146,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <Chip
                         label={task?.status?.name}
@@ -173,7 +173,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                       <span>{task?.estimate}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 mt-4">
+                  <div className="flex items-center gap-3 mt-2">
                     <div className="flex items-center gap-1">
                       <IconButton size="small">
                         <CommentIcon fontSize="small" />
