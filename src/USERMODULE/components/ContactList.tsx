@@ -17,6 +17,8 @@ import {
   Paper,
   Checkbox,
   FormControlLabel,
+  LinearProgress,
+  CircularProgress,
 } from "@mui/material";
 
 import { DataGrid } from "@mui/x-data-grid";
@@ -364,7 +366,7 @@ const ContactList = () => {
             mb: 0,
             borderRadius: 1,
             flexShrink: 0,
-           width: "100%",
+            width: "100%",
             overflow: "hidden",
           }}
         >
@@ -892,27 +894,10 @@ const ContactList = () => {
                         zIndex: 1,
                       }}
                     >
-                      <Box
-                        sx={{
-                          height: "100%",
-                          backgroundColor: "#1976d2",
-                          animation: "progress 1.5s ease-in-out infinite",
-                          "@keyframes progress": {
-                            "0%": {
-                              transform: "translateX(-100%)",
-                              width: "30%",
-                            },
-                            "50%": {
-                              transform: "translateX(0%)",
-                              width: "70%",
-                            },
-                            "100%": {
-                              transform: "translateX(100%)",
-                              width: "30%",
-                            },
-                          },
-                        }}
-                      />
+                    
+                      <Box sx={{ width: "100%" }}>
+                        <LinearProgress />
+                      </Box>
                     </Box>
 
                     {/* Loading text in center */}
@@ -925,9 +910,7 @@ const ContactList = () => {
                         textAlign: "center",
                       }}
                     >
-                      <Typography variant="body2" color="textSecondary">
-                        Loading users...
-                      </Typography>
+                      <CircularProgress color="primary" />
                     </Box>
                   </Box>
                 ),
@@ -952,20 +935,22 @@ const ContactList = () => {
                 },
 
                 // Force compact checkbox selection column width
-                "& .MuiDataGrid-columnHeaderCheckbox, & .MuiDataGrid-columnHeader[data-field='__check__']": {
-                  width: "48px !important",
-                  minWidth: "48px !important",
-                  maxWidth: "48px !important",
-                  paddingLeft: 0,
-                  paddingRight: 0,
-                },
-                "& .MuiDataGrid-cellCheckbox, & .MuiDataGrid-cell[data-field='__check__']": {
-                  width: "48px !important",
-                  minWidth: "48px !important",
-                  maxWidth: "48px !important",
-                  paddingLeft: 0,
-                  paddingRight: 0,
-                },
+                "& .MuiDataGrid-columnHeaderCheckbox, & .MuiDataGrid-columnHeader[data-field='__check__']":
+                  {
+                    width: "48px !important",
+                    minWidth: "48px !important",
+                    maxWidth: "48px !important",
+                    paddingLeft: 0,
+                    paddingRight: 0,
+                  },
+                "& .MuiDataGrid-cellCheckbox, & .MuiDataGrid-cell[data-field='__check__']":
+                  {
+                    width: "48px !important",
+                    minWidth: "48px !important",
+                    maxWidth: "48px !important",
+                    paddingLeft: 0,
+                    paddingRight: 0,
+                  },
 
                 // Header styling
                 "& .MuiDataGrid-columnHeaders": {
@@ -1319,7 +1304,7 @@ const ContactList = () => {
           disablePortal={false}
           PaperProps={{
             sx: {
-              mt:0.5,
+              mt: 0.5,
               borderRadius: 1,
               boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
               width: 400,

@@ -24,6 +24,7 @@ import {
   TableHead,
   TableRow,
   LinearProgress,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -467,8 +468,6 @@ const DepartmentsManagement = () => {
   let filterData = filteredDepartments;
   filterData = applyFilters(filterData);
 
-
-
   return (
     <Box
       sx={{
@@ -509,7 +508,7 @@ const DepartmentsManagement = () => {
               title="Refresh"
             >
               {isGetDepartmentListLoading ? (
-                <LinearProgress sx={{ width: 18 }} />
+                <CircularProgress size={16} />
               ) : (
                 <RefreshIcon fontSize="small" />
               )}
@@ -1188,7 +1187,7 @@ const DepartmentsManagement = () => {
         disablePortal={false}
         PaperProps={{
           sx: {
-            mt:0.5,
+            mt: 0.5,
             borderRadius: 1,
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
             width: 400,

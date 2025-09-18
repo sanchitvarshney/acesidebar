@@ -179,7 +179,7 @@ const NotesTab = ({ ticketData }: any) => {
           ))}
         </div>
       ) : (
-        isNotes && (
+        !isNotes && (
           <div className="flex flex-col items-center mt-4">
             <img src={emptyimg} alt="notes" className="mx-auto w-40 h-30" />
             <span

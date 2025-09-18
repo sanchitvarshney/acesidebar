@@ -30,19 +30,19 @@ import {
 } from "../../../services/ticketAuth";
 import TicketSkeleton from "../../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
-import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CallMergeIcon from "@mui/icons-material/CallMerge";
+
 import TicketSortingPopover from "../../../components/shared/TicketSortingPopover";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
-
+import emptyticketimg from "../../../assets/image/ticket-404.svg";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 
 import AssignTicket from "../../components/AssignTicket";
-import Mergeticket from "../../components/Mergeticket";
+
 import { useToast } from "../../../hooks/useToast";
 import {
   useLazyGetAgentsBySeachQuery,
@@ -72,21 +72,16 @@ const Tickets: React.FC = () => {
   const [dept, setDept] = useState<any>("");
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { showToast } = useToast();
-  const openAssign = Boolean(anchorEl);
+
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
-  const handleAssignClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleAssignClose = () => {
-    setAnchorEl(null);
-  };
+
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
 
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(true);
-  const [isMergeModal, setIsMergeModal] = useState(false);
+
   const [departmentOptions, setDepartmentOptions] = useState<any>([]);
   const [changeDept, setChangedept] = useState("");
   // Sorting popover state
@@ -570,8 +565,26 @@ const Tickets: React.FC = () => {
 
         {/* Bottom section with counts and user info */}
         <div className="flex items-center gap-8 text-xs">
+       <div >
+        
+          {/* check */}
+          <Checkbox
+            checked={masterChecked}
+            onChange={handleMasterCheckbox}
+            aria-label="Select all tickets"
+            sx={{
+              color: "#666",
+              "&.Mui-checked": {
+                color: "#1a73e8",
+              },
+              "&:hover": {
+                backgroundColor: "rgba(26, 115, 232, 0.04)",
+              },
+            }}
+            size="small"
+          />
           {/* Important Pin */}
-          <Tooltip
+           <Tooltip
             title={
               merged?.important ? "Remove from important" : "Mark as important"
             }
@@ -596,6 +609,7 @@ const Tickets: React.FC = () => {
               )}
             </IconButton>
           </Tooltip>
+       </div>
 
           {/* Separator */}
           <div className="text-gray-300">|</div>
@@ -701,36 +715,6 @@ const Tickets: React.FC = () => {
             {selectedTickets.length > 0 && (
               <div className="flex items-center gap-2 ml-4 flex-wrap">
                 <Button
-                  id="assign-button"
-                  variant="contained"
-                  size="small"
-                  color="inherit"
-                  aria-controls={openAssign ? "basic-menu" : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={openAssign ? "true" : undefined}
-                  onClick={handleAssignClick}
-                  startIcon={
-                    <PersonAddAltIcon
-                      fontSize="small"
-                      sx={{ color: "#1a73e8" }}
-                    />
-                  }
-                  sx={{
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                  }}
-                >
-                  Assign
-                </Button>
-
-                <AssignTicket
-                  close={handleAssignClose}
-                  open={openAssign}
-                  anchorEl={anchorEl}
-                  selectedTickets={selectedTickets}
-                />
-
-                <Button
                   variant="contained"
                   color="inherit"
                   size="small"
@@ -748,34 +732,6 @@ const Tickets: React.FC = () => {
                 >
                   Close
                 </Button>
-                <Button
-                  variant="contained"
-                  color="inherit"
-                  size="small"
-                  startIcon={
-                    <CallMergeIcon fontSize="small" sx={{ color: "#ff9800" }} />
-                  }
-                  sx={{
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                  }}
-                  onClick={() => setIsMergeModal(true)}
-                >
-                  Merge
-                </Button>
-                <Mergeticket
-                  open={isMergeModal}
-                  initialPrimary={{
-                    id: "T-1001",
-                    title: "Unable to login to portal",
-                    group: "Support",
-                    agent: "John Doe",
-                    closedAgo: "2 days ago",
-                    resolvedOnTime: true,
-                    isPrimary: true, // this is your main ticket
-                  }}
-                  onClose={() => setIsMergeModal(false)}
-                />
 
                 <Button
                   variant="contained"
@@ -885,7 +841,12 @@ const Tickets: React.FC = () => {
                   {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
                     <div>{ticketsToShow?.data?.map(renderTicketCard)}</div>
                   ) : (
-                    <div className="text-center py-12">
+                    <div className="flex flex-col justify-center items-center ">
+                      <img
+                        src={emptyticketimg}
+                        alt="No tickets"
+                        className="mb-4 w-[35%]"
+                      />
                       <div className="text-gray-400 text-lg">
                         No tickets found
                       </div>

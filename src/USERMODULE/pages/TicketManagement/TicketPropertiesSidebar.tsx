@@ -51,12 +51,10 @@ const topTabs = [
     icon: <CheckCircleIcon fontSize="small" />,
     label: "Status",
   },
+  { key: "info", icon: <InfoIcon fontSize="small" />, label: "Info" },
+
   { key: "profile", icon: <PersonIcon fontSize="small" />, label: "Profile" },
-  {
-    key: "knowledge",
-    icon: <MenuBookIcon fontSize="small" />,
-    label: "Knowledge Base",
-  },
+  { key: "notes", icon: <DescriptionIcon fontSize="small" />, label: "Notes" },
   {
     key: "shortcuts",
     icon: <ContentCutIcon fontSize="small" />,
@@ -67,8 +65,6 @@ const topTabs = [
 const profileTabs = [
   { key: "about", icon: <PersonIcon fontSize="small" />, label: "About" },
   { key: "share", icon: <ShareIcon fontSize="small" />, label: "Sharing" },
-  { key: "info", icon: <InfoIcon fontSize="small" />, label: "Info" },
-  { key: "notes", icon: <DescriptionIcon fontSize="small" />, label: "Notes" },
 ];
 
 const TicketPropertiesSidebar = ({ ticket }: any) => {
@@ -218,7 +214,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
 
   // Top-level tab content
   let mainContent = null;
-  if (activeTopTab === 1) {
+  if (activeTopTab === 2) {
     // profile
     mainContent = (
       <div className="w-full overflow-hidden ">
@@ -252,7 +248,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
             sx={{
               "& .MuiTabs-flexContainer": {
                 display: "flex",
-                justifyContent: "space-between", // <-- apply here
+                justifyContent: "flex-start", // <-- apply here
                 alignItems: "center",
               },
               "& .MuiTab-root": {
@@ -287,23 +283,24 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           {/* Profile tab content */}
           {activeProfileTab === 0 && <AboutTab ticketData={ticket} />}
           {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
-          {activeProfileTab === 2 && <InfoTab />}
-          {activeProfileTab === 3 && <NotesTab ticketData={ticket} />}
-
-    
-          </div>
+          {/* {activeProfileTab === 2 && }
+          {activeProfileTab === 3 && } */}
         </div>
-   
+      </div>
     );
-  } else if (activeTopTab === 2) {
-    // knowledge
-    mainContent = <KnowledgeBaseTab />;
   } else if (activeTopTab === 3) {
+    // knowledge
+    mainContent = <NotesTab ticketData={ticket} />;
+  } else if (activeTopTab === 4) {
     // shortcuts
     mainContent = <ShortcutsTab />;
   } else if (activeTopTab === 0) {
     // history
     mainContent = <StatusTab ticket={ticket} />;
+  }
+  if (activeTopTab === 1) {
+    // history
+    mainContent = <InfoTab />;
   }
 
   return (

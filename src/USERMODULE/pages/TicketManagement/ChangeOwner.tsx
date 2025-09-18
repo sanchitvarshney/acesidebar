@@ -5,19 +5,16 @@ import {
   Typography,
   Box as MuiBox,
   Avatar,
-  Chip,
   Divider,
   Alert,
-  Autocomplete,
-  InputAdornment,
   CircularProgress,
 } from "@mui/material";
-import { Search, SwapHoriz } from "@mui/icons-material";
+import { SwapHoriz } from "@mui/icons-material";
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
-import { fetchOptions, isValidEmail } from "../../../utils/Utils";
 import { useLazyGetUserBySeachQuery } from "../../../services/agentServices";
-import { error } from "console";
+
+import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 
 interface ChangeOwnerProps {
   open: boolean;
@@ -45,15 +42,7 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
 
   const [selectedAgent, setSelectedAgent] = useState<any>("");
   const [transferReason, setTransferReason] = useState("");
-  const [contactChangeValue, setContactChangeValue] = useState("");
 
-  const [options, setOptions] = useState<any[]>([]);
-
-  const displayContactOptions: any = contactChangeValue
-    ? Array.isArray(options)
-      ? options
-      : []
-    : [];
   const [triggerSeachUser, { isLoading: seachUserLoading }] =
     useLazyGetUserBySeachQuery();
   const inputRef = useRef(null);
@@ -64,48 +53,6 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
       setTimeout(() => inputRef.current.focus(), 100);
     }
   }, [open]);
-
-  const fetchUserOptions = async (query: any) => {
-    if (!query) {
-      setOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerSeachUser({ search: query }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-      console.log(data);
-
-      const currentValue = contactChangeValue;
-
-      const fallback = [
-        {
-          name: currentValue,
-          email: currentValue,
-        },
-      ];
-
-      if (Array.isArray(data)) {
-        setOptions(data.length > 0 ? data : fallback);
-      } else {
-        setOptions([]);
-      }
-    } catch (error) {
-      setOptions([]);
-    }
-  };
-
-  const handleSelectedOption = (_: React.SyntheticEvent, value: any) => {
-    if (!value) return;
-
-    const dataValue = { name: value.name, email: value.email };
-    if (!isValidEmail(dataValue.email)) {
-      showToast("Invalid email format", "error");
-      return;
-    }
-
-    setSelectedAgent(dataValue.email);
-  };
 
   const handleTransfer = async () => {
     if (!selectedAgent) {
@@ -122,20 +69,22 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
       url: `change-owner/${ticketId}`,
       method: "PUT",
       body: {
-        owner: selectedAgent,
+        owner: selectedAgent.email,
         reason: transferReason,
       },
     };
 
-    triggerChangeOwner(payload).then((res) => {
-      if (changeOwnerError) {
-        const msg =
-          //@ts-ignore
-          changeOwnerError?.data?.message || changeOwnerError?.message;
-        showToast(msg || "An error occurred", "error");
+    triggerChangeOwner(payload).then((res: any) => {
+      console.log("res", res);
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message || "An error occurred", "error");
         return;
-      } else {
-        showToast("Ticket ownership transferred successfully", "success");
+      }
+      if (res?.data?.type === "success") {
+        showToast(
+          res?.data?.message || "Ticket ownership transferred successfully",
+          "success"
+        );
         onClose();
 
         // Reset form
@@ -208,102 +157,17 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
         <Divider sx={{ mb: 3 }} />
 
         <MuiBox sx={{ mb: 3 }}>
-          <Autocomplete
-            disableClearable
-            popupIcon={null}
-            sx={{ my: 1.5 }}
-            getOptionLabel={(option: any) => {
-              if (typeof option === "string") return option;
-              return option?.email || "";
-            }}
-            options={displayContactOptions}
+          <SingleValueAsynAutocomplete
+            qtkMethod={triggerSeachUser}
             value={selectedAgent}
-            onChange={(event, newValue) => {
-              handleSelectedOption(event, newValue);
-            }}
-            onInputChange={(_, value) => {
-              setContactChangeValue(value);
-              fetchUserOptions(value);
-            }}
-            filterOptions={(x) => x}
-            getOptionDisabled={(option) => option === "Type to search"}
-            noOptionsText="No Data Found"
-            renderOption={(props, option) => {
-              return (
-                <li {...props} key={option.userID}>
-                  {typeof option === "string" ? (
-                    option
-                  ) : (
-                    <div
-                      className="flex items-center gap-3 p-2 rounded-md w-full"
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div className="flex flex-col">
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 600 }}
-                        >
-                          {option.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {option.email}
-                        </Typography>
-                      </div>
-                    </div>
-                  )}
-                </li>
-              );
-            }}
-            renderTags={(value, getTagProps) =>
-              value?.map((option, index) => (
-                <Chip
-                  variant="outlined"
-                  color="primary"
-                  label={typeof option === "string" ? option : option?.name}
-                  {...getTagProps({ index })}
-                  sx={{
-                    cursor: "pointer",
-                    height: "20px",
-                    // backgroundColor: "#6EB4C9",
-                    color: "primary.main",
-                    "& .MuiChip-deleteIcon": {
-                      color: "error.main",
-                      width: "12px",
-                    },
-                    "& .MuiChip-deleteIcon:hover": {
-                      color: "#e87f8c",
-                    },
-                  }}
-                />
-              ))
-            }
-            renderInput={(params) => (
-              <TextField
-                autoFocus
-                inputRef={inputRef}
-                {...params}
-                label="Select New Owner"
-                variant="outlined"
-                fullWidth
-                InputProps={{
-                  ...params.InputProps,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search sx={{ color: "#666", mr: 1 }} />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "4px",
-                    backgroundColor: "#f9fafb",
-                    "&:hover fieldset": { borderColor: "#9ca3af" },
-                    "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                  },
-                  "& label.Mui-focused": { color: "#1a73e8" },
-                  "& label": { fontWeight: "bold" },
-                }}
-              />
+            onChange={setSelectedAgent}
+            label="Select New Owner"
+            loading={seachUserLoading}
+            isFallback={true}
+            renderOptionExtra={(user) => (
+              <Typography variant="body2" color="text.secondary">
+                {user.email}
+              </Typography>
             )}
           />
         </MuiBox>

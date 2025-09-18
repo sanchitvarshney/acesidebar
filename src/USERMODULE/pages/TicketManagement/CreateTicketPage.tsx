@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
-  Grid,
   Typography,
   Button,
   TextField,
@@ -11,25 +10,18 @@ import {
   MenuItem,
   Chip,
   Alert,
-  Container,
   InputAdornment,
   FormHelperText,
   Autocomplete,
-  Avatar,
-  Stack,
   CircularProgress,
 } from "@mui/material";
 import {
-  Person,
   Email,
-  Phone,
   Subject,
   PriorityHigh,
   Assignment,
   LocalOffer,
-  Description,
   Warning,
-  CheckCircle,
   Business,
 } from "@mui/icons-material";
 import {
@@ -47,6 +39,7 @@ import {
   useLazyGetDepartmentBySeachQuery,
   useLazyGetUserBySeachQuery,
 } from "../../../services/agentServices";
+import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 
 interface TicketFormData {
   user_name: string;
@@ -69,10 +62,6 @@ const CreateTicketPage: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<any[]>([]);
   const { showToast } = useToast();
-  const [fromChangeValue, setfromChangeValue] = React.useState("");
-  const [contactChangeValue, setContactChangeValue] = React.useState("");
-  const [openContactField, setOpenContactField] = useState(false);
-  const [options, setOptions] = useState<any>();
   const [tagOptions, setTagOptions] = useState<any>();
   // Form validation errors
   const [errors, setErrors] = useState<Partial<TicketFormData>>({});
@@ -83,7 +72,6 @@ const CreateTicketPage: React.FC = () => {
   const [dept, setDept] = useState<any>("");
   const [changeDept, setChangedept] = useState("");
   const [departmentOptions, setDepartmentOptions] = useState<any>([]);
-  const [userOptions, setUserOptions] = useState<any>([]);
   const [AgentOptions, setAgentOptions] = useState<any>([]);
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
@@ -121,7 +109,6 @@ const CreateTicketPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const displayContactOptions: any = contactChangeValue ? userOptions : [];
   const displayOptions = changeTagValue.length >= 3 ? tagOptions : [];
   const displayDepartmentOptions = changeDept ? departmentOptions : [];
   const displayAgentOptions = changeAgent ? AgentOptions : [];
@@ -196,47 +183,6 @@ const CreateTicketPage: React.FC = () => {
     }
   };
 
-  const fetchUserOptions = async (query: string) => {
-    if (!query) {
-      setUserOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerSeachUser({ search: query }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      const currentValue = contactChangeValue;
-      const fallback = [
-        {
-          name: currentValue,
-          email: currentValue,
-        },
-      ];
-
-      if (Array.isArray(data)) {
-        setUserOptions(data.length > 0 ? data : fallback);
-      } else {
-        setUserOptions([]);
-      }
-    } catch (error) {
-      setUserOptions([]);
-    }
-  };
-
-  useEffect(() => {
-    const filterValue: any = fetchOptions(fromChangeValue);
-
-    filterValue?.length > 0
-      ? setOptions(filterValue)
-      : setOptions([
-          {
-            userName: fromChangeValue,
-            userEmail: fromChangeValue,
-          },
-        ]);
-  }, [fromChangeValue]);
-
   const handleCreateTicketSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -300,9 +246,9 @@ const CreateTicketPage: React.FC = () => {
 
     if (type === "from") {
       const dataValue = {
-        name: value.name ,
-        email: value.email, 
-        phone: value.phone, 
+        name: value.name,
+        email: value.email,
+        phone: value.phone,
       };
       if (!isValidEmail(dataValue.email)) {
         showToast("Invalid email format", "error");
@@ -423,13 +369,7 @@ const CreateTicketPage: React.FC = () => {
               setSelectedContacts([]);
             }}
             sx={{
-              textTransform: "none",
-              borderColor: "#dadce0",
-              color: "#666",
-              "&:hover": {
-                borderColor: "#666",
-                backgroundColor: "#f5f5f5",
-              },
+              fontWeight: 600,
             }}
           >
             Reset
@@ -538,8 +478,25 @@ const CreateTicketPage: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
+              <SingleValueAsynAutocomplete
+                value={agentValue}
+                label="Assignee"
+                qtkMethod={triggerSeachAgent}
+                onChange={setAgentValue}
+                loading={seachUserLoading}
+                isFallback={true}
+                icon={
+                  <Assignment fontSize="small" sx={{ color: "#666", mr: 1 }} />
+                }
+                renderOptionExtra={(user) => (
+                  <Typography variant="body2" color="text.secondary">
+                    {user.email}
+                  </Typography>
+                )}
+                size="small"
+              />
 
-              <Autocomplete
+              {/* <Autocomplete
                 disableClearable
                 popupIcon={null}
                 sx={{ my: 1.5 }}
@@ -634,7 +591,7 @@ const CreateTicketPage: React.FC = () => {
                     }}
                   />
                 )}
-              />
+              /> */}
 
               <Autocomplete
                 disableClearable
@@ -880,122 +837,32 @@ const CreateTicketPage: React.FC = () => {
             <Box
               sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}
             >
-              <Autocomplete
-                disableClearable
-                popupIcon={null}
-                getOptionLabel={(option: any) => {
-                  console.log("option", option)
-                  if (typeof option === "string") return option;
-                  return option.email || "";
+              <SingleValueAsynAutocomplete
+                value={newTicket?.user_name}
+                label="From *"
+                qtkMethod={triggerSeachUser}
+                onChange={(newValue: any) => {
+                  setNewTicket((prev) => ({
+                    ...prev,
+                    user_name: newValue.name,
+                    user_email: newValue.email,
+                    user_phone: newValue.phone,
+                  }));
                 }}
-                options={displayContactOptions}
-                value={newTicket?.recipients?.email}
-                onInputChange={(_, value) => {
-                  setContactChangeValue(value);
-
-                  fetchUserOptions(value);
-                }}
-                onChange={(event, newValue) =>
-                  handleSelectedOption(event, newValue, "from")
-                }
-                filterOptions={(x) => x}
-                getOptionDisabled={(option) => option === "Type to search"}
-                noOptionsText="No Data Found"
-                renderOption={(props, option: any) => (
-                  <li {...props}>
-                    {typeof option === "string" ? (
-                      option
-                    ) : (
-                      <div
-                        className="flex items-center gap-3 p-2 rounded-md w-full"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ fontWeight: 600 }}
-                          >
-                            {option.name}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {option.email}
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                )}
-                renderTags={(toValue, getTagProps) =>
-                  toValue?.map((option: any, index) => {
-                    console.log("option", option);
-                    return (
-                      <Chip
-                        variant="outlined"
-                        color="primary"
-                        //@ts-ignore
-                        label={
-                          typeof option === "string"
-                            ? option
-                            : option?.recipients?.email
-                        }
-                        {...getTagProps({ index })}
-                        sx={{
-                          cursor: "pointer",
-                          height: "20px",
-                          // backgroundColor: "#6EB4C9",
-                          color: "primary.main",
-                          "& .MuiChip-deleteIcon": {
-                            color: "error.main",
-                            width: "12px",
-                          },
-                          "& .MuiChip-deleteIcon:hover": {
-                            color: "#e87f8c",
-                          },
-                        }}
-                      />
-                    );
-                  })
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="From *"
-                    variant="outlined"
-                    fullWidth
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Email
-                            fontSize="small"
-                            sx={{
-                              color: errors.user_email ? "#d32f2f" : "#666",
-                            }}
-                          />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <>
-                          {errors.user_email && (
-                            <InputAdornment position="end">
-                              <Warning sx={{ color: "#d32f2f" }} />
-                            </InputAdornment>
-                          )}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
+                loading={seachUserLoading}
+                isFallback={true}
+                icon={
+                  <Email
+                    fontSize="small"
                     sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "4px",
-                        backgroundColor: "#f9fafb",
-                        "&:hover fieldset": { borderColor: "#9ca3af" },
-                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                      },
-                      "& label.Mui-focused": { color: "#1a73e8" },
-                      "& label": { fontWeight: "bold" },
+                      color: errors.user_email ? "#d32f2f" : "#666",
                     }}
                   />
+                }
+                renderOptionExtra={(user) => (
+                  <Typography variant="body2" color="text.secondary">
+                    {user.email}
+                  </Typography>
                 )}
               />
 
