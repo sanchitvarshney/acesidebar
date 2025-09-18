@@ -27,7 +27,6 @@ import {
   Box,
   Paper,
   ListItem,
-  Alert,
   MenuList,
   Drawer,
   Tooltip,
@@ -36,7 +35,6 @@ import {
   CircularProgress,
   List,
   ListItemText,
-  ToggleButton,
   Rating,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
@@ -44,7 +42,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddTaskIcon from "@mui/icons-material/AddTask";
-import ShotCutContent from "../../components/ShotCutContent";
+
 import ShortcutIcon from "@mui/icons-material/Shortcut";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reduxStore/Store";
@@ -54,7 +52,6 @@ import {
   setForwardData,
   setIsReply,
   setReplyValue,
-  setSelectedIndex,
 } from "../../../reduxStore/Slices/shotcutSlices";
 import CustomModal from "../../../components/layout/CustomModal";
 import {
@@ -142,13 +139,13 @@ const replyOptions = [
 
 const ThreadItem = ({
   item,
-  onReplyClick,
+
   onForward,
   marginBottomClass,
   subjectTitle,
 }: any) => {
   const [reviewThread] = useCommanApiMutation();
-  const [triggerFlag] = useCommanApiMutation();
+  const [triggerFlag,{isLoading:flagLoading}] = useCommanApiMutation();
   const { showToast } = useToast();
   const [open, setOpen] = useState(false);
   const [isReported, setIsReported] = useState<boolean>(item?.isFlagged);
@@ -212,13 +209,11 @@ const ThreadItem = ({
     };
 
     reviewThread(payload).then((response: any) => {
-   
-      if (
-        response?.type === "error" ||
-        response?.data?.type === "error"
-      ) {
+      if (response?.type === "error" || response?.data?.type === "error") {
         showToast(
-          response?.data?.message || response?.message || "Something went wrong",
+          response?.data?.message ||
+            response?.message ||
+            "Something went wrong",
           "error"
         );
         return;
@@ -275,6 +270,7 @@ const ThreadItem = ({
         window.URL.revokeObjectURL(url);
 
         showToast("Download completed", "success");
+        setTrackDownloadId("")
       } else {
         showToast(
           res?.message || "An error occurred while downloading",
@@ -393,6 +389,7 @@ const ThreadItem = ({
           return;
         } else {
           setIsReported((v) => !v);
+          setTrackDownloadId("");
         }
       })
       .catch((error) => {});
@@ -472,12 +469,22 @@ const ThreadItem = ({
                   <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
                     <IconButton
                       size="small"
-                      onClick={() => handleReportTicket(item?.isFlagged)}
+                      onClick={() => {
+                        setTrackDownloadId(item.entryId);
+                        handleReportTicket(item?.isFlagged)
+                      }}
                     >
-                      <EmojiFlagsIcon
+                      {
+                        flagLoading && trackDownloadId === item.entryId ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <EmojiFlagsIcon
                         sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
                         fontSize="small"
                       />
+                        )
+                        
+                      }
                     </IconButton>
                   </div>
                 )}

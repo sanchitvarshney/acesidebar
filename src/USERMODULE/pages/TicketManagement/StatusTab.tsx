@@ -77,17 +77,13 @@ const StatusTab = ({ ticket }: any) => {
       .unwrap()
       .then((res) => {
         if (!res?.success) {
-          console.log(res?.message || res?.error?.data?.message, "error");
           showToast(res?.message || res?.error?.message, "error");
           setIsUpdate((prev) => prev + 1);
           return;
         }
-        // setAgent(res?.ticket?.);
-        // setDept("");
-        // setTagValue([]);
-        // setPriority("");
-        // setStatus("");
-        //  setIsUpdate((prev) => prev + 1);
+        if (res?.success) {
+          showToast(res?.message || res?.error?.message, "success");
+        }
       })
       .catch((err) => {
         showToast(err?.data?.message, "error");

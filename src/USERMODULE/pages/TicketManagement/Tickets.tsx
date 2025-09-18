@@ -49,7 +49,6 @@ import {
   useLazyGetDepartmentBySeachQuery,
 } from "../../../services/agentServices";
 
-
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
   label: string;
@@ -149,14 +148,14 @@ const Tickets: React.FC = () => {
   };
 
   // Local UI overrides for tickets (do NOT mutate RTK Query cache objects)
-  const [ticketOverrides, setTicketOverrides] = useState<Record<string, any>>({});
+  const [ticketOverrides, setTicketOverrides] = useState<Record<string, any>>(
+    {}
+  );
 
   // Merge helper: applies local overrides to a ticket object for rendering
   const applyOverrides = (ticket: any) => {
-
     const override = ticketOverrides[ticket?.ticketNumber];
-  
-    
+
     if (!override) return ticket;
     return {
       ...ticket,
@@ -190,13 +189,13 @@ const Tickets: React.FC = () => {
       method: "PUT",
       body: {
         ticket: trackTicketId,
-        priority: quickUpdateValues.priority ,
-        status: quickUpdateValues.status ,
+        priority: quickUpdateValues.priority,
+        status: quickUpdateValues.status,
         department:
           typeof dept?.deptID === "number"
             ? String(dept?.deptID)
-            : dept?.deptID ,
-        agent: agentValue?.agentID ,
+            : dept?.deptID,
+        agent: agentValue?.agentID,
       },
     };
 
@@ -246,15 +245,8 @@ const Tickets: React.FC = () => {
       }).unwrap();
       const data = Array.isArray(res) ? res : res?.data;
 
-      const currentValue = changeDept;
-      const fallback = [
-        {
-          deptName: currentValue,
-        },
-      ];
-
       if (Array.isArray(data)) {
-        setDepartmentOptions(data.length > 0 ? data : fallback);
+        setDepartmentOptions(data.length > 0 ? data : ["NO Data Found"]);
       } else {
         setDepartmentOptions([]);
       }
@@ -441,9 +433,7 @@ const Tickets: React.FC = () => {
         : null
     );
 
-    setDept(
-      merged?.department?.deptId || merged?.department?.name || ""
-    );
+    setDept(merged?.department?.deptId || merged?.department?.name || "");
   };
 
   const handleQuickUpdateClose = () => {
@@ -508,16 +498,8 @@ const Tickets: React.FC = () => {
       const res = await triggerSeachAgent({ search: query }).unwrap();
       const data = Array.isArray(res) ? res : res?.data;
 
-      const currentValue = changeAgent;
-      const fallback = [
-        {
-          fName: currentValue,
-          emailAddress: currentValue,
-        },
-      ];
-
       if (Array.isArray(data)) {
-        setAgentOptions(data.length > 0 ? data : fallback);
+        setAgentOptions(data.length > 0 ? data : ["No Data Found"]);
       } else {
         setAgentOptions([]);
       }
@@ -1182,10 +1164,7 @@ const Tickets: React.FC = () => {
               getOptionDisabled={(option) => option === "Type to search"}
               isOptionEqualToValue={(option, value) => {
                 if (!option || !value) return false;
-                return (
-                  option.UserId === value.UserId ||
-                  (option.fName === value.fName && option.lName === value.lName)
-                );
+                return option.agentID === value.agentID;
               }}
               noOptionsText={
                 <div>
