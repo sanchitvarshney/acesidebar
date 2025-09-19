@@ -46,7 +46,7 @@ function AsyncAutocomplete<T extends Record<string, any>>({
   icon = <Search sx={{ color: "#666", mr: 1 }} />,
   size = "medium",
 }: AsyncAutocompleteProps<T>) {
-  console.log("value", value);
+
   const { showToast } = useToast();
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<T[]>([]);
@@ -62,7 +62,9 @@ function AsyncAutocomplete<T extends Record<string, any>>({
 
       try {
         const res = await qtkMethod({ search: debouncedValue }).unwrap();
+     
         const data = Array.isArray(res) ? res : res?.data;
+      
 
         if (Array.isArray(data) && data.length > 0) {
           setOptions(data);
@@ -97,8 +99,9 @@ function AsyncAutocomplete<T extends Record<string, any>>({
   };
 
   const getOptionLabel = (option: T | string) => {
+   
     if (typeof option === "string") return option; // fallback string case
-    return (option?.[optionLabelKey] as string) || "";
+    return ((option?.[optionLabelKey] as string) ?? option?.deptName) || "";
   };
 
   return (

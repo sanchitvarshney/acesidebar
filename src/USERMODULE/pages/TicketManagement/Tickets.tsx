@@ -41,7 +41,7 @@ import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 import emptyticketimg from "../../../assets/image/ticket-404.svg";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 
-import AssignTicket from "../../components/AssignTicket";
+
 
 import { useToast } from "../../../hooks/useToast";
 import {
@@ -70,7 +70,7 @@ const Tickets: React.FC = () => {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
   const [dept, setDept] = useState<any>("");
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
   const { showToast } = useToast();
 
   const [triggerDept, { isLoading: deptLoading }] =
@@ -313,25 +313,33 @@ const Tickets: React.FC = () => {
 
   // Handle master checkbox change
   const handleMasterCheckbox = () => {
-    if (selectedTickets.length === ticketList?.data?.length) {
+    if (selectedTickets.length === ticketsToShow?.data?.length) {
       setSelectedTickets([]);
       setMasterChecked(false);
     } else {
       setSelectedTickets(
-        ticketList?.data?.map((t: any) => t.ticketNumber) || []
+        ticketsToShow?.data?.map((t: any) => t.ticketNumber) || []
       );
       setMasterChecked(true);
     }
   };
 
+  const handleIndividualCheck = (ticketNumber: string) => {
+    if (selectedTickets.includes(ticketNumber)) {
+      setSelectedTickets(selectedTickets.filter(id => id !== ticketNumber));
+    } else {
+      setSelectedTickets([...selectedTickets, ticketNumber]);
+    }
+  };
+
   // Update master checkbox if all/none selected
   React.useEffect(() => {
-    if (!ticketList?.data) return;
+    if (!ticketsToShow?.data) return;
     setMasterChecked(
-      ticketList.data.length > 0 &&
-        selectedTickets.length === ticketList.data.length
+      ticketsToShow.data.length > 0 &&
+        selectedTickets.length === ticketsToShow.data.length
     );
-  }, [selectedTickets, ticketList]);
+  }, [selectedTickets, ticketsToShow]);
 
   // Handle user popup hover with delayuseC
   const handleUserHover = (event: React.MouseEvent<HTMLElement>, user: any) => {
@@ -565,51 +573,56 @@ const Tickets: React.FC = () => {
 
         {/* Bottom section with counts and user info */}
         <div className="flex items-center gap-8 text-xs">
-       <div >
-        
-          {/* check */}
-          <Checkbox
-            checked={masterChecked}
-            onChange={handleMasterCheckbox}
-            aria-label="Select all tickets"
-            sx={{
-              color: "#666",
-              "&.Mui-checked": {
-                color: "#1a73e8",
-              },
-              "&:hover": {
-                backgroundColor: "rgba(26, 115, 232, 0.04)",
-              },
-            }}
-            size="small"
-          />
-          {/* Important Pin */}
-           <Tooltip
-            title={
-              merged?.important ? "Remove from important" : "Mark as important"
-            }
-            placement="right"
-          >
-            <IconButton
-              size="small"
+          <div>
+            <Checkbox
+              checked={selectedTickets.includes(merged?.ticketNumber)}
               onClick={(e) => {
                 e.stopPropagation();
-                handleToggleImportant(ticket);
+                handleIndividualCheck(merged?.ticketNumber);
               }}
-              className={
+              aria-label="Select ticket"
+              sx={{
+                color: "#666",
+                "&.Mui-checked": {
+                  color: "#1a73e8",
+                },
+                zIndex: 99,
+                "&:hover": {
+                  backgroundColor: "rgba(26, 115, 232, 0.04)",
+                },
+              }}
+              size="small"
+            />
+
+            {/* Important Pin */}
+            <Tooltip
+              title={
                 merged?.important
-                  ? "text-amber-500 hover:text-amber-600"
-                  : "text-gray-400 hover:text-amber-500"
+                  ? "Remove from important"
+                  : "Mark as important"
               }
+              placement="right"
             >
-              {merged?.important ? (
-                <PushPinIcon fontSize="small" />
-              ) : (
-                <PushPinOutlinedIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
-       </div>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleImportant(ticket);
+                }}
+                className={
+                  merged?.important
+                    ? "text-amber-500 hover:text-amber-600"
+                    : "text-gray-400 hover:text-amber-500"
+                }
+              >
+                {merged?.important ? (
+                  <PushPinIcon fontSize="small" />
+                ) : (
+                  <PushPinOutlinedIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+          </div>
 
           {/* Separator */}
           <div className="text-gray-300">|</div>
@@ -684,11 +697,7 @@ const Tickets: React.FC = () => {
 
   return (
     <>
-      {/* {isTicketDetailLoading ? (
-        <TicketDetailSkeleton />
-      ) : openTicketNumber && ticketDetailData ? (
-        <TicketDetailTemplate ticket={ticketDetailData} onBack={handleBack} />
-      ) : ( */}
+   
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)]">
         {/* Main Header Bar */}
         <div className="flex items-center justify-between px-6 py-3 border-b bg-white shadow-sm">
@@ -710,7 +719,7 @@ const Tickets: React.FC = () => {
             />
             <h1 className="text-xl font-medium text-gray-900">Tickets</h1>
             <span className="bg-gray-100 text-gray-600 rounded-full px-2 py-1 text-xs font-medium">
-              {ticketList?.data?.length || 0}
+              {ticketsToShow?.data?.length || 0}
             </span>
             {selectedTickets.length > 0 && (
               <div className="flex items-center gap-2 ml-4 flex-wrap">
