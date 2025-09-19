@@ -263,7 +263,7 @@ const CreateTicketPage: React.FC = () => {
         ...prev,
         name: dataValue.name,
         email: dataValue.email,
-        user_phone: dataValue.phone,
+        phone: dataValue.phone,
       }));
     }
 
