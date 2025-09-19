@@ -30,6 +30,7 @@ interface AsyncAutocompleteProps<T> {
   icon?: any;
   size?: "small" | "medium";
   showIcon?: boolean;
+  width?: any;
 }
 
 function AsyncAutocomplete<T extends Record<string, any>>({
@@ -48,6 +49,7 @@ function AsyncAutocomplete<T extends Record<string, any>>({
   icon = <Search sx={{ color: "#666", mr: 1 }} />,
   size = "medium",
   showIcon = true,
+  width,
 }: AsyncAutocompleteProps<T>) {
   const { showToast } = useToast();
   const [inputValue, setInputValue] = useState("");
@@ -95,6 +97,7 @@ function AsyncAutocomplete<T extends Record<string, any>>({
       showToast("Invalid email format", "error");
       return;
     } else {
+    
       onChange(newValue);
     }
   };
@@ -109,7 +112,7 @@ function AsyncAutocomplete<T extends Record<string, any>>({
       disableClearable
       popupIcon={null}
       multiple={multiple}
-      sx={{ my: 1.5 }}
+      sx={{ width: width && width}}
       value={value}
       options={options}
       loading={loading}
@@ -131,30 +134,7 @@ function AsyncAutocomplete<T extends Record<string, any>>({
           </div>
         </li>
       )}
-      renderTags={(selected, getTagProps) =>
-        selected.map((option, index) => (
-          <Chip
-            //@ts-ignore
-            key={optionKey ? option[optionKey] : getOptionLabel(option)}
-            variant="outlined"
-            color="primary"
-            label={getOptionLabel(option)}
-            {...getTagProps({ index })}
-            sx={{
-              cursor: "pointer",
-              height: "20px",
-              color: "primary.main",
-              "& .MuiChip-deleteIcon": {
-                color: "error.main",
-                width: "12px",
-              },
-              "& .MuiChip-deleteIcon:hover": {
-                color: "#e87f8c",
-              },
-            }}
-          />
-        ))
-      }
+
       renderInput={(params) => (
         <TextField
           {...params}

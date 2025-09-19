@@ -28,9 +28,8 @@ import CustomToolTip from "../../reusable/CustomToolTip";
 import { useToast } from "../../hooks/useToast";
 import { fetchOptions, isValidEmail } from "../../utils/Utils";
 import { useUploadFileApiMutation } from "../../services/uploadDocServices";
-import SingleValueAsynAutocomplete from "./SingleValueAsynAutocomplete";
+
 import { setSelectedIndex } from "../../reduxStore/Slices/shotcutSlices";
-import { useLazyGetAgentsBySeachQuery } from "../../services/agentServices";
 export const formatName = (name) => {
   if (!name) return "";
 
@@ -122,8 +121,6 @@ const StackEditor = ({
   const [localNotifyTag, setLocalNotifyTag] = React.useState(notifyTag || []);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [uploadFileApi] = useUploadFileApiMutation();
-  const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
-    useLazyGetAgentsBySeachQuery();
 
   // Helper function to compare arrays
   const arraysEqual = (a, b) => {
@@ -157,7 +154,7 @@ const StackEditor = ({
         ]);
   }, [ccChangeValue, bccChangeValue, notifyValue]);
 
-  const handleSelectedOption = (newValue, type) => {
+  const handleSelectedOption = (_, newValue, type) => {
     if (!Array.isArray(newValue) || newValue.length === 0) return;
 
     const lastSelected = newValue[newValue.length - 1];
@@ -809,22 +806,7 @@ const StackEditor = ({
       ) : (
         <div className="w-full flex items-center gap-2">
           <span className="font-semibold text-gray-600 text-sm">Notify:</span>
-          <SingleValueAsynAutocomplete
-            value={localNotifyTag}
-            label="Select Notify"
-            qtkMethod={triggerSeachAgent}
-            onChange={(newValue) => handleSelectedOption(newValue, "notify")}
-            loading={seachAgentLoading}
-            isFallback={true}
-            renderOptionExtra={(user) => (
-              <Typography variant="body2" color="text.secondary">
-                {user.email}
-              </Typography>
-            )}
-            size="small"
-            
-          />
-          {/* <Autocomplete
+          <Autocomplete
             multiple
             disableClearable
             popupIcon={null}
@@ -931,7 +913,7 @@ const StackEditor = ({
                 }}
               />
             )}
-          /> */}
+          />
         </div>
       )}
     </div>
