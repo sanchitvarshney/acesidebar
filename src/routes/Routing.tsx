@@ -1,3 +1,5 @@
+import ErrorPage from "../pages/ErrorPage"; // 👈 your custom error page
+
 import { createBrowserRouter } from "react-router-dom";
 
 import MainLayout from "../components/layout/MainLayout";
@@ -62,6 +64,25 @@ import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSett
 
 
 export const router = createBrowserRouter([
+  // Main App (Protected) Routes
+  {
+    path: "/",
+    element: (
+      <Protected>
+        <MainLayout />
+      </Protected>
+    ),
+    errorElement: <ErrorPage />,   // ✅ added here (covers all children)
+    children: [
+      { index: true, element: <Tickets /> },
+      { path: "tickets", element: <Tickets /> },
+      { path: "tasks", element: <Tasks /> },
+      { path: "chat", element: <Chat /> },
+      { path: "tickets/:id", element: <TicketDetailTemplate /> },
+      { path: "create-ticket", element: <CreateTicketPage /> },
+      // … all other children here …
+    ],
+  },
   // Auth Routes
   {
     path: "/login",
