@@ -42,9 +42,9 @@ import {
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 
 interface TicketFormData {
-  user_name: string;
-  user_email: string;
-  user_phone: string;
+  name: string;
+  email: string;
+  phone: string;
   subject: string;
   body: string;
   priority: string;
@@ -81,9 +81,9 @@ const CreateTicketPage: React.FC = () => {
     useLazyGetUserBySeachQuery();
 
   const [newTicket, setNewTicket] = useState<TicketFormData>({
-    user_name: "",
-    user_email: "",
-    user_phone: "",
+    name: "",
+    email: "",
+    phone: "",
     subject: "",
     body: "",
     priority: "", // Set to 0 initially, will be updated when priorityList loads
@@ -95,8 +95,8 @@ const CreateTicketPage: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Partial<TicketFormData> = {};
 
-    if (!newTicket.user_email.trim()) {
-      newErrors.user_email = "Please select from address";
+    if (!newTicket.email.trim()) {
+      newErrors.email = "Please select from address";
     }
     if (!newTicket.subject.trim()) {
       newErrors.subject = "Subject is required";
@@ -191,9 +191,9 @@ const CreateTicketPage: React.FC = () => {
     try {
       const payload = {
         priority: newTicket.priority,
-        user_name: newTicket.user_name || "Guest",
-        user_email: newTicket.user_email,
-        user_phone: newTicket.user_phone || "0",
+        name: newTicket.name || "Guest",
+        email: newTicket.email,
+        phone: newTicket.phone || "0",
         subject: newTicket.subject,
         body: newTicket.body,
         format: newTicket.format,
@@ -261,8 +261,8 @@ const CreateTicketPage: React.FC = () => {
 
       setNewTicket((prev) => ({
         ...prev,
-        user_name: dataValue.name,
-        user_email: dataValue.email,
+        name: dataValue.name,
+        email: dataValue.email,
         user_phone: dataValue.phone,
       }));
     }
@@ -355,9 +355,9 @@ const CreateTicketPage: React.FC = () => {
             variant="text"
             onClick={() => {
               setNewTicket({
-                user_name: "",
-                user_email: "",
-                user_phone: "",
+                name: "",
+                email: "",
+                phone: "",
                 subject: "",
                 body: "",
                 priority: "",
@@ -838,15 +838,15 @@ const CreateTicketPage: React.FC = () => {
               sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}
             >
               <SingleValueAsynAutocomplete
-                value={newTicket?.user_name}
+                value={newTicket?.name}
                 label="From *"
                 qtkMethod={triggerSeachUser}
                 onChange={(newValue: any) => {
                   setNewTicket((prev) => ({
                     ...prev,
-                    user_name: newValue.name,
-                    user_email: newValue.email,
-                    user_phone: newValue.phone,
+                    name: newValue.name,
+                    email: newValue.email,
+                    phone: newValue.phone,
                   }));
                 }}
                 loading={seachUserLoading}
@@ -855,7 +855,7 @@ const CreateTicketPage: React.FC = () => {
                   <Email
                     fontSize="small"
                     sx={{
-                      color: errors.user_email ? "#d32f2f" : "#666",
+                      color: errors.email ? "#d32f2f" : "#666",
                     }}
                   />
                 }
