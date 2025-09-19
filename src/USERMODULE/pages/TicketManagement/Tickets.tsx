@@ -41,13 +41,12 @@ import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 import emptyticketimg from "../../../assets/image/ticket-404.svg";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 
-import AssignTicket from "../../components/AssignTicket";
-
 import { useToast } from "../../../hooks/useToast";
 import {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
 } from "../../../services/agentServices";
+import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -70,7 +69,7 @@ const Tickets: React.FC = () => {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
   const [dept, setDept] = useState<any>("");
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
   const { showToast } = useToast();
 
   const [triggerDept, { isLoading: deptLoading }] =
@@ -158,7 +157,7 @@ const Tickets: React.FC = () => {
       status: override.status ?? ticket.status,
       priority: override.priority ?? ticket.priority,
       department: override.department ?? ticket.department,
-      agent: override.agent ?? ticket.agent,
+      assignee: override.agent ?? ticket.assignee,
     };
   };
 
@@ -173,7 +172,7 @@ const Tickets: React.FC = () => {
         status: updateValues.status,
         priority: updateValues.priority,
         department: updateValues.department,
-        agent: updateValues.agent,
+        assignee: updateValues.agent,
       },
     }));
   };
@@ -313,25 +312,33 @@ const Tickets: React.FC = () => {
 
   // Handle master checkbox change
   const handleMasterCheckbox = () => {
-    if (selectedTickets.length === ticketList?.data?.length) {
+    if (selectedTickets.length === ticketsToShow?.data?.length) {
       setSelectedTickets([]);
       setMasterChecked(false);
     } else {
       setSelectedTickets(
-        ticketList?.data?.map((t: any) => t.ticketNumber) || []
+        ticketsToShow?.data?.map((t: any) => t.ticketNumber) || []
       );
       setMasterChecked(true);
     }
   };
 
+  const handleIndividualCheck = (ticketNumber: string) => {
+    if (selectedTickets.includes(ticketNumber)) {
+      setSelectedTickets(selectedTickets.filter((id) => id !== ticketNumber));
+    } else {
+      setSelectedTickets([...selectedTickets, ticketNumber]);
+    }
+  };
+
   // Update master checkbox if all/none selected
   React.useEffect(() => {
-    if (!ticketList?.data) return;
+    if (!ticketsToShow?.data) return;
     setMasterChecked(
-      ticketList.data.length > 0 &&
-        selectedTickets.length === ticketList.data.length
+      ticketsToShow.data.length > 0 &&
+        selectedTickets.length === ticketsToShow.data.length
     );
-  }, [selectedTickets, ticketList]);
+  }, [selectedTickets, ticketsToShow]);
 
   // Handle user popup hover with delayuseC
   const handleUserHover = (event: React.MouseEvent<HTMLElement>, user: any) => {
@@ -469,39 +476,8 @@ const Tickets: React.FC = () => {
         showToast("Failed to update ticket importance", "error");
       });
   };
-  const handleSelectedOption = (
-    _: React.SyntheticEvent,
-    value: any,
-    type: string
-  ) => {
-    if (!value) return;
+  
 
-    if (type === "dept") {
-      setDept(value);
-    }
-    if (type === "agent") {
-      setAgentValue(value);
-    }
-  };
-  const fetchAgentOptions = async (query: string) => {
-    if (!query) {
-      setAgentOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerSeachAgent({ search: query }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      if (Array.isArray(data)) {
-        setAgentOptions(data.length > 0 ? data : ["No Data Found"]);
-      } else {
-        setAgentOptions([]);
-      }
-    } catch (error) {
-      setAgentOptions([]);
-    }
-  };
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
@@ -565,51 +541,56 @@ const Tickets: React.FC = () => {
 
         {/* Bottom section with counts and user info */}
         <div className="flex items-center gap-8 text-xs">
-       <div >
-        
-          {/* check */}
-          <Checkbox
-            checked={masterChecked}
-            onChange={handleMasterCheckbox}
-            aria-label="Select all tickets"
-            sx={{
-              color: "#666",
-              "&.Mui-checked": {
-                color: "#1a73e8",
-              },
-              "&:hover": {
-                backgroundColor: "rgba(26, 115, 232, 0.04)",
-              },
-            }}
-            size="small"
-          />
-          {/* Important Pin */}
-           <Tooltip
-            title={
-              merged?.important ? "Remove from important" : "Mark as important"
-            }
-            placement="right"
-          >
-            <IconButton
-              size="small"
+          <div>
+            <Checkbox
+              checked={selectedTickets.includes(merged?.ticketNumber)}
               onClick={(e) => {
                 e.stopPropagation();
-                handleToggleImportant(ticket);
+                handleIndividualCheck(merged?.ticketNumber);
               }}
-              className={
+              aria-label="Select ticket"
+              sx={{
+                color: "#666",
+                "&.Mui-checked": {
+                  color: "#1a73e8",
+                },
+                zIndex: 99,
+                "&:hover": {
+                  backgroundColor: "rgba(26, 115, 232, 0.04)",
+                },
+              }}
+              size="small"
+            />
+
+            {/* Important Pin */}
+            <Tooltip
+              title={
                 merged?.important
-                  ? "text-amber-500 hover:text-amber-600"
-                  : "text-gray-400 hover:text-amber-500"
+                  ? "Remove from important"
+                  : "Mark as important"
               }
+              placement="right"
             >
-              {merged?.important ? (
-                <PushPinIcon fontSize="small" />
-              ) : (
-                <PushPinOutlinedIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
-       </div>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleImportant(ticket);
+                }}
+                className={
+                  merged?.important
+                    ? "text-amber-500 hover:text-amber-600"
+                    : "text-gray-400 hover:text-amber-500"
+                }
+              >
+                {merged?.important ? (
+                  <PushPinIcon fontSize="small" />
+                ) : (
+                  <PushPinOutlinedIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+          </div>
 
           {/* Separator */}
           <div className="text-gray-300">|</div>
@@ -684,11 +665,6 @@ const Tickets: React.FC = () => {
 
   return (
     <>
-      {/* {isTicketDetailLoading ? (
-        <TicketDetailSkeleton />
-      ) : openTicketNumber && ticketDetailData ? (
-        <TicketDetailTemplate ticket={ticketDetailData} onBack={handleBack} />
-      ) : ( */}
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)]">
         {/* Main Header Bar */}
         <div className="flex items-center justify-between px-6 py-3 border-b bg-white shadow-sm">
@@ -710,7 +686,7 @@ const Tickets: React.FC = () => {
             />
             <h1 className="text-xl font-medium text-gray-900">Tickets</h1>
             <span className="bg-gray-100 text-gray-600 rounded-full px-2 py-1 text-xs font-medium">
-              {ticketList?.data?.length || 0}
+              {ticketsToShow?.data?.length || 0}
             </span>
             {selectedTickets.length > 0 && (
               <div className="flex items-center gap-2 ml-4 flex-wrap">
@@ -1017,184 +993,30 @@ const Tickets: React.FC = () => {
             </div>
 
             {/* Groups */}
-
-            <Autocomplete
-              disableClearable
-              sx={{ my: 1.5 }}
-              popupIcon={null}
-              getOptionLabel={(option: any) => {
-                if (typeof option === "string") return option;
-                return option.deptName || "";
-              }}
-              options={displayDepartmentOptions}
+            <SingleValueAsynAutocomplete
               value={dept}
-              onChange={(event, newValue) => {
-                handleSelectedOption(event, newValue, "dept");
-              }}
-              onInputChange={(_, value) => {
-                setChangedept(value);
-                fetchDeptOptions(value);
-              }}
-              filterOptions={(x) => x}
-              getOptionDisabled={(option) => option === "Type to search"}
-              noOptionsText={
-                <div>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {deptLoading ? (
-                      <CircularProgress size={18} />
-                    ) : (
-                      "Type to search"
-                    )}
-                  </Typography>
-                </div>
-              }
-              renderOption={(props, option: any) => (
-                <li {...props}>
-                  {typeof option === "string" ? (
-                    option
-                  ) : (
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {option.deptName}
-                    </Typography>
-                  )}
-                </li>
-              )}
-              renderTags={(toValue, getTagProps) =>
-                toValue?.map((option, index) => (
-                  <Chip
-                    variant="outlined"
-                    color="primary"
-                    label={typeof option === "string" ? option : option}
-                    {...getTagProps({ index })}
-                    sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      // backgroundColor: "#6EB4C9",
-                      color: "primary.main",
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                        width: "12px",
-                      },
-                      "& .MuiChip-deleteIcon:hover": {
-                        color: "#e87f8c",
-                      },
-                    }}
-                  />
-                ))
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  fullWidth
-                  size="small"
-                  label="Department"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "4px",
-                      backgroundColor: "#f9fafb",
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                    },
-                    "& label.Mui-focused": { color: "#1a73e8" },
-                    "& label": { fontWeight: "bold" },
-                  }}
-                />
-              )}
+              label="Department"
+              qtkMethod={triggerDept}
+              onChange={setDept}
+              loading={deptLoading}
+              showIcon={false}
+              size="small"
+              optionLabelKey="deptName"
             />
 
-            {/* Agents */}
-            <Autocomplete
-              disableClearable
-              popupIcon={null}
-              sx={{ my: 1.5 }}
-              getOptionLabel={(option: any) => {
-                if (typeof option === "string") return option;
-                return (option.fName + " " + option.lName).trim() || "";
-              }}
-              options={displayAgentOptions}
+            <SingleValueAsynAutocomplete
               value={agentValue}
-              onChange={(event, newValue) => {
-                handleSelectedOption(event, newValue, "agent");
-              }}
-              onInputChange={(_, value) => {
-                setChangeAgent(value);
-                fetchAgentOptions(value);
-              }}
-              filterOptions={(x) => x}
-              getOptionDisabled={(option) => option === "Type to search"}
-              isOptionEqualToValue={(option, value) => {
-                if (!option || !value) return false;
-                return option.agentID === value.agentID;
-              }}
-              noOptionsText={
-                <div>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {seachAgentLoading ? (
-                      <CircularProgress size={18} />
-                    ) : (
-                      "Type to search"
-                    )}
-                  </Typography>
-                </div>
-              }
-              renderOption={(props, option: any) => (
-                <li {...props}>
-                  {typeof option === "string" ? (
-                    option
-                  ) : (
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {option.fName} {option.lName}
-                    </Typography>
-                  )}
-                </li>
+              label="Assignee"
+              qtkMethod={triggerSeachAgent}
+              onChange={setAgentValue}
+              loading={seachAgentLoading}
+              showIcon={false}
+              renderOptionExtra={(user) => (
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
               )}
-              renderTags={(toValue, getTagProps) =>
-                toValue?.map((option, index) => (
-                  <Chip
-                    variant="outlined"
-                    color="primary"
-                    label={
-                      typeof option === "string"
-                        ? option
-                        : `${option.fName} ${option.lName}`
-                    }
-                    {...getTagProps({ index })}
-                    sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      // backgroundColor: "#6EB4C9",
-                      color: "primary.main",
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                        width: "12px",
-                      },
-                      "& .MuiChip-deleteIcon:hover": {
-                        color: "#e87f8c",
-                      },
-                    }}
-                  />
-                ))
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  fullWidth
-                  size="small"
-                  label="Assignee"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "4px",
-                      backgroundColor: "#f9fafb",
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                    },
-                    "& label.Mui-focused": { color: "#1a73e8" },
-                    "& label": { fontWeight: "bold" },
-                  }}
-                />
-              )}
+              size="small"
             />
           </div>
 
