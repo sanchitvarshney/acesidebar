@@ -42,9 +42,9 @@ import {
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 
 interface TicketFormData {
-  user_name: string;
-  user_email: string;
-  user_phone: string;
+  name: string;
+  email: string;
+  phone: string;
   subject: string;
   body: string;
   priority: string;
@@ -58,18 +58,21 @@ const CreateTicketPage: React.FC = () => {
   const { data: priorityList, isLoading: isPriorityListLoading } =
     useGetPriorityListQuery();
 
-  const { data: tagList } = useGetTagListQuery();
-
+  const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedContacts, setSelectedContacts] = useState<any[]>([]);
   const { showToast } = useToast();
   const [tagOptions, setTagOptions] = useState<any>();
   // Form validation errors
   const [errors, setErrors] = useState<Partial<TicketFormData>>({});
-  const [tagValue, setTagValue] = useState<any>([]);
+  const [tagValue, setTagValue] = useState<any[]>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
   const [agentValue, setAgentValue] = useState<any>("");
-
+  const [changeAgent, setChangeAgent] = useState("");
   const [dept, setDept] = useState<any>("");
-
+  const [changeDept, setChangedept] = useState("");
+  const [departmentOptions, setDepartmentOptions] = useState<any>([]);
+  const [AgentOptions, setAgentOptions] = useState<any>([]);
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
@@ -78,9 +81,9 @@ const CreateTicketPage: React.FC = () => {
     useLazyGetUserBySeachQuery();
 
   const [newTicket, setNewTicket] = useState<TicketFormData>({
-    user_name: "",
-    user_email: "",
-    user_phone: "",
+    name: "",
+    email: "",
+    phone: "",
     subject: "",
     body: "",
     priority: "", // Set to 0 initially, will be updated when priorityList loads
@@ -92,8 +95,8 @@ const CreateTicketPage: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Partial<TicketFormData> = {};
 
-    if (!newTicket.user_email.trim()) {
-      newErrors.user_email = "Please select from address";
+    if (!newTicket.email.trim()) {
+      newErrors.email = "Please select from address";
     }
     if (!newTicket.subject.trim()) {
       newErrors.subject = "Subject is required";
@@ -107,16 +110,76 @@ const CreateTicketPage: React.FC = () => {
   };
 
   const displayOptions = changeTagValue.length >= 3 ? tagOptions : [];
+  const displayDepartmentOptions = changeDept ? departmentOptions : [];
+  const displayAgentOptions = changeAgent ? AgentOptions : [];
+
+  const fetchDeptOptions = async (query: string) => {
+    if (!query) {
+      setDepartmentOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerDept({
+        search: query,
+      }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = changeDept;
+      const fallback = [
+        {
+          deptName: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setDepartmentOptions(data.length > 0 ? data : fallback);
+      } else {
+        setDepartmentOptions([]);
+      }
+    } catch (error) {
+      setDepartmentOptions([]);
+    }
+  };
 
   const fetchTagOptions = (value: string) => {
     if (!value || value.length < 3) return [];
     const filteredOptions = tagList?.filter((option: any) =>
       option.tagName?.toLowerCase().includes(value?.toLowerCase())
     );
+
     if (filteredOptions || filteredOptions?.length > 0) {
       setTagOptions(filteredOptions);
     } else {
       setTagOptions([]);
+    }
+  };
+
+  const fetchAgentOptions = async (query: string) => {
+    if (!query) {
+      setAgentOptions([]);
+      return;
+    }
+
+    try {
+      const res = await triggerSeachAgent({ search: query }).unwrap();
+      const data = Array.isArray(res) ? res : res?.data;
+
+      const currentValue = changeAgent;
+      const fallback = [
+        {
+          fName: currentValue,
+          emailAddress: currentValue,
+        },
+      ];
+
+      if (Array.isArray(data)) {
+        setAgentOptions(data.length > 0 ? data : fallback);
+      } else {
+        setAgentOptions([]);
+      }
+    } catch (error) {
+      setAgentOptions([]);
     }
   };
 
@@ -128,27 +191,30 @@ const CreateTicketPage: React.FC = () => {
     try {
       const payload = {
         priority: newTicket.priority,
-        user_name: newTicket.user_name || "Guest",
-        user_email: newTicket.user_email,
-        user_phone: newTicket.user_phone || "0",
+        name: newTicket.name || "Guest",
+        email: newTicket.email,
+        phone: newTicket.phone || "0",
         subject: newTicket.subject,
         body: newTicket.body,
         format: newTicket.format,
 
         tags: tagValue.map((tag: any) => tag?.tagID),
-        assignee: agentValue?.email,
+        assignee: agentValue?.emailAddress,
         department: dept?.deptID,
       };
 
       const res = await createTicket(payload).unwrap();
 
       if (res.success) {
-        showToast(res?.message || "Ticket created successfully!", "success");
+        showToast(
+          res?.payload?.message || "Ticket created successfully!",
+          "success"
+        );
 
         // Navigate back to tickets list
         navigate("/tickets");
       } else {
-        showToast(res?.message || "Failed to create ticket", "error");
+        showToast(res.payload.message || "Failed to create ticket", "error");
       }
     } catch (error) {
       showToast("Failed to create ticket", "error");
@@ -167,6 +233,10 @@ const CreateTicketPage: React.FC = () => {
     }
   };
 
+  const handleDeleteContact = (id: any) => {
+    setSelectedContacts((prev) => prev.filter((contact) => contact !== id));
+  };
+
   const handleSelectedOption = (
     _: React.SyntheticEvent,
     value: any,
@@ -174,16 +244,46 @@ const CreateTicketPage: React.FC = () => {
   ) => {
     if (!value) return;
 
+    if (type === "from") {
+      const dataValue = {
+        name: value.name,
+        email: value.email,
+        phone: value.phone,
+      };
+      if (!isValidEmail(dataValue.email)) {
+        showToast("Invalid email format", "error");
+        return;
+      }
+      if (selectedContacts.some((item: any) => item === value.email)) {
+        showToast("Contact already Exist", "error");
+        return;
+      }
+
+      setNewTicket((prev) => ({
+        ...prev,
+        name: dataValue.name,
+        email: dataValue.email,
+        phone: dataValue.phone,
+      }));
+    }
+
+    if (type === "dept") {
+      setDept(value);
+    }
+    if (type === "agent") {
+      setAgentValue(value);
+    }
+
     if (type === "tag") {
       if (!Array.isArray(value) || value.length === 0) {
         showToast("Tag already exists", "error");
         return;
       }
 
-      setTagValue((prev: any) => {
+      setTagValue((prev) => {
         // Find newly added tags (those not already in prev)
         const addedTags = value.filter(
-          (tag: any) => !prev.some((p: any) => p.tagID === tag.tagID)
+          (tag: any) => !prev.some((p) => p.tagID === tag.tagID)
         );
 
         if (addedTags.length === 0) {
@@ -255,9 +355,9 @@ const CreateTicketPage: React.FC = () => {
             variant="text"
             onClick={() => {
               setNewTicket({
-                user_name: "",
-                user_email: "",
-                user_phone: "",
+                name: "",
+                email: "",
+                phone: "",
                 subject: "",
                 body: "",
                 priority: "",
@@ -265,9 +365,8 @@ const CreateTicketPage: React.FC = () => {
                 recipients: [],
               });
               setErrors({});
-              setAgentValue(null);
-              setTagValue([]);
-              setDept(null);
+              setSelectedTags([]);
+              setSelectedContacts([]);
             }}
             sx={{
               fontWeight: 600,
@@ -292,7 +391,7 @@ const CreateTicketPage: React.FC = () => {
               },
             }}
           >
-            {isCreating ? <CircularProgress size={16} /> : "Create ticket"}
+            {isCreating ? "Creating..." : "Create ticket"}
           </Button>
         </Box>
       </Box>
@@ -326,14 +425,9 @@ const CreateTicketPage: React.FC = () => {
               Ticket details
             </Typography>
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {/* Priority */}
-              <FormControl
-                fullWidth
-                size="small"
-                variant="outlined"
-                sx={{ mb: 1 }}
-              >
+              <FormControl fullWidth size="small" variant="outlined">
                 <InputLabel>Priority</InputLabel>
                 <Select
                   value={newTicket.priority.toString()}
@@ -389,7 +483,7 @@ const CreateTicketPage: React.FC = () => {
                 label="Assignee"
                 qtkMethod={triggerSeachAgent}
                 onChange={setAgentValue}
-                loading={seachAgentLoading}
+                loading={seachUserLoading}
                 isFallback={true}
                 icon={
                   <Assignment fontSize="small" sx={{ color: "#666", mr: 1 }} />
@@ -401,22 +495,202 @@ const CreateTicketPage: React.FC = () => {
                 )}
                 size="small"
               />
-              <SingleValueAsynAutocomplete
-                value={dept}
-                label="Department"
-                qtkMethod={triggerDept}
-                onChange={setDept}
-                loading={deptLoading}
-                // isFallback={true}
-                icon={
-                  <Business fontSize="small" sx={{ color: "#666", mr: 1 }} />
+
+              {/* <Autocomplete
+                disableClearable
+                popupIcon={null}
+                sx={{ my: 1.5 }}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return option.fName + " " + option.lName || "";
+                }}
+                options={displayAgentOptions}
+                value={agentValue}
+                onChange={(event, newValue) => {
+                  handleSelectedOption(event, newValue, "agent");
+                }}
+                onInputChange={(_, value) => {
+                  setChangeAgent(value);
+                  fetchAgentOptions(value);
+                }}
+                filterOptions={(x) => x}
+                getOptionDisabled={(option) => option === "Type to search"}
+                noOptionsText={
+                  <div>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {deptLoading ? (
+                        <CircularProgress size={18} />
+                      ) : (
+                        "Type to search"
+                      )}
+                    </Typography>
+                  </div>
                 }
-                size="small"
-                optionLabelKey="deptName"
+                renderOption={(props, option: any) => (
+                  <li {...props}>
+                    {typeof option === "string" ? (
+                      option
+                    ) : (
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        {option.fName} {option.lName}
+                      </Typography>
+                    )}
+                  </li>
+                )}
+                renderTags={(toValue, getTagProps) =>
+                  toValue?.map((option, index) => (
+                    <Chip
+                      variant="outlined"
+                      color="primary"
+                      label={typeof option === "string" ? option : option}
+                      {...getTagProps({ index })}
+                      sx={{
+                        cursor: "pointer",
+                        height: "20px",
+                        // backgroundColor: "#6EB4C9",
+                        color: "primary.main",
+                        "& .MuiChip-deleteIcon": {
+                          color: "error.main",
+                          width: "12px",
+                        },
+                        "& .MuiChip-deleteIcon:hover": {
+                          color: "#e87f8c",
+                        },
+                      }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    label="Assignee"
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: (
+                        <>
+                          <Assignment
+                            fontSize="small"
+                            sx={{ color: "#666", mr: 1 }}
+                          />
+                          {params.InputProps.startAdornment}
+                        </>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
+              /> */}
+
+              <Autocomplete
+                disableClearable
+                popupIcon={null}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return option.deptName || "";
+                }}
+                options={displayDepartmentOptions}
+                value={dept}
+                onChange={(event, newValue) => {
+                  handleSelectedOption(event, newValue, "dept");
+                }}
+                onInputChange={(_, value) => {
+                  setChangedept(value);
+                  fetchDeptOptions(value);
+                }}
+                filterOptions={(x) => x}
+                getOptionDisabled={(option) => option === "Type to search"}
+                noOptionsText={
+                  <div>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {seachAgentLoading ? (
+                        <CircularProgress size={18} />
+                      ) : (
+                        "Type to search"
+                      )}
+                    </Typography>
+                  </div>
+                }
+                renderOption={(props, option: any) => (
+                  <li {...props}>
+                    {typeof option === "string" ? (
+                      option
+                    ) : (
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        {option.deptName}
+                      </Typography>
+                    )}
+                  </li>
+                )}
+                renderTags={(toValue, getTagProps) =>
+                  toValue?.map((option, index) => (
+                    <Chip
+                      variant="outlined"
+                      color="primary"
+                      label={typeof option === "string" ? option : option}
+                      {...getTagProps({ index })}
+                      sx={{
+                        cursor: "pointer",
+                        height: "20px",
+                        // backgroundColor: "#6EB4C9",
+                        color: "primary.main",
+                        "& .MuiChip-deleteIcon": {
+                          color: "error.main",
+                          width: "12px",
+                        },
+                        "& .MuiChip-deleteIcon:hover": {
+                          color: "#e87f8c",
+                        },
+                      }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    label="Department"
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: (
+                        <>
+                          <Business
+                            fontSize="small"
+                            sx={{ color: "#666", mr: 1 }}
+                          />
+                          {params.InputProps.startAdornment}
+                        </>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "4px",
+                        backgroundColor: "#f9fafb",
+                        "&:hover fieldset": { borderColor: "#9ca3af" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                      },
+                      "& label.Mui-focused": { color: "#1a73e8" },
+                      "& label": { fontWeight: "bold" },
+                    }}
+                  />
+                )}
               />
 
               <Autocomplete
-                sx={{ mt: 1 }}
+                sx={{ mt: 1.5 }}
                 multiple
                 disableClearable
                 popupIcon={null}
@@ -564,15 +838,15 @@ const CreateTicketPage: React.FC = () => {
               sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}
             >
               <SingleValueAsynAutocomplete
-                value={newTicket?.user_name}
+                value={newTicket?.name}
                 label="From *"
                 qtkMethod={triggerSeachUser}
                 onChange={(newValue: any) => {
                   setNewTicket((prev) => ({
                     ...prev,
-                    user_name: newValue.name,
-                    user_email: newValue.email,
-                    user_phone: newValue.phone,
+                    name: newValue.name,
+                    email: newValue.email,
+                    phone: newValue.phone,
                   }));
                 }}
                 loading={seachUserLoading}
@@ -581,7 +855,7 @@ const CreateTicketPage: React.FC = () => {
                   <Email
                     fontSize="small"
                     sx={{
-                      color: errors.user_email ? "#d32f2f" : "#666",
+                      color: errors.email ? "#d32f2f" : "#666",
                     }}
                   />
                 }
