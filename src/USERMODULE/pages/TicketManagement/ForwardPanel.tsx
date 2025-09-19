@@ -32,6 +32,8 @@ import { useToast } from "../../../hooks/useToast";
 import { isValidEmail } from "../../../utils/Utils";
 import { useSelector } from "react-redux";
 import { useLazyGetAgentsBySeachQuery } from "../../../services/agentServices";
+import EmailAutocomplete from "../../../components/reusable/EmailAutocomplete";
+import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 
 interface ForwardPanelProps {
   open: boolean;
@@ -66,14 +68,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
   const toFieldRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
-  const [ccChangeValue, setCcChangeValue] = React.useState("");
-  const [bccChangeValue, setBccChangeValue] = React.useState("");
-  const [toChangeValue, setToChangeValue] = React.useState("");
-  const [optionsTo, setOptionsTo] = useState<any[]>([]);
-  const [optionsCc, setOptionsCc] = useState<any[]>([]);
-  const [optionsBcc, setOptionsBcc] = useState<any[]>([]);
-  const [openCcfield, setOpenCcfield] = useState(false);
-  const [openBccfield, setOpenBccfield] = useState(false);
   const { forwardData } = useSelector((state: any) => state.shotcut);
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
@@ -151,51 +145,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     handleFileSelect(e.dataTransfer.files);
   };
 
-  // simulate API call
-
-  const fetchOptions = async (query: string, type: "to" | "cc" | "bcc") => {
-    if (!query) {
-      if (type === "to") setOptionsTo([]);
-      else if (type === "cc") setOptionsCc([]);
-      else setOptionsBcc([]);
-      return;
-    }
-
-    try {
-      const res = await triggerSeachAgent({ search: query }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      const currentValue =
-        type === "to"
-          ? toChangeValue
-          : type === "cc"
-          ? ccChangeValue
-          : bccChangeValue;
-      const fallback = [
-        {
-          fName: currentValue,
-          emailAddress: currentValue,
-        },
-      ];
-
-      if (Array.isArray(data)) {
-        if (type === "to") setOptionsTo(data.length > 0 ? data : fallback);
-        else if (type === "cc") setOptionsCc(data.length > 0 ? data : fallback);
-        else setOptionsBcc(data.length > 0 ? data : fallback);
-      } else {
-        if (type === "to") setOptionsTo([]);
-        else if (type === "cc") setOptionsCc([]);
-        else setOptionsBcc([]);
-      }
-    } catch (error) {
-      if (type === "to") setOptionsTo([]);
-      else if (type === "cc") setOptionsCc([]);
-      else setOptionsBcc([]);
-    }
-  };
-
-  // remove cross-field combined fetching to prevent stale / duplicate queries
-
   // Focus on To field when panel opens
   useEffect(() => {
     if (open && toFieldRef.current) {
@@ -208,51 +157,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     }
   }, [open]);
 
-  const handleSelectedOption = (
-    _: React.SyntheticEvent,
-    value: any,
-    type: string
-  ) => {
-    if (!value) return;
-
-    const dataValue = { name: value.fName, email: value.emailAddress };
-    if (!isValidEmail(dataValue.email)) {
-      showToast("Invalid email format", "error");
-      return;
-    }
-
-    if (type === "cc") {
-      if (fields.cc.some((item: any) => item.email === value.emailAddress)) {
-        showToast("Email already Exist", "error");
-        return;
-      }
-      if (fields.cc.length >= 3) {
-        showToast("Maximum 3 cc allowed", "error");
-        return;
-      }
-
-      onFieldChange("cc", [...fields.cc, dataValue]);
-    } else if (type === "to") {
-      onFieldChange("to", dataValue.email);
-    } else {
-      if (fields.bcc.some((item: any) => item.email === value.emailAddress)) {
-        showToast("Email already Exist", "error");
-        return;
-      }
-      if (fields.bcc.length >= 3) {
-        showToast("Maximum 3 bcc allowed", "error");
-        return;
-      }
-
-      onFieldChange("bcc", [...fields.bcc, dataValue]);
-    }
-
-    ccChangeValue && setCcChangeValue("");
-    bccChangeValue && setBccChangeValue("");
-    toChangeValue && setToChangeValue("");
-  };
-
-  const handleDelete = (type: string, item: any) => {
+  const handleDelete = (type: any, item: any) => {
     if (type === "cc") {
       onFieldChange(
         "cc",
@@ -280,9 +185,6 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
     if (type?.startsWith("text/")) return <DescriptionIcon />;
     return <InsertDriveFileIcon />;
   };
-  const displayCCOptions: any = ccChangeValue ? optionsCc : [];
-  const displayBCCOptions: any = bccChangeValue ? optionsBcc : [];
-  const displayToOptions: any = toChangeValue ? optionsTo : [];
 
   const canAddMoreFiles = fields.documents?.length < MAX_FILES;
 
@@ -336,115 +238,24 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
           value={fields.subject ?? ""}
           onChange={(e) => onFieldChange("subject", e.target.value)}
           required
-          sx={{ mb: 1 }}
+          sx={{ mb: 2 }}
+        />
+        <SingleValueAsynAutocomplete
+          qtkMethod={triggerSeachAgent}
+          value={fields.to}
+          onChange={(newValue) => onFieldChange("to", newValue)}
+          label="To"
+          renderOptionExtra={(user: any) => (
+            <Typography variant="body2" color="text.secondary">
+              {user.email}
+            </Typography>
+          )}
+          loading={seachAgentLoading}
+          showIcon={false}
+          isFallback={true}
         />
 
-        <Autocomplete
-          disableClearable
-          popupIcon={null}
-          sx={{ my: 1.5 }}
-          getOptionLabel={(option) => {
-            if (typeof option === "string") return option;
-            return option.fName || option.fName || "";
-          }}
-          options={displayToOptions}
-          value={fields.to ?? ""}
-          onChange={(event, newValue) => {
-            handleSelectedOption(event, newValue, "to");
-          }}
-          onInputChange={(_, value) => {
-            setToChangeValue(value);
-            fetchOptions(value, "to");
-          }}
-          filterOptions={(x) => x}
-          getOptionDisabled={(option) => option === "Type to search"}
-          noOptionsText={
-            <div>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {seachAgentLoading ? (
-                  <CircularProgress size={18} />
-                ) : (
-                  "Type to search"
-                )}
-              </Typography>
-            </div>
-          }
-          renderOption={(props, option) => (
-            <li {...props}>
-              {typeof option === "string" ? (
-                option
-              ) : (
-                <div
-                  className="flex items-center gap-3 p-2 rounded-md w-full"
-                  style={{ cursor: "pointer" }}
-                >
-                  <Avatar
-                    sx={{
-                      width: 30,
-                      height: 30,
-                      backgroundColor: "primary.main",
-                    }}
-                  >
-                    {option.fName?.charAt(0).toUpperCase()}
-                  </Avatar>
-
-                  <div className="flex flex-col">
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {option.fName}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {option.emailAddress}
-                    </Typography>
-                  </div>
-                </div>
-              )}
-            </li>
-          )}
-          renderTags={(toValue, getTagProps) =>
-            toValue?.map((option, index) => (
-              <Chip
-                variant="outlined"
-                color="primary"
-                label={typeof option === "string" ? option : option?.Admin}
-                {...getTagProps({ index })}
-                sx={{
-                  cursor: "pointer",
-                  height: "20px",
-                  // backgroundColor: "#6EB4C9",
-                  color: "primary.main",
-                  "& .MuiChip-deleteIcon": {
-                    color: "error.main",
-                    width: "12px",
-                  },
-                  "& .MuiChip-deleteIcon:hover": {
-                    color: "#e87f8c",
-                  },
-                }}
-              />
-            ))
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              inputRef={toFieldRef}
-              label="To *"
-              variant="outlined"
-              fullWidth
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "4px",
-                  backgroundColor: "#f9fafb",
-                  "&:hover fieldset": { borderColor: "#9ca3af" },
-                  "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                },
-                "& label.Mui-focused": { color: "#1a73e8" },
-                "& label": { fontWeight: "bold" },
-              }}
-            />
-          )}
-        />
-
-        <div className="flex gap-2 justify-end mr-1 mb-1">
+        <div className="flex gap-2 justify-end mr-1 my-1">
           <p
             className="text-xs text-gray-500 cursor-pointer hover:underline"
             onClick={() => setShowCc((prev) => !prev)}
@@ -468,94 +279,21 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
               transition={{ duration: 0.3, ease: "easeInOut" }}
               style={{ marginTop: "10px", marginBottom: "8px" }}
             >
-              <Autocomplete
-                size="small"
-                fullWidth
-                disablePortal
-                value={null}
-                options={displayCCOptions}
-                getOptionLabel={(option: any) => {
-                  if (typeof option === "string") return option;
-                  return "";
-                }}
-                renderOption={(props, option: any) => (
-                  <li {...props}>
-                    {typeof option === "string" ? (
-                      option
-                    ) : (
-                      <div
-                        className="flex items-center gap-3 p-2 rounded-md w-full"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 30,
-                            height: 30,
-                            backgroundColor: "primary.main",
-                          }}
-                        >
-                          {option.fName?.charAt(0).toUpperCase()}
-                        </Avatar>
-
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ fontWeight: 600 }}
-                          >
-                            {option.fName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {option.emailAddress}
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </li>
+              <EmailAutocomplete
+                label="CC"
+                value={fields.cc}
+                onChange={(newValue) => onFieldChange("cc", newValue)}
+                qtkMethod={triggerSeachAgent}
+                type="cc"
+                onDelete={handleDelete}
+                renderOptionExtra={(user: any) => (
+                  <Typography variant="body2" color="text.secondary">
+                    {user.email}
+                  </Typography>
                 )}
-                open={openCcfield}
-                onOpen={() => setOpenCcfield(true)}
-                onClose={() => setOpenCcfield(false)}
-                inputValue={ccChangeValue}
-                onInputChange={(_, value) => {
-                  setCcChangeValue(value);
-                  fetchOptions(value, "cc");
-                }}
-                onChange={(event, newValue) =>
-                  handleSelectedOption(event, newValue, "cc")
-                }
-                noOptionsText={
-                  <div>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {seachAgentLoading ? (
-                        <CircularProgress size={18} />
-                      ) : (
-                        "Type to search"
-                      )}
-                    </Typography>
-                  </div>
-                }
-                filterOptions={(x) => x} // disable default filtering
-                getOptionDisabled={(option) => option === "Type to search"}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    // InputLabelProps={{ shrink: true }}
-                    label="CC"
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "4px",
-                        backgroundColor: "#f9fafb",
-                        "&:hover fieldset": { borderColor: "#9ca3af" },
-                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                      },
-                      "& label.Mui-focused": { color: "#1a73e8" },
-                      "& label": { fontWeight: "bold" },
-                    }}
-                  />
-                )}
+                isRendered={false}
               />
+
               {fields.cc.length > 0 && (
                 <Stack
                   direction="row"
@@ -587,93 +325,21 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
               transition={{ duration: 0.3, ease: "easeInOut" }}
               style={{ marginTop: "16px", marginBottom: "8px" }}
             >
-              <Autocomplete
-                size="small"
-                disablePortal
-                value={null}
-                options={displayBCCOptions}
-                getOptionLabel={(option: any) => {
-                  if (typeof option === "string") return option;
-                  return "";
-                }}
-                renderOption={(props, option: any) => (
-                  <li {...props}>
-                    {typeof option === "string" ? (
-                      option
-                    ) : (
-                      <div
-                        className="flex items-center gap-3 p-2 rounded-md w-full"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 30,
-                            height: 30,
-                            backgroundColor: "primary.main",
-                          }}
-                        >
-                          {option.fName?.charAt(0).toUpperCase()}
-                        </Avatar>
-
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ fontWeight: 600 }}
-                          >
-                            {option.fName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {option.emailAddress}
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </li>
+              <EmailAutocomplete
+                label="BCC"
+                value={fields.bcc}
+                onChange={(newValue) => onFieldChange("bcc", newValue)}
+                qtkMethod={triggerSeachAgent}
+                type="bcc"
+                onDelete={handleDelete}
+                renderOptionExtra={(user: any) => (
+                  <Typography variant="body2" color="text.secondary">
+                    {user.email}
+                  </Typography>
                 )}
-                open={openBccfield}
-                onOpen={() => setOpenBccfield(true)}
-                onClose={() => setOpenBccfield(false)}
-                inputValue={bccChangeValue}
-                onInputChange={(_, value) => {
-                  setBccChangeValue(value);
-                  fetchOptions(value, "bcc");
-                }}
-                onChange={(event, value) =>
-                  handleSelectedOption(event, value, "bcc")
-                }
-                noOptionsText={
-                  <div>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {seachAgentLoading ? (
-                        <CircularProgress size={18} />
-                      ) : (
-                        "Type to search"
-                      )}
-                    </Typography>
-                  </div>
-                }
-                filterOptions={(x) => x} // disable default filtering
-                getOptionDisabled={(option) => option === "Type to search"}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    // InputLabelProps={{ shrink: true }}
-                    label="BCC"
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "4px",
-                        backgroundColor: "#f9fafb",
-                        "&:hover fieldset": { borderColor: "#9ca3af" },
-                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                      },
-                      "& label.Mui-focused": { color: "#1a73e8" },
-                      "& label": { fontWeight: "bold" },
-                    }}
-                  />
-                )}
+                isRendered={false}
               />
+
               {fields.bcc.length > 0 && (
                 <Stack
                   direction="row"
@@ -823,7 +489,13 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
             </List>
           </MuiBox>
         )}
-        <Alert severity="warning" sx={{ backgroundColor: "rgb(254 249 195)", border:"1px solid #FFC107" }}>
+        <Alert
+          severity="warning"
+          sx={{
+            backgroundColor: "rgb(254 249 195)",
+            border: "1px solid #FFC107",
+          }}
+        >
           <Typography variant="subtitle1" sx={{ fontSize: 12 }}>
             {" "}
             {forwardData && forwardData.threadID

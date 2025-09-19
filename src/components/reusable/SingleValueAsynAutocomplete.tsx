@@ -97,7 +97,6 @@ function AsyncAutocomplete<T extends Record<string, any>>({
       showToast("Invalid email format", "error");
       return;
     } else {
-    
       onChange(newValue);
     }
   };
@@ -112,7 +111,7 @@ function AsyncAutocomplete<T extends Record<string, any>>({
       disableClearable
       popupIcon={null}
       multiple={multiple}
-      sx={{ width: width && width}}
+      sx={{ width: width && width }}
       value={value}
       options={options}
       loading={loading}
@@ -134,7 +133,6 @@ function AsyncAutocomplete<T extends Record<string, any>>({
           </div>
         </li>
       )}
-
       renderInput={(params) => (
         <TextField
           {...params}

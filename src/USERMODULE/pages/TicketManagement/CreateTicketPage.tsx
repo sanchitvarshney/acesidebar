@@ -400,6 +400,7 @@ const CreateTicketPage: React.FC = () => {
                   </Typography>
                 )}
                 size="small"
+                
               />
               <SingleValueAsynAutocomplete
                 value={dept}

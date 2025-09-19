@@ -15,8 +15,7 @@ import {
   ClickAwayListener,
   MenuList,
   MenuItem,
-  TextField,
-  Autocomplete,
+
   FormControl,
   Select,
   Chip,
@@ -28,17 +27,11 @@ import CustomToolTip from "../../reusable/CustomToolTip";
 import { useToast } from "../../hooks/useToast";
 import { fetchOptions, isValidEmail } from "../../utils/Utils";
 import { useUploadFileApiMutation } from "../../services/uploadDocServices";
+import EmailAutocomplete from "./EmailAutocomplete";
 
+import { useLazyGetAgentsBySeachQuery } from "../../services/agentServices";
 import { setSelectedIndex } from "../../reduxStore/Slices/shotcutSlices";
-export const formatName = (name) => {
-  if (!name) return "";
 
-  if (name.length > 5) {
-    return name.slice(0, 5) + "....";
-  }
-
-  return name; // return full name if short
-};
 
 const selectionsOptions = [
   {
@@ -101,7 +94,6 @@ const StackEditor = ({
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
   const dispatch = useDispatch();
-  const [notifyValue, setNotifyValue] = React.useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const editorRef = useRef(null);
   const signatureEditorRef = useRef(null);
@@ -115,12 +107,10 @@ const StackEditor = ({
   const [currentSignature, setCurrentSignature] = useState("");
   const [ccValue, setCcValue] = React.useState([]);
   const [bccValue, setBccValue] = React.useState([]);
-  const [ccChangeValue, setCcChangeValue] = React.useState("");
-  const [bccChangeValue, setBccChangeValue] = React.useState("");
-  const [options, setOptions] = useState([]);
   const [localNotifyTag, setLocalNotifyTag] = React.useState(notifyTag || []);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [uploadFileApi] = useUploadFileApiMutation();
+  const [triggerSeachAgent] = useLazyGetAgentsBySeachQuery();
 
   // Helper function to compare arrays
   const arraysEqual = (a, b) => {
@@ -136,74 +126,9 @@ const StackEditor = ({
     return true;
   };
 
-  const displayCCOptions = ccChangeValue ? options : [];
-  const displayBCCOptions = bccChangeValue ? options : [];
-  const displayNotifyOptions = notifyValue ? options : [];
-
-  useEffect(() => {
-    const filterValue = fetchOptions(
-      ccChangeValue || bccChangeValue || notifyValue
-    );
-    filterValue?.length > 0
-      ? setOptions(filterValue)
-      : setOptions([
-          {
-            userName: ccChangeValue || bccChangeValue || notifyValue,
-            userEmail: ccChangeValue || bccChangeValue || notifyValue,
-          },
-        ]);
-  }, [ccChangeValue, bccChangeValue, notifyValue]);
-
-  const handleSelectedOption = (_, newValue, type) => {
-    if (!Array.isArray(newValue) || newValue.length === 0) return;
-
-    const lastSelected = newValue[newValue.length - 1];
-
-    if (!lastSelected?.userEmail) return;
-
-    const dataValue = {
-      name: lastSelected.userName || lastSelected.name,
-      email: lastSelected.userEmail || lastSelected.email,
-    };
-
-    if (!isValidEmail(dataValue.email)) {
-      showToast("Invalid email format", "error");
-      return;
-    }
-
-    if (type === "cc") {
-      if (ccValue.some((item) => item.email === dataValue.email)) {
-        showToast("Email already exists", "error");
-        return;
-      }
-      if (ccValue.length >= 3) {
-        showToast("Maximum 3 CC allowed", "error");
-        return;
-      }
-      setCcValue((prev) => [...prev, dataValue]);
-    } else if (type === "bcc") {
-      if (bccValue.some((item) => item.email === dataValue.email)) {
-        showToast("Email already exists", "error");
-        return;
-      }
-      if (bccValue.length >= 3) {
-        showToast("Maximum 3 BCC allowed", "error");
-        return;
-      }
-      setBccValue((prev) => [...prev, dataValue]);
-    } else {
-      if (localNotifyTag.some((item) => item.email === dataValue.email)) {
-        showToast("Email already exists", "error");
-        return;
-      }
-      if (localNotifyTag.length >= 3) {
-        showToast("Maximum 3 Notify allowed", "error");
-        return;
-      }
-      const newNotifyTag = [...localNotifyTag, dataValue];
-      setLocalNotifyTag(newNotifyTag);
-      changeNotify(newNotifyTag);
-    }
+  const handleSelectedOption = (newValue) => {
+    setLocalNotifyTag(newValue);
+    changeNotify(newValue);
   };
 
   // Handle deletion for all Autocomplete components
@@ -806,113 +731,19 @@ const StackEditor = ({
       ) : (
         <div className="w-full flex items-center gap-2">
           <span className="font-semibold text-gray-600 text-sm">Notify:</span>
-          <Autocomplete
-            multiple
-            disableClearable
-            popupIcon={null}
-            getOptionLabel={(option) => {
-              if (typeof option === "string") return option;
-              return option.userEmail || option.userName || option.email || "";
-            }}
-            options={displayNotifyOptions}
+          <EmailAutocomplete
+            // label="Notify"
             value={localNotifyTag}
-            onChange={(event, newValue) => {
-              handleSelectedOption(event, newValue, "notify");
-            }}
-            onInputChange={(_, value) => setNotifyValue(value)}
-            filterOptions={(x) => x}
-            getOptionDisabled={(option) => option === "Type to search"}
-            noOptionsText="No Data Found"
-            renderOption={(props, option) => (
-              <li {...props}>
-                {typeof option === "string" ? (
-                  option
-                ) : (
-                  <div
-                    className="flex items-center gap-3 p-2 rounded-md w-full"
-                    style={{ cursor: "pointer" }}
-                  >
-                    <Avatar
-                      sx={{
-                        width: 30,
-                        height: 30,
-                        backgroundColor: "primary.main",
-                      }}
-                    >
-                      {option.userName?.charAt(0).toUpperCase()}
-                    </Avatar>
-
-                    <div className="flex flex-col">
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {option.userName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {option.userEmail}
-                      </Typography>
-                    </div>
-                  </div>
-                )}
-              </li>
+            onChange={(value) => handleSelectedOption(value)}
+            qtkMethod={triggerSeachAgent}
+            type="notify"
+            onDelete={handleDelete}
+            renderOptionExtra={(user) => (
+              <Typography variant="body2" color="text.secondary">
+                {user.email}
+              </Typography>
             )}
-            renderTags={(value, getTagProps) =>
-              value?.map((option, index) => (
-                <CustomToolTip
-                  title={
-                    <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                      {option.name
-                        ? `${option.name} (${option.email})`
-                        : option.email}
-                    </Typography>
-                  }
-                >
-                  <Chip
-                    variant="outlined"
-                    color="primary"
-                    key={index}
-                    label={
-                      typeof option === "string"
-                        ? option
-                        : formatName(
-                            option?.name || option?.userName || option?.email
-                          ) // Handle all data structures
-                    }
-                    onDelete={() => handleDelete(index, "notify")}
-                    sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      // backgroundColor: "#6EB4C9",
-                      color: "primary.main",
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                        width: "12px",
-                      },
-                      "& .MuiChip-deleteIcon:hover": {
-                        color: "#e87f8c",
-                      },
-                    }}
-                  />
-                </CustomToolTip>
-              ))
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                // label="CC"
-                variant="outlined"
-                size="small"
-                sx={{
-                  width: 400,
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "4px",
-                    backgroundColor: "#f9fafb",
-                    "&:hover fieldset": { borderColor: "#9ca3af" },
-                    "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                  },
-                  "& label.Mui-focused": { color: "#1a73e8" },
-                  "& label": { fontWeight: "bold" },
-                }}
-              />
-            )}
+                width={400}
           />
         </div>
       )}
@@ -997,254 +828,37 @@ const StackEditor = ({
           style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
         >
           {showCc && (
-            <div>
-              <Autocomplete
-                multiple
-                disableClearable
-                popupIcon={null}
-                getOptionLabel={(option) => {
-                  if (typeof option === "string") return option;
-                  return (
-                    option.userEmail || option.userName || option.email || ""
-                  );
-                }}
-                options={displayCCOptions}
-                value={ccValue}
-                onChange={(event, newValue) => {
-                  if (newValue.length < ccValue.length) {
-                    // Item was deleted
-                    setCcValue(newValue);
-                  } else {
-                    // Item was added
-                    handleSelectedOption(event, newValue, "cc");
-                  }
-                }}
-                onInputChange={(_, value) => setCcChangeValue(value)}
-                filterOptions={(x) => x}
-                getOptionDisabled={(option) => option === "Type to search"}
-                noOptionsText="No Data Found"
-                renderOption={(props, option) => (
-                  <li {...props}>
-                    {typeof option === "string" ? (
-                      option
-                    ) : (
-                      <div
-                        className="flex items-center gap-3 p-2 rounded-md w-full"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 30,
-                            height: 30,
-                            backgroundColor: "primary.main",
-                          }}
-                        >
-                          {option.userName?.charAt(0).toUpperCase()}
-                        </Avatar>
-
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ fontWeight: 600 }}
-                          >
-                            {option.userName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {option.userEmail}
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                )}
-                renderTags={(ccValue, getTagProps) =>
-                  ccValue?.map((option, index) => (
-                    <CustomToolTip
-                      title={
-                        <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                          {option.name
-                            ? `${option.name} (${option.email})`
-                            : option.email}
-                        </Typography>
-                      }
-                    >
-                      <Chip
-                        variant="outlined"
-                        color="primary"
-                        key={index}
-                        label={
-                          typeof option === "string"
-                            ? option
-                            : formatName(
-                                option?.name ||
-                                  option?.userName ||
-                                  option?.email
-                              ) // Handle all data structures
-                        }
-                        onDelete={() => handleDelete(index, "cc")}
-                        sx={{
-                          cursor: "pointer",
-                          height: "20px",
-                          // backgroundColor: "#6EB4C9",
-                          color: "primary.main",
-                          "& .MuiChip-deleteIcon": {
-                            color: "error.main",
-                            width: "12px",
-                          },
-                          "& .MuiChip-deleteIcon:hover": {
-                            color: "#e87f8c",
-                          },
-                        }}
-                      />
-                    </CustomToolTip>
-                  ))
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="CC"
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      width: 400,
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "4px",
-                        backgroundColor: "#f9fafb",
-                        "&:hover fieldset": { borderColor: "#9ca3af" },
-                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                      },
-                      "& label.Mui-focused": { color: "#1a73e8" },
-                      "& label": { fontWeight: "bold" },
-                    }}
-                  />
-                )}
-              />
-            </div>
+            <EmailAutocomplete
+              label="CC"
+              value={ccValue}
+              onChange={setCcValue}
+              qtkMethod={triggerSeachAgent}
+              type="cc"
+              onDelete={handleDelete}
+              renderOptionExtra={(user) => (
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
+              )}
+                  width={400}
+            />
           )}
 
           {showBcc && (
-            <div>
-              <Autocomplete
-                multiple
-                disableClearable
-                popupIcon={null}
-                getOptionLabel={(option) => {
-                  if (typeof option === "string") return option;
-                  return (
-                    option.userEmail || option.userName || option.email || ""
-                  );
-                }}
-                options={displayBCCOptions}
-                value={bccValue}
-                onChange={(event, newValue) => {
-                  if (newValue.length < bccValue.length) {
-                    // Item was deleted
-                    setBccValue(newValue);
-                  } else {
-                    // Item was added
-                    handleSelectedOption(event, newValue, "bcc");
-                  }
-                }}
-                onInputChange={(_, value) => setBccChangeValue(value)}
-                filterOptions={(x) => x}
-                getOptionDisabled={(option) => option === "Type to search"}
-                renderOption={(props, option) => (
-                  <li {...props}>
-                    {typeof option === "string" ? (
-                      option
-                    ) : (
-                      <div
-                        className="flex items-center gap-3 p-2 rounded-md w-full"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 30,
-                            height: 30,
-                            backgroundColor: "primary.main",
-                          }}
-                        >
-                          {option.userName?.charAt(0).toUpperCase()}
-                        </Avatar>
-
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ fontWeight: 600 }}
-                          >
-                            {option.userName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {option.userEmail}
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                )}
-                renderTags={(bccValue, getTagProps) =>
-                  bccValue.map((option, index) => (
-                    <CustomToolTip
-                      title={
-                        <Typography variant="subtitle2" sx={{ p: 1.5 }}>
-                          {option.name
-                            ? `${option.name} (${option.email})`
-                            : option.email}
-                        </Typography>
-                      }
-                    >
-                      <Chip
-                        variant="outlined"
-                        color="primary"
-                        key={index}
-                        label={
-                          typeof option === "string"
-                            ? option
-                            : formatName(
-                                option?.name ||
-                                  option?.userName ||
-                                  option?.email
-                              ) // Handle all data structures
-                        }
-                        onDelete={() => handleDelete(index, "bcc")}
-                        sx={{
-                          cursor: "pointer",
-                          height: "20px",
-                          // backgroundColor: "#6EB4C9",
-                          color: "primary.main",
-                          "& .MuiChip-deleteIcon": {
-                            color: "error.main",
-                            width: "12px",
-                          },
-                          "& .MuiChip-deleteIcon:hover": {
-                            color: "#e87f8c",
-                          },
-                        }}
-                      />
-                    </CustomToolTip>
-                  ))
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Bcc"
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      width: 400,
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "4px",
-                        backgroundColor: "#f9fafb",
-                        "&:hover fieldset": { borderColor: "#9ca3af" },
-                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                      },
-                      "& label.Mui-focused": { color: "#1a73e8" },
-                      "& label": { fontWeight: "bold" },
-                    }}
-                  />
-                )}
-              />
-            </div>
+            <EmailAutocomplete
+              label="Bcc"
+              value={bccValue}
+              onChange={setBccValue}
+              qtkMethod={triggerSeachAgent}
+              type="bcc"
+              onDelete={handleDelete}
+              renderOptionExtra={(user) => (
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
+              )}
+              width={400}
+            />
           )}
         </div>
       )}

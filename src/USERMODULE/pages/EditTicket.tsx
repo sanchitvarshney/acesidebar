@@ -13,24 +13,31 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import StackEditor from "../../components/reusable/Editor";
 import { fetchOptions, isValidEmail } from "../../utils/Utils";
 import { useToast } from "../../hooks/useToast";
 import { useEditTicketMutation } from "../../services/threadsApi";
 import { useLazyGetUserBySeachQuery } from "../../services/agentServices";
+import SingleValueAsynAutocomplete from "../../components/reusable/SingleValueAsynAutocomplete";
 
 const EditTicket = ({ onClose, open, ticket }: any) => {
   const { showToast } = useToast();
-  const [contactChangeValue, setContactChangeValue] = useState("");
-  const [options, setOptions] = useState<any>([]);
+
   const [errors, setErrors] = useState<{ subject?: string; body?: string }>({});
   const [editData, setEditData] = useState<any>({
     contact: "",
     subject: "",
     body: "",
   });
-  const displayContactOptions: any = contactChangeValue ? options : [];
+  const [selectedContact, setSelectedContact] = useState<any | null>(null);
+
   const inputRef = useRef(null);
   const [editTicket, { isLoading: isUpdating }] = useEditTicketMutation();
   const [triggerSeachUser, { isLoading: seachUserLoading }] =
@@ -45,82 +52,48 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
 
   useEffect(() => {
     if (ticket) {
+      const nextSelected = ticket?.client
+        ? {
+            name: ticket?.client?.name || ticket?.client?.email,
+            email: ticket?.client?.email,
+          }
+        : null;
+
+      setSelectedContact(nextSelected);
       setEditData({
         client: ticket?.client?.id,
-        contact: ticket?.client?.email,
-        subject: ticket?.subject,
-        body: ticket?.description,
+        contact: ticket?.client?.email || "",
+        subject: ticket?.subject || "",
+        body: ticket?.description || "",
       });
     }
   }, [ticket]);
 
-  const fetchUserOptions = async (query: string) => {
-    if (!query) {
-      setOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerSeachUser({ search: query }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      const currentValue = contactChangeValue;
-      const fallback = [
-        {
-          name: currentValue,
-          email: currentValue,
-        },
-      ];
-
-      if (Array.isArray(data)) {
-        setOptions(data.length > 0 ? data : fallback);
-      } else {
-        setOptions([]);
-      }
-    } catch (error) {
-      setOptions([]);
-    }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setEditData((prev: any) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    // Clear error when user starts typing
-    if (errors[field as keyof typeof errors]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: undefined,
-      }));
-    }
-  };
-
-  const handleSelectedOption = (
-    _: React.SyntheticEvent,
-    value: any,
-    type: string
-  ) => {
-    if (!value) return;
-
-    if (type === "from") {
-      const dataValue = {
-        name: value.name,
-        email: value.email,
-        phone: value.phone,
-      };
-      if (!isValidEmail(dataValue.email)) {
-        showToast("Invalid email format", "error");
-        return;
-      }
-
+  const handleInputChange = useCallback(
+    (field: string, value: string) => {
       setEditData((prev: any) => ({
         ...prev,
-        contact: dataValue.email,
+        [field]: value,
       }));
-    }
-  };
+
+      if (errors[field as keyof typeof errors]) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: undefined,
+        }));
+      }
+    },
+    [errors]
+  );
+
+  const handleSelectedOption = useCallback((value: any) => {
+    if (!value) return;
+    setSelectedContact(value);
+    setEditData((prev: any) => ({
+      ...prev,
+      contact: value,
+    }));
+  }, []);
 
   const handleSave = async () => {
     // Validate required fields
@@ -202,105 +175,16 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
             mb: 2,
           }}
         >
-          <Autocomplete
-            disableClearable
-            popupIcon={null}
-            getOptionLabel={(option: any) => {
-          
-              if (typeof option === "string") return option;
-              return option.email || "";
-            }}
-            options={displayContactOptions}
-            value={editData.contact}
-            onInputChange={(_, value) => {
-              setContactChangeValue(value);
-
-              fetchUserOptions(value);
-            }}
-            onChange={(event, newValue) =>
-              handleSelectedOption(event, newValue, "from")
-            }
-            filterOptions={(x) => x}
-            getOptionDisabled={(option) => option === "Type to search"}
-            noOptionsText="No Data Found"
-            renderOption={(props, option: any) => (
-              <li {...props}>
-                {typeof option === "string" ? (
-                  option
-                ) : (
-                  <div
-                    className="flex items-center gap-3 p-2 rounded-md w-full"
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="flex flex-col">
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {option.name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {option.email}
-                      </Typography>
-                    </div>
-                  </div>
-                )}
-              </li>
-            )}
-            renderTags={(toValue, getTagProps) =>
-              toValue?.map((option: any, index) => {
-                console.log("option", option);
-                return (
-                  <Chip
-                    variant="outlined"
-                    color="primary"
-                    //@ts-ignore
-                    label={
-                      typeof option === "string"
-                        ? option
-                        : option?.recipients?.email
-                    }
-                    {...getTagProps({ index })}
-                    sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      // backgroundColor: "#6EB4C9",
-                      color: "primary.main",
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                        width: "12px",
-                      },
-                      "& .MuiChip-deleteIcon:hover": {
-                        color: "#e87f8c",
-                      },
-                    }}
-                  />
-                );
-              })
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="From *"
-                variant="outlined"
-                fullWidth
-                InputProps={{
-                  ...params.InputProps,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Email fontSize="small" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "4px",
-                    backgroundColor: "#f9fafb",
-                    "&:hover fieldset": { borderColor: "#9ca3af" },
-                    "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                  },
-                  "& label.Mui-focused": { color: "#1a73e8" },
-                  "& label": { fontWeight: "bold" },
-                }}
-              />
-            )}
+          <SingleValueAsynAutocomplete
+            qtkMethod={triggerSeachUser}
+            value={selectedContact}
+            optionLabelKey="email"
+            optionKey="email"
+            onChange={handleSelectedOption}
+            label="From *"
+            loading={seachUserLoading}
+            icon={<Email fontSize="small" />}
+            isFallback={true}
           />
 
           {/* Subject Field */}
@@ -390,9 +274,7 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
           onClick={handleSave}
           variant="contained"
           color="primary"
-          disabled={
-            !editData.subject || !editData.body || editData.contact.length === 0
-          }
+          disabled={!editData.subject || !editData.body || !selectedContact}
           sx={{ minWidth: 100, fontWeight: 600 }}
         >
           {isUpdating ? <CircularProgress size={20} color="inherit" /> : "Save"}
@@ -402,4 +284,4 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
   );
 };
 
-export default EditTicket;
+export default React.memo(EditTicket);
