@@ -145,7 +145,7 @@ const ThreadItem = ({
   subjectTitle,
 }: any) => {
   const [reviewThread] = useCommanApiMutation();
-  const [triggerFlag,{isLoading:flagLoading}] = useCommanApiMutation();
+  const [triggerFlag, { isLoading: flagLoading }] = useCommanApiMutation();
   const { showToast } = useToast();
   const [open, setOpen] = useState(false);
   const [isReported, setIsReported] = useState<boolean>(item?.isFlagged);
@@ -270,7 +270,7 @@ const ThreadItem = ({
         window.URL.revokeObjectURL(url);
 
         showToast("Download completed", "success");
-        setTrackDownloadId("")
+        setTrackDownloadId("");
       } else {
         showToast(
           res?.message || "An error occurred while downloading",
@@ -340,7 +340,7 @@ const ThreadItem = ({
     </Paper>
   );
   //@ts-ignore
-  const isCurrentUser = item?.replyType === "S";
+  const isCurrentUser = item?.replyType === "AGENT";
   const bubbleBackgroundColor = isReported
     ? "#fee2e2"
     : isCurrentUser
@@ -471,20 +471,17 @@ const ThreadItem = ({
                       size="small"
                       onClick={() => {
                         setTrackDownloadId(item.entryId);
-                        handleReportTicket(item?.isFlagged)
+                        handleReportTicket(item?.isFlagged);
                       }}
                     >
-                      {
-                        flagLoading && trackDownloadId === item.entryId ? (
-                          <CircularProgress size={16} />
-                        ) : (
-                          <EmojiFlagsIcon
-                        sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
-                        fontSize="small"
-                      />
-                        )
-                        
-                      }
+                      {flagLoading && trackDownloadId === item.entryId ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        <EmojiFlagsIcon
+                          sx={{ color: isReported ? "#ef4444" : "#9ca3af" }}
+                          fontSize="small"
+                        />
+                      )}
                     </IconButton>
                   </div>
                 )}
@@ -695,7 +692,7 @@ const TicketThreadSection = ({
   const dispatch = useDispatch();
   const { refetch } = useGetAttacedFileQuery({ ticketId: header?.ticketId });
 
-  const [commonApi] = useCommanApiMutation();
+  const [commonApi, { isLoading: threadLoading }] = useCommanApiMutation();
   const [showEditor, setShowEditor] = useState<any>(false);
   const [showShotcut, setShowShotcut] = useState(false);
   const [slashTriggered, setSlashTriggered] = useState(false);
@@ -983,8 +980,8 @@ const TicketThreadSection = ({
         setSelectedOptionValue("1");
         setSignatureUpdateKey(0);
         setShowEditor(false);
-        if (onCloseReply) onCloseReply();
         refetch();
+        if (onCloseReply) onCloseReply();
       })
       .catch((error: any) => {
         console.error(error);
@@ -1169,13 +1166,7 @@ const TicketThreadSection = ({
                   notifyTag={notifyTag}
                   ticketId={header?.ticketId}
                   setIsReply={(value: any) => dispatch(setIsReply(value))}
-                  // setSelectedIndex={(value: any) =>
-                  // {
-                  //   console.log("setSelectedIndex", value)
-                  //
-                  // }
-                  // }
-                  // selectedIndex={selectedIndex}
+             
                 />
               </div>
 
@@ -1305,6 +1296,7 @@ const TicketThreadSection = ({
                       setSelectedOptionValue("1");
                       setStateChangeKey((prev) => prev + 1);
                       setSignatureUpdateKey(0);
+                      setImages([]);
                     }}
                     sx={{
                       backgroundColor: "#e5e7eb", // Tailwind: bg-gray-200
@@ -1336,7 +1328,11 @@ const TicketThreadSection = ({
                       },
                     }}
                   >
-                    Save
+                    {threadLoading ? (
+                      <CircularProgress size={16} color="inherit" />
+                    ) : (
+                      "Save"
+                    )}
                   </Button>
                   {/* <CustomToolTip
                     title={

@@ -33,7 +33,7 @@ import { useToast } from "../../../hooks/useToast";
 
 import StackEditor from "../../../components/reusable/Editor";
 import { useNavigate } from "react-router-dom";
-import { fetchOptions, isValidEmail } from "../../../utils/Utils";
+
 import {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
