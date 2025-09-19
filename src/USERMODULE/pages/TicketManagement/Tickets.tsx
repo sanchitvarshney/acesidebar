@@ -41,13 +41,12 @@ import UserHoverPopup from "../../../components/popup/UserHoverPopup";
 import emptyticketimg from "../../../assets/image/ticket-404.svg";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 
-
-
 import { useToast } from "../../../hooks/useToast";
 import {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
 } from "../../../services/agentServices";
+import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -158,7 +157,7 @@ const Tickets: React.FC = () => {
       status: override.status ?? ticket.status,
       priority: override.priority ?? ticket.priority,
       department: override.department ?? ticket.department,
-      agent: override.agent ?? ticket.agent,
+      assignee: override.agent ?? ticket.assignee,
     };
   };
 
@@ -173,7 +172,7 @@ const Tickets: React.FC = () => {
         status: updateValues.status,
         priority: updateValues.priority,
         department: updateValues.department,
-        agent: updateValues.agent,
+        assignee: updateValues.agent,
       },
     }));
   };
@@ -326,7 +325,7 @@ const Tickets: React.FC = () => {
 
   const handleIndividualCheck = (ticketNumber: string) => {
     if (selectedTickets.includes(ticketNumber)) {
-      setSelectedTickets(selectedTickets.filter(id => id !== ticketNumber));
+      setSelectedTickets(selectedTickets.filter((id) => id !== ticketNumber));
     } else {
       setSelectedTickets([...selectedTickets, ticketNumber]);
     }
@@ -477,39 +476,8 @@ const Tickets: React.FC = () => {
         showToast("Failed to update ticket importance", "error");
       });
   };
-  const handleSelectedOption = (
-    _: React.SyntheticEvent,
-    value: any,
-    type: string
-  ) => {
-    if (!value) return;
+  
 
-    if (type === "dept") {
-      setDept(value);
-    }
-    if (type === "agent") {
-      setAgentValue(value);
-    }
-  };
-  const fetchAgentOptions = async (query: string) => {
-    if (!query) {
-      setAgentOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerSeachAgent({ search: query }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      if (Array.isArray(data)) {
-        setAgentOptions(data.length > 0 ? data : ["No Data Found"]);
-      } else {
-        setAgentOptions([]);
-      }
-    } catch (error) {
-      setAgentOptions([]);
-    }
-  };
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
@@ -697,7 +665,6 @@ const Tickets: React.FC = () => {
 
   return (
     <>
-   
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)]">
         {/* Main Header Bar */}
         <div className="flex items-center justify-between px-6 py-3 border-b bg-white shadow-sm">
@@ -1026,184 +993,30 @@ const Tickets: React.FC = () => {
             </div>
 
             {/* Groups */}
-
-            <Autocomplete
-              disableClearable
-              sx={{ my: 1.5 }}
-              popupIcon={null}
-              getOptionLabel={(option: any) => {
-                if (typeof option === "string") return option;
-                return option.deptName || "";
-              }}
-              options={displayDepartmentOptions}
+            <SingleValueAsynAutocomplete
               value={dept}
-              onChange={(event, newValue) => {
-                handleSelectedOption(event, newValue, "dept");
-              }}
-              onInputChange={(_, value) => {
-                setChangedept(value);
-                fetchDeptOptions(value);
-              }}
-              filterOptions={(x) => x}
-              getOptionDisabled={(option) => option === "Type to search"}
-              noOptionsText={
-                <div>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {deptLoading ? (
-                      <CircularProgress size={18} />
-                    ) : (
-                      "Type to search"
-                    )}
-                  </Typography>
-                </div>
-              }
-              renderOption={(props, option: any) => (
-                <li {...props}>
-                  {typeof option === "string" ? (
-                    option
-                  ) : (
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {option.deptName}
-                    </Typography>
-                  )}
-                </li>
-              )}
-              renderTags={(toValue, getTagProps) =>
-                toValue?.map((option, index) => (
-                  <Chip
-                    variant="outlined"
-                    color="primary"
-                    label={typeof option === "string" ? option : option}
-                    {...getTagProps({ index })}
-                    sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      // backgroundColor: "#6EB4C9",
-                      color: "primary.main",
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                        width: "12px",
-                      },
-                      "& .MuiChip-deleteIcon:hover": {
-                        color: "#e87f8c",
-                      },
-                    }}
-                  />
-                ))
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  fullWidth
-                  size="small"
-                  label="Department"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "4px",
-                      backgroundColor: "#f9fafb",
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                    },
-                    "& label.Mui-focused": { color: "#1a73e8" },
-                    "& label": { fontWeight: "bold" },
-                  }}
-                />
-              )}
+              label="Department"
+              qtkMethod={triggerDept}
+              onChange={setDept}
+              loading={deptLoading}
+              showIcon={false}
+              size="small"
+              optionLabelKey="deptName"
             />
 
-            {/* Agents */}
-            <Autocomplete
-              disableClearable
-              popupIcon={null}
-              sx={{ my: 1.5 }}
-              getOptionLabel={(option: any) => {
-                if (typeof option === "string") return option;
-                return (option.fName + " " + option.lName).trim() || "";
-              }}
-              options={displayAgentOptions}
+            <SingleValueAsynAutocomplete
               value={agentValue}
-              onChange={(event, newValue) => {
-                handleSelectedOption(event, newValue, "agent");
-              }}
-              onInputChange={(_, value) => {
-                setChangeAgent(value);
-                fetchAgentOptions(value);
-              }}
-              filterOptions={(x) => x}
-              getOptionDisabled={(option) => option === "Type to search"}
-              isOptionEqualToValue={(option, value) => {
-                if (!option || !value) return false;
-                return option.agentID === value.agentID;
-              }}
-              noOptionsText={
-                <div>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {seachAgentLoading ? (
-                      <CircularProgress size={18} />
-                    ) : (
-                      "Type to search"
-                    )}
-                  </Typography>
-                </div>
-              }
-              renderOption={(props, option: any) => (
-                <li {...props}>
-                  {typeof option === "string" ? (
-                    option
-                  ) : (
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {option.fName} {option.lName}
-                    </Typography>
-                  )}
-                </li>
+              label="Assignee"
+              qtkMethod={triggerSeachAgent}
+              onChange={setAgentValue}
+              loading={seachAgentLoading}
+              showIcon={false}
+              renderOptionExtra={(user) => (
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
               )}
-              renderTags={(toValue, getTagProps) =>
-                toValue?.map((option, index) => (
-                  <Chip
-                    variant="outlined"
-                    color="primary"
-                    label={
-                      typeof option === "string"
-                        ? option
-                        : `${option.fName} ${option.lName}`
-                    }
-                    {...getTagProps({ index })}
-                    sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      // backgroundColor: "#6EB4C9",
-                      color: "primary.main",
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                        width: "12px",
-                      },
-                      "& .MuiChip-deleteIcon:hover": {
-                        color: "#e87f8c",
-                      },
-                    }}
-                  />
-                ))
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  fullWidth
-                  size="small"
-                  label="Assignee"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "4px",
-                      backgroundColor: "#f9fafb",
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                    },
-                    "& label.Mui-focused": { color: "#1a73e8" },
-                    "& label": { fontWeight: "bold" },
-                  }}
-                />
-              )}
+              size="small"
             />
           </div>
 

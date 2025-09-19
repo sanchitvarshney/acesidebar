@@ -58,21 +58,18 @@ const CreateTicketPage: React.FC = () => {
   const { data: priorityList, isLoading: isPriorityListLoading } =
     useGetPriorityListQuery();
 
-  const { data: tagList, isLoading: isTagListLoading } = useGetTagListQuery();
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedContacts, setSelectedContacts] = useState<any[]>([]);
+  const { data: tagList } = useGetTagListQuery();
+
   const { showToast } = useToast();
   const [tagOptions, setTagOptions] = useState<any>();
   // Form validation errors
   const [errors, setErrors] = useState<Partial<TicketFormData>>({});
-  const [tagValue, setTagValue] = useState<any[]>([]);
+  const [tagValue, setTagValue] = useState<any>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
   const [agentValue, setAgentValue] = useState<any>("");
-  const [changeAgent, setChangeAgent] = useState("");
+
   const [dept, setDept] = useState<any>("");
-  const [changeDept, setChangedept] = useState("");
-  const [departmentOptions, setDepartmentOptions] = useState<any>([]);
-  const [AgentOptions, setAgentOptions] = useState<any>([]);
+
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
@@ -110,76 +107,16 @@ const CreateTicketPage: React.FC = () => {
   };
 
   const displayOptions = changeTagValue.length >= 3 ? tagOptions : [];
-  const displayDepartmentOptions = changeDept ? departmentOptions : [];
-  const displayAgentOptions = changeAgent ? AgentOptions : [];
-
-  const fetchDeptOptions = async (query: string) => {
-    if (!query) {
-      setDepartmentOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerDept({
-        search: query,
-      }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      const currentValue = changeDept;
-      const fallback = [
-        {
-          deptName: currentValue,
-        },
-      ];
-
-      if (Array.isArray(data)) {
-        setDepartmentOptions(data.length > 0 ? data : fallback);
-      } else {
-        setDepartmentOptions([]);
-      }
-    } catch (error) {
-      setDepartmentOptions([]);
-    }
-  };
 
   const fetchTagOptions = (value: string) => {
     if (!value || value.length < 3) return [];
     const filteredOptions = tagList?.filter((option: any) =>
       option.tagName?.toLowerCase().includes(value?.toLowerCase())
     );
-
     if (filteredOptions || filteredOptions?.length > 0) {
       setTagOptions(filteredOptions);
     } else {
       setTagOptions([]);
-    }
-  };
-
-  const fetchAgentOptions = async (query: string) => {
-    if (!query) {
-      setAgentOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerSeachAgent({ search: query }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      const currentValue = changeAgent;
-      const fallback = [
-        {
-          fName: currentValue,
-          emailAddress: currentValue,
-        },
-      ];
-
-      if (Array.isArray(data)) {
-        setAgentOptions(data.length > 0 ? data : fallback);
-      } else {
-        setAgentOptions([]);
-      }
-    } catch (error) {
-      setAgentOptions([]);
     }
   };
 
@@ -199,22 +136,19 @@ const CreateTicketPage: React.FC = () => {
         format: newTicket.format,
 
         tags: tagValue.map((tag: any) => tag?.tagID),
-        assignee: agentValue?.emailAddress,
+        assignee: agentValue?.email,
         department: dept?.deptID,
       };
 
       const res = await createTicket(payload).unwrap();
 
       if (res.success) {
-        showToast(
-          res?.payload?.message || "Ticket created successfully!",
-          "success"
-        );
+        showToast(res?.message || "Ticket created successfully!", "success");
 
         // Navigate back to tickets list
         navigate("/tickets");
       } else {
-        showToast(res.payload.message || "Failed to create ticket", "error");
+        showToast(res?.message || "Failed to create ticket", "error");
       }
     } catch (error) {
       showToast("Failed to create ticket", "error");
@@ -233,10 +167,6 @@ const CreateTicketPage: React.FC = () => {
     }
   };
 
-  const handleDeleteContact = (id: any) => {
-    setSelectedContacts((prev) => prev.filter((contact) => contact !== id));
-  };
-
   const handleSelectedOption = (
     _: React.SyntheticEvent,
     value: any,
@@ -244,46 +174,16 @@ const CreateTicketPage: React.FC = () => {
   ) => {
     if (!value) return;
 
-    if (type === "from") {
-      const dataValue = {
-        name: value.name,
-        email: value.email,
-        phone: value.phone,
-      };
-      if (!isValidEmail(dataValue.email)) {
-        showToast("Invalid email format", "error");
-        return;
-      }
-      if (selectedContacts.some((item: any) => item === value.email)) {
-        showToast("Contact already Exist", "error");
-        return;
-      }
-
-      setNewTicket((prev) => ({
-        ...prev,
-        user_name: dataValue.name,
-        user_email: dataValue.email,
-        user_phone: dataValue.phone,
-      }));
-    }
-
-    if (type === "dept") {
-      setDept(value);
-    }
-    if (type === "agent") {
-      setAgentValue(value);
-    }
-
     if (type === "tag") {
       if (!Array.isArray(value) || value.length === 0) {
         showToast("Tag already exists", "error");
         return;
       }
 
-      setTagValue((prev) => {
+      setTagValue((prev: any) => {
         // Find newly added tags (those not already in prev)
         const addedTags = value.filter(
-          (tag: any) => !prev.some((p) => p.tagID === tag.tagID)
+          (tag: any) => !prev.some((p: any) => p.tagID === tag.tagID)
         );
 
         if (addedTags.length === 0) {
@@ -365,8 +265,9 @@ const CreateTicketPage: React.FC = () => {
                 recipients: [],
               });
               setErrors({});
-              setSelectedTags([]);
-              setSelectedContacts([]);
+              setAgentValue(null);
+              setTagValue([]);
+              setDept(null);
             }}
             sx={{
               fontWeight: 600,
@@ -391,7 +292,7 @@ const CreateTicketPage: React.FC = () => {
               },
             }}
           >
-            {isCreating ? "Creating..." : "Create ticket"}
+            {isCreating ? <CircularProgress size={16} /> : "Create ticket"}
           </Button>
         </Box>
       </Box>
@@ -425,9 +326,14 @@ const CreateTicketPage: React.FC = () => {
               Ticket details
             </Typography>
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               {/* Priority */}
-              <FormControl fullWidth size="small" variant="outlined">
+              <FormControl
+                fullWidth
+                size="small"
+                variant="outlined"
+                sx={{ mb: 1 }}
+              >
                 <InputLabel>Priority</InputLabel>
                 <Select
                   value={newTicket.priority.toString()}
@@ -483,7 +389,7 @@ const CreateTicketPage: React.FC = () => {
                 label="Assignee"
                 qtkMethod={triggerSeachAgent}
                 onChange={setAgentValue}
-                loading={seachUserLoading}
+                loading={seachAgentLoading}
                 isFallback={true}
                 icon={
                   <Assignment fontSize="small" sx={{ color: "#666", mr: 1 }} />
@@ -506,11 +412,11 @@ const CreateTicketPage: React.FC = () => {
                   <Business fontSize="small" sx={{ color: "#666", mr: 1 }} />
                 }
                 size="small"
+                optionLabelKey="deptName"
               />
 
-
               <Autocomplete
-                sx={{ mt: 1.5 }}
+                sx={{ mt: 1 }}
                 multiple
                 disableClearable
                 popupIcon={null}

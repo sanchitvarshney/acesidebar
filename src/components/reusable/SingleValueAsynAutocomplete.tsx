@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Autocomplete,
   Chip,
+  CircularProgress,
   InputAdornment,
   TextField,
   Typography,
@@ -28,6 +29,7 @@ interface AsyncAutocompleteProps<T> {
   loading?: boolean;
   icon?: any;
   size?: "small" | "medium";
+  showIcon?: boolean;
 }
 
 function AsyncAutocomplete<T extends Record<string, any>>({
@@ -45,8 +47,8 @@ function AsyncAutocomplete<T extends Record<string, any>>({
   loading,
   icon = <Search sx={{ color: "#666", mr: 1 }} />,
   size = "medium",
+  showIcon = true,
 }: AsyncAutocompleteProps<T>) {
-
   const { showToast } = useToast();
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<T[]>([]);
@@ -62,9 +64,8 @@ function AsyncAutocomplete<T extends Record<string, any>>({
 
       try {
         const res = await qtkMethod({ search: debouncedValue }).unwrap();
-     
+
         const data = Array.isArray(res) ? res : res?.data;
-      
 
         if (Array.isArray(data) && data.length > 0) {
           setOptions(data);
@@ -99,9 +100,8 @@ function AsyncAutocomplete<T extends Record<string, any>>({
   };
 
   const getOptionLabel = (option: T | string) => {
-   
     if (typeof option === "string") return option; // fallback string case
-    return ((option?.[optionLabelKey] as string) ?? option?.deptName) || "";
+    return (option?.[optionLabelKey] as string) || "";
   };
 
   return (
@@ -160,12 +160,20 @@ function AsyncAutocomplete<T extends Record<string, any>>({
           {...params}
           label={label}
           placeholder={placeholder}
-          size= {size}
+          size={size}
           fullWidth
           InputProps={{
             ...params.InputProps,
-            startAdornment: (
+            startAdornment: showIcon && (
               <InputAdornment position="start">{icon}</InputAdornment>
+            ),
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={16} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
             ),
           }}
         />
