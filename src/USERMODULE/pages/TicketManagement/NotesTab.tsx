@@ -135,7 +135,7 @@ const NotesTab = ({ ticketData }: any) => {
   }, [error]);
 
   return (
-    <div className="bg-white rounded border border-gray-200 p-3 mb-4">
+   <div className="flex flex-col bg-white rounded border border-gray-200 h-[calc(100vh-210px)] items-center justify-center p-3 mb-4 h-40 ">
       {isNotes && !isEdit && (
         <StyledTextField
           placeholder="Write your note here"

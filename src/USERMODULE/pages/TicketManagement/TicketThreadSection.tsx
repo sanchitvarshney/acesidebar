@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { use, useCallback, useEffect, useRef, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
@@ -15,6 +15,8 @@ import web from "../../../assets/icons/ticket_source_web.gif";
 import email from "../../../assets/icons/ticket_source_email.gif";
 import fileicon from "../../../assets/archive.png";
 import DownloadIcon from "@mui/icons-material/Download";
+import userAvatar from "../../../assets/ticket-user-avatar.png";
+import agentAvatar from "../../../assets/ticket-agent-avatar.png";
 import {
   FormControl,
   Select,
@@ -426,15 +428,10 @@ const ThreadItem = ({
                 [isCurrentUser ? "left" : "right"]: `-20px`,
               }}
             >
-              {item.repliedBy?.avatarUrl ? (
-                // <img
-                //   src={item.repliedBy.avatarUrl}
-                //   alt={item.repliedBy.name}
-                //   className="w-10 h-10 rounded-full object-cover"
-                // />
+              
                 <Avatar
-                  src={item.repliedBy.avatarUrl}
-                  alt={item.repliedBy.name}
+                  src={item?.replyType === "AGENT" ? agentAvatar : userAvatar}
+                  alt={item?.replyType }
                   className="w-10 h-10 rounded-full object-cover"
                   sx={{
                     backgroundColor: isCurrentUser
@@ -442,20 +439,7 @@ const ThreadItem = ({
                       : "primary.main",
                   }}
                 />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-bold text-gray-600 border border-[#c3d9ff]">
-                  <Avatar
-                    sizes="sm"
-                    sx={{
-                      backgroundColor: isCurrentUser
-                        ? "hsl(45deg 100% 51.37%)"
-                        : "primary.main",
-                    }}
-                  >
-                    {item.repliedBy?.name?.[0]}
-                  </Avatar>
-                </div>
-              )}
+           
             </div>
             {!item?.subject && (
               <div
@@ -1164,9 +1148,9 @@ const TicketThreadSection = ({
                   selectedValue={selectedValue}
                   changeNotify={(value: any) => setNotifyTag(value)}
                   notifyTag={notifyTag}
-                  ticketId={header?.ticketId}
+                  // ticketId={header?.ticketId}
                   setIsReply={(value: any) => dispatch(setIsReply(value))}
-             
+                  ticketData={header}
                 />
               </div>
 
@@ -1296,6 +1280,7 @@ const TicketThreadSection = ({
                       setSelectedOptionValue("1");
                       setStateChangeKey((prev) => prev + 1);
                       setSignatureUpdateKey(0);
+                      setNotifyTag([]);
                       setImages([]);
                     }}
                     sx={{

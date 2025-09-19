@@ -76,7 +76,7 @@ const AboutTab = ({ ticketData }: any) => {
 
   return (
     <>
-      <div className="bg-white  rounded border border-gray-200 p-3 custom-scrollbar">
+      <div className=" h-[calc(100vh-350px)]  bg-white rounded border border-gray-200 p-3 custom-scrollbar">
         <div className="flex items-center justify-between mb-2">
           <div className="font-semibold text-sm text-gray-700 ">About</div>
           <div className="space-x-2">
@@ -103,7 +103,8 @@ const AboutTab = ({ ticketData }: any) => {
         </div>
 
         {/* Email */}
-        <div className="flex items-center gap-2 mb-1">
+       <div className="space-y-3">
+         <div className="flex items-center gap-2 mb-1">
           <EmailIcon className="text-gray-900" fontSize="small" />
           <span className="text-xs text-gray-800">Email</span>
         </div>
@@ -207,6 +208,7 @@ const AboutTab = ({ ticketData }: any) => {
             {internalNote || <span className="italic">Internal Note</span>}
           </div>
         )}
+       </div>
       </div>
     </>
   );

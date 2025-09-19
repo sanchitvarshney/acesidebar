@@ -47,6 +47,7 @@ import {
   useLazyGetDepartmentBySeachQuery,
 } from "../../../services/agentServices";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
+import { m } from "framer-motion";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -455,6 +456,7 @@ const Tickets: React.FC = () => {
     const newImportantStatus = !ticket.important;
     const payload = {
       url: `edit-property/${ticket.ticketNumber}?important=${newImportantStatus}`,
+      method: "PUT",
     };
 
     commanApi(payload)
@@ -476,8 +478,6 @@ const Tickets: React.FC = () => {
         showToast("Failed to update ticket importance", "error");
       });
   };
-  
-
 
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
@@ -861,12 +861,16 @@ const Tickets: React.FC = () => {
         onClose={() => setIsDeleteModal(false)}
         onConfirm={handleDelete}
         type="delete"
+        message={`Are you sure you want to delete (${selectedTickets.length}) ticket?`}
+        successMessage={`Successfully deleted (${selectedTickets.length}) tickets.`}
       />
       <ConfirmationModal
         open={isCloseModal}
         onClose={() => setIsCloseModal(false)}
         onConfirm={handleClose}
         type="close"
+        message={`Are you sure you want to close (${selectedTickets.length}) ticket?`}
+        successMessage={`Successfully closed (${selectedTickets.length}) tickets.`}
       />
 
       {/* Quick Update Popup */}

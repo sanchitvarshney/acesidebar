@@ -87,10 +87,12 @@ const StackEditor = ({
     selectedValue,
     changeNotify = () => {},
     notifyTag = [],
-    ticketId,
+   
+    ticketData,
     setIsReply,
   } = props;
-
+const ticketId = ticketData?.ticketId
+console.log(ticketData)
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
   const dispatch = useDispatch();
@@ -607,7 +609,7 @@ const StackEditor = ({
   const renderComponentBasedOnSelection = (
     <div className="flex items-center  ">
       {selectedIndex === "1" ? (
-        <span className="text-sm  ">Email: test (test)</span>
+        <span className="text-sm  ">Email: {ticketData?.email}</span>
       ) : (
         // <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
@@ -711,7 +713,7 @@ const StackEditor = ({
         <>
           <div>
             <span className="font-semibold text-gray-600 text-sm">To:</span>{" "}
-            <span className="text-sm text-gray-600">Test</span>
+            <span className="text-sm text-gray-600">{ticketData?.email}</span>
           </div>
           <div className="flex items-center gap-2">
             <p

@@ -124,7 +124,7 @@ const SharingTab = ({ ticketData }: any) => {
   };
 
   return (
-    <div className="bg-white rounded border border-gray-200 p-3 mb-4">
+    <div className="bg-white  h-[calc(100vh-368px)] rounded border border-gray-200 p-3 mb-0">
       <div className="flex items-center justify-between mb-2">
         <div className="font-semibold text-sm text-gray-700 ">Social Media</div>
         {isUpdating ? (

@@ -1,11 +1,5 @@
 import React, { memo, useCallback } from "react";
-import {
-  Card,
-  CardContent,
-  Checkbox,
-  Chip,
-  IconButton,
-} from "@mui/material";
+import { Card, CardContent, Checkbox, Chip, IconButton } from "@mui/material";
 import {
   Person as PersonIcon,
   Schedule as ScheduleIcon,
@@ -66,6 +60,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
         } before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:rounded-l ${"cursor-pointer"}`}
         onClick={handleClick}
         sx={{
+          width: "100%",
           pointerEvents:
             isCurrentTask || isLoading || loadingAttachmentTaskId
               ? "none"
@@ -73,12 +68,15 @@ const TaskCard: React.FC<TaskCardProps> = memo(
           opacity: isCurrentTask ? 0.9 : isLoading ? 0.8 : 1,
         }}
       >
-        <CardContent className="p-1.5" sx={{ marginBottom: "-15px" }}>
+        <CardContent
+          className="p-1.5"
+          sx={{ width: "100%", marginBottom: "-15px" }}
+        >
           {/* {isLoading || loadingAttachmentTaskId ? (
             <TaskCardSkeleton />
           ) : ( */}
-          <div className="flex items-start gap-2">
-            <div className="space-x-2">
+          <div className="w-full flex items-start gap-2">
+            <div className="w-full space-x-2">
               <div className="flex-1 min-w-0 ">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -128,7 +126,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                     )}
                   </div>
                 </div>
-                <div>
+                <div className="flex flex-col w-full">
                   <div className="flex items-center gap-3 text-sm text-gray-600 mb-1">
                     {!isAddTask && (
                       <span className="flex items-center gap-1">
@@ -139,10 +137,6 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                     <span className="flex items-center gap-1">
                       <PersonIcon fontSize="small" />
                       {task?.assignor}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ScheduleIcon fontSize="small" />
-                      {task?.due?.dt} {task?.due?.tm}
                     </span>
                   </div>
 
@@ -173,21 +167,30 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                       <span>{task?.estimate}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 mt-2">
-                    <div className="flex items-center gap-1">
-                      <IconButton size="small">
-                        <CommentIcon fontSize="small" />
-                      </IconButton>
-                      <span className="text-gray-500">
-                        {task?.other?.comment}
-                      </span>
+                  <div className="w-full flex items-center justify-between mt-2">
+                    <div className="w-full flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <IconButton size="small">
+                          <CommentIcon fontSize="small" />
+                        </IconButton>
+                        <span className="text-gray-500">
+                          {task?.other?.comment}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <IconButton size="small">
+                          <AttachFileIcon fontSize="small" />
+                        </IconButton>
+                        <span className="text-gray-500">
+                          {task.other?.attachment}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <IconButton size="small">
-                        <AttachFileIcon fontSize="small" />
-                      </IconButton>
-                      <span className="text-gray-500">
-                        {task.other?.attachment}
+                    <div className="flex w-[80px] items-center gap-1" >
+                     
+                      <ScheduleIcon fontSize="small" />{" "}
+                      <span>
+                        {task?.due?.dt} {task?.due?.tm}
                       </span>
                     </div>
                   </div>

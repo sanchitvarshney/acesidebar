@@ -279,7 +279,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           </Tabs>
         </Box>
 
-        <div className="w-full h-[calc(100vh-160px)]  overflow-y-scroll">
+        <div className="w-full h-[calc(100vh-350px)]  overflow-y-scroll">
           {/* Profile tab content */}
           {activeProfileTab === 0 && <AboutTab ticketData={ticket} />}
           {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
