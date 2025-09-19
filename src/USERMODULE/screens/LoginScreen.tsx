@@ -201,6 +201,27 @@ const LoginScreen = () => {
         setCaptchaToken("");
         navigation("/");
         return;
+      }
+      else if (result.data?.success === true && result.data?.type === "session_limit_reached") {
+        // Store user data and token for session management
+        localStorage.setItem("userToken", result.data.data.token);
+        const decryptedData = JSON.stringify(decrypt(result.data.data.user));
+        localStorage.setItem("userData", decryptedData);
+        
+        if (rememberMe) {
+          localStorage.setItem("rememberMe", "true");
+          localStorage.setItem("rememberedEmail", data.email);
+        } else {
+          localStorage.removeItem("rememberMe");
+          localStorage.removeItem("rememberedEmail");
+        }
+        
+        signIn();
+        setIsCaptchaVerified(false);
+        setCaptchaToken("");
+        // Redirect to session management page
+        navigation("/session-management");
+        return;
       } else {
         const errorMessage =
           result.data?.message || "Login failed. Please try again.";
@@ -288,9 +309,9 @@ const LoginScreen = () => {
   };
 
   return (
-    <Box sx={{ 
-      height: "100vh", 
-      backgroundColor: "#ffffff", 
+    <Box sx={{
+      height: "100vh",
+      backgroundColor: "#ffffff",
       position: "fixed",
       top: 0,
       left: 0,
@@ -347,8 +368,8 @@ const LoginScreen = () => {
                 }}
               >
                 A
-            </Typography>
-          </Box>
+              </Typography>
+            </Box>
             <Typography
               variant="h4"
               sx={{
@@ -361,120 +382,120 @@ const LoginScreen = () => {
             </Typography>
           </Box>
 
-           {/* Main Content */}
-           <Box sx={{ 
-             flex: 1, 
-             display: "flex", 
-             flexDirection: "row", 
-             justifyContent: "space-between", 
-             alignItems: "center",
-             zIndex: 2, 
-             position: "relative",
-             padding: 4
-           }}>
-             {/* Left side - Text */}
-             <Box sx={{ flex: "0 0 50%", pr: 4 }}>
-               <Typography
-                 variant="h2"
-                 sx={{
-                   color: "white",
-                   fontWeight: 700,
-                   fontSize: "48px",
-                   lineHeight: 1.2,
-                   mb: 4,
-                   textShadow: "2px 2px 4px rgba(0,0,0,0.5)"
-                 }}
-               >
-                 Explore the things{" "}
-                 <Box component="span" sx={{ color: "#FFD700" }}>
-                   you love.
-                 </Box>
-               </Typography>
+          {/* Main Content */}
+          <Box sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            zIndex: 2,
+            position: "relative",
+            padding: 4
+          }}>
+            {/* Left side - Text */}
+            <Box sx={{ flex: "0 0 50%", pr: 4 }}>
+              <Typography
+                variant="h2"
+                sx={{
+                  color: "white",
+                  fontWeight: 700,
+                  fontSize: "48px",
+                  lineHeight: 1.2,
+                  mb: 4,
+                  textShadow: "2px 2px 4px rgba(0,0,0,0.5)"
+                }}
+              >
+                Explore the things{" "}
+                <Box component="span" sx={{ color: "#FFD700" }}>
+                  you love.
+                </Box>
+              </Typography>
 
-               <Typography
-                 variant="h5"
-                 sx={{
-                   color: "white",
-                   fontWeight: 400,
-                   fontSize: "24px",
-                   opacity: 0.9,
-                   textShadow: "1px 1px 2px rgba(0,0,0,0.5)"
-                 }}
-               >
-                 Your trusted support partner for all your technical needs
-               </Typography>
-             </Box>
-             <Box sx={{ 
-               flex: "0 0 40%", 
-               display: "flex", 
-               justifyContent: "center", 
-               alignItems: "center",
-               position: "relative"
-             }}>
-               <Box
-                 component="img"
-                 src={imageBackground}
-                 alt="Ajaxter"
-                 sx={{
-                   width: "100%",
-                   maxWidth: 500,
-                   height: "auto",
-                   objectFit: "contain"
-                 }}
-               />
-             </Box>
-           </Box>
+              <Typography
+                variant="h5"
+                sx={{
+                  color: "white",
+                  fontWeight: 400,
+                  fontSize: "24px",
+                  opacity: 0.9,
+                  textShadow: "1px 1px 2px rgba(0,0,0,0.5)"
+                }}
+              >
+                Your trusted support partner for all your technical needs
+              </Typography>
+            </Box>
+            <Box sx={{
+              flex: "0 0 40%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              position: "relative"
+            }}>
+              <Box
+                component="img"
+                src={imageBackground}
+                alt="Ajaxter"
+                sx={{
+                  width: "100%",
+                  maxWidth: 500,
+                  height: "auto",
+                  objectFit: "contain"
+                }}
+              />
+            </Box>
+          </Box>
 
-          <Box sx={{ 
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "space-between", 
-            zIndex: 2, 
+          <Box sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            zIndex: 2,
             position: "relative",
             backgroundColor: "white",
             padding: 2,
             borderRadius: "8px 8px 0 0",
             margin: "0 -16px -16px -16px"
           }}>
-             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-               <Box
-                 component="img"
-                 src={imagePadLock}
-                 alt="Security Lock"
-                 sx={{
-                   width: 32,
-                   height: 32,
-                   objectFit: "contain"
-                 }}
-               />
-          <Box>
-                 <Typography variant="h6" sx={{ 
-                   color: "#1877f2", 
-                   fontWeight: 700, 
-                   fontSize: "16px",
-                   mb: 0.5
-                 }}>
-                   High security
-                 </Typography>
-                 <Divider sx={{ mb: 1, width: "80%" }} />
-                 <Typography variant="body2" sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}>
-                   All content of the Ajaxter are TLS encrypted.
-                 </Typography>
-                 <Typography variant="body2" sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}>
-                   All protocols are available encrypted.
-                 </Typography>
-               </Box>
-          </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Box
+                component="img"
+                src={imagePadLock}
+                alt="Security Lock"
+                sx={{
+                  width: 32,
+                  height: 32,
+                  objectFit: "contain"
+                }}
+              />
+              <Box>
+                <Typography variant="h6" sx={{
+                  color: "#1877f2",
+                  fontWeight: 700,
+                  fontSize: "16px",
+                  mb: 0.5
+                }}>
+                  High security
+                </Typography>
+                <Divider sx={{ mb: 1, width: "80%" }} />
+                <Typography variant="body2" sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}>
+                  All content of the Ajaxter are TLS encrypted.
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}>
+                  All protocols are available encrypted.
+                </Typography>
+              </Box>
+            </Box>
 
-             <Box sx={{ display: "flex", alignItems: "center" }}>
-               <Typography
-                 sx={{
-                   color: "#65676b",
-                   fontSize: "12px",
-                   fontWeight: 400,
-                 }}
-               >
-                 © 2025-{new Date().getFullYear()} | All rights reserved
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography
+                sx={{
+                  color: "#65676b",
+                  fontSize: "12px",
+                  fontWeight: 400,
+                }}
+              >
+                © 2025-{new Date().getFullYear()} | All rights reserved
               </Typography>
             </Box>
           </Box>
@@ -508,34 +529,34 @@ const LoginScreen = () => {
                 <Typography variant="body1" sx={{ color: "#65676b", mb: 3 }}>
                   Give us your email address and instructions to reset your password will be emailed to you.
                 </Typography>
-                
-                 <TextField
-                   {...registerForgot("email")}
-                   fullWidth
-                   variant="outlined"
-                   label="Email address"
-                   sx={{
-                     mb: 3,
-                     "& .MuiOutlinedInput-root": {
-                       borderRadius: 2,
-                       fontSize: "16px",
-                       "& fieldset": {
-                         borderColor: "#dadde1",
-                       },
-                       "&:hover fieldset": {
-                         borderColor: "#1877f2",
-                       },
-                       "&.Mui-focused fieldset": {
-                         borderColor: "#1877f2",
-                       },
-                     },
-                   }}
-                   error={
-                     isForgotSubmitted || forgotTouched.email
-                       ? !!forgotErrors.email
-                       : false
-                   }
-                 />
+
+                <TextField
+                  {...registerForgot("email")}
+                  fullWidth
+                  variant="outlined"
+                  label="Email address"
+                  sx={{
+                    mb: 3,
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      fontSize: "16px",
+                      "& fieldset": {
+                        borderColor: "#dadde1",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#1877f2",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#1877f2",
+                      },
+                    },
+                  }}
+                  error={
+                    isForgotSubmitted || forgotTouched.email
+                      ? !!forgotErrors.email
+                      : false
+                  }
+                />
 
                 <Box sx={{ mb: 3 }}>
                   {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
@@ -551,9 +572,9 @@ const LoginScreen = () => {
                   ) : (
                     <Typography variant="body2" sx={{ color: "error.main", p: 2 }}>
                       reCAPTCHA site key not configured
-            </Typography>
+                    </Typography>
                   )}
-          </Box>
+                </Box>
 
                 <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
                   <Button
@@ -615,8 +636,8 @@ const LoginScreen = () => {
                   value={baseUrl}
                   onChange={handleChange}
                   size="small"
-                  sx={{ 
-                    width: 300, 
+                  sx={{
+                    width: 300,
                     mb: 2,
                     display: { xs: "none", sm: "block" }
                   }}
@@ -626,76 +647,76 @@ const LoginScreen = () => {
                   Log in to Ajaxter
                 </Typography>
 
-                 <TextField
-                   {...register("email")}
-                   fullWidth
-                   variant="outlined"
-                   label="Email address or mobile number"
-                   sx={{
-                     mb: 2,
-                     "& .MuiOutlinedInput-root": {
-                       borderRadius: 2,
-                       fontSize: "16px",
-                       "& fieldset": {
-                         borderColor: "#dadde1",
-                       },
-                       "&:hover fieldset": {
-                         borderColor: "#1877f2",
-                       },
-                       "&.Mui-focused fieldset": {
-                         borderColor: "#1877f2",
-                       },
-                     },
-                   }}
-                   autoComplete="email"
-                   error={isSubmitted || touchedFields.email ? !!errors.email : false}
-                 />
+                <TextField
+                  {...register("email")}
+                  fullWidth
+                  variant="outlined"
+                  label="Email address or mobile number"
+                  sx={{
+                    mb: 2,
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      fontSize: "16px",
+                      "& fieldset": {
+                        borderColor: "#dadde1",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#1877f2",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#1877f2",
+                      },
+                    },
+                  }}
+                  autoComplete="email"
+                  error={isSubmitted || touchedFields.email ? !!errors.email : false}
+                />
 
-                 <TextField
-                   {...register("password")}
-                   fullWidth
-                   variant="outlined"
-                   label="Password"
-                   type={showPassword ? "text" : "password"}
-                   sx={{
-                     mb: 2,
-                     "& .MuiOutlinedInput-root": {
-                       borderRadius: 2,
-                       fontSize: "16px",
-                       "& fieldset": {
-                         borderColor: "#dadde1",
-                       },
-                       "&:hover fieldset": {
-                         borderColor: "#1877f2",
-                       },
-                       "&.Mui-focused fieldset": {
-                         borderColor: "#1877f2",
-                       },
-                     },
-                   }}
-                   InputProps={{
-                     endAdornment: (
-                       <InputAdornment position="end">
-                         <IconButton
-                           aria-label="toggle password visibility"
-                           onClick={handleToggleVisibility}
-                           edge="end"
-                           sx={{ color: "#65676b" }}
-                         >
-                           {showPassword ? (
-                             <VisibilityOffIcon />
-                           ) : (
-                             <VisibilityIcon />
-                           )}
-                         </IconButton>
-                       </InputAdornment>
-                     ),
-                   }}
-                   autoComplete="current-password"
-                   error={
-                     isSubmitted || touchedFields.password ? !!errors.password : false
-                   }
-                 />
+                <TextField
+                  {...register("password")}
+                  fullWidth
+                  variant="outlined"
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  sx={{
+                    mb: 2,
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      fontSize: "16px",
+                      "& fieldset": {
+                        borderColor: "#dadde1",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#1877f2",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#1877f2",
+                      },
+                    },
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleToggleVisibility}
+                          edge="end"
+                          sx={{ color: "#65676b" }}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffIcon />
+                          ) : (
+                            <VisibilityIcon />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  autoComplete="current-password"
+                  error={
+                    isSubmitted || touchedFields.password ? !!errors.password : false
+                  }
+                />
 
                 {/* Google reCAPTCHA Security Verification */}
                 <Box sx={{ mb: 2 }}>
@@ -724,7 +745,7 @@ const LoginScreen = () => {
                       </Typography>
                     )}
                 </Box>
-                   {/* Terms & Conditions Checkbox */}
+                {/* Terms & Conditions Checkbox */}
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -799,15 +820,15 @@ const LoginScreen = () => {
                   ) : (
                     "Log in"
                   )}
-            </Button>
+                </Button>
 
-             
+
 
                 <Box sx={{ textAlign: "center", mb: 2 }}>
                   <Link
                     component="button"
                     underline="hover"
-                    sx={{ 
+                    sx={{
                       color: "#1877f2",
                       fontSize: "14px",
                       fontWeight: 500,
@@ -841,16 +862,16 @@ const LoginScreen = () => {
                       backgroundColor: "rgba(24, 119, 242, 0.05)",
                     },
                   }}
-              onClick={() => {
+                  onClick={() => {
                     const baseUrl =
                       process.env.REACT_APP_FRONTEND_URL || window.location.origin;
-                window.location.href = `${baseUrl}/ticket/support`;
-              }}
-            >
+                    window.location.href = `${baseUrl}/ticket/support`;
+                  }}
+                >
                   <SupportAgentIcon sx={{ mr: 1, fontSize: 20 }} />
                   Login as Customer
-            </Button>
-          </Box>
+                </Button>
+              </Box>
             )}
           </Box>
         </Box>

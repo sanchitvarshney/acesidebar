@@ -11,6 +11,7 @@ import CreateUser from "../USERMODULE/pages/CreateUser";
 import LoginScreen from "../USERMODULE/screens/LoginScreen";
 import SignupScreen from "../USERMODULE/screens/SignupScreen";
 import Settings from "../USERMODULE/components/Settings";
+import SessionManagementPage from "../USERMODULE/pages/SessionManagementPage";
 
 import SupportMainScreen from "../ADMINMODULE/screens/SupportMainScreen";
 import SupportScreen from "../ADMINMODULE/screens/SupportScreen";
@@ -77,6 +78,10 @@ export const router = createBrowserRouter([
         <SignupScreen />
       </Protected>
     ),
+  },
+  {
+    path: "/session-management",
+    element: <SessionManagementPage />,
   },
 
   // Main App (Protected) Routes

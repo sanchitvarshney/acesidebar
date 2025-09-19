@@ -578,7 +578,7 @@ const TicketDetailHeader = ({
         <div className="space-x-2">
           <Tooltip
             title={watcherEnabled ? "Disable Watchers" : "Enable Watchers"}
-            placement="left"
+            placement="right"
           >
             <Switch
               checked={watcherEnabled}
