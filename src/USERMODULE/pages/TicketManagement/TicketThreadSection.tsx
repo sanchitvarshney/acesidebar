@@ -987,7 +987,7 @@ const TicketThreadSection = ({
   }, [showEditorNote, showReplyEditor]);
 
   return (
-    <div className="flex flex-col gap-2  w-full h-[100%]  overflow-hidden ">
+    <div className="flex flex-col gap-2  w-full h-[100%]  overflow-hidden border border-r-2 border-[#e0e0e0]">
       <div className="w-full p-2 ">
         <div className="sticky top-0 z-[99]">
           <TicketSubjectBar header={header} />

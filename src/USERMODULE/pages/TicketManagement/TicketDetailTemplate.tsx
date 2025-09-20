@@ -164,7 +164,7 @@ const TicketDetailTemplate = () => {
         height: "calc(100vh - 98px)",
       }}
     >
-      <Sidebar open={false} handleDrawerToggle={() => {}} />
+      <Sidebar open={false} handleDrawerToggle={() => { }} />
       <Box
         id="ticket-header"
         sx={{ flex: 1, display: "flex", flexDirection: "column" }}
@@ -180,9 +180,9 @@ const TicketDetailTemplate = () => {
             ticketNumber={openTicketNumber}
           />
         </div>
-        <div className="w-full bg-gray-100 grid grid-cols-[3fr_1fr] ">
+        <div className="w-full grid grid-cols-[3fr_1fr] ">
           <div
-            style={{ width: "100%", height: "100%", overflow: "auto" }}
+            style={{ width: "100%", height: "100%", overflow: "auto" }} className="bg-white"
             id="ticket-thread"
           >
             <TicketThreadSection
@@ -196,7 +196,7 @@ const TicketDetailTemplate = () => {
               value={value}
             />
           </div>
-          <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+          <div style={{ width: "100%", height: "100%", overflow: "hidden"}}>
             <TicketPropertiesSidebar ticket={ticket.header} />
 
             {/* Forward Panel positioned inside the right column */}

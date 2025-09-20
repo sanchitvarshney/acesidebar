@@ -76,7 +76,7 @@ const AboutTab = ({ ticketData }: any) => {
 
   return (
     <>
-      <div className=" h-[calc(100vh-350px)]  bg-white rounded border border-gray-200 p-3 custom-scrollbar">
+      <div className=" h-[calc(100vh-350px)] rounded border border-gray-200 p-3 custom-scrollbar bg-gray-100">
         <div className="flex items-center justify-between mb-2">
           <div className="font-semibold text-sm text-gray-700 ">About</div>
           <div className="space-x-2">

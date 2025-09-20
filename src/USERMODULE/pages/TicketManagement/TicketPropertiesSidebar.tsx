@@ -217,7 +217,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
   if (activeTopTab === 2) {
     // profile
     mainContent = (
-      <div className="w-full overflow-hidden ">
+      <div className="w-full overflow-hidden">
         <div className="flex items-center gap-3 my-3">
           <Avatar
             sx={{
@@ -279,7 +279,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           </Tabs>
         </Box>
 
-        <div className="w-full h-[calc(100vh-350px)]  overflow-y-scroll">
+        <div className="w-full h-[calc(100vh-350px)] overflow-y-scroll">
           {/* Profile tab content */}
           {activeProfileTab === 0 && <AboutTab ticketData={ticket} />}
           {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
