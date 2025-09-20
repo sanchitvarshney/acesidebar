@@ -129,8 +129,8 @@ const ToastShow: React.FC<ToastShowProps> = ({
 
           <div
             className={`${
-              typeError === "borderToast" ? "ml-2" : "mx-3"
-            } flex flex-col items-end `}
+              typeError === "borderToast" ? "ml-2" : "mx-3 py-2"
+            } flex flex-col items-end`}
           >
             <Typography variant="subtitle2" sx={{ whiteSpace: "pre-line" }}>
               {msg?.replace(/\\n/g, "\n")}

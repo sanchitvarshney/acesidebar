@@ -126,7 +126,7 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
     const errorData = result.error?.data as any;
     if (errorData?.type === "rate_limit_exceeded") {
       showToast(
-        "Rate limit exceeded.\nPlease try again later.",
+        errorData.message || "Rate limit exceeded.\nPlease try again later.",
         "error",
         "boxToast",
         true
