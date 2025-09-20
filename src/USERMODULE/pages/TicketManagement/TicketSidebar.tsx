@@ -313,7 +313,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                                   width: 12,
                                   height: 12,
                                   borderRadius: "50%",
-                                  backgroundColor: opt.color || "#ccc",
+                                  backgroundColor: opt.color || "#c4c4c4",
                                   marginRight: 6,
                                 }}
                               ></span>
@@ -359,6 +359,23 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                     value={filters[field.name]}
                     onChange={handleChange}
                     variant="filled"
+                    sx={{
+                      "& .MuiFilledInput-root": {
+                        backgroundColor: "#f7f7f7",
+                        "&.Mui-focused": {
+                          backgroundColor: "#fffbeb",
+                        },
+                      },
+                      "& .MuiFilledInput-underline:before": {
+                        borderBottom: "2px solid #c4c4c4", // default (not focused)
+                      },
+                      "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before": {
+                        borderBottom: "2px solid #c4c4c4", // on hover
+                      },
+                      "& .MuiFilledInput-underline:after": {
+                        borderBottom: "2px solid #c4c4c4", // on focus
+                      },
+                    }}
                   />
                 </div>
               )}
@@ -726,7 +743,25 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         onChange={handleChange}
                         variant="filled"
                         placeholder={field.placeholder || field.label || ""}
+                        sx={{
+                          "& .MuiFilledInput-root": {
+                            backgroundColor: "#f7f7f7",
+                            "&.Mui-focused": {
+                              backgroundColor: "#fffbeb",
+                            },
+                          },
+                          "& .MuiFilledInput-underline:before": {
+                            borderBottom: "2px solid #c4c4c4", // default (not focused)
+                          },
+                          "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before": {
+                            borderBottom: "2px solid #c4c4c4", // on hover
+                          },
+                          "& .MuiFilledInput-underline:after": {
+                            borderBottom: "2px solid #c4c4c4", // on focus
+                          },
+                        }}
                       />
+
                     )}
                     {field.type === "date" && (
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
