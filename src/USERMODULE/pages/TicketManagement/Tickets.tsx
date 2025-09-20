@@ -229,7 +229,6 @@ const Tickets: React.FC = () => {
       });
   };
 
-
   // Handle sorting popover open
   const handleSortingPopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     setSortingPopoverAnchorEl(event.currentTarget);
@@ -247,7 +246,7 @@ const Tickets: React.FC = () => {
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-      "Date created"
+        "Date created"
     );
     setSortOrder("desc"); // Reset to default order
     setPage(1); // Reset to first page
@@ -317,7 +316,7 @@ const Tickets: React.FC = () => {
     if (!ticketsToShow?.data) return;
     setMasterChecked(
       ticketsToShow.data.length > 0 &&
-      selectedTickets.length === ticketsToShow.data.length
+        selectedTickets.length === ticketsToShow.data.length
     );
   }, [selectedTickets, ticketsToShow]);
 
@@ -409,10 +408,10 @@ const Tickets: React.FC = () => {
     setAgentValue(
       merged.assignee
         ? {
-          fName: merged.assignee.name?.split(" ")[0] || "",
-          lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
-          UserId: merged.assignee.id || merged.assignee.UserId,
-        }
+            fName: merged.assignee.name?.split(" ")[0] || "",
+            lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
+            UserId: merged.assignee.id || merged.assignee.UserId,
+          }
         : null
     );
 
@@ -460,8 +459,11 @@ const Tickets: React.FC = () => {
           return;
         }
         if (res?.data?.type === "success") {
-          showToast(res?.message || res?.data?.message, "error", "boxToast");
-
+          showToast(
+            res?.message || res?.data?.message,
+            "success",
+            "borderToast"
+          );
         }
 
         // Only update UI after successful API response
@@ -473,7 +475,6 @@ const Tickets: React.FC = () => {
               important: res.data.updatedFields.important,
             },
           }));
-
         } else {
           // Fallback: update with the expected value if server response doesn't include it
           setTicketOverrides((prev) => ({
@@ -594,7 +595,6 @@ const Tickets: React.FC = () => {
                   e.stopPropagation();
                   handleToggleImportant(ticket);
                 }}
-  
                 className={
                   merged?.important
                     ? "hover:text-[#1976d2]"
@@ -960,7 +960,6 @@ const Tickets: React.FC = () => {
                     },
                   }}
                 >
-               
                   {PRIORITY_OPTIONS.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       <div className="flex items-center gap-2">
@@ -1002,7 +1001,6 @@ const Tickets: React.FC = () => {
                     },
                   }}
                 >
-              
                   {STATUS_OPTIONS.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       <span className="text-gray-700">{option.label}</span>
