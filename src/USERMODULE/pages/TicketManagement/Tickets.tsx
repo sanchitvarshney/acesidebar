@@ -465,14 +465,10 @@ const Tickets: React.FC = () => {
           showToast(res?.message || res?.data?.message, "error");
           return;
         }
-        showToast(
-          `Ticket ${
-            newImportantStatus
-              ? "marked as important"
-              : "removed from important"
-          }`,
-          "success"
-        );
+        // Only show success message when marking as important
+        if (newImportantStatus) {
+          showToast("Ticket marked as important", "success");
+        }
       })
       .catch(() => {
         showToast("Failed to update ticket importance", "error");

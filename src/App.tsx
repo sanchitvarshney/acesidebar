@@ -10,9 +10,11 @@ import { ToastContext } from "./contextApi/ToastContext";
 import { AuthProvider } from "./contextApi/AuthContext";
 import { PopupProvider } from "./contextApi/PopupContext";
 import { PermissionProvider } from "./contextApi/PermissionContext";
+import { ErrorProvider } from "./BUGREPORT";
 import theme from "./theme";
 import "./font.css"
 import { TabsProvider } from "./contextApi/TabsContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 
 
@@ -20,22 +22,26 @@ import { TabsProvider } from "./contextApi/TabsContext";
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <TabsProvider>
-          <AuthProvider>
-            <PopupProvider>
-              <PermissionProvider>
-                <ToastContext>
-                  <CssBaseline />
-                  <RouterProvider router={router} />
-                </ToastContext>
-              </PermissionProvider>
-            </PopupProvider>
-          </AuthProvider>
-        </TabsProvider>
-      </LocalizationProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <TabsProvider>
+            <AuthProvider>
+              <PopupProvider>
+                <PermissionProvider>
+                  <ErrorProvider>
+                    <ToastContext>
+                      <CssBaseline />
+                      <RouterProvider router={router} />
+                    </ToastContext>
+                  </ErrorProvider>
+                </PermissionProvider>
+              </PopupProvider>
+            </AuthProvider>
+          </TabsProvider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

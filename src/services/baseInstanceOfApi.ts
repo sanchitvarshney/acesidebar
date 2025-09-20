@@ -8,6 +8,7 @@ import {
   addTurnstileToHeaders,
 } from "../utils/requestHeaders";
 import { getTurnstileToken } from "../utils/turnstile";
+import { handleInternalError, extractErrorData } from "../BUGREPORT";
 
 /**
  * API Configuration
@@ -75,6 +76,7 @@ const handleUnauthorizedResponse = (): void => {
   window.location.href = API_CONFIG.loginPath;
 };
 
+
 /**
  * Custom base query with authentication, Turnstile, and error handling
  *
@@ -108,6 +110,14 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
     (result.error?.data as { status?: string })?.status === "logout"
   ) {
     handleUnauthorizedResponse();
+  }
+
+  // Handle 500 Internal Server Error responses
+  if (result.error?.status === 500) {
+    const errorData = extractErrorData(result.error);
+    if (errorData) {
+      handleInternalError(errorData, result.error);
+    }
   }
 
   return result;
