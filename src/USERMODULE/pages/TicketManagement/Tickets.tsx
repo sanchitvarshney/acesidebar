@@ -271,7 +271,7 @@ const Tickets: React.FC = () => {
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-        "Date created"
+      "Date created"
     );
     setSortOrder("desc"); // Reset to default order
     setPage(1); // Reset to first page
@@ -341,7 +341,7 @@ const Tickets: React.FC = () => {
     if (!ticketsToShow?.data) return;
     setMasterChecked(
       ticketsToShow.data.length > 0 &&
-        selectedTickets.length === ticketsToShow.data.length
+      selectedTickets.length === ticketsToShow.data.length
     );
   }, [selectedTickets, ticketsToShow]);
 
@@ -433,10 +433,10 @@ const Tickets: React.FC = () => {
     setAgentValue(
       merged.assignee
         ? {
-            fName: merged.assignee.name?.split(" ")[0] || "",
-            lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
-            UserId: merged.assignee.id || merged.assignee.UserId,
-          }
+          fName: merged.assignee.name?.split(" ")[0] || "",
+          lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
+          UserId: merged.assignee.id || merged.assignee.UserId,
+        }
         : null
     );
 
@@ -485,7 +485,7 @@ const Tickets: React.FC = () => {
         }
         if (res?.data?.type === "success") {
           showToast(res?.message || res?.data?.message, "success");
-          
+
         }
 
         // Only update UI after successful API response
@@ -497,7 +497,7 @@ const Tickets: React.FC = () => {
               important: res.data.updatedFields.important,
             },
           }));
-        
+
         } else {
           // Fallback: update with the expected value if server response doesn't include it
           setTicketOverrides((prev) => ({
@@ -529,7 +529,7 @@ const Tickets: React.FC = () => {
     return (
       <div
         key={merged?.ticketNumber}
-        className="bg-white border-2 border-blue-200 rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative"
+        className="bg-white border-2 border-[#e2e8f0] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative"
         onClick={() => handleTicketSubjectClick(merged.ticketNumber)}
       >
         {/* Top section */}
@@ -633,7 +633,7 @@ const Tickets: React.FC = () => {
                 {loadingImportantTickets.has(merged.ticketNumber) ? (
                   <CircularProgress size={20} color="inherit" />
                 ) : merged?.important ? (
-                  <PushPinIcon fontSize="small" />
+                  <PushPinIcon fontSize="small" sx={{ color: "#1976d2" }} />
                 ) : (
                   <PushPinOutlinedIcon fontSize="small" />
                 )}
