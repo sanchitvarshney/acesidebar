@@ -48,14 +48,14 @@ const TextInputCellRenderer = (props: any) => {
             }}
           >
             {row?.avatar ? (
-              <Avatar alt={row?.fName} src={row?.avatar} />
+              <Avatar alt={row?.name} src={row?.avatar} />
             ) : (
               <Avatar>
-                {row?.fName ? row?.fName.charAt(0).toUpperCase() : "T"}
+                {row?.name ? row?.name.charAt(0).toUpperCase() : "T"}
               </Avatar>
             )}
             <Typography fontWeight={500} color="text.primary">
-              {row?.fName}
+              {row?.name}
             </Typography>
           </div>
         );

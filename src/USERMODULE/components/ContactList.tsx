@@ -68,7 +68,7 @@ const ContactList = () => {
   const [columnOrganizerOpen, setColumnOrganizerOpen] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([
     "contact",
-    "emailAddress",
+    "email",
     "company",
     "phoneNumber",
     "roleType",

@@ -11,8 +11,8 @@ export const columns: GridColDef[] = [
     sortable: true,
     filterable: true,
     renderCell: (params) => <TextInputCellRenderer {...params} />,
-    headerAlign: 'left',
-    align: 'left',
+    headerAlign: "left",
+    align: "left",
   },
   {
     field: "roleType",
@@ -22,19 +22,19 @@ export const columns: GridColDef[] = [
     sortable: true,
     filterable: true,
     renderCell: (params) => (
-      <Chip 
-        label={params.value || 'N/A'} 
+      <Chip
+        label={params.value || "N/A"}
         size="small"
         variant="outlined"
-        sx={{ 
-          borderColor: '#e0e0e0',
-          backgroundColor: '#f8f9fa',
-          fontWeight: 500 
+        sx={{
+          borderColor: "#e0e0e0",
+          backgroundColor: "#f8f9fa",
+          fontWeight: 500,
         }}
       />
     ),
-    headerAlign: 'left',
-    align: 'left',
+    headerAlign: "left",
+    align: "left",
   },
   {
     field: "company",
@@ -44,48 +44,48 @@ export const columns: GridColDef[] = [
     sortable: true,
     filterable: true,
     renderCell: (params) => (
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          color: '#424242',
+      <Typography
+        variant="body2"
+        sx={{
+          color: "#424242",
           fontWeight: 500,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
         }}
       >
-        {params.value || '-'}
+        {params.value || "-"}
       </Typography>
     ),
-    headerAlign: 'left',
-    align: 'left',
+    headerAlign: "left",
+    align: "left",
   },
   {
-    field: "emailAddress",
+    field: "email",
     headerName: "Email Address",
     flex: 1.2,
     minWidth: 220,
     sortable: true,
     filterable: true,
     renderCell: (params) => (
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          color: '#1976d2',
-          textDecoration: 'none',
-          cursor: 'pointer',
-          '&:hover': { textDecoration: 'underline' },
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+      <Typography
+        variant="body2"
+        sx={{
+          color: "#1976d2",
+          textDecoration: "none",
+          cursor: "pointer",
+          "&:hover": { textDecoration: "underline" },
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
         }}
         onClick={() => window.open(`mailto:${params.value}`)}
       >
-        {params.value || '-'}
+        {params.value || "-"}
       </Typography>
     ),
-    headerAlign: 'left',
-    align: 'left',
+    headerAlign: "left",
+    align: "left",
   },
   {
     field: "phoneNumber",
@@ -95,19 +95,19 @@ export const columns: GridColDef[] = [
     sortable: true,
     filterable: true,
     renderCell: (params) => (
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          color: '#424242',
-          fontFamily: 'monospace',
-          fontSize: '0.875rem'
+      <Typography
+        variant="body2"
+        sx={{
+          color: "#424242",
+          fontFamily: "monospace",
+          fontSize: "0.875rem",
         }}
       >
-        {params.value || '-'}
+        {params.value || "-"}
       </Typography>
     ),
-    headerAlign: 'left',
-    align: 'left',
+    headerAlign: "left",
+    align: "left",
   },
   {
     field: "facebook",
@@ -117,23 +117,26 @@ export const columns: GridColDef[] = [
     sortable: true,
     filterable: true,
     renderCell: (params) => (
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          color: '#1877f2',
-          cursor: params.value ? 'pointer' : 'default',
-          '&:hover': params.value ? { textDecoration: 'underline' } : {},
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+      <Typography
+        variant="body2"
+        sx={{
+          color: "#1877f2",
+          cursor: params.value ? "pointer" : "default",
+          "&:hover": params.value ? { textDecoration: "underline" } : {},
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
         }}
-        onClick={() => params.value && window.open(`https://facebook.com/${params.value}`, '_blank')}
+        onClick={() =>
+          params.value &&
+          window.open(`https://facebook.com/${params.value}`, "_blank")
+        }
       >
-        {params.value || '-'}
+        {params.value || "-"}
       </Typography>
     ),
-    headerAlign: 'left',
-    align: 'left',
+    headerAlign: "left",
+    align: "left",
   },
   {
     field: "twitter",
@@ -143,23 +146,26 @@ export const columns: GridColDef[] = [
     sortable: true,
     filterable: true,
     renderCell: (params) => (
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          color: '#1da1f2',
-          cursor: params.value ? 'pointer' : 'default',
-          '&:hover': params.value ? { textDecoration: 'underline' } : {},
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+      <Typography
+        variant="body2"
+        sx={{
+          color: "#1da1f2",
+          cursor: params.value ? "pointer" : "default",
+          "&:hover": params.value ? { textDecoration: "underline" } : {},
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
         }}
-        onClick={() => params.value && window.open(`https://twitter.com/${params.value}`, '_blank')}
+        onClick={() =>
+          params.value &&
+          window.open(`https://twitter.com/${params.value}`, "_blank")
+        }
       >
-        {params.value ? `@${params.value}` : '-'}
+        {params.value ? `@${params.value}` : "-"}
       </Typography>
     ),
-    headerAlign: 'left',
-    align: 'left',
+    headerAlign: "left",
+    align: "left",
   },
   {
     field: "actions",
@@ -169,7 +175,7 @@ export const columns: GridColDef[] = [
     filterable: false,
     disableColumnMenu: true,
     renderCell: (params) => <TextInputCellRenderer {...params} />,
-    headerAlign: 'center',
-    align: 'center',
+    headerAlign: "center",
+    align: "center",
   },
 ];
