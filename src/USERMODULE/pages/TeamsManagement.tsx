@@ -369,8 +369,26 @@ const TeamsManagement = () => {
         {/* Teams Table */}
         <Paper sx={{ flex: 1, overflow: "hidden" }}>
           <TableContainer sx={{ height: "100%" }}>
-            <Table stickyHeader>
+            <Table stickyHeader sx={{ position: "relative" }}>
               <TableHead>
+                 {false && (
+                                  <LinearProgress
+                                    sx={{
+                                      position: "absolute",
+                                      top: 0,
+                                      left: 0,
+                                      right: 0,
+                                      zIndex: 10,
+                                      height: 4,
+                                      "& .MuiLinearProgress-bar": {
+                                        backgroundColor: "#1976d2",
+                                      },
+                                      "& .MuiLinearProgress-root": {
+                                        backgroundColor: "#e0e0e0",
+                                      },
+                                    }}
+                                  />
+                                )}
                 <TableRow>
                   {teamColumns.map((column) => (
                     <TableCell

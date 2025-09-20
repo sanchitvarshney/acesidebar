@@ -137,7 +137,7 @@ const replyOptions = [
     value: "3",
     icon: <DeleteIcon sx={{ fontSize: 18 }} />,
   },
-];
+]
 
 const ThreadItem = ({
   item,
