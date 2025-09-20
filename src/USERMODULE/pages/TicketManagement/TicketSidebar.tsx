@@ -20,6 +20,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Popover from "@mui/material/Popover";
 import SearchIcon from "@mui/icons-material/Search";
 import { useCommanApiMutation } from "../../../services/threadsApi";
+import CustomAlert from "../../../components/reusable/CustomAlert";
 
 import { Menu, MenuList } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -32,6 +33,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [filters, setFilters] = useState<Record<string, any>>({});
   const [showCustomFilters, setShowCustomFilters] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const MAX_FILTERS = 4;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [filterSearch, setFilterSearch] = useState("");
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
@@ -42,7 +44,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [isSelectFilterValueOpen2, setIsSelectFilterValueOpen2] =
     useState(false);
   const [openTrackId, setOpenTrackId] = useState("");
-  
+
   // Find ticket ID field from API response
   const ticketIdField = searchCriteria?.find((field: any) => field.name === "ticket_id");
 
@@ -58,7 +60,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         else initialFilters[field.name] = "";
       });
       setFilters(initialFilters);
-      
+
       // Automatically add ticket ID field to active filters if it exists
       if (ticketIdField && !activeFilters.includes("ticket_id")) {
         setActiveFilters(prev => [...prev, "ticket_id"]);
@@ -122,8 +124,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     // If custom mode is shown, only include active filter fields
     const selectedFilters: Record<string, any> = showCustomFilters
       ? Object.fromEntries(
-          Object.entries(filters).filter(([key]) => activeFilters.includes(key))
-        )
+        Object.entries(filters).filter(([key]) => activeFilters.includes(key))
+      )
       : filters;
 
     const cleanedFilters = buildNonEmpty(selectedFilters);
@@ -165,20 +167,26 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const criteriaArray = Array.isArray(searchCriteria)
     ? searchCriteria
     : Array.isArray(searchCriteria?.data)
-    ? searchCriteria.data
-    : [];
+      ? searchCriteria.data
+      : [];
   if (!criteriaArray || criteriaArray.length === 0) {
     return null;
   }
 
-  const availableFilters = criteriaArray.filter((field: any) => 
+  const availableFilters = criteriaArray.filter((field: any) =>
     !activeFilters.includes(field.name) && field.name !== "ticket_id"
   );
+
+  // Check if we can add more filters (max 5, with ticket_id always included)
+  const canAddMoreFilters = activeFilters.length < MAX_FILTERS;
   const filteredAvailableFilters = availableFilters.filter((field: any) =>
     field.label.toLowerCase().includes(filterSearch.toLowerCase())
   );
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+    if (!canAddMoreFilters) {
+      return; // Don't open popover if max filters reached
+    }
     if (closePopoverTimer.current) {
       clearTimeout(closePopoverTimer.current);
       closePopoverTimer.current = null;
@@ -351,12 +359,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                     value={filters[field.name]}
                     onChange={handleChange}
                     variant="filled"
-                    sx={{
-                      "& .MuiFilledInput-root": {
-                        backgroundColor: "#ff0000",
-                      },
-                    }}
-                    // No label or placeholder
                   />
                 </div>
               )}
@@ -490,9 +492,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       <MenuItem
                         key={field.name}
                         onClick={() => {
-                          setActiveFilters((prev) => [...prev, field.name]);
-                          handlePopoverClose(); // Close popover after adding filter
-                          setFilterSearch("");
+                          if (canAddMoreFilters) {
+                            setActiveFilters((prev) => [...prev, field.name]);
+                            handlePopoverClose(); // Close popover after adding filter
+                            setFilterSearch("");
+                          }
                         }}
                       >
                         {field.label}
@@ -517,6 +521,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 <Button
                   startIcon={<AddIcon />}
                   onClick={handlePopoverOpen}
+                  disabled={!canAddMoreFilters}
                   sx={{
                     color: "#1a73e8",
                     fontWeight: 500,
@@ -532,8 +537,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
             <>
               {activeFilters.map((filterName) => {
                 // Handle ticket ID field specially
-                const field = filterName === "ticket_id" 
-                  ? ticketIdField 
+                const field = filterName === "ticket_id"
+                  ? ticketIdField
                   : criteriaArray.find((f: any) => f.name === filterName);
                 if (!field) return null;
 
@@ -563,7 +568,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                               sx={{
                                 transform:
                                   isSelectFilterValueOpen2 &&
-                                  openTrackId === field.name
+                                    openTrackId === field.name
                                     ? "rotate(-180deg)"
                                     : "rotate(0deg)",
                                 transition: "transform 0.4s ease-out",
@@ -809,19 +814,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   </Box>
                 );
               })}
-              <Button
-                startIcon={<AddIcon />}
-                onClick={handlePopoverOpen}
-                sx={{
-                  color: "#1a73e8",
-                  fontWeight: 500,
-                  textTransform: "none",
-                  pl: 2,
-                  mt: 1, // margin top for spacing
-                }}
-              >
-                Add filters
-              </Button>
               <Popover
                 open={Boolean(anchorEl)}
                 anchorEl={anchorEl}
@@ -863,9 +855,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         <MenuItem
                           key={field.name}
                           onClick={() => {
-                            setActiveFilters((prev) => [...prev, field.name]);
-                            handlePopoverClose(); // Close popover after adding filter
-                            setFilterSearch("");
+                            if (canAddMoreFilters) {
+                              setActiveFilters((prev) => [...prev, field.name]);
+                              handlePopoverClose(); // Close popover after adding filter
+                              setFilterSearch("");
+                            }
                           }}
                         >
                           {field.label}
@@ -875,6 +869,38 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   </Box>
                 </Box>
               </Popover>
+
+              {/* Add Filter Button - Show when there are active filters but not at max */}
+              {canAddMoreFilters && activeFilters.length > 0 && (
+                <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+                  <Button
+                    startIcon={<AddIcon />}
+                    onClick={handlePopoverOpen}
+                    variant="text"
+                    color="primary"
+                    size="small"
+                    sx={{
+                      fontWeight: 550
+                    }}
+                  >
+                    Add Filter ({activeFilters.length}/{MAX_FILTERS})
+                  </Button>
+                </Box>
+              )}
+
+              {/* Max Filters Reached Alert */}
+              {!canAddMoreFilters && (
+                <Box
+                  sx={{
+                    bottom: "80px",
+                    position: "absolute",
+                    padding: "0 10px"
+                  }}
+                >
+                  <CustomAlert title="You have exceeded the maximum number of filters" />
+                </Box>
+              )}
+
             </>
           )}
         </Box>

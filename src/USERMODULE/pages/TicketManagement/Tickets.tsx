@@ -853,7 +853,7 @@ const Tickets: React.FC = () => {
         <div className="flex flex-1 h-0 min-h-0">
           <LeftMenu />
           <div className="flex-1 h-full overflow-y-auto bg-gray-50">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-8xl mx-auto">
               {isTicketsFetching ? (
                 <TicketSkeleton />
               ) : (
