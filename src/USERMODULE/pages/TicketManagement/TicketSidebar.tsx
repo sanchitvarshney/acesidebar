@@ -22,8 +22,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import CustomAlert from "../../../components/reusable/CustomAlert";
 
-import { Menu, MenuList } from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { Drawer, Typography, Divider } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const {
     data: searchCriteria,
@@ -31,7 +31,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     error,
   } = useGetAdvancedSearchQuery();
   const [filters, setFilters] = useState<Record<string, any>>({});
-  const [showCustomFilters, setShowCustomFilters] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const MAX_FILTERS = 4;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -39,11 +38,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
   const topAnchorRef = React.useRef<HTMLDivElement>(null);
   const [commanApi] = useCommanApiMutation();
-  const [filterSelectValue, setFilterSelectValue] = useState<any>({});
-  const [isSelectFilterValueOpen, setIsSelectFilterValueOpen] = useState(null);
-  const [isSelectFilterValueOpen2, setIsSelectFilterValueOpen2] =
-    useState(false);
-  const [openTrackId, setOpenTrackId] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Find ticket ID field from API response
   const ticketIdField = searchCriteria?.find((field: any) => field.name === "ticket_id");
@@ -88,10 +83,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     setFilters((prev) => ({ ...prev, [name as string]: value }));
   };
 
-  const handleFilterValueSelect = (e: any, name: any) => {
-    const { value } = e.target;
-    setFilterSelectValue((prev: any) => ({ ...prev, [name as string]: value }));
-  };
 
   // Add a handler for MUI Select (dropdown) fields
   const handleSelectChange = (
@@ -121,12 +112,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       return result;
     };
 
-    // If custom mode is shown, only include active filter fields
-    const selectedFilters: Record<string, any> = showCustomFilters
-      ? Object.fromEntries(
-        Object.entries(filters).filter(([key]) => activeFilters.includes(key))
-      )
-      : filters;
+    // Only include active filter fields
+    const selectedFilters: Record<string, any> = Object.fromEntries(
+      Object.entries(filters).filter(([key]) => activeFilters.includes(key))
+    );
 
     const cleanedFilters = buildNonEmpty(selectedFilters);
 
@@ -214,91 +203,188 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         }}
       >
         <span className="font-semibold text-gray-700 text-sm">FILTERS</span>
-        {!showCustomFilters ? (
-          <Button
-            variant="text"
-            size="small"
-            sx={{ fontSize: 10, fontWeight: "Bold" }}
-            onClick={() => setShowCustomFilters(true)}
-          >
-            Show applied filters
-          </Button>
-        ) : (
-          <Button
-            variant="text"
-            size="small"
-            sx={{ fontSize: 10, fontWeight: "Bold" }}
-            onClick={() => {
-              handleResetFilters();
-              setShowCustomFilters(false);
+        <Button
+          variant="text"
+          size="small"
+          sx={{ fontSize: 10, fontWeight: "Bold" }}
+          onClick={() => setDrawerOpen(true)}
+        >
+          Show All Filters
+        </Button>
+      </Box>
+      {/* Custom dynamic filter panel */}
+      <Box className="flex-1 overflow-y-auto">
+        {/* Add filters button and popover */}
+        <Box>
+          <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={handlePopoverClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            PaperProps={{
+              sx: {
+                p: 0,
+                minWidth: 315,
+                maxWidth: 315,
+                boxShadow: 3,
+                borderRadius: 2,
+              },
             }}
           >
-            Show All Filters
-          </Button>
-        )}
-      </Box>
-      {/* Filter fields */}
-      {!showCustomFilters ? (
-        <Box className="flex-1 overflow-y-auto">
-          {criteriaArray.map((field: any) => (
-            <Box key={field.name}>
-              {field.type === "dropdown" && field.name === "priority" && (
-                <div style={{ padding: 10 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "#555",
-                      fontWeight: 500,
-                      marginTop: 4,
-                    }}
-                  >
-                    {field.label}
-                  </div>
-                  <FormControl fullWidth size="small">
-                    <Select
-                      name={field.name}
-                      value={filters[field.name] ?? ""}
-                      onChange={handleSelectChange}
-                      displayEmpty
-                      renderValue={(selected) => {
-                        if (!selected || selected === "") {
-                          return <span style={{ color: "#aaa" }}></span>;
+            <Box sx={{ p: 1, minWidth: 315 }}>
+              <TextField
+                size="small"
+                placeholder="Search..."
+                value={filterSearch}
+                onChange={(e) => setFilterSearch(e.target.value)}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mb: 1 }}
+              />
+              <Box sx={{ maxHeight: 200, overflowY: "auto" }}>
+                {filteredAvailableFilters.length === 0 ? (
+                  <Box sx={{ color: "text.secondary", p: 1, fontSize: 14 }}>
+                    No filters found
+                  </Box>
+                ) : (
+                  filteredAvailableFilters.map((field: any) => (
+                    <MenuItem
+                      key={field.name}
+                      onClick={() => {
+                        if (canAddMoreFilters) {
+                          setActiveFilters((prev) => [...prev, field.name]);
+                          handlePopoverClose(); // Close popover after adding filter
+                          setFilterSearch("");
                         }
-                        const selectedOption = field.choices?.find(
-                          (opt: { value: string; label: string }) =>
-                            opt.value === selected
-                        );
-                        return selectedOption ? (
-                          <span
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6,
-                            }}
-                          >
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: 12,
-                                height: 12,
-                                borderRadius: "50%",
-                                backgroundColor: selectedOption.color,
-                                marginRight: 6,
-                              }}
-                            ></span>
-                            {selectedOption.label}
-                          </span>
-                        ) : (
-                          selected
-                        );
                       }}
                     >
-                      {field.choices?.map(
-                        (opt: {
-                          value: string;
-                          label: string;
-                          color?: string;
-                        }) => (
+                      {field.label}
+                    </MenuItem>
+                  ))
+                )}
+              </Box>
+            </Box>
+          </Popover>
+        </Box>
+        {activeFilters.length === 0 ? (
+          <Box className="flex flex-col items-center justify-center py-12">
+            <img
+              src={emptyimg}
+              alt="No filters"
+              style={{ width: 120, height: 120, marginTop: 18 }}
+            />
+            <span className="text-gray-400 text-base">
+              No filters applied
+            </span>
+            {activeFilters.length === 0 && (
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handlePopoverOpen}
+                disabled={!canAddMoreFilters}
+                sx={{
+                  color: "#1a73e8",
+                  fontWeight: 500,
+                  textTransform: "none",
+                  pl: 0,
+                }}
+              >
+                Add filters
+              </Button>
+            )}
+          </Box>
+        ) : (
+          <>
+            {activeFilters.map((filterName) => {
+              // Handle ticket ID field specially
+              const field = filterName === "ticket_id"
+                ? ticketIdField
+                : criteriaArray.find((f: any) => f.name === filterName);
+              if (!field) return null;
+
+              return (
+                <Box className="p-2" key={field.name}>
+                  <Box className="flex items-center justify-between mb-1">
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">
+                        {field.label}
+                      </span>
+
+                    </div>
+                    {/* Only show remove button if it's not the ticket ID field */}
+                    {field.name !== "ticket_id" && (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => {
+                          setActiveFilters((prev) =>
+                            prev.filter((f) => f !== field.name)
+                          );
+                          setFilters((prev) => ({
+                            ...prev,
+                            [field.name]: field.type === "chip" ? [] : "",
+                          }));
+                        }}
+                      >
+                        <RemoveCircleOutlineIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                  {field.type === "dropdown" && field.name === "priority" && (
+                    <FormControl fullWidth size="small">
+                      <Select
+                        name={field.name}
+                        value={filters[field.name]}
+                        onChange={handleSelectChange}
+                        displayEmpty
+                        renderValue={(selected) => {
+                          if (!selected || selected === "") {
+                            return (
+                              <span style={{ color: "#aaa" }}>
+                                {field.placeholder || field.label || "Select"}
+                              </span>
+                            );
+                          }
+                          const selectedOption = field.choices?.find(
+                            (opt: { value: string; label: string }) =>
+                              opt.value === selected
+                          );
+                          return selectedOption ? (
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: selectedOption.color,
+                                  marginRight: 6,
+                                }}
+                              ></span>
+                              {selectedOption.label}
+                            </span>
+                          ) : (
+                            selected
+                          );
+                        }}
+                      >
+                        <MenuItem value="">
+                          <span style={{ color: "#aaa" }}>
+                            {field.placeholder || field.label || "Select"}
+                          </span>
+                        </MenuItem>
+                        {field.choices?.map((opt: any) => (
                           <MenuItem key={opt.value} value={opt.value}>
                             <span
                               style={{
@@ -313,161 +399,153 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                                   width: 12,
                                   height: 12,
                                   borderRadius: "50%",
-                                  backgroundColor: opt.color || "#c4c4c4",
+                                  backgroundColor: opt.color || "#ccc",
                                   marginRight: 6,
                                 }}
                               ></span>
                               {opt.label}
                             </span>
                           </MenuItem>
-                        )
-                      )}
-                    </Select>
-                  </FormControl>
-                </div>
-              )}
-              {field.type === "dropdown" && field.name !== "priority" && (
-                <div style={{ padding: 10 }}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel id={field.name}>{field.label}</InputLabel>
-                    <Select
-                      name={field.name}
-                      labelId={field.name}
-                      id={field.name}
-                      label={field.label} // 🔸 This is necessary for floating behavior
-                      value={filters[field.name] ?? ""}
-                      onChange={handleSelectChange}
-                    >
-                      {field.choices?.map(
-                        (opt: { value: string; label: string }) => (
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                  {field.type === "dropdown" && field.name !== "priority" && (
+                    <FormControl fullWidth size="small">
+                      <Select
+                        name={field.name}
+                        value={filters[field.name]}
+                        onChange={handleSelectChange}
+                        displayEmpty
+                      >
+                        <MenuItem value="">
+                          <span style={{ color: "#aaa" }}>
+                            {field.placeholder || field.label || "Select"}
+                          </span>
+                        </MenuItem>
+                        {field.choices?.map((opt: any) => (
                           <MenuItem key={opt.value} value={opt.value}>
                             {opt.label}
                           </MenuItem>
-                        )
-                      )}
-                    </Select>
-                  </FormControl>
-                </div>
-              )}
-              {field.type === "text" && (
-                <div style={{ padding: 10 }}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    name={field.name}
-                    label={field.label}
-                    value={filters[field.name]}
-                    onChange={handleChange}
-                    variant="filled"
-                    sx={{
-                      "& .MuiFilledInput-root": {
-                        backgroundColor: "#f7f7f7",
-                        "&.Mui-focused": {
-                          backgroundColor: "#fffbeb",
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                  {field.type === "text" && (
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name={field.name}
+                      value={filters[field.name]}
+                      onChange={handleChange}
+                      variant="filled"
+                      placeholder={field.placeholder || field.label || ""}
+                      sx={{
+                        "& .MuiFilledInput-root": {
+                          backgroundColor: "#f7f7f7",
+                          "&.Mui-focused": {
+                            backgroundColor: "#fffbeb",
+                          },
                         },
-                      },
-                      "& .MuiFilledInput-underline:before": {
-                        borderBottom: "2px solid #c4c4c4", // default (not focused)
-                      },
-                      "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before": {
-                        borderBottom: "2px solid #c4c4c4", // on hover
-                      },
-                      "& .MuiFilledInput-underline:after": {
-                        borderBottom: "2px solid #c4c4c4", // on focus
-                      },
-                    }}
-                  />
-                </div>
-              )}
-              {field.type === "date" && (
-                <div style={{ padding: 10 }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      value={filters[field.name] || null}
-                      onChange={(newValue: any) => {
-                        setFilters((prev) => ({
-                          ...prev,
-                          [field.name]: newValue,
-                        }));
-                      }}
-                      format="DD/MM/YYYY"
-                      slotProps={{
-                        textField: {
-                          label: field.label, // 🔸 floating label here
-                          fullWidth: true,
-                          size: "small",
-                          variant: "outlined",
-                          name: field.name,
+                        "& .MuiFilledInput-underline:before": {
+                          borderBottom: "2px solid #c4c4c4", // default (not focused)
+                        },
+                        "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before": {
+                          borderBottom: "2px solid #c4c4c4", // on hover
+                        },
+                        "& .MuiFilledInput-underline:after": {
+                          borderBottom: "2px solid #c4c4c4", // on focus
                         },
                       }}
                     />
-                  </LocalizationProvider>
-                </div>
-              )}
-              {field.type === "chip" && (
-                <div style={{ padding: 10 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "#555",
-                      fontWeight: 500,
-                      marginTop: 4,
-                    }}
-                  >
-                    {field.label}
-                  </div>
-                  <FormControl fullWidth size="small">
-                    <Select
-                      multiple
-                      name={field.name}
-                      value={
-                        Array.isArray(filters[field.name])
-                          ? filters[field.name]
-                          : []
-                      }
-                      onChange={(e) => handleChipChange(e, field.name)}
-                      displayEmpty
-                      renderValue={(selected) => {
-                        if (!selected || selected.length === 0) {
-                          return <span style={{ color: "#aaa" }}></span>;
+
+                  )}
+                  {field.type === "date" && (
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        value={filters[field.name] || null}
+                        onChange={(newValue: any) => {
+                          setFilters((prev) => ({
+                            ...prev,
+                            [field.name]: newValue,
+                          }));
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            size: "small",
+                            variant: "outlined",
+                            name: field.name,
+                            placeholder:
+                              field.placeholder || field.label || "",
+                          },
+                        }}
+                        format="DD/MM/YYYY"
+                      />
+                    </LocalizationProvider>
+                  )}
+                  {field.type === "chip" && (
+                    <FormControl fullWidth size="small">
+                      <Select
+                        multiple
+                        name={field.name}
+                        value={
+                          Array.isArray(filters[field.name])
+                            ? filters[field.name]
+                            : []
                         }
-                        return (
-                          <Box
-                            sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
-                          >
-                            {selected.map((value: string) => {
-                              const label =
-                                field.choices.find(
-                                  (c: { value: string; label: string }) =>
-                                    c.value === value
-                                )?.label || value;
-                              return (
-                                <Chip key={value} label={label} size="small" />
-                              );
-                            })}
-                          </Box>
-                        );
-                      }}
-                    >
-                      {field.choices?.map(
-                        (opt: { value: string; label: string }) => (
+                        onChange={(e) => handleChipChange(e, field.name)}
+                        displayEmpty
+                        renderValue={(selected) => {
+                          if (!selected || selected.length === 0) {
+                            return (
+                              <span style={{ color: "#aaa" }}>
+                                {field.placeholder || field.label || "Select"}
+                              </span>
+                            );
+                          }
+                          return (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 0.5,
+                              }}
+                            >
+                              {selected.map((value: string) => {
+                                const label =
+                                  field.choices.find(
+                                    (c: { value: string; label: string }) =>
+                                      c.value === value
+                                  )?.label || value;
+                                return (
+                                  <Chip
+                                    key={value}
+                                    label={label}
+                                    size="small"
+                                  />
+                                );
+                              })}
+                            </Box>
+                          );
+                        }}
+                      >
+                        <MenuItem value="">
+                          <span style={{ color: "#aaa" }}>
+                            {field.placeholder || field.label || "Select"}
+                          </span>
+                        </MenuItem>
+                        {field.choices?.map((opt: any) => (
                           <MenuItem key={opt.value} value={opt.value}>
                             {opt.label}
                           </MenuItem>
-                        )
-                      )}
-                    </Select>
-                  </FormControl>
-                </div>
-              )}
-            </Box>
-          ))}
-        </Box>
-      ) : (
-        // Custom dynamic filter panel (copied from previous dynamic logic)
-        <Box className="flex-1 overflow-y-auto">
-          {/* Add filters button and popover */}
-          <Box>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                </Box>
+              );
+            })}
             <Popover
               open={Boolean(anchorEl)}
               anchorEl={anchorEl}
@@ -523,448 +601,64 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 </Box>
               </Box>
             </Popover>
-          </Box>
-          {activeFilters.length === 0 ? (
-            <Box className="flex flex-col items-center justify-center py-12">
-              <img
-                src={emptyimg}
-                alt="No filters"
-                style={{ width: 120, height: 120, marginTop: 18 }}
-              />
-              <span className="text-gray-400 text-base">
-                No filters applied
-              </span>
-              {activeFilters.length === 0 && (
+
+            {/* Add Filter Button - Show when there are active filters but not at max */}
+            {canAddMoreFilters && activeFilters.length > 0 && (
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
                 <Button
                   startIcon={<AddIcon />}
                   onClick={handlePopoverOpen}
-                  disabled={!canAddMoreFilters}
+                  variant="text"
+                  color="primary"
+                  size="small"
                   sx={{
-                    color: "#1a73e8",
-                    fontWeight: 500,
-                    textTransform: "none",
-                    pl: 0,
+                    fontWeight: 550
                   }}
                 >
-                  Add filters
+                  Add Filter ({activeFilters.length}/{MAX_FILTERS})
                 </Button>
-              )}
-            </Box>
-          ) : (
-            <>
-              {activeFilters.map((filterName) => {
-                // Handle ticket ID field specially
-                const field = filterName === "ticket_id"
-                  ? ticketIdField
-                  : criteriaArray.find((f: any) => f.name === filterName);
-                if (!field) return null;
+              </Box>
+            )}
 
-                return (
-                  <Box className="p-2" key={field.name}>
-                    <Box className="flex items-center justify-between mb-1">
-                      <div>
-                        <span className="text-sm font-medium text-gray-700">
-                          {field.label}
-                        </span>
-
-                        {/* Only show dropdown arrow for non-ticket ID fields */}
-                        {field.name !== "ticket_id" && (
-                          <IconButton
-                            size="small"
-                            disableRipple
-                            onClick={(e: any) => {
-                              setOpenTrackId(field.name);
-                              setIsSelectFilterValueOpen(e.currentTarget);
-                              setIsSelectFilterValueOpen2(
-                                !isSelectFilterValueOpen2
-                              );
-                            }}
-                          >
-                            <KeyboardArrowDownIcon
-                              fontSize="small"
-                              sx={{
-                                transform:
-                                  isSelectFilterValueOpen2 &&
-                                    openTrackId === field.name
-                                    ? "rotate(-180deg)"
-                                    : "rotate(0deg)",
-                                transition: "transform 0.4s ease-out",
-                              }}
-                            />
-                          </IconButton>
-                        )}
-
-                        {/* Only show dropdown menu for non-ticket ID fields */}
-                        {field.name !== "ticket_id" && openTrackId === field.name && (
-                          <Menu
-                            anchorEl={isSelectFilterValueOpen}
-                            open={isSelectFilterValueOpen2}
-                            onClose={() => {
-                              setIsSelectFilterValueOpen(null);
-                              setIsSelectFilterValueOpen2(false);
-                            }}
-                            anchorOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
-                            }}
-                            transformOrigin={{
-                              vertical: "top",
-                              horizontal: "left",
-                            }}
-                          >
-                            <MenuItem
-                              defaultValue={field.name}
-                            >{`${field.label} Include`}</MenuItem>
-                            <MenuItem>{`${field.label} does not Include`}</MenuItem>
-                          </Menu>
-                        )}
-                      </div>
-                      {/* Only show remove button if it's not the ticket ID field */}
-                      {field.name !== "ticket_id" && (
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => {
-                            setActiveFilters((prev) =>
-                              prev.filter((f) => f !== field.name)
-                            );
-                            setFilters((prev) => ({
-                              ...prev,
-                              [field.name]: field.type === "chip" ? [] : "",
-                            }));
-                          }}
-                        >
-                          <RemoveCircleOutlineIcon fontSize="small" />
-                        </IconButton>
-                      )}
-                    </Box>
-                    {field.type === "dropdown" && field.name === "priority" && (
-                      <FormControl fullWidth size="small">
-                        <Select
-                          name={field.name}
-                          value={filters[field.name]}
-                          onChange={handleSelectChange}
-                          displayEmpty
-                          renderValue={(selected) => {
-                            if (!selected || selected === "") {
-                              return (
-                                <span style={{ color: "#aaa" }}>
-                                  {field.placeholder || field.label || "Select"}
-                                </span>
-                              );
-                            }
-                            const selectedOption = field.choices?.find(
-                              (opt: { value: string; label: string }) =>
-                                opt.value === selected
-                            );
-                            return selectedOption ? (
-                              <span
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 6,
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: "50%",
-                                    backgroundColor: selectedOption.color,
-                                    marginRight: 6,
-                                  }}
-                                ></span>
-                                {selectedOption.label}
-                              </span>
-                            ) : (
-                              selected
-                            );
-                          }}
-                        >
-                          <MenuItem value="">
-                            <span style={{ color: "#aaa" }}>
-                              {field.placeholder || field.label || "Select"}
-                            </span>
-                          </MenuItem>
-                          {field.choices?.map((opt: any) => (
-                            <MenuItem key={opt.value} value={opt.value}>
-                              <span
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 6,
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: "50%",
-                                    backgroundColor: opt.color || "#ccc",
-                                    marginRight: 6,
-                                  }}
-                                ></span>
-                                {opt.label}
-                              </span>
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    )}
-                    {field.type === "dropdown" && field.name !== "priority" && (
-                      <FormControl fullWidth size="small">
-                        <Select
-                          name={field.name}
-                          value={filters[field.name]}
-                          onChange={handleSelectChange}
-                          displayEmpty
-                        >
-                          <MenuItem value="">
-                            <span style={{ color: "#aaa" }}>
-                              {field.placeholder || field.label || "Select"}
-                            </span>
-                          </MenuItem>
-                          {field.choices?.map((opt: any) => (
-                            <MenuItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    )}
-                    {field.type === "text" && (
-                      <TextField
-                        fullWidth
-                        size="small"
-                        name={field.name}
-                        value={filters[field.name]}
-                        onChange={handleChange}
-                        variant="filled"
-                        placeholder={field.placeholder || field.label || ""}
-                        sx={{
-                          "& .MuiFilledInput-root": {
-                            backgroundColor: "#f7f7f7",
-                            "&.Mui-focused": {
-                              backgroundColor: "#fffbeb",
-                            },
-                          },
-                          "& .MuiFilledInput-underline:before": {
-                            borderBottom: "2px solid #c4c4c4", // default (not focused)
-                          },
-                          "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before": {
-                            borderBottom: "2px solid #c4c4c4", // on hover
-                          },
-                          "& .MuiFilledInput-underline:after": {
-                            borderBottom: "2px solid #c4c4c4", // on focus
-                          },
-                        }}
-                      />
-
-                    )}
-                    {field.type === "date" && (
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={filters[field.name] || null}
-                          onChange={(newValue: any) => {
-                            setFilters((prev) => ({
-                              ...prev,
-                              [field.name]: newValue,
-                            }));
-                          }}
-                          slotProps={{
-                            textField: {
-                              fullWidth: true,
-                              size: "small",
-                              variant: "outlined",
-                              name: field.name,
-                              placeholder:
-                                field.placeholder || field.label || "",
-                            },
-                          }}
-                          format="DD/MM/YYYY"
-                        />
-                      </LocalizationProvider>
-                    )}
-                    {field.type === "chip" && (
-                      <FormControl fullWidth size="small">
-                        <Select
-                          multiple
-                          name={field.name}
-                          value={
-                            Array.isArray(filters[field.name])
-                              ? filters[field.name]
-                              : []
-                          }
-                          onChange={(e) => handleChipChange(e, field.name)}
-                          displayEmpty
-                          renderValue={(selected) => {
-                            if (!selected || selected.length === 0) {
-                              return (
-                                <span style={{ color: "#aaa" }}>
-                                  {field.placeholder || field.label || "Select"}
-                                </span>
-                              );
-                            }
-                            return (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 0.5,
-                                }}
-                              >
-                                {selected.map((value: string) => {
-                                  const label =
-                                    field.choices.find(
-                                      (c: { value: string; label: string }) =>
-                                        c.value === value
-                                    )?.label || value;
-                                  return (
-                                    <Chip
-                                      key={value}
-                                      label={label}
-                                      size="small"
-                                    />
-                                  );
-                                })}
-                              </Box>
-                            );
-                          }}
-                        >
-                          <MenuItem value="">
-                            <span style={{ color: "#aaa" }}>
-                              {field.placeholder || field.label || "Select"}
-                            </span>
-                          </MenuItem>
-                          {field.choices?.map((opt: any) => (
-                            <MenuItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    )}
-                  </Box>
-                );
-              })}
-              <Popover
-                open={Boolean(anchorEl)}
-                anchorEl={anchorEl}
-                onClose={handlePopoverClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                PaperProps={{
-                  sx: {
-                    p: 0,
-                    minWidth: 315,
-                    maxWidth: 315,
-                    boxShadow: 3,
-                    borderRadius: 2,
-                  },
+            {/* Max Filters Reached Alert */}
+            {!canAddMoreFilters && (
+              <Box
+                sx={{
+                  bottom: "80px",
+                  position: "absolute",
+                  padding: "0 10px"
                 }}
               >
-                <Box sx={{ p: 1, minWidth: 315 }}>
-                  <TextField
-                    size="small"
-                    placeholder="Search..."
-                    value={filterSearch}
-                    onChange={(e) => setFilterSearch(e.target.value)}
-                    fullWidth
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon fontSize="small" />
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{ mb: 1 }}
-                  />
-                  <Box sx={{ maxHeight: 200, overflowY: "auto" }}>
-                    {filteredAvailableFilters.length === 0 ? (
-                      <Box sx={{ color: "text.secondary", p: 1, fontSize: 14 }}>
-                        No filters found
-                      </Box>
-                    ) : (
-                      filteredAvailableFilters.map((field: any) => (
-                        <MenuItem
-                          key={field.name}
-                          onClick={() => {
-                            if (canAddMoreFilters) {
-                              setActiveFilters((prev) => [...prev, field.name]);
-                              handlePopoverClose(); // Close popover after adding filter
-                              setFilterSearch("");
-                            }
-                          }}
-                        >
-                          {field.label}
-                        </MenuItem>
-                      ))
-                    )}
-                  </Box>
-                </Box>
-              </Popover>
+                <CustomAlert title="You have exceeded the maximum number of filters" />
+              </Box>
+            )}
 
-              {/* Add Filter Button - Show when there are active filters but not at max */}
-              {canAddMoreFilters && activeFilters.length > 0 && (
-                <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
-                  <Button
-                    startIcon={<AddIcon />}
-                    onClick={handlePopoverOpen}
-                    variant="text"
-                    color="primary"
-                    size="small"
-                    sx={{
-                      fontWeight: 550
-                    }}
-                  >
-                    Add Filter ({activeFilters.length}/{MAX_FILTERS})
-                  </Button>
-                </Box>
-              )}
-
-              {/* Max Filters Reached Alert */}
-              {!canAddMoreFilters && (
-                <Box
-                  sx={{
-                    bottom: "80px",
-                    position: "absolute",
-                    padding: "0 10px"
-                  }}
-                >
-                  <CustomAlert title="You have exceeded the maximum number of filters" />
-                </Box>
-              )}
-
-            </>
-          )}
-        </Box>
-      )}
+          </>
+        )}
+      </Box>
       {/* Fixed Apply and Reset buttons */}
       <Box className="p-2 pb-2 pb-0 z-10 bg-white flex gap-2">
-        {showCustomFilters && (
-          <Button
-            variant="text"
-            color="primary"
-            fullWidth
-            onClick={handleResetFilters}
-            sx={{
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              "&:disabled": {
-                opacity: 0.5,
-              },
-            }}
-          >
-            Reset
-          </Button>
-        )}
+        <Button
+          variant="text"
+          color="primary"
+          fullWidth
+          onClick={handleResetFilters}
+          sx={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            "&:disabled": {
+              opacity: 0.5,
+            },
+          }}
+        >
+          Reset
+        </Button>
         <Button
           variant="contained"
           fullWidth
           color="primary"
           onClick={handleApply}
-          disabled={showCustomFilters ? activeFilters.length === 0 : false}
+          disabled={activeFilters.length === 0}
           sx={{
             fontSize: "0.875rem",
             fontWeight: 600,
@@ -977,6 +671,253 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           Apply
         </Button>
       </Box>
+
+      {/* All Filters Drawer */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: "30%",
+            padding: 0,
+          },
+        }}
+      >
+        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+          {/* Header */}
+          <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#e8f0fe" }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: "#2c3e50" }}>
+              All Filters
+            </Typography>
+            <IconButton onClick={() => setDrawerOpen(false)} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          <Divider sx={{ mb: 2 }} />
+
+          {/* Filters List */}
+          <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
+            {criteriaArray.map((field: any) => (
+              <Box key={field.name} sx={{ mb: 3, p: 2, border: "1px solid #e0e0e0", borderRadius: 2 }}>
+                {/* Filter Header */}
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#2c3e50", mb: 2 }}>
+                  {field.label}
+                </Typography>
+
+                {/* Filter Input Components */}
+                <Box>
+                  {field.type === "text" && (
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name={field.name}
+                      label={field.label}
+                      value={filters[field.name]}
+                      onChange={handleChange}
+                      variant="filled"
+                      sx={{
+                        "& .MuiFilledInput-root": {
+                          backgroundColor: "#f7f7f7",
+                          "&.Mui-focused": {
+                            backgroundColor: "#fffbeb",
+                          },
+                        },
+                        "& .MuiFilledInput-underline:before": {
+                          borderBottom: "2px solid #c4c4c4",
+                        },
+                        "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before": {
+                          borderBottom: "2px solid #c4c4c4",
+                        },
+                        "& .MuiFilledInput-underline:after": {
+                          borderBottom: "2px solid #c4c4c4",
+                        },
+                      }}
+                    />
+                  )}
+
+                  {field.type === "dropdown" && field.name === "priority" && (
+                    <FormControl fullWidth size="small">
+                      <Select
+                        name={field.name}
+                        value={filters[field.name] ?? ""}
+                        onChange={handleSelectChange}
+                        displayEmpty
+                        renderValue={(selected) => {
+                          if (!selected || selected === "") {
+                            return <span style={{ color: "#aaa" }}>Select Priority</span>;
+                          }
+                          const selectedOption = field.choices?.find(
+                            (opt: { value: string; label: string }) => opt.value === selected
+                          );
+                          return selectedOption ? (
+                            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: selectedOption.color,
+                                  marginRight: 6,
+                                }}
+                              ></span>
+                              {selectedOption.label}
+                            </span>
+                          ) : (
+                            selected
+                          );
+                        }}
+                      >
+                        {field.choices?.map((opt: { value: string; label: string; color?: string }) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: opt.color || "#c4c4c4",
+                                  marginRight: 6,
+                                }}
+                              ></span>
+                              {opt.label}
+                            </span>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+
+                  {field.type === "dropdown" && field.name !== "priority" && (
+                    <FormControl fullWidth size="small">
+                      <InputLabel>{field.label}</InputLabel>
+                      <Select
+                        name={field.name}
+                        labelId={field.name}
+                        id={field.name}
+                        label={field.label}
+                        value={filters[field.name] ?? ""}
+                        onChange={handleSelectChange}
+                      >
+                        {field.choices?.map((opt: { value: string; label: string }) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+
+                  {field.type === "date" && (
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label={field.label}
+                        value={filters[field.name] || null}
+                        onChange={(newValue: any) => {
+                          setFilters((prev) => ({
+                            ...prev,
+                            [field.name]: newValue,
+                          }));
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            size: "small",
+                            variant: "outlined",
+                            name: field.name,
+                          },
+                        }}
+                        format="DD/MM/YYYY"
+                      />
+                    </LocalizationProvider>
+                  )}
+
+                  {field.type === "chip" && (
+                    <FormControl fullWidth size="small">
+                      <InputLabel>{field.label}</InputLabel>
+                      <Select
+                        multiple
+                        name={field.name}
+                        value={Array.isArray(filters[field.name]) ? filters[field.name] : []}
+                        onChange={(e) => handleChipChange(e, field.name)}
+                        displayEmpty
+                        renderValue={(selected) => {
+                          if (!selected || selected.length === 0) {
+                            return <span style={{ color: "#aaa" }}>Select {field.label}</span>;
+                          }
+                          return (
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                              {selected.map((value: string) => {
+                                const label = field.choices.find(
+                                  (c: { value: string; label: string }) => c.value === value
+                                )?.label || value;
+                                return (
+                                  <Chip key={value} label={label} size="small" />
+                                );
+                              })}
+                            </Box>
+                          );
+                        }}
+                      >
+                        {field.choices?.map((opt: { value: string; label: string }) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+
+          {/* Footer Actions */}
+          <Box sx={{ borderTop: "1px solid #e0e0e0", p: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              {/* Clear filters link on the left */}
+              <Button
+                variant="text"
+                onClick={() => {
+                  handleResetFilters();
+                  setDrawerOpen(false);
+                }}
+                sx={{
+                  color: "#1976d2",
+                  textTransform: "none",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  padding: 0,
+                  minWidth: "auto",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                Clear filters
+              </Button>
+
+              {/* Cancel and Apply buttons on the right */}
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    handleApply();
+                    setDrawerOpen(false);
+                  }}
+                >
+                  Apply filter
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Drawer>
     </Box>
   );
 };
