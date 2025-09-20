@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import ToastShow from "../components/common/ToastShow";
+import { setGlobalToast } from  "../utils/globalToast"
 
 type ToastType = "success" | "error" | "warning";
 type ToastErrorType = "borderToast" | "boxToast";
@@ -31,6 +32,11 @@ export const ToastContext = ({ children }: { children: ReactNode }) => {
     setToastErrType(typeError);
     setAnimate(animate);
   };
+
+  // Register global toast function
+  useEffect(() => {
+    setGlobalToast(showToast);
+  }, []);
 
   const handleToastClose = () => {
     setToastOpen(false);

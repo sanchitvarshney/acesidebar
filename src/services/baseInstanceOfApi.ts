@@ -9,6 +9,7 @@ import {
 } from "../utils/requestHeaders";
 import { getTurnstileToken } from "../utils/turnstile";
 import { handleInternalError, extractErrorData } from "../BUGREPORT";
+import { showToast } from "../utils/globalToast";
 
 /**
  * API Configuration
@@ -117,6 +118,19 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
     const errorData = extractErrorData(result.error);
     if (errorData) {
       handleInternalError(errorData, result.error);
+    }
+  }
+
+  // Handle 429 Rate Limit Exceeded responses
+  if (result.error?.status === 429) {
+    const errorData = result.error?.data as any;
+    if (errorData?.type === "rate_limit_exceeded") {
+      showToast(
+        "Ratewwwwwwwwwwww limit exceeded.\nPlease try again later.",
+        "error",
+        "boxToast",
+        true
+      );
     }
   }
 
