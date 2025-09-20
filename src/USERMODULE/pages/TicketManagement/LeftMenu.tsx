@@ -37,9 +37,8 @@ const LeftMenu: React.FC = () => {
             <button
               aria-label={item}
               onClick={() => goto(item)}
-              className={`w-full text-left px-4 py-3 hover:bg-gray-100 flex items-center ${
-                isActive(item) ? "bg-gray-200 font-semibold" : ""
-              }`}
+              className={`w-full text-left px-4 py-3 hover:bg-blue-100 flex items-center ${isActive(item) ? "bg-blue-200 font-semibold" : ""
+                }`}
             >
               <span className="text-gray-700">{getIcon(item)}</span>
             </button>
