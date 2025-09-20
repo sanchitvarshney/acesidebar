@@ -17,7 +17,7 @@ const ErrorPage = ({ onReload }: { onReload?: () => void }) => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#f8f9fa",
+        backgroundColor: "#ffffff",
         display: "flex",
         alignItems: "center",
         py: 4,
