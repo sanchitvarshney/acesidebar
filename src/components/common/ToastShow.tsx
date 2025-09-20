@@ -3,21 +3,25 @@ import Box from "@mui/material/Box";
 import Snackbar from "@mui/material/Snackbar";
 import Slide from "@mui/material/Slide";
 import type { SlideProps } from "@mui/material/Slide";
-import {  keyframes, Typography } from "@mui/material";
+import { keyframes, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircle";
 import ErrorOutlinedIcon from "@mui/icons-material/Error";
+import { error } from "console";
+import { useEffect } from "react";
 
 interface ToastShowProps {
   isOpen: boolean;
   msg: string;
-  onClose?: () => void; 
+  onClose?: any;
   type: "success" | "error";
+  typeError?: "simple" | "error";
+  animate?: boolean;
 }
 
 // Slide direction function
 function SlideTransition(props: SlideProps) {
-  return <Slide {...props} direction="down" />; 
+  return <Slide {...props} direction="down" />;
 }
 // Animation (scale bounce)
 const bounce = keyframes`
@@ -26,10 +30,38 @@ const bounce = keyframes`
   100% { transform: scale(1); }
 `;
 
-const ToastShow: React.FC<ToastShowProps> = ({ isOpen, msg, onClose, type="success" }) => {
-   const Icon = type === "success" ? CheckCircleOutlinedIcon : ErrorOutlinedIcon;
+const ToastShow: React.FC<ToastShowProps> = ({
+  isOpen,
+  msg,
+  onClose,
+  type = "success",
+  typeError = "simple",
+  animate = false,
+}) => {
+  const Icon = type === "success" ? CheckCircleOutlinedIcon : ErrorOutlinedIcon;
+  const [timeValue, setTimeValue] = React.useState(5);
+
+  useEffect(() => {
+    if (!isOpen || !animate) return;
+
+    setTimeValue(5);
+
+    const interval = setInterval(() => {
+      setTimeValue((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          onClose();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, animate, onClose]);
+
   return (
-     <Box sx={{ width: 500 }}>
+    <Box sx={{ width: 500 }}>
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={isOpen}
@@ -42,27 +74,61 @@ const ToastShow: React.FC<ToastShowProps> = ({ isOpen, msg, onClose, type="succe
           sx={{
             display: "flex",
             alignItems: "center",
-            bgcolor:"#ffffff",
+            bgcolor: "#ffffff",
             // bgcolor: type === "success" ? "success.main" : "error.main",
             color: "#000000",
-            px: 2,
-            py: 1.5,
+            px: typeError !== "simple" ? 0 : 2,
+            py: typeError !== "simple" ? 0 : 1.5,
             borderRadius: 1,
-            borderTop: `4px solid ${type === "success" ? "#2e7d32" : "#d32f2f"}`,
+            borderTop:
+              typeError === "simple"
+                ? `4px solid ${type === "success" ? "#2e7d32" : "#d32f2f"}`
+                : "none",
             boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <Icon
-          color= {type === "success" ? "success" : "error"}
-            sx={{
-              mr: 1.5,
-              fontSize: 24,
-              animation: `${bounce} 0.6s ease`,
-            }}
-            
-          />
-          <Typography variant="subtitle2">{msg?.replace(/\\n/g, "\n")}</Typography>
-           <CloseIcon className="w-3 h-3 ml-2 cursor-pointer " onClick={onClose} />
+          {typeError !== "simple" ? (
+            <Box
+              sx={{
+                width: 40,
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "error.main",
+                color: "#000000",
+                px: 1.5,
+                py: 1.2,
+                // mr: 1,
+              }}
+            >
+              <CloseIcon sx={{ color: "#fff" }} />
+            </Box>
+          ) : (
+            <Icon
+              color={type === "success" ? "success" : "error"}
+              sx={{
+                fontSize: 24,
+                animation: `${bounce} 0.6s ease`,
+              }}
+            />
+          )}
+
+          <div
+            className={`${
+              typeError === "simple" ? "ml-2" : "mx-3"
+            } flex flex-col items-end `}
+          >
+            <Typography variant="subtitle2">
+              {msg?.replace(/\\n/g, "\n")}
+            </Typography>
+            <span
+              onClick={onClose}
+              className={`text-[9px] underline decoration-dotted cursor-pointer  `}
+            >
+              close {animate ? `(${timeValue})` : ""}
+            </span>
+          </div>
         </Box>
       </Snackbar>
     </Box>

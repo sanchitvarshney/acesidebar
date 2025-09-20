@@ -82,8 +82,6 @@ const Tickets: React.FC = () => {
   const [sortType, setSortType] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(true);
 
-  const [departmentOptions, setDepartmentOptions] = useState<any>([]);
-  const [changeDept, setChangedept] = useState("");
   // Sorting popover state
   const [sortingPopoverAnchorEl, setSortingPopoverAnchorEl] =
     useState<HTMLElement | null>(null);
@@ -131,8 +129,7 @@ const Tickets: React.FC = () => {
       key: item?.key,
     })
   );
-  const displayDepartmentOptions = changeDept ? departmentOptions : [];
-  const displayAgentOptions = changeAgent ? AgentOptions : [];
+
   // Resolve option value key by matching label text (case-insensitive)
   const resolveValueByLabel = (
     options: Array<{ label: string; value: string }>,
@@ -232,27 +229,6 @@ const Tickets: React.FC = () => {
       });
   };
 
-  const fetchDeptOptions = async (query: string) => {
-    if (!query) {
-      setDepartmentOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerDept({
-        search: query,
-      }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      if (Array.isArray(data)) {
-        setDepartmentOptions(data.length > 0 ? data : ["NO Data Found"]);
-      } else {
-        setDepartmentOptions([]);
-      }
-    } catch (error) {
-      setDepartmentOptions([]);
-    }
-  };
 
   // Handle sorting popover open
   const handleSortingPopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -484,7 +460,7 @@ const Tickets: React.FC = () => {
           return;
         }
         if (res?.data?.type === "success") {
-          showToast(res?.message || res?.data?.message, "success");
+          showToast(res?.message || res?.data?.message, "success", "simple");
 
         }
 
@@ -984,9 +960,7 @@ const Tickets: React.FC = () => {
                     },
                   }}
                 >
-                  <MenuItem value="">
-                    <span className="text-gray-500">Select priority</span>
-                  </MenuItem>
+               
                   {PRIORITY_OPTIONS.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       <div className="flex items-center gap-2">
@@ -1028,9 +1002,7 @@ const Tickets: React.FC = () => {
                     },
                   }}
                 >
-                  <MenuItem value="">
-                    <span className="text-gray-500">Select status</span>
-                  </MenuItem>
+              
                   {STATUS_OPTIONS.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       <span className="text-gray-700">{option.label}</span>

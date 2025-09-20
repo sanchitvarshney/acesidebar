@@ -147,7 +147,6 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
       onClose();
     }
 
-    console.log("Saving ticket data:", editData);
   };
 
   return (
@@ -157,9 +156,7 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
       <Box
         sx={{
           backgroundColor: "#fff",
-          borderRadius: 2,
           p: 2,
-          border: "1px solid #e0e0e0",
           flex: 1,
           display: "flex",
           flexDirection: "column",

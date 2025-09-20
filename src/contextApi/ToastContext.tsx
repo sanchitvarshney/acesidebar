@@ -1,23 +1,34 @@
-import  { createContext, useState, type ReactNode } from "react";
+import { createContext, useEffect, useState, type ReactNode } from "react";
 import ToastShow from "../components/common/ToastShow";
 
-type ToastType = "success" | "error" ;
+type ToastType = "success" | "error";
 
 export interface ToastContextProps {
-  showToast: (msg: string, type?: ToastType) => void;
+  showToast: (msg: string, type?: ToastType, typeError?: any, animate?: boolean) => void 
 }
 
-export const ToastCreateContext = createContext<ToastContextProps | undefined>(undefined);
+export const ToastCreateContext = createContext<ToastContextProps | undefined>(
+  undefined
+);
 
 export const ToastContext = ({ children }: { children: ReactNode }) => {
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<ToastType>("success");
+  const [toastErrType, setToastErrType] = useState<any>("simple");
+  const [animate, setAnimate] = useState<boolean | any>(true);
 
-  const showToast = (msg: string, type: ToastType = "success") => {
+  const showToast = (
+    msg: string,
+    type: ToastType = "success",
+    typeError?: any,
+    animate?: boolean
+  ) => {
     setToastMessage(msg);
     setToastType(type);
     setToastOpen(true);
+    setToastErrType(typeError);
+    setAnimate(animate);
   };
 
   const handleToastClose = () => {
@@ -31,6 +42,8 @@ export const ToastContext = ({ children }: { children: ReactNode }) => {
         isOpen={toastOpen}
         msg={toastMessage}
         type={toastType}
+        typeError={toastErrType}
+        animate={animate}
         onClose={handleToastClose}
       />
     </ToastCreateContext.Provider>
