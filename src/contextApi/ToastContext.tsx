@@ -1,10 +1,11 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import ToastShow from "../components/common/ToastShow";
 
-type ToastType = "success" | "error";
+type ToastType = "success" | "error" | "warning";
+type ToastErrorType = "borderToast" | "boxToast";
 
 export interface ToastContextProps {
-  showToast: (msg: string, type?: ToastType, typeError?: any, animate?: boolean) => void 
+  showToast: (msg: string, type?: ToastType, typeError?: ToastErrorType, animate?: boolean) => void 
 }
 
 export const ToastCreateContext = createContext<ToastContextProps | undefined>(
@@ -15,7 +16,7 @@ export const ToastContext = ({ children }: { children: ReactNode }) => {
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<ToastType>("success");
-  const [toastErrType, setToastErrType] = useState<any>("simple");
+  const [toastErrType, setToastErrType] = useState<ToastErrorType>("borderToast");
   const [animate, setAnimate] = useState<boolean | any>(true);
 
   const showToast = (

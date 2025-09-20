@@ -9,13 +9,15 @@ import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircle";
 import ErrorOutlinedIcon from "@mui/icons-material/Error";
 import { error } from "console";
 import { useEffect } from "react";
+import { CheckCircleIcon } from "lucide-react";
+import ErrorIcon from '@mui/icons-material/Error';
 
 interface ToastShowProps {
   isOpen: boolean;
   msg: string;
   onClose?: any;
-  type: "success" | "error";
-  typeError?: "simple" | "error";
+  type: "success" | "error" | "warning";
+  typeError?: "borderToast" | "boxToast";
   animate?: boolean;
 }
 
@@ -35,7 +37,7 @@ const ToastShow: React.FC<ToastShowProps> = ({
   msg,
   onClose,
   type = "success",
-  typeError = "simple",
+  typeError = "borderToast",
   animate = false,
 }) => {
   const Icon = type === "success" ? CheckCircleOutlinedIcon : ErrorOutlinedIcon;
@@ -77,17 +79,17 @@ const ToastShow: React.FC<ToastShowProps> = ({
             bgcolor: "#ffffff",
             // bgcolor: type === "success" ? "success.main" : "error.main",
             color: "#000000",
-            px: typeError !== "simple" ? 0 : 2,
-            py: typeError !== "simple" ? 0 : 1.5,
+            px: typeError !== "borderToast" ? 0 : 2,
+            py: typeError !== "borderToast" ? 0 : 1.5,
             borderRadius: 1,
             borderTop:
-              typeError === "simple"
+              typeError === "borderToast"
                 ? `4px solid ${type === "success" ? "#2e7d32" : "#d32f2f"}`
                 : "none",
             boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
           }}
         >
-          {typeError !== "simple" ? (
+          {typeError !== "borderToast" ? (
             <Box
               sx={{
                 width: 40,
@@ -95,14 +97,21 @@ const ToastShow: React.FC<ToastShowProps> = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                bgcolor: "error.main",
+                bgcolor: type === "success" ? "success.main" : type === "error" ? "error.main" :  "warning.main",
                 color: "#000000",
                 px: 1.5,
                 py: 1.2,
                 // mr: 1,
               }}
             >
-              <CloseIcon sx={{ color: "#fff" }} />
+              {
+                  type === "success"
+                    ? <CheckCircleIcon style={{ color: "#fff", fontSize: 16 }}/>
+                    : type === "error"
+                    ? <CloseIcon style={{ color: "#fff", fontSize: 16 }} />
+                    : <ErrorIcon sx={{ color: "#fff", fontSize: 16 }} />
+                }
+               
             </Box>
           ) : (
             <Icon
@@ -116,7 +125,7 @@ const ToastShow: React.FC<ToastShowProps> = ({
 
           <div
             className={`${
-              typeError === "simple" ? "ml-2" : "mx-3"
+              typeError === "borderToast" ? "ml-2" : "mx-3"
             } flex flex-col items-end `}
           >
             <Typography variant="subtitle2">

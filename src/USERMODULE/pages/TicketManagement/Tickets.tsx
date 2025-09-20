@@ -460,7 +460,7 @@ const Tickets: React.FC = () => {
           return;
         }
         if (res?.data?.type === "success") {
-          showToast(res?.message || res?.data?.message, "success", "simple");
+          showToast(res?.message || res?.data?.message, "error", "boxToast");
 
         }
 
