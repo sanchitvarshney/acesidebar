@@ -22,8 +22,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import CustomAlert from "../../../components/reusable/CustomAlert";
 
-import { Drawer, Typography, Divider } from "@mui/material";
+import { Drawer, Typography, Divider, Slide } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { AnimatePresence, motion } from "framer-motion";
+import { TruckElectric } from "lucide-react";
 const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const {
     data: searchCriteria,
@@ -39,9 +41,12 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const topAnchorRef = React.useRef<HTMLDivElement>(null);
   const [commanApi] = useCommanApiMutation();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  
+  const [animate, setAnimate] = useState(false);
+
   // Find ticket ID field from API response
-  const ticketIdField = searchCriteria?.find((field: any) => field.name === "ticket_id");
+  const ticketIdField = searchCriteria?.find(
+    (field: any) => field.name === "ticket_id"
+  );
 
   useEffect(() => {
     if (searchCriteria && Array.isArray(searchCriteria)) {
@@ -55,14 +60,13 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         else initialFilters[field.name] = "";
       });
       setFilters(initialFilters);
-      
+
       // Automatically add ticket ID field to active filters if it exists
       if (ticketIdField && !activeFilters.includes("ticket_id")) {
-        setActiveFilters(prev => [...prev, "ticket_id"]);
+        setActiveFilters((prev) => [...prev, "ticket_id"]);
       }
     }
   }, [searchCriteria, ticketIdField]);
-
 
   // When searchCriteria loads, initialize masterFilters as well, but do not overwrite regular filters
   useEffect(() => {
@@ -76,13 +80,14 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     }
   }, [searchCriteria]);
 
+
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
   ) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name as string]: value }));
   };
-
 
   // Add a handler for MUI Select (dropdown) fields
   const handleSelectChange = (
@@ -114,16 +119,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
     // Only include active filter fields
     const selectedFilters: Record<string, any> = Object.fromEntries(
-          Object.entries(filters).filter(([key]) => activeFilters.includes(key))
+      Object.entries(filters).filter(([key]) => activeFilters.includes(key))
     );
 
     const cleanedFilters = buildNonEmpty(selectedFilters);
 
-    const payload = {
-      url: "apply-filters",
-      body: cleanedFilters,
-    };
-    commanApi(payload);
     if (typeof onApplyFilters === "function") {
       onApplyFilters(cleanedFilters);
     }
@@ -162,8 +162,9 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     return null;
   }
 
-  const availableFilters = criteriaArray.filter((field: any) => 
-    !activeFilters.includes(field.name) && field.name !== "ticket_id"
+  const availableFilters = criteriaArray.filter(
+    (field: any) =>
+      !activeFilters.includes(field.name) && field.name !== "ticket_id"
   );
 
   // Check if we can add more filters (max 5, with ticket_id always included)
@@ -191,6 +192,9 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     setAnchorEl(null);
   };
 
+
+  
+
   return (
     <Box className="w-100 min-w-100 shadow rounded-lg flex flex-col h-full relative bg-#f5f7f9">
       <div ref={topAnchorRef} />
@@ -203,19 +207,346 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         }}
       >
         <span className="font-semibold text-gray-700 text-sm">FILTERS</span>
-          <Button
-            variant="text"
-            size="small"
-            sx={{ fontSize: 10, fontWeight: "Bold" }}
+        <Button
+          variant="text"
+          size="small"
+          sx={{ fontSize: 10, fontWeight: "Bold" }}
           onClick={() => setDrawerOpen(true)}
-          >
-            Show All Filters
-          </Button>
+        >
+          Show All Filters
+        </Button>
       </Box>
       {/* Custom dynamic filter panel */}
-        <Box className="flex-1 overflow-y-auto">
-          {/* Add filters button and popover */}
-          <Box>
+      <Box className="flex-1 overflow-y-auto">
+        {/* Add filters button and popover */}
+        <Box>
+          <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={handlePopoverClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            PaperProps={{
+              sx: {
+                p: 0,
+                minWidth: 315,
+                maxWidth: 315,
+                boxShadow: 3,
+                borderRadius: 2,
+              },
+            }}
+          >
+            <Box sx={{ p: 1, minWidth: 315 }}>
+              <TextField
+                size="small"
+                placeholder="Search..."
+                value={filterSearch}
+                onChange={(e) => setFilterSearch(e.target.value)}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mb: 1 }}
+              />
+              <Box sx={{ maxHeight: 200, overflowY: "auto" }}>
+                {filteredAvailableFilters.length === 0 ? (
+                  <Box sx={{ color: "text.secondary", p: 1, fontSize: 14 }}>
+                    No filters found
+                  </Box>
+                ) : (
+                  filteredAvailableFilters.map((field: any) => (
+                    <MenuItem
+                      key={field.name}
+                      onClick={() => {
+                        if (canAddMoreFilters) {
+                          setActiveFilters((prev) => [...prev, field.name]);
+                          handlePopoverClose(); // Close popover after adding filter
+                          setFilterSearch("");
+                        }
+                      }}
+                    >
+                      {field.label}
+                    </MenuItem>
+                  ))
+                )}
+              </Box>
+            </Box>
+          </Popover>
+        </Box>
+        {activeFilters.length === 0 ? (
+          <Box className="flex flex-col items-center justify-center py-12">
+            <img
+              src={emptyimg}
+              alt="No filters"
+              style={{ width: 120, height: 120, marginTop: 18 }}
+            />
+            <span className="text-gray-400 text-base">No filters applied</span>
+            {activeFilters.length === 0 && (
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handlePopoverOpen}
+                disabled={!canAddMoreFilters}
+                sx={{
+                  color: "#1a73e8",
+                  fontWeight: 500,
+                  textTransform: "none",
+                  pl: 0,
+                }}
+              >
+                Add filters
+              </Button>
+            )}
+          </Box>
+        ) : (
+          <>
+            {activeFilters.map((filterName) => {
+              // Handle ticket ID field specially
+              const field =
+                filterName === "ticket_id"
+                  ? ticketIdField
+                  : criteriaArray.find((f: any) => f.name === filterName);
+              if (!field) return null;
+
+              return (
+                <Box className="p-2" key={field.name}>
+                  <Box className="flex items-center justify-between mb-1">
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">
+                        {field.label}
+                      </span>
+                    </div>
+                    {/* Only show remove button if it's not the ticket ID field */}
+                    {field.name !== "ticket_id" && (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => {
+                          setActiveFilters((prev) =>
+                            prev.filter((f) => f !== field.name)
+                          );
+                          setFilters((prev) => ({
+                            ...prev,
+                            [field.name]: field.type === "chip" ? [] : "",
+                          }));
+                        }}
+                      >
+                        <RemoveCircleOutlineIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                  {field.type === "dropdown" && field.name === "priority" && (
+                    <FormControl fullWidth size="small">
+                      <Select
+                        name={field.name}
+                        value={filters[field.name]}
+                        onChange={handleSelectChange}
+                        displayEmpty
+                        renderValue={(selected) => {
+                          if (!selected || selected === "") {
+                            return (
+                              <span style={{ color: "#aaa" }}>
+                                {field.placeholder || field.label || "Select"}
+                              </span>
+                            );
+                          }
+                          const selectedOption = field.choices?.find(
+                            (opt: { value: string; label: string }) =>
+                              opt.value === selected
+                          );
+                          return selectedOption ? (
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: selectedOption.color,
+                                  marginRight: 6,
+                                }}
+                              ></span>
+                              {selectedOption.label}
+                            </span>
+                          ) : (
+                            selected
+                          );
+                        }}
+                      >
+                        <MenuItem value="">
+                          <span style={{ color: "#aaa" }}>
+                            {field.placeholder || field.label || "Select"}
+                          </span>
+                        </MenuItem>
+                        {field.choices?.map((opt: any) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: opt.color || "#ccc",
+                                  marginRight: 6,
+                                }}
+                              ></span>
+                              {opt.label}
+                            </span>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                  {field.type === "dropdown" && field.name !== "priority" && (
+                    <FormControl fullWidth size="small">
+                      <Select
+                        name={field.name}
+                        value={filters[field.name]}
+                        onChange={handleSelectChange}
+                        displayEmpty
+                      >
+                        <MenuItem value="">
+                          <span style={{ color: "#aaa" }}>
+                            {field.placeholder || field.label || "Select"}
+                          </span>
+                        </MenuItem>
+                        {field.choices?.map((opt: any) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                  {field.type === "text" && (
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name={field.name}
+                      value={filters[field.name]}
+                      onChange={handleChange}
+                      variant="filled"
+                      placeholder={field.placeholder || field.label || ""}
+                      sx={{
+                        "& .MuiFilledInput-root": {
+                          backgroundColor: "#f7f7f7",
+                          "&.Mui-focused": {
+                            backgroundColor: "#fffbeb",
+                          },
+                        },
+                        "& .MuiFilledInput-underline:before": {
+                          borderBottom: "2px solid #c4c4c4", // default (not focused)
+                        },
+                        "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before":
+                          {
+                            borderBottom: "2px solid #c4c4c4", // on hover
+                          },
+                        "& .MuiFilledInput-underline:after": {
+                          borderBottom: "2px solid #c4c4c4", // on focus
+                        },
+                      }}
+                    />
+                  )}
+                  {field.type === "date" && (
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        value={filters[field.name] || null}
+                        onChange={(newValue: any) => {
+                          setFilters((prev) => ({
+                            ...prev,
+                            [field.name]: newValue,
+                          }));
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            size: "small",
+                            variant: "outlined",
+                            name: field.name,
+                            placeholder: field.placeholder || field.label || "",
+                          },
+                        }}
+                        format="DD/MM/YYYY"
+                      />
+                    </LocalizationProvider>
+                  )}
+                  {field.type === "chip" && (
+                    <FormControl fullWidth size="small">
+                      <Select
+                        multiple
+                        name={field.name}
+                        value={
+                          Array.isArray(filters[field.name])
+                            ? filters[field.name]
+                            : []
+                        }
+                        onChange={(e) => handleChipChange(e, field.name)}
+                        displayEmpty
+                        renderValue={(selected) => {
+                          if (!selected || selected.length === 0) {
+                            return (
+                              <span style={{ color: "#aaa" }}>
+                                {field.placeholder || field.label || "Select"}
+                              </span>
+                            );
+                          }
+                          return (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 0.5,
+                              }}
+                            >
+                              {selected.map((value: string) => {
+                                const label =
+                                  field.choices.find(
+                                    (c: { value: string; label: string }) =>
+                                      c.value === value
+                                  )?.label || value;
+                                return (
+                                  <Chip
+                                    key={value}
+                                    label={label}
+                                    size="small"
+                                  />
+                                );
+                              })}
+                            </Box>
+                          );
+                        }}
+                      >
+                        <MenuItem value="">
+                          <span style={{ color: "#aaa" }}>
+                            {field.placeholder || field.label || "Select"}
+                          </span>
+                        </MenuItem>
+                        {field.choices?.map((opt: any) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                </Box>
+              );
+            })}
             <Popover
               open={Boolean(anchorEl)}
               anchorEl={anchorEl}
@@ -257,11 +588,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       <MenuItem
                         key={field.name}
                         onClick={() => {
-                        if (canAddMoreFilters) {
-                          setActiveFilters((prev) => [...prev, field.name]);
-                          handlePopoverClose(); // Close popover after adding filter
-                          setFilterSearch("");
-                        }
+                          if (canAddMoreFilters) {
+                            setActiveFilters((prev) => [...prev, field.name]);
+                            handlePopoverClose(); // Close popover after adding filter
+                            setFilterSearch("");
+                          }
                         }}
                       >
                         {field.label}
@@ -271,336 +602,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 </Box>
               </Box>
             </Popover>
-          </Box>
-          {activeFilters.length === 0 ? (
-            <Box className="flex flex-col items-center justify-center py-12">
-              <img
-                src={emptyimg}
-                alt="No filters"
-                style={{ width: 120, height: 120, marginTop: 18 }}
-              />
-              <span className="text-gray-400 text-base">
-                No filters applied
-              </span>
-              {activeFilters.length === 0 && (
-                <Button
-                  startIcon={<AddIcon />}
-                  onClick={handlePopoverOpen}
-                disabled={!canAddMoreFilters}
-                  sx={{
-                    color: "#1a73e8",
-                    fontWeight: 500,
-                    textTransform: "none",
-                    pl: 0,
-                  }}
-                >
-                  Add filters
-                </Button>
-              )}
-            </Box>
-          ) : (
-            <>
-              {activeFilters.map((filterName) => {
-                // Handle ticket ID field specially
-                const field = filterName === "ticket_id" 
-                  ? ticketIdField 
-                  : criteriaArray.find((f: any) => f.name === filterName);
-                if (!field) return null;
-
-                return (
-                  <Box className="p-2" key={field.name}>
-                    <Box className="flex items-center justify-between mb-1">
-                      <div>
-                        <span className="text-sm font-medium text-gray-700">
-                          {field.label}
-                        </span>
-
-                      </div>
-                      {/* Only show remove button if it's not the ticket ID field */}
-                      {field.name !== "ticket_id" && (
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => {
-                            setActiveFilters((prev) =>
-                              prev.filter((f) => f !== field.name)
-                            );
-                            setFilters((prev) => ({
-                              ...prev,
-                              [field.name]: field.type === "chip" ? [] : "",
-                            }));
-                          }}
-                        >
-                          <RemoveCircleOutlineIcon fontSize="small" />
-                        </IconButton>
-                      )}
-                    </Box>
-                    {field.type === "dropdown" && field.name === "priority" && (
-                      <FormControl fullWidth size="small">
-                        <Select
-                          name={field.name}
-                          value={filters[field.name]}
-                          onChange={handleSelectChange}
-                          displayEmpty
-                          renderValue={(selected) => {
-                            if (!selected || selected === "") {
-                              return (
-                                <span style={{ color: "#aaa" }}>
-                                  {field.placeholder || field.label || "Select"}
-                                </span>
-                              );
-                            }
-                            const selectedOption = field.choices?.find(
-                              (opt: { value: string; label: string }) =>
-                                opt.value === selected
-                            );
-                            return selectedOption ? (
-                              <span
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 6,
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: "50%",
-                                    backgroundColor: selectedOption.color,
-                                    marginRight: 6,
-                                  }}
-                                ></span>
-                                {selectedOption.label}
-                              </span>
-                            ) : (
-                              selected
-                            );
-                          }}
-                        >
-                          <MenuItem value="">
-                            <span style={{ color: "#aaa" }}>
-                              {field.placeholder || field.label || "Select"}
-                            </span>
-                          </MenuItem>
-                          {field.choices?.map((opt: any) => (
-                            <MenuItem key={opt.value} value={opt.value}>
-                              <span
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 6,
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: "50%",
-                                    backgroundColor: opt.color || "#ccc",
-                                    marginRight: 6,
-                                  }}
-                                ></span>
-                                {opt.label}
-                              </span>
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    )}
-                    {field.type === "dropdown" && field.name !== "priority" && (
-                      <FormControl fullWidth size="small">
-                        <Select
-                          name={field.name}
-                          value={filters[field.name]}
-                          onChange={handleSelectChange}
-                          displayEmpty
-                        >
-                          <MenuItem value="">
-                            <span style={{ color: "#aaa" }}>
-                              {field.placeholder || field.label || "Select"}
-                            </span>
-                          </MenuItem>
-                          {field.choices?.map((opt: any) => (
-                            <MenuItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    )}
-                    {field.type === "text" && (
-                      <TextField
-                        fullWidth
-                        size="small"
-                        name={field.name}
-                        value={filters[field.name]}
-                        onChange={handleChange}
-                        variant="filled"
-                        placeholder={field.placeholder || field.label || ""}
-                      sx={{
-                        "& .MuiFilledInput-root": {
-                          backgroundColor: "#f7f7f7",
-                          "&.Mui-focused": {
-                            backgroundColor: "#fffbeb",
-                          },
-                        },
-                        "& .MuiFilledInput-underline:before": {
-                          borderBottom: "2px solid #c4c4c4", // default (not focused)
-                        },
-                        "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before": {
-                          borderBottom: "2px solid #c4c4c4", // on hover
-                        },
-                        "& .MuiFilledInput-underline:after": {
-                          borderBottom: "2px solid #c4c4c4", // on focus
-                        },
-                      }}
-                    />
-
-                    )}
-                    {field.type === "date" && (
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          value={filters[field.name] || null}
-                          onChange={(newValue: any) => {
-                            setFilters((prev) => ({
-                              ...prev,
-                              [field.name]: newValue,
-                            }));
-                          }}
-                          slotProps={{
-                            textField: {
-                              fullWidth: true,
-                              size: "small",
-                              variant: "outlined",
-                              name: field.name,
-                              placeholder:
-                                field.placeholder || field.label || "",
-                            },
-                          }}
-                          format="DD/MM/YYYY"
-                        />
-                      </LocalizationProvider>
-                    )}
-                    {field.type === "chip" && (
-                      <FormControl fullWidth size="small">
-                        <Select
-                          multiple
-                          name={field.name}
-                          value={
-                            Array.isArray(filters[field.name])
-                              ? filters[field.name]
-                              : []
-                          }
-                          onChange={(e) => handleChipChange(e, field.name)}
-                          displayEmpty
-                          renderValue={(selected) => {
-                            if (!selected || selected.length === 0) {
-                              return (
-                                <span style={{ color: "#aaa" }}>
-                                  {field.placeholder || field.label || "Select"}
-                                </span>
-                              );
-                            }
-                            return (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 0.5,
-                                }}
-                              >
-                                {selected.map((value: string) => {
-                                  const label =
-                                    field.choices.find(
-                                      (c: { value: string; label: string }) =>
-                                        c.value === value
-                                    )?.label || value;
-                                  return (
-                                    <Chip
-                                      key={value}
-                                      label={label}
-                                      size="small"
-                                    />
-                                  );
-                                })}
-                              </Box>
-                            );
-                          }}
-                        >
-                          <MenuItem value="">
-                            <span style={{ color: "#aaa" }}>
-                              {field.placeholder || field.label || "Select"}
-                            </span>
-                          </MenuItem>
-                          {field.choices?.map((opt: any) => (
-                            <MenuItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    )}
-                  </Box>
-                );
-              })}
-              <Popover
-                open={Boolean(anchorEl)}
-                anchorEl={anchorEl}
-                onClose={handlePopoverClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                PaperProps={{
-                  sx: {
-                    p: 0,
-                    minWidth: 315,
-                    maxWidth: 315,
-                    boxShadow: 3,
-                    borderRadius: 2,
-                  },
-                }}
-              >
-                <Box sx={{ p: 1, minWidth: 315 }}>
-                  <TextField
-                    size="small"
-                    placeholder="Search..."
-                    value={filterSearch}
-                    onChange={(e) => setFilterSearch(e.target.value)}
-                    fullWidth
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon fontSize="small" />
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{ mb: 1 }}
-                  />
-                  <Box sx={{ maxHeight: 200, overflowY: "auto" }}>
-                    {filteredAvailableFilters.length === 0 ? (
-                      <Box sx={{ color: "text.secondary", p: 1, fontSize: 14 }}>
-                        No filters found
-                      </Box>
-                    ) : (
-                      filteredAvailableFilters.map((field: any) => (
-                        <MenuItem
-                          key={field.name}
-                          onClick={() => {
-                          if (canAddMoreFilters) {
-                            setActiveFilters((prev) => [...prev, field.name]);
-                            handlePopoverClose(); // Close popover after adding filter
-                            setFilterSearch("");
-                          }
-                          }}
-                        >
-                          {field.label}
-                        </MenuItem>
-                      ))
-                    )}
-                  </Box>
-                </Box>
-              </Popover>
 
             {/* Add Filter Button - Show when there are active filters but not at max */}
             {canAddMoreFilters && activeFilters.length > 0 && (
@@ -612,7 +613,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   color="primary"
                   size="small"
                   sx={{
-                    fontWeight: 550
+                    fontWeight: 550,
                   }}
                 >
                   Add Filter ({activeFilters.length}/{MAX_FILTERS})
@@ -620,39 +621,36 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
               </Box>
             )}
 
-            {/* Max Filters Reached Alert */}
-            {!canAddMoreFilters && (
-              <Box
-                sx={{
-                  bottom: "80px",
-                  position: "absolute",
-                  padding: "0 10px"
-                }}
-              >
-                <CustomAlert title="You have exceeded the maximum number of filters" />
-        </Box>
-      )}
+            {/* Max Filters Reached Alert
 
+            <Slide
+              direction="up"
+              in={animate}
+              mountOnEnter
+              unmountOnExit
+            >
+              <CustomAlert title="You have exceeded the maximum number of filters" />
+            </Slide> */}
           </>
         )}
       </Box>
       {/* Fixed Apply and Reset buttons */}
       <Box className="p-2 pb-2 pb-0 z-10 bg-white flex gap-2">
-          <Button
-            variant="text"
-            color="primary"
-            fullWidth
-            onClick={handleResetFilters}
-            sx={{
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              "&:disabled": {
-                opacity: 0.5,
-              },
-            }}
-          >
-            Reset
-          </Button>
+        <Button
+          variant="text"
+          color="primary"
+          fullWidth
+          onClick={handleResetFilters}
+          sx={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            "&:disabled": {
+              opacity: 0.5,
+            },
+          }}
+        >
+          Reset
+        </Button>
         <Button
           variant="contained"
           fullWidth
@@ -686,7 +684,15 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       >
         <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
           {/* Header */}
-          <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#e8f0fe" }}>
+          <Box
+            sx={{
+              p: 2,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              backgroundColor: "#e8f0fe",
+            }}
+          >
             <Typography variant="h6" sx={{ fontWeight: 600, color: "#2c3e50" }}>
               All Filters
             </Typography>
@@ -700,9 +706,20 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           {/* Filters List */}
           <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
             {criteriaArray.map((field: any) => (
-              <Box key={field.name} sx={{ mb: 3, p: 2, border: "1px solid #e0e0e0", borderRadius: 2 }}>
+              <Box
+                key={field.name}
+                sx={{
+                  mb: 3,
+                  p: 2,
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 2,
+                }}
+              >
                 {/* Filter Header */}
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#2c3e50", mb: 2 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 600, color: "#2c3e50", mb: 2 }}
+                >
                   {field.label}
                 </Typography>
 
@@ -727,9 +744,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         "& .MuiFilledInput-underline:before": {
                           borderBottom: "2px solid #c4c4c4",
                         },
-                        "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before": {
-                          borderBottom: "2px solid #c4c4c4",
-                        },
+                        "& .MuiFilledInput-underline:hover:not(.Mui-disabled):before":
+                          {
+                            borderBottom: "2px solid #c4c4c4",
+                          },
                         "& .MuiFilledInput-underline:after": {
                           borderBottom: "2px solid #c4c4c4",
                         },
@@ -746,13 +764,24 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         displayEmpty
                         renderValue={(selected) => {
                           if (!selected || selected === "") {
-                            return <span style={{ color: "#aaa" }}>Select Priority</span>;
+                            return (
+                              <span style={{ color: "#aaa" }}>
+                                Select Priority
+                              </span>
+                            );
                           }
                           const selectedOption = field.choices?.find(
-                            (opt: { value: string; label: string }) => opt.value === selected
+                            (opt: { value: string; label: string }) =>
+                              opt.value === selected
                           );
                           return selectedOption ? (
-                            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                              }}
+                            >
                               <span
                                 style={{
                                   display: "inline-block",
@@ -770,23 +799,35 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                           );
                         }}
                       >
-                        {field.choices?.map((opt: { value: string; label: string; color?: string }) => (
-                          <MenuItem key={opt.value} value={opt.value}>
-                            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        {field.choices?.map(
+                          (opt: {
+                            value: string;
+                            label: string;
+                            color?: string;
+                          }) => (
+                            <MenuItem key={opt.value} value={opt.value}>
                               <span
                                 style={{
-                                  display: "inline-block",
-                                  width: 12,
-                                  height: 12,
-                                  borderRadius: "50%",
-                                  backgroundColor: opt.color || "#c4c4c4",
-                                  marginRight: 6,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 6,
                                 }}
-                              ></span>
-                              {opt.label}
-                            </span>
-                          </MenuItem>
-                        ))}
+                              >
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: 12,
+                                    height: 12,
+                                    borderRadius: "50%",
+                                    backgroundColor: opt.color || "#c4c4c4",
+                                    marginRight: 6,
+                                  }}
+                                ></span>
+                                {opt.label}
+                              </span>
+                            </MenuItem>
+                          )
+                        )}
                       </Select>
                     </FormControl>
                   )}
@@ -802,11 +843,13 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
                       >
-                        {field.choices?.map((opt: { value: string; label: string }) => (
-                          <MenuItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </MenuItem>
-                        ))}
+                        {field.choices?.map(
+                          (opt: { value: string; label: string }) => (
+                            <MenuItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </MenuItem>
+                          )
+                        )}
                       </Select>
                     </FormControl>
                   )}
@@ -841,32 +884,54 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       <Select
                         multiple
                         name={field.name}
-                        value={Array.isArray(filters[field.name]) ? filters[field.name] : []}
+                        value={
+                          Array.isArray(filters[field.name])
+                            ? filters[field.name]
+                            : []
+                        }
                         onChange={(e) => handleChipChange(e, field.name)}
                         displayEmpty
                         renderValue={(selected) => {
                           if (!selected || selected.length === 0) {
-                            return <span style={{ color: "#aaa" }}>Select {field.label}</span>;
+                            return (
+                              <span style={{ color: "#aaa" }}>
+                                Select {field.label}
+                              </span>
+                            );
                           }
                           return (
-                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 0.5,
+                              }}
+                            >
                               {selected.map((value: string) => {
-                                const label = field.choices.find(
-                                  (c: { value: string; label: string }) => c.value === value
-                                )?.label || value;
+                                const label =
+                                  field.choices.find(
+                                    (c: { value: string; label: string }) =>
+                                      c.value === value
+                                  )?.label || value;
                                 return (
-                                  <Chip key={value} label={label} size="small" />
+                                  <Chip
+                                    key={value}
+                                    label={label}
+                                    size="small"
+                                  />
                                 );
                               })}
                             </Box>
                           );
                         }}
                       >
-                        {field.choices?.map((opt: { value: string; label: string }) => (
-                          <MenuItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </MenuItem>
-                        ))}
+                        {field.choices?.map(
+                          (opt: { value: string; label: string }) => (
+                            <MenuItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </MenuItem>
+                          )
+                        )}
                       </Select>
                     </FormControl>
                   )}
@@ -877,7 +942,13 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
           {/* Footer Actions */}
           <Box sx={{ borderTop: "1px solid #e0e0e0", p: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               {/* Clear filters link on the left */}
               <Button
                 variant="text"

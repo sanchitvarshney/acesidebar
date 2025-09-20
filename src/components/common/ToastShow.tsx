@@ -62,7 +62,7 @@ const ToastShow: React.FC<ToastShowProps> = ({
   }, [isOpen, animate, onClose]);
 
   return (
-    <Box sx={{ width: 500 }}>
+    <Box sx={{ width: 500,}}>
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={isOpen}
@@ -86,6 +86,7 @@ const ToastShow: React.FC<ToastShowProps> = ({
                 ? `4px solid ${type === "success" ? "#2e7d32" : "#d32f2f"}`
                 : "none",
             boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+  
           }}
         >
           {typeError !== "borderToast" ? (

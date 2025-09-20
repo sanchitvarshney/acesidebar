@@ -48,6 +48,7 @@ import {
 } from "../../../services/agentServices";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 import { m } from "framer-motion";
+import { object } from "zod";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -67,6 +68,7 @@ const Tickets: React.FC = () => {
   const [sortBy, setSortBy] = useState("Sort By");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [filters, setFilters] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
   const [dept, setDept] = useState<any>("");
@@ -262,6 +264,7 @@ const Tickets: React.FC = () => {
     return {
       page,
       limit,
+      obj: filters,
     };
   };
   const { data: ticketList, isFetching: isTicketListFetching } =
@@ -287,7 +290,7 @@ const Tickets: React.FC = () => {
 
   // Handle filter apply
   const handleApplyFilters = (newFilters: any) => {
-    // TODO: Trigger API call with newFilters
+    setFilters(newFilters);
   };
 
   // Handle master checkbox change
