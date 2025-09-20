@@ -345,9 +345,9 @@ const ThreadItem = ({
   const isCurrentUser = item?.replyType === "AGENT";
   const bubbleBackgroundColor = isReported
     ? "#fee2e2"
-    : isCurrentUser
-    ? "#f7faff"
-    : "#fafafa";
+    : isCurrentUser && item?.entryType === "pbR" 
+    ? "#f7faff" : isCurrentUser && item?.entryType === "PrvN"
+    ? "#fef1e1" :   "#fafafa";
   const bubbleFooter = isCurrentUser
     ? "IP: 127.0.0.1 | Location: India"
     : "IP: 127.0.0.1 | Location: India";
@@ -474,7 +474,7 @@ const ThreadItem = ({
             <div className="flex items-center justify-between  w-full px-8 py-2">
               <div className={`w-full  flex flex-col`}>
                 <div
-                  className={`flex  items-center justify-between  w-full border-b-2 border-gray-200 pb-4  ${
+                  className={`flex  items-center justify-between  w-full border-b-2 ${item?.entryType === "PrvN" ? "border-[#f8d2a4ff]" : "border-gray-200"} pb-4  ${
                     isCurrentUser ? " flex-row-reverse" : "flex-row "
                   }`}
                 >
@@ -589,7 +589,7 @@ const ThreadItem = ({
             {!item?.subject && (
               <div
                 className="flex items-center justify-between w-full py-3 px-8 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
-                style={{ borderTopColor: isReported ? "#ffb6b6" : "#c3d9ff" }}
+                style={{ borderTopColor: isReported ? "#ffb6b6" :  item?.entryType === "PrvN" ? "#f8d2a4ff" : "#c3d9ff" }}
               >
                 {/* {item?.attachments.length > 0 ? (
                 <span className="text-xs text-gray-500 cursor-pointer hover:text-decoration-underline ">
