@@ -687,7 +687,7 @@ const Tickets: React.FC = () => {
     <>
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)]">
         {/* Main Header Bar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b bg-white shadow-sm">
+        <div className="flex items-center justify-between px-2 py-2 border-b bg-white shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <Checkbox
@@ -704,7 +704,7 @@ const Tickets: React.FC = () => {
                 },
               }}
             />
-            <h1 className="text-xl font-medium text-gray-900">Tickets</h1>
+            <h3 className="text-md font-medium text-gray-900">All tickets</h3>
             <span className="bg-gray-100 text-gray-600 rounded-full px-2 py-1 text-xs font-medium">
               {ticketsToShow?.data?.length || 0}
             </span>
