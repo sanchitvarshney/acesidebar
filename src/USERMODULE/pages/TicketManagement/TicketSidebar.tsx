@@ -42,6 +42,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [commanApi] = useCommanApiMutation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [animate, setAnimate] = useState(false);
+  const [showMaxFiltersAlert, setShowMaxFiltersAlert] = useState(false);
 
   // Find ticket ID field from API response
   const ticketIdField = searchCriteria?.find(
@@ -80,7 +81,36 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     }
   }, [searchCriteria]);
 
+  // Calculate variables before early returns
+  const criteriaArray = Array.isArray(searchCriteria)
+    ? searchCriteria
+    : Array.isArray(searchCriteria?.data)
+    ? searchCriteria.data
+    : [];
 
+  const availableFilters = criteriaArray.filter(
+    (field: any) =>
+      !activeFilters.includes(field.name) && field.name !== "ticket_id"
+  );
+
+  const canAddMoreFilters = activeFilters.length < MAX_FILTERS;
+  const filteredAvailableFilters = availableFilters.filter((field: any) =>
+    field.label.toLowerCase().includes(filterSearch.toLowerCase())
+  );
+
+  // Handle max filters alert animation - now safe to use variables
+  useEffect(() => {
+    if (!canAddMoreFilters && activeFilters.length === MAX_FILTERS) {
+      setShowMaxFiltersAlert(true);
+      
+      // Hide alert after 3 seconds
+      const timer = setTimeout(() => {
+        setShowMaxFiltersAlert(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [canAddMoreFilters, activeFilters.length, MAX_FILTERS]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
@@ -153,28 +183,21 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   if (error) {
     return <div className="p-4 text-red-500">Failed to load filters.</div>;
   }
-  const criteriaArray = Array.isArray(searchCriteria)
-    ? searchCriteria
-    : Array.isArray(searchCriteria?.data)
-    ? searchCriteria.data
-    : [];
   if (!criteriaArray || criteriaArray.length === 0) {
     return null;
   }
 
-  const availableFilters = criteriaArray.filter(
-    (field: any) =>
-      !activeFilters.includes(field.name) && field.name !== "ticket_id"
-  );
-
-  // Check if we can add more filters (max 5, with ticket_id always included)
-  const canAddMoreFilters = activeFilters.length < MAX_FILTERS;
-  const filteredAvailableFilters = availableFilters.filter((field: any) =>
-    field.label.toLowerCase().includes(filterSearch.toLowerCase())
-  );
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     if (!canAddMoreFilters) {
+      // Show alert when user tries to add more filters beyond limit
+      setShowMaxFiltersAlert(true);
+      
+      // Hide alert after 3 seconds
+      setTimeout(() => {
+        setShowMaxFiltersAlert(false);
+      }, 3000);
+      
       return; // Don't open popover if max filters reached
     }
     if (closePopoverTimer.current) {
@@ -621,16 +644,17 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
               </Box>
             )}
 
-            {/* Max Filters Reached Alert
-
+            {/* Max Filters Reached Alert*/}
             <Slide
               direction="up"
-              in={animate}
+              in={showMaxFiltersAlert}
               mountOnEnter
               unmountOnExit
             >
-              <CustomAlert title="You have exceeded the maximum number of filters" />
-            </Slide> */}
+              <Box sx={{ position: "absolute", bottom: "80px", left: "10px", right: "10px", zIndex: 1000 }}>
+                <CustomAlert title="You have exceeded the maximum number of filters" />
+              </Box>
+            </Slide> 
           </>
         )}
       </Box>
