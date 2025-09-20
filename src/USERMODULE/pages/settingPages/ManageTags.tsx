@@ -16,6 +16,7 @@ import {
   CardActions,
   CardContent,
   Card,
+  LinearProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -176,11 +177,11 @@ const ManageTags = () => {
 
         <Divider />
 
-        {isTagListLoading ? (
+        {/* {isTagListLoading ? (
           <div className="flex items-center justify-center  text-gray-500">
             <CircularProgress color="primary" />
           </div>
-        ) : (
+        ) : ( */}
           <section className="space-y-2">
             <Typography variant="subtitle1" fontWeight={600}>
               All tags
@@ -190,7 +191,25 @@ const ManageTags = () => {
               sx={{ width: "100%", overflow: "hidden", borderRadius: 1 }}
             >
               <Table size="small">
-                <TableHead>
+                <TableHead sx={{position: "relative"}}>
+                   {isTagListLoading && (
+                  <LinearProgress
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 10,
+                      height: 4,
+                      "& .MuiLinearProgress-bar": {
+                        backgroundColor: "#1976d2",
+                      },
+                      "& .MuiLinearProgress-root": {
+                        backgroundColor: "#e0e0e0",
+                      },
+                    }}
+                  />
+                )}
                   <TableRow>
                     <TableCell>Tag</TableCell>
                     <TableCell /> <TableCell /> <TableCell />
@@ -305,7 +324,7 @@ const ManageTags = () => {
               </Table>
             </Paper>
           </section>
-        )}
+        {/* )} */}
       </div>
 
       <div className="max-h-[calc(100vh-100px)] overflow-y-auto p-4 space-y-6">

@@ -763,7 +763,10 @@ const DepartmentsManagement = () => {
               position: "relative",
             }}
           >
-            {/* Linear Progress Loader */}
+           
+            <Table stickyHeader>
+              <TableHead sx={{ position: "relative" }}>
+                 {/* Linear Progress Loader */}
             {isGetDepartmentListLoading && (
               <LinearProgress
                 sx={{
@@ -782,8 +785,6 @@ const DepartmentsManagement = () => {
                 }}
               />
             )}
-            <Table stickyHeader>
-              <TableHead>
                 <TableRow sx={{ bgcolor: "#f8f9fa" }}>
                   <TableCell
                     sx={{

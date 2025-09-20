@@ -748,30 +748,29 @@ const DepartmentsManagement = () => {
             sx={{
               height: "calc(100vh - 280px)",
               minHeight: "400px",
-              position: "relative",
             }}
           >
-            {/* Linear Progress Loader */}
-            {agentListLoading && (
-              <LinearProgress
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  zIndex: 1,
-                  height: 4,
-                  "& .MuiLinearProgress-bar": {
-                    backgroundColor: "#1976d2",
-                  },
-                  "& .MuiLinearProgress-root": {
-                    backgroundColor: "#e0e0e0",
-                  },
-                }}
-              />
-            )}
             <Table stickyHeader>
-              <TableHead>
+              <TableHead sx={{ position: "relative" }}>
+                {/* Linear Progress Loader in Header */}
+                {agentListLoading && (
+                  <LinearProgress
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 10,
+                      height: 4,
+                      "& .MuiLinearProgress-bar": {
+                        backgroundColor: "#1976d2",
+                      },
+                      "& .MuiLinearProgress-root": {
+                        backgroundColor: "#e0e0e0",
+                      },
+                    }}
+                  />
+                )}
                 <TableRow sx={{ bgcolor: "#f8f9fa" }}>
                   <TableCell
                     sx={{
