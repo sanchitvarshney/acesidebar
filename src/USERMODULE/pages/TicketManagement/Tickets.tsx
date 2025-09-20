@@ -106,6 +106,9 @@ const Tickets: React.FC = () => {
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
   const [commanApi] = useCommanApiMutation();
+  const [loadingImportantTickets, setLoadingImportantTickets] = useState<
+    Set<string>
+  >(new Set());
   // Fetch live priority list
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
@@ -159,6 +162,7 @@ const Tickets: React.FC = () => {
       priority: override.priority ?? ticket.priority,
       department: override.department ?? ticket.department,
       assignee: override.agent ?? ticket.assignee,
+      important: override.important ?? ticket.important,
     };
   };
 
@@ -453,24 +457,65 @@ const Tickets: React.FC = () => {
 
   // Handle toggle important status
   const handleToggleImportant = (ticket: any) => {
-    const newImportantStatus = !ticket.important;
+    const merged = applyOverrides(ticket);
+    const newImportantStatus = !merged.important;
+
+    // Add ticket to loading set
+    setLoadingImportantTickets((prev) =>
+      new Set(prev).add(merged.ticketNumber)
+    );
+
     const payload = {
-      url: `edit-property/${ticket.ticketNumber}?important=${newImportantStatus}`,
+      url: `edit-property/${merged.ticketNumber}?important=${newImportantStatus}`,
       method: "PUT",
     };
 
     commanApi(payload)
       .then((res: any) => {
+        // Remove ticket from loading set
+        setLoadingImportantTickets((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(merged.ticketNumber);
+          return newSet;
+        });
+
         if (res?.data?.type === "error") {
           showToast(res?.message || res?.data?.message, "error");
           return;
         }
-        // Only show success message when marking as important
-        if (newImportantStatus) {
-          showToast("Ticket marked as important", "success");
+        if (res?.data?.type === "success") {
+          showToast(res?.message || res?.data?.message, "success");
+          
+        }
+
+        // Only update UI after successful API response
+        if (res?.data?.updatedFields?.important !== undefined) {
+          setTicketOverrides((prev) => ({
+            ...prev,
+            [merged.ticketNumber]: {
+              ...(prev[merged.ticketNumber] || {}),
+              important: res.data.updatedFields.important,
+            },
+          }));
+        
+        } else {
+          // Fallback: update with the expected value if server response doesn't include it
+          setTicketOverrides((prev) => ({
+            ...prev,
+            [merged.ticketNumber]: {
+              ...(prev[merged.ticketNumber] || {}),
+              important: newImportantStatus,
+            },
+          }));
         }
       })
       .catch(() => {
+        // Remove ticket from loading set on error
+        setLoadingImportantTickets((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(merged.ticketNumber);
+          return newSet;
+        });
         showToast("Failed to update ticket importance", "error");
       });
   };
@@ -573,13 +618,21 @@ const Tickets: React.FC = () => {
                   e.stopPropagation();
                   handleToggleImportant(ticket);
                 }}
+                sx={{
+                  color: "#666",
+                  "&:hover": {
+                    backgroundColor: "rgba(252, 207, 207, 0.77)",
+                  },
+                }}
                 className={
                   merged?.important
-                    ? "text-amber-500 hover:text-amber-600"
-                    : "text-gray-400 hover:text-amber-500"
+                    ? "text-orange-500 hover:text-orange-600"
+                    : "text-gray-400 hover:text-orange-500"
                 }
               >
-                {merged?.important ? (
+                {loadingImportantTickets.has(merged.ticketNumber) ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : merged?.important ? (
                   <PushPinIcon fontSize="small" />
                 ) : (
                   <PushPinOutlinedIcon fontSize="small" />
