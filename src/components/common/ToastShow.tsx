@@ -7,10 +7,9 @@ import { keyframes, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircle";
 import ErrorOutlinedIcon from "@mui/icons-material/Error";
-import { error } from "console";
 import { useEffect } from "react";
 import { CheckCircleIcon } from "lucide-react";
-import ErrorIcon from '@mui/icons-material/Error';
+import ErrorIcon from "@mui/icons-material/Error";
 
 interface ToastShowProps {
   isOpen: boolean;
@@ -75,7 +74,7 @@ const ToastShow: React.FC<ToastShowProps> = ({
         <Box
           sx={{
             display: "flex",
-            alignItems: "center",
+             alignItems: "stretch",
             bgcolor: "#ffffff",
             // bgcolor: type === "success" ? "success.main" : "error.main",
             color: "#000000",
@@ -93,25 +92,29 @@ const ToastShow: React.FC<ToastShowProps> = ({
             <Box
               sx={{
                 width: 40,
-                height: "100%",
+            
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                bgcolor: type === "success" ? "success.main" : type === "error" ? "error.main" :  "warning.main",
+                bgcolor:
+                  type === "success"
+                    ? "success.main"
+                    : type === "error"
+                    ? "error.main"
+                    : "warning.main",
                 color: "#000000",
-                px: 1.5,
-                py: 1.2,
+                // px: 1.5,
+                // py: 1.2,
                 // mr: 1,
               }}
             >
-              {
-                  type === "success"
-                    ? <CheckCircleIcon style={{ color: "#fff", fontSize: 16 }}/>
-                    : type === "error"
-                    ? <CloseIcon style={{ color: "#fff", fontSize: 16 }} />
-                    : <ErrorIcon sx={{ color: "#fff", fontSize: 16 }} />
-                }
-               
+              {type === "success" ? (
+                <CheckCircleIcon style={{ color: "#fff", fontSize: 16 }} />
+              ) : type === "error" ? (
+                <CloseIcon style={{ color: "#fff", fontSize: 16 }} />
+              ) : (
+                <ErrorIcon sx={{ color: "#fff", fontSize: 16 }} />
+              )}
             </Box>
           ) : (
             <Icon
@@ -128,7 +131,7 @@ const ToastShow: React.FC<ToastShowProps> = ({
               typeError === "borderToast" ? "ml-2" : "mx-3"
             } flex flex-col items-end `}
           >
-            <Typography variant="subtitle2"   sx={{ whiteSpace: "pre-line" }}>
+            <Typography variant="subtitle2" sx={{ whiteSpace: "pre-line" }}>
               {msg?.replace(/\\n/g, "\n")}
             </Typography>
             <span
