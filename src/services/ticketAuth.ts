@@ -1,7 +1,7 @@
 // src/services/auth/authApi.ts
 
 import { baseInstanceOfApi } from "./baseInstanceOfApi";
-
+import dayjs from "dayjs";
 // Define the interface for ticket list query parameters
 interface TicketListParams {
   priority?: string;
@@ -43,16 +43,45 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     }),
 
     getTicketList: builder.query<any, TicketListParams>({
-      query: (params) => {
+      query: (params: any) => {
         const searchParams = new URLSearchParams();
 
-        if (params.priority) searchParams.append("priority", params.priority);
-        if (params.department)
-          searchParams.append("department", params.department);
+        if (params?.obj?.ticket_id)
+          searchParams.append("ticket", params?.obj?.ticket_id);
+        if (params?.obj?.priority)
+          searchParams.append("priority", params?.obj?.priority);
+        if (params?.obj?.status)
+          searchParams.append("status", params?.obj?.status);
+        if (params?.obj?.department)
+          searchParams.append("dept", params?.obj?.department);
+        if (params?.obj?.subject)
+          searchParams.append("subject", params?.obj?.subject);
+        if (params?.obj?.assigned)
+          searchParams.append("assigner", params?.obj?.assigned);
+        if (params?.obj?.type) searchParams.append("type", params?.obj?.type);
+        if (params?.obj?.assignee)
+          searchParams.append("assignee", params?.obj?.assignee);
+        if (params?.obj?.sentiment)
+          searchParams.append("sentiment", params?.obj?.sentiment);
+        if (params?.obj?.important)
+          searchParams.append("important", params?.obj?.important);
+        if (params?.obj?.created_at) {
+          const formatDate = dayjs(params.obj.created_at).format("DD-MM-YYYY");
+          searchParams.append("createDt", formatDate);
+        }
+        if (params?.obj?.resolved_at) {
+          const formatDate = dayjs(params.obj.resolved_at).format("DD-MM-YYYY");
+          searchParams.append("resolveDt", formatDate);
+        }
+        if (params?.obj?.source)
+          searchParams.append("source", params?.obj?.source);
+        if (params?.obj?.tag?.length > 0)
+          searchParams.append("tag", params?.obj?.tag?.join(","));
         if (params.page) searchParams.append("page", params.page.toString());
         if (params.limit) searchParams.append("limit", params.limit.toString());
 
         const queryString = searchParams.toString();
+
         const url = queryString
           ? `/ticket/list?${queryString}`
           : "/ticket/list";
@@ -157,13 +186,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     //     body: credentials,
     //   }),
     // }),
-   getLinkTicket: builder.query<any, { ticketNumber: string | number }>({
-  query: ({ ticketNumber }) => ({
-    url: `/ticket/staff/link-ticket/${ticketNumber}`,
-    method: "GET",
-  }),
-  transformResponse: (response: any) => response?.data,
-}),
+    getLinkTicket: builder.query<any, { ticketNumber: string | number }>({
+      query: ({ ticketNumber }) => ({
+        url: `/ticket/staff/link-ticket/${ticketNumber}`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
   }),
   overrideExisting: false,
 });
@@ -183,5 +212,5 @@ export const {
   useAdvancedSearchMutation,
   useGetStatusListQuery,
   useGetTypeListQuery,
-  useGetLinkTicketQuery
+  useGetLinkTicketQuery,
 } = extendedTicketApi;
