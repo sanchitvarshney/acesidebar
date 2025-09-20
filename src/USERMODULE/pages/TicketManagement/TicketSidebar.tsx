@@ -42,16 +42,29 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [isSelectFilterValueOpen2, setIsSelectFilterValueOpen2] =
     useState(false);
   const [openTrackId, setOpenTrackId] = useState("");
+  
+  // Find ticket ID field from API response
+  const ticketIdField = searchCriteria?.find((field: any) => field.name === "ticket_id");
+
   useEffect(() => {
     if (searchCriteria && Array.isArray(searchCriteria)) {
       const initialFilters: Record<string, any> = {};
+      // Initialize ticket ID field if it exists in API response
+      if (ticketIdField) {
+        initialFilters["ticket_id"] = "";
+      }
       searchCriteria.forEach((field: any) => {
         if (field.type === "chip") initialFilters[field.name] = [];
         else initialFilters[field.name] = "";
       });
       setFilters(initialFilters);
+      
+      // Automatically add ticket ID field to active filters if it exists
+      if (ticketIdField && !activeFilters.includes("ticket_id")) {
+        setActiveFilters(prev => [...prev, "ticket_id"]);
+      }
     }
-  }, [searchCriteria]);
+  }, [searchCriteria, ticketIdField]);
 
 
   // When searchCriteria loads, initialize masterFilters as well, but do not overwrite regular filters
@@ -128,12 +141,16 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   // Add a reset handler
   const handleResetFilters = () => {
     const cleared: Record<string, any> = {};
+    // Preserve ticket ID field if it exists
+    if (ticketIdField) {
+      cleared["ticket_id"] = "";
+    }
     criteriaArray.forEach((field: any) => {
       if (field.type === "chip") cleared[field.name] = [];
       else cleared[field.name] = "";
     });
     setFilters(cleared);
-    setActiveFilters([]);
+    setActiveFilters(ticketIdField ? ["ticket_id"] : []); // Keep ticket ID field active if it exists
     if (typeof onApplyFilters === "function") {
       onApplyFilters({});
     }
@@ -154,8 +171,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     return null;
   }
 
-  const availableFilters = criteriaArray.filter(
-    (field: any) => !activeFilters.includes(field.name)
+  const availableFilters = criteriaArray.filter((field: any) => 
+    !activeFilters.includes(field.name) && field.name !== "ticket_id"
   );
   const filteredAvailableFilters = availableFilters.filter((field: any) =>
     field.label.toLowerCase().includes(filterSearch.toLowerCase())
@@ -334,6 +351,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                     value={filters[field.name]}
                     onChange={handleChange}
                     variant="filled"
+                    sx={{
+                      "& .MuiFilledInput-root": {
+                        backgroundColor: "#ff0000",
+                      },
+                    }}
                     // No label or placeholder
                   />
                 </div>
@@ -509,9 +531,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           ) : (
             <>
               {activeFilters.map((filterName) => {
-                const field = criteriaArray.find(
-                  (f: any) => f.name === filterName
-                );
+                // Handle ticket ID field specially
+                const field = filterName === "ticket_id" 
+                  ? ticketIdField 
+                  : criteriaArray.find((f: any) => f.name === filterName);
                 if (!field) return null;
 
                 return (
@@ -522,31 +545,35 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                           {field.label}
                         </span>
 
-                        <IconButton
-                          size="small"
-                          disableRipple
-                          onClick={(e: any) => {
-                            setOpenTrackId(field.name);
-                            setIsSelectFilterValueOpen(e.currentTarget);
-                            setIsSelectFilterValueOpen2(
-                              !isSelectFilterValueOpen2
-                            );
-                          }}
-                        >
-                          <KeyboardArrowDownIcon
-                            fontSize="small"
-                            sx={{
-                              transform:
-                                isSelectFilterValueOpen2 &&
-                                openTrackId === field.name
-                                  ? "rotate(-180deg)"
-                                  : "rotate(0deg)",
-                              transition: "transform 0.4s ease-out",
+                        {/* Only show dropdown arrow for non-ticket ID fields */}
+                        {field.name !== "ticket_id" && (
+                          <IconButton
+                            size="small"
+                            disableRipple
+                            onClick={(e: any) => {
+                              setOpenTrackId(field.name);
+                              setIsSelectFilterValueOpen(e.currentTarget);
+                              setIsSelectFilterValueOpen2(
+                                !isSelectFilterValueOpen2
+                              );
                             }}
-                          />
-                        </IconButton>
+                          >
+                            <KeyboardArrowDownIcon
+                              fontSize="small"
+                              sx={{
+                                transform:
+                                  isSelectFilterValueOpen2 &&
+                                  openTrackId === field.name
+                                    ? "rotate(-180deg)"
+                                    : "rotate(0deg)",
+                                transition: "transform 0.4s ease-out",
+                              }}
+                            />
+                          </IconButton>
+                        )}
 
-                        {openTrackId === field.name && (
+                        {/* Only show dropdown menu for non-ticket ID fields */}
+                        {field.name !== "ticket_id" && openTrackId === field.name && (
                           <Menu
                             anchorEl={isSelectFilterValueOpen}
                             open={isSelectFilterValueOpen2}
@@ -570,21 +597,24 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                           </Menu>
                         )}
                       </div>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => {
-                          setActiveFilters((prev) =>
-                            prev.filter((f) => f !== field.name)
-                          );
-                          setFilters((prev) => ({
-                            ...prev,
-                            [field.name]: field.type === "chip" ? [] : "",
-                          }));
-                        }}
-                      >
-                        <RemoveCircleOutlineIcon fontSize="small" />
-                      </IconButton>
+                      {/* Only show remove button if it's not the ticket ID field */}
+                      {field.name !== "ticket_id" && (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => {
+                            setActiveFilters((prev) =>
+                              prev.filter((f) => f !== field.name)
+                            );
+                            setFilters((prev) => ({
+                              ...prev,
+                              [field.name]: field.type === "chip" ? [] : "",
+                            }));
+                          }}
+                        >
+                          <RemoveCircleOutlineIcon fontSize="small" />
+                        </IconButton>
+                      )}
                     </Box>
                     {field.type === "dropdown" && field.name === "priority" && (
                       <FormControl fullWidth size="small">
@@ -853,8 +883,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       <Box className="p-2 pb-2 pb-0 z-10 bg-white flex gap-2">
         {showCustomFilters && (
           <Button
-            variant="contained"
-            color="inherit"
+            variant="text"
+            color="primary"
             fullWidth
             onClick={handleResetFilters}
             sx={{

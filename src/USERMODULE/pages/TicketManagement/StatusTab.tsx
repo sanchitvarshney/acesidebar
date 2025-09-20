@@ -23,6 +23,8 @@ import {
 } from "../../../services/agentServices";
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
+import { set } from "react-hook-form";
+import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
@@ -32,28 +34,19 @@ const StatusTab = ({ ticket }: any) => {
   const [priority, setPriority] = useState("");
   const [status, setStatus] = useState<any>("");
   const [dept, setDept] = useState<any>("");
-  const [changeDept, setChangedept] = useState("");
   const [agent, setAgent] = useState<any>("");
-  const [onChangeAgent, setOnChangeAgent] = useState("");
-  const [agentOptions, setAgentOptions] = useState<any>([]);
   const [options, setOptions] = useState<any>([]);
-  const [departmentOptions, setDepartmentOptions] = useState<any>([]);
   const [isUpdate, setIsUpdate] = useState(0);
   const { data: tagList } = useGetTagListQuery();
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
   const { data: typeList } = useGetTypeListQuery();
-
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
-
   const displayOptions = changeTagValue.length >= 3 ? options : [];
-  const displayDepartmentOptions = changeDept ? departmentOptions : [];
-
-  const displayAgentOptions = onChangeAgent ? agentOptions : [];
 
   // update status handler
 
@@ -64,12 +57,12 @@ const StatusTab = ({ ticket }: any) => {
       body: {
         ticket: ticket?.ticketId,
 
-        type: type || "--",
-        priority: priority || "--",
-        status: status || "--",
+        type: type,
+        priority: priority,
+        status: status,
         tags: tagValue.map((tag: any) => tag?.tagID),
-        department: `${dept.deptId}` || "--",
-        agent: agent.agentID || "--",
+        department: `${dept.deptId}`,
+        agent: agent.agentID,
       },
     };
 
@@ -147,65 +140,6 @@ const StatusTab = ({ ticket }: any) => {
     }
   }, [changeTagValue, tagList]);
 
-  const fetchDeptOptions = async (query: string) => {
-    if (!query) {
-      setDepartmentOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerDept({
-        search: query,
-      }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      const currentValue = changeDept;
-      const fallback = [
-        {
-          deptName: currentValue,
-        },
-      ];
-
-      if (Array.isArray(data)) {
-        setDepartmentOptions(data.length > 0 ? data : fallback);
-      } else {
-        setDepartmentOptions([]);
-      }
-    } catch (error) {
-      setDepartmentOptions([]);
-    }
-  };
-
-  const fetchAgentOptions = async (query: string) => {
-    if (!query) {
-      setAgentOptions([]);
-      return;
-    }
-
-    try {
-      const res = await triggerSeachAgent({
-        search: query,
-      }).unwrap();
-      const data = Array.isArray(res) ? res : res?.data;
-
-      const currentValue = onChangeAgent;
-      const fallback = [
-        {
-          fName: currentValue,
-          emailAddress: currentValue,
-        },
-      ];
-
-      if (Array.isArray(data)) {
-        setAgentOptions(data.length > 0 ? data : fallback);
-      } else {
-        setAgentOptions([]);
-      }
-    } catch (error) {
-      setAgentOptions([]);
-    }
-  };
-
   const handleSelectedOption = (_: any, newValue: any, type: string) => {
     if (type === "tag") {
       if (!Array.isArray(newValue) || newValue.length === 0) {
@@ -228,12 +162,6 @@ const StatusTab = ({ ticket }: any) => {
         return [...prev, ...addedTags];
       });
     }
-    if (type === "dept") {
-      setDept(newValue);
-    }
-    if (type === "agent") {
-      setAgent(newValue);
-    }
   };
 
   return (
@@ -253,10 +181,7 @@ const StatusTab = ({ ticket }: any) => {
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              {[
-                { key: "--", typeName: "--" },
-                ...((typeList as any[]) || []),
-              ].map((name: any) => (
+              {[...((typeList as any[]) || [])].map((name: any) => (
                 <MenuItem key={name.key} value={name.key}>
                   {name.typeName}
                 </MenuItem>
@@ -298,10 +223,7 @@ const StatusTab = ({ ticket }: any) => {
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
             >
-              {[
-                { key: "--", specification: "--", color: "#cccccc" },
-                ...((priorityList as any[]) || []),
-              ].map((priority: any) => (
+              {[...((priorityList as any[]) || [])].map((priority: any) => (
                 <MenuItem key={priority.key} value={priority.key}>
                   <Typography
                     variant="body2"
@@ -319,182 +241,34 @@ const StatusTab = ({ ticket }: any) => {
           </div>
           <Divider />
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "12px", mb: 0.5 }}>
               Department
             </Typography>
-            <Autocomplete
-              disableClearable
-              popupIcon={null}
-              sx={{ my: 1.5 }}
-              getOptionLabel={(option: any) => {
-                if (typeof option === "string") return option;
-                return option.deptName || "";
-              }}
-              options={displayDepartmentOptions}
+            <SingleValueAsynAutocomplete
               value={dept}
-              onChange={(event, newValue) => {
-                handleSelectedOption(event, newValue, "dept");
-              }}
-              onInputChange={(_, value) => {
-                setChangedept(value);
-                fetchDeptOptions(value);
-              }}
-              filterOptions={(x) => x}
-              getOptionDisabled={(option) => option === "Type to search"}
-              noOptionsText={
-                <div>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {deptLoading ? (
-                      <CircularProgress size={18} />
-                    ) : (
-                      "Type to search"
-                    )}
-                  </Typography>
-                </div>
-              }
-              renderOption={(props, option: any) => (
-                <li {...props}>
-                  {typeof option === "string" ? (
-                    option
-                  ) : (
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {option.deptName}
-                    </Typography>
-                  )}
-                </li>
-              )}
-              renderTags={(toValue, getTagProps) =>
-                toValue?.map((option, index) => (
-                  <Chip
-                    variant="outlined"
-                    color="primary"
-                    label={typeof option === "string" ? option : option}
-                    {...getTagProps({ index })}
-                    sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      // backgroundColor: "#6EB4C9",
-                      color: "primary.main",
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                        width: "12px",
-                      },
-                      "& .MuiChip-deleteIcon:hover": {
-                        color: "#e87f8c",
-                      },
-                    }}
-                  />
-                ))
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="standard"
-                  fullWidth
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "4px",
-                      backgroundColor: "#f9fafb",
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                    },
-                    "& label.Mui-focused": { color: "#1a73e8" },
-                    "& label": { fontWeight: "bold" },
-                  }}
-                />
-              )}
+              qtkMethod={triggerDept}
+              onChange={setDept}
+              loading={deptLoading}
+              isFallback={true}
+              variant={"standard"}
+              size="small"
+              showIcon={false}
+              optionLabelKey="deptName"
             />
           </div>
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "12px", mb: 0.5 }}>
               Agent
             </Typography>
-            <Autocomplete
-              disableClearable
-              popupIcon={null}
-              sx={{ my: 1.5 }}
-              getOptionLabel={(option: any) => {
-                if (typeof option === "string") return option;
-                return option.fName || "";
-              }}
-              options={displayAgentOptions}
+            <SingleValueAsynAutocomplete
               value={agent}
-              onChange={(event, newValue) => {
-                handleSelectedOption(event, newValue, "agent");
-              }}
-              onInputChange={(_, value) => {
-                setOnChangeAgent(value);
-                fetchAgentOptions(value);
-              }}
-              filterOptions={(x) => x}
-              getOptionDisabled={(option) => option === "Type to search"}
-              noOptionsText={
-                <div>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {seachAgentLoading ? (
-                      <CircularProgress size={18} />
-                    ) : (
-                      "Type to search"
-                    )}
-                  </Typography>
-                </div>
-              }
-              renderOption={(props, option: any) => (
-                <li {...props}>
-                  {typeof option === "string" ? (
-                    option
-                  ) : (
-                    <div className="flex flex-col">
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {option.fName} {option.lName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {option.emailAddress}
-                      </Typography>
-                    </div>
-                  )}
-                </li>
-              )}
-              renderTags={(toValue, getTagProps) =>
-                toValue?.map((option: any, index) => (
-                  <Chip
-                    variant="outlined"
-                    color="primary"
-                    label={typeof option === "string" ? option : option.fName}
-                    {...getTagProps({ index })}
-                    sx={{
-                      cursor: "pointer",
-                      height: "20px",
-                      // backgroundColor: "#6EB4C9",
-                      color: "primary.main",
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                        width: "12px",
-                      },
-                      "& .MuiChip-deleteIcon:hover": {
-                        color: "#e87f8c",
-                      },
-                    }}
-                  />
-                ))
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="standard"
-                  fullWidth
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "4px",
-                      backgroundColor: "#f9fafb",
-                      "&:hover fieldset": { borderColor: "#9ca3af" },
-                      "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                    },
-                    "& label.Mui-focused": { color: "#1a73e8" },
-                    "& label": { fontWeight: "bold" },
-                  }}
-                />
-              )}
+              // label="Assignee"
+              qtkMethod={triggerSeachAgent}
+              onChange={setAgent}
+              loading={seachAgentLoading}
+              variant={"standard"}
+              size="small"
+              showIcon={false}
             />
           </div>
           <Divider />

@@ -31,10 +31,12 @@ interface AsyncAutocompleteProps<T> {
   size?: "small" | "medium";
   showIcon?: boolean;
   width?: any;
+
+  variant?: any;
 }
 
 function AsyncAutocomplete<T extends Record<string, any>>({
-  label = "Select Option",
+  label,
   qtkMethod,
   value,
   onChange,
@@ -50,6 +52,8 @@ function AsyncAutocomplete<T extends Record<string, any>>({
   size = "medium",
   showIcon = true,
   width,
+
+  variant = "outlined",
 }: AsyncAutocompleteProps<T>) {
   const { showToast } = useToast();
   const [inputValue, setInputValue] = useState("");
@@ -136,10 +140,11 @@ function AsyncAutocomplete<T extends Record<string, any>>({
       renderInput={(params) => (
         <TextField
           {...params}
-          label={label}
+          label={label && label}
           placeholder={placeholder}
           size={size}
           fullWidth
+          variant={variant}
           InputProps={{
             ...params.InputProps,
             startAdornment: showIcon && (

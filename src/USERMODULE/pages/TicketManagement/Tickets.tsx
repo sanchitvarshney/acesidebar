@@ -618,16 +618,11 @@ const Tickets: React.FC = () => {
                   e.stopPropagation();
                   handleToggleImportant(ticket);
                 }}
-                sx={{
-                  color: "#666",
-                  "&:hover": {
-                    backgroundColor: "rgba(252, 207, 207, 0.77)",
-                  },
-                }}
+  
                 className={
                   merged?.important
-                    ? "text-orange-500 hover:text-orange-600"
-                    : "text-gray-400 hover:text-orange-500"
+                    ? "hover:text-[#1976d2]"
+                    : "hover:text-[#1976d2]"
                 }
               >
                 {loadingImportantTickets.has(merged.ticketNumber) ? (
@@ -659,8 +654,8 @@ const Tickets: React.FC = () => {
           <div className="flex flex-col">
             <span className="text-gray-500 mb-1">raised by</span>
             <div className="flex items-center gap-1">
-              <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center">
-                <span className="text-xs font-medium text-purple-700">
+              <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
+                <span className="text-xs font-medium text-blue-700">
                   {(ticket?.fromUser?.name || "")?.[0]?.toUpperCase()}
                 </span>
               </div>

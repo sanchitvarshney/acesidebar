@@ -76,10 +76,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     setIsAnyPopupOpen,
   ]);
 
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
@@ -201,7 +197,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       }}
     >
       <Toolbar className="flex justify-between">
-        <div className="flex items-center">
+        <div className="flex items-center ">
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -209,16 +205,13 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             onClick={handleDrawerToggle}
             sx={{ mr: 2, color: "#3f4346" }}
           >
-            <MenuIcon />
+            <MenuIcon
+              sx={{
+                transform: !open ? "rotate(0deg)" : "rotate(-90deg)",
+                transition: "transform 0.3s ease-in-out",
+              }}
+            />
           </IconButton>
-          {/* <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ display: { xs: "block", sm: "block" }, color: "#3f4346" }}
-          >
-            Ticket Management System
-          </Typography> */}
         </div>
         {/* Expanding Search Bar */}
         <div>

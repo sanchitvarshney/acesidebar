@@ -11,7 +11,7 @@ import {
 import { styled } from "@mui/material/styles";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
+import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
 
 interface UserHoverPopupProps {
   open: boolean;
@@ -217,23 +217,40 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
                 variant="body2"
                 sx={{
                   color: "#666",
-                  fontSize: "0.875rem",
+                  fontSize: "0.775rem",
                   flex: 1,
                 }}
               >
-                {user.email || "postmanreply@gmail.com"}
+                {user.email}
               </Typography>
+
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.625"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                className="lucide lucide-tablet-smartphone-icon lucide-tablet-smartphone"
+              >
+                <rect width="10" height="14" x="3" y="8" rx="2" />
+                <path d="M5 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-2.4" />
+                <path d="M8 18h.01" />
+              </svg>
+
               <Typography
                 variant="body2"
                 sx={{
                   color: "#666",
-                  fontSize: "0.875rem",
+                  fontSize: "0.775rem",
                   flex: 1,
                 }}
               >
-                <PhoneAndroidIcon sx={{ fontSize: 16 }} />
                 {/* @ts-ignore */}
-                {user?.mobile || "1234567890"}
+                {user?.phone || "123-456-7890"}
               </Typography>
               <IconButton
                 size="small"

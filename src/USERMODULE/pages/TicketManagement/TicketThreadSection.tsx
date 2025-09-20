@@ -433,11 +433,6 @@ const ThreadItem = ({
                   src={item?.replyType === "AGENT" ? agentAvatar : userAvatar}
                   alt={item?.replyType }
                   className="w-10 h-10 rounded-full object-cover"
-                  sx={{
-                    backgroundColor: isCurrentUser
-                      ? "hsl(45deg 100% 51.37%)"
-                      : "primary.main",
-                  }}
                 />
            
             </div>
