@@ -822,7 +822,7 @@ const Tickets: React.FC = () => {
               <div className="text-gray-700">
 
                 <span
-                  className="text-gray-700 font-medium cursor-pointer hover:underline"
+                  className="text-gray-700 font-medium cursor-pointer hover:underline decoration-dotted"
                   onMouseEnter={(e) => handleUserHover(e, merged.fromUser)}
                   onMouseLeave={handleUserLeave}
                 >
