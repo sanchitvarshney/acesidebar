@@ -187,6 +187,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       sx={{
         width: {
           backgroundColor: "#fff",
+          boxShadow: "1px 3px 6px rgb(227, 224, 224)",
           sm: `calc(100% - ${open ? drawerWidth : collapsedDrawerWidth}px)`,
         },
         ml: { sm: `${open ? drawerWidth : collapsedDrawerWidth}px` },

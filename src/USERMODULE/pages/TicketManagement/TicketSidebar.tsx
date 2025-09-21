@@ -196,7 +196,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   
 
   return (
-    <Box className="w-100 min-w-100 shadow rounded-lg flex flex-col h-full relative bg-#f5f7f9">
+    <Box className="w-100 min-w-100 shadow rounded-lg flex flex-col h-full relative">
       <div ref={topAnchorRef} />
       {/* Header */}
       <Box

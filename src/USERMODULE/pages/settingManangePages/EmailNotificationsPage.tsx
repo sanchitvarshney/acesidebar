@@ -121,7 +121,7 @@ const EmailNotificationsPage = () => {
         color: "#ffffff",
       },
       "&:after": {
-        color: "#e2e8f0",
+        color: "#e1e7ee",
       },
     },
   }));

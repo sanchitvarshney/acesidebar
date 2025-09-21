@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import TicketFilterPanel from "./TicketSidebar";
 import {
   IconButton,
   Button,
   Checkbox,
   Popover,
+  Popper,
+  Paper,
   FormControl,
   Select,
   MenuItem,
@@ -109,6 +111,165 @@ const Tickets: React.FC = () => {
   const [loadingImportantTickets, setLoadingImportantTickets] = useState<
     Set<string>
   >(new Set());
+  
+  // Ref for the popup to handle click outside
+  const popupRef = useRef<HTMLDivElement>(null);
+  
+  // State to track popup placement for dynamic arrow positioning
+  const [popupPlacement, setPopupPlacement] = useState<string>('bottom-end');
+
+  // Handle popup placement changes for dynamic arrow positioning
+  const handlePlacementChange = (placement: string) => {
+    setPopupPlacement(placement);
+  };
+
+  // Generate dynamic arrow styles based on placement
+  const getArrowStyles = (placement: string) => {
+    const baseArrowStyles = {
+      position: 'absolute' as const,
+      width: 0,
+      height: 0,
+      zIndex: 1,
+    };
+
+    const borderArrowStyles = {
+      ...baseArrowStyles,
+      zIndex: -1,
+    };
+
+    switch (placement) {
+      case 'top':
+      case 'top-start':
+      case 'top-end':
+        return {
+          arrow: {
+            ...baseArrowStyles,
+            bottom: -7,
+            right: 16,
+            borderLeft: '7px solid transparent',
+            borderRight: '7px solid transparent',
+            borderTop: '7px solid #fff',
+          },
+          borderArrow: {
+            ...borderArrowStyles,
+            bottom: -8,
+            right: 16,
+            borderLeft: '8px solid transparent',
+            borderRight: '8px solid transparent',
+            borderTop: '8px solid #e0e0e0',
+          }
+        };
+      
+      case 'bottom':
+      case 'bottom-start':
+      case 'bottom-end':
+        return {
+          arrow: {
+            ...baseArrowStyles,
+            top: -7,
+            right: 16,
+            borderLeft: '7px solid transparent',
+            borderRight: '7px solid transparent',
+            borderBottom: '7px solid #fff',
+          },
+          borderArrow: {
+            ...borderArrowStyles,
+            top: -8,
+            right: 16,
+            borderLeft: '8px solid transparent',
+            borderRight: '8px solid transparent',
+            borderBottom: '8px solid #e0e0e0',
+          }
+        };
+      
+      case 'left':
+      case 'left-start':
+      case 'left-end':
+        return {
+          arrow: {
+            ...baseArrowStyles,
+            top: 16,
+            right: -7,
+            borderTop: '7px solid transparent',
+            borderBottom: '7px solid transparent',
+            borderLeft: '7px solid #fff',
+          },
+          borderArrow: {
+            ...borderArrowStyles,
+            top: 16,
+            right: -8,
+            borderTop: '8px solid transparent',
+            borderBottom: '8px solid transparent',
+            borderLeft: '8px solid #e0e0e0',
+          }
+        };
+      
+      case 'right':
+      case 'right-start':
+      case 'right-end':
+        return {
+          arrow: {
+            ...baseArrowStyles,
+            top: 16,
+            left: -7,
+            borderTop: '7px solid transparent',
+            borderBottom: '7px solid transparent',
+            borderRight: '7px solid #fff',
+          },
+          borderArrow: {
+            ...borderArrowStyles,
+            top: 16,
+            left: -8,
+            borderTop: '8px solid transparent',
+            borderBottom: '8px solid transparent',
+            borderRight: '8px solid #e0e0e0',
+          }
+        };
+      
+      default:
+        return {
+          arrow: {
+            ...baseArrowStyles,
+            top: -7,
+            right: 16,
+            borderLeft: '7px solid transparent',
+            borderRight: '7px solid transparent',
+            borderBottom: '7px solid #fff',
+          },
+          borderArrow: {
+            ...borderArrowStyles,
+            top: -8,
+            right: 16,
+            borderLeft: '8px solid transparent',
+            borderRight: '8px solid transparent',
+            borderBottom: '8px solid #e0e0e0',
+          }
+        };
+    }
+  };
+
+  // Handle click outside to close popup
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        quickUpdateAnchorEl &&
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node) &&
+        !(event.target as Element).closest('[data-testid="more-vert-button"]')
+      ) {
+        handleQuickUpdateClose();
+      }
+    };
+
+    if (quickUpdateAnchorEl) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [quickUpdateAnchorEl]);
+
   // Fetch live priority list
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
@@ -509,7 +670,7 @@ const Tickets: React.FC = () => {
     return (
       <div
         key={merged?.ticketNumber}
-        className="bg-white border-2 border-[#e2e8f0] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative"
+        className="bg-white border-2 border-[#e1e7ee] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative"
         onClick={() => handleTicketSubjectClick(merged.ticketNumber)}
       >
         {/* Top section */}
@@ -545,6 +706,7 @@ const Tickets: React.FC = () => {
                 size="small"
                 onClick={(e) => handleQuickUpdateOpen(e, merged)}
                 className="text-gray-400 hover:text-gray-600 p-1"
+                data-testid="more-vert-button"
               >
                 <MoreVertIcon fontSize="small" />
               </IconButton>
@@ -690,7 +852,7 @@ const Tickets: React.FC = () => {
     <>
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)]">
         {/* Main Header Bar */}
-        <div className="flex items-center justify-between px-2 py-2 border-b bg-white shadow-sm">
+        <div className="flex items-center justify-between px-2 py-2 border-b bg-[#f2f6fc] shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <Checkbox
@@ -897,30 +1059,73 @@ const Tickets: React.FC = () => {
       />
 
       {/* Quick Update Popup */}
-      <Popover
+      <Popper
         open={Boolean(quickUpdateAnchorEl)}
         anchorEl={quickUpdateAnchorEl}
-        onClose={handleQuickUpdateClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        PaperProps={{
-          elevation: 8,
-          sx: {
-            mt: 1,
+        placement="bottom-end"
+        modifiers={[
+          {
+            name: "offset",
+            options: {
+              offset: [0, 8], // 8px gap from anchor
+            },
+          },
+          {
+            name: "preventOverflow",
+            options: {
+              boundary: "viewport",
+              padding: 8,
+            },
+          },
+          {
+            name: "flip",
+            options: {
+              fallbackPlacements: [
+                "bottom-start",
+                "top-end",
+                "top-start",
+                "bottom",
+                "top",
+              ],
+            },
+          },
+          {
+            name: "computeStyles",
+            options: {
+              gpuAcceleration: true,
+            },
+          },
+          {
+            name: "placementTracker",
+            enabled: true,
+            phase: "main",
+            fn: ({ state }) => {
+              if (state.placement !== popupPlacement) {
+                handlePlacementChange(state.placement);
+              }
+            },
+          },
+        ]}
+        style={{ zIndex: 1300 }}
+      >
+        <Paper
+          ref={popupRef}
+          elevation={8}
+          sx={{
             borderRadius: 2,
             border: "1px solid #e0e0e0",
             maxWidth: 400,
             minWidth: 380,
-          },
-        }}
-      >
-        <div className="p-6 bg-white">
+            position: "relative",
+            overflow: "visible",
+          }}
+        >
+          {/* Dynamic Arrow - Border (behind) */}
+          <div style={getArrowStyles(popupPlacement).borderArrow} />
+          
+          {/* Dynamic Arrow - Fill (on top) */}
+          <div style={getArrowStyles(popupPlacement).arrow} />
+          <div className="p-6 bg-white">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-lg font-semibold text-gray-900">
@@ -1071,7 +1276,8 @@ const Tickets: React.FC = () => {
             </Button>
           </div>
         </div>
-      </Popover>
+        </Paper>
+      </Popper>
     </>
   );
 };

@@ -500,7 +500,7 @@ const TicketDetailHeader = ({
   };
 
   return (
-    <div className="flex items-center w-full px-6 py-2 border border-[#bad0ff]  bg-[#e8f0fe] z-10">
+    <div className="flex items-center w-full px-6 py-2 border border-[#d4e6ff]  bg-[#e8f0fe] z-10">
       {/* Breadcrumb */}
       <nav className="flex items-center text-xs text-gray-500 font-medium gap-1 min-w-[180px]">
         <IconButton
@@ -1190,7 +1190,7 @@ const TicketDetailHeader = ({
                     p: 2,
                     backgroundColor: "white",
                     borderRadius: 2,
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid #e1e7ee",
                     cursor: "pointer",
                     transition: "all 0.2s ease",
                     "&:hover": {

@@ -1080,13 +1080,13 @@ const TicketThreadSection = ({
                       sx={{
                         color: "#1a73e8",
                         backgroundColor: "#e8f0fe",
-                        border: "1px solid #bad0ff",
+                        border: "1px solid #d4e6ff",
                         borderRadius: "3px",
                         width: "100px",
                         padding: "10px",
                         position: "relative",
                         "&:hover": {
-                          backgroundColor: "#bad0ff",
+                          backgroundColor: "#d4e6ff",
                           color: "#1a73e8",
                           borderColor: "#e8f0fe",
                           transform: "scale(1.05)",
