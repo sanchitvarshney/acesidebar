@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import PersonIcon from "@mui/icons-material/Person";
-import ShareIcon from "@mui/icons-material/Share";
-import InfoIcon from "@mui/icons-material/Info";
 import DescriptionIcon from "@mui/icons-material/Description";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
-import AboutTab from "./AboutTab";
-import SharingTab from "./SharingTab";
-import InfoTab from "./InfoTab";
 import NotesTab from "./NotesTab";
 import SaveIcon from "@mui/icons-material/Save";
 import { Close } from "@mui/icons-material";
@@ -51,9 +44,6 @@ const topTabs = [
     icon: <CheckCircleIcon fontSize="small" />,
     label: "Status",
   },
-  { key: "info", icon: <InfoIcon fontSize="small" />, label: "Info" },
-
-  { key: "profile", icon: <PersonIcon fontSize="small" />, label: "Profile" },
   { key: "notes", icon: <DescriptionIcon fontSize="small" />, label: "Notes" },
   {
     key: "shortcuts",
@@ -62,17 +52,12 @@ const topTabs = [
   },
 ];
 
-const profileTabs = [
-  { key: "about", icon: <PersonIcon fontSize="small" />, label: "About" },
-  { key: "share", icon: <ShareIcon fontSize="small" />, label: "Sharing" },
-];
 
 const TicketPropertiesSidebar = ({ ticket }: any) => {
   const { showToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const { data: tagList } = useGetTagListQuery();
   const [activeTopTab, setActiveTopTab] = useState<any>(0);
-  const [activeProfileTab, setActiveProfileTab] = useState(0);
   const [tags, setTags] = useState<any>([]);
   const [editTags, setEditTags] = useState<any>([]);
   const [options, setOptions] = useState<any>([]);
@@ -137,12 +122,6 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
     setActiveTopTab(newValue);
   };
 
-  const handleProfileTabChange = (
-    event: React.SyntheticEvent,
-    newValue: number
-  ) => {
-    setActiveProfileTab(newValue);
-  };
 
   const handleSave = () => {
     const credentials = {
@@ -214,93 +193,15 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
 
   // Top-level tab content
   let mainContent = null;
-  if (activeTopTab === 2) {
-    // profile
-    mainContent = (
-      <div className="w-full overflow-hidden">
-        <div className="flex items-center gap-3 my-3">
-          <Avatar
-            sx={{
-              bgcolor: "#FFC107",
-              width: 48,
-              height: 48,
-              fontWeight: "bold",
-              fontSize: 24,
-            }}
-          >
-            {ticket?.username?.[0]?.toUpperCase() || "?"}
-          </Avatar>
-          <div>
-            <div className="font-semibold text-base text-gray-800">
-              {ticket?.username}
-            </div>
-          </div>
-        </div>
-
-        {/* Profile tab bar using MUI Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-          <Tabs
-            value={activeProfileTab}
-            onChange={handleProfileTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            allowScrollButtonsMobile
-            sx={{
-              "& .MuiTabs-flexContainer": {
-                display: "flex",
-                justifyContent: "flex-start", // <-- apply here
-                alignItems: "center",
-              },
-              "& .MuiTab-root": {
-                // minHeight: 40,
-                color: "#6b7280",
-                "&.Mui-selected": {
-                  color: "#1a73e8",
-                },
-              },
-              "& .MuiTabs-indicator": {
-                backgroundColor: "#1a73e8",
-                // height: 2,
-              },
-            }}
-          >
-            {profileTabs.map((tab, index) => (
-              <Tab
-                key={tab.key}
-                icon={tab.icon}
-                id={`profile-tab-${index}`}
-                aria-controls={`profile-tabpanel-${index}`}
-                aria-label={tab.label}
-                sx={{
-                  minWidth: 60,
-                }}
-              />
-            ))}
-          </Tabs>
-        </Box>
-
-        <div className="w-full h-[calc(100vh-350px)] overflow-y-scroll">
-          {/* Profile tab content */}
-          {activeProfileTab === 0 && <AboutTab ticketData={ticket} />}
-          {activeProfileTab === 1 && <SharingTab ticketData={ticket} />}
-          {/* {activeProfileTab === 2 && }
-          {activeProfileTab === 3 && } */}
-        </div>
-      </div>
-    );
-  } else if (activeTopTab === 3) {
-    // knowledge
+  if (activeTopTab === 1) {
+    // notes
     mainContent = <NotesTab ticketData={ticket} />;
-  } else if (activeTopTab === 4) {
+  } else if (activeTopTab === 2) {
     // shortcuts
     mainContent = <ShortcutsTab />;
   } else if (activeTopTab === 0) {
-    // history
+    // status
     mainContent = <StatusTab ticket={ticket} />;
-  }
-  if (activeTopTab === 1) {
-    // history
-    mainContent = <InfoTab />;
   }
 
   return (

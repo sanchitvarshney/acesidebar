@@ -4,6 +4,10 @@ import Sidebar from "../../../components/layout/Sidebar";
 import TicketDetailHeader from "./TicketDetailHeader";
 import TicketThreadSection from "./TicketThreadSection";
 import TicketPropertiesSidebar from "./TicketPropertiesSidebar";
+import CustomerInfoSection from "./CustomerInfoSection";
+import InteractionHistorySection from "./InteractionHistorySection";
+import IconsSection from "./IconsSection";
+import InfoTab from "./InfoTab";
 import { Drawer, Button, Typography, Modal } from "@mui/material";
 
 import ForwardPanel from "./ForwardPanel";
@@ -80,6 +84,9 @@ const TicketDetailTemplate = () => {
   const [showEditorNote, setShowEditorNote] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
+  const [expandedAccordion, setExpandedAccordion] = React.useState<string | null>('customer');
+  const [isCustomerInfoVisible, setIsCustomerInfoVisible] = React.useState(false);
+  const [customerInfoContent, setCustomerInfoContent] = React.useState<'customer' | 'info' | 'chat'>('customer');
 
   const [triggerForward] = useCommanApiMutation();
 
@@ -175,6 +182,43 @@ const TicketDetailTemplate = () => {
     handleBack(); // After delete, go back to dashboard
   };
 
+  const handleAccordionChange = (panel: string) => {
+    if (expandedAccordion === panel) {
+      // If clicking on the currently expanded panel, collapse it
+      setExpandedAccordion(null);
+    } else {
+      // If clicking on a different panel, expand it
+      setExpandedAccordion(panel);
+    }
+  };
+
+  // Auto-open Customer accordion if both are collapsed
+  React.useEffect(() => {
+    if (expandedAccordion === null) {
+      setExpandedAccordion('customer');
+    }
+  }, [expandedAccordion]);
+
+  const handleToggleCustomerInfo = () => {
+    setIsCustomerInfoVisible(!isCustomerInfoVisible);
+  };
+
+  const handleInfoClick = () => {
+    setCustomerInfoContent('info');
+    setIsCustomerInfoVisible(true);
+  };
+
+
+  const handlePersonClick = () => {
+    setCustomerInfoContent('customer');
+    setIsCustomerInfoVisible(true);
+  };
+
+  const handleChatClick = () => {
+    setCustomerInfoContent('chat');
+    setIsCustomerInfoVisible(true);
+  };
+
   return (
     <Box
       sx={{
@@ -204,7 +248,11 @@ const TicketDetailTemplate = () => {
             hasNextTicket={hasNextTicket}
           />
         </div>
-        <div className="w-full grid grid-cols-[3fr_1fr] ">
+        <div className="w-full grid" style={{ gridTemplateColumns: isCustomerInfoVisible ? '1fr 2fr 1fr auto' : '300px 2fr auto' }}>
+          <div id="ticket-properties-sidebar" style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+            <TicketPropertiesSidebar ticket={ticket?.header} />
+            {/* Forward Panel positioned inside the left column */}
+          </div>
           <div
             style={{ width: "100%", height: "100%", overflow: "auto" }}
             className="bg-white"
@@ -225,10 +273,228 @@ const TicketDetailTemplate = () => {
               />
             )}
           </div>
-          <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
-            <TicketPropertiesSidebar ticket={ticket?.header} />
-
-            {/* Forward Panel positioned inside the right column */}
+          {isCustomerInfoVisible && (
+            <div 
+              id="ticket-customer-info" 
+              style={{ 
+                width: "100%", 
+                height: "75%", 
+                overflow: "auto", 
+                padding: "16px",
+                transition: "all 0.3s ease-in-out",
+                transform: "translateX(0)",
+                opacity: 1
+              }}
+            >
+              {customerInfoContent === 'customer' ? (
+                <>
+                  {/* Customer Information Section */}
+                  <CustomerInfoSection 
+                    isExpanded={expandedAccordion === 'customer'}
+                    onToggle={() => handleAccordionChange('customer')}
+                    ticketData={ticket?.header}
+                  />
+                  
+                  {/* Interaction History Section */}
+                  <InteractionHistorySection 
+                    isExpanded={expandedAccordion === 'interaction'}
+                    onToggle={() => handleAccordionChange('interaction')}
+                  />
+                </>
+              ) : customerInfoContent === 'info' ? (
+                /* Info Tab Content */
+                <div style={{ width: "100%", height: "100%", overflow: "auto", padding: "16px" }}>
+                  <InfoTab />
+                </div>
+              ) : (
+                /* Chat UI Content */
+                <div style={{ 
+                  width: "100%", 
+                  height: "100%", 
+                  display: "flex", 
+                  flexDirection: "column",
+                  position: "relative"
+                }}>
+                  {/* Fixed Chat Header - Top */}
+                  <div style={{ 
+                    position: "fixed",
+                    top: "0",
+                    left: "0",
+                    right: "0",
+                    display: "flex", 
+                    alignItems: "center", 
+                    padding: "12px 16px", 
+                    backgroundColor: "#f5f5f5", 
+                    borderBottom: "1px solid #e0e0e0",
+                    zIndex: 1000
+                  }}>
+                    <div style={{ 
+                      width: "8px", 
+                      height: "8px", 
+                      backgroundColor: "#4caf50", 
+                      borderRadius: "50%", 
+                      marginRight: "8px" 
+                    }}></div>
+                    <span style={{ fontWeight: "600", fontSize: "14px", color: "#333" }}>
+                      Live Chat
+                    </span>
+                  </div>
+                  
+                  {/* Scrollable Chat Messages Area - Middle */}
+                  <div style={{ 
+                    flex: 1, 
+                    padding: "60px 16px 80px 16px", 
+                    backgroundColor: "#fafafa", 
+                    overflowY: "auto",
+                    height: "calc(100vh - 200px)"
+                  }}>
+                    <div style={{ 
+                      display: "flex", 
+                      flexDirection: "column", 
+                      gap: "12px"
+                    }}>
+                      {/* Sample Messages */}
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "flex-end" 
+                      }}>
+                        <div style={{ 
+                          backgroundColor: "#1976d2", 
+                          color: "white", 
+                          padding: "8px 12px", 
+                          borderRadius: "18px 18px 4px 18px",
+                          maxWidth: "70%",
+                          fontSize: "14px"
+                        }}>
+                          Hello! How can I help you with this ticket?
+                        </div>
+                      </div>
+                      
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "flex-start" 
+                      }}>
+                        <div style={{ 
+                          backgroundColor: "#e0e0e0", 
+                          color: "#333", 
+                          padding: "8px 12px", 
+                          borderRadius: "18px 18px 18px 4px",
+                          maxWidth: "70%",
+                          fontSize: "14px"
+                        }}>
+                          I need help with my account access issue
+                        </div>
+                      </div>
+                      
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "flex-end" 
+                      }}>
+                        <div style={{ 
+                          backgroundColor: "#1976d2", 
+                          color: "white", 
+                          padding: "8px 12px", 
+                          borderRadius: "18px 18px 4px 18px",
+                          maxWidth: "70%",
+                          fontSize: "14px"
+                        }}>
+                          I'll look into that for you right away. Can you provide more details?
+                        </div>
+                      </div>
+                      
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "flex-start" 
+                      }}>
+                        <div style={{ 
+                          backgroundColor: "#e0e0e0", 
+                          color: "#333", 
+                          padding: "8px 12px", 
+                          borderRadius: "18px 18px 18px 4px",
+                          maxWidth: "70%",
+                          fontSize: "14px"
+                        }}>
+                          Sure, I'm getting a 403 error when trying to access the dashboard
+                        </div>
+                      </div>
+                      
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "flex-end" 
+                      }}>
+                        <div style={{ 
+                          backgroundColor: "#1976d2", 
+                          color: "white", 
+                          padding: "8px 12px", 
+                          borderRadius: "18px 18px 4px 18px",
+                          maxWidth: "70%",
+                          fontSize: "14px"
+                        }}>
+                          I see the issue. Let me check your permissions and get this resolved for you.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Fixed Chat Input Area - Bottom */}
+                  <div style={{ 
+                    position: "fixed",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    padding: "16px", 
+                    backgroundColor: "white", 
+                    borderTop: "1px solid #e0e0e0",
+                    zIndex: 1000
+                  }}>
+                    <div style={{ 
+                      display: "flex", 
+                      gap: "8px", 
+                      alignItems: "flex-end" 
+                    }}>
+                      <input
+                        type="text"
+                        placeholder="Type your message..."
+                        style={{
+                          flex: 1,
+                          padding: "8px 12px",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "20px",
+                          outline: "none",
+                          fontSize: "14px"
+                        }}
+                      />
+                      <button
+                        style={{
+                          backgroundColor: "#1976d2",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "36px",
+                          height: "36px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}
+                      >
+                        →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <div id="ticket-icons-section" style={{ width: "100%", height: "75%", display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "16px 8px" }}>
+            {/* Icons Section */}
+            <IconsSection 
+              onToggleCustomerInfo={handleToggleCustomerInfo} 
+              isCustomerInfoVisible={isCustomerInfoVisible}
+              onInfoClick={handleInfoClick}
+              onPersonClick={handlePersonClick}
+              onChatClick={handleChatClick}
+            />
           </div>
         </div>
       </Box>
