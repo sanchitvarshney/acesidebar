@@ -20,7 +20,9 @@ interface NoteItemProps {
   inputText: any;
   editNoteId: any;
   onEdit: any;
-    currentNote: string;
+  currentNote: string;
+  isEditLoading: any;
+  addingLoading: any;
 }
 
 const NoteItem: FC<NoteItemProps> = ({
@@ -33,10 +35,12 @@ const NoteItem: FC<NoteItemProps> = ({
   inputText,
   editNoteId,
   onEdit,
-  currentNote
+  currentNote,
+  addingLoading,
+  isEditLoading,
 }) => {
-  
   const [trackId, setTrackId] = useState<any>("");
+  const [isDeletingThisItem, setIsDeletingThisItem] = useState(false);
   return (
     <Paper
       elevation={1}
@@ -54,7 +58,7 @@ const NoteItem: FC<NoteItemProps> = ({
     >
       {/* Content Section */}
       <Typography variant="body2" sx={{ mb: 0.5 }}>
-            {data?.note || data?.name}
+        {data?.note || data?.name}
       </Typography>
 
       <div className="flex flex-col">
@@ -77,22 +81,32 @@ const NoteItem: FC<NoteItemProps> = ({
           note={currentNote}
           onCancel={onEdit}
           handleSave={handleSave}
+          addingLoading={addingLoading}
+          isEditLoading={isEditLoading}
         />
       )}
 
       {/* Action Buttons */}
-      {!isEdit && trackId !== data.key && (
+      {!isEdit && !isDeletingThisItem && (
         <Box display="flex" justifyContent="flex-end" gap={1}>
-          <IconButton size="small" color="primary" onClick={handleEdit}>
+          <IconButton
+            size="small"
+            color="primary"
+            onClick={handleEdit}
+            disabled={isEditLoading || addingLoading || loadingDelete}
+          >
             <EditIcon sx={{ fontSize: "16px" }} />
           </IconButton>
           <IconButton
             size="small"
             color="error"
-            onClick={() => {
+            onClick={async () => {
+              setIsDeletingThisItem(true);
               setTrackId(data.key);
-              handleDelete();
+              await handleDelete();
+              setIsDeletingThisItem(false);
             }}
+            disabled={loadingDelete || isDeletingThisItem}
           >
             {loadingDelete && trackId === data.key ? (
               <CircularProgress size={16} />
@@ -100,6 +114,13 @@ const NoteItem: FC<NoteItemProps> = ({
               <DeleteIcon sx={{ fontSize: "16px" }} />
             )}
           </IconButton>
+        </Box>
+      )}
+
+      {/* Show loading state when deleting */}
+      {isDeletingThisItem && (
+        <Box display="flex" justifyContent="flex-end" gap={1} sx={{ mt: 1 }}>
+          <CircularProgress size={16} />
         </Box>
       )}
     </Paper>

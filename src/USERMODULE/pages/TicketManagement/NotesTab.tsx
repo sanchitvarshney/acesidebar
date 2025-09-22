@@ -13,11 +13,15 @@ const NotesTab = ({ ticketData }: any) => {
   const [note, setNote] = React.useState("");
   const [noteList, setNoteList] = React.useState<any[]>([]);
   const [editNoteId, setEditNoteId] = React.useState<number | null>(null);
-  const [triggerAddNote, { isLoading: addingLoading }] = useCommanApiMutation();
-  const [triggerdeleteNote, { isLoading: isDeletingNote }] =
+  const [triggerAddNote] = useCommanApiMutation();
+  const [triggerdeleteNote] =
     useCommanApiMutation();
-  const [triggerEditNote, { isLoading: isEditLoading, error }] =
+  const [triggerEditNote] =
     useCommanApiMutation();
+  
+  // Local loading states for better control
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const handleInputText = (text: string) => {
     if (text.length <= 100) {
@@ -31,6 +35,9 @@ const NotesTab = ({ ticketData }: any) => {
   }, [ticketData]);
 
   const handleSave = async () => {
+    if (isSaving) return; // Prevent multiple saves
+    
+    setIsSaving(true);
     try {
       if (editNoteId !== null) {
         const valueofPayload: any = {
@@ -45,20 +52,22 @@ const NotesTab = ({ ticketData }: any) => {
             note: valueofPayload.note, // Updated text entered by the use
           },
         };
-        triggerEditNote(payloadUpdate).then((res) => {
-          if (res?.data?.type === "error") {
-            showToast(res?.data?.message || "An error occurred", "error");
-            return;
-          }
+        const res = await triggerEditNote(payloadUpdate);
+        if (res?.data?.type === "error") {
+          showToast(res?.data?.message || "An error occurred", "error");
+          return;
+        }
+        if (res?.data?.type === "success") {
+          showToast(res?.data?.message || "Note updated successfully", "success");
           setNoteList((prev) =>
             prev.map((item) =>
               item.key === editNoteId ? { ...item, note } : item
             )
           );
-
           setEditNoteId(null);
           setIsEdit(false);
-        });
+          setNote("");
+        }
       } else {
         const payload = {
           url: "internal-note",
@@ -68,39 +77,54 @@ const NotesTab = ({ ticketData }: any) => {
           },
         };
         // Create new note
-        triggerAddNote(payload).then((res) => {
-          if (res?.data?.type === "error") {
-            showToast(res?.data?.message || "An error occurred", "error");
-            return;
-          }
-
+        const res = await triggerAddNote(payload);
+        if (res?.data?.type === "error") {
+          showToast(res?.data?.message || "An error occurred", "error");
+          return;
+        }
+        if (res?.data?.type === "success") {
+          showToast(res?.data?.message || "Note added successfully", "success");
           setNoteList((prev) => [res?.data?.data, ...prev]);
-        });
+          setIsNotes(false);
+          setNote("");
+        }
       }
     } catch (err) {
       console.error("Error saving note:", err);
+      showToast("An unexpected error occurred", "error");
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsNotes(false);
-    setNote("");
   };
 
-  const handleDelete = (id: number) => {
-    const values = {
-      note: id,
-      ticket: ticketData?.ticketId,
-    };
-    const payload = {
-      url: `internal-note/${values.note}/${values.ticket}`,
-      method: "DELETE",
-    };
-    triggerdeleteNote(payload).then((res) => {
-      if (res?.data?.type === true) {
+  const handleDelete = async (id: number) => {
+    if (isDeleting) return; // Prevent multiple deletes
+    
+    setIsDeleting(true);
+    try {
+      const values = {
+        note: id,
+        ticket: ticketData?.ticketId,
+      };
+      const payload = {
+        url: `internal-note/${values.note}/${values.ticket}`,
+        method: "DELETE",
+      };
+      const res = await triggerdeleteNote(payload);
+      if (res?.data?.type === "error") {
         showToast(res?.data?.message || "An error occurred", "error");
         return;
       }
-      setNoteList((prev) => prev.filter((item) => item.key !== id));
-    });
+      if (res?.data?.type === "success") {
+        showToast(res?.data?.message || "Note deleted successfully", "success");
+        setNoteList((prev) => prev.filter((item) => item.key !== id));
+      }
+    } catch (err) {
+      console.error("Error deleting note:", err);
+      showToast("An unexpected error occurred", "error");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -126,16 +150,8 @@ const NotesTab = ({ ticketData }: any) => {
     setNote("");
   };
 
-  useEffect(() => {
-    if (error) {
-      //@ts-ignore
-      showToast(error?.data?.message || "An error occurred", "error");
-      return;
-    }
-  }, [error]);
-
   return (
-   <div className="flex flex-col bg-white rounded border border-gray-200 h-[calc(100vh-210px)] items-center justify-center p-3 mb-4 h-40 ">
+    <div className="flex flex-col bg-white rounded border border-gray-200 h-[calc(100vh-210px)]  p-3 mb-4 h-40 ">
       {isNotes && !isEdit && (
         <StyledTextField
           placeholder="Write your note here"
@@ -143,14 +159,16 @@ const NotesTab = ({ ticketData }: any) => {
           note={note}
           onCancel={handleCancel}
           handleSave={handleSave}
+          addingLoading={isSaving}
+          isEditLoading={isSaving}
         />
       )}
 
       {noteList.length > 0 ? (
         <div className="mb-0">
-          {!isNotes && (
+          {!isNotes && !isEdit && (
             <div className="flex items-center justify-end mb-2">
-              {addingLoading || isEditLoading ? (
+              {isSaving ? (
                 <CircularProgress size={18} />
               ) : (
                 <span
@@ -170,24 +188,30 @@ const NotesTab = ({ ticketData }: any) => {
               handleEdit={() => handleEdit(item.key)}
               isEdit={isEdit}
               handleSave={handleSave}
-              loadingDelete={isDeletingNote}
+              loadingDelete={isDeleting}
               inputText={handleInputText}
               editNoteId={editNoteId}
               onEdit={handleEditCancel}
               currentNote={note}
+              addingLoading={isSaving}
+              isEditLoading={isSaving}
             />
           ))}
         </div>
       ) : (
-        !isNotes && (
-          <div className="flex flex-col items-center mt-4">
+        !isNotes && !isEdit && (
+          <div className="flex flex-col items-center my-auto">
             <img src={emptyimg} alt="notes" className="mx-auto w-40 h-30" />
-            <span
-              className="text-sm text-[#1a73e8] cursor-pointer p-2"
-              onClick={() => setIsNotes(true)}
-            >
-              + Add note
-            </span>
+            {isSaving ? (
+              <CircularProgress size={18} />
+            ) : (
+              <span
+                className="text-sm text-[#1a73e8] cursor-pointer p-2"
+                onClick={() => setIsNotes(true)}
+              >
+                + Add note
+              </span>
+            )}
           </div>
         )
       )}

@@ -1,5 +1,6 @@
 import TextField from "@mui/material/TextField";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
+import { CircuitBoardIcon } from "lucide-react";
 
 const getCharacters = (text: string) => {
   const val = 100 - text.length;
@@ -10,6 +11,7 @@ const getCharacters = (text: string) => {
   }
 };
 const AddNotes = ({ label = "Write your note here", rows = 4, inputText, note, onCancel, handleSave, ...props }:any) => {
+  const {isEditLoading,addingLoading} = props;
   return (
     <>
       <TextField
@@ -49,15 +51,23 @@ const AddNotes = ({ label = "Write your note here", rows = 4, inputText, note, o
         note.length === 0 ? 100 : getCharacters(note)
       } remaining characters`}</p>
       <div className="flex justify-end gap-2 mt-2">
-        <Button variant="contained" color="inherit" onClick={onCancel}>
+        <Button 
+          variant="text" 
+          color="inherit" 
+          onClick={onCancel}
+          disabled={isEditLoading || addingLoading}
+        >
           Cancel
         </Button>
         <Button
           variant="contained"
           sx={{ bgcolor: "#1a73e8", color: "white" }}
           onClick={handleSave}
+          disabled={isEditLoading || addingLoading || !note.trim()}
         >
-          Save
+          {
+            isEditLoading || addingLoading ? <CircularProgress size={18}  color="inherit"/> : "Save"
+          }
         </Button>
       </div>
     </>

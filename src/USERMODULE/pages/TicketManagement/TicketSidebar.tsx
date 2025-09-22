@@ -102,7 +102,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   useEffect(() => {
     if (!canAddMoreFilters && activeFilters.length === MAX_FILTERS) {
       setShowMaxFiltersAlert(true);
-      
+
       // Hide alert after 3 seconds
       const timer = setTimeout(() => {
         setShowMaxFiltersAlert(false);
@@ -180,24 +180,20 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   if (isLoading) {
     return <TicketFilterSkeleton />;
   }
-  if (error) {
-    return <div className="p-4 text-red-500">Failed to load filters.</div>;
-  }
   if (!criteriaArray || criteriaArray.length === 0) {
     return null;
   }
-
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     if (!canAddMoreFilters) {
       // Show alert when user tries to add more filters beyond limit
       setShowMaxFiltersAlert(true);
-      
+
       // Hide alert after 3 seconds
       setTimeout(() => {
         setShowMaxFiltersAlert(false);
       }, 3000);
-      
+
       return; // Don't open popover if max filters reached
     }
     if (closePopoverTimer.current) {
@@ -214,9 +210,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const handlePopoverClose = () => {
     setAnchorEl(null);
   };
-
-
-  
 
   return (
     <Box className="w-100 min-w-100 shadow rounded-lg flex flex-col h-full relative">
@@ -651,10 +644,18 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
               mountOnEnter
               unmountOnExit
             >
-              <Box sx={{ position: "absolute", bottom: "80px", left: "10px", right: "10px", zIndex: 1000 }}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: "80px",
+                  left: "10px",
+                  right: "10px",
+                  zIndex: 1000,
+                }}
+              >
                 <CustomAlert title="You have exceeded the maximum number of filters" />
               </Box>
-            </Slide> 
+            </Slide>
           </>
         )}
       </Box>
