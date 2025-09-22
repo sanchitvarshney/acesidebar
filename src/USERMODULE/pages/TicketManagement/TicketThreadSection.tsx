@@ -43,7 +43,6 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AddTaskIcon from "@mui/icons-material/AddTask";
 
 import ShortcutIcon from "@mui/icons-material/Shortcut";
 import { useDispatch, useSelector } from "react-redux";
@@ -71,7 +70,6 @@ import { useToast } from "../../../hooks/useToast";
 import { useParams } from "react-router-dom";
 import ReplyStatusOptions from "../../components/ReplyStatusOptions";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
-import Tasks from "../task/Tasks";
 
 const signatureValues: any = [
   {
@@ -702,7 +700,6 @@ const TicketThreadSection = ({
   const [shouldFocusEditor, setShouldFocusEditor] = useState(false);
   const [shouldFocusNotify, setShouldFocusNotify] = useState(false);
   const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
-  const [isAddTask, setIsAddTask] = useState(false);
   const [notifyTag, setNotifyTag] = useState([]);
   const { data: shortcutList, isLoading: shortcutLoading } =
     useGetShortCutListQuery({ refetchOnMountOrArgChange: true });
@@ -1075,49 +1072,6 @@ const TicketThreadSection = ({
                   Reply....
                 </Typography>
 
-                {/* Task Icon */}
-                <div className="flex items-center gap-2 mr-4">
-                  <Tooltip title="Add Tasks" placement="left">
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent triggering AccordionSummary click
-                        setIsAddTask(true);
-                      }}
-                      size="small"
-                      sx={{
-                        color: "#1a73e8",
-                        backgroundColor: "#e8f0fe",
-                        border: "1px solid #d4e6ff",
-                        borderRadius: "3px",
-                        width: "100px",
-                        padding: "10px",
-                        position: "relative",
-                        "&:hover": {
-                          backgroundColor: "#d4e6ff",
-                          color: "#1a73e8",
-                          borderColor: "#e8f0fe",
-                          transform: "scale(1.05)",
-                        },
-                        transition: "all 0.2s ease-in-out",
-                      }}
-                    >
-                      <AddTaskIcon fontSize="small" />
-                      {/* Small indicator dot */}
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: "6px",
-                          right: "10px",
-                          width: "15px",
-                          height: "15px",
-                          backgroundColor: "#34a853",
-                          borderRadius: "50%",
-                          border: "2px solid #ffffff",
-                        }}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                </div>
               </div>
             </AccordionSummary>
             {/* )} */}
@@ -1527,14 +1481,6 @@ const TicketThreadSection = ({
           }}
         />
       )}
-      <CustomSideBarPanel
-        open={isAddTask}
-        close={() => setIsAddTask(false)}
-        title={"Add Task"}
-        width={"80%"}
-      >
-        <Tasks isAddTask={isAddTask} ticketId={header?.ticketId} />
-      </CustomSideBarPanel>
     </div>
   );
 };

@@ -1,5 +1,8 @@
 import React from "react";
 import { Box } from "@mui/material";
+import { Apps, AddTask } from "@mui/icons-material";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import Tasks from "../task/Tasks";
 import Sidebar from "../../../components/layout/Sidebar";
 import TicketDetailHeader from "./TicketDetailHeader";
 import TicketThreadSection from "./TicketThreadSection";
@@ -23,7 +26,6 @@ import {
 } from "../../../reduxStore/Slices/shotcutSlices";
 import { useDispatch } from "react-redux";
 import { useToast } from "../../../hooks/useToast";
-import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import { useGetTicketListQuery } from "../../../services/ticketAuth";
 
 const TicketDetailTemplate = () => {
@@ -87,6 +89,7 @@ const TicketDetailTemplate = () => {
   const [expandedAccordion, setExpandedAccordion] = React.useState<string | null>('customer');
   const [isCustomerInfoVisible, setIsCustomerInfoVisible] = React.useState(false);
   const [customerInfoContent, setCustomerInfoContent] = React.useState<'customer' | 'info' | 'chat'>('customer');
+  const [isAddTask, setIsAddTask] = React.useState(false);
 
   const [triggerForward] = useCommanApiMutation();
 
@@ -486,15 +489,110 @@ const TicketDetailTemplate = () => {
               )}
             </div>
           )}
-          <div id="ticket-icons-section" style={{ width: "100%", height: "75%", display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "16px 8px" }}>
-            {/* Icons Section */}
-            <IconsSection 
-              onToggleCustomerInfo={handleToggleCustomerInfo} 
-              isCustomerInfoVisible={isCustomerInfoVisible}
-              onInfoClick={handleInfoClick}
-              onPersonClick={handlePersonClick}
-              onChatClick={handleChatClick}
-            />
+          <div id="ticket-icons-section" style={{ width: "100%", height: "75%", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", padding: "16px 8px" }}>
+            {/* Main Icons Section */}
+                    <IconsSection 
+                      onToggleCustomerInfo={handleToggleCustomerInfo} 
+                      isCustomerInfoVisible={isCustomerInfoVisible}
+                      onInfoClick={handleInfoClick}
+                      onPersonClick={handlePersonClick}
+                      onChatClick={handleChatClick}
+                      chatCount={ticket?.chatMessages?.length || 0}
+                      activeContent={customerInfoContent}
+                    />
+            
+            {/* Bottom Icons */}
+            <div style={{ 
+              display: "flex", 
+              flexDirection: "column",
+              justifyContent: "center", 
+              alignItems: "center",
+              gap: "8px",
+              marginTop: "16px"
+            }}>
+              {/* Apps Icon */}
+              <button
+                onClick={() => {
+                  // Add your Apps icon click handler here
+                  console.log('Apps icon clicked');
+                }}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: '#f5f5f5',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e8f0fe';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f5f5f5';
+                }}
+              >
+                <Apps style={{ fontSize: '20px', color: '#666' }} />
+              </button>
+
+              {/* AddTask Icon */}
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => {
+                    setIsAddTask(true);
+                  }}
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    backgroundColor: '#f5f5f5',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e8f0fe';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }}
+                >
+                  <AddTask style={{ fontSize: '20px', color: '#666' }} />
+                </button>
+                
+                {/* Blue Counter Badge */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    right: '-6px',
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    border: '2px solid white',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    minWidth: '20px',
+                    padding: '0 2px',
+                  }}
+                >
+                  {/* You can replace this with actual task count */}
+                  {ticket?.tasks?.length || 0}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </Box>
@@ -572,6 +670,16 @@ const TicketDetailTemplate = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Add Task Panel */}
+      <CustomSideBarPanel
+        open={isAddTask}
+        close={() => setIsAddTask(false)}
+        title={"Add Task"}
+        width={"80%"}
+      >
+        <Tasks isAddTask={isAddTask} ticketId={ticket?.header?.ticketId} />
+      </CustomSideBarPanel>
     </Box>
   );
 };
