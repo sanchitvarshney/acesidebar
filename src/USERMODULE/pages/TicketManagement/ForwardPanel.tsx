@@ -204,23 +204,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         m: 0,
       }}
     >
-      <MuiBox
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          p: 2,
-          borderBottom: "1px solid #eee",
-          backgroundColor: "#e8f0fe",
-        }}
-      >
-        <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
-          Forward
-        </Typography>
-
-        <IconButton onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
-      </MuiBox>
+  
 
       <MuiBox sx={{ p: 2, flex: 1, overflowY: "auto", width: "100%" }}>
         <MuiBox sx={{ display: "flex", alignItems: "center", mb: 2 }}>

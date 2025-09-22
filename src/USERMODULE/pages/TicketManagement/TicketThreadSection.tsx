@@ -1,10 +1,10 @@
 import React, { use, useCallback, useEffect, useRef, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
+
 import StackEditor from "../../../components/reusable/Editor";
 import AddBoxIcon from "@mui/icons-material/AddBox";
-import StarIcon from "@mui/icons-material/Star";
+
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import EmojiFlagsIcon from "@mui/icons-material/EmojiFlags";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
@@ -137,7 +137,7 @@ const replyOptions = [
     value: "3",
     icon: <DeleteIcon sx={{ fontSize: 18 }} />,
   },
-]
+];
 
 const ThreadItem = ({
   item,
@@ -345,9 +345,11 @@ const ThreadItem = ({
   const isCurrentUser = item?.replyType === "AGENT";
   const bubbleBackgroundColor = isReported
     ? "#fee2e2"
-    : isCurrentUser && item?.entryType === "pbR" 
-    ? "#f7faff" : isCurrentUser && item?.entryType === "PrvN"
-    ? "#fef1e1" :   "#fafafa";
+    : isCurrentUser && item?.entryType === "pbR"
+    ? "#f7faff"
+    : isCurrentUser && item?.entryType === "PrvN"
+    ? "#fef1e1"
+    : "#fafafa";
   const bubbleFooter = isCurrentUser
     ? "IP: 127.0.0.1 | Location: India"
     : "IP: 127.0.0.1 | Location: India";
@@ -428,13 +430,11 @@ const ThreadItem = ({
                 [isCurrentUser ? "left" : "right"]: `-20px`,
               }}
             >
-              
-                <Avatar
-                  src={item?.replyType === "AGENT" ? agentAvatar : userAvatar}
-                  alt={item?.replyType }
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-           
+              <Avatar
+                src={item?.replyType === "AGENT" ? agentAvatar : userAvatar}
+                alt={item?.replyType}
+                className="w-10 h-10 rounded-full object-cover"
+              />
             </div>
             {!item?.subject && (
               <div
@@ -474,12 +474,14 @@ const ThreadItem = ({
             <div className="flex items-center justify-between  w-full px-8 py-2">
               <div className={`w-full  flex flex-col`}>
                 <div
-                  className={`flex  items-center justify-between  w-full border-b-2 ${item?.entryType === "PrvN" ? "border-[#f8d2a4ff]" : "border-gray-200"} pb-4  ${
-                    isCurrentUser ? " flex-row-reverse" : "flex-row "
-                  }`}
+                  className={`flex  items-center justify-between  w-full border-b-2 ${
+                    item?.entryType === "PrvN"
+                      ? "border-[#f8d2a4ff]"
+                      : "border-gray-200"
+                  } pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "}`}
                 >
                   <span className="font-semibold text-[#1a73e8] text-sm">
-                    {item.repliedBy?.name ?? item?.ticketId ?? "User"}
+                    {item?.repliedBy?.name ?? item?.ticketId ?? "User"}
                   </span>
                   <div className="flex flex-col ">
                     {!item?.subject && (
@@ -491,7 +493,7 @@ const ThreadItem = ({
                         >
                           <img src={isCurrentUser ? email : web} alt="ip" />
                           <span className="text-xs text-gray-400 ">
-                            {item.repliedAt?.timestamp}
+                            {item?.repliedAt?.timestamp}
                           </span>{" "}
                           <CustomToolTip
                             title={renderReplyOption}
@@ -589,7 +591,13 @@ const ThreadItem = ({
             {!item?.subject && (
               <div
                 className="flex items-center justify-between w-full py-3 px-8 bg-white border-t-2 border-[#c3d9ff] bg-[#e2f2fd] rounded-b-lg"
-                style={{ borderTopColor: isReported ? "#ffb6b6" :  item?.entryType === "PrvN" ? "#f8d2a4ff" : "#c3d9ff" }}
+                style={{
+                  borderTopColor: isReported
+                    ? "#ffb6b6"
+                    : item?.entryType === "PrvN"
+                    ? "#f8d2a4ff"
+                    : "#c3d9ff",
+                }}
               >
                 {/* {item?.attachments.length > 0 ? (
                 <span className="text-xs text-gray-500 cursor-pointer hover:text-decoration-underline ">
@@ -659,7 +667,6 @@ const ThreadList = ({ thread, onReplyClick, onForward, subject }: any) => {
 const TicketThreadSection = ({
   thread,
   header,
-
   onForward,
   showReplyEditor,
   showEditorNote,
@@ -1340,35 +1347,25 @@ const TicketThreadSection = ({
         </div>
       </div>
 
-      <Drawer
-        anchor="right"
+      <CustomSideBarPanel
+        title={
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <PublishedWithChangesIcon fontSize="small" />
+            <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
+              Canned Responses
+            </Typography>
+          </Box>
+        }
         open={canned}
-        onClose={() => setCanned(false)}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: 600,
-            maxWidth: "100vw",
-            boxShadow: 24,
-          },
-        }}
+        close={() => setCanned(false)}
+        width={600}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            p: 2,
-            borderBottom: "1px solid #eee",
-            backgroundColor: "#e8f0fe",
-          }}
-        >
-          <PublishedWithChangesIcon fontSize="small" sx={{ mr: 1 }} />
-          <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
-            Canned Responses
-          </Typography>
-          <IconButton onClick={() => setCanned(false)} size="small">
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Box>
         <Box
           sx={{
             display: "flex",
@@ -1420,37 +1417,27 @@ const TicketThreadSection = ({
             </AccordionDetails>
           </Accordion>
         </Box>
-      </Drawer>
+      </CustomSideBarPanel>
 
-      <Drawer
-        anchor="right"
+      <CustomSideBarPanel
+        title={
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <MenuBookIcon fontSize="small" />
+            <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
+              Solution
+            </Typography>
+          </Box>
+        }
         open={suggest}
-        onClose={() => setSuggest(false)}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: 600,
-            maxWidth: "100vw",
-            boxShadow: 24,
-          },
-        }}
+        close={() => setSuggest(false)}
+        width={600}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            p: 2,
-            borderBottom: "1px solid #eee",
-            backgroundColor: "#e8f0fe",
-          }}
-        >
-          <MenuBookIcon fontSize="small" sx={{ mr: 1 }} />
-          <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
-            Solution
-          </Typography>
-          <IconButton onClick={() => setSuggest(false)} size="small">
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Box>
         <Box
           sx={{
             display: "flex",
@@ -1520,7 +1507,7 @@ const TicketThreadSection = ({
             </div>
           )}
         </Box>
-      </Drawer>
+      </CustomSideBarPanel>
 
       {isSuccessModal && (
         <CustomModal

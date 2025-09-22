@@ -172,9 +172,11 @@ const TicketDetailHeader = ({
     data: watcherData,
     refetch,
     isLoading: watcherLoading,
-  } = useGetWatcherQuery({
-    ticket: ticket?.ticketId,
-  });
+  } = useGetWatcherQuery(
+    { ticket: ticket?.ticketId },
+    { skip: !ticket?.ticketId } 
+  );
+
   const [spamValue, setSpamValue] = useState<any>(null);
   const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
     useLazyGetAgentsBySeachQuery();
@@ -511,7 +513,7 @@ const TicketDetailHeader = ({
           <ArrowBackIcon fontSize="small" />
         </IconButton>
         <span className="text-[#1a73e8] font-semibold text-md">
-          {ticket?.ticketId || "6"}
+          {ticket?.ticketId && ticket?.ticketId}
         </span>
       </nav>
 

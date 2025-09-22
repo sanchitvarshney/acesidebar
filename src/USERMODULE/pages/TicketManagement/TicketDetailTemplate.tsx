@@ -4,12 +4,7 @@ import Sidebar from "../../../components/layout/Sidebar";
 import TicketDetailHeader from "./TicketDetailHeader";
 import TicketThreadSection from "./TicketThreadSection";
 import TicketPropertiesSidebar from "./TicketPropertiesSidebar";
-import {
-  Drawer,
-  Button,
-  Typography,
-  Modal,
-} from "@mui/material";
+import { Drawer, Button, Typography, Modal } from "@mui/material";
 
 import ForwardPanel from "./ForwardPanel";
 
@@ -24,6 +19,8 @@ import {
 } from "../../../reduxStore/Slices/shotcutSlices";
 import { useDispatch } from "react-redux";
 import { useToast } from "../../../hooks/useToast";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
+import { useGetTicketListQuery } from "../../../services/ticketAuth";
 
 const TicketDetailTemplate = () => {
   const navigate = useNavigate();
@@ -39,12 +36,39 @@ const TicketDetailTemplate = () => {
       { skip: !openTicketNumber }
     );
 
+  // Fetch a chunk of tickets to enable previous/next navigation
+  const { data: ticketListData } = useGetTicketListQuery({
+    page: 1,
+    limit: 100,
+  });
+
+  const ticketIds: string[] = Array.isArray(ticketListData?.data)
+    ? ticketListData.data
+        .map((t: any) => String(t?.ticketNumber ?? t?.ticketId ?? t?.id))
+        .filter(Boolean)
+    : [];
+  const currentId = String(openTicketNumber ?? "");
+  const currentIndex = ticketIds.findIndex((id) => id === currentId);
+  const hasPreviousTicket = currentIndex > 0;
+  const hasNextTicket =
+    currentIndex >= 0 && currentIndex < ticketIds.length - 1;
+  const handlePreviousTicket = () => {
+    if (!hasPreviousTicket) return;
+    const prevId = ticketIds[currentIndex - 1];
+    if (prevId) navigate(`/tickets/${prevId}`);
+  };
+  const handleNextTicket = () => {
+    if (!hasNextTicket) return;
+    const nextId = ticketIds[currentIndex + 1];
+    if (nextId) navigate(`/tickets/${nextId}`);
+  };
+
   const [forwardOpen, setForwardOpen] = React.useState(false);
   const [forwardFields, setForwardFields] = React.useState({
     from:
       ticket?.header?.requester ||
       "MsCorpres Automation PvtLtd (support@postmanreply.com)",
-    subject: ticket?.header?.subject ? `Fwd: ${ticket.header.subject}` : "",
+    subject: ticket?.header?.subject ? `Fwd: ${ticket?.header?.subject}` : "",
     to: "",
     cc: [],
     bcc: [],
@@ -57,8 +81,7 @@ const TicketDetailTemplate = () => {
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
 
-  const [triggerForward] =
-    useCommanApiMutation();
+  const [triggerForward] = useCommanApiMutation();
 
   const handleBack = () => {
     // setOpenTicketNumber(null);
@@ -96,7 +119,7 @@ const TicketDetailTemplate = () => {
 
         subject:
           ticket?.header?.subject && urlValues.threadID
-            ? `FWD: ${ticket.header.subject}`
+            ? `FWD: ${ticket?.header?.subject}`
             : forwardFields.subject,
         message: ticket?.header?.description || forwardFields.message,
         attachments: forwardFields.documents.map((file: any) => {
@@ -152,9 +175,6 @@ const TicketDetailTemplate = () => {
     handleBack(); // After delete, go back to dashboard
   };
 
-  if (isTicketDetailLoading || !ticket) {
-    return <TicketDetailSkeleton />;
-  }
   return (
     <Box
       sx={{
@@ -164,68 +184,74 @@ const TicketDetailTemplate = () => {
         height: "calc(100vh - 98px)",
       }}
     >
-      <Sidebar open={false} handleDrawerToggle={() => { }} />
+      <Sidebar open={false} handleDrawerToggle={() => {}} />
       <Box
         id="ticket-header"
         sx={{ flex: 1, display: "flex", flexDirection: "column" }}
       >
         <div className="sticky top-0 z-[99]">
           <TicketDetailHeader
-            ticket={ticket.header}
+            ticket={ticket?.header}
             onBack={handleBack}
             onForward={handleOpenForward}
             onReply={handleReply}
             onDelete={handleDelete}
             onNote={handleAddNote}
             ticketNumber={openTicketNumber}
+            onPreviousTicket={handlePreviousTicket}
+            onNextTicket={handleNextTicket}
+            hasPreviousTicket={hasPreviousTicket}
+            hasNextTicket={hasNextTicket}
           />
         </div>
         <div className="w-full grid grid-cols-[3fr_1fr] ">
           <div
-            style={{ width: "100%", height: "100%", overflow: "auto" }} className="bg-white"
+            style={{ width: "100%", height: "100%", overflow: "auto" }}
+            className="bg-white"
             id="ticket-thread"
           >
-            <TicketThreadSection
-              thread={ticket.response}
-              header={ticket.header}
-              onForward={handleOpenForward}
-              showReplyEditor={showReplyEditor}
-              onCloseReply={handleCloseReply}
-              showEditorNote={showEditorNote}
-              onCloseEditorNote={handleAddNoteClose}
-              value={value}
-            />
+            {isTicketDetailLoading || !ticket ? (
+              <TicketDetailSkeleton />
+            ) : (
+              <TicketThreadSection
+                thread={ticket?.response}
+                header={ticket?.header}
+                onForward={handleOpenForward}
+                showReplyEditor={showReplyEditor}
+                onCloseReply={handleCloseReply}
+                showEditorNote={showEditorNote}
+                onCloseEditorNote={handleAddNoteClose}
+                value={value}
+              />
+            )}
           </div>
-          <div style={{ width: "100%", height: "100%", overflow: "hidden"}}>
-            <TicketPropertiesSidebar ticket={ticket.header} />
+          <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+            <TicketPropertiesSidebar ticket={ticket?.header} />
 
             {/* Forward Panel positioned inside the right column */}
           </div>
         </div>
       </Box>
-      {/* Forward Drawer */}
-      <Drawer
-        anchor="right"
+
+      <CustomSideBarPanel
+        title={
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+
+              borderBottom: "1px solid #eee",
+              backgroundColor: "#e8f0fe",
+            }}
+          >
+            <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>
+              Forward
+            </Typography>
+          </Box>
+        }
         open={forwardOpen}
-        onClose={handleCloseForward}
-        ModalProps={{
-          disableEscapeKeyDown: false,
-          keepMounted: true,
-          BackdropProps: {
-            style: {
-              backgroundColor: "rgb(255 255 255 / 50%)",
-              cursor: "default",
-              pointerEvents: "none",
-            },
-          },
-        }}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: 600,
-            maxWidth: "100vw",
-            boxShadow: 24,
-          },
-        }}
+        close={handleCloseForward}
+        width={600}
       >
         <ForwardPanel
           open={forwardOpen}
@@ -234,8 +260,8 @@ const TicketDetailTemplate = () => {
           onFieldChange={handleForwardFieldChange}
           onSend={handleForwardSend}
         />
-      </Drawer>
-      {/* Delete Modal */}
+      </CustomSideBarPanel>
+
       <Modal
         open={deleteModalOpen}
         onClose={handleCloseDelete}

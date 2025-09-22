@@ -25,6 +25,20 @@ import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import { set } from "react-hook-form";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+const SLAOptions = [
+  { value: "1h", label: "1 Hour" },
+  { value: "4h", label: "4 Hours" },
+  { value: "8h", label: "8 Hours" },
+  { value: "24h", label: "1 Day" },
+  { value: "48h", label: "2 Days" },
+  { value: "72h", label: "3 Days" },
+  { value: "1w", label: "1 Week" },
+  { value: "2w", label: "2 Weeks" },
+  { value: "1m", label: "1 Month" },
+];
 
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
@@ -32,10 +46,12 @@ const StatusTab = ({ ticket }: any) => {
   const [changeTagValue, setChangeTabValue] = useState("");
   const [type, setType] = useState("");
   const [priority, setPriority] = useState("");
+  const [sla, setSLA] = useState("");
   const [status, setStatus] = useState<any>("");
   const [dept, setDept] = useState<any>("");
   const [agent, setAgent] = useState<any>("");
   const [options, setOptions] = useState<any>([]);
+  const [dueDate, setDueDate] = useState<any>("");
   const [isUpdate, setIsUpdate] = useState(0);
   const { data: tagList } = useGetTagListQuery();
   const { data: priorityList } = useGetPriorityListQuery();
@@ -239,6 +255,64 @@ const StatusTab = ({ ticket }: any) => {
               ))}
             </Select>
           </div>
+          <div>
+            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+              SLA
+            </Typography>
+            <Select
+              fullWidth
+              variant="standard"
+              size="medium"
+              value={sla}
+              onChange={(e) => setSLA(e.target.value)}
+            >
+              {(SLAOptions || []).map((sla: any) => (
+                <MenuItem key={sla.value} value={sla.value}>
+                  <Typography
+                    variant="body2"
+                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                  >
+                    {sla.label}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                value={dueDate || null}
+                onChange={(newValue: any) => {
+                  setDueDate(newValue);
+                }}
+                slotProps={{
+                  textField: {
+                    variant: "standard",
+                    fullWidth: true,
+                    size: "small",
+                    focused: true,
+
+                    name: "Due Date",
+                    placeholder: "DD/MM/YYYY HH:mm",
+                    sx: {
+                      color: "#000 !important",
+                      "& .MuiInput-underline:before": {
+                        borderBottom: "1px solid #f3f1f1ff !important",
+                      },
+                      "& .MuiInput-underline:hover:before": {
+                        borderBottom: "1px solid #ddddddff !important",
+                      },
+                      "& .MuiInput-underline:after": {
+                        borderBottom: "1px solid #e2e2e2ff !important",
+                      },
+                    },
+                  },
+                }}
+                format="DD/MM/YYYY HH:mm"
+              />
+            </LocalizationProvider>
+          </div>
+
           <Divider />
           <div>
             <Typography variant="subtitle1" sx={{ fontSize: "12px", mb: 0.5 }}>

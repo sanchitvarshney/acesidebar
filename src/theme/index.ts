@@ -1,13 +1,11 @@
 import { createTheme } from "@mui/material/styles";
 
-
-
 export const theme = createTheme({
   typography: {
     fontFamily: "MsCorpres EmberFont, sans-serif",
   },
   components: {
-        MuiInput: {
+    MuiInput: {
       styleOverrides: {
         underline: {
           "&:before": {
@@ -77,7 +75,7 @@ export const theme = createTheme({
     MuiInputBase: {
       styleOverrides: {
         root: {
-           "&:before": {
+          "&:before": {
             borderColor: "#9ca3af", // for standard variant
           },
           "&:hover:before": {
@@ -86,7 +84,7 @@ export const theme = createTheme({
           "&.Mui-focused:before": {
             borderColor: "#1a73e8",
           },
-          fontSize:"13px",
+          fontSize: "13px",
           "&.Mui-disabled": {
             cursor: "not-allowed !important",
             backgroundColor: "#f0f0f0",
@@ -124,8 +122,8 @@ export const theme = createTheme({
         containedInherit: {
           backgroundColor: "#fff",
           color: "#1976d2",
-          '&:hover': {
-            backgroundColor: '#f5f5f5',
+          "&:hover": {
+            backgroundColor: "#f5f5f5",
           },
         },
       },
@@ -133,7 +131,7 @@ export const theme = createTheme({
     MuiSelect: {
       styleOverrides: {
         root: {
-          fontSize:"13px",
+          fontSize: "13px",
           "&:focus-within": {
             backgroundColor: "#fffbebs", // Background color on focus
           },

@@ -1,31 +1,33 @@
 import { Email, Person, Subject, Warning } from "@mui/icons-material";
 import {
-  Alert,
-  Autocomplete,
-  Avatar,
   Box,
   Button,
-  Chip,
   CircularProgress,
+  FormControl,
   FormHelperText,
   InputAdornment,
-  Stack,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import StackEditor from "../../components/reusable/Editor";
-import { fetchOptions, isValidEmail } from "../../utils/Utils";
 import { useToast } from "../../hooks/useToast";
 import { useEditTicketMutation } from "../../services/threadsApi";
 import { useLazyGetUserBySeachQuery } from "../../services/agentServices";
 import SingleValueAsynAutocomplete from "../../components/reusable/SingleValueAsynAutocomplete";
+
+const SourceOptions: any = [
+  { value: "web", label: "Web" },
+  { value: "email", label: "Email" },
+  { value: "phone", label: "Phone" },
+  { value: "chat", label: "Chat" },
+  { value: "app", label: "App" },
+  { value: "social_media", label: "Social Media" },
+  { value: "other", label: "Other" },
+];
 
 const EditTicket = ({ onClose, open, ticket }: any) => {
   const { showToast } = useToast();
@@ -34,6 +36,7 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
   const [editData, setEditData] = useState<any>({
     contact: "",
     subject: "",
+    source: "",
     body: "",
   });
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
@@ -64,6 +67,7 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
         client: ticket?.client?.id,
         contact: ticket?.client?.email || "",
         subject: ticket?.subject || "",
+        source: ticket?.source || "",
         body: ticket?.description || "",
       });
     }
@@ -146,7 +150,6 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
       setEditData({ contact: "", subject: "", body: "" });
       onClose();
     }
-
   };
 
   return (
@@ -219,6 +222,24 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
               {errors.subject}
             </FormHelperText>
           )}
+
+          <FormControl fullWidth size="small" variant="outlined">
+            <InputLabel id="demo-source-select-label">Source</InputLabel>
+            <Select
+              labelId="demo-source-select-label"
+              id="demo-source-select"
+              name="source"
+              value={editData.source}
+              onChange={(e) => handleInputChange("source", e.target.value)}
+              label="Source"
+            >
+              {SourceOptions?.map((opt: any) => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
           {/* Message Body */}
           <Box sx={{ flex: 1, minHeight: 300 }}>

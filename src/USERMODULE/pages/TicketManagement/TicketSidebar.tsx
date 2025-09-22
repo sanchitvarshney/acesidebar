@@ -22,10 +22,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import CustomAlert from "../../../components/reusable/CustomAlert";
 
-import { Drawer, Typography, Divider, Slide } from "@mui/material";
+import { Drawer, Typography, Divider, Slide, CircularProgress } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { AnimatePresence, motion } from "framer-motion";
-import { TruckElectric } from "lucide-react";
+
 const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const {
     data: searchCriteria,
@@ -39,15 +38,54 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const [filterSearch, setFilterSearch] = useState("");
   const closePopoverTimer = React.useRef<NodeJS.Timeout | null>(null);
   const topAnchorRef = React.useRef<HTMLDivElement>(null);
-  const [commanApi] = useCommanApiMutation();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [animate, setAnimate] = useState(false);
   const [showMaxFiltersAlert, setShowMaxFiltersAlert] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
 
   // Find ticket ID field from API response
   const ticketIdField = searchCriteria?.find(
     (field: any) => field.name === "ticket_id"
   );
+
+  // Utility: check non-empty value
+  const isNonEmptyValue = (value: any) => {
+    if (value === undefined || value === null) return false;
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === "string") return value.trim() !== "";
+    return true;
+  };
+
+  // Ensure activeFilters reflects value changes
+  const ensureActiveSync = (fieldName: string, value: any) => {
+    const shouldBeActive = isNonEmptyValue(value);
+    setActiveFilters((prev) => {
+      const alreadyActive = prev.includes(fieldName);
+      if (shouldBeActive && !alreadyActive) {
+        // Allow adding from drawer even if MAX_FILTERS reached
+        if (prev.length < MAX_FILTERS || drawerOpen) {
+          return [...prev, fieldName];
+        }
+        return prev;
+      }
+      if (!shouldBeActive && alreadyActive && fieldName !== "ticket_id") {
+        return prev.filter((n) => n !== fieldName);
+      }
+      return prev;
+    });
+  };
+
+  // Build cleared filters (helper used for reset without apply)
+  const buildClearedFilters = () => {
+    const cleared: Record<string, any> = {};
+    if (ticketIdField) {
+      cleared["ticket_id"] = "";
+    }
+    criteriaArray.forEach((field: any) => {
+      if (field.type === "chip") cleared[field.name] = [];
+      else cleared[field.name] = "";
+    });
+    return cleared;
+  };
 
   useEffect(() => {
     if (searchCriteria && Array.isArray(searchCriteria)) {
@@ -117,6 +155,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   ) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name as string]: value }));
+    ensureActiveSync(name as string, value);
   };
 
   // Add a handler for MUI Select (dropdown) fields
@@ -128,54 +167,91 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     const name = (event.target as HTMLInputElement).name;
     const value = event.target.value;
     setFilters((prev) => ({ ...prev, [name as string]: value }));
+    ensureActiveSync(name as string, value);
   };
 
   const handleChipChange = (event: any, fieldName: string) => {
-    setFilters((prev) => ({ ...prev, [fieldName]: event.target.value }));
+    const nextValue = event.target.value;
+    setFilters((prev) => ({ ...prev, [fieldName]: nextValue }));
+    ensureActiveSync(fieldName, nextValue);
   };
 
-  const handleApply = () => {
-    // Build payload with only relevant filters
-    const buildNonEmpty = (obj: Record<string, any>) => {
-      const result: Record<string, any> = {};
-      Object.entries(obj).forEach(([key, value]) => {
-        if (value === undefined || value === null) return;
-        if (Array.isArray(value) && value.length === 0) return;
-        if (typeof value === "string" && value.trim() === "") return;
-        result[key] = value;
-      });
-      return result;
-    };
-
-    // Only include active filter fields
+  // Check if there are any valid filters applied
+  const hasValidFilters = () => {
     const selectedFilters: Record<string, any> = Object.fromEntries(
       Object.entries(filters).filter(([key]) => activeFilters.includes(key))
     );
+    
+    return Object.values(selectedFilters).some(value => {
+      if (value === undefined || value === null) return false;
+      if (Array.isArray(value) && value.length === 0) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      return true;
+    });
+  };
 
-    const cleanedFilters = buildNonEmpty(selectedFilters);
+  const handleApply = async () => {
+    if (isApplying) return; // Prevent multiple clicks
+    
+    const wasDrawerOpen = drawerOpen;
+    setIsApplying(true);
+    
+    try {
+      // Build payload with only relevant filters
+      const buildNonEmpty = (obj: Record<string, any>) => {
+        const result: Record<string, any> = {};
+        Object.entries(obj).forEach(([key, value]) => {
+          if (value === undefined || value === null) return;
+          if (Array.isArray(value) && value.length === 0) return;
+          if (typeof value === "string" && value.trim() === "") return;
+          result[key] = value;
+        });
+        return result;
+      };
 
-    if (typeof onApplyFilters === "function") {
-      onApplyFilters(cleanedFilters);
+      // Only include active filter fields
+      const selectedFilters: Record<string, any> = Object.fromEntries(
+        Object.entries(filters).filter(([key]) => activeFilters.includes(key))
+      );
+
+      const cleanedFilters = buildNonEmpty(selectedFilters);
+
+      if (typeof onApplyFilters === "function") {
+        await onApplyFilters(cleanedFilters);
+      }
+
+      // If apply was triggered from Drawer, reset state like Clear filters
+      if (wasDrawerOpen) {
+        const cleared = buildClearedFilters();
+        setFilters(cleared);
+        setActiveFilters(ticketIdField ? ["ticket_id"] : []);
+      }
+    } finally {
+      // Reset applying state after a short delay to prevent rapid clicking
+      setTimeout(() => {
+        setIsApplying(false);
+      }, 1000);
     }
   };
 
   // Add a reset handler
   const handleResetFilters = () => {
-    const cleared: Record<string, any> = {};
-    // Preserve ticket ID field if it exists
-    if (ticketIdField) {
-      cleared["ticket_id"] = "";
-    }
-    criteriaArray.forEach((field: any) => {
-      if (field.type === "chip") cleared[field.name] = [];
-      else cleared[field.name] = "";
-    });
+    const cleared = buildClearedFilters();
     setFilters(cleared);
     setActiveFilters(ticketIdField ? ["ticket_id"] : []); // Keep ticket ID field active if it exists
     if (typeof onApplyFilters === "function") {
       onApplyFilters({});
     }
   };
+
+  // Reset filters state when Drawer opens (fresh start) without triggering apply
+  useEffect(() => {
+    if (drawerOpen) {
+      const cleared = buildClearedFilters();
+      setFilters(cleared);
+      setActiveFilters(ticketIdField ? ["ticket_id"] : []);
+    }
+  }, [drawerOpen]);
 
   if (isLoading) {
     return <TicketFilterSkeleton />;
@@ -487,6 +563,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                             ...prev,
                             [field.name]: newValue,
                           }));
+                          ensureActiveSync(field.name, newValue);
                         }}
                         slotProps={{
                           textField: {
@@ -681,17 +758,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           fullWidth
           color="primary"
           onClick={handleApply}
-          disabled={activeFilters.length === 0}
-          sx={{
-            fontSize: "0.875rem",
-            fontWeight: 600,
-            "&:disabled": {
-              opacity: 0.5,
-              backgroundColor: "#9ca3af",
-            },
-          }}
+          disabled={!hasValidFilters() || isApplying}
+         
         >
-          Apply
+          {isApplying ? <CircularProgress size={18} color="inherit" />  : "Apply"}
         </Button>
       </Box>
 
@@ -699,7 +769,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       <Drawer
         anchor="right"
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={() => {
+          handleResetFilters();
+          setDrawerOpen(false);
+        }}
         sx={{
           "& .MuiDrawer-paper": {
             width: "30%",
@@ -721,7 +794,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
             <Typography variant="h6" sx={{ fontWeight: 600, color: "#2c3e50" }}>
               All Filters
             </Typography>
-            <IconButton onClick={() => setDrawerOpen(false)} size="small">
+            <IconButton onClick={() => { handleResetFilters(); setDrawerOpen(false); }} size="small">
               <CloseIcon />
             </IconButton>
           </Box>
@@ -755,7 +828,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       fullWidth
                       size="small"
                       name={field.name}
-                      label={field.label}
+                   
                       value={filters[field.name]}
                       onChange={handleChange}
                       variant="filled"
@@ -862,12 +935,15 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       <InputLabel>{field.label}</InputLabel>
                       <Select
                         name={field.name}
-                        labelId={field.name}
-                        id={field.name}
-                        label={field.label}
                         value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
+                        displayEmpty
                       >
+                        <MenuItem value="">
+                          <span style={{ color: "#aaa" }}>
+                            {field.placeholder || field.label || "Select"}
+                          </span>
+                        </MenuItem>
                         {field.choices?.map(
                           (opt: { value: string; label: string }) => (
                             <MenuItem key={opt.value} value={opt.value}>
@@ -882,13 +958,14 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   {field.type === "date" && (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                        label={field.label}
+                    
                         value={filters[field.name] || null}
                         onChange={(newValue: any) => {
                           setFilters((prev) => ({
                             ...prev,
                             [field.name]: newValue,
                           }));
+                          ensureActiveSync(field.name, newValue);
                         }}
                         slotProps={{
                           textField: {
@@ -908,6 +985,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       <InputLabel>{field.label}</InputLabel>
                       <Select
                         multiple
+                        
                         name={field.name}
                         value={
                           Array.isArray(filters[field.name])
@@ -934,7 +1012,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                             >
                               {selected.map((value: string) => {
                                 const label =
-                                  field.choices.find(
+                                  field.choices?.find(
                                     (c: { value: string; label: string }) =>
                                       c.value === value
                                   )?.label || value;
@@ -970,8 +1048,9 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "space-between",
+                justifyContent: "center",
                 alignItems: "center",
+                gap: 2,
               }}
             >
               {/* Clear filters link on the left */}
@@ -981,18 +1060,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   handleResetFilters();
                   setDrawerOpen(false);
                 }}
-                sx={{
-                  color: "#1976d2",
-                  textTransform: "none",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  padding: 0,
-                  minWidth: "auto",
-                  "&:hover": {
-                    backgroundColor: "transparent",
-                    textDecoration: "underline",
-                  },
-                }}
+             
               >
                 Clear filters
               </Button>
@@ -1002,12 +1070,15 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 <Button
                   variant="contained"
                   color="primary"
+                  disabled={!hasValidFilters() || isApplying}
                   onClick={() => {
                     handleApply();
-                    setDrawerOpen(false);
+                    if (drawerOpen) {
+                      setDrawerOpen(false);
+                    }
                   }}
                 >
-                  Apply filter
+                  {isApplying ? <CircularProgress size={18} color="inherit" />  : "Apply filter"}
                 </Button>
               </Box>
             </Box>
