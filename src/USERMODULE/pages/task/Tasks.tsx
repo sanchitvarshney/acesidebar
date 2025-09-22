@@ -129,7 +129,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       value: string | string[];
     }>
   >([]);
-  const [taskId, setTaskId] = useState<string>("");
+  const [taskId, setTaskId] = useState<any>();
   const [logicOperator, setLogicOperator] = React.useState<"AND" | "OR">("AND");
 
   // Refs for auto-focus and auto-scroll
@@ -720,12 +720,12 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
   const handleTaskClick = useCallback(
     async (
-      task: string,
+      task: any,
       type: "ticket" | "attachments" | "comments" = "comments"
     ) => {
       // Build URL safely
-      const basePath = isAddTask && ticketId ? ticketId : null;
-      const url = `${basePath}/${task}?type=${
+      const basePath = isAddTask && ticketId ? ticketId : task?.ticketId;
+      const url = `${basePath}/${task?.taskId}?type=${
         type === "attachments"
           ? "attachment"
           : type === "comments"
@@ -742,7 +742,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       }
 
       try {
-        const response = await getTaskComment({ url }).unwrap();
+        const response =   await getTaskComment({ url }).unwrap();
 
         if (response?.type === "error") {
           showToast(response.message, "error");
@@ -892,13 +892,14 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                       <IconButton
                         onClick={() => {
                           setRightActiveTab(1);
-                          handleTaskClick(taskId, "comments");
+
+                          handleTaskClick(taskId , "comments");
                         }}
                         disabled={
                           !!(
-                            loadingAttachmentTaskId === taskId ||
+                            loadingAttachmentTaskId === taskId?.taskId ||
                             taskcommentLoading ||
-                            (taskId && loadingTaskId)
+                            (taskId?.taskId && loadingTaskId)
                           )
                         }
                         sx={{
@@ -944,7 +945,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           setRightActiveTab(2);
                         }}
                         disabled={
-                          !!(taskcommentLoading || (taskId && loadingTaskId))
+                          !!(taskcommentLoading || (taskId?.taskId && loadingTaskId))
                         }
                         sx={{
                           width: 48,
@@ -1518,19 +1519,19 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     ? "border-blue-500 text-blue-600"
                                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                 } ${
-                                  loadingAttachmentTaskId === taskId
+                                  loadingAttachmentTaskId === taskId?.taskid
                                     ? "opacity-60 cursor-wait"
                                     : ""
                                 }`}
                                 onClick={() => {
-                                  if (loadingAttachmentTaskId !== taskId) {
+                                  if (loadingAttachmentTaskId !== taskId?.taskId) {
                                     setAttachmentsTab("comments");
                                     handleTaskClick(taskId, "comments");
                                   }
                                 }}
-                                disabled={loadingAttachmentTaskId === taskId}
+                                disabled={loadingAttachmentTaskId === taskId?.taskId}
                               >
-                                {loadingAttachmentTaskId === taskId &&
+                                {loadingAttachmentTaskId === taskId?.taskId &&
                                 attachmentsTab === "comments" ? (
                                   <CircularProgress size={12} />
                                 ) : null}
@@ -1543,19 +1544,19 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     ? "border-blue-500 text-blue-600"
                                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                 } ${
-                                  loadingAttachmentTaskId === taskId
+                                  loadingAttachmentTaskId === taskId?.taskId
                                     ? "opacity-60 cursor-wait"
                                     : ""
                                 }`}
                                 onClick={() => {
-                                  if (loadingAttachmentTaskId !== taskId) {
+                                  if (loadingAttachmentTaskId !== taskId?.taskId) {
                                     setAttachmentsTab("attachments");
                                     handleTaskClick(taskId, "attachments");
                                   }
                                 }}
-                                disabled={loadingAttachmentTaskId === taskId}
+                                disabled={loadingAttachmentTaskId === taskId?.taskId}
                               >
-                                {loadingAttachmentTaskId === taskId &&
+                                {loadingAttachmentTaskId === taskId?.taskId &&
                                 attachmentsTab === "attachments" ? (
                                   <CircularProgress size={12} />
                                 ) : null}

@@ -53,7 +53,7 @@ const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
           minWidth: 240,
           maxWidth: 250,
           boxShadow: 3,
-          marginTop:1,
+          marginTop: 1,
           borderRadius: 2,
           p: 0,
         },
@@ -64,7 +64,10 @@ const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
           <ListItem key={field.key} disablePadding>
             <ListItemButton
               selected={selectedField === field.key}
-              onClick={() => onFieldChange(field.key)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onFieldChange(field.key);
+              }}
               sx={{
                 borderRadius: 0,
                 justifyContent: "space-between",
@@ -82,7 +85,10 @@ const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
           <ListItem key={mode.key} disablePadding>
             <ListItemButton
               selected={selectedMode === mode.key}
-              onClick={() => onModeChange(mode.key)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onModeChange(mode.key);
+              }}
               sx={{
                 borderRadius: 0,
                 justifyContent: "space-between",
@@ -100,4 +106,4 @@ const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
   );
 };
 
-export default TicketSortingPopover;
+export default React.memo(TicketSortingPopover);

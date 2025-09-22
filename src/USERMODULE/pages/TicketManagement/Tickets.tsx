@@ -50,7 +50,7 @@ import {
 } from "../../../services/agentServices";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 import { m } from "framer-motion";
-import { object } from "zod";
+import { object, set } from "zod";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -406,17 +406,19 @@ const Tickets: React.FC = () => {
 
   // Handle field change
   const handleFieldChange = (field: string) => {
+    setSortingPopoverOpen(false);
+    setSortingPopoverAnchorEl(null);
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
       "Date created"
     );
-    setSortOrder("desc"); // Reset to default order
     setPage(1); // Reset to first page
   };
 
   // Handle mode change
   const handleModeChange = (mode: string) => {
+    
     setSortOrder(mode);
     setPage(1); // Reset to first page
   };

@@ -14,52 +14,52 @@ export const columns: GridColDef[] = [
     headerAlign: "left",
     align: "left",
   },
-  {
-    field: "roleType",
-    headerName: "Title",
-    flex: 0.8,
-    minWidth: 150,
-    sortable: true,
-    filterable: true,
-    renderCell: (params) => (
-      <Chip
-        label={params.value || "N/A"}
-        size="small"
-        variant="outlined"
-        sx={{
-          borderColor: "#e0e0e0",
-          backgroundColor: "#f8f9fa",
-          fontWeight: 500,
-        }}
-      />
-    ),
-    headerAlign: "left",
-    align: "left",
-  },
-  {
-    field: "company",
-    headerName: "Company",
-    flex: 1,
-    minWidth: 180,
-    sortable: true,
-    filterable: true,
-    renderCell: (params) => (
-      <Typography
-        variant="body2"
-        sx={{
-          color: "#424242",
-          fontWeight: 500,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {params.value || "-"}
-      </Typography>
-    ),
-    headerAlign: "left",
-    align: "left",
-  },
+  // {
+  //   field: "roleType",
+  //   headerName: "Title",
+  //   flex: 0.8,
+  //   minWidth: 150,
+  //   sortable: true,
+  //   filterable: true,
+  //   renderCell: (params) => (
+  //     <Chip
+  //       label={params.value || "N/A"}
+  //       size="small"
+  //       variant="outlined"
+  //       sx={{
+  //         borderColor: "#e0e0e0",
+  //         backgroundColor: "#f8f9fa",
+  //         fontWeight: 500,
+  //       }}
+  //     />
+  //   ),
+  //   headerAlign: "left",
+  //   align: "left",
+  // },
+  // {
+  //   field: "company",
+  //   headerName: "Company",
+  //   flex: 1,
+  //   minWidth: 180,
+  //   sortable: true,
+  //   filterable: true,
+  //   renderCell: (params) => (
+  //     <Typography
+  //       variant="body2"
+  //       sx={{
+  //         color: "#424242",
+  //         fontWeight: 500,
+  //         overflow: "hidden",
+  //         textOverflow: "ellipsis",
+  //         whiteSpace: "nowrap",
+  //       }}
+  //     >
+  //       {params.value || "-"}
+  //     </Typography>
+  //   ),
+  //   headerAlign: "left",
+  //   align: "left",
+  // },
   {
     field: "email",
     headerName: "Email Address",

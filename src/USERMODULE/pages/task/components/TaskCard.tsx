@@ -7,7 +7,7 @@ import {
   AttachFile as AttachFileIcon,
   ConfirmationNumber as ConfirmationNumberIcon,
 } from "@mui/icons-material";
-import { Task } from "../types/task.types";
+
 import { getStatusColor } from "../utils/taskUtils";
 
 interface TaskCardProps {
@@ -15,7 +15,7 @@ interface TaskCardProps {
   isSelected: boolean;
   isCurrentTask: boolean;
   onSelect: (taskId: string, checked: boolean) => void;
-  onClick: (task: Task) => void;
+  onClick: (task: any) => void;
   getStatusIcon: (status: string) => React.ReactNode;
   isAddTask: any;
   isLoading?: boolean;
@@ -45,7 +45,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
     const handleClick = useCallback(() => {
       console.log("call");
       if (!isCurrentTask) {
-        onClick(task?.taskID);
+        onClick( {taskId:task?.taskID, ticketId:task?.ticketID});
       }
     }, [isCurrentTask, isLoading, onClick, task?.taskID]);
 

@@ -19,11 +19,12 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import InputAdornment from "@mui/material/InputAdornment";
 import Popover from "@mui/material/Popover";
 import SearchIcon from "@mui/icons-material/Search";
-import { useCommanApiMutation } from "../../../services/threadsApi";
+import FilterListAltIcon from "@mui/icons-material/FilterListAlt";
 import CustomAlert from "../../../components/reusable/CustomAlert";
 
-import { Drawer, Typography, Divider, Slide, CircularProgress } from "@mui/material";
+import { Typography, Divider, Slide, CircularProgress } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 
 const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   const {
@@ -181,8 +182,8 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
     const selectedFilters: Record<string, any> = Object.fromEntries(
       Object.entries(filters).filter(([key]) => activeFilters.includes(key))
     );
-    
-    return Object.values(selectedFilters).some(value => {
+
+    return Object.values(selectedFilters).some((value) => {
       if (value === undefined || value === null) return false;
       if (Array.isArray(value) && value.length === 0) return false;
       if (typeof value === "string" && value.trim() === "") return false;
@@ -192,10 +193,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
   const handleApply = async () => {
     if (isApplying) return; // Prevent multiple clicks
-    
+
     const wasDrawerOpen = drawerOpen;
     setIsApplying(true);
-    
+
     try {
       // Build payload with only relevant filters
       const buildNonEmpty = (obj: Record<string, any>) => {
@@ -759,45 +760,34 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           color="primary"
           onClick={handleApply}
           disabled={!hasValidFilters() || isApplying}
-         
         >
-          {isApplying ? <CircularProgress size={18} color="inherit" />  : "Apply"}
+          {isApplying ? (
+            <CircularProgress size={18} color="inherit" />
+          ) : (
+            "Apply"
+          )}
         </Button>
       </Box>
 
-      {/* All Filters Drawer */}
-      <Drawer
-        anchor="right"
+      <CustomSideBarPanel
         open={drawerOpen}
-        onClose={() => {
+        close={() => {
           handleResetFilters();
           setDrawerOpen(false);
         }}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: "30%",
-            padding: 0,
-          },
-        }}
+        title={
+          <div className="flex items-center gap-2">
+            <FilterListAltIcon fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={600}>
+              {" "}
+              All Filters
+            </Typography>
+          </div>
+        }
+        width={"30%"}
       >
         <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
           {/* Header */}
-          <Box
-            sx={{
-              p: 2,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              backgroundColor: "#e8f0fe",
-            }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 600, color: "#2c3e50" }}>
-              All Filters
-            </Typography>
-            <IconButton onClick={() => { handleResetFilters(); setDrawerOpen(false); }} size="small">
-              <CloseIcon />
-            </IconButton>
-          </Box>
 
           <Divider sx={{ mb: 2 }} />
 
@@ -828,7 +818,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       fullWidth
                       size="small"
                       name={field.name}
-                   
                       value={filters[field.name]}
                       onChange={handleChange}
                       variant="filled"
@@ -856,10 +845,9 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   {field.type === "dropdown" && field.name === "priority" && (
                     <FormControl fullWidth size="small">
                       <Select
-                        name={field.name}
+                        // name={field.name}
                         value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
-                        displayEmpty
                         renderValue={(selected) => {
                           if (!selected || selected === "") {
                             return (
@@ -932,18 +920,13 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
                   {field.type === "dropdown" && field.name !== "priority" && (
                     <FormControl fullWidth size="small">
-                      <InputLabel>{field.label}</InputLabel>
                       <Select
+                        displayEmpty
                         name={field.name}
                         value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
-                        displayEmpty
                       >
-                        <MenuItem value="">
-                          <span style={{ color: "#aaa" }}>
-                            {field.placeholder || field.label || "Select"}
-                          </span>
-                        </MenuItem>
+                      
                         {field.choices?.map(
                           (opt: { value: string; label: string }) => (
                             <MenuItem key={opt.value} value={opt.value}>
@@ -958,7 +941,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   {field.type === "date" && (
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                    
                         value={filters[field.name] || null}
                         onChange={(newValue: any) => {
                           setFilters((prev) => ({
@@ -982,10 +964,9 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
                   {field.type === "chip" && (
                     <FormControl fullWidth size="small">
-                      <InputLabel>{field.label}</InputLabel>
+                
                       <Select
                         multiple
-                        
                         name={field.name}
                         value={
                           Array.isArray(filters[field.name])
@@ -1060,7 +1041,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   handleResetFilters();
                   setDrawerOpen(false);
                 }}
-             
+                sx={{fontWeight: 600}}
               >
                 Clear filters
               </Button>
@@ -1078,13 +1059,17 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                     }
                   }}
                 >
-                  {isApplying ? <CircularProgress size={18} color="inherit" />  : "Apply filter"}
+                  {isApplying ? (
+                    <CircularProgress size={18} color="inherit" />
+                  ) : (
+                    "Apply filter"
+                  )}
                 </Button>
               </Box>
             </Box>
           </Box>
         </Box>
-      </Drawer>
+      </CustomSideBarPanel>
     </Box>
   );
 };

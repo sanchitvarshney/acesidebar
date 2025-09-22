@@ -24,7 +24,7 @@ interface TaskListProps {
   totalCount?: number;
   onSearchChange: (query: string) => void;
   onTaskSelect: (taskId: string, checked: boolean) => void;
-  onTaskClick: (task: Task) => void;
+  onTaskClick: (task: any) => void;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rowsPerPage: number) => void;
   onAdvancedSearchOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;

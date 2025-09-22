@@ -23,11 +23,14 @@ import {
   LocalOffer,
   Warning,
   Business,
+  Person,
+  ConfirmationNumber,
 } from "@mui/icons-material";
 import {
   useCreateTicketMutation,
   useGetPriorityListQuery,
   useGetTagListQuery,
+  useGetTypeListQuery,
 } from "../../../services/ticketAuth";
 import { useToast } from "../../../hooks/useToast";
 
@@ -49,6 +52,7 @@ interface TicketFormData {
   body: string;
   priority: string;
   format: string;
+  type: string;
   recipients: any;
 }
 
@@ -67,7 +71,7 @@ const CreateTicketPage: React.FC = () => {
   const [tagValue, setTagValue] = useState<any>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
   const [agentValue, setAgentValue] = useState<any>("");
-
+  const { data: typeList } = useGetTypeListQuery();
   const [dept, setDept] = useState<any>("");
 
   const [triggerDept, { isLoading: deptLoading }] =
@@ -85,6 +89,7 @@ const CreateTicketPage: React.FC = () => {
     body: "",
     priority: "", // Set to 0 initially, will be updated when priorityList loads
     format: "html",
+    type: "",
     recipients: null,
   });
 
@@ -133,8 +138,7 @@ const CreateTicketPage: React.FC = () => {
         phone: newTicket.user_phone || "0",
         subject: newTicket.subject,
         body: newTicket.body,
-        format: newTicket.format,
-
+        type: newTicket.type,
         tags: tagValue.map((tag: any) => tag?.tagID),
         assignee: agentValue?.agentID,
         department: dept?.deptID,
@@ -262,6 +266,7 @@ const CreateTicketPage: React.FC = () => {
                 body: "",
                 priority: "",
                 format: "html",
+                type: "",
                 recipients: [],
               });
               setErrors({});
@@ -326,14 +331,58 @@ const CreateTicketPage: React.FC = () => {
               Ticket details
             </Typography>
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <FormControl fullWidth size="small" variant="outlined">
+                <InputLabel>Type</InputLabel>
+                <Select
+                  value={newTicket.priority.toString()}
+                  onChange={(e) =>
+                    setNewTicket((prev) => ({ ...prev, type: e.target.value }))
+                  }
+                  label="Type"
+                  startAdornment={
+                    <ConfirmationNumber
+                      fontSize="small"
+                      sx={{ color: "#666", mr: 1 }}
+                    />
+                  }
+                  sx={{
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#9ca3af",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#1976d2",
+                    },
+                    backgroundColor: "#fff",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  {typeList?.map((option: any) => (
+                    <MenuItem key={option.key} value={option.key}>
+                      {/* <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        
+                            <Box
+                              sx={{
+                                width: 12,
+                                height: 12,
+                                borderRadius: "50%",
+                                backgroundColor: option.color,
+                                flexShrink: 0,
+                              }}
+                            /> */}
+                      {option.typeName}
+
+                      {/*                      
+                      </Box> */}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
               {/* Priority */}
-              <FormControl
-                fullWidth
-                size="small"
-                variant="outlined"
-                sx={{ mb: 1 }}
-              >
+              <FormControl fullWidth size="small" variant="outlined">
                 <InputLabel>Priority</InputLabel>
                 <Select
                   value={newTicket.priority.toString()}
@@ -385,6 +434,19 @@ const CreateTicketPage: React.FC = () => {
                 </Select>
               </FormControl>
               <SingleValueAsynAutocomplete
+                value={dept}
+                label="Department"
+                qtkMethod={triggerDept}
+                onChange={setDept}
+                loading={deptLoading}
+                // isFallback={true}
+                icon={
+                  <Business fontSize="small" sx={{ color: "#666", mr: 1 }} />
+                }
+                size="small"
+                optionLabelKey="deptName"
+              />
+              <SingleValueAsynAutocomplete
                 value={agentValue}
                 label="Assignee"
                 qtkMethod={triggerSeachAgent}
@@ -400,24 +462,9 @@ const CreateTicketPage: React.FC = () => {
                   </Typography>
                 )}
                 size="small"
-                
-              />
-              <SingleValueAsynAutocomplete
-                value={dept}
-                label="Department"
-                qtkMethod={triggerDept}
-                onChange={setDept}
-                loading={deptLoading}
-                // isFallback={true}
-                icon={
-                  <Business fontSize="small" sx={{ color: "#666", mr: 1 }} />
-                }
-                size="small"
-                optionLabelKey="deptName"
               />
 
               <Autocomplete
-                sx={{ mt: 1 }}
                 multiple
                 disableClearable
                 popupIcon={null}
