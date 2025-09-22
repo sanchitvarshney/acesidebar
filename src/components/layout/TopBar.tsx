@@ -34,6 +34,7 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import { useAuth } from "../../contextApi/AuthContext";
+import { useStatus } from "../../contextApi/StatusContext";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -45,6 +46,7 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const { user } = useAuth();
+  const { currentStatus, statusOptions } = useStatus();
   const userData: any = user;
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -274,11 +276,23 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
                 sizes="small"
                 alt={userData?.username}
                 src={userData?.image}
+                sx={{
+                  width: 30,
+                  height: 30,
+                  border: `3px solid ${statusOptions.find(opt => opt.value === currentStatus)?.color || '#4caf50'}`,
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                }}
               />
             ) : (
               <Avatar
                 sizes="small"
-                sx={{ backgroundColor: "primary.main", width: 30, height: 30 }}
+                sx={{ 
+                  backgroundColor: "primary.main", 
+                  width: 30, 
+                  height: 30,
+                  border: `3px solid ${statusOptions.find(opt => opt.value === currentStatus)?.color || '#4caf50'}`,
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                }}
               >
                 {userData?.username
                   ? userData?.username.charAt(0).toUpperCase()

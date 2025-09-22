@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Popper, Paper, Box, Typography, IconButton, Avatar, Button, Divider, FormControl, Select, MenuItem } from '@mui/material';
 import { Close as CloseIcon, CameraAlt as CameraIcon} from '@mui/icons-material';
 import { useAuth } from '../../contextApi/AuthContext';
+import { useStatus } from '../../contextApi/StatusContext';
 import { useNavigate } from 'react-router-dom';
 
 interface AccountPopupProps {
@@ -14,18 +15,8 @@ interface AccountPopupProps {
 const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl ,userData}) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const { signOut } = useAuth();
+  const { currentStatus, setCurrentStatus, statusOptions } = useStatus();
   const navigate = useNavigate();
-  
-
-  // Status state
-  const [currentStatus, setCurrentStatus] = useState<string>("available");
-
-  // Status options
-  const statusOptions = [
-    { label: "Available", value: "available", color: "#4caf50" },
-    { label: "Busy", value: "busy", color: "#ff9800" },
-    { label: "Away", value: "away", color: "#f44336" }
-  ];
 
   // Handle click outside to close popup
   useEffect(() => {
@@ -136,6 +127,8 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ open, onClose, anchorEl ,us
                 bgcolor: '#1a73e8',
                 fontSize: '2rem',
                 fontWeight: 600,
+                border: `4px solid ${statusOptions.find(opt => opt.value === currentStatus)?.color || '#4caf50'}`,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
               }}
             >
               {userData?.username?.split(' ')?.map((n:any) => n[0]).join('')}

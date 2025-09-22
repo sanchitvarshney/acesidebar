@@ -10,6 +10,7 @@ import { ToastContext } from "./contextApi/ToastContext";
 import { AuthProvider } from "./contextApi/AuthContext";
 import { PopupProvider } from "./contextApi/PopupContext";
 import { PermissionProvider } from "./contextApi/PermissionContext";
+import { StatusProvider } from "./contextApi/StatusContext";
 import { ErrorProvider } from "./BUGREPORT";
 import theme from "./theme";
 import "./font.css"
@@ -27,16 +28,18 @@ function App() {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <TabsProvider>
             <AuthProvider>
-              <PopupProvider>
-                <PermissionProvider>
-                  <ErrorProvider>
-                    <ToastContext>
-                      <CssBaseline />
-                      <RouterProvider router={router} />
-                    </ToastContext>
-                  </ErrorProvider>
-                </PermissionProvider>
-              </PopupProvider>
+              <StatusProvider>
+                <PopupProvider>
+                  <PermissionProvider>
+                    <ErrorProvider>
+                      <ToastContext>
+                        <CssBaseline />
+                        <RouterProvider router={router} />
+                      </ToastContext>
+                    </ErrorProvider>
+                  </PermissionProvider>
+                </PopupProvider>
+              </StatusProvider>
             </AuthProvider>
           </TabsProvider>
         </LocalizationProvider>
