@@ -27,6 +27,7 @@ import { set } from "react-hook-form";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const SLAOptions = [
   { value: "1h", label: "1 Hour" },
@@ -182,12 +183,12 @@ const StatusTab = ({ ticket }: any) => {
 
   return (
     <div className="w-full h-[calc(100vh-100px)] overflow-hidden">
-      <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-255px)] overflow-y-auto  ">
-        <div className="w-full space-y-3 p-2">
+      <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-255px)] overflow-y-auto">
+        <div className="w-full space-y-3 p-2 sm:p-3">
           <Typography variant="subtitle1">Properties</Typography>
 
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+            <Typography variant="subtitle1" sx={{ fontSize: { xs: "11px", sm: "12px" }, mb: 0.5 }}>
               Type
             </Typography>
             <Select
@@ -196,6 +197,12 @@ const StatusTab = ({ ticket }: any) => {
               size="medium"
               value={type}
               onChange={(e) => setType(e.target.value)}
+              sx={{
+                fontSize: { xs: "14px", sm: "16px" },
+                "& .MuiSelect-select": {
+                  padding: { xs: "8px 0", sm: "12px 0" },
+                },
+              }}
             >
               {[...((typeList as any[]) || [])].map((name: any) => (
                 <MenuItem key={name.key} value={name.key}>
@@ -279,23 +286,34 @@ const StatusTab = ({ ticket }: any) => {
             </Select>
           </div>
           <div>
+            <Typography variant="subtitle1" sx={{ fontSize: { xs: "11px", sm: "12px" }, mb: 0.5 }}>
+              Due Date
+            </Typography>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 value={dueDate || null}
                 onChange={(newValue: any) => {
                   setDueDate(newValue);
                 }}
+                minDateTime={dayjs()}
+                maxDateTime={dayjs().add(7, 'day')}
+                shouldDisableDate={(date) => {
+                  // Disable dates before today and after 7 days from today
+                  return date.isBefore(dayjs(), "day") || date.isAfter(dayjs().add(7, 'day'), "day");
+                }}
+                openTo="day"
+                views={['year', 'month', 'day', 'hours', 'minutes']}
                 slotProps={{
                   textField: {
                     variant: "standard",
                     fullWidth: true,
                     size: "small",
                     focused: true,
-
                     name: "Due Date",
                     placeholder: "DD/MM/YYYY HH:mm",
                     sx: {
                       color: "#000 !important",
+                      fontSize: { xs: "14px", sm: "16px" },
                       "& .MuiInput-underline:before": {
                         borderBottom: "1px solid #f3f1f1ff !important",
                       },
@@ -305,10 +323,63 @@ const StatusTab = ({ ticket }: any) => {
                       "& .MuiInput-underline:after": {
                         borderBottom: "1px solid #e2e2e2ff !important",
                       },
+                      "& .MuiInputBase-input": {
+                        padding: { xs: "8px 0", sm: "12px 0" },
+                      },
+                    },
+                  },
+                  actionBar: {
+                    actions: ['clear', 'cancel', 'accept'],
+                    sx: {
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: { xs: "8px 16px", sm: "12px 24px" },
+                      '& .MuiPickersActionBar-actionButton:first-of-type': {
+                        marginRight: 'auto',
+                      },
+                      '& .MuiPickersActionBar-actionButton': {
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                        padding: { xs: "6px 12px", sm: "8px 16px" },
+                      },
+                    },
+                  },
+                  popper: {
+                    sx: {
+                      zIndex: 1300,
+                      position: { xs: 'fixed !important', sm: 'absolute' },
+                      top: { xs: '50% !important', sm: 'auto' },
+                      left: { xs: '50% !important', sm: 'auto' },
+                      transform: { xs: 'translate(-50%, -50%) !important', sm: 'none' },
+                      width: { xs: '90vw !important', sm: 'auto' },
+                      maxWidth: { xs: '400px !important', sm: 'none' },
+                      maxHeight: { xs: '80vh !important', sm: 'none' },
+                      margin: { xs: '0 !important', sm: 'auto' },
+                      borderRadius: { xs: '12px !important', sm: '8px' },
+                      boxShadow: { 
+                        xs: '0 20px 40px rgba(0,0,0,0.3) !important', 
+                        sm: '0 4px 20px rgba(0,0,0,0.15)' 
+                      },
+                      '& .MuiPaper-root': {
+                        position: { xs: 'fixed !important', sm: 'absolute' },
+                        top: { xs: '50% !important', sm: 'auto' },
+                        left: { xs: '50% !important', sm: 'auto' },
+                        transform: { xs: 'translate(-50%, -50%) !important', sm: 'none' },
+                        width: { xs: '90vw !important', sm: 'auto' },
+                        maxWidth: { xs: '400px !important', sm: 'none' },
+                        maxHeight: { xs: '80vh !important', sm: 'none' },
+                        margin: { xs: '0 !important', sm: 'auto' },
+                        borderRadius: { xs: '12px !important', sm: '8px' },
+                        boxShadow: { 
+                          xs: '0 20px 40px rgba(0,0,0,0.3) !important', 
+                          sm: '0 4px 20px rgba(0,0,0,0.15)' 
+                        },
+                      },
                     },
                   },
                 }}
                 format="DD/MM/YYYY HH:mm"
+                ampm={false}
               />
             </LocalizationProvider>
           </div>
@@ -440,12 +511,20 @@ const StatusTab = ({ ticket }: any) => {
           </div>
         </div>
       </div>
-      <div className="my-2">
+      <div className="my-2 px-2 sm:px-0">
         <Button
           fullWidth
           variant="contained"
           onClick={handleUpdateTicket}
           disabled={statusLoading}
+          sx={{
+            padding: { xs: "12px 16px", sm: "10px 24px" },
+            fontSize: { xs: "14px", sm: "16px" },
+            fontWeight: { xs: 600, sm: 500 },
+            borderRadius: { xs: "8px", sm: "4px" },
+            textTransform: "none",
+            boxShadow: { xs: "0 2px 8px rgba(0,0,0,0.15)", sm: "none" },
+          }}
         >
           {statusLoading ? (
             <CircularProgress color="primary" size={20} />

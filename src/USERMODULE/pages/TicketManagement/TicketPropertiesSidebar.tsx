@@ -212,7 +212,9 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#f8f9fa",
-        // overflow: "hidden",
+        // Mobile responsive adjustments
+        minHeight: { xs: "100vh", sm: "auto" },
+        maxHeight: { xs: "100vh", sm: "100%" },
       }}
     >
       {/* Top-level tab bar using MUI Tabs */}
@@ -223,6 +225,10 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           backgroundColor: "white",
           flexShrink: 0,
           overflow: "hidden",
+          // Mobile adjustments
+          position: { xs: "sticky", sm: "static" },
+          top: { xs: 0, sm: "auto" },
+          zIndex: { xs: 1000, sm: "auto" },
         }}
       >
         <Tabs
@@ -234,19 +240,26 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           sx={{
             "& .MuiTabs-flexContainer": {
               display: "flex",
-              justifyContent: "space-between", // <-- apply here
+              justifyContent: { xs: "center", sm: "space-between" },
               alignItems: "center",
-              mx: 1,
+              mx: { xs: 0.5, sm: 1 },
+              gap: { xs: 1, sm: 0 },
             },
             "& .MuiTab-root": {
               color: "#6b7280",
-
+              minWidth: { xs: "auto", sm: 60 },
+              padding: { xs: "8px 12px", sm: "12px 16px" },
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
               "&.Mui-selected": {
                 color: "#1a73e8",
               },
             },
             "& .MuiTabs-indicator": {
               backgroundColor: "#1a73e8",
+            },
+            // Mobile scroll improvements
+            "& .MuiTabs-scrollButtons": {
+              display: { xs: "flex", sm: "flex" },
             },
           }}
         >
@@ -258,7 +271,9 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
               aria-controls={`top-tabpanel-${index}`}
               aria-label={tab.label}
               sx={{
-                minWidth: 60,
+                minWidth: { xs: "auto", sm: 60 },
+                flex: { xs: 1, sm: "none" },
+                maxWidth: { xs: "120px", sm: "none" },
               }}
             />
           ))}
@@ -272,7 +287,23 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           overflow: "auto",
           height: "100%",
           backgroundColor: "#f8f9fa",
-          p: 1,
+          p: { xs: 0.5, sm: 1 },
+          // Mobile improvements
+          flex: 1,
+          minHeight: 0, // Important for flexbox scrolling
+          "&::-webkit-scrollbar": {
+            width: { xs: "4px", sm: "6px" },
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: { xs: "#c1c1c1", sm: "#d1d5db" },
+            borderRadius: "3px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: { xs: "#a1a1a1", sm: "#9ca3af" },
+          },
         }}
       >
         {mainContent}
