@@ -873,7 +873,10 @@ console.log(ticketData)
           key={optionChangeKey}
           value={initialContent}
           onTextChange={(text) => onChange(text.htmlValue)}
-          style={{ height: editorHeight }}
+          style={{ 
+            height: editorHeight,
+            backgroundColor: selectedValue === "private" ? "#fff3cd" : "transparent"
+          }}
           headerTemplate={header}
           placeholder={
             selectedIndex === "1" ? "Reply..." : "Add a note, @mention"
