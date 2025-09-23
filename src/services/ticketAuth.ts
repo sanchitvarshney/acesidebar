@@ -213,4 +213,5 @@ export const {
   useGetStatusListQuery,
   useGetTypeListQuery,
   useGetLinkTicketQuery,
+  
 } = extendedTicketApi;

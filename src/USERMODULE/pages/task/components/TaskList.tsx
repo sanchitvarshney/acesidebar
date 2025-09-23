@@ -33,6 +33,7 @@ interface TaskListProps {
   isLoading?: boolean;
   loadingTaskId?: string | null;
   loadingAttachmentTaskId?: string | null;
+  taskId:any
 }
 
 
@@ -51,8 +52,9 @@ const TaskList: React.FC<TaskListProps> = memo(
     isLoading,
     loadingTaskId,
     loadingAttachmentTaskId,
+    taskId
   }) => {
-    console.log("tasks", selectedTasks);
+  
     // Use tasks data directly from API since pagination is handled by backend
     const taskData = useMemo(() => {
       return tasks?.data || [];
@@ -132,7 +134,7 @@ const TaskList: React.FC<TaskListProps> = memo(
                     isSelected={selectedTasks.includes(task.taskKey)}
                     isCurrentTask={
                       selectedTask?.taskKey === task.taskKey ||
-                      loadingTaskId === task.taskID
+                      taskId === task.taskID
                     }
                     onSelect={onTaskSelect}
                     onClick={onTaskClick}
@@ -155,4 +157,4 @@ const TaskList: React.FC<TaskListProps> = memo(
 
 TaskList.displayName = "TaskList";
 
-export default TaskList;
+export default React.memo(TaskList);
