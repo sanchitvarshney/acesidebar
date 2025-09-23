@@ -59,9 +59,7 @@ import {
   useGetTaskListMutation,
 } from "../../../services/threadsApi";
 import { useToast } from "../../../hooks/useToast";
-import {
-  useGetStatusListQuery,
-} from "../../../services/ticketAuth";
+import { useGetStatusListQuery } from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/empty_task.svg";
 
@@ -71,6 +69,7 @@ type TaskPropsType = {
 };
 
 const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
+  console.log("ticketId", ticketId);
   const { showToast } = useToast();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -89,8 +88,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
-  const [getTaskList, { data: taskList, isLoading: taskListLoading }] =
-    useCommanApiForTaskListMutation();
 
   const [
     getAllTaskList,
@@ -98,7 +95,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   ] = useGetTaskListMutation();
 
   // Extract pagination data from API response
-  const paginationData = taskList?.pagination ||
+  const paginationData = 
     taskListData?.pagination || {
       currentPage: 1,
       limit: 10,
@@ -150,15 +147,15 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       page: page,
       limit: rowsPerPage,
     };
-    const url = isAddTask
-      ? `${payload.ticket}?page=${payload.page}&limit=${payload.limit}`
+    const url = (isAddTask && ticketId)
+      ? `?ticket=${payload.ticket}&page=${payload.page}&limit=${payload.limit}`
       : `?page=${payload.page}&limit=${payload.limit}`;
 
     try {
       const response =
-        isAddTask && ticketId
-          ? await getTaskList({ url }).unwrap()
-          : getAllTaskList({ url }).unwrap();
+    
+           await getAllTaskList({ url }).unwrap()
+     
       if (response === null) return;
       if (response?.type === "error") {
         showToast(response.message, "error");
@@ -310,7 +307,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   const filteredTasks = useMemo(() => {
-    let filtered = taskList?.data || taskListData?.data || [];
+    let filtered =   taskListData?.data|| [];
 
     if (searchQuery) {
       filtered = filtered.filter((task: any) => {
@@ -323,7 +320,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
 
     return filtered;
-  }, [taskList, searchQuery, taskListData]);
+  }, [ searchQuery, taskListData]);
 
   // Use API data directly since pagination is handled by the backend
   const paginatedTasks = useMemo(() => {
@@ -365,16 +362,13 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
   }, [selectedTasks, paginatedTasks, taskcomment]);
 
-  const handleTaskSelection = useCallback(
-    (taskId: string, checked: boolean) => {
-      if (checked) {
-        setSelectedTasks((prev) => [...prev, taskId]);
-      } else {
-        setSelectedTasks((prev) => prev.filter((id) => id !== taskId));
-      }
-    },
-    []
-  );
+  const handleTaskSelection = useCallback((taskId: any, checked: boolean) => {
+    if (checked) {
+      setSelectedTasks((prev) => [...prev, taskId?.taskId]);
+    } else {
+      setSelectedTasks((prev) => prev.filter((id) => id !== taskId?.taskId));
+    }
+  }, []);
 
   // Task Advanced Search Handlers
   const handleTaskAdvancedSearchOpen = (
@@ -742,7 +736,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       }
 
       try {
-        const response =   await getTaskComment({ url }).unwrap();
+        const response = await getTaskComment({ url }).unwrap();
 
         if (response?.type === "error") {
           showToast(response.message, "error");
@@ -763,7 +757,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
   return (
     <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-100px)]">
-      {taskList?.data.length === 0 || taskListData?.data?.length === 0 ? (
+      { taskListData?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-gray-500">
           <img src={noTask} alt="No Tasks" className="my-3 w-[30%]" />
           <Button
@@ -810,7 +804,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
             {/* LEFT SECTION - Task List & Filters */}
             <TaskList
               tasks={{
-                ...(taskList ? { ...taskList } : { ...taskListData }),
+                ...({ ...taskListData }),
                 data: filteredTasks,
               }}
               selectedTasks={selectedTasks}
@@ -839,13 +833,13 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               onAdvancedSearchOpen={(e) => handleTaskAdvancedSearchOpen(e)}
               getStatusIcon={getStatusIcon}
               isAddTask={isAddTask}
-              isLoading={taskListLoading || taskListDataLoading}
+              isLoading={taskListDataLoading}
               loadingTaskId={loadingTaskId}
               loadingAttachmentTaskId={loadingAttachmentTaskId}
             />
 
             {/* RIGHT SECTION - Task Details & Actions */}
-            {taskcomment || taskcommentLoading || (taskId && loadingTaskId) ? (
+            {taskcommentLoading || (taskId && loadingTaskId) ? (
               <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
                 {/* Right Sidebar Tabs */}
                 <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
@@ -893,7 +887,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                         onClick={() => {
                           setRightActiveTab(1);
 
-                          handleTaskClick(taskId , "comments");
+                          handleTaskClick(taskId, "comments");
                         }}
                         disabled={
                           !!(
@@ -945,7 +939,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                           setRightActiveTab(2);
                         }}
                         disabled={
-                          !!(taskcommentLoading || (taskId?.taskId && loadingTaskId))
+                          !!(
+                            taskcommentLoading ||
+                            (taskId?.taskId && loadingTaskId)
+                          )
                         }
                         sx={{
                           width: 48,
@@ -1083,7 +1080,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-gray-900 font-bold">
                                   Latest 3 Comments (
-                                  {taskcomment?.data?.comments?.length})
+                                  {taskcomment?.data?.last3Comment?.length || 0}
+                                  )
                                 </h3>
 
                                 <Button
@@ -1524,12 +1522,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     : ""
                                 }`}
                                 onClick={() => {
-                                  if (loadingAttachmentTaskId !== taskId?.taskId) {
+                                  if (
+                                    loadingAttachmentTaskId !== taskId?.taskId
+                                  ) {
                                     setAttachmentsTab("comments");
                                     handleTaskClick(taskId, "comments");
                                   }
                                 }}
-                                disabled={loadingAttachmentTaskId === taskId?.taskId}
+                                disabled={
+                                  loadingAttachmentTaskId === taskId?.taskId
+                                }
                               >
                                 {loadingAttachmentTaskId === taskId?.taskId &&
                                 attachmentsTab === "comments" ? (
@@ -1549,12 +1551,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     : ""
                                 }`}
                                 onClick={() => {
-                                  if (loadingAttachmentTaskId !== taskId?.taskId) {
+                                  if (
+                                    loadingAttachmentTaskId !== taskId?.taskId
+                                  ) {
                                     setAttachmentsTab("attachments");
                                     handleTaskClick(taskId, "attachments");
                                   }
                                 }}
-                                disabled={loadingAttachmentTaskId === taskId?.taskId}
+                                disabled={
+                                  loadingAttachmentTaskId === taskId?.taskId
+                                }
                               >
                                 {loadingAttachmentTaskId === taskId?.taskId &&
                                 attachmentsTab === "attachments" ? (

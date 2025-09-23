@@ -17,7 +17,7 @@ import {
 import { Task, TaskStatus } from "../types/task.types";
 
 interface TaskDetailsProps {
-  task: Task | null | undefined;
+  task: any | null | undefined;
   getStatusIcon: (status: string) => React.ReactNode;
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
 }
@@ -116,7 +116,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {task?.assignedTo || "Unassigned"}
+                    {task?.assign?.to?.name || "Unassigned"}
                   </span>
                 </div>
 
@@ -128,7 +128,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {task?.assignedBy || "Unknown"}
+                    {task?.assign?.by?.name || "Unknown"}
                   </span>
                 </div>
               </div>
@@ -143,7 +143,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {task?.createdAt || "Unknown"}
+                    {task?.creator?.name || "Unknown"}
                   </span>
                 </div>
 
@@ -204,7 +204,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              {task?.tags.map((tag, index) => (
+              {task?.tags.map((tag:any, index:any) => (
                 <Chip
                   key={index}
                   label={tag}

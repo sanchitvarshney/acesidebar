@@ -35,6 +35,7 @@ interface TaskListProps {
   loadingAttachmentTaskId?: string | null;
 }
 
+
 const TaskList: React.FC<TaskListProps> = memo(
   ({
     tasks,
@@ -51,6 +52,7 @@ const TaskList: React.FC<TaskListProps> = memo(
     loadingTaskId,
     loadingAttachmentTaskId,
   }) => {
+    console.log("tasks", selectedTasks);
     // Use tasks data directly from API since pagination is handled by backend
     const taskData = useMemo(() => {
       return tasks?.data || [];
