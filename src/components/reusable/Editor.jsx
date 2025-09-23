@@ -92,7 +92,7 @@ const StackEditor = ({
     setIsReply,
   } = props;
 const ticketId = ticketData?.ticketId
-console.log(ticketData)
+
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
   const dispatch = useDispatch();
@@ -544,6 +544,8 @@ console.log(ticketData)
 
     setIsReply(index === "2" ? false : true);
     dispatch(setSelectedIndex(index));
+    setShowBcc(false);
+    setShowCc(false);
     setIsOptionsOpen(false); // Close after selection
     setOptionChangeKey((prevKey) => prevKey + 1);
   };
@@ -755,14 +757,14 @@ console.log(ticketData)
   const editorHeight = isFullscreen
     ? "100vh"
     : isEditorExpended
-    ? "436px"
+    ? "450px"
     : (showCc || showBcc) && currentSignature
     ? "calc(100vh - 565px)"
     : showCc || showBcc
     ? "calc(100vh - 385px)"
     : currentSignature
     ? "calc(100vh - 515px)"
-    : selectedIndex !== "1"
+    : selectedIndex !== "1" 
     ? "calc(100vh - 354px)"
     : customHeight;
 

@@ -999,7 +999,7 @@ const TicketThreadSection = ({
         <div className="flex flex-col gap-0 w-full h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
           <ThreadList thread={thread} onForward={onForward} subject={header} />
         </div>
-        <div className="rounded   p-1 w-[74%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
+        <div className="rounded   p-1 w-[75.8%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
           <Accordion
             elevation={0}
             expanded={showEditor || showReplyEditor || showEditorNote}
@@ -1034,7 +1034,7 @@ const TicketThreadSection = ({
                     ? "none"
                     : "1px solid #d1d5db",
                 borderRadius: "50px",
-                padding: "0px 25px",
+                padding: "0px 20px",
                 // width: "100% !important",
                 minHeight: "55px !important",
                 display:

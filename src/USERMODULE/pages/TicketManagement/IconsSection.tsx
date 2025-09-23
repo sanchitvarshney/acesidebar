@@ -10,6 +10,7 @@ interface IconsSectionProps {
   onChatClick: () => void;
   chatCount?: number;
   activeContent?: 'customer' | 'info' | 'chat';
+  
 }
 
 const IconsSection: React.FC<IconsSectionProps> = ({ onToggleCustomerInfo, isCustomerInfoVisible, onInfoClick, onPersonClick, onChatClick, chatCount = 0, activeContent }) => {

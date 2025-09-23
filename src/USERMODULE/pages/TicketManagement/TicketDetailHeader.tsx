@@ -502,9 +502,9 @@ const TicketDetailHeader = ({
   };
 
   return (
-    <div className="flex items-center w-full px-6 py-2 border border-[#d4e6ff]  bg-[#e8f0fe] z-10">
+    <div className="flex items-center justify-between w-full px-6 py-2 border border-[#d4e6ff]  bg-[#e8f0fe] z-10">
       {/* Breadcrumb */}
-      <nav className="flex items-center text-xs text-gray-500 font-medium gap-1 min-w-[180px]">
+      <nav className="flex items-center text-xs text-gray-500 font-medium gap-1">
         <IconButton
           onClick={onBack}
           size="small"
@@ -518,7 +518,7 @@ const TicketDetailHeader = ({
       </nav>
 
       {/* Action buttons */}
-      <div className="flex gap-2 ml-8">
+      <div className="flex gap-2 ">
         <ActionButton
           icon={<ReplyIcon fontSize="small" className="text-blue-600" />}
           tooltip="Post Reply"
@@ -575,7 +575,7 @@ const TicketDetailHeader = ({
 
       {/* Navigation buttons - Right side */}
 
-      <div className="flex gap-8 ml-auto items-center">
+      <div className="flex gap-8  items-center">
         {watcherStatusLoading && <CircularProgress size={15} />}
         <div className="space-x-2">
           <Tooltip
