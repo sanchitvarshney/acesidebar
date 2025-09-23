@@ -170,14 +170,6 @@ const ThreadItem = ({
     onForward();
   };
 
-
-  const handleClose = (event: any) => {
-    if (optionsRef.current && optionsRef.current.contains(event.target)) {
-      return;
-    }
-    onToggleOptions(null);
-  };
-
   const handleSelect = (value: string) => {
     if (value === "1") {
       const payloadForward = {
@@ -292,9 +284,9 @@ const ThreadItem = ({
         gap: 1,
         padding: "8px 12px",
         backgroundColor: "white",
-        borderRadius: "8px",
+
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        border: "1px solid #e0e0e0",
+
         animation: "slideInFromTop 0.2s ease-out",
         "@keyframes slideInFromTop": {
           "0%": {
@@ -307,34 +299,34 @@ const ThreadItem = ({
           },
         },
       }}
-        >
-          {replyOptions.map((option, index) => {
-            return (
-           <IconButton
-                key={index}
-             onClick={() => {
-               handleSelect(option.value);
-             }}
+    >
+      {replyOptions.map((option, index) => {
+        return (
+          <IconButton
+            key={index}
+            onClick={() => {
+              handleSelect(option.value);
+            }}
             size="small"
-                sx={{
-                  display: "flex",
+            sx={{
+              display: "flex",
               flexDirection: "column",
-                  alignItems: "center",
+              alignItems: "center",
               gap: 0.5,
               padding: "8px 12px",
               borderRadius: "6px",
-                  backgroundColor: "transparent",
+              backgroundColor: "transparent",
               color: "#666",
-                  transition: "all 0.2s ease",
+              transition: "all 0.2s ease",
               minWidth: "60px",
-                  "&:hover": {
+              "&:hover": {
                 backgroundColor: "#f5f5f5",
                 color: "#1976d2",
                 transform: "translateY(-1px)",
-                  },
-                }}
-              >
-                {option.icon}
+              },
+            }}
+          >
+            {option.icon}
             <Typography
               variant="caption"
               sx={{
@@ -347,8 +339,8 @@ const ThreadItem = ({
               {option.name}
             </Typography>
           </IconButton>
-            );
-          })}
+        );
+      })}
     </Box>
   );
   //@ts-ignore
@@ -480,8 +472,8 @@ const ThreadItem = ({
           <div
             className="w-[100%] flex flex-col items-center justify-between border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)] rounded-lg"
             style={{ backgroundColor: bubbleBackgroundColor }}
-             onMouseEnter={() => setIsHovered(true)}
-             onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           >
             <div className="flex items-center justify-between  w-full px-8 py-2">
               <div className={`w-full  flex flex-col`}>
@@ -507,50 +499,54 @@ const ThreadItem = ({
                           <span className="text-xs text-gray-400 ">
                             {item?.repliedAt?.timestamp}
                           </span>{" "}
-                           
-                           {/* OpenInFull Icon - Only visible on hover */}
-                           {isHovered && (
-                             <IconButton
-                               size="small"
-                               onClick={() => setIsModalOpen(true)}
-                               sx={{
-                                 color: "#666",
-                                 backgroundColor: "transparent",
-                                 "&:hover": {
-                                   backgroundColor: "#f5f5f5",
-                                   color: "#1976d2",
-                                 },
-                               }}
-                             >
-                               <OpenInFullIcon fontSize="small" />
-                             </IconButton>
-                           )}
-                           
+                          {/* OpenInFull Icon - Only visible on hover */}
+                          {isHovered && (
+                            <IconButton
+                              size="small"
+                              onClick={() => setIsModalOpen(true)}
+                              sx={{
+                                color: "#666",
+                                backgroundColor: "transparent",
+                                "&:hover": {
+                                  backgroundColor: "#f5f5f5",
+                                  color: "#1976d2",
+                                },
+                              }}
+                            >
+                              <OpenInFullIcon fontSize="small" />
+                            </IconButton>
+                          )}
                           <CustomToolTip
                             title={renderReplyOption}
-                             open={isOpen}
+                            open={isOpen}
                             placement={"bottom-end"}
                           >
                             <IconButton
                               size="small"
-                               onClick={() => onToggleOptions(isOpen ? null : item.entryId)}
+                              onClick={() =>
+                                onToggleOptions(isOpen ? null : item.entryId)
+                              }
                               ref={optionsRef}
-                               sx={{
-                                 color: isOpen ? "#1976d2" : "#666",
-                                 backgroundColor: isOpen ? "#e3f2fd" : "transparent",
-                                 "&:hover": {
-                                   backgroundColor: "#f5f5f5",
-                                   color: "#1976d2",
-                                 },
-                               }}
-                             >
-                               <ArrowDropDownIcon 
-                                 fontSize="small" 
-                                 sx={{
-                                   transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                                   transition: "transform 0.2s ease",
-                                 }}
-                               />
+                              sx={{
+                                color: isOpen ? "#1976d2" : "#666",
+                                backgroundColor: isOpen
+                                  ? "#e3f2fd"
+                                  : "transparent",
+                                "&:hover": {
+                                  backgroundColor: "#f5f5f5",
+                                  color: "#1976d2",
+                                },
+                              }}
+                            >
+                              <ArrowDropDownIcon
+                                fontSize="small"
+                                sx={{
+                                  transform: isOpen
+                                    ? "rotate(180deg)"
+                                    : "rotate(0deg)",
+                                  transition: "transform 0.2s ease",
+                                }}
+                              />
                             </IconButton>
                           </CustomToolTip>
                         </div>
@@ -667,146 +663,156 @@ const ThreadItem = ({
           </div>
         </div>
       </div>
-       
-       {/* Thread Detail Modal */}
-       <Modal
-         open={isModalOpen}
-         onClose={() => setIsModalOpen(false)}
-         closeAfterTransition
-         BackdropComponent={Backdrop}
-         BackdropProps={{
-           timeout: 500,
-         }}
-       >
-         <Fade in={isModalOpen}>
-           <Box
-             sx={{
-               position: 'absolute',
-               top: '50%',
-               left: '50%',
-               transform: 'translate(-50%, -50%)',
-               width: '95vw',
-               height: '90vh',
-               maxWidth: '1400px',
-               maxHeight: '90vh',
-               bgcolor: 'background.paper',
-               borderRadius: 2,
-               boxShadow: 24,
-               p: 0,
-               overflow: 'hidden',
-               display: 'flex',
-               flexDirection: 'column',
-             }}
-           >
-             {/* Modal Header */}
-             <Box
-               sx={{
-                 p: 3,
-                 borderBottom: '1px solid #e0e0e0',
-                 backgroundColor: '#f8f9fa',
-                 display: 'flex',
-                 justifyContent: 'space-between',
-                 alignItems: 'center',
-               }}
-             >
-               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                 <Avatar
-                   src={item?.replyType === "AGENT" ? agentAvatar : userAvatar}
-                   alt={item?.replyType}
-                   sx={{ width: 40, height: 40 }}
-                 />
-                 <Box>
-                   <Typography variant="h6" sx={{ fontWeight: 600, color: '#1976d2' }}>
-                     {item?.repliedBy?.name ?? item?.ticketId ?? "User"}
-                   </Typography>
-                   <Typography variant="body2" sx={{ color: '#666' }}>
-                     {item?.repliedAt?.timestamp}
-                   </Typography>
-                 </Box>
-               </Box>
-               <IconButton
-                 onClick={() => setIsModalOpen(false)}
-                 sx={{ 
-                   color: '#666',
-                   '&:hover': {
-                     backgroundColor: '#f5f5f5',
-                     color: '#1976d2',
-                   },
-                 }}
-               >
-                 <ArrowDropDownIcon 
-                   fontSize="small" 
-                   sx={{
-                     transform: 'rotate(180deg)',
-                     transition: 'transform 0.2s ease',
-                   }}
-                 />
-               </IconButton>
-             </Box>
 
-             {/* Modal Content */}
-             <Box
-               sx={{
-                 flex: 1,
-                 overflow: 'auto',
-                 p: 3,
-                 backgroundColor: bubbleBackgroundColor,
-               }}
-             >
-               {/* Message Content */}
-               <Box
-                 sx={{
-                   mb: 3,
-                   p: 2,
-                   backgroundColor: 'white',
-                   borderRadius: 1,
-                   border: '1px solid #e0e0e0',
-                 }}
-               >
-                 <Typography variant="body2" sx={{ color: '#333', lineHeight: 1.6 }}>
-                   <div
-                     dangerouslySetInnerHTML={{
-                       __html: sanitizeMessageHtml(
-                         decodeHtmlEntities(item?.message ?? item?.body)
-                       ),
-                     }}
-                   />
-                 </Typography>
-               </Box>
+      {/* Thread Detail Modal */}
+      <Modal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={isModalOpen}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "95vw",
+              height: "90vh",
+              maxWidth: "1400px",
+              maxHeight: "90vh",
+              bgcolor: "background.paper",
+              borderRadius: 2,
+              boxShadow: 24,
+              p: 0,
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Modal Header */}
+            <Box
+              sx={{
+                borderBottom: "1px solid #e0e0e0",
+                backgroundColor: "#f8f9fa",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 3 }}>
+                <Avatar
+                  src={item?.replyType === "AGENT" ? agentAvatar : userAvatar}
+                  alt={item?.replyType}
+                  sx={{ width: 40, height: 40 }}
+                />
+                <Box>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 600, color: "#1976d2" }}
+                  >
+                    {item?.repliedBy?.name ?? item?.ticketId ?? "User"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    {item?.repliedAt?.timestamp}
+                  </Typography>
+                </Box>
+              </Box>
+              <IconButton
+                onClick={() => setIsModalOpen(false)}
+                sx={{
+                  color: "#666",
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5",
+                    color: "#1976d2",
+                  },
+                }}
+              >
+                <ArrowDropDownIcon
+                  fontSize="small"
+                  sx={{
+                    transform: "rotate(180deg)",
+                    transition: "transform 0.2s ease",
+                  }}
+                />
+              </IconButton>
+            </Box>
 
+            {/* Modal Content */}
+            <Box
+              sx={{
+                flex: 1,
+                p: 3,
+                backgroundColor: bubbleBackgroundColor,
+              }}
+            >
+              {/* Message Content */}
+              <Box
+                sx={{
+                  mb: 3,
+                  p: 2,
+                  backgroundColor: "white",
+                  borderRadius: 1,
+                  border: "1px solid #e0e0e0",
+                  height: "100%",
+                  overflowY: "auto",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#333", lineHeight: 1.6 }}
+                >
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeMessageHtml(
+                        decodeHtmlEntities(item?.message ?? item?.body)
+                      ),
+                    }}
+                  />
+                </Typography>
+              </Box>
+            </Box>
+            <Box
+              sx={{
+                p: 2,
+                backgroundColor: "#fffde7",
 
-               {/* Footer Info */}
-               <Box
-                 sx={{
-                   p: 2,
-                   backgroundColor: 'white',
-                   borderRadius: 1,
-                   border: '1px solid #e0e0e0',
-                   display: 'flex',
-                   justifyContent: 'space-between',
-                   alignItems: 'center',
-                 }}
-               >
-                 <Typography variant="body2" sx={{ color: '#666' }}>
-                   {bubbleFooter}
-                 </Typography>
-                 {!isCurrentUser && (
-                   <Rating
-                     name="rate-of-thread"
-                     value={ratingValue}
-                     onChange={(event, newValue: any) => handleReview(newValue)}
-                   />
-                 )}
-               </Box>
-             </Box>
-           </Box>
-         </Fade>
-       </Modal>
+                borderTop: "1px solid #fbc02d",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography variant="body2" sx={{ color: "#666" }}>
+                {bubbleFooter}
+              </Typography>
+              {!isCurrentUser && (
+                <Rating
+                  name="rate-of-thread"
+                  value={ratingValue}
+                  onChange={(event, newValue: any) => handleReview(newValue)}
+                />
+              )}
+            </Box>
+          </Box>
+        </Fade>
+      </Modal>
     </div>
   );
 };
 
-const ThreadList = ({ thread, onReplyClick, onForward, subject, openOptionsId, onToggleOptions }: any) => {
+const ThreadList = ({
+  thread,
+  onReplyClick,
+  onForward,
+  subject,
+  openOptionsId,
+  onToggleOptions,
+}: any) => {
   return (
     <div className="">
       {thread && thread.length > 0 ? (
@@ -861,10 +867,10 @@ const TicketThreadSection = ({
   const { showToast } = useToast();
   const dispatch = useDispatch();
   const { refetch } = useGetAttacedFileQuery({ ticketId: header?.ticketId });
-  
+
   // Global state for managing which reply options panel is open
   const [openOptionsId, setOpenOptionsId] = useState<string | null>(null);
-  
+
   // Function to toggle reply options panel
   const handleToggleOptions = (entryId: string | null) => {
     setOpenOptionsId(entryId);
@@ -1191,13 +1197,13 @@ const TicketThreadSection = ({
           <TicketSubjectBar header={header} />
         </div>
         <div className="flex flex-col gap-0 w-full h-[calc(100vh-272px)]  overflow-y-auto relative  will-change-transform ">
-           <ThreadList 
-             thread={thread} 
-             onForward={onForward} 
-             subject={header} 
-             openOptionsId={openOptionsId}
-             onToggleOptions={handleToggleOptions}
-           />
+          <ThreadList
+            thread={thread}
+            onForward={onForward}
+            subject={header}
+            openOptionsId={openOptionsId}
+            onToggleOptions={handleToggleOptions}
+          />
         </div>
         <div className="rounded   p-1 w-[75.8%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
           <Accordion
@@ -1271,7 +1277,6 @@ const TicketThreadSection = ({
                 >
                   Reply....
                 </Typography>
-
               </div>
             </AccordionSummary>
             {/* )} */}
