@@ -132,7 +132,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const commentTextareaRef = React.useRef<HTMLTextAreaElement>(null);
   const newTaskContentRef = React.useRef<HTMLDivElement>(null);
   const taskDetailsRef = React.useRef<HTMLDivElement>(null);
-console.log(taskcomment,"taskcomment")
+
   useEffect(() => {
     if (taskcomment?.data?.status?.key !== "--") {
       setTaskStatus(taskcomment?.data?.status?.key);
