@@ -732,9 +732,10 @@ const ThreadItem = ({
                   },
                 }}
               >
-                <ArrowDropDownIcon
+                <CloseFullscreenIcon
                   fontSize="small"
                   sx={{
+                    mr: 0.5,
                     transform: "rotate(180deg)",
                     transition: "transform 0.2s ease",
                   }}

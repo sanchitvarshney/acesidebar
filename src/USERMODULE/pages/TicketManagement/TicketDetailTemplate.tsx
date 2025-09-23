@@ -349,7 +349,6 @@ const TicketDetailTemplate = () => {
                           padding: "12px 16px",
                           backgroundColor: "#f5f5f5",
 
-                          zIndex: 1000,
                         }}
                       >
                         <div
