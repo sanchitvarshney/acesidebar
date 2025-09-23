@@ -293,6 +293,10 @@ const StatusTab = ({ ticket }: any) => {
               <DateTimePicker
                 value={dueDate || null}
                 onChange={(newValue: any) => {
+                  // Validate that the selected time is not in the past
+                  if (newValue && newValue.isBefore(dayjs())) {
+                    return; // Don't update if past time is selected
+                  }
                   setDueDate(newValue);
                 }}
                 minDateTime={dayjs()}
@@ -301,32 +305,53 @@ const StatusTab = ({ ticket }: any) => {
                   // Disable dates before today and after 7 days from today
                   return date.isBefore(dayjs(), "day") || date.isAfter(dayjs().add(7, 'day'), "day");
                 }}
+                shouldDisableTime={(value, view) => {
+                  const now = dayjs();
+                  const selectedDate = dayjs(value);
+                  
+                  if (view === 'minutes') {
+                    // Only disable past minutes for current hour on today
+                    if (selectedDate.isSame(now, 'day') && selectedDate.isSame(now, 'hour')) {
+                      return value.minute() < now.minute();
+                    }
+                  }
+                  
+                  return false;
+                }}
                 openTo="day"
                 views={['year', 'month', 'day', 'hours', 'minutes']}
+                timeSteps={{ hours: 1, minutes: 15 }}
                 slotProps={{
-                  textField: {
-                    variant: "standard",
-                    fullWidth: true,
-                    size: "small",
-                    focused: true,
-                    name: "Due Date",
-                    placeholder: "DD/MM/YYYY HH:mm",
-                    InputProps: {
-
-                      sx: {
-                        "&:before": {
-                          borderBottom: "none", // normal state
-                        },
-                        "&:hover:before": {
-                          borderBottom: "none", // hover state
-                        },
-                        "&:after": {
-                          borderBottom: "none", // focused state
-                        },
-                      },
-
-                    },
-                  },
+                   textField: {
+                     variant: "standard",
+                     fullWidth: true,
+                     size: "small",
+                     name: "Due Date",
+                     placeholder: "DD/MM/YYYY HH:mm",                     
+                     InputProps: {
+                       sx: {
+                         "&:before": {
+                           borderBottom: "none !important", // normal state
+                         },
+                         "&:hover:before": {
+                           borderBottom: "none !important", // hover state
+                         },
+                         "&:after": {
+                           borderBottom: "none !important", // focused state
+                         },
+                         "&.Mui-focused:after": {
+                           borderBottom: "none !important", // focused state
+                         },
+                         "&.Mui-focused:before": {
+                           borderBottom: "none !important", // focused state
+                         },
+                         "& .MuiInputBase-input": {
+                           fontSize: "10px !important",
+                           padding: "8px 0 !important",
+                         },
+                       },
+                     },
+                   },
                   actionBar: {
                     actions: ['clear', 'cancel', 'accept'],
                     sx: {
@@ -378,8 +403,7 @@ const StatusTab = ({ ticket }: any) => {
                   },
                 }}
                 format="DD/MM/YYYY HH:mm"
-                ampm={false}
-                minutesStep={15}
+                ampm={false} 
               />
             </LocalizationProvider>
           </div>
