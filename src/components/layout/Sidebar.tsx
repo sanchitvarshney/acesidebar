@@ -34,7 +34,7 @@ const StyledDrawer = styled(Drawer, {
     width: open ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
     transition: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
     overflowX: "hidden",
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: "#20364d",
     borderRight: "none",
   },
 }));
@@ -84,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
       open={open}
       sx={{
         "& .MuiDrawer-paper": {
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: "theme.palette.background.paper",
         },
       }}
     >
@@ -140,8 +140,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
             mb: 2,
           }}
         >
-          <IconButton size="medium" onClick={signOut}>
-            <ExitToAppIcon fontSize="medium" />
+          <IconButton size="medium" onClick={signOut} sx={{ background: "#36577a" }}>
+            <ExitToAppIcon fontSize="medium" sx={{ color: "#fff" }} />
           </IconButton>
         </Box>
       </Box>
