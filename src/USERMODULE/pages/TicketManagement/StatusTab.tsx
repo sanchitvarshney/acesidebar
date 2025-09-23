@@ -311,21 +311,20 @@ const StatusTab = ({ ticket }: any) => {
                     focused: true,
                     name: "Due Date",
                     placeholder: "DD/MM/YYYY HH:mm",
-                    sx: {
-                      color: "#000 !important",
-                      fontSize: { xs: "14px", sm: "16px" },
-                      "& .MuiInput-underline:before": {
-                        borderBottom: "1px solid #f3f1f1ff !important",
+                    InputProps: {
+
+                      sx: {
+                        "&:before": {
+                          borderBottom: "none", // normal state
+                        },
+                        "&:hover:before": {
+                          borderBottom: "none", // hover state
+                        },
+                        "&:after": {
+                          borderBottom: "none", // focused state
+                        },
                       },
-                      "& .MuiInput-underline:hover:before": {
-                        borderBottom: "1px solid #ddddddff !important",
-                      },
-                      "& .MuiInput-underline:after": {
-                        borderBottom: "1px solid #e2e2e2ff !important",
-                      },
-                      "& .MuiInputBase-input": {
-                        padding: { xs: "8px 0", sm: "12px 0" },
-                      },
+
                     },
                   },
                   actionBar: {
@@ -356,9 +355,9 @@ const StatusTab = ({ ticket }: any) => {
                       maxHeight: { xs: '80vh !important', sm: 'none' },
                       margin: { xs: '0 !important', sm: 'auto' },
                       borderRadius: { xs: '12px !important', sm: '8px' },
-                      boxShadow: { 
-                        xs: '0 20px 40px rgba(0,0,0,0.3) !important', 
-                        sm: '0 4px 20px rgba(0,0,0,0.15)' 
+                      boxShadow: {
+                        xs: '0 20px 40px rgba(0,0,0,0.3) !important',
+                        sm: '0 4px 20px rgba(0,0,0,0.15)'
                       },
                       '& .MuiPaper-root': {
                         position: { xs: 'fixed !important', sm: 'absolute' },
@@ -370,9 +369,9 @@ const StatusTab = ({ ticket }: any) => {
                         maxHeight: { xs: '80vh !important', sm: 'none' },
                         margin: { xs: '0 !important', sm: 'auto' },
                         borderRadius: { xs: '12px !important', sm: '8px' },
-                        boxShadow: { 
-                          xs: '0 20px 40px rgba(0,0,0,0.3) !important', 
-                          sm: '0 4px 20px rgba(0,0,0,0.15)' 
+                        boxShadow: {
+                          xs: '0 20px 40px rgba(0,0,0,0.3) !important',
+                          sm: '0 4px 20px rgba(0,0,0,0.15)'
                         },
                       },
                     },
@@ -380,6 +379,7 @@ const StatusTab = ({ ticket }: any) => {
                 }}
                 format="DD/MM/YYYY HH:mm"
                 ampm={false}
+                minutesStep={15}
               />
             </LocalizationProvider>
           </div>
