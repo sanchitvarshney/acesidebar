@@ -43,11 +43,11 @@ const TaskCard: React.FC<TaskCardProps> = memo(
     );
 
     const handleClick = useCallback(() => {
-      console.log("call");
+   
       if (!isCurrentTask) {
         onClick( {taskId:task?.taskID, ticketId:task?.ticketID});
       }
-    }, [isCurrentTask, isLoading, onClick, task?.taskID]);
+    }, [isCurrentTask, isLoading, onClick, task]);
 
     return (
       <Card

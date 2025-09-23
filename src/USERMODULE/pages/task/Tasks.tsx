@@ -59,9 +59,7 @@ import {
   useGetTaskListMutation,
 } from "../../../services/threadsApi";
 import { useToast } from "../../../hooks/useToast";
-import {
-  useGetStatusListQuery,
-} from "../../../services/ticketAuth";
+import { useGetStatusListQuery } from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/empty_task.svg";
 
@@ -89,8 +87,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
-  const [getTaskList, { data: taskList, isLoading: taskListLoading }] =
-    useCommanApiForTaskListMutation();
 
   const [
     getAllTaskList,
@@ -98,7 +94,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   ] = useGetTaskListMutation();
 
   // Extract pagination data from API response
-  const paginationData = taskList?.pagination ||
+  const paginationData = 
     taskListData?.pagination || {
       currentPage: 1,
       limit: 10,
@@ -150,15 +146,15 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       page: page,
       limit: rowsPerPage,
     };
-    const url = isAddTask
-      ? `${payload.ticket}?page=${payload.page}&limit=${payload.limit}`
+    const url = (isAddTask && ticketId)
+      ? `?ticket=${payload.ticket}&page=${payload.page}&limit=${payload.limit}`
       : `?page=${payload.page}&limit=${payload.limit}`;
 
     try {
       const response =
-        isAddTask && ticketId
-          ? await getTaskList({ url }).unwrap()
-          : getAllTaskList({ url }).unwrap();
+    
+           await getAllTaskList({ url }).unwrap()
+     
       if (response === null) return;
       if (response?.type === "error") {
         showToast(response.message, "error");
@@ -310,7 +306,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   const filteredTasks = useMemo(() => {
-    let filtered = taskList?.data || taskListData?.data || [];
+    let filtered =   taskListData?.data|| [];
 
     if (searchQuery) {
       filtered = filtered.filter((task: any) => {
@@ -323,7 +319,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
 
     return filtered;
-  }, [taskList, searchQuery, taskListData]);
+  }, [ searchQuery, taskListData]);
 
   // Use API data directly since pagination is handled by the backend
   const paginatedTasks = useMemo(() => {
@@ -365,16 +361,13 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     }
   }, [selectedTasks, paginatedTasks, taskcomment]);
 
-  const handleTaskSelection = useCallback(
-    (taskId: string, checked: boolean) => {
-      if (checked) {
-        setSelectedTasks((prev) => [...prev, taskId]);
-      } else {
-        setSelectedTasks((prev) => prev.filter((id) => id !== taskId));
-      }
-    },
-    []
-  );
+  const handleTaskSelection = useCallback((taskId: any, checked: boolean) => {
+    if (checked) {
+      setSelectedTasks((prev) => [...prev, taskId?.taskId]);
+    } else {
+      setSelectedTasks((prev) => prev.filter((id) => id !== taskId?.taskId));
+    }
+  }, []);
 
   // Task Advanced Search Handlers
   const handleTaskAdvancedSearchOpen = (
@@ -737,12 +730,12 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       if (type === "attachments") {
         setLoadingAttachmentTaskId(task);
       } else {
-        setLoadingTaskId(task);
+        setLoadingTaskId(task?.taskId);
         setTaskId(task); // Clear previous task data for skeleton
       }
 
       try {
-        const response =   await getTaskComment({ url }).unwrap();
+        const response = await getTaskComment({ url }).unwrap();
 
         if (response?.type === "error") {
           showToast(response.message, "error");
@@ -750,7 +743,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       } catch (error) {
         console.error("Error fetching tasks:", error);
       } finally {
-        // Clear loading state
+       
         if (type === "attachments") {
           setLoadingAttachmentTaskId(null);
         } else {
@@ -763,7 +756,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
   return (
     <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-100px)]">
-      {taskList?.data.length === 0 || taskListData?.data?.length === 0 ? (
+      { taskListData?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-gray-500">
           <img src={noTask} alt="No Tasks" className="my-3 w-[30%]" />
           <Button
@@ -810,7 +803,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
             {/* LEFT SECTION - Task List & Filters */}
             <TaskList
               tasks={{
-                ...(taskList ? { ...taskList } : { ...taskListData }),
+                ...({ ...taskListData }),
                 data: filteredTasks,
               }}
               selectedTasks={selectedTasks}
@@ -829,6 +822,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                 handleTaskSelection(taskId, checked)
               }
               onTaskClick={(task: any) => {
+              
                 setTaskId(task);
               }}
               onPageChange={(newPage: number) => setPage(newPage)}
@@ -839,17 +833,17 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               onAdvancedSearchOpen={(e) => handleTaskAdvancedSearchOpen(e)}
               getStatusIcon={getStatusIcon}
               isAddTask={isAddTask}
-              isLoading={taskListLoading || taskListDataLoading}
+              isLoading={taskListDataLoading}
               loadingTaskId={loadingTaskId}
               loadingAttachmentTaskId={loadingAttachmentTaskId}
+              taskId={taskId?.taskId}
             />
 
             {/* RIGHT SECTION - Task Details & Actions */}
-            {taskcomment || taskcommentLoading || (taskId && loadingTaskId) ? (
-              <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
-                {/* Right Sidebar Tabs */}
-                <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
-                  <div className="p-4 space-y-4">
+            <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
+              {/* Right Sidebar Tabs */}
+              <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
+                <div className="p-4 space-y-4">
                     {!isAddTask && (
                       <Tooltip title="Details" placement="left">
                         <IconButton
@@ -885,106 +879,109 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                         >
                           <AssignmentIcon />
                         </IconButton>
-                      </Tooltip>
-                    )}
+                    </Tooltip>
+                  )}
 
-                    <Tooltip title="Files" placement="left">
-                      <IconButton
-                        onClick={() => {
-                          setRightActiveTab(1);
+                  <Tooltip title="Files" placement="left">
+                    <IconButton
+                      onClick={() => {
+                        setRightActiveTab(1);
 
-                          handleTaskClick(taskId , "comments");
-                        }}
-                        disabled={
-                          !!(
-                            loadingAttachmentTaskId === taskId?.taskId ||
-                            taskcommentLoading ||
-                            (taskId?.taskId && loadingTaskId)
-                          )
-                        }
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: "50%",
-                          transition: "all 0.2s",
+                        handleTaskClick(taskId, "comments");
+                      }}
+                      disabled={
+                        !!(
+                          loadingAttachmentTaskId === taskId?.taskId ||
+                          taskcommentLoading ||
+                          (taskId?.taskId && loadingTaskId)
+                        )
+                      }
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        transition: "all 0.2s",
+                        bgcolor:
+                          rightActiveTab === 1
+                            ? "primary.main"
+                            : "transparent",
+                        color:
+                          rightActiveTab === 1 ? "#fff" : "text.secondary",
+                        boxShadow: rightActiveTab === 1 ? 3 : "none",
+                        "&:hover": {
                           bgcolor:
                             rightActiveTab === 1
-                              ? "primary.main"
-                              : "transparent",
+                              ? "primary.dark"
+                              : "grey.100",
                           color:
-                            rightActiveTab === 1 ? "#fff" : "text.secondary",
-                          boxShadow: rightActiveTab === 1 ? 3 : "none",
-                          "&:hover": {
-                            bgcolor:
-                              rightActiveTab === 1
-                                ? "primary.dark"
-                                : "grey.100",
-                            color:
-                              rightActiveTab === 1 ? "#fff" : "text.primary",
-                          },
-                          "&:disabled": {
-                            opacity: 0.6,
-                            cursor: "not-allowed",
-                          },
-                        }}
-                      >
-                        {loadingAttachmentTaskId === taskId ? (
-                          <CircularProgress
-                            size={20}
-                            sx={{ color: "inherit" }}
-                          />
-                        ) : (
-                          <AttachFileIcon />
-                        )}
-                      </IconButton>
-                    </Tooltip>
+                            rightActiveTab === 1 ? "#fff" : "text.primary",
+                        },
+                        "&:disabled": {
+                          opacity: 0.6,
+                          cursor: "not-allowed",
+                        },
+                      }}
+                    >
+                      {loadingAttachmentTaskId === taskId ? (
+                        <CircularProgress
+                          size={20}
+                          sx={{ color: "inherit" }}
+                        />
+                      ) : (
+                        <AttachFileIcon />
+                      )}
+                    </IconButton>
+                  </Tooltip>
 
-                    <Tooltip title="History" placement="left">
-                      <IconButton
-                        onClick={() => {
-                          setRightActiveTab(2);
-                        }}
-                        disabled={
-                          !!(taskcommentLoading || (taskId?.taskId && loadingTaskId))
-                        }
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: "50%",
-                          transition: "all 0.2s",
+                  <Tooltip title="History" placement="left">
+                    <IconButton
+                      onClick={() => {
+                        setRightActiveTab(2);
+                      }}
+                      disabled={
+                        !!(
+                          taskcommentLoading ||
+                          (taskId?.taskId && loadingTaskId)
+                        )
+                      }
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        transition: "all 0.2s",
+                        bgcolor:
+                          rightActiveTab === 2
+                            ? "primary.main"
+                            : "transparent",
+                        color:
+                          rightActiveTab === 2 ? "#fff" : "text.secondary",
+                        boxShadow: rightActiveTab === 2 ? 3 : "none",
+                        "&:hover": {
                           bgcolor:
                             rightActiveTab === 2
-                              ? "primary.main"
-                              : "transparent",
+                              ? "primary.dark"
+                              : "grey.100",
                           color:
-                            rightActiveTab === 2 ? "#fff" : "text.secondary",
-                          boxShadow: rightActiveTab === 2 ? 3 : "none",
-                          "&:hover": {
-                            bgcolor:
-                              rightActiveTab === 2
-                                ? "primary.dark"
-                                : "grey.100",
-                            color:
-                              rightActiveTab === 2 ? "#fff" : "text.primary",
-                          },
-                          "&:disabled": {
-                            opacity: 0.6,
-                            cursor: "not-allowed",
-                          },
-                        }}
-                      >
-                        <TrendingUpIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
+                            rightActiveTab === 2 ? "#fff" : "text.primary",
+                        },
+                        "&:disabled": {
+                          opacity: 0.6,
+                          cursor: "not-allowed",
+                        },
+                      }}
+                    >
+                      <TrendingUpIcon />
+                    </IconButton>
+                  </Tooltip>
                 </div>
+              </div>
 
-                {/* Right Content Area */}
-                <div className="flex-1 flex flex-col">
-                  {taskcommentLoading ||
-                  (taskId && loadingTaskId && !taskcomment) ? (
-                    <TaskDetailsSkeleton />
-                  ) : taskcomment ? (
+              {/* Right Content Area */}
+              <div className="flex-1 flex flex-col">
+                {  taskcommentLoading ||
+                (taskId && loadingTaskId && !taskcomment?.data) ? (
+                  <TaskDetailsSkeleton />
+                ) : (taskcomment?.data && (!Array.isArray(taskcomment?.data) || taskcomment?.data?.length > 0)) ? (
                     <>
                       <div className="bg-white border-b px-6 py-4">
                         <div className="flex items-center justify-between mb-3">
@@ -1017,14 +1014,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                   size="small"
                                   variant="filled"
                                 />
-                                {/* {selectedTask.isUrgent && (
-                          <Chip
-                            icon={<PriorityHighIcon />}
-                            label="Urgent"
-                            color="error"
-                            size="small"
-                          />
-                        )} */}
+ 
                               </div>
                             </div>
                           </div>
@@ -1083,7 +1073,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-gray-900 font-bold">
                                   Latest 3 Comments (
-                                  {taskcomment?.data?.comments?.length})
+                                  {taskcomment?.data?.last3Comment?.length || 0}
+                                  )
                                 </h3>
 
                                 <Button
@@ -1524,12 +1515,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     : ""
                                 }`}
                                 onClick={() => {
-                                  if (loadingAttachmentTaskId !== taskId?.taskId) {
+                                  if (
+                                    loadingAttachmentTaskId !== taskId?.taskId
+                                  ) {
                                     setAttachmentsTab("comments");
                                     handleTaskClick(taskId, "comments");
                                   }
                                 }}
-                                disabled={loadingAttachmentTaskId === taskId?.taskId}
+                                disabled={
+                                  loadingAttachmentTaskId === taskId?.taskId
+                                }
                               >
                                 {loadingAttachmentTaskId === taskId?.taskId &&
                                 attachmentsTab === "comments" ? (
@@ -1549,12 +1544,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     : ""
                                 }`}
                                 onClick={() => {
-                                  if (loadingAttachmentTaskId !== taskId?.taskId) {
+                                  if (
+                                    loadingAttachmentTaskId !== taskId?.taskId
+                                  ) {
                                     setAttachmentsTab("attachments");
                                     handleTaskClick(taskId, "attachments");
                                   }
                                 }}
-                                disabled={loadingAttachmentTaskId === taskId?.taskId}
+                                disabled={
+                                  loadingAttachmentTaskId === taskId?.taskId
+                                }
                               >
                                 {loadingAttachmentTaskId === taskId?.taskId &&
                                 attachmentsTab === "attachments" ? (
@@ -1719,21 +1718,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                       </div>
                     </div>
                   )}
-                </div>
               </div>
-            ) : (
-              <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <img
-                      src={noTask}
-                      alt="No Task Selected"
-                      className="w-full mx-auto mb-3"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </>
       )}

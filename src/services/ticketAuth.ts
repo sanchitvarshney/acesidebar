@@ -193,6 +193,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+       getSession: builder.query<any, any>({
+      query: () => ({
+        url: `/auth/sessions/view`,
+        method: "GET",
+      }),
+    
+    }),
   }),
   overrideExisting: false,
 });
@@ -213,4 +220,5 @@ export const {
   useGetStatusListQuery,
   useGetTypeListQuery,
   useGetLinkTicketQuery,
+  useGetSessionQuery
 } = extendedTicketApi;
