@@ -557,7 +557,7 @@ const TicketDetailTemplate = () => {
               flexDirection: "column",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: "16px 8px",
+              padding: "16px 8px"
             }}
           >
             {/* Main Icons Section */}
@@ -580,7 +580,7 @@ const TicketDetailTemplate = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "8px",
-                marginTop: "16px",
+                marginTop: "16px"
               }}
             >
               {/* Apps Icon */}
