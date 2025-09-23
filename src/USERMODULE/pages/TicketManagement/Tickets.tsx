@@ -672,7 +672,7 @@ const Tickets: React.FC = () => {
     return (
       <div
         key={merged?.ticketNumber}
-        className="bg-white border-2 border-[#e1e7ee] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative"
+        className="bg-white border-2 border-[#d4e6ff] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative"
         onClick={() => handleTicketSubjectClick(merged.ticketNumber)}
       >
         {/* Top section */}
