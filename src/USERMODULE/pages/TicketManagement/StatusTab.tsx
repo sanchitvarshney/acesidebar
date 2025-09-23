@@ -182,7 +182,7 @@ const StatusTab = ({ ticket }: any) => {
   };
 
   return (
-    <div className="w-full h-[calc(100vh-100px)] overflow-hidden">
+    <div className="w-full h-[calc(100vh-100px)] overflow-hidden bg-[#f0f5fd]">
       <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-255px)] overflow-y-auto">
         <div className="w-full space-y-3 p-2 sm:p-3">
           <Typography variant="subtitle1">Properties</Typography>
