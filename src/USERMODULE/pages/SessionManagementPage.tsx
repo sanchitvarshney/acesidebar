@@ -111,28 +111,28 @@ const SessionManagementPage: React.FC = () => {
   const handleConfirmDeleteAll = async () => {
     const ids = sessions.map((session) => session.sessionId);
     try {
-      // deleteSession({ session: [ids] })
-      //   .unwrap()
-      //   .then((res) => {
-      //     console.log("res", res);
-      //     if (res?.type === "error") {
-      //       showToast(res?.message || "An error occurred", "error");
-      //       return;
-      //     }
-      //     if (res?.type === "success" && res?.success) {
-      //       showToast(res?.message || "Session ended successfully", "success");
-      //       setSessions([]);
-      //     }
-      //   })
-      //   .catch(() => {
-      //     showToast(
-      //       "Failed to end session. Please try again.",
-      //       "error",
-      //       "borderToast",
-      //       true
-      //     );
-      //     handleLogOut();
-      //   });
+      deleteSession({ session: [ids] })
+        .unwrap()
+        .then((res) => {
+          console.log("res", res);
+          if (res?.type === "error") {
+            showToast(res?.message || "An error occurred", "error");
+            return;
+          }
+          if (res?.type === "success" && res?.success) {
+            showToast(res?.message || "Session ended successfully", "success");
+            setSessions([]);
+          }
+        })
+        .catch(() => {
+          showToast(
+            "Failed to end session. Please try again.",
+            "error",
+            "borderToast",
+            true
+          );
+          handleLogOut();
+        });
     } catch (error: any) {
       showToast("Failed to end sessions. Please try again.", "error");
     }
@@ -349,11 +349,11 @@ const SessionManagementPage: React.FC = () => {
                             size="small"
                             onClick={handleConfirmDeleteAll}
                           >
-                            {/* {isLoadingDeleteSession ? (
+                            {isLoadingDeleteSession ? (
                               <CircularProgress size={20} />
-                            ) : ( */}
-                            End All Sessions
-                            {/* )} */}
+                            ) : (
+                            "End All Sessions"
+                           )} 
                           </Button>
                         </div>
                       </div>
