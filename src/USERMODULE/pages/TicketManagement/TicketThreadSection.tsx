@@ -484,9 +484,25 @@ const ThreadItem = ({
                       : "border-gray-200"
                   } pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "}`}
                 >
-                  <span className="font-semibold text-[#1a73e8] text-sm">
+               <div className="flex items-center gap-2">   <span className="font-semibold text-[#1a73e8] text-sm">
                     {item?.repliedBy?.name ?? item?.ticketId ?? "User"}
                   </span>
+                  { item?.subject && isHovered && (
+                            <IconButton
+                              size="small"
+                              onClick={() => setIsModalOpen(true)}
+                              sx={{
+                                color: "#666",
+                                backgroundColor: "transparent",
+                                "&:hover": {
+                                  backgroundColor: "#f5f5f5",
+                                  color: "#1976d2",
+                                },
+                              }}
+                            >
+                              <OpenInFullIcon fontSize="small" />
+                            </IconButton>
+                          )}</div>
                   <div className="flex flex-col ">
                     {!item?.subject && (
                       <>
@@ -555,6 +571,7 @@ const ThreadItem = ({
                         </span>
                       </>
                     )}
+                      
                   </div>
                 </div>
 
@@ -791,7 +808,7 @@ const ThreadItem = ({
               <Typography variant="body2" sx={{ color: "#666" }}>
                 {bubbleFooter}
               </Typography>
-              {!isCurrentUser && (
+              { (!!item?.subject) || !isCurrentUser && (
                 <Rating
                   name="rate-of-thread"
                   value={ratingValue}

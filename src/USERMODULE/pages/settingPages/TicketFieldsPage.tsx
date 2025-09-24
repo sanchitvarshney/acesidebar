@@ -35,10 +35,7 @@ import {
   Tooltip,
   InputAdornment,
   Paper,
-  AccordionSummary,
-  AccordionDetails,
-  Accordion,
-  Backdrop,
+  
   Switch,
   Table,
   TableBody,
@@ -52,6 +49,7 @@ import { RootState } from "../../../reduxStore/Store";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import CustomFieldDrawer from "../../../reusable/CustomFieldDrawer";
 // Field types that can be dragged and dropped
 const fieldTypes = [
   {
@@ -233,7 +231,7 @@ const defaultStatusChoices = [
 ];
 
 const TicketFieldsPage: React.FC = () => {
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const [fields, setFields] = useState<any[]>(defaultFields);
   const [selectedField, setSelectedField] = useState<any | null>(null);
   const [filter, setFilter] = useState("all");
@@ -241,20 +239,15 @@ const navigate = useNavigate();
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isDropActive, setIsDropActive] = useState(false);
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [statusChoices, setStatusChoices] =
-    useState<any[]>(defaultStatusChoices);
-  const [newChoiceText, setNewChoiceText] = useState("");
-  const { isOpen } = useSelector((state: RootState) => state.shotcut);
+  const [openDrawer, setOpenDrawer] = useState<any | null>(null);
+  
+ 
   const getFieldIcon = (type: string) => {
     const fieldType = fieldTypes.find((ft) => ft.id === type);
     return fieldType ? fieldType.icon : TextFields;
   };
 
   const handleDragStart = (e: React.DragEvent, itemId: string) => {
-    if (!!selectedField) {
-      return;
-    }
     setDraggedItem(itemId);
     e.dataTransfer.effectAllowed = "move";
   };
@@ -318,8 +311,6 @@ const navigate = useNavigate();
   };
 
   const handleAddField = (e: any, fieldId: any) => {
-
-    if (!!selectedField) return;
     const fieldType = fieldTypes.find((ft) => ft.id === fieldId);
     if (fieldType) {
       const newField = {
@@ -354,6 +345,7 @@ const navigate = useNavigate();
 
   const handleFieldClick = (e: any, field: any) => {
     setSelectedField(field);
+    setOpenDrawer(true);
   };
 
   const handleSaveField = (updatedField: any) => {
@@ -362,7 +354,7 @@ const navigate = useNavigate();
     );
 
     setSelectedField(null);
-    setExpandedIndex(null);
+    setOpenDrawer(false);
   };
 
   const handleDeleteField = (fieldId: string) => {
@@ -375,61 +367,6 @@ const navigate = useNavigate();
         field.id === fieldId ? { ...field, isVisible: !field.isVisible } : field
       )
     );
-  };
-
-  // Dropdown choices handlers
-  const handleAddChoice = () => {
-    if (newChoiceText.trim()) {
-      const newChoice = {
-        id: `choice-${Date.now()}`,
-        labelForAgents: newChoiceText.trim(),
-        labelForCustomers: newChoiceText.trim(),
-        hasSlaTimer: false,
-        isDefault: false,
-      };
-      setStatusChoices((prev) => [...prev, newChoice]);
-      setNewChoiceText("");
-    }
-  };
-
-  const handleDeleteChoice = (choiceId: string) => {
-    setStatusChoices((prev) => prev.filter((choice) => choice.id !== choiceId));
-  };
-
-  const handleUpdateChoice = (choiceId: string, field: string, value: any) => {
-    setStatusChoices((prev) =>
-      prev.map((choice) =>
-        choice.id === choiceId ? { ...choice, [field]: value } : choice
-      )
-    );
-  };
-
-  const handleChoiceDragStart = (e: React.DragEvent, choiceId: string) => {
-    setDraggedItem(choiceId);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const handleChoiceDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    setDragOverIndex(index);
-  };
-
-  const handleChoiceDrop = (e: React.DragEvent, targetIndex: number) => {
-    e.preventDefault();
-    if (!draggedItem) return;
-
-    const draggedIndex = statusChoices.findIndex(
-      (choice) => choice.id === draggedItem
-    );
-    if (draggedIndex !== -1) {
-      const newChoices = [...statusChoices];
-      const [reorderedChoice] = newChoices.splice(draggedIndex, 1);
-      newChoices.splice(targetIndex, 0, reorderedChoice);
-      setStatusChoices(newChoices);
-    }
-
-    setDraggedItem(null);
-    setDragOverIndex(null);
   };
 
   const filteredFields = fields.filter((field) => {
@@ -453,8 +390,7 @@ const navigate = useNavigate();
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
-           Ticket Fields
-
+            Ticket Fields
           </Typography>
         </Box>
         <Typography variant="body1" color="text.secondary">
@@ -495,10 +431,7 @@ const navigate = useNavigate();
                       onClick={(e) => handleAddField(e as any, fieldType.id)}
                       sx={{
                         p: 2,
-                        cursor: !!selectedField ? "" : "pointer",
-                        "&:hover": {
-                          bgcolor: !!selectedField ? "" : "grey.50",
-                        },
+
                         border: "1px solid",
                         borderColor: "grey.300",
                         display: "flex",
@@ -545,7 +478,6 @@ const navigate = useNavigate();
                       setFilter(e.target.value);
                     }}
                     label="Filter"
-                    disabled={!!selectedField}
                   >
                     <MenuItem value="all">All fields</MenuItem>
                     <MenuItem value="default">Default fields</MenuItem>
@@ -553,7 +485,6 @@ const navigate = useNavigate();
                   </Select>
                 </FormControl>
                 <TextField
-                  disabled={!!selectedField}
                   size="small"
                   placeholder="Search fields"
                   value={searchTerm}
@@ -569,21 +500,6 @@ const navigate = useNavigate();
                 />
               </Box>
             </Box>
-
-            {/* Backdrop when any accordion is expanded */}
-            <Backdrop
-              open={expandedIndex !== null}
-              onClick={() => setExpandedIndex(null)}
-              sx={{
-                top: 64,
-                left: isOpen ? 78 : 0,
-                zIndex: (theme) => theme.zIndex.drawer + 1,
-                // backdropFilter: "blur(1px)",
-                bgcolor: "rgba(0, 0, 0, 0.08)",
-                pointerEvents: "none",
-                transition: "left 600ms ease-in-out",
-              }}
-            />
 
             {/* Fields List */}
             <Box
@@ -616,157 +532,105 @@ const navigate = useNavigate();
               {filteredFields.map((field, index) => {
                 const IconComponent = getFieldIcon(field.type);
                 return (
-                  <Accordion
-                    disabled={!!selectedField}
-                    elevation={0}
-                    expanded={expandedIndex === index}
-                    onChange={(_, isExpanded: any) => {
-                      if (!!selectedField) {
-                        return;
-                      }
-                      setExpandedIndex(isExpanded ? index : null);
-                    }}
-                    sx={{
-                      "&.Mui-disabled": {
-                        backgroundColor: "#f5f5f5", // light grey background
-                        cursor: "default",
-                        opacity: 1,
-                      },
-                      // pointerEvents: expandedIndex === index ? "auto" : "none", // block clicks
-
-                      cursor: !!selectedField ? "pointer" : " ",
-                      border: "none",
-                      boxShadow: "none",
-                      "&:before": { display: "none" },
-                      position: "relative",
-                      zIndex:
-                        expandedIndex === index
-                          ? (theme) => theme.zIndex.modal + 0
-                          : "auto",
-                    }}
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", mb: 1 }}
                   >
-                    <AccordionSummary>
-                      <Card
-                        elevation={0}
-                        key={field.id}
-                        draggable={!field.isDisabled}
-                        onDragStart={(e) =>
-                          !field.isDisabled && handleDragStart(e, field.id)
-                        }
-                        onDragOver={(e) => handleDragOver(e, index)}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, index)}
-                        onDragEnd={handleDragEnd}
-                        onClick={(e) => {
-                          !field.isDisabled && handleFieldClick(e, field);
-                        }}
-                        sx={{
-                          width: "100%",
+                    <Card
+                      elevation={0}
+                      key={field.id}
+                      draggable={!field.isDisabled}
+                      onDragStart={(e) =>
+                        !field.isDisabled && handleDragStart(e, field.id)
+                      }
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      onClick={(e) => {
+                        handleFieldClick(e, field);
+                      }}
+                      sx={{
+                        width: "100%",
 
-                          cursor:
-                            field.isDisabled || !!selectedField
-                              ? ""
-                              : "pointer",
-                          opacity: field.isDisabled ? 0.6 : 1,
-                          border: "1px solid",
-                          borderColor:
-                            dragOverIndex === index
-                              ? "primary.main"
-                              : "grey.300",
-                          bgcolor:
-                            dragOverIndex === index ? "primary.50" : "white",
-                          "&:hover": {
-                            bgcolor: field.isDisabled ? "white" : "grey.50",
-                          },
-                          transition: "all 0.2s",
-                          borderRadius: 1,
-                        }}
-                      >
-                        <CardContent
-                          sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}
+                        cursor:
+                          field.isDisabled  ? "" : "pointer",
+                        opacity: field.isDisabled ? 0.6 : 1,
+                        border: "1px solid",
+                        borderColor:
+                          dragOverIndex === index ? "primary.main" : "grey.300",
+
+                        transition: "all 0.2s",
+                        borderRadius: 1,
+                      }}
+                    >
+                      <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                          }}
                         >
+                          <DragIndicator
+                            color="action"
+                            sx={{ cursor: "grab" }}
+                          />
+                          <IconComponent sx={{ color: "primary.main" }} />
+                          <Typography
+                            variant="body1"
+                            sx={{ flexGrow: 1, fontWeight: "medium" }}
+                          >
+                            {field.name}
+                          </Typography>
                           <Box
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 2,
+                              gap: 1,
                             }}
                           >
-                            <DragIndicator
-                              color="action"
-                              sx={{ cursor: "grab" }}
-                            />
-                            <IconComponent sx={{ color: "primary.main" }} />
-                            <Typography
-                              variant="body1"
-                              sx={{ flexGrow: 1, fontWeight: "medium" }}
-                            >
-                              {field.name}
-                            </Typography>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                              }}
-                            >
-                              {field.isDefault && (
-                                <Chip
-                                  label="Default"
-                                  size="small"
-                                  color="default"
-                                />
-                              )}
-                              <Tooltip
-                                title={field.isVisible ? "Hide" : "Show"}
+                            {field.isDefault && (
+                              <Chip
+                                label="Default"
+                                size="small"
+                                color="default"
+                              />
+                            )}
+                            <Tooltip title={field.isVisible ? "Hide" : "Show"}>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleVisibility(field.id);
+                                }}
+                                color={field.isVisible ? "default" : "primary"}
                               >
+                                {field.isVisible ? (
+                                  <Visibility />
+                                ) : (
+                                  <VisibilityOff />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+                            {!field.isDefault && (
+                              <Tooltip title="Delete field">
                                 <IconButton
                                   size="small"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleToggleVisibility(field.id);
+                                    handleDeleteField(field.id);
                                   }}
-                                  color={
-                                    field.isVisible ? "default" : "primary"
-                                  }
+                                  color="error"
                                 >
-                                  {field.isVisible ? (
-                                    <Visibility />
-                                  ) : (
-                                    <VisibilityOff />
-                                  )}
+                                  <Close />
                                 </IconButton>
                               </Tooltip>
-                              {!field.isDefault && (
-                                <Tooltip title="Delete field">
-                                  <IconButton
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteField(field.id);
-                                    }}
-                                    color="error"
-                                  >
-                                    <Close />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
-                            </Box>
+                            )}
                           </Box>
-                        </CardContent>
-                      </Card>
-                    </AccordionSummary>
-                    <AccordionDetails sx={{}}>
-                      <FieldConfigurationModal
-                        field={selectedField}
-                        onSave={handleSaveField}
-                        onClose={() => {
-                          setSelectedField(null);
-                          setExpandedIndex(null);
-                        }}
-                      />
-                    </AccordionDetails>
-                  </Accordion>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Box>
                 );
               })}
 
@@ -783,6 +647,18 @@ const navigate = useNavigate();
           </Card>
         </Box>
       </Box>
+      <CustomFieldDrawer
+      
+        open={openDrawer}
+        close={() => setOpenDrawer(false)}
+      >
+        <FieldConfigurationModal
+          onClose={() => setOpenDrawer(false)}
+          field={selectedField}
+          onSave={handleSaveField}
+           
+        />
+      </CustomFieldDrawer>
     </Box>
   );
 };
@@ -847,8 +723,12 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
   if (!field || !formData) return null;
 
   return (
-    <Paper elevation={5} sx={{ p: 3, width: "100%" }}>
-      <Box component="form" onSubmit={handleSubmit}>
+    <Paper elevation={0} sx={{ p: 3, width: "100%", height: "100%" }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{ height: "calc(100vh - 170px)", overflowY: "auto" }}
+      >
         {/* Behavior for Agents */}
         <Box sx={{ mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: "medium" }}>
@@ -1194,7 +1074,12 @@ const FieldConfigurationModal: React.FC<FieldConfigurationModalProps> = ({
         )}
       </Box>
       <div className="flex justify-center gap-2">
-        <Button onClick={onClose} variant="text" color="inherit">
+        <Button
+          onClick={onClose}
+          variant="text"
+          color="primary"
+          sx={{ fontWeight: 600 }}
+        >
           Cancel
         </Button>
         <Button onClick={handleSubmit} variant="contained" color="primary">
