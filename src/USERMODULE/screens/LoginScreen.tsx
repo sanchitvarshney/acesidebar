@@ -86,7 +86,10 @@ const LoginScreen = () => {
 
   // Check if form is valid and reCAPTCHA is verified
   const isFormValid =
-    email.trim() !== "" && password.trim() !== "" && isCaptchaVerified && termsAccepted;
+    email.trim() !== "" &&
+    password.trim() !== "" &&
+    isCaptchaVerified &&
+    termsAccepted;
 
   // Check for remembered email on component mount
   useEffect(() => {
@@ -183,7 +186,10 @@ const LoginScreen = () => {
       };
       const result = await login(payload);
 
-      if (result.data?.success === true) {
+      if (
+        result.data?.success === true &&
+        result.data?.type === "login_success"
+      ) {
         localStorage.setItem("userToken", result.data.data.token);
         const decryptedData = JSON.stringify(decrypt(result.data.data.user));
         localStorage.setItem("userData", decryptedData);
@@ -201,13 +207,21 @@ const LoginScreen = () => {
         setCaptchaToken("");
         navigation("/");
         return;
-      }
-      else if (result.data?.success === true && result.data?.type === "session_limit_reached") {
+      } else if (
+        result.data?.success === true &&
+        result.data?.type === "session_limit_reached"
+      ) {
         // Store user data and token for session management
         localStorage.setItem("userToken", result.data.data.token);
-        const decryptedData = JSON.stringify(decrypt(result.data.data.user));
-        localStorage.setItem("userData", decryptedData);
-        
+        const decryptedData: any = decrypt(result.data.data.user);
+
+        const storeDate: any = {
+          name: decryptedData?.name,
+          userId: decryptedData?.uID,
+        };
+
+        localStorage.setItem("userData", JSON.stringify(storeDate));
+
         if (rememberMe) {
           localStorage.setItem("rememberMe", "true");
           localStorage.setItem("rememberedEmail", data.email);
@@ -215,7 +229,7 @@ const LoginScreen = () => {
           localStorage.removeItem("rememberMe");
           localStorage.removeItem("rememberedEmail");
         }
-        
+
         signIn();
         setIsCaptchaVerified(false);
         setCaptchaToken("");
@@ -309,16 +323,18 @@ const LoginScreen = () => {
   };
 
   return (
-    <Box sx={{
-      height: "100vh",
-      backgroundColor: "#ffffff",
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      overflow: "hidden"
-    }}>
+    <Box
+      sx={{
+        height: "100vh",
+        backgroundColor: "#ffffff",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: "hidden",
+      }}
+    >
       {/* Main 2-Grid Layout */}
       <Box sx={{ display: "flex", height: "100vh" }}>
         {/* Left Visual Section - 2/3 width */}
@@ -341,13 +357,21 @@ const LoginScreen = () => {
               left: 0,
               right: 0,
               bottom: 0,
-              background: "linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%)",
+              background:
+                "linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%)",
               zIndex: 1,
             }}
           />
 
           {/* Top Logo */}
-          <Box sx={{ display: "flex", alignItems: "center", zIndex: 2, position: "relative" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              zIndex: 2,
+              position: "relative",
+            }}
+          >
             <Box
               sx={{
                 width: 40,
@@ -383,16 +407,18 @@ const LoginScreen = () => {
           </Box>
 
           {/* Main Content */}
-          <Box sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            zIndex: 2,
-            position: "relative",
-            padding: 4
-          }}>
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              zIndex: 2,
+              position: "relative",
+              padding: 4,
+            }}
+          >
             {/* Left side - Text */}
             <Box sx={{ flex: "0 0 50%", pr: 4 }}>
               <Typography
@@ -403,7 +429,7 @@ const LoginScreen = () => {
                   fontSize: "48px",
                   lineHeight: 1.2,
                   mb: 4,
-                  textShadow: "2px 2px 4px rgba(0,0,0,0.5)"
+                  textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
                 }}
               >
                 Explore the things{" "}
@@ -419,19 +445,21 @@ const LoginScreen = () => {
                   fontWeight: 400,
                   fontSize: "24px",
                   opacity: 0.9,
-                  textShadow: "1px 1px 2px rgba(0,0,0,0.5)"
+                  textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
                 }}
               >
                 Your trusted support partner for all your technical needs
               </Typography>
             </Box>
-            <Box sx={{
-              flex: "0 0 40%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              position: "relative"
-            }}>
+            <Box
+              sx={{
+                flex: "0 0 40%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                position: "relative",
+              }}
+            >
               <Box
                 component="img"
                 src={imageBackground}
@@ -440,23 +468,25 @@ const LoginScreen = () => {
                   width: "100%",
                   maxWidth: 500,
                   height: "auto",
-                  objectFit: "contain"
+                  objectFit: "contain",
                 }}
               />
             </Box>
           </Box>
 
-          <Box sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            zIndex: 2,
-            position: "relative",
-            backgroundColor: "white",
-            padding: 2,
-            borderRadius: "8px 8px 0 0",
-            margin: "0 -16px -16px -16px"
-          }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              zIndex: 2,
+              position: "relative",
+              backgroundColor: "white",
+              padding: 2,
+              borderRadius: "8px 8px 0 0",
+              margin: "0 -16px -16px -16px",
+            }}
+          >
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Box
                 component="img"
@@ -465,23 +495,32 @@ const LoginScreen = () => {
                 sx={{
                   width: 32,
                   height: 32,
-                  objectFit: "contain"
+                  objectFit: "contain",
                 }}
               />
               <Box>
-                <Typography variant="h6" sx={{
-                  color: "#1877f2",
-                  fontWeight: 700,
-                  fontSize: "16px",
-                  mb: 0.5
-                }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "#1877f2",
+                    fontWeight: 700,
+                    fontSize: "16px",
+                    mb: 0.5,
+                  }}
+                >
                   High security
                 </Typography>
                 <Divider sx={{ mb: 1, width: "80%" }} />
-                <Typography variant="body2" sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}
+                >
                   All content of the Ajaxter are TLS encrypted.
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}
+                >
                   All protocols are available encrypted.
                 </Typography>
               </Box>
@@ -523,11 +562,15 @@ const LoginScreen = () => {
                 onSubmit={handleForgotSubmit(onForgotSubmit)}
                 noValidate
               >
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: "#1a1a1a" }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: 700, mb: 1, color: "#1a1a1a" }}
+                >
                   Forgot Password
                 </Typography>
                 <Typography variant="body1" sx={{ color: "#65676b", mb: 3 }}>
-                  Give us your email address and instructions to reset your password will be emailed to you.
+                  Give us your email address and instructions to reset your
+                  password will be emailed to you.
                 </Typography>
 
                 <TextField
@@ -570,7 +613,10 @@ const LoginScreen = () => {
                       size="normal"
                     />
                   ) : (
-                    <Typography variant="body2" sx={{ color: "error.main", p: 2 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "error.main", p: 2 }}
+                    >
                       reCAPTCHA site key not configured
                     </Typography>
                   )}
@@ -624,11 +670,7 @@ const LoginScreen = () => {
                 </Box>
               </Box>
             ) : (
-              <Box
-                component="form"
-                onSubmit={handleFormSubmit}
-                noValidate
-              >
+              <Box component="form" onSubmit={handleFormSubmit} noValidate>
                 {/* URL Input - Hidden on mobile */}
                 <TextField
                   label="Change Url"
@@ -639,11 +681,14 @@ const LoginScreen = () => {
                   sx={{
                     width: 300,
                     mb: 2,
-                    display: { xs: "none", sm: "block" }
+                    display: { xs: "none", sm: "block" },
                   }}
                 />
 
-                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
+                >
                   Log in to Ajaxter
                 </Typography>
 
@@ -669,7 +714,9 @@ const LoginScreen = () => {
                     },
                   }}
                   autoComplete="email"
-                  error={isSubmitted || touchedFields.email ? !!errors.email : false}
+                  error={
+                    isSubmitted || touchedFields.email ? !!errors.email : false
+                  }
                 />
 
                 <TextField
@@ -714,7 +761,9 @@ const LoginScreen = () => {
                   }}
                   autoComplete="current-password"
                   error={
-                    isSubmitted || touchedFields.password ? !!errors.password : false
+                    isSubmitted || touchedFields.password
+                      ? !!errors.password
+                      : false
                   }
                 />
 
@@ -731,7 +780,10 @@ const LoginScreen = () => {
                       size="normal"
                     />
                   ) : (
-                    <Typography variant="body2" sx={{ color: "error.main", p: 2 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "error.main", p: 2 }}
+                    >
                       reCAPTCHA site key not configured
                     </Typography>
                   )}
@@ -760,7 +812,10 @@ const LoginScreen = () => {
                     />
                   }
                   label={
-                    <Typography variant="body2" sx={{ fontSize: "14px", color: "#65676b" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontSize: "14px", color: "#65676b" }}
+                    >
                       I have read the{" "}
                       <Link
                         href="#"
@@ -822,8 +877,6 @@ const LoginScreen = () => {
                   )}
                 </Button>
 
-
-
                 <Box sx={{ textAlign: "center", mb: 2 }}>
                   <Link
                     component="button"
@@ -864,7 +917,8 @@ const LoginScreen = () => {
                   }}
                   onClick={() => {
                     const baseUrl =
-                      process.env.REACT_APP_FRONTEND_URL || window.location.origin;
+                      process.env.REACT_APP_FRONTEND_URL ||
+                      window.location.origin;
                     window.location.href = `${baseUrl}/ticket/support`;
                   }}
                 >

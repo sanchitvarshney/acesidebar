@@ -137,6 +137,12 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body,
       }),
     }),
+    triggerLogOut: builder.mutation({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
+    }),
 
     ticketSearch: builder.mutation({
       query: (ticketNumber: string) => ({
@@ -193,12 +199,18 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
-       getSession: builder.query<any, any>({
+    getSession: builder.query<any, any>({
       query: () => ({
         url: `/auth/sessions/view`,
         method: "GET",
       }),
-    
+    }),
+    deleteSession: builder.mutation({
+      query: (credentials) => ({
+        url: "/auth/sessions/delete",
+        method: "DELETE",
+        body: credentials,
+      }),
     }),
   }),
   overrideExisting: false,
@@ -220,5 +232,7 @@ export const {
   useGetStatusListQuery,
   useGetTypeListQuery,
   useGetLinkTicketQuery,
-  useGetSessionQuery
+  useGetSessionQuery,
+  useDeleteSessionMutation,
+  useTriggerLogOutMutation,
 } = extendedTicketApi;

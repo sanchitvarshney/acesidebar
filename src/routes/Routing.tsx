@@ -62,7 +62,6 @@ import EmailNotificationsPage from "../USERMODULE/pages/settingManangePages/Emai
 import CanenResponseMasterPage from "../USERMODULE/pages/settingManangePages/CanenResponseMasterPage";
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
 
-
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
   {
@@ -72,7 +71,7 @@ export const router = createBrowserRouter([
         <MainLayout />
       </Protected>
     ),
-    errorElement: <ErrorPage />,   // ✅ added here (covers all children)
+    errorElement: <ErrorPage />, // ✅ added here (covers all children)
     children: [
       { index: true, element: <Tickets /> },
       { path: "tickets", element: <Tickets /> },
@@ -102,7 +101,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/session-management",
-    element: <SessionManagementPage />,
+    element: (
+      <Protected>
+        <SessionManagementPage />
+      </Protected>
+    ),
   },
 
   // Main App (Protected) Routes
