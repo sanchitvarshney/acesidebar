@@ -143,6 +143,12 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: "POST",
       }),
     }),
+    triggerRegenrate: builder.mutation({
+      query: () => ({
+        url: "/auth/sessions/regenerate",
+        method: "POST",
+      }),
+    }),
 
     ticketSearch: builder.mutation({
       query: (ticketNumber: string) => ({
@@ -235,4 +241,5 @@ export const {
   useGetSessionQuery,
   useDeleteSessionMutation,
   useTriggerLogOutMutation,
+  useTriggerRegenrateMutation,
 } = extendedTicketApi;

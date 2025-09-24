@@ -22,12 +22,14 @@ import {
   useDeleteSessionMutation,
   useGetSessionQuery,
   useTriggerLogOutMutation,
+  useTriggerRegenrateMutation,
 } from "../../services/ticketAuth";
 import { useAuth } from "../../contextApi/AuthContext";
 import SessionManagementSkeleton from "../skeleton/SessionManagementSkeleton";
 import check from "../../assets/icons/check.png";
+import { decrypt } from "../../utils/encryption";
 const SessionManagementPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, signIn } = useAuth();
   const userData: any = user;
 
   const navigate = useNavigate();
@@ -57,7 +59,8 @@ const SessionManagementPage: React.FC = () => {
     const v = localStorage.getItem("maxMobileSessions");
     return v ? Number(v) : 1;
   });
-
+  const [triggerRegenrate, { isLoading: isLoadingRegenrate }] =
+    useTriggerRegenrateMutation();
   // Load mock sessions on component mount
   useEffect(() => {
     if (sessionData?.type === "logout" && sessionData?.success === false) {
@@ -113,36 +116,53 @@ const SessionManagementPage: React.FC = () => {
   const handleConfirmDeleteAll = async () => {
     const ids = sessions.map((session) => session.sessionId);
     try {
-      deleteSession({ session: [ids] })
-        .unwrap()
-        .then((res) => {
-          console.log("res", res);
-          if (res?.type === "error") {
-            showToast(res?.message || "An error occurred", "error");
-            return;
-          }
-          if (res?.type === "success" && res?.success) {
-            showToast(res?.message || "Session ended successfully", "success");
+      // deleteSession({ session: [ids] })
+      //   .unwrap()
+      //   .then((res) => {
+      //     console.log("res", res);
+      //     if (res?.type === "error") {
+      //       showToast(res?.message || "An error occurred", "error");
+      //       return;
+      //     }
+      //     if (res?.type === "success" && res?.success) {
+      //       showToast(res?.message || "Session ended successfully", "success");
 
-            setSessions([]);
-          }
-        })
-        .catch(() => {
-          showToast(
-            "Failed to end session. Please try again.",
-            "error",
-            "borderToast",
-            true
-          );
-          handleLogOut();
-        });
+      //       setSessions([]);
+      //     }
+      //   })
+      //   .catch(() => {
+      //     showToast(
+      //       "Failed to end session. Please try again.",
+      //       "error",
+      //       "borderToast",
+      //       true
+      //     );
+      //     handleLogOut();
+      //   });
     } catch (error: any) {
       showToast("Failed to end sessions. Please try again.", "error");
     }
   };
 
   const handleContinueToDashboard = () => {
-    // navigate("/");
+    triggerRegenrate({})
+      .unwrap()
+      .then((res) => {
+        if (res?.success && res?.type === "session_regenerated") {
+          localStorage.setItem("userToken", res?.data?.token);
+          const decryptedData = JSON.stringify(decrypt(res?.data?.user));
+          localStorage.setItem("userData", decryptedData);
+          showToast(
+            res?.message || "Session regenerated successfully",
+            "success",
+            "borderToast",
+            true
+          );
+          signIn();
+
+          navigate("/");
+        }
+      });
   };
 
   const sessionBeingDeleted = sessions?.find(
@@ -220,25 +240,45 @@ const SessionManagementPage: React.FC = () => {
       </div>
 
       {/* Main Content (scrolls between fixed header/footer) */}
-      <Box className="flex-1 overflow-y-auto flex flex-col items-center justify-center">
-        <div className="w-3/4 px-4 sm:px-6 lg:px-8 pt-4 pb-24 ">
-          {isLoadingSession ? (
-            <SessionManagementSkeleton />
-          ) : (
-            <>
-              <Box className="mb-8">
-                {desktopCount === 0 && mobileCount === 0 ? (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-2">
-                    <div className="flex justify-center items-center">
+      <Box className="flex-1 overflow-y-auto">
+        {isLoadingSession ? (
+          <SessionManagementSkeleton />
+        ) : (
+          <>
+            <Box className="mb-8">
+              {desktopCount === 0 && mobileCount === 0 ? (
+                <div className=" h-[calc(100vh-80px)] max-w-7xl mx-auto px-4 flex flex-col items-center justify-center sm:px-6 lg:px-8 pt-4 pb-24 ">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex flex-col gap-4 justify-center items-center">
                       <img
                         src={check}
                         alt="Success Icon"
                         className="w-25 h-20"
                       />
+                      <Typography variant="body2" className="text-green-700">
+                        No active sessions. You can now continue to the
+                        dashboard.
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        size="large"
+                        onClick={handleContinueToDashboard}
+                        sx={{ fontWeight: 600 }}
+                      >
+                        {isLoadingRegenrate ? (
+                          <CircularProgress size={16} color="inherit" />
+
+                        ):(
+                          "Continue to Dashboard"
+                        )}
+                      </Button>
                     </div>
                   </div>
-                ) : (
-                  <div className="bg-[#fffde7] border border-[#fbc02d] rounded-lg p-4">
+                </div>
+              ) : (
+                <div className="max-w-7xl mx-auto px-4  sm:px-6 lg:px-8 pt-4 pb-24 ">
+                  <div className=" bg-[#fffde7] border border-[#fbc02d] rounded-lg p-4">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
                         <svg
@@ -279,132 +319,135 @@ const SessionManagementPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                )}
-              </Box>
-
-              {/* Sessions Section - Only show if there are sessions */}
-              {sessions?.length > 0 && (
-                <Box className="rounded-lg shadow-sm border bg-white">
-                  <div className="px-6 py-2 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Typography
-                          variant="h6"
-                          className="text-gray-900 font-medium"
-                        >
-                          Active Sessions
-                        </Typography>
-                        <Typography variant="body2" className="text-gray-500">
-                          {sessions?.length} session
-                          {sessions?.length !== 1 ? "s" : ""} currently active
-                        </Typography>
+                  {/* Sessions Section - Only show if there are sessions */}
+                  {sessions?.length > 0 && (
+                    <Box className="rounded-lg shadow-sm border bg-white">
+                      <div className="px-6 py-2 border-b border-gray-200">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Typography
+                              variant="h6"
+                              className="text-gray-900 font-medium"
+                            >
+                              Active Sessions
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              className="text-gray-500"
+                            >
+                              {sessions?.length} session
+                              {sessions?.length !== 1 ? "s" : ""} currently
+                              active
+                            </Typography>
+                          </div>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={handleConfirmDeleteAll}
+                          >
+                            {/* {isLoadingDeleteSession ? (
+                              <CircularProgress size={20} />
+                            ) : ( */}
+                              End All Sessions
+                            {/* )} */}
+                          </Button>
+                        </div>
                       </div>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        onClick={handleConfirmDeleteAll}
-                      >
-                        {isLoadingDeleteSession ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          "End All Sessions"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
 
-                  {/* List */}
-                  <div className="p-6">
-                    <div className="space-y-4 pr-2">
-                      {sessions?.map((session: any) => (
-                        <div
-                          key={session.sessionId}
-                          className="bg-gray-50 border border-gray-200 rounded-lg p-4"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                                {session.device === "APP" ? (
-                                  <SmartphoneIcon className="text-gray-600 text-sm" />
-                                ) : session.device === "TAB" ? (
-                                  <TabletIcon className="text-gray-600 text-sm" />
-                                ) : (
-                                  <ComputerIcon className="text-gray-600 text-sm" />
-                                )}
-                              </div>
-                              <div>
-                                <Typography
-                                  variant="body2"
-                                  className="text-gray-500 text-sm"
+                      {/* List */}
+                      <div className="p-6">
+                        <div className="space-y-4 pr-2">
+                          {sessions?.map((session: any) => (
+                            <div
+                              key={session.sessionId}
+                              className="bg-gray-50 border border-gray-200 rounded-lg p-4"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                                    {session.device === "APP" ? (
+                                      <SmartphoneIcon className="text-gray-600 text-sm" />
+                                    ) : session.device === "TAB" ? (
+                                      <TabletIcon className="text-gray-600 text-sm" />
+                                    ) : (
+                                      <ComputerIcon className="text-gray-600 text-sm" />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <Typography
+                                      variant="body2"
+                                      className="text-gray-500 text-sm"
+                                    >
+                                      Last activity
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      className="text-gray-900 font-medium"
+                                    >
+                                      {new Date(
+                                        session.lastActivity
+                                      ).toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })}
+                                    </Typography>
+                                    <Typography
+                                      variant="caption"
+                                      className="text-gray-500"
+                                    >
+                                      {session.ipAddress} • {session.ipLocation}
+                                    </Typography>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="text"
+                                  size="small"
+                                  onClick={() =>
+                                    handleDeleteSession(session?.sessionId)
+                                  }
+                                  disabled={
+                                    deletingSessionId === session?.sessionId
+                                  }
+                                  sx={{
+                                    fontWeight: 600,
+                                  }}
                                 >
-                                  Last activity
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  className="text-gray-900 font-medium"
-                                >
-                                  {new Date(
-                                    session.lastActivity
-                                  ).toLocaleDateString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                    hour: "numeric",
-                                    minute: "2-digit",
-                                    hour12: true,
-                                  })}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  className="text-gray-500"
-                                >
-                                  {session.ipAddress} • {session.ipLocation}
-                                </Typography>
+                                  {isLoadingDeleteSession &&
+                                  deletingSessionId === session?.sessionId ? (
+                                    <CircularProgress size={16} />
+                                  ) : (
+                                    "End session"
+                                  )}
+                                </Button>
                               </div>
                             </div>
-                            <Button
-                              variant="text"
-                              size="small"
-                              onClick={() =>
-                                handleDeleteSession(session?.sessionId)
-                              }
-                              disabled={
-                                deletingSessionId === session?.sessionId
-                              }
-                              sx={{
-                                fontWeight: 600,
-                              }}
-                            >
-                              {isLoadingDeleteSession &&
-                              deletingSessionId === session?.sessionId ? (
-                                <CircularProgress size={16} />
-                              ) : (
-                                "End session"
-                              )}
-                            </Button>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </Box>
+                      </div>
+                    </Box>
+                  )}
+                </div>
               )}
+            </Box>
 
-              {canContinueToDesktop && (
-                <Box className="mt-8 text-center">
-                  <Button
-                    variant="contained"
-                    size="large"
-                    onClick={handleContinueToDashboard}
-                    sx={{ fontWeight: 600 }}
-                  >
-                    Continue to Desktop
-                  </Button>
-                </Box>
-              )}
-            </>
-          )}
-        </div>
+            {sessions?.length !== 0 && canContinueToDesktop && (
+              <Box className="mt-8 text-center">
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={handleContinueToDashboard}
+                  sx={{ fontWeight: 600 }}
+                >
+                  Continue to Desktop
+                </Button>
+              </Box>
+            )}
+          </>
+        )}
       </Box>
 
       {/* Fixed Footer Help Text */}
