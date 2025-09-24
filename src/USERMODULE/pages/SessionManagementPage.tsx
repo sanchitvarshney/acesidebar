@@ -252,7 +252,7 @@ const SessionManagementPage: React.FC = () => {
           <>
             <Box className="mb-8">
               {desktopCount === 0 && mobileCount === 0 ? (
-                <div className=" h-[calc(100vh-80px)] max-w-7xl mx-auto px-4 flex flex-col items-center justify-center sm:px-6 lg:px-8 pt-4 pb-24 ">
+                <div className=" h-[calc(100vh-150px)] max-w-7xl mx-auto px-4 flex flex-col items-center justify-center sm:px-6 lg:px-8 pt-4 pb-24 ">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex flex-col gap-4 justify-center items-center">
                       <img
