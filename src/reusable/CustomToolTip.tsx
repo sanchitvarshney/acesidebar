@@ -37,7 +37,7 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
         padding: 0,
   },
   [`& .${tooltipClasses.popper}`]: {
-    zIndex: 10001,
+    zIndex: 110000, // ensure highest stacking for nested menus
     position: "relative",
   },
 }));
@@ -60,10 +60,10 @@ const CustomToolTip: FC<CustomizedTooltipProps> = ({
       onClose={close}
       PopperProps={{
         sx: {
-          zIndex: 10002,
-            [`& .${tooltipClasses.tooltip}`]: {
-            width: width || "auto", // 👈 apply width here
-            maxWidth: "none",       // remove default MUI maxWidth
+          zIndex: 200000,
+          [`& .${tooltipClasses.tooltip}`]: {
+            width: width || "auto",
+            maxWidth: "none",
           },
         },
       }}

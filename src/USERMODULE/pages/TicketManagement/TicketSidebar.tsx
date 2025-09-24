@@ -772,7 +772,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       <CustomSideBarPanel
         open={drawerOpen}
         close={() => {
-          handleResetFilters();
           setDrawerOpen(false);
         }}
         title={
@@ -926,7 +925,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
                       >
-                      
                         {field.choices?.map(
                           (opt: { value: string; label: string }) => (
                             <MenuItem key={opt.value} value={opt.value}>
@@ -964,7 +962,6 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
                   {field.type === "chip" && (
                     <FormControl fullWidth size="small">
-                
                       <Select
                         multiple
                         name={field.name}
@@ -1041,7 +1038,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   handleResetFilters();
                   setDrawerOpen(false);
                 }}
-                sx={{fontWeight: 600}}
+                sx={{ fontWeight: 600 }}
               >
                 Clear filters
               </Button>

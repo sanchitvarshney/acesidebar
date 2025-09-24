@@ -51,6 +51,8 @@ import {
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 import { m } from "framer-motion";
 import { object, set } from "zod";
+import CustomToolTip from "../../../reusable/CustomToolTip";
+import { Close } from "@mui/icons-material";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -99,8 +101,7 @@ const Tickets: React.FC = () => {
   const [agentValue, setAgentValue] = useState<any>(null);
   const [changeAgent, setChangeAgent] = useState("");
   const [trackTicketId, setTrackTicketId] = useState("");
-  const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] =
-    useState<HTMLElement | null>(null);
+  const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] = useState<any>(false);
   const [quickUpdateValues, setQuickUpdateValues] = useState({
     priority: "",
     status: "",
@@ -116,7 +117,7 @@ const Tickets: React.FC = () => {
   const popupRef = useRef<HTMLDivElement>(null);
 
   // State to track popup placement for dynamic arrow positioning
-  const [popupPlacement, setPopupPlacement] = useState<string>('bottom-end');
+  const [popupPlacement, setPopupPlacement] = useState<string>("bottom-end");
 
   // Handle popup placement changes for dynamic arrow positioning
   const handlePlacementChange = (placement: string) => {
@@ -126,7 +127,7 @@ const Tickets: React.FC = () => {
   // Generate dynamic arrow styles based on placement
   const getArrowStyles = (placement: string) => {
     const baseArrowStyles = {
-      position: 'absolute' as const,
+      position: "absolute" as const,
       width: 0,
       height: 0,
       zIndex: 1,
@@ -138,92 +139,92 @@ const Tickets: React.FC = () => {
     };
 
     switch (placement) {
-      case 'top':
-      case 'top-start':
-      case 'top-end':
+      case "top":
+      case "top-start":
+      case "top-end":
         return {
           arrow: {
             ...baseArrowStyles,
             bottom: -7,
             right: 16,
-            borderLeft: '7px solid transparent',
-            borderRight: '7px solid transparent',
-            borderTop: '7px solid #fff',
+            borderLeft: "7px solid transparent",
+            borderRight: "7px solid transparent",
+            borderTop: "7px solid #fff",
           },
           borderArrow: {
             ...borderArrowStyles,
             bottom: -8,
             right: 16,
-            borderLeft: '8px solid transparent',
-            borderRight: '8px solid transparent',
-            borderTop: '8px solid #e0e0e0',
-          }
+            borderLeft: "8px solid transparent",
+            borderRight: "8px solid transparent",
+            borderTop: "8px solid #e0e0e0",
+          },
         };
 
-      case 'bottom':
-      case 'bottom-start':
-      case 'bottom-end':
+      case "bottom":
+      case "bottom-start":
+      case "bottom-end":
         return {
           arrow: {
             ...baseArrowStyles,
             top: -7,
             right: 16,
-            borderLeft: '7px solid transparent',
-            borderRight: '7px solid transparent',
-            borderBottom: '7px solid #fff',
+            borderLeft: "7px solid transparent",
+            borderRight: "7px solid transparent",
+            borderBottom: "7px solid #fff",
           },
           borderArrow: {
             ...borderArrowStyles,
             top: -8,
             right: 16,
-            borderLeft: '8px solid transparent',
-            borderRight: '8px solid transparent',
-            borderBottom: '8px solid #e0e0e0',
-          }
+            borderLeft: "8px solid transparent",
+            borderRight: "8px solid transparent",
+            borderBottom: "8px solid #e0e0e0",
+          },
         };
 
-      case 'left':
-      case 'left-start':
-      case 'left-end':
+      case "left":
+      case "left-start":
+      case "left-end":
         return {
           arrow: {
             ...baseArrowStyles,
             top: 16,
             right: -7,
-            borderTop: '7px solid transparent',
-            borderBottom: '7px solid transparent',
-            borderLeft: '7px solid #fff',
+            borderTop: "7px solid transparent",
+            borderBottom: "7px solid transparent",
+            borderLeft: "7px solid #fff",
           },
           borderArrow: {
             ...borderArrowStyles,
             top: 16,
             right: -8,
-            borderTop: '8px solid transparent',
-            borderBottom: '8px solid transparent',
-            borderLeft: '8px solid #e0e0e0',
-          }
+            borderTop: "8px solid transparent",
+            borderBottom: "8px solid transparent",
+            borderLeft: "8px solid #e0e0e0",
+          },
         };
 
-      case 'right':
-      case 'right-start':
-      case 'right-end':
+      case "right":
+      case "right-start":
+      case "right-end":
         return {
           arrow: {
             ...baseArrowStyles,
             top: 16,
             left: -7,
-            borderTop: '7px solid transparent',
-            borderBottom: '7px solid transparent',
-            borderRight: '7px solid #fff',
+            borderTop: "7px solid transparent",
+            borderBottom: "7px solid transparent",
+            borderRight: "7px solid #fff",
           },
           borderArrow: {
             ...borderArrowStyles,
             top: 16,
             left: -8,
-            borderTop: '8px solid transparent',
-            borderBottom: '8px solid transparent',
-            borderRight: '8px solid #e0e0e0',
-          }
+            borderTop: "8px solid transparent",
+            borderBottom: "8px solid transparent",
+            borderRight: "8px solid #e0e0e0",
+          },
         };
 
       default:
@@ -232,18 +233,18 @@ const Tickets: React.FC = () => {
             ...baseArrowStyles,
             top: -7,
             right: 16,
-            borderLeft: '7px solid transparent',
-            borderRight: '7px solid transparent',
-            borderBottom: '7px solid #fff',
+            borderLeft: "7px solid transparent",
+            borderRight: "7px solid transparent",
+            borderBottom: "7px solid #fff",
           },
           borderArrow: {
             ...borderArrowStyles,
             top: -8,
             right: 16,
-            borderLeft: '8px solid transparent',
-            borderRight: '8px solid transparent',
-            borderBottom: '8px solid #e0e0e0',
-          }
+            borderLeft: "8px solid transparent",
+            borderRight: "8px solid transparent",
+            borderBottom: "8px solid #e0e0e0",
+          },
         };
     }
   };
@@ -262,11 +263,11 @@ const Tickets: React.FC = () => {
     };
 
     if (quickUpdateAnchorEl) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [quickUpdateAnchorEl]);
 
@@ -411,14 +412,13 @@ const Tickets: React.FC = () => {
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-      "Date created"
+        "Date created"
     );
     setPage(1); // Reset to first page
   };
 
   // Handle mode change
   const handleModeChange = (mode: string) => {
-    
     setSortOrder(mode);
     setPage(1); // Reset to first page
   };
@@ -482,7 +482,7 @@ const Tickets: React.FC = () => {
     if (!ticketsToShow?.data) return;
     setMasterChecked(
       ticketsToShow.data.length > 0 &&
-      selectedTickets.length === ticketsToShow.data.length
+        selectedTickets.length === ticketsToShow.data.length
     );
   }, [selectedTickets, ticketsToShow]);
 
@@ -560,7 +560,7 @@ const Tickets: React.FC = () => {
     event.stopPropagation();
     const merged = applyOverrides(ticket);
     setTrackTicketId(merged?.ticketNumber);
-    setQuickUpdateAnchorEl(event.currentTarget);
+    setQuickUpdateAnchorEl(true);
     setQuickUpdateValues({
       // Map by label when key is absent in ticket object
       priority:
@@ -574,10 +574,10 @@ const Tickets: React.FC = () => {
     setAgentValue(
       merged.assignee
         ? {
-          fName: merged.assignee.name?.split(" ")[0] || "",
-          lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
-          UserId: merged.assignee.id || merged.assignee.UserId,
-        }
+            fName: merged.assignee.name?.split(" ")[0] || "",
+            lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
+            UserId: merged.assignee.id || merged.assignee.UserId,
+          }
         : null
     );
 
@@ -663,6 +663,185 @@ const Tickets: React.FC = () => {
       });
   };
 
+  const renderProperties = (
+    <Paper
+      elevation={0}
+      sx={{
+     boxShadow: "none",
+        maxWidth: 400,
+        minWidth: 380,
+        position: "relative",
+        overflow: "visible",
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="p-6 ">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Quick update properties
+          </h3>
+          <IconButton
+            size="small"
+            onClick={handleQuickUpdateClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <Close fontSize="small" />
+          </IconButton>
+        </div>
+
+        {/* Form Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Priority */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              Priority
+            </label>
+            <FormControl fullWidth size="small" variant="outlined">
+              <Select
+                value={quickUpdateValues.priority}
+                onChange={(e) =>
+                  handleQuickUpdateChange("priority", e.target.value)
+                }
+                displayEmpty
+                MenuProps={{
+                  disablePortal: false,
+                  slotProps: {
+                    paper: { sx: { zIndex: 200000 } },
+                    root: { sx: { zIndex: 200000 } },
+                  },
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#d1d5db",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#9ca3af",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#3b82f6",
+                    },
+                  },
+                }}
+              >
+                {PRIORITY_OPTIONS.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: option.color }}
+                      ></div>
+                      <span className="text-gray-700">{option.label}</span>
+                    </div>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+
+          {/* Status */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Status</label>
+            <FormControl fullWidth size="small" variant="outlined">
+              <Select
+                value={quickUpdateValues.status}
+                onChange={(e) =>
+                  handleQuickUpdateChange("status", e.target.value)
+                }
+                displayEmpty
+                MenuProps={{
+                  disablePortal: false,
+                  slotProps: {
+                    paper: { sx: { zIndex: 200000 } },
+                    root: { sx: { zIndex: 200000 } },
+                  },
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#d1d5db",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#9ca3af",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#3b82f6",
+                    },
+                  },
+                }}
+              >
+                {STATUS_OPTIONS.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <span className="text-gray-700">{option.label}</span>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+
+          {/* Groups */}
+          <SingleValueAsynAutocomplete
+            value={dept}
+            label="Department"
+            qtkMethod={triggerDept}
+            onChange={setDept}
+            loading={deptLoading}
+            showIcon={false}
+            size="small"
+            optionLabelKey="deptName"
+          />
+
+          <SingleValueAsynAutocomplete
+            value={agentValue}
+            label="Assignee"
+            qtkMethod={triggerSeachAgent}
+            onChange={setAgentValue}
+            loading={seachAgentLoading}
+            showIcon={false}
+            renderOptionExtra={(user) => (
+              <Typography variant="body2" color="text.secondary">
+                {user.email}
+              </Typography>
+            )}
+            size="small"
+          />
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+          <Button
+            variant="text"
+            size="small"
+            onClick={handleQuickUpdateClose}
+            sx={{ minWidth: 80, fontWeight: 600 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleQuickUpdateProperty}
+            sx={{
+              textTransform: "none",
+              backgroundColor: "#3b82f6",
+              "&:hover": {
+                backgroundColor: "#2563eb",
+              },
+            }}
+          >
+            {statusLoading ? (
+              <CircularProgress size={18} color="inherit" />
+            ) : (
+              "Update"
+            )}
+          </Button>
+        </div>
+      </div>
+    </Paper>
+  );
+
   // Card-style ticket rendering
   const renderTicketCard = (ticket: any) => {
     const merged = applyOverrides(ticket);
@@ -704,14 +883,22 @@ const Tickets: React.FC = () => {
                   {merged?.lastupdate?.timeAgo || ""}
                 </span>
               </div>
-              <IconButton
-                size="small"
-                onClick={(e) => handleQuickUpdateOpen(e, merged)}
-                className="text-gray-400 hover:text-gray-600 p-1"
-                data-testid="more-vert-button"
+              <CustomToolTip
+                title={renderProperties}
+                open={
+                  merged?.ticketNumber === trackTicketId && quickUpdateAnchorEl
+                }
+                disableHoverListener
+                placement={"top-end"}
               >
-                <MoreVertIcon fontSize="small" />
-              </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={(e) => handleQuickUpdateOpen(e, merged)}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <MoreVertIcon fontSize="small" />
+                </IconButton>
+              </CustomToolTip>
             </div>
             <p className="text-sm text-gray-600 leading-relaxed">
               {typeof merged.description === "string"
@@ -809,20 +996,33 @@ const Tickets: React.FC = () => {
             </div>
           </div>
 
-
           {/* Separator */}
           <div className="text-gray-300">|</div>
 
           {/* Raised by */}
 
           <div className="flex items-start gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" className="lucide text-gray-500 mt-0.5"><path d="M16.051 12.616a1 1 0 0 1 1.909.024l.737 1.452a1 1 0 0 0 .737.535l1.634.256a1 1 0 0 1 .588 1.806l-1.172 1.168a1 1 0 0 0-.282.866l.259 1.613a1 1 0 0 1-1.541 1.134l-1.465-.75a1 1 0 0 0-.912 0l-1.465.75a1 1 0 0 1-1.539-1.133l.258-1.613a1 1 0 0 0-.282-.866l-1.156-1.153a1 1 0 0 1 .572-1.822l1.633-.256a1 1 0 0 0 .737-.535z" /><path d="M8 15H7a4 4 0 0 0-4 4v2" /><circle cx="10" cy="7" r="4" /></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              className="lucide text-gray-500 mt-0.5"
+            >
+              <path d="M16.051 12.616a1 1 0 0 1 1.909.024l.737 1.452a1 1 0 0 0 .737.535l1.634.256a1 1 0 0 1 .588 1.806l-1.172 1.168a1 1 0 0 0-.282.866l.259 1.613a1 1 0 0 1-1.541 1.134l-1.465-.75a1 1 0 0 0-.912 0l-1.465.75a1 1 0 0 1-1.539-1.133l.258-1.613a1 1 0 0 0-.282-.866l-1.156-1.153a1 1 0 0 1 .572-1.822l1.633-.256a1 1 0 0 0 .737-.535z" />
+              <path d="M8 15H7a4 4 0 0 0-4 4v2" />
+              <circle cx="10" cy="7" r="4" />
+            </svg>
 
             <div className="flex flex-col">
               <span className="text-gray-500 mb-1">raised by</span>
 
               <div className="text-gray-700">
-
                 <span
                   className="text-gray-700 font-medium cursor-pointer hover:underline decoration-dotted"
                   onMouseEnter={(e) => handleUserHover(e, merged.fromUser)}
@@ -872,7 +1072,6 @@ const Tickets: React.FC = () => {
             </div>
           </div>
 
-
           {/* Separator */}
           <div className="text-gray-300">|</div>
 
@@ -901,7 +1100,6 @@ const Tickets: React.FC = () => {
               </span>
             </div>
           </div>
-
 
           {/* Separator */}
           <div className="text-gray-300">|</div>
@@ -933,7 +1131,6 @@ const Tickets: React.FC = () => {
               <span className="text-gray-700">{merged?.dueDate || "~"}</span>
             </div>
           </div>
-
 
           {/* Red dot at the end */}
           <div className="w-3 h-3 bg-red-500 rounded-full ml-auto"></div>
@@ -1153,7 +1350,8 @@ const Tickets: React.FC = () => {
       />
 
       {/* Quick Update Popup */}
-      <Popper
+
+      {/* <Popper
         open={Boolean(quickUpdateAnchorEl)}
         anchorEl={quickUpdateAnchorEl}
         placement="bottom-end"
@@ -1202,176 +1400,8 @@ const Tickets: React.FC = () => {
         ]}
         style={{ zIndex: 1300 }}
       >
-        <Paper
-          ref={popupRef}
-          elevation={8}
-          sx={{
-            borderRadius: 2,
-            border: "1px solid #e0e0e0",
-            maxWidth: 400,
-            minWidth: 380,
-            position: "relative",
-            overflow: "visible",
-          }}
-        >
-          {/* Dynamic Arrow - Border (behind) */}
-          <div style={getArrowStyles(popupPlacement).borderArrow} />
-
-          {/* Dynamic Arrow - Fill (on top) */}
-          <div style={getArrowStyles(popupPlacement).arrow} />
-          <div className="p-6 bg-white">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Quick update properties
-              </h3>
-              <IconButton
-                size="small"
-                onClick={handleQuickUpdateClose}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </IconButton>
-            </div>
-
-            {/* Form Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Priority */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Priority
-                </label>
-                <FormControl fullWidth size="small" variant="outlined">
-                  <Select
-                    value={quickUpdateValues.priority}
-                    onChange={(e) =>
-                      handleQuickUpdateChange("priority", e.target.value)
-                    }
-                    displayEmpty
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          borderColor: "#d1d5db",
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#9ca3af",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#3b82f6",
-                        },
-                      },
-                    }}
-                  >
-                    {PRIORITY_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: option.color }}
-                          ></div>
-                          <span className="text-gray-700">{option.label}</span>
-                        </div>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Status */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Status
-                </label>
-                <FormControl fullWidth size="small" variant="outlined">
-                  <Select
-                    value={quickUpdateValues.status}
-                    onChange={(e) =>
-                      handleQuickUpdateChange("status", e.target.value)
-                    }
-                    displayEmpty
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          borderColor: "#d1d5db",
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#9ca3af",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#3b82f6",
-                        },
-                      },
-                    }}
-                  >
-                    {STATUS_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <span className="text-gray-700">{option.label}</span>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-
-              {/* Groups */}
-              <SingleValueAsynAutocomplete
-                value={dept}
-                label="Department"
-                qtkMethod={triggerDept}
-                onChange={setDept}
-                loading={deptLoading}
-                showIcon={false}
-                size="small"
-                optionLabelKey="deptName"
-              />
-
-              <SingleValueAsynAutocomplete
-                value={agentValue}
-                label="Assignee"
-                qtkMethod={triggerSeachAgent}
-                onChange={setAgentValue}
-                loading={seachAgentLoading}
-                showIcon={false}
-                renderOptionExtra={(user) => (
-                  <Typography variant="body2" color="text.secondary">
-                    {user.email}
-                  </Typography>
-                )}
-                size="small"
-              />
-            </div>
-
-            {/* Footer Actions */}
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-              <Button
-                variant="text"
-                size="small"
-                onClick={handleQuickUpdateClose}
-                sx={{ minWidth: 80, fontWeight: 600 }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleQuickUpdateProperty}
-                sx={{
-                  textTransform: "none",
-                  backgroundColor: "#3b82f6",
-                  "&:hover": {
-                    backgroundColor: "#2563eb",
-                  },
-                }}
-              >
-                {statusLoading ? (
-                  <CircularProgress size={18} color="inherit" />
-                ) : (
-                  "Update"
-                )}
-              </Button>
-            </div>
-          </div>
-        </Paper>
-      </Popper>
+  
+      </Popper> */}
     </>
   );
 };

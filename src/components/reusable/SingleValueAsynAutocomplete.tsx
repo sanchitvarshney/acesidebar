@@ -115,6 +115,12 @@ function AsyncAutocomplete<T extends Record<string, any>>({
       disableClearable
       popupIcon={null}
       multiple={multiple}
+      disablePortal={false}
+      slotProps={{
+        popper: {
+          sx: { zIndex: 200000 },
+        },
+      }}
       sx={{ width: width && width }}
       value={value}
       options={options}

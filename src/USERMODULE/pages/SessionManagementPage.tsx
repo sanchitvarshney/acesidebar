@@ -3,10 +3,6 @@ import {
   Box,
   Typography,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Avatar,
   CircularProgress,
 } from "@mui/material";
@@ -34,9 +30,11 @@ const SessionManagementPage: React.FC = () => {
 
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { data: sessionData, isLoading: isLoadingSession } = useGetSessionQuery(
-    {}
-  );
+  const {
+    data: sessionData,
+    isLoading: isLoadingSession,
+    error,
+  } = useGetSessionQuery({});
 
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
@@ -63,13 +61,10 @@ const SessionManagementPage: React.FC = () => {
     useTriggerRegenrateMutation();
   // Load mock sessions on component mount
   useEffect(() => {
-    if (sessionData?.type === "logout" && sessionData?.success === false) {
-      showToast("Login Failed OR Session expired.", "error");
-      handleLogOut();
-      return;
-    }
     setSessions(sessionData?.data ?? []);
   }, [sessionData]);
+
+
 
   const handleDeleteSession = (sessionId: string) => {
     setSessionToDelete(sessionId);
@@ -126,7 +121,6 @@ const SessionManagementPage: React.FC = () => {
       //     }
       //     if (res?.type === "success" && res?.success) {
       //       showToast(res?.message || "Session ended successfully", "success");
-
       //       setSessions([]);
       //     }
       //   })
@@ -146,11 +140,11 @@ const SessionManagementPage: React.FC = () => {
 
   const handleContinueToDashboard = () => {
     triggerRegenrate({})
-      .unwrap()
-      .then((res) => {
-        if (res?.success && res?.type === "session_regenerated") {
-          localStorage.setItem("userToken", res?.data?.token);
-          const decryptedData = JSON.stringify(decrypt(res?.data?.user));
+      .then((res: any) => {
+      
+        if (res?.data?.success && res?.data?.type === "session_regenerated") {
+          localStorage.setItem("userToken", res?.data?.data?.token);
+          const decryptedData = JSON.stringify(decrypt(res?.data?.data?.user));
           localStorage.setItem("userData", decryptedData);
           showToast(
             res?.message || "Session regenerated successfully",
@@ -162,6 +156,15 @@ const SessionManagementPage: React.FC = () => {
 
           navigate("/");
         }
+      })
+      .catch(() => {
+        showToast(
+          "Failed to end session. Please try again.",
+          "error",
+          "borderToast",
+          true
+        );
+        handleLogOut();
       });
   };
 
@@ -199,6 +202,8 @@ const SessionManagementPage: React.FC = () => {
         navigate("/login");
       });
   };
+
+
 
   return (
     <Box className="w-full h-screen bg-gray-50 flex flex-col">
@@ -268,8 +273,7 @@ const SessionManagementPage: React.FC = () => {
                       >
                         {isLoadingRegenrate ? (
                           <CircularProgress size={16} color="inherit" />
-
-                        ):(
+                        ) : (
                           "Continue to Dashboard"
                         )}
                       </Button>
@@ -348,7 +352,7 @@ const SessionManagementPage: React.FC = () => {
                             {/* {isLoadingDeleteSession ? (
                               <CircularProgress size={20} />
                             ) : ( */}
-                              End All Sessions
+                            End All Sessions
                             {/* )} */}
                           </Button>
                         </div>
