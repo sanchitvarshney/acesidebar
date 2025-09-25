@@ -27,16 +27,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   getStatusIcon,
   onStatusChange,
 }) => {
-  // Early return if task is not available
-  // if (!task) {
-  //   return (
-  //     <div className="space-y-6">
-  //       <div className="text-center py-8 text-gray-500">
-  //         <p>No task data available</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="space-y-6">
@@ -52,7 +42,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
             </div>
           </div>
           <p className="text-gray-600 text-sm font-medium">
-            {task?.description || "No description available"}
+            {task?.body ?? "No description available"}
           </p>
         </CardContent>
       </Card>
@@ -155,7 +145,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900">
-                    {task?.dueDate || "No due date"}
+                    {task?.due || "No due date"}
                   </span>
                 </div>
               </div>
@@ -170,7 +160,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-bold text-blue-900">
-                    {task?.estimatedHours || 0}h
+                    {task?.estimate || 0}h
                   </span>
                 </div>
 
@@ -182,7 +172,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     </span>
                   </div>
                   <span className="text-sm font-bold text-green-900">
-                    {task?.actualHours || 0}h
+                    {task?.actual || 0}h
                   </span>
                 </div>
               </div>
@@ -192,7 +182,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
       </Card>
 
       {/* Tags */}
-      {(task?.tags?.length || [].length) > 0 && (
+      {/* {(task?.tags?.length || [].length) > 0 && (
         <Card>
           <CardContent className="p-4">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100 mb-3">
@@ -217,7 +207,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
     </div>
   );
 };

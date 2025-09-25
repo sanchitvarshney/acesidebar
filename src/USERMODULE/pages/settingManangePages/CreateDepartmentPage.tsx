@@ -138,18 +138,79 @@ const CreateDepartmentPage = () => {
   };
 
   const handleSave = () => {
-    // Here you would typically save the department data
-    // setActiveTab(1);
-    console.log("Saving department:", formData);
+    // Create API payload
+    const payload = {
+      basicInfo: {
+        name: formData.name,
+        status: formData.status,
+        type: formData.type,
+      },
+      sla: {
+        level: formData.sal,
+        responseTime:
+          formData.sal === "basic"
+            ? 24
+            : formData.sal === "standard"
+            ? 8
+            : formData.sal === "premium"
+            ? 4
+            : 1,
+        resolutionTime:
+          formData.sal === "basic"
+            ? 72
+            : formData.sal === "standard"
+            ? 24
+            : formData.sal === "premium"
+            ? 8
+            : 4,
+      },
+      schedule: {
+        workingHours:
+          formData.schedule === "24x7"
+            ? "24/7"
+            : formData.schedule === "business"
+            ? "9:00 AM - 6:00 PM"
+            : formData.schedule === "extended"
+            ? "8:00 AM - 8:00 PM"
+            : "Custom",
+      },
+      management: {
+        manager: formData.manager,
+        ticketAssignment: formData.ticketAssignment,
+        reopenAutoAssignment: formData.reopenAutoAssignment,
+      },
+      email: {
+        outgoingEmail: formData.outgoingEmail,
+        autoResponse: {
+          disableNewTicket: formData.disableNewTicket,
+          disableNewMessage: formData.disableNewMessage,
+          autoResponseEmail: formData.autoResponseEmail,
+        },
+        recipient: formData.recipient,
+      },
+      settings: {
+        signature: formData.signature,
+        enableSlaMonitoring: true,
+        escalationTime: 24,
+        priorityLevel: "medium",
+      },
+      members: {
+        memberIds: departmentMembers.map((member) => member.id.toString()),
+        roles: departmentMembers.reduce((acc, member) => {
+          acc[member.id.toString()] = member.role;
+          return acc;
+        }, {} as { [memberId: string]: string }),
+      },
+    };
+
+    console.log("Department API Payload:", payload);
+
     setShowSuccess(true);
-    // setTimeout(() => {
-    //   navigate("/departments");
-    // }, 2000);
+    setTimeout(() => {
+      navigate("/departments");
+    }, 2000);
   };
 
-  const handleCancel = () => {
-    navigate("/departments");
-  };
 
   const handleDownloadMembers = () => {
     // Implement download functionality

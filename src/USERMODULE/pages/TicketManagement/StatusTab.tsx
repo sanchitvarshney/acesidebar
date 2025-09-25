@@ -7,6 +7,7 @@ import {
   Divider,
   MenuItem,
   Select,
+  Skeleton,
   TextField,
   Typography,
 } from "@mui/material";
@@ -43,6 +44,9 @@ const SLAOptions = [
 
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
+  
+  // Debug log to check ticket data
+  console.log("StatusTab - ticket data:", ticket);
   const [tagValue, setTagValue] = useState<any[]>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
   const [type, setType] = useState("");
@@ -188,105 +192,139 @@ const StatusTab = ({ ticket }: any) => {
           <Typography variant="subtitle1">Properties</Typography>
 
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: { xs: "11px", sm: "12px" }, mb: 0.5 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontSize: { xs: "11px", sm: "12px" }, mb: 0.5 }}
+            >
               Type
             </Typography>
-            <Select
-              variant="standard"
-              fullWidth
-              size="medium"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              sx={{
-                fontSize: { xs: "14px", sm: "16px" },
-                "& .MuiSelect-select": {
-                  padding: { xs: "8px 0", sm: "12px 0" },
-                },
-              }}
-            >
-              {[...((typeList as any[]) || [])].map((name: any) => (
-                <MenuItem key={name.key} value={name.key}>
-                  {name.typeName}
-                </MenuItem>
-              ))}
-            </Select>
+            {!ticket ? (
+              <Skeleton 
+                variant="rectangular" 
+                height={40} 
+                sx={{ 
+                  backgroundColor: '#e0e0e0',
+                  animation: 'pulse 1.5s ease-in-out infinite',
+                  '@keyframes pulse': {
+                    '0%': { opacity: 1 },
+                    '50%': { opacity: 0.5 },
+                    '100%': { opacity: 1 }
+                  }
+                }} 
+              />
+            ) : (
+              <Select
+                variant="standard"
+                fullWidth
+                size="medium"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                sx={{
+                  fontSize: { xs: "14px", sm: "16px" },
+                  "& .MuiSelect-select": {
+                    padding: { xs: "8px 0", sm: "12px 0" },
+                  },
+                }}
+              >
+                {[...((typeList as any[]) || [])].map((name: any) => (
+                  <MenuItem key={name.key} value={name.key}>
+                    {name.typeName}
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
           </div>
           <div>
             <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
               Status
             </Typography>
-            <Select
-              fullWidth
-              variant="standard"
-              size="medium"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              {statusList?.map((status: any) => (
-                <MenuItem key={status.key} value={status.key}>
-                  <Typography
-                    variant="body2"
-                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                  >
-                    {status?.statusName}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Select>
+            {!ticket ? (
+              <Skeleton variant="rectangular" height={40} />
+            ) : (
+              <Select
+                fullWidth
+                variant="standard"
+                size="medium"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                {statusList?.map((status: any) => (
+                  <MenuItem key={status.key} value={status.key}>
+                    <Typography
+                      variant="body2"
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      {status?.statusName}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
           </div>
 
           <div>
             <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
               Priority
             </Typography>
-            <Select
-              fullWidth
-              variant="standard"
-              size="medium"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-            >
-              {[...((priorityList as any[]) || [])].map((priority: any) => (
-                <MenuItem key={priority.key} value={priority.key}>
-                  <Typography
-                    variant="body2"
-                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                  >
-                    <span
-                      className="w-3 h-3 inline-block"
-                      style={{ backgroundColor: priority.color || "#cccccc" }}
-                    />
-                    {priority.specification}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Select>
+            {!ticket ? (
+              <Skeleton variant="rectangular" height={40} />
+            ) : (
+              <Select
+                fullWidth
+                variant="standard"
+                size="medium"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+              >
+                {[...((priorityList as any[]) || [])].map((priority: any) => (
+                  <MenuItem key={priority.key} value={priority.key}>
+                    <Typography
+                      variant="body2"
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      <span
+                        className="w-3 h-3 inline-block"
+                        style={{ backgroundColor: priority.color || "#cccccc" }}
+                      />
+                      {priority.specification}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
           </div>
           <div>
             <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
               SLA
             </Typography>
-            <Select
-              fullWidth
-              variant="standard"
-              size="medium"
-              value={sla}
-              onChange={(e) => setSLA(e.target.value)}
-            >
-              {(SLAOptions || []).map((sla: any) => (
-                <MenuItem key={sla.value} value={sla.value}>
-                  <Typography
-                    variant="body2"
-                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                  >
-                    {sla.label}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Select>
+            {!ticket ? (
+              <Skeleton variant="rectangular" height={40} />
+            ) : (
+              <Select
+                fullWidth
+                variant="standard"
+                size="medium"
+                value={sla}
+                onChange={(e) => setSLA(e.target.value)}
+              >
+                {(SLAOptions || []).map((sla: any) => (
+                  <MenuItem key={sla.value} value={sla.value}>
+                    <Typography
+                      variant="body2"
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      {sla.label}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
           </div>
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: { xs: "11px", sm: "12px" }, mb: 0.5 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontSize: { xs: "11px", sm: "12px" }, mb: 0.5 }}
+            >
               Due Date
             </Typography>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -300,69 +338,75 @@ const StatusTab = ({ ticket }: any) => {
                   setDueDate(newValue);
                 }}
                 minDateTime={dayjs()}
-                maxDateTime={dayjs().add(7, 'day')}
+                maxDateTime={dayjs().add(7, "day")}
                 shouldDisableDate={(date) => {
                   // Disable dates before today and after 7 days from today
-                  return date.isBefore(dayjs(), "day") || date.isAfter(dayjs().add(7, 'day'), "day");
+                  return (
+                    date.isBefore(dayjs(), "day") ||
+                    date.isAfter(dayjs().add(7, "day"), "day")
+                  );
                 }}
                 shouldDisableTime={(value, view) => {
                   const now = dayjs();
                   const selectedDate = dayjs(value);
-                  
-                  if (view === 'minutes') {
+
+                  if (view === "minutes") {
                     // Only disable past minutes for current hour on today
-                    if (selectedDate.isSame(now, 'day') && selectedDate.isSame(now, 'hour')) {
+                    if (
+                      selectedDate.isSame(now, "day") &&
+                      selectedDate.isSame(now, "hour")
+                    ) {
                       return value.minute() < now.minute();
                     }
                   }
-                  
+
                   return false;
                 }}
                 openTo="day"
-                views={['year', 'month', 'day', 'hours', 'minutes']}
+                views={["year", "month", "day", "hours", "minutes"]}
                 timeSteps={{ hours: 1, minutes: 15 }}
                 slotProps={{
-                   textField: {
-                     variant: "standard",
-                     fullWidth: true,
-                     size: "small",
-                     name: "Due Date",
-                     placeholder: "DD/MM/YYYY HH:mm",                     
-                     InputProps: {
-                       sx: {
-                         "&:before": {
-                           borderBottom: "none !important", // normal state
-                         },
-                         "&:hover:before": {
-                           borderBottom: "none !important", // hover state
-                         },
-                         "&:after": {
-                           borderBottom: "none !important", // focused state
-                         },
-                         "&.Mui-focused:after": {
-                           borderBottom: "none !important", // focused state
-                         },
-                         "&.Mui-focused:before": {
-                           borderBottom: "none !important", // focused state
-                         },
-                         "& .MuiInputBase-input": {
-                           fontSize: "10px !important",
-                           padding: "8px 0 !important",
-                         },
-                       },
-                     },
-                   },
-                  actionBar: {
-                    actions: ['clear', 'cancel', 'accept'],
-                    sx: {
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: { xs: "8px 16px", sm: "12px 24px" },
-                      '& .MuiPickersActionBar-actionButton:first-of-type': {
-                        marginRight: 'auto',
+                  textField: {
+                    variant: "standard",
+                    fullWidth: true,
+                    size: "small",
+                    name: "Due Date",
+                    placeholder: "DD/MM/YYYY HH:mm",
+                    InputProps: {
+                      sx: {
+                        "&:before": {
+                          borderBottom: "none !important", // normal state
+                        },
+                        "&:hover:before": {
+                          borderBottom: "none !important", // hover state
+                        },
+                        "&:after": {
+                          borderBottom: "none !important", // focused state
+                        },
+                        "&.Mui-focused:after": {
+                          borderBottom: "none !important", // focused state
+                        },
+                        "&.Mui-focused:before": {
+                          borderBottom: "none !important", // focused state
+                        },
+                        "& .MuiInputBase-input": {
+                          fontSize: "10px !important",
+                          padding: "8px 0 !important",
+                        },
                       },
-                      '& .MuiPickersActionBar-actionButton': {
+                    },
+                  },
+                  actionBar: {
+                    actions: ["clear", "cancel", "accept"],
+                    sx: {
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: { xs: "8px 16px", sm: "12px 24px" },
+                      "& .MuiPickersActionBar-actionButton:first-of-type": {
+                        marginRight: "auto",
+                      },
+                      "& .MuiPickersActionBar-actionButton": {
                         fontSize: { xs: "0.75rem", sm: "0.875rem" },
                         padding: { xs: "6px 12px", sm: "8px 16px" },
                       },
@@ -371,39 +415,45 @@ const StatusTab = ({ ticket }: any) => {
                   popper: {
                     sx: {
                       zIndex: 1300,
-                      position: { xs: 'fixed !important', sm: 'absolute' },
-                      top: { xs: '50% !important', sm: 'auto' },
-                      left: { xs: '50% !important', sm: 'auto' },
-                      transform: { xs: 'translate(-50%, -50%) !important', sm: 'none' },
+                      position: { xs: "fixed !important", sm: "absolute" },
+                      top: { xs: "50% !important", sm: "auto" },
+                      left: { xs: "50% !important", sm: "auto" },
+                      transform: {
+                        xs: "translate(-50%, -50%) !important",
+                        sm: "none",
+                      },
                       // width: { xs: '90vw !important', sm: 'auto' },
                       // maxWidth: { xs: '400px !important', sm: 'none' },
-                      maxHeight: { xs: '80vh !important', sm: 'none' },
-                      margin: { xs: '0 !important', sm: 'auto' },
-                      borderRadius: { xs: '12px !important', sm: '8px' },
+                      maxHeight: { xs: "80vh !important", sm: "none" },
+                      margin: { xs: "0 !important", sm: "auto" },
+                      borderRadius: { xs: "12px !important", sm: "8px" },
                       boxShadow: {
-                        xs: '0 20px 40px rgba(0,0,0,0.3) !important',
-                        sm: '0 4px 20px rgba(0,0,0,0.15)'
+                        xs: "0 20px 40px rgba(0,0,0,0.3) !important",
+                        sm: "0 4px 20px rgba(0,0,0,0.15)",
                       },
-                      '& .MuiPaper-root': {
-                        position: { xs: 'fixed !important', sm: 'absolute' },
-                        top: { xs: '50% !important', sm: 'auto' },
-                        left: { xs: '50% !important', sm: 'auto' },
-                        transform: { xs: 'translate(-50%, -50%) !important', sm: 'none' },
+                      "& .MuiPaper-root": {
+                        position: { xs: "fixed !important", sm: "absolute" },
+                        top: { xs: "50% !important", sm: "auto" },
+                        left: { xs: "50% !important", sm: "auto" },
+                        transform: {
+                          xs: "translate(-50%, -50%) !important",
+                          sm: "none",
+                        },
                         // width: { xs: '90vw !important', sm: 'auto' },
                         // maxWidth: { xs: '400px !important', sm: 'none' },
-                        maxHeight: { xs: '80vh !important', sm: 'none' },
-                        margin: { xs: '0 !important', sm: 'auto' },
-                        borderRadius: { xs: '12px !important', sm: '8px' },
+                        maxHeight: { xs: "80vh !important", sm: "none" },
+                        margin: { xs: "0 !important", sm: "auto" },
+                        borderRadius: { xs: "12px !important", sm: "8px" },
                         boxShadow: {
-                          xs: '0 20px 40px rgba(0,0,0,0.3) !important',
-                          sm: '0 4px 20px rgba(0,0,0,0.15)'
+                          xs: "0 20px 40px rgba(0,0,0,0.3) !important",
+                          sm: "0 4px 20px rgba(0,0,0,0.15)",
                         },
                       },
                     },
                   },
                 }}
                 format="DD/MM/YYYY HH:mm"
-                ampm={false} 
+                ampm={false}
               />
             </LocalizationProvider>
           </div>
@@ -413,32 +463,42 @@ const StatusTab = ({ ticket }: any) => {
             <Typography variant="subtitle1" sx={{ fontSize: "12px", mb: 0.5 }}>
               Department
             </Typography>
-            <SingleValueAsynAutocomplete
-              value={dept}
-              qtkMethod={triggerDept}
-              onChange={setDept}
-              loading={deptLoading}
-              isFallback={true}
-              variant={"standard"}
-              size="small"
-              showIcon={false}
-              optionLabelKey="deptName"
-            />
+            {!ticket ? (
+              <Skeleton variant="rectangular" height={40} />
+            ) : (
+              <SingleValueAsynAutocomplete
+                value={dept}
+                qtkMethod={triggerDept}
+                onChange={setDept}
+                loading={deptLoading}
+                isFallback={true}
+                variant={"standard"}
+                size="small"
+                showIcon={false}
+                optionLabelKey="deptName"
+                placeholder="Select Department"
+              />
+            )}
           </div>
           <div>
             <Typography variant="subtitle1" sx={{ fontSize: "12px", mb: 0.5 }}>
               Agent
             </Typography>
-            <SingleValueAsynAutocomplete
-              value={agent}
-              // label="Assignee"
-              qtkMethod={triggerSeachAgent}
-              onChange={setAgent}
-              loading={seachAgentLoading}
-              variant={"standard"}
-              size="small"
-              showIcon={false}
-            />
+            {!ticket ? (
+              <Skeleton variant="rectangular" height={40} />
+            ) : (
+              <SingleValueAsynAutocomplete
+                value={agent}
+                // label="Assignee"
+                qtkMethod={triggerSeachAgent}
+                onChange={setAgent}
+                loading={seachAgentLoading}
+                variant={"standard"}
+                size="small"
+                showIcon={false}
+                placeholder="Select Agent"
+              />
+            )}
           </div>
           <Divider />
           <div>
@@ -519,6 +579,7 @@ const StatusTab = ({ ticket }: any) => {
                   variant="outlined"
                   size="medium"
                   fullWidth
+                  placeholder="Type to search tags..."
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "4px",
@@ -540,7 +601,7 @@ const StatusTab = ({ ticket }: any) => {
           fullWidth
           variant="contained"
           onClick={handleUpdateTicket}
-          disabled={statusLoading}
+          disabled={statusLoading || !ticket}
           sx={{
             padding: { xs: "12px 16px", sm: "10px 24px" },
             fontSize: { xs: "14px", sm: "16px" },
@@ -550,7 +611,9 @@ const StatusTab = ({ ticket }: any) => {
             boxShadow: { xs: "0 2px 8px rgba(0,0,0,0.15)", sm: "none" },
           }}
         >
-          {statusLoading ? (
+          {!ticket ? (
+            <Skeleton width={60} height={20} />
+          ) : statusLoading ? (
             <CircularProgress color="primary" size={20} />
           ) : (
             "Update"

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Card,
-  CardContent,
   Typography,
   TextField,
   Button,
@@ -11,10 +10,6 @@ import {
   Select,
   MenuItem,
   FormControlLabel,
-  Checkbox,
-  RadioGroup,
-  Radio,
-  FormLabel,
   Grid,
   Divider,
   Chip,
@@ -26,34 +21,23 @@ import {
   Tabs,
   Tab,
   Switch,
-  OutlinedInput,
   InputAdornment,
-  Collapse,
   Backdrop,
 } from "@mui/material";
-import SplitscreenIcon from "@mui/icons-material/Splitscreen";
 import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
   Person as PersonIcon,
-  Email as EmailIcon,
   Phone as PhoneIcon,
   Lock as LockIcon,
   Security as SecurityIcon,
-  Group as GroupIcon,
   Settings as SettingsIcon,
-  Assignment as AssignmentIcon,
-  AdminPanelSettings as AdminIcon,
   Business as BusinessIcon,
-  Work as WorkIcon,
   ChevronRight as ChevronRightIcon,
   Close,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import zIndex from "@mui/material/styles/zIndex";
 import { useSelector } from "react-redux";
 
 interface TabPanelProps {
@@ -164,8 +148,46 @@ const AddAgentPage = () => {
   };
 
   const handleSave = () => {
+    const payload = {
+      basicInfo: {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        mobile: formData.mobile,
+        extension: formData.extension,
+      },
+      authentication: {
+        username: formData.username,
+        temporaryPassword: true,
+      },
+      status: {
+        status: formData.status as "Active" | "Inactive" | "Suspended",
+        locked: formData.locked,
+        limitTicketAccess: formData.limitTicketAccess,
+        vacationMode: formData.vacationMode,
+      },
+      internalNotes: formData.internalNotes || undefined,
+      department: {
+        primaryDepartment: formData.primaryDepartment,
+        primaryRole: formData.primaryRole,
+        extendedDepartments: formData.extendedDepartments,
+        extendedRoles: formData.extendedRoles,
+      },
+      permissions: {
+        canCreate: formData.canCreate,
+        canDelete: formData.canDelete,
+        canEdit: formData.canEdit,
+        canManageAccount: formData.canManageAccount,
+        canAccessUserDirectory: formData.canAccessUserDirectory,
+      },
+      teams: {
+        assignedTeams: formData.assignedTeams,
+      },
+    };
+
+    console.log("Agent API Payload:", payload);
+
     setActiveTab(1);
-    console.log("Saving agent:", formData);
   };
 
   const handleCancel = () => {

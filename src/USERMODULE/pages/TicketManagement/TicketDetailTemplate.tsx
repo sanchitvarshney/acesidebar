@@ -292,36 +292,40 @@ const TicketDetailTemplate = () => {
             )}
           </div>
           {isCustomerInfoVisible && (
-            <AnimatePresence>
-              <motion.div
+            <AnimatePresence mode="wait">
+              <div
                 id="ticket-customer-info"
-                className="w-full h-[calc(100vh-215px)] overflow-auto p-2.5  bg-white"
-                initial={{ x: "100%", opacity: 0.5 }} // start off-screen to the right
-                animate={{ x: 0, opacity: 1 }} // animate into place
-                exit={{ x: "100%", opacity: 0 }} // animate out when hidden
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="w-full h-[calc(100vh-215px)] overflow-auto p-2.5 transition-all duration-300 ease-in-out translate-x-0 opacity-100 "
               >
-                {/* <div
-                  id="ticket-customer-info"
-                  className="w-full h-[calc(100vh-215px)] overflow-auto p-2.5 transition-all duration-300 ease-in-out translate-x-0 opacity-100 "
-                > */}
-                  {customerInfoContent === "customer" ? (
-                    <>
-                      {/* Customer Information Section */}
-                      <CustomerInfoSection
-                        isExpanded={expandedAccordion === "customer"}
-                        onToggle={() => handleAccordionChange("customer")}
-                        ticketData={ticket?.header}
-                      />
+                {customerInfoContent === "customer" ? (
+                  <motion.div
+                    key="customer"
+                    initial={{ x: "100%", opacity: 0.5 }} // start off-screen to the right
+                    animate={{ x: 0, opacity: 1 }} // animate into place
+                    exit={{ x: "100%", opacity: 0 }} // animate out when hidden
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                  >
+                    {/* Customer Information Section */}
+                    <CustomerInfoSection
+                      isExpanded={expandedAccordion === "customer"}
+                      onToggle={() => handleAccordionChange("customer")}
+                      ticketData={ticket?.header}
+                    />
 
-                      {/* Interaction History Section */}
-                      <InteractionHistorySection
-                        isExpanded={expandedAccordion === "interaction"}
-                        onToggle={() => handleAccordionChange("interaction")}
-                      />
-                    </>
-                  ) : customerInfoContent === "info" ? (
-                    /* Info Tab Content */
+                    <InteractionHistorySection
+                      isExpanded={expandedAccordion === "interaction"}
+                      onToggle={() => handleAccordionChange("interaction")}
+                    />
+                  </motion.div>
+                ) : customerInfoContent === "info" ? (
+                  <motion.div
+                    key="info"
+                    initial={{ x: "100%", opacity: 0.5 }} // start off-screen to the right
+                    animate={{ x: 0, opacity: 1 }} // animate into place
+                    exit={{ x: "100%", opacity: 0 }} // animate out when hidden
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                  >
+                
                     <div
                       style={{
                         width: "100%",
@@ -332,169 +336,174 @@ const TicketDetailTemplate = () => {
                     >
                       <InfoTab />
                     </div>
-                  ) : (
-                    /* Chat UI Content */
+                  </motion.div>
+                ) : (
+                  /* Chat UI Content */
+                  <motion.div
+                    key="chat"
+                    initial={{ x: "100%", opacity: 0.5 }} // start off-screen to the right
+                    animate={{ x: 0, opacity: 1 }} // animate into place
+                    exit={{ x: "100%", opacity: 0 }} // animate out when hidden
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                    style={{
+                      width: "100%",
+                      height: "calc(100vh - 235px)",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
                     <div
                       style={{
-                        width: "100%",
-                        height: "calc(100vh - 235px)",
                         display: "flex",
-                        flexDirection: "column",
+                        alignItems: "center",
+                        padding: "12px 16px",
+                        backgroundColor: "#f5f5f5",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "8px",
+                          height: "8px",
+                          backgroundColor: "#4caf50",
+                          borderRadius: "50%",
+                          marginRight: "8px",
+                        }}
+                      ></div>
+                      <span
+                        style={{
+                          fontWeight: "600",
+                          fontSize: "14px",
+                          color: "#333",
+                        }}
+                      >
+                        Live Chat
+                      </span>
+                    </div>
+                    {/* Scrollable Chat Messages Area - Middle */}
+                    <div
+                      style={{
+                        flex: 1,
+                        padding: "10px",
+                        borderBottom: "1px solid #e0e0e0",
+                        overflowY: "auto",
+                        height: "calc(100vh - 180px)",
                       }}
                     >
                       <div
                         style={{
                           display: "flex",
-                          alignItems: "center",
-                          padding: "12px 16px",
-                          backgroundColor: "#f5f5f5",
-
+                          flexDirection: "column",
+                          gap: "12px",
                         }}
                       >
-                        <div
-                          style={{
-                            width: "8px",
-                            height: "8px",
-                            backgroundColor: "#4caf50",
-                            borderRadius: "50%",
-                            marginRight: "8px",
-                          }}
-                        ></div>
-                        <span
-                          style={{
-                            fontWeight: "600",
-                            fontSize: "14px",
-                            color: "#333",
-                          }}
-                        >
-                          Live Chat
-                        </span>
-                      </div>
-                      {/* Scrollable Chat Messages Area - Middle */}
-                      <div
-                        style={{
-                          flex: 1,
-                          padding: "10px",
-                          borderBottom: "1px solid #e0e0e0",
-                          overflowY: "auto",
-                          height: "calc(100vh - 180px)",
-                        }}
-                      >
+                        {/* Sample Messages */}
                         <div
                           style={{
                             display: "flex",
-                            flexDirection: "column",
-                            gap: "12px",
+                            justifyContent: "flex-end",
                           }}
                         >
-                          {/* Sample Messages */}
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "flex-end",
+                              backgroundColor: "#1976d2",
+                              color: "white",
+                              padding: "8px 12px",
+                              borderRadius: "18px 18px 4px 18px",
+                              maxWidth: "70%",
+                              fontSize: "14px",
                             }}
                           >
-                            <div
-                              style={{
-                                backgroundColor: "#1976d2",
-                                color: "white",
-                                padding: "8px 12px",
-                                borderRadius: "18px 18px 4px 18px",
-                                maxWidth: "70%",
-                                fontSize: "14px",
-                              }}
-                            >
-                              Hello! How can I help you with this ticket?
-                            </div>
+                            Hello! How can I help you with this ticket?
                           </div>
+                        </div>
 
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                          }}
+                        >
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "flex-start",
+                              backgroundColor: "#e0e0e0",
+                              color: "#333",
+                              padding: "8px 12px",
+                              borderRadius: "18px 18px 18px 4px",
+                              maxWidth: "70%",
+                              fontSize: "14px",
                             }}
                           >
-                            <div
-                              style={{
-                                backgroundColor: "#e0e0e0",
-                                color: "#333",
-                                padding: "8px 12px",
-                                borderRadius: "18px 18px 18px 4px",
-                                maxWidth: "70%",
-                                fontSize: "14px",
-                              }}
-                            >
-                              I need help with my account access issue
-                            </div>
+                            I need help with my account access issue
                           </div>
+                        </div>
 
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                          }}
+                        >
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "flex-end",
+                              backgroundColor: "#1976d2",
+                              color: "white",
+                              padding: "8px 12px",
+                              borderRadius: "18px 18px 4px 18px",
+                              maxWidth: "70%",
+                              fontSize: "14px",
                             }}
                           >
-                            <div
-                              style={{
-                                backgroundColor: "#1976d2",
-                                color: "white",
-                                padding: "8px 12px",
-                                borderRadius: "18px 18px 4px 18px",
-                                maxWidth: "70%",
-                                fontSize: "14px",
-                              }}
-                            >
-                              I'll look into that for you right away. Can you
-                              provide more details?
-                            </div>
+                            I'll look into that for you right away. Can you
+                            provide more details?
                           </div>
+                        </div>
 
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                          }}
+                        >
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "flex-start",
+                              backgroundColor: "#e0e0e0",
+                              color: "#333",
+                              padding: "8px 12px",
+                              borderRadius: "18px 18px 18px 4px",
+                              maxWidth: "70%",
+                              fontSize: "14px",
                             }}
                           >
-                            <div
-                              style={{
-                                backgroundColor: "#e0e0e0",
-                                color: "#333",
-                                padding: "8px 12px",
-                                borderRadius: "18px 18px 18px 4px",
-                                maxWidth: "70%",
-                                fontSize: "14px",
-                              }}
-                            >
-                              Sure, I'm getting a 403 error when trying to
-                              access the dashboard
-                            </div>
+                            Sure, I'm getting a 403 error when trying to access
+                            the dashboard
                           </div>
+                        </div>
 
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                          }}
+                        >
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "flex-end",
+                              backgroundColor: "#1976d2",
+                              color: "white",
+                              padding: "8px 12px",
+                              borderRadius: "18px 18px 4px 18px",
+                              maxWidth: "70%",
+                              fontSize: "14px",
                             }}
                           >
-                            <div
-                              style={{
-                                backgroundColor: "#1976d2",
-                                color: "white",
-                                padding: "8px 12px",
-                                borderRadius: "18px 18px 4px 18px",
-                                maxWidth: "70%",
-                                fontSize: "14px",
-                              }}
-                            >
-                              I see the issue. Let me check your permissions and
-                              get this resolved for you.
-                            </div>
+                            I see the issue. Let me check your permissions and
+                            get this resolved for you.
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Fixed Chat Input Area - Bottom */}
-                      {/* <div
+                    {/* Fixed Chat Input Area - Bottom */}
+                    {/* <div
                     style={{
                       
                       padding: "10px",
@@ -503,48 +512,47 @@ const TicketDetailTemplate = () => {
                       zIndex: 1000,
                     }}
                   > */}
-                      <div
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        alignItems: "flex-end",
+                        marginTop: "14px",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="Type your message..."
                         style={{
+                          flex: 1,
+                          padding: "8px 8px",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "20px",
+                          outline: "none",
+                          fontSize: "14px",
+                        }}
+                      />
+                      <button
+                        style={{
+                          backgroundColor: "#1976d2",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "36px",
+                          height: "36px",
+                          cursor: "pointer",
                           display: "flex",
-                          gap: "8px",
-                          alignItems: "flex-end",
-                          marginTop: "14px",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        <input
-                          type="text"
-                          placeholder="Type your message..."
-                          style={{
-                            flex: 1,
-                            padding: "8px 8px",
-                            border: "1px solid #e0e0e0",
-                            borderRadius: "20px",
-                            outline: "none",
-                            fontSize: "14px",
-                          }}
-                        />
-                        <button
-                          style={{
-                            backgroundColor: "#1976d2",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "50%",
-                            width: "36px",
-                            height: "36px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          →
-                        </button>
-                      </div>
-                      {/* </div> */}
+                        →
+                      </button>
                     </div>
-                  )}
-                {/* </div> */}
-              </motion.div>
+                    {/* </div> */}
+                  </motion.div>
+                )}
+              </div>
             </AnimatePresence>
           )}
 
@@ -557,7 +565,7 @@ const TicketDetailTemplate = () => {
               flexDirection: "column",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: "16px 8px"
+              padding: "16px 8px",
             }}
           >
             {/* Main Icons Section */}
@@ -569,7 +577,6 @@ const TicketDetailTemplate = () => {
               onChatClick={handleChatClick}
               chatCount={ticket?.chatMessages?.length || 0}
               activeContent={customerInfoContent}
-             
             />
 
             {/* Bottom Icons */}
@@ -580,7 +587,7 @@ const TicketDetailTemplate = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "8px",
-                marginTop: "16px"
+                marginTop: "16px",
               }}
             >
               {/* Apps Icon */}

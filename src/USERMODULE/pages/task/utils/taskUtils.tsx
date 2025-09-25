@@ -88,12 +88,26 @@ export const getTimeAgo = (date: Date): string => {
   }
 };
 
-export const canEditComment = (createdAt: Date, currentTime: Date): boolean => {
+export const canEditComment = (
+  createdAt: string,
+  currentTime: Date
+): boolean => {
+  console.log("createdAt", createdAt, "currentTime", currentTime);
+
+  // Parse "HH:mm:ss"
+  const [hours, minutes, seconds] = createdAt.split(":").map(Number);
+
+  // Create a Date for today with that time
+  const createdDate = new Date(currentTime);
+  createdDate.setHours(hours, minutes, seconds, 0);
+
   const diffInSeconds = Math.floor(
-    (currentTime.getTime() - createdAt.getTime()) / 1000
+    (currentTime.getTime() - createdDate.getTime()) / 1000
   );
+
   return diffInSeconds <= COMMENT_CONFIG.editTimeLimit;
 };
+
 
 export const getRemainingEditTime = (
   createdAt: Date,

@@ -156,7 +156,38 @@ const CreateTeamPage = () => {
   };
 
   const handleSave = () => {
-    console.log("Saving team:", { formData, teamMembers });
+    // Create API payload
+    const payload = {
+      basicInfo: {
+        name: formData.name,
+        description: formData.description,
+        department: formData.department,
+        status: formData.status,
+      },
+      leadership: {
+        teamLead: formData.teamLead,
+        workingHours: formData.workingHours,
+        timezone: formData.timezone,
+        ticketAssignment: formData.ticketAssignment,
+        autoAssignment: formData.autoAssignment,
+        maxMembers: formData.maxMembers,
+      },
+      notifications: {
+        emailNotifications: formData.emailNotifications,
+        slackNotifications: formData.slackNotifications,
+        notificationEmail: formData.notificationEmail,
+      },
+      members: {
+        memberIds: teamMembers.map((member) => member.id.toString()),
+        roles: teamMembers.reduce((acc, member) => {
+          acc[member.id.toString()] = member.role;
+          return acc;
+        }, {} as { [memberId: string]: string }),
+      },
+    };
+
+    console.log("Team API Payload:", payload);
+
     setShowSuccess(true);
     setTimeout(() => {
       navigate("/teams");
