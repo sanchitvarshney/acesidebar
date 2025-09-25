@@ -136,7 +136,10 @@ function AsyncAutocomplete<T extends Record<string, any>>({
           key={optionKey ? option[optionKey] : getOptionLabel(option)}
         >
           <div className="flex flex-col">
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: 600, fontSize: { xs: "12px", sm: "14px" } }}
+            >
               {getOptionLabel(option)}
             </Typography>
             {renderOptionExtra && renderOptionExtra(option)}
@@ -151,6 +154,11 @@ function AsyncAutocomplete<T extends Record<string, any>>({
           size={size}
           fullWidth
           variant={variant}
+          sx={{
+            "& .MuiInputBase-input": {
+              fontSize: { xs: "14px", sm: "16px" }, // input text font size
+            },
+          }}
           InputProps={{
             ...params.InputProps,
             startAdornment: showIcon && (

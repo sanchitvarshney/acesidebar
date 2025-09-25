@@ -44,7 +44,7 @@ const SLAOptions = [
 
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
-  
+
   // Debug log to check ticket data
   console.log("StatusTab - ticket data:", ticket);
   const [tagValue, setTagValue] = useState<any[]>([]);
@@ -194,23 +194,23 @@ const StatusTab = ({ ticket }: any) => {
           <div>
             <Typography
               variant="subtitle1"
-              sx={{ fontSize: { xs: "11px", sm: "12px" }, mb: 0.5 }}
+              sx={{ fontSize: { xs: "11px", sm: "13px" }, mb: 0.5 }}
             >
               Type
             </Typography>
             {!ticket ? (
-              <Skeleton 
-                variant="rectangular" 
-                height={40} 
-                sx={{ 
-                  backgroundColor: '#e0e0e0',
-                  animation: 'pulse 1.5s ease-in-out infinite',
-                  '@keyframes pulse': {
-                    '0%': { opacity: 1 },
-                    '50%': { opacity: 0.5 },
-                    '100%': { opacity: 1 }
-                  }
-                }} 
+              <Skeleton
+                variant="rectangular"
+                height={40}
+                sx={{
+                  backgroundColor: "#e0e0e0",
+                  animation: "pulse 1.5s ease-in-out infinite",
+                  "@keyframes pulse": {
+                    "0%": { opacity: 1 },
+                    "50%": { opacity: 0.5 },
+                    "100%": { opacity: 1 },
+                  },
+                }}
               />
             ) : (
               <Select
@@ -221,9 +221,6 @@ const StatusTab = ({ ticket }: any) => {
                 onChange={(e) => setType(e.target.value)}
                 sx={{
                   fontSize: { xs: "14px", sm: "16px" },
-                  "& .MuiSelect-select": {
-                    padding: { xs: "8px 0", sm: "12px 0" },
-                  },
                 }}
               >
                 {[...((typeList as any[]) || [])].map((name: any) => (
@@ -235,7 +232,7 @@ const StatusTab = ({ ticket }: any) => {
             )}
           </div>
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "13px" }}>
               Status
             </Typography>
             {!ticket ? (
@@ -247,6 +244,9 @@ const StatusTab = ({ ticket }: any) => {
                 size="medium"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
+                sx={{
+                  fontSize: { xs: "14px", sm: "16px" },
+                }}
               >
                 {statusList?.map((status: any) => (
                   <MenuItem key={status.key} value={status.key}>
@@ -263,7 +263,7 @@ const StatusTab = ({ ticket }: any) => {
           </div>
 
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "13px" }}>
               Priority
             </Typography>
             {!ticket ? (
@@ -275,6 +275,9 @@ const StatusTab = ({ ticket }: any) => {
                 size="medium"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
+                sx={{
+                  fontSize: { xs: "14px", sm: "16px" },
+                }}
               >
                 {[...((priorityList as any[]) || [])].map((priority: any) => (
                   <MenuItem key={priority.key} value={priority.key}>
@@ -294,7 +297,7 @@ const StatusTab = ({ ticket }: any) => {
             )}
           </div>
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "13px" }}>
               SLA
             </Typography>
             {!ticket ? (
@@ -306,6 +309,9 @@ const StatusTab = ({ ticket }: any) => {
                 size="medium"
                 value={sla}
                 onChange={(e) => setSLA(e.target.value)}
+                sx={{
+                  fontSize: { xs: "14px", sm: "16px" },
+                }}
               >
                 {(SLAOptions || []).map((sla: any) => (
                   <MenuItem key={sla.value} value={sla.value}>
@@ -323,7 +329,7 @@ const StatusTab = ({ ticket }: any) => {
           <div>
             <Typography
               variant="subtitle1"
-              sx={{ fontSize: { xs: "11px", sm: "12px" }, mb: 0.5 }}
+              sx={{ fontSize: { xs: "11px", sm: "13px" }, mb: 0.5 }}
             >
               Due Date
             </Typography>
@@ -460,7 +466,7 @@ const StatusTab = ({ ticket }: any) => {
 
           <Divider />
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px", mb: 0.5 }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "13px", mb: 0.5 }}>
               Department
             </Typography>
             {!ticket ? (
@@ -481,7 +487,7 @@ const StatusTab = ({ ticket }: any) => {
             )}
           </div>
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px", mb: 0.5 }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "13px", mb: 0.5 }}>
               Agent
             </Typography>
             {!ticket ? (
@@ -502,7 +508,7 @@ const StatusTab = ({ ticket }: any) => {
           </div>
           <Divider />
           <div>
-            <Typography variant="subtitle1" sx={{ fontSize: "12px" }}>
+            <Typography variant="subtitle1" sx={{ fontSize: "13px" }}>
               Tags
             </Typography>
             <Autocomplete
@@ -603,7 +609,7 @@ const StatusTab = ({ ticket }: any) => {
           onClick={handleUpdateTicket}
           disabled={statusLoading || !ticket}
           sx={{
-            padding: { xs: "12px 16px", sm: "10px 24px" },
+            padding: { xs: "13px 16px", sm: "10px 24px" },
             fontSize: { xs: "14px", sm: "16px" },
             fontWeight: { xs: 600, sm: 500 },
             borderRadius: { xs: "8px", sm: "4px" },

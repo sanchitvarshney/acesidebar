@@ -15,7 +15,6 @@ import {
   ClickAwayListener,
   MenuList,
   MenuItem,
-
   FormControl,
   Select,
   Chip,
@@ -31,7 +30,6 @@ import EmailAutocomplete from "./EmailAutocomplete";
 
 import { useLazyGetAgentsBySeachQuery } from "../../services/agentServices";
 import { setSelectedIndex } from "../../reduxStore/Slices/shotcutSlices";
-
 
 const selectionsOptions = [
   {
@@ -68,7 +66,7 @@ const optionsofPrivate = [
 ];
 
 const StackEditor = ({
-  initialContent ,
+  initialContent,
   onChange,
   isFull = true,
   shouldFocus = false,
@@ -82,19 +80,16 @@ const StackEditor = ({
     signatureValue,
     isValues,
     onForward,
-    customHeight = "calc(100vh - 350px)",
+    customHeight = "calc(100vh - 342px)",
     handleChangeValue,
     selectedValue,
     changeNotify = () => {},
     notifyTag = [],
-   
+
     ticketData,
     setIsReply,
   } = props;
-const ticketId = ticketData?.ticketId
-
-console.log(initialContent,"initialContent");
-
+  const ticketId = ticketData?.ticketId;
 
   const isMounted = React.useRef(true);
   const { showToast } = useToast();
@@ -750,7 +745,7 @@ console.log(initialContent,"initialContent");
                 {user.email}
               </Typography>
             )}
-                width={400}
+            width={400}
           />
         </div>
       )}
@@ -762,13 +757,13 @@ console.log(initialContent,"initialContent");
     : isEditorExpended
     ? "450px"
     : (showCc || showBcc) && currentSignature
-    ? "calc(100vh - 565px)"
+    ? "calc(100vh - 552px)"
     : showCc || showBcc
-    ? "calc(100vh - 385px)"
+    ? "calc(100vh - 378px)"
     : currentSignature
-    ? "calc(100vh - 515px)"
-    : selectedIndex !== "1" 
-    ? "calc(100vh - 354px)"
+    ? "calc(100vh - 513px)"
+    : selectedIndex !== "1"
+    ? "calc(100vh - 352px)"
     : customHeight;
 
   return (
@@ -847,7 +842,7 @@ console.log(initialContent,"initialContent");
                   {user.email}
                 </Typography>
               )}
-                  width={400}
+              width={400}
             />
           )}
 
@@ -878,9 +873,10 @@ console.log(initialContent,"initialContent");
           key={optionChangeKey}
           value={initialContent}
           onTextChange={(text) => onChange(text.htmlValue)}
-          style={{ 
+          style={{
             height: editorHeight,
-            backgroundColor: selectedValue === "private" ? "#fff3cd" : "transparent"
+            backgroundColor:
+              selectedValue === "private" ? "#fff3cd" : "transparent",
           }}
           headerTemplate={header}
           placeholder={
@@ -895,7 +891,13 @@ console.log(initialContent,"initialContent");
           ref={signatureEditorRef}
           value={currentSignature}
           readOnly={true}
-          style={{ height: "175px", borderTop: "none" }}
+          style={{
+            height:
+              selectedIndex !== "1" && currentSignature
+                ? "calc(100vh - 568px)"
+                : "175px",
+            borderTop: "none",
+          }}
           placeholder="No signature selected"
           showHeader={false}
         />

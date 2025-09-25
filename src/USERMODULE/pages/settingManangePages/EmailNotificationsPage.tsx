@@ -194,7 +194,17 @@ const EmailNotificationsPage = () => {
                 <ListItem
                   key={index}
                   secondaryAction={
-                    <Button variant="outlined" size="small">
+                    <Button
+                      variant="text"
+                      size="small"
+                      sx={{ fontWeight: 600 }}
+                      onClick={() => {
+                        navigate(`/create-email-notification`, {
+                          state: { event },
+                        });
+                      
+                      }}
+                    >
                       Edit
                     </Button>
                   }
@@ -212,7 +222,7 @@ const EmailNotificationsPage = () => {
                   <ListItemText
                     primary={event.label}
                     primaryTypographyProps={{
-                      fontWeight: 500,
+                      fontWeight: 600,
                       color: event.active ? "text.primary" : "text.secondary",
                     }}
                   />
@@ -235,7 +245,17 @@ const EmailNotificationsPage = () => {
                 <ListItem
                   key={index}
                   secondaryAction={
-                    <Button variant="outlined" size="small">
+                    <Button
+                      variant="text"
+                      size="small"
+                      sx={{ fontWeight: 600 }}
+                      onClick={() => {
+                        navigate(`/create-email-notification`, {
+                          state: { event },
+                        });
+                      
+                      }}
+                    >
                       Edit
                     </Button>
                   }
@@ -253,7 +273,7 @@ const EmailNotificationsPage = () => {
                   <ListItemText
                     primary={event.label}
                     primaryTypographyProps={{
-                      fontWeight: 500,
+                      fontWeight: 600,
                       color: event.active ? "text.primary" : "text.secondary",
                     }}
                   />
@@ -276,7 +296,17 @@ const EmailNotificationsPage = () => {
                 <ListItem
                   key={index}
                   secondaryAction={
-                    <Button variant="outlined" size="small">
+                    <Button
+                      variant="text"
+                      size="small"
+                      sx={{ fontWeight: 600 }}
+                      onClick={() => {
+                        navigate(`/create-email-notification`, {
+                          state: { event },
+                        });
+                      
+                      }}
+                    >
                       Edit
                     </Button>
                   }
@@ -294,7 +324,7 @@ const EmailNotificationsPage = () => {
                   <ListItemText
                     primary={event.label}
                     primaryTypographyProps={{
-                      fontWeight: 500,
+                      fontWeight: 600,
                       color: event.active ? "text.primary" : "text.secondary",
                     }}
                   />
@@ -317,7 +347,17 @@ const EmailNotificationsPage = () => {
                 <ListItem
                   key={index}
                   secondaryAction={
-                    <Button variant="outlined" size="small">
+                    <Button
+                      variant="text"
+                      size="small"
+                      sx={{ fontWeight: 600 }}
+                      onClick={() => {
+                        navigate(`/create-email-notification`, {
+                          state: { event },
+                        });
+                      
+                      }}
+                    >
                       Edit
                     </Button>
                   }
@@ -335,7 +375,7 @@ const EmailNotificationsPage = () => {
                   <ListItemText
                     primary={event.label}
                     primaryTypographyProps={{
-                      fontWeight: 500,
+                      fontWeight: 600,
                       color: event.active ? "text.primary" : "text.secondary",
                     }}
                   />

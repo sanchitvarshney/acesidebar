@@ -47,39 +47,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
 
   return (
     <Box sx={{ display: "flex", height: "100%", bgcolor: "#f8f9fa" }}>
-      {/* Left Sidebar */}
-      <Box
-        sx={{ width: 320, bgcolor: "white", borderRight: "1px solid #e8eaed" }}
-      >
-        <Box sx={{ p: 3, borderBottom: "1px solid #e8eaed" }}>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, color: "#202124", mb: 2 }}
-          >
-            ADMIN
-          </Typography>
-
-          {/* User Info */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-            <Avatar sx={{ width: 48, height: 48, bgcolor: "#5f6368" }}>
-              {user.initials}
-            </Avatar>
-            <Box>
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 600, color: "#202124" }}
-              >
-                {user.username}
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#5f6368" }}>
-                {user.email}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Profile Actions styled list - omitted as per latest change */}
-      </Box>
 
       {/* Main Content Area */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -172,10 +139,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
             >
               Ticket metrics
             </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <Box sx={{ width: "100%",display: "flex", alignItems: "center", justifyContent: "space-evenly" }}>
               <Box
                 ref={metricAnchorRef}
                 sx={{
+                      minWidth: 180,
                   textAlign: "center",
                   p: 1,
                   borderRadius: 2,
@@ -199,6 +167,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
               </Box>
               <Box
                 sx={{
+                  minWidth: 180,
                   textAlign: "center",
                   p: 1,
                   borderRadius: 2,
@@ -220,6 +189,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
               </Box>
               <Box
                 sx={{
+                      minWidth: 180,
                   textAlign: "center",
                   p: 1,
                   borderRadius: 2,
@@ -241,6 +211,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
               </Box>
               <Box
                 sx={{
+                      minWidth: 180,
                   textAlign: "center",
                   p: 1,
                   borderRadius: 2,

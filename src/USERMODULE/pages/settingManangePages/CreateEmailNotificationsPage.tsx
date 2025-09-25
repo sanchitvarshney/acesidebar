@@ -10,15 +10,13 @@ import {
   Switch,
   styled,
   TextField,
-  Popover,
-  Slide,
   Divider,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import StackEditor from "../../../components/reusable/Editor";
-import { AnimatePresence } from "framer-motion";
+
 const IconSwitch = styled(Switch)(({ theme }) => ({
   width: 46,
   height: 26,
@@ -93,9 +91,8 @@ const IconSwitch = styled(Switch)(({ theme }) => ({
 
 const CreateEmailNotificationsPage = () => {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const containerRef = useRef<HTMLElement>(null);
+  const location = useLocation();
+  const { event } = location.state;
 
   return (
     <Box
@@ -126,11 +123,11 @@ const CreateEmailNotificationsPage = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings/workflow")}>
+            <IconButton onClick={() => navigate("/email_notifications")}>
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
-              Agent Notifications / dynamically
+              Agent Notifications / {event.label}
             </Typography>
           </Box>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
@@ -164,7 +161,6 @@ const CreateEmailNotificationsPage = () => {
               gap: 0.4,
               width: "100%",
             }}
-            ref={containerRef}
           >
             <Typography variant="subtitle2">
               Subject <span className="text-red-500">*</span>

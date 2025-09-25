@@ -1,5 +1,13 @@
 import { useMemo, useState } from "react";
-import { Box, Button, Tab, Tabs, Typography, IconButton } from "@mui/material";
+import {
+  Box,
+  Button,
+  Tab,
+  Tabs,
+  Typography,
+  IconButton,
+  Avatar,
+} from "@mui/material";
 
 import {
   Edit as EditIcon,
@@ -129,10 +137,18 @@ const ProfilePage = () => {
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            mb: 3,
+            gap: 1,
           }}
         >
+          <IconButton
+            size="small"
+            sx={{
+              bgcolor: "grey.100",
+              "&:hover": { bgcolor: "grey.200" },
+            }}
+          >
+            <ArrowBackIcon fontSize="small" />
+          </IconButton>
           <Typography
             variant="h5"
             sx={{
@@ -143,29 +159,7 @@ const ProfilePage = () => {
           >
             User Profile
           </Typography>
-          <IconButton
-            size="small"
-            sx={{
-              bgcolor: "grey.100",
-              "&:hover": { bgcolor: "grey.200" },
-            }}
-          >
-            <ArrowBackIcon fontSize="small" />
-          </IconButton>
         </Box>
-
-        {/* Sidebar Info Message */}
-        <Typography
-          variant="body2"
-          sx={{
-            color: "text.secondary",
-            fontSize: "0.875rem",
-            lineHeight: 1.5,
-            mb: 4,
-          }}
-        >
-          Manage your profile settings and account preferences.
-        </Typography>
 
         {/* Action Buttons */}
         <Box
