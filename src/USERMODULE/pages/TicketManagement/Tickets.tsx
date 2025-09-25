@@ -23,6 +23,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import ConfirmationModal from "../../../components/reusable/ConfirmationModal";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   useGetTicketListQuery,
   useGetPriorityListQuery,
@@ -430,7 +431,7 @@ const Tickets: React.FC = () => {
       obj: filters,
     };
   };
-  const { data: ticketList, isFetching: isTicketListFetching } =
+  const { data: ticketList, isFetching: isTicketListFetching, refetch } =
     useGetTicketListQuery(getApiParams());
   const sortingParams = sortType
     ? { type: sortType, order: sortOrder, page, limit }
@@ -667,11 +668,12 @@ const Tickets: React.FC = () => {
     <Paper
       elevation={0}
       sx={{
-     boxShadow: "none",
+        boxShadow: "none",
         maxWidth: 400,
         minWidth: 380,
         position: "relative",
         overflow: "visible",
+        // borderRadius: 10,
       }}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
@@ -1217,6 +1219,25 @@ const Tickets: React.FC = () => {
                 >
                   {sortBy}
                 </Button>
+                {isTicketsFetching ? (
+                  <CircularProgress size={16} />
+                ) : (
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={() => refetch()}
+                    disabled={isTicketsFetching}
+                   sx={{
+                    ml:1,
+                    bgcolor:"#ffffff",
+                    boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)",
+                   }}
+                    aria-label="Refresh"
+                    title="Refresh"
+                  >
+                    <RefreshIcon fontSize="small" />
+                  </IconButton>
+                )}
 
                 <TicketSortingPopover
                   anchorEl={sortingPopoverAnchorEl}
@@ -1349,59 +1370,6 @@ const Tickets: React.FC = () => {
         successMessage={`Successfully closed (${selectedTickets.length}) tickets.`}
       />
 
-      {/* Quick Update Popup */}
-
-      {/* <Popper
-        open={Boolean(quickUpdateAnchorEl)}
-        anchorEl={quickUpdateAnchorEl}
-        placement="bottom-end"
-        modifiers={[
-          {
-            name: "offset",
-            options: {
-              offset: [0, 8], // 8px gap from anchor
-            },
-          },
-          {
-            name: "preventOverflow",
-            options: {
-              boundary: "viewport",
-              padding: 8,
-            },
-          },
-          {
-            name: "flip",
-            options: {
-              fallbackPlacements: [
-                "bottom-start",
-                "top-end",
-                "top-start",
-                "bottom",
-                "top",
-              ],
-            },
-          },
-          {
-            name: "computeStyles",
-            options: {
-              gpuAcceleration: true,
-            },
-          },
-          {
-            name: "placementTracker",
-            enabled: true,
-            phase: "main",
-            fn: ({ state }) => {
-              if (state.placement !== popupPlacement) {
-                handlePlacementChange(state.placement);
-              }
-            },
-          },
-        ]}
-        style={{ zIndex: 1300 }}
-      >
-  
-      </Popper> */}
     </>
   );
 };

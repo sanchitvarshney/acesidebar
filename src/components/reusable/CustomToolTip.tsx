@@ -11,7 +11,7 @@ interface CustomizedTooltipProps {
   open?: boolean;
   close?: () => void;
   disableHoverListener?: boolean;
-  width?: string | number
+  width?: string | number;
 }
 
 const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -20,7 +20,7 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
     arrow
     TransitionComponent={Fade}
     TransitionProps={{ timeout: 200 }}
-    classes={{ popper: className, }}
+    classes={{ popper: className }}
   />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.arrow}`]: {
@@ -30,11 +30,11 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: "#fff",
     transition: "opacity 0.2s ease-in-out",
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.4)", // subtle shadow
+
     // borderRadius: "6px", // optional rounding
     // padding: "8px 12px", // optional padding
     color: "#000",
-        padding: 0,
+    padding: 0,
   },
   [`& .${tooltipClasses.popper}`]: {
     zIndex: 10001,
@@ -49,7 +49,7 @@ const CustomToolTip: FC<CustomizedTooltipProps> = ({
   open,
   close,
   disableHoverListener = false,
-  width
+  width,
 }) => {
   return (
     <BootstrapTooltip
@@ -59,15 +59,16 @@ const CustomToolTip: FC<CustomizedTooltipProps> = ({
       open={open}
       onClose={close}
       PopperProps={{
+        
         sx: {
           zIndex: 10002,
-            [`& .${tooltipClasses.tooltip}`]: {
+          [`& .${tooltipClasses.tooltip}`]: {
             width: width || "auto", // 👈 apply width here
-            maxWidth: "none",       // remove default MUI maxWidth
+            maxWidth: "none",
+            boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)",
           },
         },
       }}
-    
     >
       {children}
     </BootstrapTooltip>
