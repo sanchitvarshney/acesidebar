@@ -35,7 +35,6 @@ import {
   Tooltip,
   InputAdornment,
   Paper,
-  
   Switch,
   Table,
   TableBody,
@@ -240,8 +239,7 @@ const TicketFieldsPage: React.FC = () => {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isDropActive, setIsDropActive] = useState(false);
   const [openDrawer, setOpenDrawer] = useState<any | null>(null);
-  
- 
+
   const getFieldIcon = (type: string) => {
     const fieldType = fieldTypes.find((ft) => ft.id === type);
     return fieldType ? fieldType.icon : TextFields;
@@ -431,7 +429,7 @@ const TicketFieldsPage: React.FC = () => {
                       onClick={(e) => handleAddField(e as any, fieldType.id)}
                       sx={{
                         p: 2,
-
+                        cursor: "pointer",
                         border: "1px solid",
                         borderColor: "grey.300",
                         display: "flex",
@@ -532,9 +530,7 @@ const TicketFieldsPage: React.FC = () => {
               {filteredFields.map((field, index) => {
                 const IconComponent = getFieldIcon(field.type);
                 return (
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", mb: 1 }}
-                  >
+                  <Box sx={{ display: "flex", flexDirection: "column", mb: 1 }}>
                     <Card
                       elevation={0}
                       key={field.id}
@@ -552,8 +548,7 @@ const TicketFieldsPage: React.FC = () => {
                       sx={{
                         width: "100%",
 
-                        cursor:
-                          field.isDisabled  ? "" : "pointer",
+                        cursor: field.isDisabled ? "" : "pointer",
                         opacity: field.isDisabled ? 0.6 : 1,
                         border: "1px solid",
                         borderColor:
@@ -647,16 +642,11 @@ const TicketFieldsPage: React.FC = () => {
           </Card>
         </Box>
       </Box>
-      <CustomFieldDrawer
-      
-        open={openDrawer}
-        close={() => setOpenDrawer(false)}
-      >
+      <CustomFieldDrawer open={openDrawer} close={() => setOpenDrawer(false)}>
         <FieldConfigurationModal
           onClose={() => setOpenDrawer(false)}
           field={selectedField}
           onSave={handleSaveField}
-           
         />
       </CustomFieldDrawer>
     </Box>

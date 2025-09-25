@@ -68,7 +68,7 @@ const optionsofPrivate = [
 ];
 
 const StackEditor = ({
-  initialContent = "",
+  initialContent ,
   onChange,
   isFull = true,
   shouldFocus = false,
@@ -92,6 +92,9 @@ const StackEditor = ({
     setIsReply,
   } = props;
 const ticketId = ticketData?.ticketId
+
+console.log(initialContent,"initialContent");
+
 
   const isMounted = React.useRef(true);
   const { showToast } = useToast();

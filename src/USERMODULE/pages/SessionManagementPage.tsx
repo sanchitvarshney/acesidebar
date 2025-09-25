@@ -82,12 +82,9 @@ const SessionManagementPage: React.FC = () => {
       .then((res) => {
         console.log("res", res);
         if (res?.type === "error") {
-          showToast(res?.message || "An error occurred", "error");
           return;
         }
         if (res?.type === "success" && res?.success) {
-          showToast(res?.message || "Session ended successfully", "success");
-
           setSessions((prev) =>
             prev.filter((session) => session.sessionId !== targetId)
           );
@@ -95,12 +92,6 @@ const SessionManagementPage: React.FC = () => {
         }
       })
       .catch(() => {
-        showToast(
-          "Failed to end session. Please try again.",
-          "error",
-          "borderToast",
-          true
-        );
         handleLogOut();
       })
       .finally(() => {
@@ -116,25 +107,18 @@ const SessionManagementPage: React.FC = () => {
         .then((res) => {
           console.log("res", res);
           if (res?.type === "error") {
-            showToast(res?.message || "An error occurred", "error");
+          
             return;
           }
           if (res?.type === "success" && res?.success) {
-            showToast(res?.message || "Session ended successfully", "success");
+           
             setSessions([]);
           }
         })
         .catch(() => {
-          showToast(
-            "Failed to end session. Please try again.",
-            "error",
-            "borderToast",
-            true
-          );
           handleLogOut();
         });
     } catch (error: any) {
-      showToast("Failed to end sessions. Please try again.", "error");
     }
   };
 
@@ -146,31 +130,14 @@ const SessionManagementPage: React.FC = () => {
           localStorage.setItem("userToken", res?.data?.data?.token);
           const decryptedData = JSON.stringify(decrypt(res?.data?.data?.user));
           localStorage.setItem("userData", decryptedData);
-          showToast(
-            res?.message || "Session regenerated successfully",
-            "success",
-            "borderToast",
-            true
-          );
           signIn();
-
           navigate("/");
         }
       })
       .catch(() => {
-        showToast(
-          "Failed to end session. Please try again.",
-          "error",
-          "borderToast",
-          true
-        );
         handleLogOut();
       });
   };
-
-  const sessionBeingDeleted = sessions?.find(
-    (s: any) => s.sessionId === sessionToDelete
-  );
 
   // Derived counts and button visibility rules
   const desktopCount = useMemo(
@@ -281,7 +248,7 @@ const SessionManagementPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="max-w-7xl mx-auto px-4  sm:px-6 lg:px-8 pt-4 pb-24 ">
+                <div className="max-w-7xl mx-auto px-4  sm:px-6 lg:px-8 pt-4 pb-24  ">
                   <div className=" bg-[#fffde7] border border-[#fbc02d] rounded-lg p-4">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
@@ -325,7 +292,7 @@ const SessionManagementPage: React.FC = () => {
                   </div>
                   {/* Sessions Section - Only show if there are sessions */}
                   {sessions?.length > 0 && (
-                    <Box className="rounded-lg shadow-sm border bg-white">
+                    <Box className="rounded-lg shadow-sm border bg-white mt-6">
                       <div className="px-6 py-2 border-b border-gray-200">
                         <div className="flex items-center justify-between">
                           <div>

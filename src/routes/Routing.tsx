@@ -61,6 +61,7 @@ import BusinessDayIntegration from "../USERMODULE/components/BusinessDayIntegrat
 import EmailNotificationsPage from "../USERMODULE/pages/settingManangePages/EmailNotificationsPage";
 import CanenResponseMasterPage from "../USERMODULE/pages/settingManangePages/CanenResponseMasterPage";
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
+import CreateEmailNotificationsPage from "../USERMODULE/pages/settingManangePages/CreateEmailNotificationsPage";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -196,6 +197,10 @@ export const router = createBrowserRouter([
       {
         path: "create-department",
         element: <CreateDepartmentPage />,
+      },
+         {
+        path: "create-email-notification",
+        element: <CreateEmailNotificationsPage />,
       },
       {
         path: "teams",
