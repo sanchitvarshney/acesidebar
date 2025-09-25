@@ -146,6 +146,7 @@ const ProfilePage = () => {
               bgcolor: "grey.100",
               "&:hover": { bgcolor: "grey.200" },
             }}
+            onClick={() => navigate("/create-user")}
           >
             <ArrowBackIcon fontSize="small" />
           </IconButton>
