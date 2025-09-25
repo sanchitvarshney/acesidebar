@@ -1,4 +1,3 @@
-import { Button } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -66,35 +65,33 @@ const SettingsCards: React.FC = ({ cards }: any) => {
             {section.items.map((item: any) => (
               <div
                 key={item.title}
-                className="bg-white rounded shadow p-6 flex flex-col items-start hover:shadow-md transition"
+                onClick={() => handleRoute(item.title)}
+                className="bg-white rounded-lg shadow-sm p-6 flex flex-col items-start cursor-pointer transition-all duration-300 hover:shadow-md hover:scale-105 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 group"
               >
                 {/* Icon and Title */}
                 <div className="flex items-center mb-2">
                   {item.icon && (
-                    <span className="mr-2">
+                    <span className="mr-2 group-hover:scale-110 transition-transform duration-300">
                       {React.createElement(item.icon, {
                         sx: { fontSize: 24, color: "#1b66c9" },
                       })}
                     </span>
                   )}
-                  <span className="font-semibold text-lg">{item.title}</span>
+                  <span className="font-semibold text-lg group-hover:text-blue-700 transition-colors duration-300">{item.title}</span>
                 </div>
 
                 {/* Description */}
-                <span className="text-gray-500 text-sm mb-4">
+                <span className="text-gray-500 text-sm mb-4 group-hover:text-gray-700 transition-colors duration-300">
                   {item.description}
                 </span>
 
-                {/* Optional action button */}
+                {/* Action indicator */}
                 {item.action && (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleRoute(item.title)}
-                  >
-                    {" "}
-                    {item.action}
-                  </Button>
+                  <div className="mt-auto w-full">
+                    <div className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {item.action} →
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
