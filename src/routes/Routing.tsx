@@ -62,6 +62,7 @@ import EmailNotificationsPage from "../USERMODULE/pages/settingManangePages/Emai
 import CanenResponseMasterPage from "../USERMODULE/pages/settingManangePages/CanenResponseMasterPage";
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
 import CreateEmailNotificationsPage from "../USERMODULE/pages/settingManangePages/CreateEmailNotificationsPage";
+import SetupWizard from "../setupWizard/SetupWizard";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -83,6 +84,12 @@ export const router = createBrowserRouter([
       // … all other children here …
     ],
   },
+  // Setup Wizard Route
+  {
+    path: "/wizard",
+    element: <SetupWizard />,
+  },
+
   // Auth Routes
   {
     path: "/login",
