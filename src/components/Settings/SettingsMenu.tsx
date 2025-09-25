@@ -16,7 +16,7 @@ const SettingsMenu = ({
           <div
             key={section.id}
             className={`flex items-start gap-4 mb-6 cursor-pointer p-2 rounded-md transition-colors
-              ${activeId === section.id ? "bg-gray-200" : "hover:bg-gray-100"}`}
+              ${activeId === section.id ? "bg-[#bfdbfe]" : "hover:bg-[#f6f8fb]"}`}
             onClick={() => onSelect(section.id)}
           >
             <div>{section.icon({ className: section.iconClass })}</div>
