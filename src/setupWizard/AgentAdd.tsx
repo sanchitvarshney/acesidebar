@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const AgentAdd = ({ onNext, onBack, onSkip, isFirstStep, isLastStep }) => {
+const AgentAdd = ({ onNext, onBack, onSkip, isFirstStep, isLastStep }:any) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     role: 'Agent'
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<any>({});
   const [isSkipped, setIsSkipped] = useState(false);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:any) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -20,7 +20,7 @@ const AgentAdd = ({ onNext, onBack, onSkip, isFirstStep, isLastStep }) => {
     
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev:any) => ({
         ...prev,
         [name]: ''
       }));
@@ -28,7 +28,7 @@ const AgentAdd = ({ onNext, onBack, onSkip, isFirstStep, isLastStep }) => {
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors:any = {};
     
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
@@ -44,7 +44,7 @@ const AgentAdd = ({ onNext, onBack, onSkip, isFirstStep, isLastStep }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e:any) => {
     e.preventDefault();
     if (validateForm()) {
       onNext({ agent: formData });
