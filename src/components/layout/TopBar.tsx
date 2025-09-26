@@ -30,8 +30,8 @@ import NotificationPopup from "../popup/NotificationPopup";
 import TasksPopup from "../popup/TasksPopup";
 import AdvancedSearchPopup from "../popup/AdvancedSearchPopup";
 import { useNavigate } from "react-router-dom";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
+import SwitcherIcon from "../../assets/image/switcher.svg";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useStatus } from "../../contextApi/StatusContext";
@@ -236,7 +236,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton size="large" sx={{ color: "#3f4346", mr: 2 }}>
-            <DarkModeIcon />
+            <img src={SwitcherIcon} alt="Switcher" style={{ width: 15, height: 15 }} />
           </IconButton>
 
           <IconButton
