@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const Completion = ({ onNext, onBack, isFirstStep, isLastStep, data }) => {
+const Completion = ({ onNext, onBack, isFirstStep, isLastStep, data }:any) => {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteData, setInviteData] = useState({
     email: '',
@@ -19,7 +19,7 @@ const Completion = ({ onNext, onBack, isFirstStep, isLastStep, data }) => {
     window.location.reload();
   };
 
-  const handleInviteAgent = (e) => {
+  const handleInviteAgent = (e:any) => {
     e.preventDefault();
     // Handle agent invitation
     console.log('Inviting agent:', inviteData);
@@ -28,7 +28,7 @@ const Completion = ({ onNext, onBack, isFirstStep, isLastStep, data }) => {
     setInviteData({ email: '', name: '', role: 'Agent' });
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:any) => {
     const { name, value } = e.target;
     setInviteData(prev => ({
       ...prev,
@@ -144,47 +144,6 @@ const Completion = ({ onNext, onBack, isFirstStep, isLastStep, data }) => {
         </div>
       </motion.div>
 
-
-      {/* Action Buttons */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 1.4 }}
-        className="flex flex-col sm:flex-row gap-4 justify-center"
-      >
-        <button
-          onClick={handleGoToDashboard}
-          className="px-8 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all text-lg shadow-lg hover:shadow-xl"
-        >
-          🎉 Welcome to Dashboard
-        </button>
-        
-        <button
-          onClick={handleStartOver}
-          className="px-8 py-4 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all text-lg"
-        >
-          Start Over
-        </button>
-      </motion.div>
-
-      {/* Footer */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4 }}
-        className="text-center mt-12 text-gray-500"
-      >
-        <p className="text-sm">
-          Need help? Check out our{' '}
-          <a href="/docs" className="text-blue-600 hover:text-blue-800 underline">
-            documentation
-          </a>{' '}
-          or{' '}
-          <a href="/support" className="text-blue-600 hover:text-blue-800 underline">
-            contact support
-          </a>
-        </p>
-      </motion.div>
     </div>
   );
 };
