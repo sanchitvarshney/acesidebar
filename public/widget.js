@@ -88,7 +88,7 @@
   // Create iframe
   const frame = document.createElement("iframe");
   frame.id = "support-frame";
-  frame.src = "http://localhost:3010/support?widgetId=null";
+  frame.src = "http://localhost:3010";
   document.body.appendChild(frame);
 
   // Toggle logic
