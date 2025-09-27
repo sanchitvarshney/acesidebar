@@ -24,15 +24,33 @@
     -->
   <!-- Google reCAPTCHA v2 -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
   <script>
-    var ajxtrChatBot = { s: { color: '#0068bd', position: 'br', id: 758373728 } };
+    var ajxtrChatBot = {
+      visitor: {
+        appId: "1234567890",   // required
+        uID: "user-42",        // optional
+        template: "1234567890" // required
+      },
+      bot: {
+        trigger: "default", // "default" or elementID
+        buttonColor: "#0068bd",
+        sliderStyle: "slider", // "pop" or "slider"
+        position: "br"         // "br" or "bl"
+      }
+    };
+
     (function (d, e, s) {
       if (d.getElementById('ajxtr-chat-bot')) return;
       var a = d.createElement(e), m = d.getElementsByTagName(e)[0];
-      a.async = 1; a.id = 'ajxtr-chat-bot';
-      a.src = s; m.parentNode.insertBefore(a, m);
-    })(document, 'script', 'http://localhost:3000/widget.js?time=' + new Date().getTime());
+      a.async = 1;
+      a.id = 'ajxtr-chat-bot';
+      a.src = s;
+      m.parentNode.insertBefore(a, m);
+    })(document, 'script', 'http://localhost:3000/widget.js');
   </script>
+
+
 
   <title>TMS</title>
 </head>
