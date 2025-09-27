@@ -101,7 +101,7 @@
 
       const frame = document.createElement("iframe");
       frame.id = "support-frame";
-      frame.src = "http://localhost:3010";
+      frame.src = "https://chat-bot-blond-seven.vercel.app";
 
       frame.addEventListener("load", () => {
         loading = false;
