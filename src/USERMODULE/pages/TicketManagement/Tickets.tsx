@@ -17,6 +17,7 @@ import {
   Chip,
   TextField,
 } from "@mui/material";
+import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import LeftMenu from "./LeftMenu";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -413,7 +414,7 @@ const Tickets: React.FC = () => {
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-        "Date created"
+      "Date created"
     );
     setPage(1); // Reset to first page
   };
@@ -483,7 +484,7 @@ const Tickets: React.FC = () => {
     if (!ticketsToShow?.data) return;
     setMasterChecked(
       ticketsToShow.data.length > 0 &&
-        selectedTickets.length === ticketsToShow.data.length
+      selectedTickets.length === ticketsToShow.data.length
     );
   }, [selectedTickets, ticketsToShow]);
 
@@ -575,10 +576,10 @@ const Tickets: React.FC = () => {
     setAgentValue(
       merged.assignee
         ? {
-            fName: merged.assignee.name?.split(" ")[0] || "",
-            lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
-            UserId: merged.assignee.id || merged.assignee.UserId,
-          }
+          fName: merged.assignee.name?.split(" ")[0] || "",
+          lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
+          UserId: merged.assignee.id || merged.assignee.UserId,
+        }
         : null
     );
 
@@ -681,13 +682,19 @@ const Tickets: React.FC = () => {
       <div className="p-6 ">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Quick update properties
-          </h3>
+          <div className="flex items-center gap-2">
+            <QuickreplyIcon fontSize="small" className="text-gray-700" />
+            <h3 className="text-lg font-semibold text-gray-700" style={{ lineHeight: "normal" }}>
+              Quick Update
+              <span className="text-gray-500" style={{ fontSize: "0.6rem", display: "block" }}>
+                Update properties of ticket #{trackTicketId}
+              </span>
+            </h3>
+          </div>
           <IconButton
             size="small"
             onClick={handleQuickUpdateClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400"
           >
             <Close fontSize="small" />
           </IconButton>
@@ -969,7 +976,7 @@ const Tickets: React.FC = () => {
           </div>
 
           {/* Separator */}
-          <div className="text-gray-300">|</div>
+          <div className="text-gray-500">|</div>
 
           {/* Assignee */}
           <div className="flex items-start gap-2">
@@ -992,14 +999,14 @@ const Tickets: React.FC = () => {
 
             <div className="flex flex-col">
               <span className="text-gray-500 mb-1">Assignee</span>
-              <span className="text-gray-700">
+              <span className="text-gray-800 font-semibold">
                 {merged?.assignee?.name || "~"}
               </span>
             </div>
           </div>
 
           {/* Separator */}
-          <div className="text-gray-300">|</div>
+          <div className="text-gray-500">|</div>
 
           {/* Raised by */}
 
@@ -1024,20 +1031,18 @@ const Tickets: React.FC = () => {
             <div className="flex flex-col">
               <span className="text-gray-500 mb-1">raised by</span>
 
-              <div className="text-gray-700">
-                <span
-                  className="text-gray-700 font-medium cursor-pointer hover:underline decoration-dotted"
-                  onMouseEnter={(e) => handleUserHover(e, merged.fromUser)}
-                  onMouseLeave={handleUserLeave}
-                >
-                  {merged?.fromUser?.name || ""}
-                </span>
-              </div>
+              <span
+                className="text-gray-800 font-semibold cursor-pointer hover:underline decoration-dotted"
+                onMouseEnter={(e) => handleUserHover(e, merged.fromUser)}
+                onMouseLeave={handleUserLeave}
+              >
+                {merged?.fromUser?.name || ""}
+              </span>
             </div>
           </div>
 
           {/* Separator */}
-          <div className="text-gray-300">|</div>
+          <div className="text-gray-500">|</div>
 
           {/* Department */}
           <div className="flex items-start gap-2">
@@ -1068,7 +1073,7 @@ const Tickets: React.FC = () => {
 
             <div className="flex flex-col">
               <span className="text-gray-500 mb-1">Department</span>
-              <span className="text-gray-700">
+              <span className="text-gray-800 font-semibold">
                 {merged?.department?.name || "Support"}
               </span>
             </div>
@@ -1097,14 +1102,14 @@ const Tickets: React.FC = () => {
 
             <div className="flex flex-col">
               <span className="text-gray-500 mb-1">Status</span>
-              <span className="text-gray-700">
+              <span className="text-gray-800 font-semibold">
                 {merged?.status?.name || "Review"}
               </span>
             </div>
           </div>
 
           {/* Separator */}
-          <div className="text-gray-300">|</div>
+          <div className="text-gray-500">|</div>
 
           {/* Due Date */}
           <div className="flex items-start gap-2">
@@ -1130,7 +1135,7 @@ const Tickets: React.FC = () => {
 
             <div className="flex flex-col">
               <span className="text-gray-500 mb-1">Due Date</span>
-              <span className="text-gray-700">{merged?.dueDate || "~"}</span>
+              <span className="text-gray-800 font-semibold">{merged?.dueDate || "~"}</span>
             </div>
           </div>
 
@@ -1227,11 +1232,11 @@ const Tickets: React.FC = () => {
                     color="primary"
                     onClick={() => refetch()}
                     disabled={isTicketsFetching}
-                   sx={{
-                    ml:1,
-                    bgcolor:"#ffffff",
-                    boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)",
-                   }}
+                    sx={{
+                      ml: 1,
+                      bgcolor: "#ffffff",
+                      boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)",
+                    }}
                     aria-label="Refresh"
                     title="Refresh"
                   >
