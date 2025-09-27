@@ -70,25 +70,9 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
     }
   };
 
-  const handleTestConnection = () => {
-    // Placeholder for testing reCAPTCHA connection
-    alert(
-      "Testing reCAPTCHA configuration... (This would be implemented with actual API call)"
-    );
-  };
+  
 
-  const recaptchaVersions = [
-    {
-      value: "v2",
-      label: "reCAPTCHA v2",
-      description: 'Classic "I\'m not a robot" checkbox',
-    },
-    {
-      value: "v3",
-      label: "reCAPTCHA v3",
-      description: "Invisible background verification",
-    },
-  ];
+ 
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
