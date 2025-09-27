@@ -681,7 +681,7 @@ const Tickets: React.FC = () => {
       <div className="p-6 ">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-700">
             Quick update properties
           </h3>
           <IconButton
