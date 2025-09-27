@@ -119,15 +119,15 @@ const BrandSetup = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl h-[calc(100vh-185px)] flex flex-col items-center justify-center overflow-y-auto  ">
       {/* Header */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-8"
+        className="text-center mb-4"
       >
-        <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="w-[60px] h-[60px] bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg
             className="w-10 h-10 text-purple-600"
             fill="none"
@@ -142,8 +142,8 @@ const BrandSetup = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
             />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Brand Setup</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Brand Setup</h1>
+        <p className="text-md text-gray-600">
           Configure your brand identity and system preferences for your ticket
           management system.
         </p>
@@ -155,12 +155,12 @@ const BrandSetup = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-lg p-8"
+        className="bg-white  p-4"
       >
         <div className="grid md:grid-cols-2 gap-8">
           {/* Left Column - Brand Identity */}
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
               Brand Identity
             </h3>
 
@@ -243,7 +243,7 @@ const BrandSetup = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
 
           {/* Right Column - Contact & Preferences */}
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
               Contact & Preferences
             </h3>
 

@@ -69,15 +69,15 @@ const SMTPConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-4xl h-[calc(100vh-185px)] flex flex-col items-center justify-center overflow-y-auto  ">
       {/* Header */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-8"
+        className="text-center mb-4"
       >
-        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="w-[60px] h-[60px] bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
           <svg
             className="w-10 h-10 text-blue-600"
             fill="none"
@@ -92,7 +92,7 @@ const SMTPConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
             />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
           SMTP Configuration
         </h1>
         <p className="text-lg text-gray-600">
@@ -107,8 +107,9 @@ const SMTPConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
         onSubmit={handleSubmit}
+        className="w-full max-w-lg"
       >
-        <div className="space-y-6">
+        <div className="grid grid-cols-2 gap-5">
           {/* SMTP Host */}
           <div>
             <TextField
@@ -191,17 +192,7 @@ const SMTPConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
           </div>
         </div>
 
-        {/* Test Connection Button */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={handleTestConnection}
-            className="w-full py-3 px-6 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-all mb-4"
-          >
-            Test Connection
-          </button>
-       
-        </div>
+    
       </motion.form>
     </div>
   );
