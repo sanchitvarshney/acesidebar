@@ -136,23 +136,9 @@ const DomainAdd = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
                 value={domainInput}
                 onChange={(e) => setDomainInput(e.target.value)}
               />
-              {/* <input
-                type="text"
-                placeholder="Enter your domain (e.g., example.com)"
-                value={domainInput}
-                onChange={(e) => setDomainInput(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              /> */}
+         
             </div>
 
-            <Button
-              variant="contained"
-              color="success"
-              onClick={handleExistingDomainSubmit}
-              disabled={!domainInput.trim()}
-            >
-              Add Domain
-            </Button>
           </div>
         </motion.div>
       </div>

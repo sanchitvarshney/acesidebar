@@ -1,6 +1,27 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Typography,
+} from "@mui/material";
+
+const steps = [
+  {
+    id: "v2",
+    label: "reCAPTCHA v2",
+    subLabel: "Classic I'm not a robot",
+  },
+  {
+    id: "v3",
+    label: "reCAPTCHA v3",
+    subLabel: "Invisible background verification",
+  },
+];
 
 const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
   const [formData, setFormData] = useState({
@@ -68,6 +89,50 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
       description: "Invisible background verification",
     },
   ];
+
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [skipped, setSkipped] = React.useState(new Set<number>());
+
+  const isStepOptional = (step: number) => {
+    return step === 1;
+  };
+
+  const isStepSkipped = (step: number) => {
+    return skipped.has(step);
+  };
+
+  const handleNext = () => {
+    let newSkipped = skipped;
+    if (isStepSkipped(activeStep)) {
+      newSkipped = new Set(newSkipped.values());
+      newSkipped.delete(activeStep);
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setSkipped(newSkipped);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleSkip = () => {
+    if (!isStepOptional(activeStep)) {
+
+      throw new Error("You can't skip a step that isn't optional.");
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setSkipped((prevSkipped) => {
+      const newSkipped = new Set(prevSkipped.values());
+      newSkipped.add(activeStep);
+      return newSkipped;
+    });
+  };
+
+  const handleReset = () => {
+    setActiveStep(0);
+  };
 
   return (
     <div className="w-full h-[calc(100vh-190px)]  overflow-y-auto p-4 ">
@@ -145,94 +210,155 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.5 }}
         onSubmit={handleSubmit}
-        className=" w-full max-w-xl mx-auto p-4"
+        className=" w-full max-w-2xl mx-auto p-4"
       >
-        <div className="space-y-6">
-          {/* reCAPTCHA Version */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              reCAPTCHA Version *
-            </label>
-            <div className="space-y-3">
-              {recaptchaVersions.map((version) => (
-                <label
-                  key={version.value}
-                  className={`flex items-start p-2 border rounded-lg cursor-pointer transition-all ${
-                    formData.version === version.value
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="version"
-                    value={version.value}
-                    checked={formData.version === version.value}
-                    onChange={handleInputChange}
-                    className="mt-1 mr-3 text-blue-600 focus:ring-blue-500"
-                  />
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">
-                      {version.label}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      {version.description}
-                    </div>
+        <Box sx={{ width: "100%" }}>
+          <Stepper activeStep={activeStep}>
+            {steps.map((label, index) => {
+              const stepProps: { completed?: boolean } = {};
+              const labelProps: {
+                optional?: React.ReactNode;
+              } = {};
+              if (isStepOptional(index)) {
+                labelProps.optional = (
+                  <Typography variant="caption">Optional</Typography>
+                );
+              }
+              if (isStepSkipped(index)) {
+                stepProps.completed = false;
+              }
+              return (
+                <Step key={label.id} {...stepProps}>
+                  <StepLabel {...labelProps}>
+                    <Typography variant="subtitle2">{label.label}</Typography>
+                    <Typography variant="caption">{label.subLabel}</Typography>
+                  </StepLabel>
+                </Step>
+              );
+            })}
+          </Stepper>
+          {activeStep === steps.length ? (
+            <React.Fragment>
+              <Typography sx={{ mt: 2, mb: 1 }}>
+                All steps completed - you&apos;re finished
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                <Box sx={{ flex: "1 1 auto" }} />
+                <Button onClick={handleReset}>Reset</Button>
+              </Box>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              {activeStep === 0 && (
+                <>
+                  <div>
+                    <TextField
+                      label="Site Key"
+                      name="siteKey"
+                      value={formData.siteKey}
+                      onChange={handleInputChange}
+                      placeholder="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                      fullWidth
+                      variant="standard"
+                    />
+                    {errors.siteKey && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.siteKey}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      This key is safe to use in client-side code
+                    </p>
                   </div>
-                </label>
-              ))}
-            </div>
-          </div>
 
-          {/* Site Key */}
-          <div>
-            <TextField
-              label="Site Key"
-              name="siteKey"
-              value={formData.siteKey}
-              onChange={handleInputChange}
-              placeholder="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-              fullWidth
-              variant="standard"
-            />
-            {errors.siteKey && (
-              <p className="mt-1 text-sm text-red-600">{errors.siteKey}</p>
-            )}
-            <p className="mt-1 text-xs text-gray-500">
-              This key is safe to use in client-side code
-            </p>
-          </div>
+                  <div>
+                    <TextField
+                      fullWidth
+                      label="Secret Key"
+                      variant="standard"
+                      placeholder="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+                      name="secretKey"
+                      value={formData.secretKey}
+                      onChange={handleInputChange}
+                    />
+                    {errors.secretKey && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.secretKey}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      Keep this key secret and secure
+                    </p>
+                  </div>
+                </>
+              )}
+              {activeStep === 1 && (
+                <>
+                  <div>
+                    <TextField
+                      label="Site Key"
+                      name="siteKey"
+                      value={formData.siteKey}
+                      onChange={handleInputChange}
+                      placeholder="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                      fullWidth
+                      variant="standard"
+                    />
+                    {errors.siteKey && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.siteKey}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      This key is safe to use in client-side code
+                    </p>
+                  </div>
 
-          {/* Secret Key */}
-          <div>
-            <TextField
-              fullWidth
-              label="Secret Key"
-              variant="standard"
-              placeholder="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
-              name="secretKey"
-              value={formData.secretKey}
-              onChange={handleInputChange}
-            />
-            {errors.secretKey && (
-              <p className="mt-1 text-sm text-red-600">{errors.secretKey}</p>
-            )}
-            <p className="mt-1 text-xs text-gray-500">
-              Keep this key secret and secure
-            </p>
-          </div>
-        </div>
+                  <div>
+                    <TextField
+                      fullWidth
+                      label="Secret Key"
+                      variant="standard"
+                      placeholder="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+                      name="secretKey"
+                      value={formData.secretKey}
+                      onChange={handleInputChange}
+                    />
+                    {errors.secretKey && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.secretKey}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      Keep this key secret and secure
+                    </p>
+                  </div>
+                </>
+              )}
+              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                <Button
+                  color="inherit"
+                  disabled={activeStep === 0}
+                  onClick={handleBack}
+                  sx={{ mr: 1 }}
+                >
+                  Back
+                </Button>
+                <Box sx={{ flex: "1 1 auto" }} />
+                {isStepOptional(activeStep) && (
+                  <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+                    Skip
+                  </Button>
+                )}
+                <Button onClick={handleNext}>
+                  {activeStep === steps.length - 1 ? "Finish" : "Next"}
+                </Button>
+              </Box>
+            </React.Fragment>
+          )}
+        </Box>
 
-        {/* Test Connection Button */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={handleTestConnection}
-            className="w-full py-3 px-6 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-all mb-4"
-          >
-            Test reCAPTCHA Configuration
-          </button>
-        </div>
+    
       </motion.form>
     </div>
   );

@@ -15,7 +15,7 @@ import whatsappIcon from "../assets/wizard/whatsapp.png";
 import captchaIcon from "../assets/wizard/captcha.png";
 import completeIcon from "../assets/wizard/complete.png";
 import RightSidePanel from "./RightSidePanel";
-import { Box, LinearProgress, Typography } from "@mui/material";
+import { Box, Button, LinearProgress, Typography } from "@mui/material";
 
 const SetupWizard = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -32,30 +32,40 @@ const SetupWizard = () => {
       id: "domain",
       title: "Domain Add",
       icon: domainIcon,
+      isOptional: false,
+      buttonName: "Next",
       component: DomainAdd,
     },
     {
       id: "brand",
       title: "Brand Info",
       icon: brandIcon,
+      isOptional: false,
+      buttonName: "Next",
       component: BrandSetup,
     },
     {
       id: "smtp",
       title: "SMTP Config",
       icon: smtpIcon,
+      isOptional: false,
+      buttonName: "Next",
       component: SMTPConfig,
     },
     {
       id: "whatsapp",
       title: "WhatsApp Config",
       icon: whatsappIcon,
+      isOptional: true,
+      buttonName: "Next",
       component: WhatsappConfig,
     },
     {
       id: "recaptcha",
       title: "Google reCAPTCHA",
       icon: captchaIcon,
+      isOptional: true,
+      buttonName: "Next",
       component: RecaptchaConfig,
     },
     {
@@ -80,6 +90,9 @@ const SetupWizard = () => {
   };
 
   const handleSkip = () => {
+    if (steps[currentStep].isOptional) {
+      return;
+    }
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -587,14 +600,12 @@ const SetupWizard = () => {
           >
             <div className="w-full px-8 py-4">
               <div className="flex items-center justify-between">
-                <button
+
+                <Button
                   onClick={handleBack}
                   disabled={currentStep === 0}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                    currentStep === 0
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
+                  variant="text"
+                  sx={{ fontWeight: 600, fontSize: "0.875rem" }}
                 >
                   <svg
                     className="w-4 h-4 mr-2 inline"
@@ -610,13 +621,16 @@ const SetupWizard = () => {
                     />
                   </svg>
                   Back
-                </button>
+                </Button>
 
                 <Box
                   sx={{
                     p: 2,
                     borderRadius: 2,
                     bgcolor: "rgba(255,255,255,0.1)",
+                    display: "flex",
+                    flexDirection: "column",
+                    
                   }}
                 >
                   {/* Header */}
@@ -628,12 +642,12 @@ const SetupWizard = () => {
                   >
                     <Typography
                       variant="body2"
-                      color="grey.200"
+                       sx={{color:"#636363ff"}}
                       fontWeight={500}
                     >
                       Progress
                     </Typography>
-                    <Typography variant="body2" color="grey.300">
+                    <Typography variant="body2" sx={{color:"#636363ff", ml: 1, textAlign: "center"}}>
                       {currentStep + 1} of {steps.length}
                     </Typography>
                   </Box>
@@ -657,7 +671,7 @@ const SetupWizard = () => {
                   {/* Footer text */}
                   <Typography
                     variant="caption"
-                    color="grey.300"
+                    sx={{color:"#636363ff"}}
                     mt={1}
                     display="block"
                   >
@@ -667,14 +681,23 @@ const SetupWizard = () => {
                 </Box>
                 <div className="flex items-center space-x-3">
                   {currentStep < steps.length - 1 && (
-                    <button
+                   
+                    <Button
                       onClick={handleSkip}
-                      className="px-6 py-3 bg-gray-100 text-gray-600 rounded-lg font-semibold hover:bg-gray-200 transition-all"
+                      variant="text"
+                      color="primary"
+                      disabled={steps[currentStep].isOptional}
+                      sx={{ fontWeight: 600, fontSize: "0.875rem" }}
                     >
                       Skip
-                    </button>
+                    </Button>
                   )}
-                  <button
+                  <Button
+                    variant="contained"
+                    color={
+                      currentStep === steps.length - 1 ? "success" : "primary"
+                    }
+                    sx={{ fontSize: "0.875rem" }}
                     onClick={() => {
                       if (currentStep < steps.length - 1) {
                         // Trigger form submission for current step
@@ -693,13 +716,10 @@ const SetupWizard = () => {
                         console.log("Setup completed!", wizardData);
                       }
                     }}
-                    className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                      currentStep === steps.length - 1
-                        ? "bg-green-600 text-white hover:bg-green-700"
-                        : "bg-blue-600 text-white hover:bg-blue-700"
-                    }`}
                   >
-                    {currentStep === steps.length - 1 ? "Complete" : "Next"}
+                    {currentStep === steps.length - 1
+                      ? "Complete"
+                      : steps[currentStep].buttonName}
                     {currentStep < steps.length - 1 && (
                       <svg
                         className="w-4 h-4 ml-2 inline"
@@ -715,7 +735,7 @@ const SetupWizard = () => {
                         />
                       </svg>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

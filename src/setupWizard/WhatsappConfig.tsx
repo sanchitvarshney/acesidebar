@@ -65,7 +65,7 @@ const WhatsappConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
   };
 
   return (
-    <div className="max-w-4xl h-[calc(100vh-10px)] flex flex-col items-center justify-center overflow-y-auto">
+    <div className="w-full overflow-y-auto p-2">
       {/* Header */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -96,7 +96,7 @@ const WhatsappConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="bg-blue-50 w-full max-w-lg border border-blue-200 rounded-lg p-4 mb-4"
+        className="bg-blue-50 w-full max-w-lg mx-auto border border-blue-200 rounded-lg p-4 mb-4"
       >
         <div className="flex items-start">
           <svg
@@ -132,7 +132,7 @@ const WhatsappConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.5 }}
         onSubmit={handleSubmit}
-        className="w-full max-w-lg"
+        className="w-full max-w-lg mx-auto"
       >
         <div className="space-y-6">
           {/* Business Name */}
@@ -183,16 +183,6 @@ const WhatsappConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
           </div>
         </div>
 
-        {/* Test Connection Button */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={handleTestConnection}
-            className="w-full py-3 px-6 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-all mb-4"
-          >
-            Test WhatsApp Connection
-          </button>
-        </div>
       </motion.form>
     </div>
   );

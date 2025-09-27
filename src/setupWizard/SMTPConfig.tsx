@@ -192,17 +192,7 @@ const SMTPConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
           </div>
         </div>
 
-        {/* Test Connection Button */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={handleTestConnection}
-            className="w-full py-3 px-6 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-all mb-4"
-          >
-            Test Connection
-          </button>
-       
-        </div>
+    
       </motion.form>
     </div>
   );

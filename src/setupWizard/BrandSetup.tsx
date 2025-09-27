@@ -155,7 +155,7 @@ const BrandSetup = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-lg p-8"
+        className="bg-white  p-4"
       >
         <div className="grid md:grid-cols-2 gap-8">
           {/* Left Column - Brand Identity */}
