@@ -7,6 +7,7 @@ import Protected from "../components/protected/Protected";
 
 import Tickets from "../USERMODULE/pages/TicketManagement/Tickets";
 import Tasks from "../USERMODULE/pages/task/Tasks";
+import KanbanPage from "../USERMODULE/pages/task/KanbanPage";
 import Chat from "../USERMODULE/pages/TicketManagement/Chat";
 import CreateTicketPage from "../USERMODULE/pages/TicketManagement/CreateTicketPage";
 import CreateUser from "../USERMODULE/pages/CreateUser";
@@ -137,6 +138,10 @@ export const router = createBrowserRouter([
       {
         path: "tasks",
         element: <Tasks />,
+      },
+      {
+        path: "kanban",
+        element: <KanbanPage />,
       },
       {
         path: "chat",
