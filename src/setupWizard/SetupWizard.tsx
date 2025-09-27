@@ -35,6 +35,7 @@ const SetupWizard = () => {
       isOptional: false,
       buttonName: "Next",
       component: DomainAdd,
+      
     },
     {
       id: "brand",
