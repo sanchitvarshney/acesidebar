@@ -30,11 +30,8 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: "#fff",
     transition: "opacity 0.2s ease-in-out",
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.4)", // subtle shadow
-    // borderRadius: "6px", // optional rounding
-    // padding: "8px 12px", // optional padding
-    color: "#000",
-        padding: 0,
+    filter: "drop-shadow(0px 2px 2px rgba(214, 214, 214, 0.8))",
+    padding: 0,
   },
   [`& .${tooltipClasses.popper}`]: {
     zIndex: 110000, // ensure highest stacking for nested menus
@@ -67,7 +64,7 @@ const CustomToolTip: FC<CustomizedTooltipProps> = ({
           },
         },
       }}
-    
+
     >
       {children}
     </BootstrapTooltip>
