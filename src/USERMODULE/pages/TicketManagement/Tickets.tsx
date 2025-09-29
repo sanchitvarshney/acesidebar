@@ -42,7 +42,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
 import UserHoverPopup from "../../../components/popup/UserHoverPopup";
-import emptyticketimg from "../../../assets/image/ticket-404.svg";
+import emptyticketimg from "../../../assets/24681956_6988299.svg";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 
 import { useToast } from "../../../hooks/useToast";
@@ -1319,19 +1319,24 @@ const Tickets: React.FC = () => {
                   {ticketsToShow && ticketsToShow?.data?.length > 0 ? (
                     <div>{ticketsToShow?.data?.map(renderTicketCard)}</div>
                   ) : (
-                    <div className="flex flex-col justify-center items-center ">
+                    // align middle center
+                    <div className="flex flex-col justify-center items-center mt-10">
                       <img
                         src={emptyticketimg}
                         alt="No tickets"
-                        className="mb-4 w-[35%]"
+                        className="w-[35%]"
                       />
-                      <div className="text-gray-400 text-lg">
-                        No tickets found
+                      <div className="text-gray-400 text-lg font-bold">
+                        NO TICKETS FOUND
                       </div>
-                      <div className="text-gray-500 text-sm mt-2">
-                        Try adjusting your filters or create a new ticket
+                      <div className="text-gray-500 text-sm font-bold">
+                        You can try to{' '}
+                        <span className="underline decoration-dotted">adjusting</span> your{' '}
+                        <span className="underline decoration-dotted">filters</span>
                       </div>
+
                     </div>
+
                   )}
                 </div>
               )}

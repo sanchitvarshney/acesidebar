@@ -61,7 +61,7 @@ import {
 import { useToast } from "../../../hooks/useToast";
 import { useGetStatusListQuery } from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
-import noTask from "../../../assets/empty_task.svg";
+import noTask from "../../../assets/24683078_6986783.svg";
 
 type TaskPropsType = {
   isAddTask?: boolean;
