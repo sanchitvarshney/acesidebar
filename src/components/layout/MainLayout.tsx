@@ -58,6 +58,7 @@ const MainContent = styled(Box)(({ theme }) => ({
   padding: theme.spacing(0),
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
+  
 }));
 
 const MainLayout = () => {

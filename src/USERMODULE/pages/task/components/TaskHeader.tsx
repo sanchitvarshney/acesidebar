@@ -12,6 +12,8 @@ interface TaskHeaderProps {
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rowsPerPage: number) => void;
   onCreateTask: () => void;
+  viewMode?: any;
+  changeViewMode?: any;
 }
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({
@@ -25,8 +27,9 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   onPageChange,
   onRowsPerPageChange,
   onCreateTask,
+  changeViewMode,
+  viewMode,
 }) => {
- 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -65,6 +68,14 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
         <span className="bg-[#f0f4f9] text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">
           {totalTasks}
         </span>
+
+        <Button variant={viewMode === "list" ? "contained" : "text"} onClick={changeViewMode}>
+          List
+        </Button>
+        <Button variant={viewMode === "kanban" ? "contained" : "text"}  onClick={changeViewMode}>
+          Kanban
+        </Button>
+
         {selectedTasks > 0 && (
           <div className="flex items-center gap-2 ml-4 flex-wrap">
             <span className="text-sm text-gray-600">
@@ -76,24 +87,26 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 
       <div className="flex items-center gap-3 flex-wrap">
         {/* Pagination */}
-        <TablePagination
-          component="div"
-          count={totalTasks ?? 0}
-          page={page - 1} // MUI TablePagination uses 0-based indexing
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[5, 10, 20, 50]}
-          labelRowsPerPage=""
-          sx={{
-            ".MuiTablePagination-selectLabel": {
-              display: "none",
-            },
-            ".MuiTablePagination-displayedRows": {
-              margin: 0,
-            },
-          }}
-        />
+        {viewMode === "list" && (
+          <TablePagination
+            component="div"
+            count={totalTasks ?? 0}
+            page={page - 1} // MUI TablePagination uses 0-based indexing
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 20, 50]}
+            labelRowsPerPage=""
+            sx={{
+              ".MuiTablePagination-selectLabel": {
+                display: "none",
+              },
+              ".MuiTablePagination-displayedRows": {
+                margin: 0,
+              },
+            }}
+          />
+        )}
         <Button
           variant="contained"
           size="small"
@@ -116,4 +129,3 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 };
 
 export default TaskHeader;
-

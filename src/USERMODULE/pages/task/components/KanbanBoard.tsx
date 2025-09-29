@@ -20,11 +20,10 @@ import TaskListSkeleton from "../../../skeleton/TaskListSkeleton";
 
 interface KanbanBoardProps {
   tasks: any;
-  selectedTasks: string[];
-  selectedTask: any | null;
+ 
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onTaskSelect: (taskId: string, checked: boolean) => void;
+
   onTaskClick: (task: any) => void;
   onAdvancedSearchOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
   getStatusIcon: (status: string) => React.ReactNode;
@@ -72,19 +71,17 @@ const kanbanColumns = [
 const KanbanBoard: React.FC<KanbanBoardProps> = memo(
   ({
     tasks,
-    selectedTasks,
-    selectedTask,
+   
+
     searchQuery,
-    onSearchChange,
-    onTaskSelect,
+ 
+   
     onTaskClick,
-    onAdvancedSearchOpen,
+
     getStatusIcon,
-    isAddTask,
+ 
     isLoading,
-    loadingTaskId,
-    loadingAttachmentTaskId,
-    taskId,
+  
   }) => {
     // State for collapsed columns
     const [collapsedColumns, setCollapsedColumns] = React.useState<Set<string>>(new Set());
@@ -245,15 +242,15 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
         {/* Search functionality removed */}
 
         {/* Kanban Board */}
-        <div className="flex-1 overflow-x-auto overflow-y-hidden">
-          <div className="flex h-full" style={{ minWidth: 'max-content' }}>
+        <div className="flex w-[calc(100%-280px)] bg-red-100  h-[calc(100vh-150px)] overflow-auto">
+       
             {columnsWithCounts.map((column) => (
               <div
                 key={column.id}
-                className={`flex flex-col border-r border-gray-200 bg-gray-50 transition-all duration-300 ${
+                className={`flex bg-green-100 flex-col border-r border-gray-200 bg-gray-50 transition-all duration-300 ${
                   collapsedColumns.has(column.id) ? "w-16 min-w-16" : "w-80 min-w-80"
                 }`}
-                style={{ height: '100%' }}
+                style={{ height: '100%',backgroundColor:"green" }}
               >
                 {/* Column Header */}
                 <div className={`bg-white border-b border-gray-200 ${collapsedColumns.has(column.id) ? "p-2" : "p-4"}`}>
@@ -382,9 +379,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
                           onDragStart={(e) => handleDragStart(e, task)}
                           onDragEnd={handleDragEnd}
                           sx={{
-                            border: selectedTask?.taskKey === task.taskKey 
-                              ? "2px solid #2196f3" 
-                              : "1px solid #e5e7eb",
+                            border: "1px solid #e5e7eb",
                             "&:hover": {
                               borderColor: "#2196f3",
                             },
@@ -476,7 +471,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
                 )}
               </div>
             ))}
-          </div>
+    
         </div>
       </>
     );

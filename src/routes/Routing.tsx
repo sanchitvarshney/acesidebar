@@ -139,10 +139,7 @@ export const router = createBrowserRouter([
         path: "tasks",
         element: <Tasks />,
       },
-      {
-        path: "kanban",
-        element: <KanbanPage />,
-      },
+    
       {
         path: "chat",
         element: <Chat />,

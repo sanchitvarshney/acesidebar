@@ -62,6 +62,7 @@ import { useToast } from "../../../hooks/useToast";
 import { useGetStatusListQuery } from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/24683078_6986783.svg";
+import KanbanPage from "./KanbanPage";
 
 type TaskPropsType = {
   isAddTask?: boolean;
@@ -71,6 +72,7 @@ type TaskPropsType = {
 const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const { showToast } = useToast();
   const { user } = useAuth();
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [searchQuery, setSearchQuery] = React.useState("");
   const { data: statusList } = useGetStatusListQuery();
   const [taskDialogOpen, setTaskDialogOpen] = React.useState(false);
@@ -493,6 +495,14 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     return taskSearchConditions.length > 0 && getConditionErrors().length === 0;
   };
 
+  const handleChangeMode = () => {
+    if (viewMode === "list") {
+      setViewMode("kanban");
+    } else {
+      setViewMode("list");
+    }
+  };
+
   const getAvailableFields = (currentConditionId: string) => {
     const usedFields = taskSearchConditions
       ?.filter((c) => c.id !== currentConditionId)
@@ -750,7 +760,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   );
 
   return (
-    <div className="flex flex-col bg-[#f0f4f9]  h-[calc(100vh-100px)]">
+    <div className="flex flex-col    h-[calc(100vh-105px)]  ">
       {taskListData?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-gray-500">
           <img src={noTask} alt="No Tasks" className="my-3 w-[30%]" />
@@ -790,563 +800,370 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               setPage(1);
             }}
             onCreateTask={() => setTaskDialogOpen(true)}
+            viewMode={viewMode}
+            changeViewMode={handleChangeMode}
           />
           {/* Main Content: Tasks + Details */}
           <div className="flex flex-1 h-0 min-h-0">
             {!isAddTask && <LeftMenu />}
 
             {/* LEFT SECTION - Task List & Filters */}
-            <TaskList
-              tasks={{
-                ...{ ...taskListData },
-                data: filteredTasks,
-              }}
-              selectedTasks={selectedTasks}
-              selectedTask={taskcomment?.data}
-              searchQuery={searchQuery}
-              page={paginationData.currentPage}
-              rowsPerPage={paginationData.limit}
-              {...(paginationData.totalPages && {
-                totalPages: paginationData.totalPages,
-              })}
-              {...(paginationData.totalCount && {
-                totalCount: paginationData.totalCount,
-              })}
-              onSearchChange={(q: string) => setSearchQuery(q)}
-              onTaskSelect={(taskId: string, checked: boolean) =>
-                handleTaskSelection(taskId, checked)
-              }
-              onTaskClick={(task: any) => {
-                setTaskId(task);
-              }}
-              onPageChange={(newPage: number) => setPage(newPage)}
-              onRowsPerPageChange={(rpp: number) => {
-                setRowsPerPage(rpp);
-                setPage(1);
-              }}
-              onAdvancedSearchOpen={(e) => handleTaskAdvancedSearchOpen(e)}
-              getStatusIcon={getStatusIcon}
-              isAddTask={isAddTask}
-              isLoading={taskListDataLoading}
-              loadingTaskId={loadingTaskId}
-              loadingAttachmentTaskId={loadingAttachmentTaskId}
-              taskId={taskId?.taskId}
-            />
-
-            {/* RIGHT SECTION - Task Details & Actions */}
-            <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
-              {/* Right Sidebar Tabs */}
-              <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
-                <div className="p-4 space-y-4">
-                  {!isAddTask && (
-                    <Tooltip title="Details" placement="left">
-                      <IconButton
-                        onClick={() => {
-                          if (!taskId) return;
-                          setRightActiveTab(0);
-                          handleTaskClick(taskId, "ticket");
-                        }}
-                        disabled={!taskId}
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: "50%",
-                          transition: "all 0.2s",
-                          bgcolor:
-                            rightActiveTab === 0
-                              ? "primary.main"
-                              : "transparent",
-                          color:
-                            rightActiveTab === 0 ? "#fff" : "text.secondary",
-                          boxShadow: rightActiveTab === 0 ? 3 : "none",
-                          "&:hover": {
-                            bgcolor:
-                              rightActiveTab === 0
-                                ? "primary.dark"
-                                : "grey.100",
-                            color:
-                              rightActiveTab === 0 ? "#fff" : "text.primary",
-                          },
-                          "&:disabled": {
-                            opacity: 0.6,
-                            cursor: "not-allowed",
-                          },
-                        }}
-                      >
-                        <AssignmentIcon />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-
-                  <Tooltip title="Files" placement="left">
-                    <IconButton
-                      onClick={() => {
-                        if (!taskId) return;
-                        setRightActiveTab(1);
-
-                        handleTaskClick(taskId, "comments");
-                      }}
-                      disabled={!taskId}
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: "50%",
-                        transition: "all 0.2s",
-                        bgcolor:
-                          rightActiveTab === 1 ? "primary.main" : "transparent",
-                        color: rightActiveTab === 1 ? "#fff" : "text.secondary",
-                        boxShadow: rightActiveTab === 1 ? 3 : "none",
-                        "&:hover": {
-                          bgcolor:
-                            rightActiveTab === 1 ? "primary.dark" : "grey.100",
-                          color: rightActiveTab === 1 ? "#fff" : "text.primary",
-                        },
-                        "&:disabled": {
-                          opacity: 0.6,
-                          cursor: "not-allowed",
-                        },
-                      }}
-                    >
-                      {loadingAttachmentTaskId === taskId ? (
-                        <CircularProgress size={20} sx={{ color: "inherit" }} />
-                      ) : (
-                        <AttachFileIcon />
+            {viewMode === "list" ? (
+              <>
+                <TaskList
+                  tasks={{
+                    ...{ ...taskListData },
+                    data: filteredTasks,
+                  }}
+                  selectedTasks={selectedTasks}
+                  selectedTask={taskcomment?.data}
+                  searchQuery={searchQuery}
+                  page={paginationData.currentPage}
+                  rowsPerPage={paginationData.limit}
+                  {...(paginationData.totalPages && {
+                    totalPages: paginationData.totalPages,
+                  })}
+                  {...(paginationData.totalCount && {
+                    totalCount: paginationData.totalCount,
+                  })}
+                  onSearchChange={(q: string) => setSearchQuery(q)}
+                  onTaskSelect={(taskId: string, checked: boolean) =>
+                    handleTaskSelection(taskId, checked)
+                  }
+                  onTaskClick={(task: any) => {
+                    setTaskId(task);
+                  }}
+                  onPageChange={(newPage: number) => setPage(newPage)}
+                  onRowsPerPageChange={(rpp: number) => {
+                    setRowsPerPage(rpp);
+                    setPage(1);
+                  }}
+                  onAdvancedSearchOpen={(e) => handleTaskAdvancedSearchOpen(e)}
+                  getStatusIcon={getStatusIcon}
+                  isAddTask={isAddTask}
+                  isLoading={taskListDataLoading}
+                  loadingTaskId={loadingTaskId}
+                  loadingAttachmentTaskId={loadingAttachmentTaskId}
+                  taskId={taskId?.taskId}
+                />
+                {/* RIGHT SECTION - Task Details & Actions */}
+                <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
+                  {/* Right Sidebar Tabs */}
+                  <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
+                    <div className="p-4 space-y-4">
+                      {!isAddTask && (
+                        <Tooltip title="Details" placement="left">
+                          <IconButton
+                            onClick={() => {
+                              if (!taskId) return;
+                              setRightActiveTab(0);
+                              handleTaskClick(taskId, "ticket");
+                            }}
+                            disabled={!taskId}
+                            sx={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: "50%",
+                              transition: "all 0.2s",
+                              bgcolor:
+                                rightActiveTab === 0
+                                  ? "primary.main"
+                                  : "transparent",
+                              color:
+                                rightActiveTab === 0
+                                  ? "#fff"
+                                  : "text.secondary",
+                              boxShadow: rightActiveTab === 0 ? 3 : "none",
+                              "&:hover": {
+                                bgcolor:
+                                  rightActiveTab === 0
+                                    ? "primary.dark"
+                                    : "grey.100",
+                                color:
+                                  rightActiveTab === 0
+                                    ? "#fff"
+                                    : "text.primary",
+                              },
+                              "&:disabled": {
+                                opacity: 0.6,
+                                cursor: "not-allowed",
+                              },
+                            }}
+                          >
+                            <AssignmentIcon />
+                          </IconButton>
+                        </Tooltip>
                       )}
-                    </IconButton>
-                  </Tooltip>
 
-                  <Tooltip title="History" placement="left">
-                    <IconButton
-                      onClick={() => {
-                        if (!taskId) return;
-                        setRightActiveTab(2);
-                      }}
-                      disabled={!taskId}
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: "50%",
-                        transition: "all 0.2s",
-                        bgcolor:
-                          rightActiveTab === 2 ? "primary.main" : "transparent",
-                        color: rightActiveTab === 2 ? "#fff" : "text.secondary",
-                        boxShadow: rightActiveTab === 2 ? 3 : "none",
-                        "&:hover": {
-                          bgcolor:
-                            rightActiveTab === 2 ? "primary.dark" : "grey.100",
-                          color: rightActiveTab === 2 ? "#fff" : "text.primary",
-                        },
-                        "&:disabled": {
-                          opacity: 0.6,
-                          cursor: "not-allowed",
-                        },
-                      }}
-                    >
-                      <TrendingUpIcon />
-                    </IconButton>
-                  </Tooltip>
-                </div>
-              </div>
+                      <Tooltip title="Files" placement="left">
+                        <IconButton
+                          onClick={() => {
+                            if (!taskId) return;
+                            setRightActiveTab(1);
 
-              {/* Right Content Area */}
-              <div className="flex-1 flex flex-col">
-                {taskcommentLoading ||
-                (taskId && loadingTaskId && !taskcomment?.data) ? (
-                  <TaskDetailsSkeleton />
-                ) : taskcomment?.data &&
-                  (!Array.isArray(taskcomment?.data) ||
-                    taskcomment?.data?.length > 0) ? (
-                  <>
-                    <div className="bg-white border-b px-6 py-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            {getStatusIcon(taskcomment?.data?.status?.name)}
-                          </div>
-                          <div>
-                            <h2 className="text-xl font-semibold text-gray-900">
-                              {taskcomment?.data?.title}
-                            </h2>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Chip
-                                label={taskcomment?.data?.status?.name}
-                                sx={{
-                                  color: "#000",
-                                  backgroundColor: getStatusColor(
-                                    taskcomment?.data?.status?.name
-                                  ) as any,
-                                }}
-                                size="small"
-                              />
-                              <Chip
-                                label={taskcomment?.data?.priority?.name}
-                                sx={{
-                                  color: "#000",
-                                  backgroundColor:
-                                    taskcomment?.data?.priority?.color,
-                                }}
-                                size="small"
-                                variant="filled"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                            handleTaskClick(taskId, "comments");
+                          }}
+                          disabled={!taskId}
+                          sx={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: "50%",
+                            transition: "all 0.2s",
+                            bgcolor:
+                              rightActiveTab === 1
+                                ? "primary.main"
+                                : "transparent",
+                            color:
+                              rightActiveTab === 1 ? "#fff" : "text.secondary",
+                            boxShadow: rightActiveTab === 1 ? 3 : "none",
+                            "&:hover": {
+                              bgcolor:
+                                rightActiveTab === 1
+                                  ? "primary.dark"
+                                  : "grey.100",
+                              color:
+                                rightActiveTab === 1 ? "#fff" : "text.primary",
+                            },
+                            "&:disabled": {
+                              opacity: 0.6,
+                              cursor: "not-allowed",
+                            },
+                          }}
+                        >
+                          {loadingAttachmentTaskId === taskId ? (
+                            <CircularProgress
+                              size={20}
+                              sx={{ color: "inherit" }}
+                            />
+                          ) : (
+                            <AttachFileIcon />
+                          )}
+                        </IconButton>
+                      </Tooltip>
 
-                        <div className="flex gap-2">
-                          <FormControl size="small">
-                            <Select
-                              value={taskStatus || ""}
-                              onChange={(e) =>
-                                handleStatusChange(
-                                  taskcomment?.data?.taskID,
-                                  e.target.value as Task["status"]
-                                )
-                              }
-                              sx={{ minWidth: 120 }}
-                              displayEmpty
-                              disabled={!statusList || statusList.length === 0}
-                            >
-                              <MenuItem value="" disabled>
-                                {!statusList || statusList.length === 0
-                                  ? "No status available"
-                                  : "Select Status"}
-                              </MenuItem>
-                              {statusList?.map((option: any) => (
-                                <MenuItem key={option.key} value={option.key}>
-                                  <div className="flex items-center">
-                                    {option.statusName}
-                                  </div>
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </div>
-                      </div>
+                      <Tooltip title="History" placement="left">
+                        <IconButton
+                          onClick={() => {
+                            if (!taskId) return;
+                            setRightActiveTab(2);
+                          }}
+                          disabled={!taskId}
+                          sx={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: "50%",
+                            transition: "all 0.2s",
+                            bgcolor:
+                              rightActiveTab === 2
+                                ? "primary.main"
+                                : "transparent",
+                            color:
+                              rightActiveTab === 2 ? "#fff" : "text.secondary",
+                            boxShadow: rightActiveTab === 2 ? 3 : "none",
+                            "&:hover": {
+                              bgcolor:
+                                rightActiveTab === 2
+                                  ? "primary.dark"
+                                  : "grey.100",
+                              color:
+                                rightActiveTab === 2 ? "#fff" : "text.primary",
+                            },
+                            "&:disabled": {
+                              opacity: 0.6,
+                              cursor: "not-allowed",
+                            },
+                          }}
+                        >
+                          <TrendingUpIcon />
+                        </IconButton>
+                      </Tooltip>
                     </div>
+                  </div>
 
-                    {/* Tab Content */}
-                    {rightActiveTab === 0 && (
-                      <div
-                        className="flex-1 overflow-y-auto p-6"
-                        ref={taskDetailsRef}
-                      >
-                        <TaskDetails
-                          task={taskcomment?.data}
-                          getStatusIcon={getStatusIcon}
-                          onStatusChange={(taskId, newStatus) =>
-                            handleStatusChange(taskId, newStatus)
-                          }
-                        />
-
-                        {/* Comments */}
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h3 className="text-gray-900 font-bold">
-                                Latest 3 Comments (
-                                {taskcomment?.data?.last3Comment?.length || 0})
-                              </h3>
-
-                              <Button
-                                variant="contained"
-                                size="small"
-                                startIcon={
-                                  showCommentForm ? (
-                                    <CloseIcon />
-                                  ) : (
-                                    <CommentIcon />
-                                  )
-                                }
-                                onClick={() =>
-                                  setShowCommentForm(!showCommentForm)
-                                }
-                                sx={{
-                                  textTransform: "none",
-                                  backgroundColor: "#1a73e8",
-                                  "&:hover": {
-                                    backgroundColor: "#1557b0",
-                                  },
-                                }}
-                              >
-                                {showCommentForm ? "Cancel" : "Add Comment"}
-                              </Button>
+                  {/* Right Content Area */}
+                  <div className="flex-1 flex flex-col">
+                    {taskcommentLoading ||
+                    (taskId && loadingTaskId && !taskcomment?.data) ? (
+                      <TaskDetailsSkeleton />
+                    ) : taskcomment?.data &&
+                      (!Array.isArray(taskcomment?.data) ||
+                        taskcomment?.data?.length > 0) ? (
+                      <>
+                        <div className="bg-white border-b px-6 py-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                {getStatusIcon(taskcomment?.data?.status?.name)}
+                              </div>
+                              <div>
+                                <h2 className="text-xl font-semibold text-gray-900">
+                                  {taskcomment?.data?.title}
+                                </h2>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Chip
+                                    label={taskcomment?.data?.status?.name}
+                                    sx={{
+                                      color: "#000",
+                                      backgroundColor: getStatusColor(
+                                        taskcomment?.data?.status?.name
+                                      ) as any,
+                                    }}
+                                    size="small"
+                                  />
+                                  <Chip
+                                    label={taskcomment?.data?.priority?.name}
+                                    sx={{
+                                      color: "#000",
+                                      backgroundColor:
+                                        taskcomment?.data?.priority?.color,
+                                    }}
+                                    size="small"
+                                    variant="filled"
+                                  />
+                                </div>
+                              </div>
                             </div>
 
-                            {/* Comment Form */}
-                            <CommentForm
-                              isOpen={showCommentForm}
-                              comment={newComment}
-                              isInternal={isInternalComment}
-                              showAttachments={showAttachments}
-                              attachments={attachments}
-                              error={commentError}
-                              onCommentChange={(text) => {
-                                setNewComment(text);
-                                const error = validateComment(text);
-                                setCommentError(error);
-                              }}
-                              onInternalChange={(isPrivate) => {
-                                setIsInternalComment(isPrivate);
-                                if (isPrivate && showAttachments) {
-                                  setShowAttachments(false);
-                                  setAttachments([]);
-                                }
-                              }}
-                              onShowAttachmentsChange={setShowAttachments}
-                              onAttachmentsChange={setAttachments}
-                              onErrorChange={setCommentError}
-                              onSubmit={() => {
-                                const error = validateComment(newComment);
-                                if (error) {
-                                  setCommentError(error);
-                                  return;
-                                }
-                                console.log("Saving comment:", {
-                                  newComment,
-                                  attachments,
-                                  isInternalComment,
-                                });
-                                setShowCommentForm(false);
-                                resetCommentForm();
-                              }}
-                              onCancel={() => {
-                                setShowCommentForm(false);
-                                resetCommentForm();
-                              }}
+                            <div className="flex gap-2">
+                              <FormControl size="small">
+                                <Select
+                                  value={taskStatus || ""}
+                                  onChange={(e) =>
+                                    handleStatusChange(
+                                      taskcomment?.data?.taskID,
+                                      e.target.value as Task["status"]
+                                    )
+                                  }
+                                  sx={{ minWidth: 120 }}
+                                  displayEmpty
+                                  disabled={
+                                    !statusList || statusList.length === 0
+                                  }
+                                >
+                                  <MenuItem value="" disabled>
+                                    {!statusList || statusList.length === 0
+                                      ? "No status available"
+                                      : "Select Status"}
+                                  </MenuItem>
+                                  {statusList?.map((option: any) => (
+                                    <MenuItem
+                                      key={option.key}
+                                      value={option.key}
+                                    >
+                                      <div className="flex items-center">
+                                        {option.statusName}
+                                      </div>
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Tab Content */}
+                        {rightActiveTab === 0 && (
+                          <div
+                            className="flex-1 overflow-y-auto p-6"
+                            ref={taskDetailsRef}
+                          >
+                            <TaskDetails
+                              task={taskcomment?.data}
+                              getStatusIcon={getStatusIcon}
+                              onStatusChange={(taskId, newStatus) =>
+                                handleStatusChange(taskId, newStatus)
+                              }
                             />
 
-                            <div className="space-y-4 max-h-60 overflow-y-auto">
-                              {getSortedComments(
-                                taskcomment?.data?.last3Comment || []
-                              )?.map((comment: any) => (
-                                <div
-                                  key={comment?.commentId}
-                                  className="flex items-start gap-3"
-                                >
-                                  {/* Avatar */}
-                                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                                    {comment?.by?.name?.charAt(0).toUpperCase()}
-                                  </div>
+                            {/* Comments */}
+                            <Card>
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h3 className="text-gray-900 font-bold">
+                                    Latest 3 Comments (
+                                    {taskcomment?.data?.last3Comment?.length ||
+                                      0}
+                                    )
+                                  </h3>
 
-                                  {/* Comment Bubble */}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className="font-medium text-sm text-gray-900">
-                                          {comment?.by?.name}
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                          {canEditComment(
-                                            comment?.timestamp?.tm ||
-                                              "00:00:00",
-                                            currentTime
-                                          ) && (
-                                            <IconButton
-                                              size="small"
-                                              onClick={() =>
-                                                startEditingComment(comment)
-                                              }
-                                              sx={{
-                                                color: "#6b7280",
-                                                padding: "2px",
-                                              }}
-                                            >
-                                              <EditIcon fontSize="small" />
-                                            </IconButton>
-                                          )}
-                                        </div>
-                                      </div>
-
-                                      {editingCommentId ===
-                                      comment.commentId ? (
-                                        <div className="space-y-2">
-                                          <TextField
-                                            multiline
-                                            rows={2}
-                                            value={
-                                              comment.editText ||
-                                              comment?.comment
-                                            }
-                                            onChange={(e) => {}}
-                                            fullWidth
-                                            size="small"
-                                          />
-                                          <div className="flex gap-2">
-                                            <Button
-                                              size="small"
-                                              variant="contained"
-                                              startIcon={
-                                                <SaveIcon fontSize="small" />
-                                              }
-                                              onClick={() =>
-                                                saveEditedComment(
-                                                  comment.commentId,
-                                                  comment.editText ||
-                                                    comment.comment
-                                                )
-                                              }
-                                            >
-                                              Save
-                                            </Button>
-                                            <Button
-                                              size="small"
-                                              variant="text"
-                                              sx={{
-                                                fontWeight: 550,
-                                              }}
-                                              startIcon={
-                                                <CloseIcon fontSize="small" />
-                                              }
-                                              onClick={cancelEditingComment}
-                                            >
-                                              Cancel
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <p className="text-sm text-gray-700 font-medium">
-                                          {comment?.comment}
-                                        </p>
-                                      )}
-                                    </div>
-
-                                    {/* Timestamp */}
-                                    <div className="flex items-center gap-2 mt-2 ml-1">
-                                      <span className="text-xs text-gray-500">
-                                        {comment?.timestamp?.dt}{" "}
-                                        {comment?.timestamp?.tm}
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        •
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        {comment?.timestamp?.ago}
-                                      </span>
-                                      <span className="text-xs text-gray-400">
-                                        -{" "}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-
-                              {taskcomment?.data?.comment?.length === 0 && (
-                                <div className="text-center py-6 text-gray-500">
-                                  <CommentIcon className="text-2xl mx-auto mb-2" />
-                                  <p>No comments yet</p>
-                                </div>
-                              )}
-
-                              {taskcomment?.data?.comment?.length > 3 && (
-                                <div className="text-center py-3">
                                   <Button
+                                    variant="contained"
                                     size="small"
-                                    variant="text"
-                                    onClick={() => setRightActiveTab(1)}
+                                    startIcon={
+                                      showCommentForm ? (
+                                        <CloseIcon />
+                                      ) : (
+                                        <CommentIcon />
+                                      )
+                                    }
+                                    onClick={() =>
+                                      setShowCommentForm(!showCommentForm)
+                                    }
                                     sx={{
                                       textTransform: "none",
-                                      color: "#1a73e8",
+                                      backgroundColor: "#1a73e8",
                                       "&:hover": {
-                                        backgroundColor:
-                                          "rgba(26, 115, 232, 0.04)",
+                                        backgroundColor: "#1557b0",
                                       },
                                     }}
                                   >
-                                    View All{" "}
-                                    {taskcomment?.data?.comment?.length ?? 0}{" "}
-                                    Comments
+                                    {showCommentForm ? "Cancel" : "Add Comment"}
                                   </Button>
                                 </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    )}
 
-                    {/* Attachments Tab */}
-                    {rightActiveTab === 1 && (
-                      <div className="flex flex-col h-[calc(100vh-240px)]">
-                        {/* Header */}
-                        <div className="flex items-center justify-between p-6 border-b">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {attachmentsTab === "comments"
-                              ? "Comments"
-                              : "Attachments"}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <Tooltip
-                              title={`Sort comments ${
-                                commentSortOrder === "asc"
-                                  ? "newest first"
-                                  : "oldest first"
-                              }`}
-                            >
-                              <IconButton
-                                size="small"
-                                onClick={handleCommentSort}
-                                sx={{
-                                  color: "#6b7280",
-                                  border: "1px solid #d1d5db",
-                                  "&:hover": {
-                                    borderColor: "#9ca3af",
-                                    backgroundColor: "#f9fafb",
-                                  },
-                                }}
-                              >
-                                <SortIcon
-                                  fontSize="small"
-                                  sx={{
-                                    transform:
-                                      commentSortOrder === "asc"
-                                        ? "rotate(180deg)"
-                                        : "rotate(0deg)",
-                                    transition: "transform 0.3s ease-in-out",
+                                {/* Comment Form */}
+                                <CommentForm
+                                  isOpen={showCommentForm}
+                                  comment={newComment}
+                                  isInternal={isInternalComment}
+                                  showAttachments={showAttachments}
+                                  attachments={attachments}
+                                  error={commentError}
+                                  onCommentChange={(text) => {
+                                    setNewComment(text);
+                                    const error = validateComment(text);
+                                    setCommentError(error);
+                                  }}
+                                  onInternalChange={(isPrivate) => {
+                                    setIsInternalComment(isPrivate);
+                                    if (isPrivate && showAttachments) {
+                                      setShowAttachments(false);
+                                      setAttachments([]);
+                                    }
+                                  }}
+                                  onShowAttachmentsChange={setShowAttachments}
+                                  onAttachmentsChange={setAttachments}
+                                  onErrorChange={setCommentError}
+                                  onSubmit={() => {
+                                    const error = validateComment(newComment);
+                                    if (error) {
+                                      setCommentError(error);
+                                      return;
+                                    }
+                                    console.log("Saving comment:", {
+                                      newComment,
+                                      attachments,
+                                      isInternalComment,
+                                    });
+                                    setShowCommentForm(false);
+                                    resetCommentForm();
+                                  }}
+                                  onCancel={() => {
+                                    setShowCommentForm(false);
+                                    resetCommentForm();
                                   }}
                                 />
-                              </IconButton>
-                            </Tooltip>
-                            <IconButton
-                              size="small"
-                              sx={{
-                                color: "#6b7280",
-                                border: "1px solid #d1d5db",
-                                "&:hover": {
-                                  borderColor: "#9ca3af",
-                                  backgroundColor: "#f9fafb",
-                                },
-                              }}
-                              onClick={() =>
-                                handleTaskClick(
-                                  taskId,
-                                  attachmentsTab as
-                                    | "ticket"
-                                    | "attachments"
-                                    | "comments"
-                                )
-                              }
-                            >
-                              <RefreshIcon fontSize="small" />
-                            </IconButton>
-                          </div>
-                        </div>
 
-                        {/* Scrollable Content Area */}
-                        <div className="flex-1 overflow-y-auto p-6">
-                          {/* Comments Tab Content */}
-                          {attachmentsTab === "comments" && (
-                            <div className="space-y-4">
-                              {taskcomment?.data?.comments?.length > 0 ? (
-                                <div className="space-y-4">
+                                <div className="space-y-4 max-h-60 overflow-y-auto">
                                   {getSortedComments(
-                                    taskcomment?.data?.comments || []
-                                  ).map((comment: any) => (
+                                    taskcomment?.data?.last3Comment || []
+                                  )?.map((comment: any) => (
                                     <div
-                                      key={comment.commentId}
+                                      key={comment?.commentId}
                                       className="flex items-start gap-3"
                                     >
                                       {/* Avatar */}
-                                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
                                         {comment?.by?.name
                                           ?.charAt(0)
                                           .toUpperCase()}
@@ -1359,25 +1176,85 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                             <span className="font-medium text-sm text-gray-900">
                                               {comment?.by?.name}
                                             </span>
-                                            {/* <div className="flex items-center gap-2">
-                                              {comment.isInternal && (
-                                                <Chip
-                                                  label="Internal"
+                                            <div className="flex items-center gap-2">
+                                              {canEditComment(
+                                                comment?.timestamp?.tm ||
+                                                  "00:00:00",
+                                                currentTime
+                                              ) && (
+                                                <IconButton
                                                   size="small"
-                                                  color="warning"
-                                                />
+                                                  onClick={() =>
+                                                    startEditingComment(comment)
+                                                  }
+                                                  sx={{
+                                                    color: "#6b7280",
+                                                    padding: "2px",
+                                                  }}
+                                                >
+                                                  <EditIcon fontSize="small" />
+                                                </IconButton>
                                               )}
-                                            </div> */}
+                                            </div>
                                           </div>
-                                          <p className="text-sm text-gray-700">
-                                            {comment?.comment}
-                                          </p>
+
+                                          {editingCommentId ===
+                                          comment.commentId ? (
+                                            <div className="space-y-2">
+                                              <TextField
+                                                multiline
+                                                rows={2}
+                                                value={
+                                                  comment.editText ||
+                                                  comment?.comment
+                                                }
+                                                onChange={(e) => {}}
+                                                fullWidth
+                                                size="small"
+                                              />
+                                              <div className="flex gap-2">
+                                                <Button
+                                                  size="small"
+                                                  variant="contained"
+                                                  startIcon={
+                                                    <SaveIcon fontSize="small" />
+                                                  }
+                                                  onClick={() =>
+                                                    saveEditedComment(
+                                                      comment.commentId,
+                                                      comment.editText ||
+                                                        comment.comment
+                                                    )
+                                                  }
+                                                >
+                                                  Save
+                                                </Button>
+                                                <Button
+                                                  size="small"
+                                                  variant="text"
+                                                  sx={{
+                                                    fontWeight: 550,
+                                                  }}
+                                                  startIcon={
+                                                    <CloseIcon fontSize="small" />
+                                                  }
+                                                  onClick={cancelEditingComment}
+                                                >
+                                                  Cancel
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <p className="text-sm text-gray-700 font-medium">
+                                              {comment?.comment}
+                                            </p>
+                                          )}
                                         </div>
 
                                         {/* Timestamp */}
                                         <div className="flex items-center gap-2 mt-2 ml-1">
                                           <span className="text-xs text-gray-500">
-                                            {comment.timestamp?.dt}{" "}
+                                            {comment?.timestamp?.dt}{" "}
                                             {comment?.timestamp?.tm}
                                           </span>
                                           <span className="text-xs text-gray-400">
@@ -1386,304 +1263,480 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                           <span className="text-xs text-gray-400">
                                             {comment?.timestamp?.ago}
                                           </span>
+                                          <span className="text-xs text-gray-400">
+                                            -{" "}
+                                          </span>
                                         </div>
                                       </div>
                                     </div>
                                   ))}
-                                </div>
-                              ) : (
-                                <div className="text-center py-6 text-gray-500">
-                                  <CommentIcon className="text-2xl mx-auto mb-2" />
-                                  <p>No comments yet</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
 
-                          {/* Attachments Tab Content */}
-                          {attachmentsTab === "attachments" && (
-                            <div className="space-y-4">
-                              {taskcomment?.data?.attachments?.length > 0 ? (
-                                <div className="space-y-4">
-                                  {taskcomment?.data?.attachment?.map(
-                                    (attachment: any) => (
-                                      <Card key={attachment?.taskKey}>
-                                        <CardContent className="p-4">
-                                          <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                <AttachFileIcon className="text-blue-600" />
-                                              </div>
-                                              <div>
-                                                <div className="font-medium text-gray-900">
-                                                  {attachment?.name}
-                                                </div>
-                                                <div className="text-sm text-gray-500">
-                                                  {attachment?.size} •{" "}
-                                                  {attachment?.type}
-                                                </div>
-                                                <div className="text-xs text-gray-400">
-                                                  Uploaded by{" "}
-                                                  {attachment.uploadedBy} on{" "}
-                                                  {attachment.uploadedAt}
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                              <Button
-                                                size="small"
-                                                variant="outlined"
-                                                startIcon={<DownloadIcon />}
-                                              >
-                                                Download
-                                              </Button>
-                                              <IconButton
-                                                size="small"
-                                                color="error"
-                                              >
-                                                <CloseIcon fontSize="small" />
-                                              </IconButton>
-                                            </div>
-                                          </div>
-                                        </CardContent>
-                                      </Card>
-                                    )
+                                  {taskcomment?.data?.comment?.length === 0 && (
+                                    <div className="text-center py-6 text-gray-500">
+                                      <CommentIcon className="text-2xl mx-auto mb-2" />
+                                      <p>No comments yet</p>
+                                    </div>
+                                  )}
+
+                                  {taskcomment?.data?.comment?.length > 3 && (
+                                    <div className="text-center py-3">
+                                      <Button
+                                        size="small"
+                                        variant="text"
+                                        onClick={() => setRightActiveTab(1)}
+                                        sx={{
+                                          textTransform: "none",
+                                          color: "#1a73e8",
+                                          "&:hover": {
+                                            backgroundColor:
+                                              "rgba(26, 115, 232, 0.04)",
+                                          },
+                                        }}
+                                      >
+                                        View All{" "}
+                                        {taskcomment?.data?.comment?.length ??
+                                          0}{" "}
+                                        Comments
+                                      </Button>
+                                    </div>
                                   )}
                                 </div>
-                              ) : (
-                                <div className="text-center py-12">
-                                  <AttachFileIcon className="text-gray-400 text-4xl mx-auto mb-3" />
-                                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                    No attachments
-                                  </h3>
-                                  <p className="text-gray-600">
-                                    Upload files to share with your team
-                                  </p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        )}
+
+                        {/* Attachments Tab */}
+                        {rightActiveTab === 1 && (
+                          <div className="flex flex-col h-[calc(100vh-240px)]">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b">
+                              <h3 className="text-lg font-semibold text-gray-900">
+                                {attachmentsTab === "comments"
+                                  ? "Comments"
+                                  : "Attachments"}
+                              </h3>
+                              <div className="flex items-center gap-2">
+                                <Tooltip
+                                  title={`Sort comments ${
+                                    commentSortOrder === "asc"
+                                      ? "newest first"
+                                      : "oldest first"
+                                  }`}
+                                >
+                                  <IconButton
+                                    size="small"
+                                    onClick={handleCommentSort}
+                                    sx={{
+                                      color: "#6b7280",
+                                      border: "1px solid #d1d5db",
+                                      "&:hover": {
+                                        borderColor: "#9ca3af",
+                                        backgroundColor: "#f9fafb",
+                                      },
+                                    }}
+                                  >
+                                    <SortIcon
+                                      fontSize="small"
+                                      sx={{
+                                        transform:
+                                          commentSortOrder === "asc"
+                                            ? "rotate(180deg)"
+                                            : "rotate(0deg)",
+                                        transition:
+                                          "transform 0.3s ease-in-out",
+                                      }}
+                                    />
+                                  </IconButton>
+                                </Tooltip>
+                                <IconButton
+                                  size="small"
+                                  sx={{
+                                    color: "#6b7280",
+                                    border: "1px solid #d1d5db",
+                                    "&:hover": {
+                                      borderColor: "#9ca3af",
+                                      backgroundColor: "#f9fafb",
+                                    },
+                                  }}
+                                  onClick={() =>
+                                    handleTaskClick(
+                                      taskId,
+                                      attachmentsTab as
+                                        | "ticket"
+                                        | "attachments"
+                                        | "comments"
+                                    )
+                                  }
+                                >
+                                  <RefreshIcon fontSize="small" />
+                                </IconButton>
+                              </div>
+                            </div>
+
+                            {/* Scrollable Content Area */}
+                            <div className="flex-1 overflow-y-auto p-6">
+                              {/* Comments Tab Content */}
+                              {attachmentsTab === "comments" && (
+                                <div className="space-y-4">
+                                  {taskcomment?.data?.comments?.length > 0 ? (
+                                    <div className="space-y-4">
+                                      {getSortedComments(
+                                        taskcomment?.data?.comments || []
+                                      ).map((comment: any) => (
+                                        <div
+                                          key={comment.commentId}
+                                          className="flex items-start gap-3"
+                                        >
+                                          {/* Avatar */}
+                                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                            {comment?.by?.name
+                                              ?.charAt(0)
+                                              .toUpperCase()}
+                                          </div>
+
+                                          {/* Comment Bubble */}
+                                          <div className="flex-1 min-w-0">
+                                            <div className="bg-blue-50 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                              <div className="flex items-center justify-between mb-2">
+                                                <span className="font-medium text-sm text-gray-900">
+                                                  {comment?.by?.name}
+                                                </span>
+                                                {/* <div className="flex items-center gap-2">
+                                              {comment.isInternal && (
+                                                <Chip
+                                                  label="Internal"
+                                                  size="small"
+                                                  color="warning"
+                                                />
+                                              )}
+                                            </div> */}
+                                              </div>
+                                              <p className="text-sm text-gray-700">
+                                                {comment?.comment}
+                                              </p>
+                                            </div>
+
+                                            {/* Timestamp */}
+                                            <div className="flex items-center gap-2 mt-2 ml-1">
+                                              <span className="text-xs text-gray-500">
+                                                {comment.timestamp?.dt}{" "}
+                                                {comment?.timestamp?.tm}
+                                              </span>
+                                              <span className="text-xs text-gray-400">
+                                                •
+                                              </span>
+                                              <span className="text-xs text-gray-400">
+                                                {comment?.timestamp?.ago}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="text-center py-6 text-gray-500">
+                                      <CommentIcon className="text-2xl mx-auto mb-2" />
+                                      <p>No comments yet</p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Attachments Tab Content */}
+                              {attachmentsTab === "attachments" && (
+                                <div className="space-y-4">
+                                  {taskcomment?.data?.attachments?.length >
+                                  0 ? (
+                                    <div className="space-y-4">
+                                      {taskcomment?.data?.attachment?.map(
+                                        (attachment: any) => (
+                                          <Card key={attachment?.taskKey}>
+                                            <CardContent className="p-4">
+                                              <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                    <AttachFileIcon className="text-blue-600" />
+                                                  </div>
+                                                  <div>
+                                                    <div className="font-medium text-gray-900">
+                                                      {attachment?.name}
+                                                    </div>
+                                                    <div className="text-sm text-gray-500">
+                                                      {attachment?.size} •{" "}
+                                                      {attachment?.type}
+                                                    </div>
+                                                    <div className="text-xs text-gray-400">
+                                                      Uploaded by{" "}
+                                                      {attachment.uploadedBy} on{" "}
+                                                      {attachment.uploadedAt}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                  <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    startIcon={<DownloadIcon />}
+                                                  >
+                                                    Download
+                                                  </Button>
+                                                  <IconButton
+                                                    size="small"
+                                                    color="error"
+                                                  >
+                                                    <CloseIcon fontSize="small" />
+                                                  </IconButton>
+                                                </div>
+                                              </div>
+                                            </CardContent>
+                                          </Card>
+                                        )
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div className="text-center py-12">
+                                      <AttachFileIcon className="text-gray-400 text-4xl mx-auto mb-3" />
+                                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                        No attachments
+                                      </h3>
+                                      <p className="text-gray-600">
+                                        Upload files to share with your team
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* Fixed Bottom Tabs */}
-                        <div className="border-t border-gray-200 bg-white">
-                          <div className="flex space-x-8 px-6 py-3">
-                            <button
-                              className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-                                attachmentsTab === "comments"
-                                  ? "border-blue-500 text-blue-600"
-                                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                              } ${
-                                loadingAttachmentTaskId === taskId?.taskid
-                                  ? "opacity-60 cursor-wait"
-                                  : ""
-                              }`}
-                              onClick={() => {
-                                if (
-                                  loadingAttachmentTaskId !== taskId?.taskId
-                                ) {
-                                  setAttachmentsTab("comments");
-                                  handleTaskClick(taskId, "comments");
-                                }
-                              }}
-                              disabled={
-                                loadingAttachmentTaskId === taskId?.taskId
-                              }
-                            >
-                              {loadingAttachmentTaskId === taskId?.taskId &&
-                              attachmentsTab === "comments" ? (
-                                <CircularProgress size={12} />
-                              ) : null}
-                              Comments (
-                              {taskcomment?.data?.other?.totalComment ?? 0})
-                            </button>
-                            <button
-                              className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-                                attachmentsTab === "attachments"
-                                  ? "border-blue-500 text-blue-600"
-                                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                              } ${
-                                loadingAttachmentTaskId === taskId?.taskId
-                                  ? "opacity-60 cursor-wait"
-                                  : ""
-                              }`}
-                              onClick={() => {
-                                if (
-                                  loadingAttachmentTaskId !== taskId?.taskId
-                                ) {
-                                  setAttachmentsTab("attachments");
-                                  handleTaskClick(taskId, "attachments");
-                                }
-                              }}
-                              disabled={
-                                loadingAttachmentTaskId === taskId?.taskId
-                              }
-                            >
-                              {loadingAttachmentTaskId === taskId?.taskId &&
-                              attachmentsTab === "attachments" ? (
-                                <CircularProgress size={12} />
-                              ) : null}
-                              Attachments (
-                              {taskcomment?.data?.other?.totalAttachment ?? 0})
-                            </button>
+                            {/* Fixed Bottom Tabs */}
+                            <div className="border-t border-gray-200 bg-white">
+                              <div className="flex space-x-8 px-6 py-3">
+                                <button
+                                  className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                                    attachmentsTab === "comments"
+                                      ? "border-blue-500 text-blue-600"
+                                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                  } ${
+                                    loadingAttachmentTaskId === taskId?.taskid
+                                      ? "opacity-60 cursor-wait"
+                                      : ""
+                                  }`}
+                                  onClick={() => {
+                                    if (
+                                      loadingAttachmentTaskId !== taskId?.taskId
+                                    ) {
+                                      setAttachmentsTab("comments");
+                                      handleTaskClick(taskId, "comments");
+                                    }
+                                  }}
+                                  disabled={
+                                    loadingAttachmentTaskId === taskId?.taskId
+                                  }
+                                >
+                                  {loadingAttachmentTaskId === taskId?.taskId &&
+                                  attachmentsTab === "comments" ? (
+                                    <CircularProgress size={12} />
+                                  ) : null}
+                                  Comments (
+                                  {taskcomment?.data?.other?.totalComment ?? 0})
+                                </button>
+                                <button
+                                  className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                                    attachmentsTab === "attachments"
+                                      ? "border-blue-500 text-blue-600"
+                                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                  } ${
+                                    loadingAttachmentTaskId === taskId?.taskId
+                                      ? "opacity-60 cursor-wait"
+                                      : ""
+                                  }`}
+                                  onClick={() => {
+                                    if (
+                                      loadingAttachmentTaskId !== taskId?.taskId
+                                    ) {
+                                      setAttachmentsTab("attachments");
+                                      handleTaskClick(taskId, "attachments");
+                                    }
+                                  }}
+                                  disabled={
+                                    loadingAttachmentTaskId === taskId?.taskId
+                                  }
+                                >
+                                  {loadingAttachmentTaskId === taskId?.taskId &&
+                                  attachmentsTab === "attachments" ? (
+                                    <CircularProgress size={12} />
+                                  ) : null}
+                                  Attachments (
+                                  {taskcomment?.data?.other?.totalAttachment ??
+                                    0}
+                                  )
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    )}
+                        )}
 
-                    {/* Activities Tab */}
-                    {rightActiveTab === 2 && (
-                      <div className="flex-1 overflow-y-auto p-6">
-                        <div className="space-y-6">
-                          <h2 className="text-xl font-semibold text-gray-900">
-                            Activities
-                          </h2>
-
-                          <div className="relative">
-                            {/* Timeline Line */}
-                            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
-
+                        {/* Activities Tab */}
+                        {rightActiveTab === 2 && (
+                          <div className="flex-1 overflow-y-auto p-6">
                             <div className="space-y-6">
-                              {/* Activity 1 */}
-                              <div className="relative flex items-start gap-4">
-                                <div className="relative z-10 flex-shrink-0">
-                                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                    <CheckCircleIcon className="text-green-600 text-sm" />
-                                  </div>
-                                </div>
-                                <div className="flex-1 pt-1">
-                                  <div className="font-medium text-gray-900">
-                                    Task Status Updated
-                                  </div>
-                                  <div className="text-sm text-gray-600 mt-1">
-                                    Status changed from "Pending" to "In
-                                    Progress"
-                                  </div>
-                                  <div className="text-xs text-gray-400 mt-2">
-                                    2 hours ago by John Doe
-                                  </div>
-                                </div>
-                              </div>
+                              <h2 className="text-xl font-semibold text-gray-900">
+                                Activities
+                              </h2>
 
-                              {/* Activity 2 */}
-                              <div className="relative flex items-start gap-4">
-                                <div className="relative z-10 flex-shrink-0">
-                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                    <CommentIcon className="text-blue-600 text-sm" />
-                                  </div>
-                                </div>
-                                <div className="flex-1 pt-1">
-                                  <div className="font-medium text-gray-900">
-                                    Comment Added
-                                  </div>
-                                  <div className="text-sm text-gray-600 mt-1">
-                                    "Started investigation on the payment
-                                    gateway issue"
-                                  </div>
-                                  <div className="text-xs text-gray-400 mt-2">
-                                    4 hours ago by John Doe
-                                  </div>
-                                </div>
-                              </div>
+                              <div className="relative">
+                                {/* Timeline Line */}
+                                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
 
-                              {/* Activity 3 */}
-                              <div className="relative flex items-start gap-4">
-                                <div className="relative z-10 flex-shrink-0">
-                                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                    <AttachFileIcon className="text-purple-600 text-sm" />
+                                <div className="space-y-6">
+                                  {/* Activity 1 */}
+                                  <div className="relative flex items-start gap-4">
+                                    <div className="relative z-10 flex-shrink-0">
+                                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                        <CheckCircleIcon className="text-green-600 text-sm" />
+                                      </div>
+                                    </div>
+                                    <div className="flex-1 pt-1">
+                                      <div className="font-medium text-gray-900">
+                                        Task Status Updated
+                                      </div>
+                                      <div className="text-sm text-gray-600 mt-1">
+                                        Status changed from "Pending" to "In
+                                        Progress"
+                                      </div>
+                                      <div className="text-xs text-gray-400 mt-2">
+                                        2 hours ago by John Doe
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="flex-1 pt-1">
-                                  <div className="font-medium text-gray-900">
-                                    File Uploaded
-                                  </div>
-                                  <div className="text-sm text-gray-600 mt-1">
-                                    error_logs.txt (2.3 MB) was uploaded
-                                  </div>
-                                  <div className="text-xs text-gray-400 mt-2">
-                                    6 hours ago by John Doe
-                                  </div>
-                                </div>
-                              </div>
 
-                              {/* Activity 4 */}
-                              <div className="relative flex items-start gap-4">
-                                <div className="relative z-10 flex-shrink-0">
-                                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                    <AssignmentIcon className="text-orange-600 text-sm" />
+                                  {/* Activity 2 */}
+                                  <div className="relative flex items-start gap-4">
+                                    <div className="relative z-10 flex-shrink-0">
+                                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                        <CommentIcon className="text-blue-600 text-sm" />
+                                      </div>
+                                    </div>
+                                    <div className="flex-1 pt-1">
+                                      <div className="font-medium text-gray-900">
+                                        Comment Added
+                                      </div>
+                                      <div className="text-sm text-gray-600 mt-1">
+                                        "Started investigation on the payment
+                                        gateway issue"
+                                      </div>
+                                      <div className="text-xs text-gray-400 mt-2">
+                                        4 hours ago by John Doe
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="flex-1 pt-1">
-                                  <div className="font-medium text-gray-900">
-                                    Task Assigned
-                                  </div>
-                                  <div className="text-sm text-gray-600 mt-1">
-                                    Task assigned to John Doe by Mike Johnson
-                                  </div>
-                                  <div className="text-xs text-gray-400 mt-2">
-                                    1 day ago by Mike Johnson
-                                  </div>
-                                </div>
-                              </div>
 
-                              {/* Activity 5 */}
-                              <div className="relative flex items-start gap-4">
-                                <div className="relative z-10 flex-shrink-0">
-                                  <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                    <ScheduleIcon className="text-indigo-600 text-sm" />
+                                  {/* Activity 3 */}
+                                  <div className="relative flex items-start gap-4">
+                                    <div className="relative z-10 flex-shrink-0">
+                                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                        <AttachFileIcon className="text-purple-600 text-sm" />
+                                      </div>
+                                    </div>
+                                    <div className="flex-1 pt-1">
+                                      <div className="font-medium text-gray-900">
+                                        File Uploaded
+                                      </div>
+                                      <div className="text-sm text-gray-600 mt-1">
+                                        error_logs.txt (2.3 MB) was uploaded
+                                      </div>
+                                      <div className="text-xs text-gray-400 mt-2">
+                                        6 hours ago by John Doe
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="flex-1 pt-1">
-                                  <div className="font-medium text-gray-900">
-                                    Due Date Updated
-                                  </div>
-                                  <div className="text-sm text-gray-600 mt-1">
-                                    Due date changed from Jan 20 to Jan 25
-                                  </div>
-                                  <div className="text-xs text-gray-400 mt-2">
-                                    2 days ago by Mike Johnson
-                                  </div>
-                                </div>
-                              </div>
 
-                              {/* Activity 6 */}
-                              <div className="relative flex items-start gap-4">
-                                <div className="relative z-10 flex-shrink-0">
-                                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                                    <PriorityHighIcon className="text-red-600 text-sm" />
+                                  {/* Activity 4 */}
+                                  <div className="relative flex items-start gap-4">
+                                    <div className="relative z-10 flex-shrink-0">
+                                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                        <AssignmentIcon className="text-orange-600 text-sm" />
+                                      </div>
+                                    </div>
+                                    <div className="flex-1 pt-1">
+                                      <div className="font-medium text-gray-900">
+                                        Task Assigned
+                                      </div>
+                                      <div className="text-sm text-gray-600 mt-1">
+                                        Task assigned to John Doe by Mike
+                                        Johnson
+                                      </div>
+                                      <div className="text-xs text-gray-400 mt-2">
+                                        1 day ago by Mike Johnson
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="flex-1 pt-1">
-                                  <div className="font-medium text-gray-900">
-                                    Priority Changed
+
+                                  {/* Activity 5 */}
+                                  <div className="relative flex items-start gap-4">
+                                    <div className="relative z-10 flex-shrink-0">
+                                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                        <ScheduleIcon className="text-indigo-600 text-sm" />
+                                      </div>
+                                    </div>
+                                    <div className="flex-1 pt-1">
+                                      <div className="font-medium text-gray-900">
+                                        Due Date Updated
+                                      </div>
+                                      <div className="text-sm text-gray-600 mt-1">
+                                        Due date changed from Jan 20 to Jan 25
+                                      </div>
+                                      <div className="text-xs text-gray-400 mt-2">
+                                        2 days ago by Mike Johnson
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div className="text-sm text-gray-600 mt-1">
-                                    Priority elevated from Medium to High
-                                  </div>
-                                  <div className="text-xs text-gray-400 mt-2">
-                                    3 days ago by System
+
+                                  {/* Activity 6 */}
+                                  <div className="relative flex items-start gap-4">
+                                    <div className="relative z-10 flex-shrink-0">
+                                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                        <PriorityHighIcon className="text-red-600 text-sm" />
+                                      </div>
+                                    </div>
+                                    <div className="flex-1 pt-1">
+                                      <div className="font-medium text-gray-900">
+                                        Priority Changed
+                                      </div>
+                                      <div className="text-sm text-gray-600 mt-1">
+                                        Priority elevated from Medium to High
+                                      </div>
+                                      <div className="text-xs text-gray-400 mt-2">
+                                        3 days ago by System
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="flex-1 flex items-center justify-center">
+                        <div className="text-center text-gray-500">
+                          <img
+                            src={noTask}
+                            alt="No Task Selected"
+                            className="w-full mx-auto mb-3"
+                          />
                         </div>
                       </div>
                     )}
-                  </>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <img
-                        src={noTask}
-                        alt="No Task Selected"
-                        className="w-full mx-auto mb-3"
-                      />
-                    </div>
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              </>
+            ) : (
+                
+              <KanbanPage />
+              
+            )}
           </div>
         </>
       )}
