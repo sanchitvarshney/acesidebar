@@ -133,7 +133,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 textTransform: "none",
                 fontWeight: 600,
                 color: "#5b6b7c",
-                px: 1.25,
+                px: 1,
                 py: 0.5,
                 minHeight: 35,
                 gap: 2,
@@ -151,11 +151,11 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
               },
             }}
             color="primary"
-          >   <ToggleButton value="list" aria-label="list view" disableRipple>
+          >   <ToggleButton value="list" aria-label="list view" disableRipple sx={{width:"100px"}}>
             <ViewListIcon sx={{ fontSize: 18 }} />
             List
           </ToggleButton>
-          <ToggleButton value="kanban" aria-label="kanban view" disableRipple>
+          <ToggleButton value="kanban" aria-label="kanban view" disableRipple sx={{width:"100px"}}>
             <ViewKanbanIcon sx={{ fontSize: 18 }} />
             Kanban
           </ToggleButton></ToggleButtonGroup>
