@@ -803,6 +803,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
             onCreateTask={() => setTaskDialogOpen(true)}
             viewMode={viewMode}
             changeViewMode={(v:any)=>handleChangeMode(v)}
+            isAddTask={isAddTask}
           />
           {/* Main Content: Tasks + Details */}
           <div className="flex flex-1 h-0 min-h-0">
