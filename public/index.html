@@ -26,28 +26,44 @@
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   <script>
+    // ✅ Chatbot configuration
     var ajxtrChatBot = {
       visitor: {
-        appId: "1234567890",   // required
-        uID: "user-42",        // optional
+        appId: "1234567890",  // required
+        uID: "user-42",       // optional
         template: "1234567890" // required
       },
       bot: {
-        trigger: "default", // "default" or element
+        trigger: "default",    // "default" or elementID
         buttonColor: "#0068bd",
-        sliderStyle: "pop", // "pop" or "slider"
+        sliderStyle: "pop",    // "pop" or "slider"
         position: "br"         // "br" or "bl"
       }
     };
 
-    (function (d, e, s) {
-      if (d.getElementById('ajxtr-chat-bot')) return;
-      var a = d.createElement(e), m = d.getElementsByTagName(e)[0];
-      a.async = 1;
-      a.id = 'ajxtr-chat-bot';
-      a.src = s;
-      m.parentNode.insertBefore(a, m);
-    })(document, 'script', 'http://localhost:3000/widget.js');
+    // ✅ Robust loader function (LiveAgent-style)
+    (function (d, src, callback) {
+      if (d.getElementById('ajxtr-chat-bot')) return; // Prevent duplicates
+
+      var t = d.scripts[d.scripts.length - 1]; // Current script
+      var s = d.createElement('script');
+      s.id = 'ajxtr-chat-bot';
+      s.defer = true; // Non-blocking load
+      s.src = src;
+
+      // Run callback when script is fully loaded
+      s.onload = s.onreadystatechange = function () {
+        var rs = this.readyState;
+        if (rs && rs !== 'complete' && rs !== 'loaded') return;
+        if (typeof callback === 'function') callback(this);
+      };
+
+      // Insert script right after the current one
+      t.parentElement.insertBefore(s, t.nextSibling);
+
+    })(document, 'https://acesidebar.vercel.app/widget.js', function (e) {
+      console.log("✅ ajxtrChatBot loaded successfully!", e);
+    });
   </script>
 
 
