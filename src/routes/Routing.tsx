@@ -16,6 +16,14 @@ import SignupScreen from "../USERMODULE/screens/SignupScreen";
 import Settings from "../USERMODULE/components/Settings";
 import SessionManagementPage from "../USERMODULE/pages/SessionManagementPage";
 
+// Settings page components
+import SystemAccountPage from "../USERMODULE/pages/settingPages/SystemAccountPage";
+import TicketsWorkflowsPage from "../USERMODULE/pages/settingPages/TicketsWorkflowsPage";
+import TasksKnowledgePage from "../USERMODULE/pages/settingPages/TasksKnowledgePage";
+import UsersContactsPage from "../USERMODULE/pages/settingPages/UsersContactsPage";
+import HelpSupportPage from "../USERMODULE/pages/settingPages/HelpSupportPage";
+import EmailsPage from "../USERMODULE/pages/settingPages/EmailsPage";
+
 import SupportMainScreen from "../ADMINMODULE/screens/SupportMainScreen";
 import SupportScreen from "../ADMINMODULE/screens/SupportScreen";
 import KnowledgeBaseScreen from "../ADMINMODULE/screens/KnowledgeBaseScreen";
@@ -174,6 +182,36 @@ export const router = createBrowserRouter([
             index: true,
             element: <RecentPage />,
           },
+          // New settings sections
+          {
+            path: "system-account",
+            element: <SystemAccountPage />,
+          },
+          {
+            path: "tickets-workflows",
+            element: <TicketsWorkflowsPage />,
+          },
+          {
+            path: "tasks-knowledge",
+            element: <TasksKnowledgePage />,
+          },
+          {
+            path: "agents-productivity",
+            element: <AgentProductivityPage />,
+          },
+          {
+            path: "users-contacts",
+            element: <UsersContactsPage />,
+          },
+          {
+            path: "help-support",
+            element: <HelpSupportPage />,
+          },
+          {
+            path: "emails",
+            element: <EmailsPage />,
+          },
+          // Legacy routes for backward compatibility
           {
             path: "account/:id",
             element: <AccountPage />,
