@@ -13,14 +13,13 @@ import {
   MoreVert as MoreVertIcon,
   ExpandMore as ExpandMoreIcon,
 } from "@mui/icons-material";
-import { Task } from "../types/task.types";
-import TaskCard from "./TaskCard";
+import StartIcon from "@mui/icons-material/Start";
 import { filterTasksBySearch } from "../utils/taskUtils";
 import TaskListSkeleton from "../../../skeleton/TaskListSkeleton";
 
 interface KanbanBoardProps {
   tasks: any;
- 
+
   searchQuery: string;
   onSearchChange: (query: string) => void;
 
@@ -71,23 +70,24 @@ const kanbanColumns = [
 const KanbanBoard: React.FC<KanbanBoardProps> = memo(
   ({
     tasks,
-   
 
     searchQuery,
- 
-   
+
     onTaskClick,
 
     getStatusIcon,
- 
+
     isLoading,
-  
   }) => {
     // State for collapsed columns
-    const [collapsedColumns, setCollapsedColumns] = React.useState<Set<string>>(new Set());
-    
+    const [collapsedColumns, setCollapsedColumns] = React.useState<Set<string>>(
+      new Set()
+    );
+
     // State for visible tasks per column (pagination)
-    const [visibleTasksPerColumn, setVisibleTasksPerColumn] = React.useState<{[key: string]: number}>({
+    const [visibleTasksPerColumn, setVisibleTasksPerColumn] = React.useState<{
+      [key: string]: number;
+    }>({
       unassigned: 3,
       todo: 3,
       doing: 3,
@@ -97,11 +97,13 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
 
     // State for drag and drop
     const [draggedTask, setDraggedTask] = React.useState<any>(null);
-    const [dragOverColumn, setDragOverColumn] = React.useState<string | null>(null);
+    const [dragOverColumn, setDragOverColumn] = React.useState<string | null>(
+      null
+    );
 
     // Toggle column collapse/expand
     const toggleColumnCollapse = (columnId: string) => {
-      setCollapsedColumns(prev => {
+      setCollapsedColumns((prev) => {
         const newSet = new Set(prev);
         if (newSet.has(columnId)) {
           newSet.delete(columnId);
@@ -114,17 +116,17 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
 
     // Load more tasks for a column
     const loadMoreTasks = (columnId: string) => {
-      setVisibleTasksPerColumn(prev => ({
+      setVisibleTasksPerColumn((prev) => ({
         ...prev,
-        [columnId]: prev[columnId] + 3 // Load 3 more tasks
+        [columnId]: prev[columnId] + 3, // Load 3 more tasks
       }));
     };
 
     // Drag and drop handlers
     const handleDragStart = (e: React.DragEvent, task: any) => {
       setDraggedTask(task);
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', task.taskId);
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", task.taskId);
     };
 
     const handleDragEnd = () => {
@@ -134,7 +136,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
 
     const handleDragOver = (e: React.DragEvent, columnId: string) => {
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
+      e.dataTransfer.dropEffect = "move";
       setDragOverColumn(columnId);
     };
 
@@ -144,27 +146,27 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
 
     const handleDrop = (e: React.DragEvent, targetColumnId: string) => {
       e.preventDefault();
-      
+
       if (!draggedTask) return;
 
       // Update task status based on target column
-      const statusMap: {[key: string]: {key: string, name: string}} = {
+      const statusMap: { [key: string]: { key: string; name: string } } = {
         unassigned: { key: "unassigned", name: "Unassigned" },
         todo: { key: "todo", name: "To Do" },
         doing: { key: "doing", name: "Doing" },
         review: { key: "review", name: "Review" },
-        release: { key: "release", name: "Release" }
+        release: { key: "release", name: "Release" },
       };
 
       const newStatus = statusMap[targetColumnId];
-      
+
       if (newStatus && draggedTask.status?.key !== newStatus.key) {
         // Update the task in the data
         const updatedTasks = taskData.map((task: any) => {
           if (task.taskId === draggedTask.taskId) {
             return {
               ...task,
-              status: newStatus
+              status: newStatus,
             };
           }
           return task;
@@ -176,7 +178,9 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
         }
 
         // Log the change (in a real app, you'd make an API call here)
-        console.log(`Moved task "${draggedTask.title}" from ${draggedTask.status?.name} to ${newStatus.name}`);
+        console.log(
+          `Moved task "${draggedTask.title}" from ${draggedTask.status?.name} to ${newStatus.name}`
+        );
       }
 
       setDragOverColumn(null);
@@ -208,16 +212,26 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
       filteredTasks.forEach((task: any) => {
         // Map task status to column
         const status = task.status?.key || task.status?.name || "unassigned";
-        const statusString = typeof status === 'string' ? status.toLowerCase() : status;
+        const statusString =
+          typeof status === "string" ? status.toLowerCase() : status;
         let columnId = "unassigned";
-        
+
         if (statusString.includes("todo") || statusString.includes("pending")) {
           columnId = "todo";
-        } else if (statusString.includes("doing") || statusString.includes("in progress")) {
+        } else if (
+          statusString.includes("doing") ||
+          statusString.includes("in progress")
+        ) {
           columnId = "doing";
-        } else if (statusString.includes("review") || statusString.includes("testing")) {
+        } else if (
+          statusString.includes("review") ||
+          statusString.includes("testing")
+        ) {
           columnId = "review";
-        } else if (statusString.includes("release") || statusString.includes("completed")) {
+        } else if (
+          statusString.includes("release") ||
+          statusString.includes("completed")
+        ) {
           columnId = "release";
         }
 
@@ -242,41 +256,91 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
         {/* Search functionality removed */}
 
         {/* Kanban Board */}
-        <div className="flex w-[calc(100%-280px)] bg-red-100  h-[calc(100vh-150px)] overflow-auto">
-       
-            {columnsWithCounts.map((column) => (
+        <div className="flex w-[calc(100%-55px)] bg-[#e3e6ed]  px-6 gap-4 h-[calc(100vh-150px)] overflow-auto">
+          {columnsWithCounts.map((column) => (
+            <div
+              key={column.id}
+              className={`flex flex-col  bg-[#f5f7fa] transition-all duration-300 ${
+                collapsedColumns.has(column.id)
+                  ? "w-16 min-w-16"
+                  : "w-[25%] min-w-[25%]"
+              }`}
+              style={{ height: "100%" }}
+            >
+              {/* Column Header */}
               <div
-                key={column.id}
-                className={`flex bg-green-100 flex-col border-r border-gray-200 bg-gray-50 transition-all duration-300 ${
-                  collapsedColumns.has(column.id) ? "w-16 min-w-16" : "w-80 min-w-80"
+                className={` ${
+                  collapsedColumns.has(column.id) ? "p-2  h-full" : "p-4"
                 }`}
-                style={{ height: '100%',backgroundColor:"green" }}
               >
-                {/* Column Header */}
-                <div className={`bg-white border-b border-gray-200 ${collapsedColumns.has(column.id) ? "p-2" : "p-4"}`}>
-                  {collapsedColumns.has(column.id) ? (
-                    // Collapsed header layout - vertical strip
-                    <div className="flex flex-col items-center gap-2 h-full">
-                      {/* Color indicator */}
-                      <div
-                        className="w-1 h-8 rounded-full"
-                        style={{ backgroundColor: column.color }}
+                {collapsedColumns.has(column.id) ? (
+                  // Collapsed header layout - vertical strip
+                  <div className="flex flex-col items-center gap-2 h-full">
+                    {/* Collapse/Expand icon */}
+                    <IconButton
+                      size="small"
+                      sx={{
+                        color: "#6b7280",
+
+                        padding: "8px",
+                      }}
+                      onClick={() => toggleColumnCollapse(column.id)}
+                    >
+                      <StartIcon
+                        fontSize="small"
+                        sx={{
+                          transform: collapsedColumns.has(column.id)
+                            ? "rotate(0deg)"
+                            : "rotate(0deg)",
+                          transition: "transform 0.3s ease",
+                        }}
                       />
-                      
-                      {/* Column title - vertical */}
+                    </IconButton>
+                    {/* Color indicator */}
+                    <div
+                      className="w-1 h-8 rounded-full transform rotate-90"
+                      style={{ backgroundColor: column.color }}
+                    />
+
+                    {/* Task count */}
+                    <Chip
+                      label={column.count}
+                      size="small"
+                      sx={{
+                        backgroundColor: "#f3f4f6",
+                        color: "#6b7280",
+                        fontWeight: 500,
+                        fontSize: "0.75rem",
+                        height: "20px",
+                      }}
+                    />
+                    {/* Column title - vertical */}
+                    <Typography
+                      variant="h6"
+                      className="text-gray-900 font-semibold text-xs"
+                      sx={{
+                        writingMode: "vertical-rl",
+                        textOrientation: "mixed",
+                        transform: "rotate(180deg)",
+                      }}
+                    >
+                      {column.title}
+                    </Typography>
+                  </div>
+                ) : (
+                  // Expanded header layout
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      {/* Column title */}
                       <Typography
                         variant="h6"
-                        className="text-gray-900 font-semibold text-xs"
+                        className="text-gray-900 font-semibold"
                         sx={{
-                          writingMode: "vertical-rl",
                           textOrientation: "mixed",
-                          transform: "rotate(180deg)",
                         }}
                       >
                         {column.title}
                       </Typography>
-                      
-                      {/* Task count */}
                       <Chip
                         label={column.count}
                         size="small"
@@ -284,194 +348,184 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
                           backgroundColor: "#f3f4f6",
                           color: "#6b7280",
                           fontWeight: 500,
-                          fontSize: "0.75rem",
-                          height: "20px",
                         }}
                       />
-                      
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {/* Count badge */}
+
                       {/* Collapse/Expand icon */}
-                      <IconButton 
-                        size="small" 
-                        sx={{ 
+                      <IconButton
+                        size="small"
+                        sx={{
                           color: "#6b7280",
-                          transform: "rotate(90deg)",
-                          transition: "transform 0.3s ease",
-                          padding: "4px"
                         }}
                         onClick={() => toggleColumnCollapse(column.id)}
                       >
-                        <KeyboardTabIcon fontSize="small" />
+                        <StartIcon
+                          fontSize="small"
+                          sx={{
+                            transform: collapsedColumns.has(column.id)
+                              ? "rotate(0deg)"
+                              : "rotate(180deg)",
+                            transition: "transform 0.3s ease",
+                          }}
+                        />
                       </IconButton>
                     </div>
-                  ) : (
-                    // Expanded header layout
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        {/* Color indicator */}
-                        <div
-                          className="w-1 h-8 rounded-full"
-                          style={{ backgroundColor: column.color }}
-                        />
-                        
-                        {/* Column title */}
-                        <Typography
-                          variant="h6"
-                          className="text-gray-900 font-semibold"
-                          sx={{
-                            writingMode: "vertical-rl",
-                            textOrientation: "mixed",
-                            transform: "rotate(180deg)",
-                          }}
-                        >
-                          {column.title}
-                        </Typography>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        {/* Count badge */}
-                        <Chip
-                          label={column.count}
-                          size="small"
-                          sx={{
-                            backgroundColor: "#f3f4f6",
-                            color: "#6b7280",
-                            fontWeight: 500,
-                          }}
-                        />
-                        
-                        {/* Collapse/Expand icon */}
-                        <IconButton 
-                          size="small" 
-                          sx={{ 
-                            color: "#6b7280",
-                            transform: "rotate(90deg)",
-                            transition: "transform 0.3s ease"
-                          }}
-                          onClick={() => toggleColumnCollapse(column.id)}
-                        >
-                          <KeyboardTabIcon fontSize="small" />
-                        </IconButton>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                    {/* Color indicator */}
+                  </div>
+                )}
+                <div
+                  className="w-full mt-1 h-1 rounded-full taransform "
+                  style={{ backgroundColor: column.color }}
+                />
+              </div>
 
-                {/* Column Content */}
-                {!collapsedColumns.has(column.id) && (
-                  <div 
-                    className={`flex-1 p-4 bg-white overflow-y-auto max-h-[calc(100vh-200px)] transition-all duration-200 ${
-                      dragOverColumn === column.id ? 'bg-blue-50 border-2 border-dashed border-blue-300' : ''
-                    }`}
-                    onDragOver={(e) => handleDragOver(e, column.id)}
-                    onDragLeave={handleDragLeave}
-                    onDrop={(e) => handleDrop(e, column.id)}
-                  >
+              {/* Column Content */}
+              {!collapsedColumns.has(column.id) && (
+                <div
+                  className={`flex-1 p-4 bg-white overflow-y-auto max-h-[calc(100vh-200px)] transition-all duration-200 ${
+                    dragOverColumn === column.id
+                      ? "bg-blue-50 border-2 border-dashed border-blue-300"
+                      : ""
+                  }`}
+                  onDragOver={(e) => handleDragOver(e, column.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, column.id)}
+                >
                   {isLoading ? (
                     <TaskListSkeleton count={3} />
                   ) : (
                     <div className="space-y-3">
-                      {tasksByColumn[column.id]?.slice(0, visibleTasksPerColumn[column.id] || 3).map((task: any) => (
-                        <Card
-                          key={task.taskKey}
-                          className="cursor-pointer hover:shadow-md transition-shadow"
-                          onClick={() => onTaskClick(task)}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, task)}
-                          onDragEnd={handleDragEnd}
-                          sx={{
-                            border: "1px solid #e5e7eb",
-                            "&:hover": {
-                              borderColor: "#2196f3",
-                            },
-                            opacity: draggedTask?.taskId === task.taskId ? 0.5 : 1,
-                            transform: draggedTask?.taskId === task.taskId ? "rotate(5deg)" : "none",
-                            transition: "all 0.2s ease",
-                          }}
-                        >
-                          <CardContent className="p-3">
-                            <div className="flex items-start justify-between mb-2">
-                              <Typography
-                                variant="subtitle2"
-                                className="font-semibold text-gray-900 line-clamp-2"
-                              >
-                                {task.title}
-                              </Typography>
-                              <IconButton size="small" sx={{ color: "#6b7280" }}>
-                                <MoreVertIcon fontSize="small" />
-                              </IconButton>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 mb-2">
-                              <Chip
-                                label={task.priority?.name || "Medium"}
-                                size="small"
-                                sx={{
-                                  backgroundColor: task.priority?.name === "High" 
-                                    ? "#fef3c7" 
-                                    : task.priority?.name === "Low"
-                                    ? "#d1fae5"
-                                    : "#e0e7ff",
-                                  color: task.priority?.name === "High"
-                                    ? "#92400e"
-                                    : task.priority?.name === "Low"
-                                    ? "#065f46"
-                                    : "#3730a3",
-                                  fontSize: "0.75rem",
-                                }}
-                              />
-                              {getStatusIcon(task.status)}
-                            </div>
-                            
-                            <Typography
-                              variant="caption"
-                              className="text-gray-500"
-                            >
-                              {task.assignor || "Unassigned"}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      ))}
-                      
-                      {/* Load More Button */}
-                      {tasksByColumn[column.id] && 
-                       tasksByColumn[column.id].length > (visibleTasksPerColumn[column.id] || 3) && (
-                        <div className="text-center pt-2">
-                          <IconButton
-                            onClick={() => loadMoreTasks(column.id)}
+                      {tasksByColumn[column.id]
+                        ?.slice(0, visibleTasksPerColumn[column.id] || 3)
+                        .map((task: any) => (
+                          <Card
+                            elevation={0}
+                            key={task.taskKey}
+                            onClick={() => onTaskClick(task)}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, task)}
+                            onDragEnd={handleDragEnd}
                             sx={{
-                              color: "#6b7280",
-                              "&:hover": {
-                                backgroundColor: "#f3f4f6",
-                              },
+                              position: "relative",
+                              borderTop: "1px solid #ccc",
+                              borderRight: "1px solid #ccc",
+                              borderBottom: "1px solid #ccc",
+                              borderLeft: `4px solid ${column.color}`,
+                              transitionProperty: "box-shadow, all",
+                              transitionDuration: "200ms",
+                              cursor: "pointer",
+
+                              opacity:
+                                draggedTask?.taskId === task.taskId ? 0.5 : 1,
+                              transform:
+                                draggedTask?.taskId === task.taskId
+                                  ? "rotate(5deg)"
+                                  : "none",
+                              transition: "all 0.2s ease",
                             }}
                           >
-                            <ExpandMoreIcon />
-                          </IconButton>
-                          <Typography variant="caption" className="text-gray-500 block">
-                            {tasksByColumn[column.id].length - (visibleTasksPerColumn[column.id] || 3)} more
-                          </Typography>
-                        </div>
-                      )}
-                      
-                      {(!tasksByColumn[column.id] || tasksByColumn[column.id].length === 0) && (
-                        <div className={`text-center py-8 transition-all duration-200 ${
-                          dragOverColumn === column.id ? 'text-blue-500' : 'text-gray-400'
-                        }`}>
+                            <CardContent className="p-3">
+                              <div className="flex items-start justify-between mb-2">
+                                <Typography
+                                  variant="subtitle2"
+                                  className="font-semibold text-gray-900 line-clamp-2"
+                                >
+                                  {task.title}
+                                </Typography>
+                                <IconButton
+                                  size="small"
+                                  sx={{ color: "#6b7280" }}
+                                >
+                                  <MoreVertIcon fontSize="small" />
+                                </IconButton>
+                              </div>
+
+                              <div className="flex items-center gap-2 mb-2">
+                                <Chip
+                                  label={task.priority?.name || "Medium"}
+                                  size="small"
+                                  sx={{
+                                    backgroundColor:
+                                      task.priority?.name === "High"
+                                        ? "#fef3c7"
+                                        : task.priority?.name === "Low"
+                                        ? "#d1fae5"
+                                        : "#e0e7ff",
+                                    color:
+                                      task.priority?.name === "High"
+                                        ? "#92400e"
+                                        : task.priority?.name === "Low"
+                                        ? "#065f46"
+                                        : "#3730a3",
+                                    fontSize: "0.75rem",
+                                  }}
+                                />
+                                {getStatusIcon(task.status)}
+                              </div>
+
+                              <Typography
+                                variant="caption"
+                                className="text-gray-500"
+                              >
+                                {task.assignor || "Unassigned"}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        ))}
+
+                      {/* Load More Button */}
+                      {tasksByColumn[column.id] &&
+                        tasksByColumn[column.id].length >
+                          (visibleTasksPerColumn[column.id] || 3) && (
+                          <div className="text-center pt-2">
+                            <IconButton
+                              onClick={() => loadMoreTasks(column.id)}
+                              sx={{
+                                color: "#6b7280",
+                                "&:hover": {
+                                  backgroundColor: "#f3f4f6",
+                                },
+                              }}
+                            >
+                              <ExpandMoreIcon />
+                            </IconButton>
+                            <Typography
+                              variant="caption"
+                              className="text-gray-500 block"
+                            >
+                              {tasksByColumn[column.id].length -
+                                (visibleTasksPerColumn[column.id] || 3)}{" "}
+                              more
+                            </Typography>
+                          </div>
+                        )}
+
+                      {(!tasksByColumn[column.id] ||
+                        tasksByColumn[column.id].length === 0) && (
+                        <div
+                          className={`text-center py-8 transition-all duration-200 ${
+                            dragOverColumn === column.id
+                              ? "text-blue-500"
+                              : "text-gray-400"
+                          }`}
+                        >
                           <Typography variant="body2">
-                            {dragOverColumn === column.id 
+                            {dragOverColumn === column.id
                               ? `Drop task here to move to ${column.title.toLowerCase()}`
-                              : `No tasks in ${column.title.toLowerCase()}`
-                            }
+                              : `No tasks in ${column.title.toLowerCase()}`}
                           </Typography>
                         </div>
                       )}
                     </div>
                   )}
                 </div>
-                )}
-              </div>
-            ))}
-    
+              )}
+            </div>
+          ))}
         </div>
       </>
     );

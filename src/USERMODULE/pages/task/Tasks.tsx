@@ -63,6 +63,7 @@ import { useGetStatusListQuery } from "../../../services/ticketAuth";
 import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/24683078_6986783.svg";
 import KanbanPage from "./KanbanPage";
+import { V } from "framer-motion/dist/types.d-Cjd591yU";
 
 type TaskPropsType = {
   isAddTask?: boolean;
@@ -495,11 +496,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     return taskSearchConditions.length > 0 && getConditionErrors().length === 0;
   };
 
-  const handleChangeMode = () => {
+  const handleChangeMode = (v:any) => {
     if (viewMode === "list") {
-      setViewMode("kanban");
+      setViewMode(v);
     } else {
-      setViewMode("list");
+      setViewMode(v);
     }
   };
 
@@ -801,7 +802,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
             }}
             onCreateTask={() => setTaskDialogOpen(true)}
             viewMode={viewMode}
-            changeViewMode={handleChangeMode}
+            changeViewMode={(v:any)=>handleChangeMode(v)}
           />
           {/* Main Content: Tasks + Details */}
           <div className="flex flex-1 h-0 min-h-0">
