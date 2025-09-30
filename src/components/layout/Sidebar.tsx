@@ -15,6 +15,8 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../../contextApi/AuthContext";
 import AllInboxIcon from '@mui/icons-material/AllInbox';
+import { useDispatch } from "react-redux";
+import { setIsQuick } from "../../reduxStore/Slices/shotcutSlices";
 
 const SIDEBAR_WIDTH = 80;
 const SIDEBAR_COLLAPSED_WIDTH = 0;
@@ -72,9 +74,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
   const { signOut } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate();
+const dispatch =  useDispatch();
 
   const handleNavigation = (path: string) => {
-
+dispatch(setIsQuick(false));
     navigate(path);
   };
 

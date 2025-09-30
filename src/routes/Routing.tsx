@@ -63,6 +63,8 @@ import CanenResponseMasterPage from "../USERMODULE/pages/settingManangePages/Can
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
 import CreateEmailNotificationsPage from "../USERMODULE/pages/settingManangePages/CreateEmailNotificationsPage";
 import SetupWizard from "../setupWizard/SetupWizard";
+import AutomationMaster from "../USERMODULE/pages/settingManangePages/AutomationMaster";
+import ScenarioAutomations from "../USERMODULE/pages/settingManangePages/ScenarioAutomations";
 
 
 export const router = createBrowserRouter([
@@ -233,6 +235,14 @@ export const router = createBrowserRouter([
       {
         path: "settings/emails/email-notifications",
         element: <EmailNotificationsPage />,
+      },
+         {
+        path: "settings/tickets-workflows/automations",
+        element: <AutomationMaster />,
+      },
+             {
+        path: "settings/tickets-workflows/scenario-automations",
+        element: <ScenarioAutomations  />,
       },
       {
         path: "settings/agents-productivity/canned-responses",

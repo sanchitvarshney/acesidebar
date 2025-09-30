@@ -55,8 +55,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-[#f0f4f9]">
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+    <div className="flex items-center justify-between px-2 py-1 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
+      <div className="flex items-center  gap-2 flex-1 min-w-0">
         <Checkbox
           checked={masterChecked}
           onChange={(e) => onMasterCheckboxChange(e.target.checked)}
@@ -72,7 +72,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             },
           }}
         />
-        <span className="text-xl font-semibold whitespace-nowrap">
+        <span className="text-md font-semibold whitespace-nowrap">
           My Tasks
         </span>
         <span className="bg-[#f0f4f9] text-gray-700 rounded px-2 py-0.5 text-xs font-semibold ml-1">

@@ -55,6 +55,8 @@ import { m } from "framer-motion";
 import { object, set } from "zod";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import { Close } from "@mui/icons-material";
+import { useSelector } from "react-redux";
+import CreateTicketQuickActions from "../../components/quickActions/CreateTicketQuickActions";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -78,6 +80,9 @@ const Tickets: React.FC = () => {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
   const [dept, setDept] = useState<any>("");
+const {isQuick} = useSelector((state: any) => state?.shotcut);
+console.log("isQuick",isQuick)
+
 
   const { showToast } = useToast();
 
@@ -127,129 +132,6 @@ const Tickets: React.FC = () => {
   };
 
   // Generate dynamic arrow styles based on placement
-  const getArrowStyles = (placement: string) => {
-    const baseArrowStyles = {
-      position: "absolute" as const,
-      width: 0,
-      height: 0,
-      zIndex: 1,
-    };
-
-    const borderArrowStyles = {
-      ...baseArrowStyles,
-      zIndex: -1,
-    };
-
-    switch (placement) {
-      case "top":
-      case "top-start":
-      case "top-end":
-        return {
-          arrow: {
-            ...baseArrowStyles,
-            bottom: -7,
-            right: 16,
-            borderLeft: "7px solid transparent",
-            borderRight: "7px solid transparent",
-            borderTop: "7px solid #fff",
-          },
-          borderArrow: {
-            ...borderArrowStyles,
-            bottom: -8,
-            right: 16,
-            borderLeft: "8px solid transparent",
-            borderRight: "8px solid transparent",
-            borderTop: "8px solid #e0e0e0",
-          },
-        };
-
-      case "bottom":
-      case "bottom-start":
-      case "bottom-end":
-        return {
-          arrow: {
-            ...baseArrowStyles,
-            top: -7,
-            right: 16,
-            borderLeft: "7px solid transparent",
-            borderRight: "7px solid transparent",
-            borderBottom: "7px solid #fff",
-          },
-          borderArrow: {
-            ...borderArrowStyles,
-            top: -8,
-            right: 16,
-            borderLeft: "8px solid transparent",
-            borderRight: "8px solid transparent",
-            borderBottom: "8px solid #e0e0e0",
-          },
-        };
-
-      case "left":
-      case "left-start":
-      case "left-end":
-        return {
-          arrow: {
-            ...baseArrowStyles,
-            top: 16,
-            right: -7,
-            borderTop: "7px solid transparent",
-            borderBottom: "7px solid transparent",
-            borderLeft: "7px solid #fff",
-          },
-          borderArrow: {
-            ...borderArrowStyles,
-            top: 16,
-            right: -8,
-            borderTop: "8px solid transparent",
-            borderBottom: "8px solid transparent",
-            borderLeft: "8px solid #e0e0e0",
-          },
-        };
-
-      case "right":
-      case "right-start":
-      case "right-end":
-        return {
-          arrow: {
-            ...baseArrowStyles,
-            top: 16,
-            left: -7,
-            borderTop: "7px solid transparent",
-            borderBottom: "7px solid transparent",
-            borderRight: "7px solid #fff",
-          },
-          borderArrow: {
-            ...borderArrowStyles,
-            top: 16,
-            left: -8,
-            borderTop: "8px solid transparent",
-            borderBottom: "8px solid transparent",
-            borderRight: "8px solid #e0e0e0",
-          },
-        };
-
-      default:
-        return {
-          arrow: {
-            ...baseArrowStyles,
-            top: -7,
-            right: 16,
-            borderLeft: "7px solid transparent",
-            borderRight: "7px solid transparent",
-            borderBottom: "7px solid #fff",
-          },
-          borderArrow: {
-            ...borderArrowStyles,
-            top: -8,
-            right: 16,
-            borderLeft: "8px solid transparent",
-            borderRight: "8px solid transparent",
-            borderBottom: "8px solid #e0e0e0",
-          },
-        };
-    }
-  };
 
   // Handle click outside to close popup
   useEffect(() => {
@@ -1150,7 +1032,16 @@ const Tickets: React.FC = () => {
     <>
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)] ">
         {/* Main Header Bar */}
-        <div className="flex items-center justify-between px-2 py-2 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
+  {
+    isQuick ? (
+      <CreateTicketQuickActions
+        onSendEmail={() => navigate("/create-ticket?mode=email")}
+        onWriteNote={() => navigate("/create-ticket?mode=note")}
+        onCall={() => navigate("/create-ticket?mode=call")}
+      />
+    ):(
+      <>
+            <div className="flex items-center justify-between px-2 py-1 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <Checkbox
@@ -1350,6 +1241,9 @@ const Tickets: React.FC = () => {
             </div>
           )}
         </div>
+      </>
+    )
+  }
       </div>
       {/* )} */}
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, use } from "react";
 import {
   AppBar,
   Toolbar,
@@ -22,19 +22,18 @@ import {
   HourglassEmpty as HourglassEmptyIcon,
   ArrowDropDown as ArrowDropDownIcon,
 } from "@mui/icons-material";
-
-import NotificationDropDown from "../notificationmodal/NotificationDropDown";
-import CustomPopover from "../../reusable/CustomPopover";
+import AddIcon from '@mui/icons-material/Add';
 import AccountPopup from "../popup/AccountPopup";
 import NotificationPopup from "../popup/NotificationPopup";
 import TasksPopup from "../popup/TasksPopup";
 import AdvancedSearchPopup from "../popup/AdvancedSearchPopup";
 import { useNavigate } from "react-router-dom";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 import SwitcherIcon from "../../assets/image/switcher.svg";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useStatus } from "../../contextApi/StatusContext";
+import { useDispatch } from "react-redux";
+import { setIsQuick } from "../../reduxStore/Slices/shotcutSlices";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -61,6 +60,8 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const advancedSearchRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { setIsAnyPopupOpen } = usePopupContext();
+
+  const dispatch = useDispatch();
 
   // Update global popup state whenever any popup state changes
   useEffect(() => {
@@ -213,6 +214,17 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
                 transform: !open ? "rotate(0deg)" : "rotate(-90deg)",
                 transition: "transform 0.3s ease-in-out",
               }}
+            />
+          </IconButton>
+            <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={()=> dispatch(setIsQuick(true))}
+            sx={{ mr: 2, color: "#3f4346" }}
+          >
+            <AddIcon
+          
             />
           </IconButton>
         </div>
