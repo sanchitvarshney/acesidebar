@@ -19,7 +19,7 @@ const CreateTicketQuickActions: React.FC<CreateTicketQuickActionsProps> = ({
   onCall,
 }) => {
   return (
-    <Box sx={{ py: 8 }}>
+    <Box sx={{ p:0, height:"calc(100vh - 96px)", overflow:"hidden" , display:"flex", flexDirection:"column", justifyContent:"center"}}>
       <Typography
         variant="h6"
         sx={{ textAlign: "center", mb: 5, color: "#374151", fontWeight: 700 }}

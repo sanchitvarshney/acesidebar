@@ -12,7 +12,13 @@ interface QuickActionCardProps {
 
 const MotionBox = motion(Box);
 
-const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, description, accentColor = "#1976d2", onClick }) => {
+const QuickActionCard: React.FC<QuickActionCardProps> = ({
+  icon,
+  title,
+  description,
+  accentColor = "#fff",
+  onClick,
+}) => {
   return (
     <MotionBox
       initial={{ opacity: 0, y: 12, scale: 0.98 }}
@@ -26,18 +32,29 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, descript
         sx={{
           borderRadius: 3,
           border: "1px solid",
-          borderColor: "#d4e6ff",
-          bgcolor: "#ffffff",
+          borderColor: "#ffffff",
+          bgcolor: "#e6ebf4ff",
           overflow: "hidden",
-          transition: "box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease, background 200ms ease",
-          '&:hover': {
+          transition:
+            "box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease, background 200ms ease",
+          "&:hover": {
             boxShadow: "0 10px 24px rgba(20, 77, 173, 0.15)",
             borderColor: "#a7c8ff",
-            background: "linear-gradient(0deg, rgba(232,240,254,0.35), rgba(232,240,254,0.35))",
+            background: "#ffffff",
           },
         }}
       >
-        <CardActionArea onClick={onClick} sx={{ p: 5, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 2 }}>
+        <CardActionArea
+          onClick={onClick}
+          sx={{
+            p: 5,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
           <MotionBox
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.98 }}
@@ -49,7 +66,7 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, descript
               display: "grid",
               placeItems: "center",
               color: accentColor,
-              background: `linear-gradient(135deg, ${accentColor}14, #f9fbff)`,
+              background: ` #fff`,
               border: "1px solid",
               borderColor: `${accentColor}33`,
             }}
@@ -57,11 +74,22 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, descript
             {icon}
           </MotionBox>
 
-          <Typography variant="subtitle1" sx={{ mt: 1, color: "#374151", fontWeight: 700, textAlign: "center" }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              mt: 1,
+              color: "#374151",
+              fontWeight: 700,
+              textAlign: "center",
+            }}
+          >
             {title}
           </Typography>
           {description && (
-            <Typography variant="body2" sx={{ color: "#6b7280", textAlign: "center" }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#6b7280", textAlign: "center" }}
+            >
               {description}
             </Typography>
           )}
@@ -72,5 +100,3 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, descript
 };
 
 export default QuickActionCard;
-
-
