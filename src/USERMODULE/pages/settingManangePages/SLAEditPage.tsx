@@ -197,7 +197,7 @@ const SLAEditPage = () => {
             borderBottom: "1px solid #e0e0e0",
           }}
         >
-          <IconButton onClick={() => navigate("/sla-policies")}>
+          <IconButton onClick={() => navigate("/settings/tickets-workflows/sla-policies")}>
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>

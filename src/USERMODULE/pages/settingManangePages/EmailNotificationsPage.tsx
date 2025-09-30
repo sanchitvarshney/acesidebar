@@ -146,7 +146,7 @@ const EmailNotificationsPage = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings/workflow")}>
+            <IconButton onClick={() => navigate("/settings/emails")}>
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>

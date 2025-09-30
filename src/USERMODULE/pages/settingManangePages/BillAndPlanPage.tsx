@@ -1,5 +1,7 @@
+import { Box, IconButton } from "@mui/material";
 import React from "react";
-
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 const features = {
   free: [
     "Multiple mailboxes",
@@ -147,18 +149,28 @@ const PlanCard: React.FC<PlanCardProps> = ({
 };
 
 const BillAndPlanPage = () => {
+ const navigate = useNavigate();
   return (
     <div className="px-6 py-6">
       {/* Header Banner */}
       <div className="mb-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-800">
+   
+          <div className="flex Items-center gap-2">
+                     <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb:2 }}>
+        <IconButton onClick={() => navigate("/settings/system-account")}>
+          <ArrowBackIcon />
+        </IconButton>
+       
+      </Box>
+         <div>
+             <h2 className="text-xl font-semibold text-slate-800">
               Plans & Billing
             </h2>
             <p className="mt-1 text-sm text-slate-600">
               Manage your subscription and explore available plans.
             </p>
+         </div>
           </div>
           <div className="flex flex-col gap-2 sm:items-end">
             <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">

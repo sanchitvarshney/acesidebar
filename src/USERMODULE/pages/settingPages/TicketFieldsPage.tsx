@@ -384,7 +384,7 @@ const TicketFieldsPage: React.FC = () => {
     <Box sx={{ bgcolor: "grey.50", height: "calc(100vh - 100px)" }}>
       <Box sx={{ mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton onClick={() => navigate("/settings/workflow")}>
+          <IconButton onClick={() => navigate("/settings/tickets-workflows")}>
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>

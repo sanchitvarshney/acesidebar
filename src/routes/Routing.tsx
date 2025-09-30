@@ -36,30 +36,20 @@ import UserManagement from "../ADMINMODULE/pages/UserManagement";
 import RoleManagement from "../ADMINMODULE/pages/RoleManagement";
 import PermissionVisualization from "../ADMINMODULE/pages/PermissionVisualization";
 import TeamManagement from "../ADMINMODULE/pages/TeamManagement";
-
 // import ProfilePage from "../USERMODULE/components/ProfilePage";
 import NotFound from "../components/common/NotFound";
-
 import TicketDetailTemplate from "../USERMODULE/pages/TicketManagement/TicketDetailTemplate";
-
 import ContactList from "../USERMODULE/components/ContactList";
 import ProfilePage from "../USERMODULE/components/Profile/ProfilePage";
 import DepartmentsManagement from "../USERMODULE/pages/DepartmentsManagement";
-
 import BillAndPlanPage from "../USERMODULE/pages/settingManangePages/BillAndPlanPage";
 import AccountExport from "../USERMODULE/pages/settingManangePages/AccountExport";
 import RecentPage from "../USERMODULE/pages/settingPages/RecentPage";
-import AccountPage from "../USERMODULE/pages/settingPages/AccountPage";
-import WorkflowPage from "../USERMODULE/pages/settingPages/WorkflowPage";
-import AgentProductivityPage from "../USERMODULE/pages/settingPages/AgentProductivityPage";
-import SupportOperationsPage from "../USERMODULE/pages/settingPages/SupportOperationsPage";
-import AccountDayPasses from "../USERMODULE/pages/settingPages/AccountDayPasses";
 import AccountSecurity from "../USERMODULE/pages/settingPages/AccountSecurity";
 import AccountHelpCenter from "../USERMODULE/pages/settingPages/AccountHelpCenter";
 import TicketFieldsPage from "../USERMODULE/pages/settingPages/TicketFieldsPage";
 import ManageTags from "../USERMODULE/pages/settingPages/ManageTags";
 import AgentsMasterPage from "../USERMODULE/pages/settingManangePages/AgentsMasterPage";
-import TeamPage from "../USERMODULE/pages/settingPages/TeamPage";
 import CreateDepartmentPage from "../USERMODULE/pages/settingManangePages/CreateDepartmentPage";
 import AddAgentPage from "../USERMODULE/pages/settingManangePages/AddAgentPage";
 import TeamsManagement from "../USERMODULE/pages/TeamsManagement";
@@ -195,10 +185,7 @@ export const router = createBrowserRouter([
             path: "tasks-knowledge",
             element: <TasksKnowledgePage />,
           },
-          {
-            path: "agents-productivity",
-            element: <AgentProductivityPage />,
-          },
+      
           {
             path: "users-contacts",
             element: <UsersContactsPage />,
@@ -211,31 +198,11 @@ export const router = createBrowserRouter([
             path: "emails",
             element: <EmailsPage />,
           },
-          // Legacy routes for backward compatibility
-          {
-            path: "account/:id",
-            element: <AccountPage />,
-          },
-          {
-            path: "workflow",
-            element: <WorkflowPage />,
-          },
-          {
-            path: "agent-productivity",
-            element: <AgentProductivityPage />,
-          },
-          {
-            path: "support-operations",
-            element: <SupportOperationsPage />,
-          },
-          {
-            path: "team",
-            element: <TeamPage />,
-          },
+        
         ],
       },
       {
-        path: "departments",
+        path: "settings/agents-productivity/departments",
         element: <DepartmentsManagement />,
       },
       {
@@ -251,19 +218,19 @@ export const router = createBrowserRouter([
         element: <CreateEmailNotificationsPage />,
       },
       {
-        path: "teams",
+        path: "settings/agents-productivity/teams",
         element: <TeamsManagement />,
       },
       {
-        path: "sla-policies",
+        path: "settings/tickets-workflows/sla-policies",
         element: <SLAPoliciesPage />,
       },
       {
-        path: "email_notifications",
+        path: "settings/emails/email-notifications",
         element: <EmailNotificationsPage />,
       },
       {
-        path: "cannen_response",
+        path: "settings/agents-productivity/canned-responses",
         element: <CanenResponseMasterPage />,
       },
       {
@@ -275,28 +242,25 @@ export const router = createBrowserRouter([
         element: <CreateTeamPage />,
       },
       {
-        path: "agents",
+        path: "settings/agents-productivity/agents",
         element: <AgentsMasterPage />,
       },
 
       {
-        path: "account-settings",
+        path: "settings/system-account/account-details",
         element: <AccountSettings />,
       },
       {
-        path: "billings-plans",
+        path: "settings/system-account/plan-billing",
         element: <BillAndPlanPage />,
       },
       {
-        path: "account-export",
+        path: "settings/system-account/account-exports",
         element: <AccountExport />,
       },
+ 
       {
-        path: "account-day-passes",
-        element: <AccountDayPasses />,
-      },
-      {
-        path: "account-security",
+        path: "settings/system-account/system",
         element: <AccountSecurity />,
       },
       {
@@ -304,11 +268,11 @@ export const router = createBrowserRouter([
         element: <AccountHelpCenter />,
       },
       {
-        path: "manage-tags",
+        path: "settings/tickets-workflows/tags",
         element: <ManageTags />,
       },
       {
-        path: "ticket-fields",
+        path: "settings/tickets-workflows/ticket-fields",
         element: <TicketFieldsPage />,
       },
       {
