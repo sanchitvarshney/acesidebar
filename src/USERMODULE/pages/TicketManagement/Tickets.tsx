@@ -1032,15 +1032,15 @@ console.log("isQuick",isQuick)
     <>
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)] ">
         {/* Main Header Bar */}
-  {
+  {/* {
     isQuick ? (
       <CreateTicketQuickActions
         onSendEmail={() => navigate("/create-ticket?mode=email")}
         onWriteNote={() => navigate("/create-ticket?mode=note")}
         onCall={() => navigate("/create-ticket?mode=call")}
-      />
-    ):(
-      <>
+      /> */}
+    {/* // ):( */}
+    {/* //   <> */}
             <div className="flex items-center justify-between px-2 py-1 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -1241,9 +1241,7 @@ console.log("isQuick",isQuick)
             </div>
           )}
         </div>
-      </>
-    )
-  }
+      
       </div>
       {/* )} */}
 

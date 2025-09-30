@@ -65,6 +65,7 @@ import CreateEmailNotificationsPage from "../USERMODULE/pages/settingManangePage
 import SetupWizard from "../setupWizard/SetupWizard";
 import AutomationMaster from "../USERMODULE/pages/settingManangePages/AutomationMaster";
 import ScenarioAutomations from "../USERMODULE/pages/settingManangePages/ScenarioAutomations";
+import CreateTicketQuickActions from "../USERMODULE/components/quickActions/CreateTicketQuickActions";
 
 
 export const router = createBrowserRouter([
@@ -166,6 +167,10 @@ export const router = createBrowserRouter([
             element: <ProfilePage />,
           },
         ],
+      },
+      {
+path: "users-contacts",
+        element: <CreateTicketQuickActions />,
       },
       {
         path: "settings",
