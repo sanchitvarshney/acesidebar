@@ -169,8 +169,8 @@ export const router = createBrowserRouter([
         ],
       },
       {
-path: "users-contacts",
-        element: <CreateTicketQuickActions />,
+        path: "users-contacts",
+        element: <UsersContactsPage />,
       },
       {
         path: "settings",
