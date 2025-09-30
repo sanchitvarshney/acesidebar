@@ -198,27 +198,6 @@ const Settings: React.FC = () => {
     } else if (pathname.startsWith("/settings/emails")) {
       setActiveId("emails");
     }
-    // Legacy route mappings for backward compatibility
-    else if (pathname.startsWith("/settings/account/")) {
-      setActiveId("system-account");
-    } else if (pathname === "/settings/workflow") {
-      setActiveId("tickets-workflows");
-    } else if (pathname === "/settings/agent-productivity") {
-      setActiveId("agents-productivity");
-    } else if (pathname === "/settings/support-operations") {
-      setActiveId("help-support");
-    } else if (pathname === "/settings/ticket-fields") {
-      setActiveId("tickets-workflows");
-    } else if (
-      pathname === "/account-settings" ||
-      pathname === "/groups" ||
-      pathname === "/billings-plans" ||
-      pathname === "/account-export"
-    ) {
-      setActiveId("system-account");
-    } else if (pathname === "/settings/team") {
-      setActiveId("agents-productivity");
-    }
   }, [location.pathname]);
 
   // Handle menu navigation

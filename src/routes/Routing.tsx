@@ -23,6 +23,7 @@ import TasksKnowledgePage from "../USERMODULE/pages/settingPages/TasksKnowledgeP
 import UsersContactsPage from "../USERMODULE/pages/settingPages/UsersContactsPage";
 import HelpSupportPage from "../USERMODULE/pages/settingPages/HelpSupportPage";
 import EmailsPage from "../USERMODULE/pages/settingPages/EmailsPage";
+import AgentsProductivityPage from "../USERMODULE/pages/settingPages/AgentsProductivityPage";
 
 import SupportMainScreen from "../ADMINMODULE/screens/SupportMainScreen";
 import SupportScreen from "../ADMINMODULE/screens/SupportScreen";
@@ -184,6 +185,10 @@ export const router = createBrowserRouter([
           {
             path: "tasks-knowledge",
             element: <TasksKnowledgePage />,
+          },
+          {
+            path: "agents-productivity",
+            element: <AgentsProductivityPage />,
           },
       
           {

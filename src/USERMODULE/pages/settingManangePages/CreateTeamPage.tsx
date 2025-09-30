@@ -238,7 +238,7 @@ const CreateTeamPage = () => {
       {/* Header */}
       <Box sx={{ borderBottom: "1px solid #e0e0e0", bgcolor: "#fff" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton onClick={() => navigate("/teams")}>
+          <IconButton onClick={() => navigate("/settings/agents-productivity/teams")}>
             <ArrowBackIcon />
           </IconButton>
           <Typography

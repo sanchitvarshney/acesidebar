@@ -269,7 +269,7 @@ const CreateDepartmentPage = () => {
       {/* Header */}
       <Box sx={{ borderBottom: "1px solid #e0e0e0", bgcolor: "#fff" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton onClick={() => navigate("/departments")}>
+          <IconButton onClick={() => navigate("/settings/agents-productivity/departments")}>
             <ArrowBackIcon />
           </IconButton>
           <Typography
