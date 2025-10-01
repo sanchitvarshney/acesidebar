@@ -66,7 +66,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ open }) => {
   const { signOut } = useAuth();
-  const { openHelpCenter } = useHelpCenter();
+  const { toggleHelpCenter } = useHelpCenter();
   const navigate = useNavigate();
   
   const handleNavigation = (path: string) => {
@@ -138,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
         >
           <IconButton
             size="medium"
-            onClick={openHelpCenter}
+            onClick={toggleHelpCenter}
             sx={{ background: "#fff" }}
           >
             <img 

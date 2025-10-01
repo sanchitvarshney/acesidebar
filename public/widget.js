@@ -5,11 +5,20 @@
  *  trigger: "id"       -> open on click of element with that id
  *******************************************************************/
 (function () {
+  console.log("Widget script starting...");
+  console.log("ajxtrChatBot object:", window.ajxtrChatBot);
   const configV = window.ajxtrChatBot?.visitor || {};
   const configB = window.ajxtrChatBot?.bot || {};
   const { buttonColor = "#2567B3", sliderStyle = "pop", position = "br" } = configB;
+  console.log("Widget configuration:", { sliderStyle, position, buttonColor });
   const trigger = configB.trigger || 'default';   // "default" | "element-id"
   const isDefault = trigger === 'default';
+  console.log("isDefault:", isDefault);
+  
+  // Add a visible debug message
+  if (window.innerWidth <= 768) {
+    console.log("Mobile detected - width:", window.innerWidth);
+  }
 
   /* ----------  CSS  (icons + spinner + animations) ---------- */
   const style = document.createElement("style");
@@ -17,8 +26,6 @@
     #support-frame{
       position:fixed; border:none; z-index:999999; overflow:hidden;
       pointer-events:none; display:none;
-      /* Ensure proper mobile positioning */
-      top: 0; left: 0; right: 0; bottom: 0;
     }
     /* ---- pop ---- */
     #support-frame.pop{
@@ -59,6 +66,7 @@
       }
       #support-frame.slider{ width:0; }
       #support-frame.slider.open{ width:100vw; }
+      
       
       /* Mobile-specific positioning fixes */
       #support-toggle{
@@ -129,6 +137,7 @@
   toggleBtn.appendChild(badge);
   
   if (isDefault) {
+    console.log("Appending toggle button to body");
     document.body.appendChild(toggleBtn);
     const btnStyle = toggleBtn.style;
     
@@ -155,6 +164,7 @@
     
     // Update button position on resize
     window.addEventListener('resize', updateButtonPosition);
+    
   }
 
   /* ----------  STATE  ---------- */
@@ -267,6 +277,7 @@
 
   /* ----------  REUSABLE TOGGLE  ---------- */
   function toggleChat() {
+    console.log("toggleChat called - loading:", loading, "isOpen:", isOpen);
     if (loading) return;
     if (!frameBuilt) {                 /* FIRST CLICK – build iframe */
       loading = true;
@@ -288,6 +299,7 @@
             frame.classList.add("open");
             isOpen = true;
             clearUnreadCount(); // Clear unread count when chat opens
+            
 
           /* slider-only geometry (once) */
           if (sliderStyle === "slider") {
@@ -310,6 +322,7 @@
             frame.style.borderRadius = "0";
             frame.style.position = "fixed";
             frame.style.zIndex = "999999";
+            
           }
         });
       });
@@ -321,11 +334,14 @@
     /* -----  SUBSEQUENT CLICKS  ----- */
     const frame = document.getElementById("support-frame");
     isOpen = !isOpen;
+    console.log("After toggle - isOpen:", isOpen, "window width:", window.innerWidth);
 
     if (sliderStyle === "slider" && !isOpen) {
       /* SLIDER CLOSE animation */
       frame.classList.add("closing");
       if (isDefault) toggleBtn.innerHTML = chatIcon;
+      
+      
       frame.addEventListener("transitionend", function handler() {
         frame.classList.remove("open", "closing");
         frame.removeEventListener("transitionend", handler);
@@ -334,6 +350,7 @@
       /* normal toggle for pop or slider-open */
       frame.classList.toggle("open", isOpen);
       if (isDefault) toggleBtn.innerHTML = isOpen ? crossIcon : chatIcon;
+      
       
       // Clear unread count when opening chat
       if (isOpen) {
@@ -344,6 +361,7 @@
 
   /* ----------  WIRE EVENT  ---------- */
   if (isDefault) {
+    console.log("Adding click event listener to toggle button");
     toggleBtn.addEventListener("click", toggleChat);
   } else {
     /* wait for the element to exist */

@@ -10,6 +10,7 @@ import {
   Chip,
   Collapse,
   Divider,
+  Button,
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -21,8 +22,10 @@ import {
   Email as EmailIcon,
   ExpandLess as ExpandLessIcon,
   ExpandMore as ExpandMoreIcon,
+  PlayArrow as PlayArrowIcon,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface HelpCenterSliderProps {
   open: boolean;
@@ -31,8 +34,9 @@ interface HelpCenterSliderProps {
 
 const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) => {
   const [gettingStartedExpanded, setGettingStartedExpanded] = useState(true);
+  const navigate = useNavigate();
 
-  const gettingStartedItems = [
+  const setupWizardSteps = [
     { 
       id: 1, 
       title: "Learn the basics", 
@@ -41,61 +45,44 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
     },
     { 
       id: 2, 
-      title: "Add agents", 
+      title: "Brand Info", 
       completed: false, 
       icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />
     },
     { 
       id: 3, 
-      title: "Add departments", 
+      title: "SMTP Config", 
       completed: false, 
       icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />
     },
     { 
       id: 4, 
-      title: "Connect email accounts", 
+      title: "WhatsApp Config", 
       completed: false, 
-      icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />
+      isOptional: true,
+      icon: <StarIcon sx={{ color: '#ff9800', fontSize: 20 }} />
     },
     { 
       id: 5, 
-      title: "Connect social media", 
+      title: "Google reCAPTCHA", 
       completed: false, 
-      active: true,
-      icon: <StarIcon sx={{ color: '#2196f3', fontSize: 20 }} />
+      isOptional: true,
+      icon: <StarIcon sx={{ color: '#ff9800', fontSize: 20 }} />
     },
     { 
       id: 6, 
-      title: "Connect messaging apps", 
+      title: "Completion", 
       completed: false, 
-      icon: null
-    },
-    { 
-      id: 7, 
-      title: "Create contact widget", 
-      completed: true, 
-      icon: <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 20 }} />
-    },
-    { 
-      id: 8, 
-      title: "Create call center", 
-      completed: false, 
-      icon: null
-    },
-    { 
-      id: 9, 
-      title: "Configure customer portal", 
-      completed: false, 
-      icon: null
+      icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />
     },
   ];
 
-  const completedCount = gettingStartedItems.filter(item => item.completed).length;
-  const totalCount = gettingStartedItems.length;
+  const completedCount = setupWizardSteps.filter(item => item.completed).length;
+  const totalCount = setupWizardSteps.length;
 
   const otherMenuItems = [
     { title: "Keyboard Shortcuts", icon: <KeyboardIcon sx={{ fontSize: 20 }} /> },
-    { title: "Improve your LiveAgent skills", icon: <SchoolIcon sx={{ fontSize: 20 }} /> },
+    { title: "Improve your Ajaxter skills", icon: <SchoolIcon sx={{ fontSize: 20 }} /> },
     { title: "Contact Us", icon: <EmailIcon sx={{ fontSize: 20 }} /> },
   ];
 
@@ -103,20 +90,6 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
 
   return (
     <>
-      {/* Backdrop */}
-      <Box
-        sx={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-          zIndex: 999,
-        }}
-        onClick={onClose}
-      />
-      
       {/* Sliding Panel */}
       <motion.div
         initial={{ x: '-400px' }} // Start from left of sidebar position
@@ -149,7 +122,7 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
                 mb: 3 
               }}>
                 <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a1a1a' }}>
-                  Help center
+                  Setup Wizard
                 </Typography>
                 <IconButton onClick={onClose} size="small">
                   <CloseIcon />
@@ -187,7 +160,7 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
                       <CheckCircleIcon sx={{ color: 'white', fontSize: 16 }} />
                     </Box>
                     <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-                      Getting started
+                      Setup Steps
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -210,16 +183,22 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
 
                 <Collapse in={gettingStartedExpanded}>
                   <List sx={{ pl: 2 }}>
-                    {gettingStartedItems.map((item, index) => (
+                    {setupWizardSteps.map((item, index) => (
                       <ListItem
                         key={item.id}
+                        onClick={() => {
+                          if (item.title === "Learn the basics") {
+                            navigate('/learn-basics');
+                            // Don't close the slider - keep it open
+                          }
+                        }}
                         sx={{
                           py: 1,
                           px: 2,
                           borderRadius: 1,
-                          backgroundColor: item.active ? '#e3f2fd' : 'transparent',
+                          cursor: item.title === "Learn the basics" ? 'pointer' : 'default',
                           '&:hover': {
-                            backgroundColor: item.active ? '#e3f2fd' : '#f0f0f0',
+                            backgroundColor: item.title === "Learn the basics" ? '#e3f2fd' : '#f0f0f0',
                           }
                         }}
                       >
@@ -228,15 +207,29 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
                         </ListItemIcon>
                         <ListItemText
                           primary={
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: item.active ? '#2196f3' : item.completed ? '#4caf50' : '#666',
-                                fontWeight: item.active ? 500 : 400
-                              }}
-                            >
-                              {item.title}
-                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: item.completed ? '#4caf50' : '#666',
+                                  fontWeight: item.completed ? 500 : 400
+                                }}
+                              >
+                                {item.title}
+                              </Typography>
+                              {item.isOptional && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: '#ff9800',
+                                    fontWeight: 500,
+                                    fontSize: '0.7rem'
+                                  }}
+                                >
+                                  (Optional)
+                                </Typography>
+                              )}
+                            </Box>
                           }
                         />
                       </ListItem>

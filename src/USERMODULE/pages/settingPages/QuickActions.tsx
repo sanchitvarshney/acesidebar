@@ -253,6 +253,8 @@ const QuickActions: React.FC = () => {
                    <Card
                      sx={{
                        borderRadius: 2,
+                       maxHeight: 200,
+                       minHeight: 200,
                        border: action.featured ? `2px solid ${action.color}` : "1px solid #e0e0e0",
                        cursor: "pointer",
                        transition: "all 0.3s ease",

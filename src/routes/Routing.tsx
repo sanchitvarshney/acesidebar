@@ -67,6 +67,7 @@ import AutomationMaster from "../USERMODULE/pages/settingManangePages/Automation
 import ScenarioAutomations from "../USERMODULE/pages/settingManangePages/ScenarioAutomations";
 import CreateScenarioAutomations from "../USERMODULE/pages/settingManangePages/CreateScenarioAutomations";
 import SendEmailPage from "../pages/SendEmailPage";
+import LearnBasicsPage from "../pages/LearnBasicsPage";
 
 
 export const router = createBrowserRouter([
@@ -307,6 +308,10 @@ export const router = createBrowserRouter([
       {
         path: "send-email",
         element: <SendEmailPage />,
+      },
+      {
+        path: "learn-basics",
+        element: <LearnBasicsPage />,
       },
     ],
   },

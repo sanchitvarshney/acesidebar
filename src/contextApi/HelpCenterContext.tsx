@@ -5,6 +5,7 @@ interface HelpCenterContextType {
   setHelpCenterOpen: (open: boolean) => void;
   openHelpCenter: () => void;
   closeHelpCenter: () => void;
+  toggleHelpCenter: () => void;
 }
 
 const HelpCenterContext = createContext<HelpCenterContextType | undefined>(undefined);
@@ -32,6 +33,10 @@ export const HelpCenterProvider: React.FC<HelpCenterProviderProps> = ({ children
     setHelpCenterOpen(false);
   };
 
+  const toggleHelpCenter = () => {
+    setHelpCenterOpen(!helpCenterOpen);
+  };
+
   return (
     <HelpCenterContext.Provider
       value={{
@@ -39,6 +44,7 @@ export const HelpCenterProvider: React.FC<HelpCenterProviderProps> = ({ children
         setHelpCenterOpen,
         openHelpCenter,
         closeHelpCenter,
+        toggleHelpCenter,
       }}
     >
       {children}

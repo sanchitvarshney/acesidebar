@@ -36,11 +36,8 @@ class FingerprintService {
     try {
       // Check if FingerprintJS is available globally (loaded via script tag)
       if (typeof window !== 'undefined' && window.FingerprintJS) {
-        console.log('Using global FingerprintJS');
         this.fpPromise = window.FingerprintJS.load();
       } else {
-        // Try to load from CDN dynamically
-        console.log('Loading FingerprintJS from CDN...');
         await this.loadFingerprintFromCDN();
       }
       
@@ -50,25 +47,16 @@ class FingerprintService {
         const result = await fp.get();
         
         this.visitorId = result.visitorId;
-        console.log('Visitor ID:', this.visitorId);
         
-        // Store in localStorage for persistence
-        localStorage.setItem('visitor-id', this.visitorId);
+        // Not storing in localStorage for security purposes
       } else {
         throw new Error('Failed to initialize FingerprintJS');
       }
       
     } catch (error) {
-      console.error('Error initializing fingerprint:', error);
-      // Fallback to localStorage if available or generate new fallback ID
-      this.visitorId = localStorage.getItem('visitor-id') || this.generateFallbackId();
+      console.error('Error Initializing Fingerprint');
+      this.visitorId = this.generateFallbackId();
       
-      // Store the fallback ID
-      if (!localStorage.getItem('visitor-id')) {
-        localStorage.setItem('visitor-id', this.visitorId);
-      }
-      
-      console.log('Using fallback Visitor ID:', this.visitorId);
     } finally {
       this.isInitialized = true;
     }
@@ -87,13 +75,11 @@ class FingerprintService {
       script.async = true;
       
       script.onload = () => {
-        console.log('FingerprintJS loaded from CDN');
         this.fpPromise = window.FingerprintJS!.load();
         resolve();
       };
       
       script.onerror = () => {
-        console.error('Failed to load FingerprintJS from CDN');
         reject(new Error('Failed to load FingerprintJS'));
       };
       
@@ -107,7 +93,7 @@ class FingerprintService {
   }
 
   public getVisitorId(): string | null {
-    return this.visitorId || localStorage.getItem('visitor-id');
+    return this.visitorId;
   }
 
   public async getVisitorIdAsync(): Promise<string> {
@@ -120,17 +106,16 @@ class FingerprintService {
         const fp = await this.fpPromise;
         const result = await fp.get();
         this.visitorId = result.visitorId;
-        localStorage.setItem('visitor-id', this.visitorId);
+        // Not storing in localStorage for security purposes
         return this.visitorId;
       } catch (error) {
-        console.error('Error getting fingerprint:', error);
+        console.error('Error Getting Fingerprint');
       }
     }
 
-    // Return fallback ID
+    // Return fallback ID without storing in localStorage
     const fallbackId = this.generateFallbackId();
     this.visitorId = fallbackId;
-    localStorage.setItem('visitor-id', fallbackId);
     return fallbackId;
   }
 
