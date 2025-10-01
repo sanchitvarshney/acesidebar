@@ -17,6 +17,8 @@
     #support-frame{
       position:fixed; border:none; z-index:999999; overflow:hidden;
       pointer-events:none; display:none;
+      /* Ensure proper mobile positioning */
+      top: 0; left: 0; right: 0; bottom: 0;
     }
     /* ---- pop ---- */
     #support-frame.pop{
@@ -46,9 +48,36 @@
     }
 
     @media(max-width:768px){
-      #support-frame.pop{ width:100vw; height:100vh; bottom:0; right:0; border-radius:0; }
+      #support-frame.pop{ 
+        width:100vw; 
+        height:100vh; 
+        height:100dvh; /* Use dynamic viewport height for mobile */
+        bottom:0; 
+        right:0; 
+        border-radius:0; 
+        top:0; /* Ensure it starts from top */
+      }
       #support-frame.slider{ width:0; }
       #support-frame.slider.open{ width:100vw; }
+      
+      /* Mobile-specific positioning fixes */
+      #support-toggle{
+        bottom: max(20px, env(safe-area-inset-bottom)); /* Account for safe area */
+        right: max(20px, env(safe-area-inset-right));
+      }
+      
+      /* Ensure iframe covers full mobile screen properly */
+      #support-frame.pop.open{
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 999999;
+      }
     }
 
     /* ---- toggle button ---- */
@@ -102,8 +131,30 @@
   if (isDefault) {
     document.body.appendChild(toggleBtn);
     const btnStyle = toggleBtn.style;
-    if (position === 'br') { btnStyle.bottom = '20px'; btnStyle.right = '20px'; }
-    if (position === 'bl') { btnStyle.bottom = '20px'; btnStyle.left  = '20px'; }
+    
+    // Apply mobile-safe positioning
+    function updateButtonPosition() {
+      if (window.innerWidth <= 768) {
+        // Mobile positioning with safe area support
+        if (position === 'br') { 
+          btnStyle.bottom = 'max(20px, env(safe-area-inset-bottom))'; 
+          btnStyle.right = 'max(20px, env(safe-area-inset-right))'; 
+        }
+        if (position === 'bl') { 
+          btnStyle.bottom = 'max(20px, env(safe-area-inset-bottom))'; 
+          btnStyle.left = 'max(20px, env(safe-area-inset-left))'; 
+        }
+      } else {
+        // Desktop positioning
+        if (position === 'br') { btnStyle.bottom = '20px'; btnStyle.right = '20px'; }
+        if (position === 'bl') { btnStyle.bottom = '20px'; btnStyle.left = '20px'; }
+      }
+    }
+    
+    updateButtonPosition();
+    
+    // Update button position on resize
+    window.addEventListener('resize', updateButtonPosition);
   }
 
   /* ----------  STATE  ---------- */
@@ -111,6 +162,29 @@
   let frameBuilt = false;
   let loading = false;
   let unreadCount = 0;
+
+  /* ----------  MOBILE VIEWPORT HANDLING  ---------- */
+  function updateMobileViewport() {
+    const frame = document.getElementById("support-frame");
+    if (frame && isOpen && window.innerWidth <= 768) {
+      frame.style.height = "100vh";
+      frame.style.height = "100dvh";
+      frame.style.top = "0";
+      frame.style.left = "0";
+      frame.style.right = "0";
+      frame.style.bottom = "0";
+      frame.style.width = "100vw";
+      frame.style.borderRadius = "0";
+      frame.style.position = "fixed";
+      frame.style.zIndex = "999999";
+    }
+  }
+
+  // Handle orientation changes and viewport updates
+  window.addEventListener('resize', updateMobileViewport);
+  window.addEventListener('orientationchange', function() {
+    setTimeout(updateMobileViewport, 100); // Delay to ensure proper viewport calculation
+  });
 
   /* ----------  MESSAGE HANDLING  ---------- */
   if (window.addEventListener) {
@@ -202,6 +276,8 @@
       const frame = document.createElement("iframe");
       frame.id = "support-frame";
       frame.src = "https://chat-bot-blond-seven.vercel.app";
+      frame.setAttribute("allow", "camera; microphone; geolocation");
+      frame.setAttribute("sandbox", "allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox");
 
         frame.addEventListener("load", () => {
           loading = false;
@@ -220,6 +296,20 @@
             frame.style.right = position === "bl" ? "auto" : "0";
             frame.style.left  = position === "bl" ? "0" : "auto";
             frame.style.borderRadius = "0";
+          }
+          
+          /* Mobile viewport fixes */
+          if (window.innerWidth <= 768) {
+            frame.style.height = "100vh";
+            frame.style.height = "100dvh"; // Use dynamic viewport height
+            frame.style.top = "0";
+            frame.style.left = "0";
+            frame.style.right = "0";
+            frame.style.bottom = "0";
+            frame.style.width = "100vw";
+            frame.style.borderRadius = "0";
+            frame.style.position = "fixed";
+            frame.style.zIndex = "999999";
           }
         });
       });
