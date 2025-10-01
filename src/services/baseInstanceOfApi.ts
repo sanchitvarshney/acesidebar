@@ -10,6 +10,7 @@ import {
 import { getTurnstileToken } from "../utils/turnstile";
 import { handleInternalError, extractErrorData } from "../BUGREPORT";
 import { showToast } from "../utils/globalToast";
+import fingerprintService from "./fingerprintService";
 
 /**
  * API Configuration
@@ -32,6 +33,12 @@ const addAuthHeaders = (headers: Headers): void => {
 
   // Copy all headers from the standard headers
   standardHeaders.forEach((value, key) => {
+    headers.set(key, value);
+  });
+
+  // Add fingerprint visitor ID header
+  const fingerprintHeaders = fingerprintService.getHeaders();
+  Object.entries(fingerprintHeaders).forEach(([key, value]) => {
     headers.set(key, value);
   });
 };
