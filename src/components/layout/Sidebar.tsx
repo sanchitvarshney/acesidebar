@@ -1,12 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Drawer,
-  Box,
-  IconButton,
-  styled,
-  useTheme,
-} from "@mui/material";
+import { Drawer, Box, IconButton, styled } from "@mui/material";
 import {
   SignalCellularAlt as SignalIcon,
   People as PeopleIcon,
@@ -14,9 +8,7 @@ import {
   ExitToApp as ExitToAppIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../../contextApi/AuthContext";
-import AllInboxIcon from '@mui/icons-material/AllInbox';
-import { useDispatch } from "react-redux";
-import { setIsQuick } from "../../reduxStore/Slices/shotcutSlices";
+import AllInboxIcon from "@mui/icons-material/AllInbox";
 
 const SIDEBAR_WIDTH = 80;
 const SIDEBAR_COLLAPSED_WIDTH = 0;
@@ -72,12 +64,8 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ open }) => {
   const { signOut } = useAuth();
-  const theme = useTheme();
   const navigate = useNavigate();
-const dispatch =  useDispatch();
-
   const handleNavigation = (path: string) => {
-dispatch(setIsQuick(false));
     navigate(path);
   };
 
@@ -143,7 +131,11 @@ dispatch(setIsQuick(false));
             mb: 2,
           }}
         >
-          <IconButton size="medium" onClick={signOut} sx={{ background: "#36577a" }}>
+          <IconButton
+            size="medium"
+            onClick={signOut}
+            sx={{ background: "#36577a" }}
+          >
             <ExitToAppIcon fontSize="medium" sx={{ color: "#fff" }} />
           </IconButton>
         </Box>

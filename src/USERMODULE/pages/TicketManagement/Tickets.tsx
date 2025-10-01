@@ -4,20 +4,15 @@ import {
   IconButton,
   Button,
   Checkbox,
-  Popover,
-  Popper,
   Paper,
   FormControl,
   Select,
   MenuItem,
   Tooltip,
-  Autocomplete,
   Typography,
   CircularProgress,
-  Chip,
-  TextField,
 } from "@mui/material";
-import QuickreplyIcon from '@mui/icons-material/Quickreply';
+import QuickreplyIcon from "@mui/icons-material/Quickreply";
 import LeftMenu from "./LeftMenu";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -51,12 +46,8 @@ import {
   useLazyGetDepartmentBySeachQuery,
 } from "../../../services/agentServices";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
-import { m } from "framer-motion";
-import { object, set } from "zod";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import { Close } from "@mui/icons-material";
-import { useSelector } from "react-redux";
-import CreateTicketQuickActions from "../../components/quickActions/CreateTicketQuickActions";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -80,21 +71,13 @@ const Tickets: React.FC = () => {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
   const [masterChecked, setMasterChecked] = useState(false);
   const [dept, setDept] = useState<any>("");
-const {isQuick} = useSelector((state: any) => state?.shotcut);
-console.log("isQuick",isQuick)
-
-
   const { showToast } = useToast();
-
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
-
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
-
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(true);
-
   // Sorting popover state
   const [sortingPopoverAnchorEl, setSortingPopoverAnchorEl] =
     useState<HTMLElement | null>(null);
@@ -106,7 +89,7 @@ console.log("isQuick",isQuick)
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isCloseModal, setIsCloseModal] = useState(false);
   const [agentValue, setAgentValue] = useState<any>(null);
-  const [changeAgent, setChangeAgent] = useState("");
+
   const [trackTicketId, setTrackTicketId] = useState("");
   const [quickUpdateAnchorEl, setQuickUpdateAnchorEl] = useState<any>(false);
   const [quickUpdateValues, setQuickUpdateValues] = useState({
@@ -123,17 +106,6 @@ console.log("isQuick",isQuick)
   // Ref for the popup to handle click outside
   const popupRef = useRef<HTMLDivElement>(null);
 
-  // State to track popup placement for dynamic arrow positioning
-  const [popupPlacement, setPopupPlacement] = useState<string>("bottom-end");
-
-  // Handle popup placement changes for dynamic arrow positioning
-  const handlePlacementChange = (placement: string) => {
-    setPopupPlacement(placement);
-  };
-
-  // Generate dynamic arrow styles based on placement
-
-  // Handle click outside to close popup
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -296,7 +268,7 @@ console.log("isQuick",isQuick)
     setSortType(field);
     setSortBy(
       sortingOptions?.fields?.find((f: any) => f.key === field)?.text ||
-      "Date created"
+        "Date created"
     );
     setPage(1); // Reset to first page
   };
@@ -314,8 +286,11 @@ console.log("isQuick",isQuick)
       obj: filters,
     };
   };
-  const { data: ticketList, isFetching: isTicketListFetching, refetch } =
-    useGetTicketListQuery(getApiParams());
+  const {
+    data: ticketList,
+    isFetching: isTicketListFetching,
+    refetch,
+  } = useGetTicketListQuery(getApiParams());
   const sortingParams = sortType
     ? { type: sortType, order: sortOrder, page, limit }
     : undefined;
@@ -366,7 +341,7 @@ console.log("isQuick",isQuick)
     if (!ticketsToShow?.data) return;
     setMasterChecked(
       ticketsToShow.data.length > 0 &&
-      selectedTickets.length === ticketsToShow.data.length
+        selectedTickets.length === ticketsToShow.data.length
     );
   }, [selectedTickets, ticketsToShow]);
 
@@ -458,10 +433,10 @@ console.log("isQuick",isQuick)
     setAgentValue(
       merged.assignee
         ? {
-          fName: merged.assignee.name?.split(" ")[0] || "",
-          lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
-          UserId: merged.assignee.id || merged.assignee.UserId,
-        }
+            fName: merged.assignee.name?.split(" ")[0] || "",
+            lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
+            UserId: merged.assignee.id || merged.assignee.UserId,
+          }
         : null
     );
 
@@ -566,9 +541,15 @@ console.log("isQuick",isQuick)
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <QuickreplyIcon fontSize="small" className="text-gray-700" />
-            <h3 className="text-lg font-semibold text-gray-700" style={{ lineHeight: "normal" }}>
+            <h3
+              className="text-lg font-semibold text-gray-700"
+              style={{ lineHeight: "normal" }}
+            >
               Quick Update
-              <span className="text-gray-500" style={{ fontSize: "0.6rem", display: "block" }}>
+              <span
+                className="text-gray-500"
+                style={{ fontSize: "0.6rem", display: "block" }}
+              >
                 Update properties of ticket #{trackTicketId}
               </span>
             </h3>
@@ -1017,7 +998,9 @@ console.log("isQuick",isQuick)
 
             <div className="flex flex-col">
               <span className="text-gray-500 mb-1">Due Date</span>
-              <span className="text-gray-800 font-semibold">{merged?.dueDate || "~"}</span>
+              <span className="text-gray-800 font-semibold">
+                {merged?.dueDate || "~"}
+              </span>
             </div>
           </div>
 
@@ -1032,16 +1015,16 @@ console.log("isQuick",isQuick)
     <>
       <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)] ">
         {/* Main Header Bar */}
-  {/* {
+        {/* {
     isQuick ? (
       <CreateTicketQuickActions
         onSendEmail={() => navigate("/create-ticket?mode=email")}
         onWriteNote={() => navigate("/create-ticket?mode=note")}
         onCall={() => navigate("/create-ticket?mode=call")}
       /> */}
-    {/* // ):( */}
-    {/* //   <> */}
-            <div className="flex items-center justify-between px-2 py-1 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
+        {/* // ):( */}
+        {/* //   <> */}
+        <div className="flex items-center justify-between px-2 py-1 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <Checkbox
@@ -1221,13 +1204,16 @@ console.log("isQuick",isQuick)
                         NO TICKETS FOUND
                       </div>
                       <div className="text-gray-500 text-sm font-bold">
-                        You can try to{' '}
-                        <span className="underline decoration-dotted">adjusting</span> your{' '}
-                        <span className="underline decoration-dotted">filters</span>
+                        You can try to{" "}
+                        <span className="underline decoration-dotted">
+                          adjusting
+                        </span>{" "}
+                        your{" "}
+                        <span className="underline decoration-dotted">
+                          filters
+                        </span>
                       </div>
-
                     </div>
-
                   )}
                 </div>
               )}
@@ -1241,7 +1227,6 @@ console.log("isQuick",isQuick)
             </div>
           )}
         </div>
-      
       </div>
       {/* )} */}
 
@@ -1271,7 +1256,6 @@ console.log("isQuick",isQuick)
         message={`Are you sure you want to close (${selectedTickets.length}) ticket?`}
         successMessage={`Successfully closed (${selectedTickets.length}) tickets.`}
       />
-
     </>
   );
 };
