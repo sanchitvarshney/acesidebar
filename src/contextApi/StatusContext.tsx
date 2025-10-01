@@ -8,6 +8,9 @@ interface StatusContextType {
     value: string;
     color: string;
   }>;
+  showOfflineModal: boolean;
+  setShowOfflineModal: (show: boolean) => void;
+  handleResume: () => void;
 }
 
 const StatusContext = createContext<StatusContextType | undefined>(undefined);
@@ -26,16 +29,38 @@ interface StatusProviderProps {
 
 export const StatusProvider: React.FC<StatusProviderProps> = ({ children }) => {
   const [currentStatus, setCurrentStatus] = useState<string>("available");
+  const [showOfflineModal, setShowOfflineModal] = useState<boolean>(false);
 
   const statusOptions = [
     { label: "Available", value: "available", color: "#4caf50" },
-    { label: "Busy", value: "busy", color: "#ff9800" },
-    { label: "Away", value: "away", color: "#f44336" },
     { label: "Offline", value: "offline", color: "#9e9e9e" }
   ];
 
+  const handleStatusChange = (status: string) => {
+    setCurrentStatus(status);
+    
+    // Show offline modal when user goes offline
+    if (status === 'offline') {
+      setShowOfflineModal(true);
+    } else {
+      setShowOfflineModal(false);
+    }
+  };
+
+  const handleResume = () => {
+    setCurrentStatus('available');
+    setShowOfflineModal(false);
+  };
+
   return (
-    <StatusContext.Provider value={{ currentStatus, setCurrentStatus, statusOptions }}>
+    <StatusContext.Provider value={{ 
+      currentStatus, 
+      setCurrentStatus: handleStatusChange, 
+      statusOptions,
+      showOfflineModal,
+      setShowOfflineModal,
+      handleResume
+    }}>
       {children}
     </StatusContext.Provider>
   );

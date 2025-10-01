@@ -4,8 +4,10 @@ import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { Outlet } from "react-router-dom";
 import { usePopupContext } from "../../contextApi/PopupContext";
+import { useStatus } from "../../contextApi/StatusContext";
 import logo from "../../assets/image/ajaxter-logo.webp";
 import PrivateTurnstile from "../common/PrivateTurnstile";
+import OfflineStatusModal from "../popup/OfflineStatusModal";
 import { useDispatch, useSelector } from "react-redux";
 import { setToggle } from "../../reduxStore/Slices/shotcutSlices";
 import { RootState } from "../../reduxStore/Store";
@@ -64,11 +66,16 @@ const MainContent = styled(Box)(({ theme }) => ({
 const MainLayout = () => {
 
   const { isAnyPopupOpen } = usePopupContext();
+  const { showOfflineModal, setShowOfflineModal, handleResume } = useStatus();
   const { isOpen } = useSelector((state:RootState) => state.shotcut);
   const dispatch = useDispatch();
 
   const handleDrawerToggle = () => {
    dispatch(setToggle(!isOpen));  
+  };
+
+  const handleCloseOfflineModal = () => {
+    setShowOfflineModal(false);
   };
 
   return (
@@ -92,6 +99,12 @@ const MainLayout = () => {
       </Main>
       {/* <BottomBar /> */}
       <PrivateTurnstile />
+      
+      {/* Offline Status Modal */}
+      <OfflineStatusModal
+        open={showOfflineModal}
+        onClose={handleCloseOfflineModal}
+      />
     </Box>
   );
 };
