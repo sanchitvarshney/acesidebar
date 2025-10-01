@@ -110,6 +110,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
     const toggleColumnCollapse = (columnId: string) => {
       setCollapsedColumns((prev) => {
         const next = new Set(prev);
+    
         const isCollapsed = next.has(columnId);
 
         if (isCollapsed) {

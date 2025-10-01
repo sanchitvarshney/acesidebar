@@ -155,8 +155,16 @@ function AsyncAutocomplete<T extends Record<string, any>>({
           fullWidth
           variant={variant}
           sx={{
-            "& .MuiInputBase-input": {
-              fontSize: { xs: "14px", sm: "16px" }, // input text font size
+            // For single select selected value
+            "& .MuiAutocomplete-inputRoot": {
+              "& .MuiAutocomplete-input": {
+                fontSize: { xs: "14px", sm: "12px" }, // selected value font size
+              },
+            },
+            // For multiple select chips
+            "& .MuiChip-root": {
+              fontSize: { xs: "12px", sm: "14px" },
+              height: { xs: 24, sm: 28 },
             },
           }}
           InputProps={{

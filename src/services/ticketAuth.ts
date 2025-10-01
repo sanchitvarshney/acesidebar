@@ -218,6 +218,14 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
+    getActivity: builder.query<any, any>({
+      query: (credentials) => ({
+     
+        url: `/ticket/activity-log?module=${credentials.module}&filter=${credentials.filter}`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
   }),
   overrideExisting: false,
 });
@@ -242,4 +250,5 @@ export const {
   useDeleteSessionMutation,
   useTriggerLogOutMutation,
   useTriggerRegenrateMutation,
+  useGetActivityQuery,
 } = extendedTicketApi;

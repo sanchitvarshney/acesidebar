@@ -20,6 +20,7 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import QuickCreateForm from "../../components/quickActions/QuickCreateForm";
+import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 
 const quickActions = [
   {
@@ -111,21 +112,24 @@ const UsersContactsPage: React.FC = () => {
 
   return (
     <Box sx={{ p: 3, bgcolor: "#f8f9fa", minHeight: "calc(100vh - 98px)" }}>
-      {/* Header Section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{ fontWeight: 700, color: "#1a1a1a", mb: 1 }}
-        >
-          Quick Actions
-        </Typography>
+      <div className="flex flex-col ">
+        <div className="flex items-center gap-2">
+          <RocketLaunchIcon sx={{ fontSize: 30 }} />
+          <Typography variant="h4" sx={{ fontWeight: 700, color: "#1a1a1a" }}>
+            Quick Actions
+          </Typography>
+        </div>
+
         <Typography variant="body1" sx={{ color: "#666", mb: 3 }}>
           Access quick actions for efficient communication
         </Typography>
-
+      </div>
+      {/* Header Section */}
+      <Box sx={{ mb: 4 }}>
         {/* Search Bar */}
         <TextField
           fullWidth
+          autoFocus
           placeholder="Search quick actions..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -178,6 +182,7 @@ const UsersContactsPage: React.FC = () => {
               >
                 <Card
                   sx={{
+                  
                     borderRadius: 2,
                     border: "1px solid #e0e0e0",
                     cursor: "pointer",
@@ -189,12 +194,21 @@ const UsersContactsPage: React.FC = () => {
                   }}
                   onClick={() => handleQuickAction(action.action)}
                 >
-                  <CardActionArea sx={{ p: 3 }}>
+                  <CardActionArea
+                    disableRipple
+                    sx={{
+                      p: 3,
+                      "&:focus-visible": {
+                        outline: "2px solid #1976d2", // custom blue border
+                        outlineOffset: "2px",
+                      },
+                    }}
+                  >
                     <Box sx={{ textAlign: "center" }}>
                       <Avatar
                         sx={{
                           width: 64,
-                          height: 64,
+                          height: 64,       
                           bgcolor: action.bgColor,
                           color: action.color,
                           mx: "auto",

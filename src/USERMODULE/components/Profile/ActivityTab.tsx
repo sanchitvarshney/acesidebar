@@ -28,6 +28,8 @@ const ActivityTab: React.FC = () => {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const activityAnchorRef = useRef<HTMLDivElement>(null);
 
+  
+
   return (
     <Box sx={{ display: "flex", gap: 3, height: "100%" }}>
       <Box sx={{ flex: 2 }}>

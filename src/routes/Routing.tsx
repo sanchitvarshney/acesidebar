@@ -169,7 +169,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "users-contacts",
+        path: "quick-action",
         element: <UsersContactsPage />,
       },
       {
@@ -198,10 +198,6 @@ export const router = createBrowserRouter([
             element: <AgentsProductivityPage />,
           },
       
-          {
-            path: "users-contacts",
-            element: <UsersContactsPage />,
-          },
           {
             path: "help-support",
             element: <HelpSupportPage />,
