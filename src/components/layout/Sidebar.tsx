@@ -8,7 +8,9 @@ import {
   ExitToApp as ExitToAppIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../../contextApi/AuthContext";
+import { useHelpCenter } from "../../contextApi/HelpCenterContext";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
+import setupWizardIcon from "../../assets/image/setup-wizard.svg";
 
 const SIDEBAR_WIDTH = 80;
 const SIDEBAR_COLLAPSED_WIDTH = 0;
@@ -64,7 +66,9 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ open }) => {
   const { signOut } = useAuth();
+  const { openHelpCenter } = useHelpCenter();
   const navigate = useNavigate();
+  
   const handleNavigation = (path: string) => {
     navigate(path);
   };
@@ -122,6 +126,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
             <SettingsIcon fontSize="inherit" />
           </ColoredShortcutButton>
         </Box>
+        
         <Box
           sx={{
             display: "flex",
@@ -131,6 +136,17 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
             mb: 2,
           }}
         >
+          <IconButton
+            size="medium"
+            onClick={openHelpCenter}
+            sx={{ background: "#fff" }}
+          >
+            <img 
+              src={setupWizardIcon} 
+              alt="Setup Wizard" 
+              style={{ width: 24, height: 24 }}
+            />
+          </IconButton>
           <IconButton
             size="medium"
             onClick={signOut}

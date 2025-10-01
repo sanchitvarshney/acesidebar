@@ -11,6 +11,7 @@ import { AuthProvider } from "./contextApi/AuthContext";
 import { PopupProvider } from "./contextApi/PopupContext";
 import { PermissionProvider } from "./contextApi/PermissionContext";
 import { StatusProvider } from "./contextApi/StatusContext";
+import { HelpCenterProvider } from "./contextApi/HelpCenterContext";
 import { ErrorProvider } from "./BUGREPORT";
 import theme from "./theme";
 import "./font.css"
@@ -31,12 +32,14 @@ function App() {
               <StatusProvider>
                 <PopupProvider>
                   <PermissionProvider>
-                    <ErrorProvider>
-                      <ToastContext>
-                        <CssBaseline />
-                        <RouterProvider router={router} />
-                      </ToastContext>
-                    </ErrorProvider>
+                    <HelpCenterProvider>
+                      <ErrorProvider>
+                        <ToastContext>
+                          <CssBaseline />
+                          <RouterProvider router={router} />
+                        </ToastContext>
+                      </ErrorProvider>
+                    </HelpCenterProvider>
                   </PermissionProvider>
                 </PopupProvider>
               </StatusProvider>

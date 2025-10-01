@@ -5,9 +5,11 @@ import TopBar from "./TopBar";
 import { Outlet } from "react-router-dom";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import { useStatus } from "../../contextApi/StatusContext";
+import { useHelpCenter } from "../../contextApi/HelpCenterContext";
 import logo from "../../assets/image/ajaxter-logo.webp";
 import PrivateTurnstile from "../common/PrivateTurnstile";
 import OfflineStatusModal from "../popup/OfflineStatusModal";
+import HelpCenterSlider from "./HelpCenterSlider";
 import { useDispatch, useSelector } from "react-redux";
 import { setToggle } from "../../reduxStore/Slices/shotcutSlices";
 import { RootState } from "../../reduxStore/Store";
@@ -15,11 +17,12 @@ import { RootState } from "../../reduxStore/Store";
 const drawerWidth = 0;
 
 const Main = styled("main", {
-  shouldForwardProp: (prop) => prop !== "open" && prop !== "isPopupOpen",
+  shouldForwardProp: (prop) => prop !== "open" && prop !== "isPopupOpen" && prop !== "helpCenterOpen",
 })<{
   open?: boolean;
   isPopupOpen?: boolean;
-}>(({ theme, open, isPopupOpen }) => ({
+  helpCenterOpen?: boolean;
+}>(({ theme, open, isPopupOpen, helpCenterOpen }) => ({
   flexGrow: 1,
   padding: theme.spacing(2),
   transition: theme.transitions.create("margin", {
@@ -35,6 +38,13 @@ const Main = styled("main", {
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginLeft: 0,
+  }),
+  ...(helpCenterOpen && {
+    marginLeft: '480px', // 80px (sidebar) + 400px (help center) = 480px
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   }),
   ...(isPopupOpen && {
     WebkitFilter: "blur(2.5px)",
@@ -67,6 +77,7 @@ const MainLayout = () => {
 
   const { isAnyPopupOpen } = usePopupContext();
   const { showOfflineModal, setShowOfflineModal, handleResume } = useStatus();
+  const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
   const { isOpen } = useSelector((state:RootState) => state.shotcut);
   const dispatch = useDispatch();
 
@@ -83,7 +94,7 @@ const MainLayout = () => {
       <CssBaseline />
       <TopBar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
       <Sidebar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
-      <Main open={isOpen} isPopupOpen={isAnyPopupOpen}>
+      <Main open={isOpen} isPopupOpen={isAnyPopupOpen} helpCenterOpen={helpCenterOpen} sx={{ position: 'relative' }}>
         <MainContent>
           <Suspense
             fallback={
@@ -96,6 +107,12 @@ const MainLayout = () => {
             <Outlet />
           </Suspense>
         </MainContent>
+        
+        {/* Help Center Slider - positioned inside main content */}
+        <HelpCenterSlider 
+          open={helpCenterOpen} 
+          onClose={closeHelpCenter} 
+        />
       </Main>
       {/* <BottomBar /> */}
       <PrivateTurnstile />
