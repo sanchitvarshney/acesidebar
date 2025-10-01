@@ -31,6 +31,7 @@ interface KanbanBoardProps {
   loadingTaskId?: string | null;
   loadingAttachmentTaskId?: string | null;
   taskId: any;
+  onTaskStatusUpdate?: (taskId: string, newStatus: { key: string; name: string }) => void;
 }
 
 // Kanban columns configuration
@@ -78,10 +79,11 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
     getStatusIcon,
 
     isLoading,
+    onTaskStatusUpdate,
   }) => {
-    // State for collapsed columns
+    // State for collapsed columns - default to having only "unassigned" open
     const [collapsedColumns, setCollapsedColumns] = React.useState<Set<string>>(
-      new Set()
+      new Set(["todo", "doing", "review", "release"])
     );
 
     // State for visible tasks per column (pagination)
@@ -130,6 +132,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
     };
 
     const handleDragEnd = () => {
+      // Always reset drag state when drag ends, regardless of where it ends
       setDraggedTask(null);
       setDragOverColumn(null);
     };
@@ -161,29 +164,22 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
       const newStatus = statusMap[targetColumnId];
 
       if (newStatus && draggedTask.status?.key !== newStatus.key) {
-        // Update the task in the data
-        const updatedTasks = taskData.map((task: any) => {
-          if (task.taskId === draggedTask.taskId) {
-            return {
-              ...task,
-              status: newStatus,
-            };
-          }
-          return task;
-        });
-
-        // Update the tasks data
-        if (tasks?.data) {
-          tasks.data = updatedTasks;
+        // Call the parent component's update function if provided
+        if (onTaskStatusUpdate) {
+          onTaskStatusUpdate(draggedTask.taskId, newStatus);
         }
 
-        // Log the change (in a real app, you'd make an API call here)
+        // Log the change
         console.log(
           `Moved task "${draggedTask.title}" from ${draggedTask.status?.name} to ${newStatus.name}`
         );
       }
 
-      setDragOverColumn(null);
+      // Reset drag state after a brief delay to ensure smooth visual transition
+      setTimeout(() => {
+        setDraggedTask(null);
+        setDragOverColumn(null);
+      }, 100);
     };
     // Use tasks data directly from API
     const taskData = useMemo(() => {
@@ -270,19 +266,19 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
               {/* Column Header */}
               <div
                 className={` ${
-                  collapsedColumns.has(column.id) ? "p-2  h-full" : "p-4"
+                  collapsedColumns.has(column.id) ? "p-4  h-full" : "p-4"
                 }`}
               >
                 {collapsedColumns.has(column.id) ? (
                   // Collapsed header layout - vertical strip
-                  <div className="flex flex-col items-center gap-2 h-full">
+                  <div className="flex flex-col items-center gap-0 h-full">
                     {/* Collapse/Expand icon */}
                     <IconButton
                       size="small"
                       sx={{
                         color: "#6b7280",
 
-                        padding: "8px",
+                        padding: "6px",
                       }}
                       onClick={() => toggleColumnCollapse(column.id)}
                     >
@@ -298,7 +294,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
                     </IconButton>
                     {/* Color indicator */}
                     <div
-                      className="w-1 h-8 rounded-full transform rotate-90"
+                      className="w-1 h-6 rounded-full transform rotate-90"
                       style={{ backgroundColor: column.color }}
                     />
 
@@ -312,6 +308,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
                         fontWeight: 500,
                         fontSize: "0.75rem",
                         height: "20px",
+                        mt:1
                       }}
                     />
                     {/* Column title - vertical */}

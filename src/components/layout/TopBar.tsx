@@ -33,7 +33,6 @@ import { usePopupContext } from "../../contextApi/PopupContext";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useStatus } from "../../contextApi/StatusContext";
 import { useDispatch } from "react-redux";
-import { setIsQuick } from "../../reduxStore/Slices/shotcutSlices";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;

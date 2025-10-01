@@ -21,8 +21,8 @@ const KanbanPage: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
 
-  // Static dummy data - no API calls
-  const taskListData = {
+  // State for tasks data
+  const [tasksData, setTasksData] = React.useState({
     data: [
       {
         taskId: "1",
@@ -131,8 +131,24 @@ const KanbanPage: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       totalCount: 8,
       totalPages: 1,
     },
-  };
+  });
+
   const taskListDataLoading = false;
+
+  // Function to handle task status updates from drag and drop
+  const handleTaskStatusUpdate = useCallback((taskId: string, newStatus: { key: string; name: string }) => {
+    setTasksData(prevData => ({
+      ...prevData,
+      data: prevData.data.map(task => 
+        task.taskId === taskId 
+          ? { ...task, status: newStatus }
+          : task
+      )
+    }));
+    
+    // Here you would typically make an API call to update the task status
+    console.log(`Task ${taskId} status updated to ${newStatus.name}`);
+  }, []);
 
 ;
 
@@ -170,13 +186,13 @@ const KanbanPage: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     return () => clearInterval(timer);
   }, []);
 
-  const filteredTasks = taskListData?.data || [];
+  const filteredTasks = tasksData?.data || [];
 
   return (
 
       <KanbanBoard
         tasks={{
-          ...{ ...taskListData },
+          ...tasksData,
           data: filteredTasks,
         }}
         
@@ -194,6 +210,7 @@ const KanbanPage: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
         loadingTaskId={loadingTaskId}
         loadingAttachmentTaskId={loadingAttachmentTaskId}
         taskId={taskId?.taskId}
+        onTaskStatusUpdate={handleTaskStatusUpdate}
       />
 
   );
