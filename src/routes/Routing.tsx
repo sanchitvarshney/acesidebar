@@ -20,7 +20,7 @@ import SessionManagementPage from "../USERMODULE/pages/SessionManagementPage";
 import SystemAccountPage from "../USERMODULE/pages/settingPages/SystemAccountPage";
 import TicketsWorkflowsPage from "../USERMODULE/pages/settingPages/TicketsWorkflowsPage";
 import TasksKnowledgePage from "../USERMODULE/pages/settingPages/TasksKnowledgePage";
-import UsersContactsPage from "../USERMODULE/pages/settingPages/UsersContactsPage";
+import QuickActions from "../USERMODULE/pages/settingPages/QuickActions";
 import HelpSupportPage from "../USERMODULE/pages/settingPages/HelpSupportPage";
 import EmailsPage from "../USERMODULE/pages/settingPages/EmailsPage";
 import AgentsProductivityPage from "../USERMODULE/pages/settingPages/AgentsProductivityPage";
@@ -169,7 +169,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "users-contacts",
-        element: <UsersContactsPage />,
+        element: <QuickActions />,
       },
       {
         path: "settings",
@@ -199,7 +199,7 @@ export const router = createBrowserRouter([
       
           {
             path: "users-contacts",
-            element: <UsersContactsPage />,
+            element: <QuickActions />,
           },
           {
             path: "help-support",
