@@ -143,6 +143,7 @@ const TicketDetailHeader = ({
   onNextTicket,
   hasPreviousTicket = true,
   hasNextTicket = true,
+  onTicketUpdated,
 }: any) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [triggerDeleteWatcher, { isLoading: isDeletingLoading }] =
@@ -188,6 +189,12 @@ const TicketDetailHeader = ({
     useCommanApiMutation();
   const [triggerWatchApi] = useCommanApiMutation();
   const displayAgentOptions = onChangeAgent ? agentOptions : [];
+
+  // Local optimistic overrides for edits so UI reflects instantly
+  const [editOverrides, setEditOverrides] = useState<{ subject?: string; description?: string }>({});
+
+  const effectiveSubject = editOverrides.subject ?? ticket?.subject;
+  const effectiveDescription = editOverrides.description ?? ticket?.body;
 
   const fetchAgentOptions = async (query: string) => {
     if (!query) {
@@ -780,14 +787,26 @@ const TicketDetailHeader = ({
             setIsEditTicket(false);
           }}
           ticket={{
-            subject: ticket?.subject,
-            description: ticket?.body,
+            subject: effectiveSubject,
+            description: effectiveDescription,
             client: {
               id: ticket?.userID,
               name: ticket?.username,
               email: ticket?.email,
             },
             ticketId: ticket?.ticketId,
+          }}
+          onUpdated={(updated: any) => {
+            try {
+              setEditOverrides({
+                subject: updated?.subject,
+                description: updated?.description,
+              });
+              // Bubble up if parent wants to sync global state
+              onTicketUpdated && onTicketUpdated(updated);
+            } catch (_) {
+              // optional callback
+            }
           }}
         />
       </CustomSideBarPanel>

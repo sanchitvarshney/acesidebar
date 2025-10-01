@@ -881,6 +881,7 @@ const TicketThreadSection = ({
   onCloseReply,
   onCloseEditorNote,
   value,
+  onThreadAdded,
 }: any) => {
   const { showToast } = useToast();
   const dispatch = useDispatch();
@@ -1181,6 +1182,31 @@ const TicketThreadSection = ({
         setSelectedOptionValue("1");
         setSignatureUpdateKey(0);
         setShowEditor(false);
+        // Optimistically append the new thread item without refetching
+        try {
+          const serverData = res?.data?.data || {};
+          const newThreadItem = {
+            entryId: serverData?.entryId || `temp-${Date.now()}`,
+            message: finalMessage,
+            body: finalMessage,
+            repliedBy: serverData?.repliedBy || { name: header?.agentName || "You" },
+            replyType: "AGENT",
+            subject: null,
+            attachments: images?.map((img) => ({
+              fileSignature: img?.fileId,
+              fileName: img?.name,
+              size: img?.size,
+              mime: img?.type,
+            })) || [],
+            isFlagged: false,
+            entryType: selectedValue === "private" ? "PrvN" : "pbR",
+            repliedAt: { timestamp: new Date().toISOString() },
+          };
+          onThreadAdded && onThreadAdded(newThreadItem);
+        } catch (_) {
+          // noop if parent does not handle
+        }
+        // Keep existing refetch for attachments only
         refetch();
         if (onCloseReply) onCloseReply();
       })

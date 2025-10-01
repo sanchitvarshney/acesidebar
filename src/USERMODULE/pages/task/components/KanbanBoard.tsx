@@ -86,6 +86,9 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
       new Set(["todo", "doing", "review", "release"])
     );
 
+    // Track open columns in order to enforce max 3 open at once
+    const [openOrder, setOpenOrder] = React.useState<string[]>(["unassigned"]);
+
     // State for visible tasks per column (pagination)
     const [visibleTasksPerColumn, setVisibleTasksPerColumn] = React.useState<{
       [key: string]: number;
@@ -106,13 +109,30 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
     // Toggle column collapse/expand
     const toggleColumnCollapse = (columnId: string) => {
       setCollapsedColumns((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(columnId)) {
-          newSet.delete(columnId);
+        const next = new Set(prev);
+        const isCollapsed = next.has(columnId);
+
+        if (isCollapsed) {
+          // Expand column
+          next.delete(columnId);
+          setOpenOrder((prevOrder) => {
+            // Move to end as most recently opened
+            let nextOrder = prevOrder.filter((id) => id !== columnId).concat(columnId);
+            // Enforce max 3 open
+            if (nextOrder.length > 3) {
+              const toClose = nextOrder[0];
+              next.add(toClose);
+              nextOrder = nextOrder.slice(1);
+            }
+            return nextOrder;
+          });
         } else {
-          newSet.add(columnId);
+          // Collapse column
+          next.add(columnId);
+          setOpenOrder((prevOrder) => prevOrder.filter((id) => id !== columnId));
         }
-        return newSet;
+
+        return next;
       });
     };
 

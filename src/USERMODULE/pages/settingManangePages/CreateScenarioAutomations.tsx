@@ -94,6 +94,8 @@ const CreateScenarioAutomations = () => {
   };
 
   const handleRemoveAction = (id: string) => {
+    // Prevent removing the first row
+    if (actions.length > 0 && actions[0].id === id) return;
     setActions(actions.filter((action) => action.id !== id));
   };
 
@@ -231,6 +233,7 @@ const CreateScenarioAutomations = () => {
                     size="small"
                     onClick={() => handleRemoveAction(action.id)}
                     sx={{ color: "#f44336" }}
+                    disabled={index === 0}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
