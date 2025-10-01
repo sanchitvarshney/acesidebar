@@ -29,7 +29,7 @@ const SourceOptions: any = [
   { value: "other", label: "Other" },
 ];
 
-const EditTicket = ({ onClose, open, ticket }: any) => {
+const EditTicket = ({ onClose, open, ticket, onUpdated }: any) => {
   const { showToast } = useToast();
 
   const [errors, setErrors] = useState<{ subject?: string; body?: string }>({});
@@ -141,12 +141,24 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
       );
       return;
     } else {
-      showToast(
+      const successMessage =
         editDataRes?.data?.message ||
-          editDataRes?.message ||
-          "Ticket updated successfully",
-        "success"
-      );
+        editDataRes?.message ||
+        "Ticket updated successfully";
+
+      // Optimistically notify parent to update UI instantly without refetch
+      try {
+        const updatedTicket = {
+          ...ticket,
+          subject: editData.subject,
+          description: editData.body,
+        };
+        onUpdated && onUpdated(updatedTicket);
+      } catch (_) {
+        // optional callback, ignore if not provided
+      }
+
+      showToast(successMessage, "success");
       setEditData({ contact: "", subject: "", body: "" });
       onClose();
     }
@@ -223,23 +235,6 @@ const EditTicket = ({ onClose, open, ticket }: any) => {
             </FormHelperText>
           )}
 
-          <FormControl fullWidth size="small" variant="outlined">
-            <InputLabel id="demo-source-select-label">Source</InputLabel>
-            <Select
-              labelId="demo-source-select-label"
-              id="demo-source-select"
-              name="source"
-              value={editData.source}
-              onChange={(e) => handleInputChange("source", e.target.value)}
-              label="Source"
-            >
-              {SourceOptions?.map((opt: any) => (
-                <MenuItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
 
           {/* Message Body */}
           <Box sx={{ flex: 1, minHeight: 300 }}>

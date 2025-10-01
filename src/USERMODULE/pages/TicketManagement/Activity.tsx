@@ -27,7 +27,6 @@ import {
   PriorityHigh,
   Label,
   Comment,
-  
   Print,
   Block,
   Merge,
@@ -41,6 +40,7 @@ import {
 } from "@mui/icons-material";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import SearchIcon from "@mui/icons-material/Search";
+import { useGetActivityQuery } from "../../../services/ticketAuth";
 
 const getActivityColor = (type: ActivityItem["type"]) => {
   switch (type) {
@@ -345,10 +345,7 @@ const sampleActivities: ActivityItem[] = [
 ];
 
 const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
-  const [commanApi] = useCommanApiMutation();
 
-  const [activities, setActivities] =
-    useState<ActivityItem[]>(sampleActivities);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<string>("all");
@@ -360,42 +357,73 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
   });
   const inputRef = useRef(null);
 
+  const { data: activityData } = useGetActivityQuery({
+    filter: ticketId,
+    module: "TICKET",
+  });
+
+
   useEffect(() => {
     if (open && inputRef.current) {
       //@ts-ignore
       setTimeout(() => inputRef.current.focus(), 100);
     }
   }, [open]);
-
-  // Fetch activities on component mount
+  // Capture the initial date range so we know if user changed it later
+  const defaultDateRangeRef = useRef<{ start: string; end: string } | null>(null);
   useEffect(() => {
-    const payload = {
-      url: `tickets/${ticketId}/activities`,
-      method: "GET",
-    };
-    commanApi(payload);
-  }, [ticketId, commanApi]);
+    if (defaultDateRangeRef.current === null) {
+      defaultDateRangeRef.current = { ...dateRange };
+    }
+  }, [dateRange]);
 
-  // Filter activities based on search and filters
-  const filteredActivities = activities.filter((activity) => {
-    const matchesSearch =
-      activity.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.performedBy.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-    const matchesType =
-      selectedType === "all" || activity.type === selectedType;
-    const matchesUser =
-      selectedUser === "all" || activity.performedBy.id === selectedUser;
+  const hasActiveFilters =
+    (searchQuery?.trim()?.length ?? 0) > 0 ||
+    selectedType !== "all" ||
+    selectedUser !== "all" ||
+    (defaultDateRangeRef.current &&
+      (dateRange.start !== defaultDateRangeRef.current.start ||
+        dateRange.end !== defaultDateRangeRef.current.end));
 
-    const activityDate = new Date(activity.timestamp);
-    const startDate = new Date(dateRange.start);
-    const endDate = new Date(dateRange.end);
-    const matchesDate = activityDate >= startDate && activityDate <= endDate;
+  // Compute filtered activities only when filters are active
+  const computedFilteredActivities = React.useMemo(() => {
+    if (!Array.isArray(activityData)) return activityData;
 
-    return matchesSearch && matchesType && matchesUser && matchesDate;
-  });
+    return activityData.filter((activity: any) => {
+      const haystacks = [
+        activity?.action ?? "",
+        activity?.description ?? "",
+        activity?.agent ?? "",
+        activity?.performedBy?.name ?? "",
+        activity?.performedBy?.email ?? "",
+      ];
+
+      const q = (searchQuery || "").toLowerCase();
+      const matchesSearch = q === "" || haystacks.some((h: string) => (h || "").toLowerCase().includes(q));
+
+      const matchesType = selectedType === "all" || activity?.type === selectedType;
+
+      const matchesUser = selectedUser === "all" || activity?.performedBy?.id === selectedUser;
+
+      const ts = activity?.timestamp?.dt ?? activity?.timestamp;
+      const activityDate = ts ? new Date(ts) : null;
+      const startDate = dateRange.start ? new Date(dateRange.start) : null;
+      const endDate = dateRange.end ? new Date(dateRange.end) : null;
+
+      const matchesDate =
+        !startDate ||
+        !endDate ||
+        (activityDate instanceof Date &&
+          !isNaN(activityDate.getTime()) &&
+          activityDate >= startDate &&
+          activityDate <= endDate);
+
+      return matchesSearch && matchesType && matchesUser && matchesDate;
+    });
+  }, [activityData, searchQuery, selectedType, selectedUser, dateRange]);
+
+  const filteredActivities = hasActiveFilters ? computedFilteredActivities : activityData;
+
 
   // Get unique activity types and users
   const activityTypes = [
@@ -475,14 +503,6 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
     return <Description />;
   };
 
-  // Export activities to CSV
-  const handleExportActivities = () => {
-    const payload = {
-      url: `tickets/${ticketId}/activities/export`,
-      method: "GET",
-    };
-    commanApi(payload);
-  };
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -572,16 +592,16 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
 
   const renderTimelineView = () => (
     <Timeline position="left">
-      {filteredActivities.map((activity, index) => (
-        <TimelineItem key={activity.id}>
+      {filteredActivities?.map((activity:any, index:number) => (
+        <TimelineItem key={activity.key}>
           <TimelineOppositeContent sx={{ m: "auto 0" }}>
             <Typography variant="body2" color="text.secondary">
-              {formatTimestamp(activity.timestamp)}
+              {activity?.timestamp?.ago}
             </Typography>
           </TimelineOppositeContent>
           <TimelineSeparator>
             <TimelineDot sx={{ bgcolor: getActivityColor(activity.type) }}>
-              {getActivityIcon(activity.type)}
+              {getActivityIcon(activity.type) || "--"}
             </TimelineDot>
             {index < filteredActivities.length - 1 && <TimelineConnector />}
           </TimelineSeparator>
@@ -591,28 +611,28 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
               >
                 <Avatar
-                  src={activity.performedBy.avatar}
+                  src={activity?.by?.avatar}
                   sx={{ width: 24, height: 24, fontSize: "0.75rem" }}
                 >
-                  {activity.performedBy.name.charAt(0)}
+                  {activity?.by?.name.charAt(0)}
                 </Avatar>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {activity.performedBy.name}
+                  {activity?.by?.name}
                 </Typography>
                 <Chip
-                  label={activity.action}
+                  label={activity?.action}
                   size="small"
                   sx={{
-                    bgcolor: getActivityColor(activity.type),
+                    bgcolor: getActivityColor(activity.type) || "#e0e0e0",
                     color: "white",
                     fontSize: "0.75rem",
                   }}
                 />
               </MuiBox>
               <Typography variant="body2" sx={{ mb: 1 }}>
-                {activity.description}
+                {activity?.description}
               </Typography>
-              {renderActivityDetails(activity)}
+              {activity && renderActivityDetails(activity)}
             </Paper>
           </TimelineContent>
         </TimelineItem>
@@ -649,7 +669,7 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
             Ticket Activity Log
           </Typography>
           <MuiBox sx={{ display: "flex", gap: 1 }}>
-            <IconButton size="small" onClick={handleExportActivities}>
+            <IconButton size="small" onClick={()=>{}}>
               <SystemUpdateAltIcon fontSize="small" color="primary" />
             </IconButton>
           </MuiBox>
@@ -736,7 +756,7 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <Typography variant="h6" color="primary">
-                {filteredActivities.length}
+                {activityData?.length}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Total Activities
@@ -744,7 +764,7 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
             </div>
             <div className="text-center">
               <Typography variant="h6" color="success.main">
-                {filteredActivities.filter((a) => a.type === "reply").length}
+                {filteredActivities?.filter((a:any) => a.type === "reply")?.length}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Replies
@@ -753,8 +773,7 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
             <div className="text-center">
               <Typography variant="h6" color="warning.main">
                 {
-                  filteredActivities.filter((a) => a.type === "attachment")
-                    .length
+                  filteredActivities?.filter((a:any) => a.type === "attachment")?.length
                 }
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -763,7 +782,7 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
             </div>
             <div className="text-center">
               <Typography variant="h6" color="text.secondary">
-                {filteredActivities.filter((a) => a.type === "time_log").length}
+                {filteredActivities?.filter((a:any) => a.type === "time_log")?.length}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Time Logs
@@ -773,7 +792,7 @@ const Activity: React.FC<ActivityProps> = ({ open, onClose, ticketId }) => {
         </MuiBox>
 
         {/* Activities Content */}
-        {filteredActivities.length === 0 ? (
+        {filteredActivities?.length === 0 ? (
           <Typography
             variant="body2"
             color="text.secondary"

@@ -96,6 +96,17 @@ const TicketDetailTemplate = () => {
     "customer" | "info" | "chat"
   >("customer");
   const [isAddTask, setIsAddTask] = React.useState(false);
+  // Optimistic override for ticket header edits (subject/description/etc.)
+  const [headerOverride, setHeaderOverride] = React.useState<any>(null);
+  const displayHeader = React.useMemo(() => {
+    const base = ticket?.header;
+    if (!base) return base;
+    const subject = headerOverride?.subject ?? base?.subject;
+    const description = headerOverride?.description ?? base?.description;
+    // Some consumers use body; maintain both
+    const body = headerOverride?.description ?? base?.body;
+    return { ...base, subject, description, body };
+  }, [ticket, headerOverride]);
 
   const [triggerForward] = useCommanApiMutation();
 
@@ -243,7 +254,7 @@ const TicketDetailTemplate = () => {
       >
         <div className="sticky top-0 z-[99]">
           <TicketDetailHeader
-            ticket={ticket?.header}
+            ticket={displayHeader}
             onBack={handleBack}
             onForward={handleOpenForward}
             onReply={handleReply}
@@ -254,6 +265,14 @@ const TicketDetailTemplate = () => {
             onNextTicket={handleNextTicket}
             hasPreviousTicket={hasPreviousTicket}
             hasNextTicket={hasNextTicket}
+            onTicketUpdated={(updated: any) => {
+              try {
+                setHeaderOverride({
+                  subject: updated?.subject,
+                  description: updated?.description,
+                });
+              } catch (_) {}
+            }}
           />
         </div>
         <div
@@ -268,7 +287,7 @@ const TicketDetailTemplate = () => {
             id="ticket-properties-sidebar"
             style={{ width: "100%", height: "100%", overflow: "hidden" }}
           >
-            <TicketPropertiesSidebar ticket={ticket?.header} />
+            <TicketPropertiesSidebar ticket={displayHeader} />
             {/* Forward Panel positioned inside the left column */}
           </div>
           <div
@@ -281,7 +300,7 @@ const TicketDetailTemplate = () => {
             ) : (
               <TicketThreadSection
                 thread={ticket?.response}
-                header={ticket?.header}
+                header={displayHeader}
                 onForward={handleOpenForward}
                 showReplyEditor={showReplyEditor}
                 onCloseReply={handleCloseReply}
@@ -309,7 +328,7 @@ const TicketDetailTemplate = () => {
                     <CustomerInfoSection
                       isExpanded={expandedAccordion === "customer"}
                       onToggle={() => handleAccordionChange("customer")}
-                      ticketData={ticket?.header}
+                      ticketData={displayHeader}
                     />
 
                     <InteractionHistorySection

@@ -65,6 +65,7 @@ import CreateEmailNotificationsPage from "../USERMODULE/pages/settingManangePage
 import SetupWizard from "../setupWizard/SetupWizard";
 import AutomationMaster from "../USERMODULE/pages/settingManangePages/AutomationMaster";
 import ScenarioAutomations from "../USERMODULE/pages/settingManangePages/ScenarioAutomations";
+import CreateScenarioAutomations from "../USERMODULE/pages/settingManangePages/CreateScenarioAutomations";
 
 
 export const router = createBrowserRouter([
@@ -168,8 +169,13 @@ export const router = createBrowserRouter([
         ],
       },
       {
+<<<<<<< HEAD
         path: "users-contacts",
         element: <QuickActions />,
+=======
+        path: "quick-action",
+        element: <UsersContactsPage />,
+>>>>>>> f8d4d6b271751940461e78b1dbd7268255fa9756
       },
       {
         path: "settings",
@@ -198,10 +204,13 @@ export const router = createBrowserRouter([
           },
       
           {
+<<<<<<< HEAD
             path: "users-contacts",
             element: <QuickActions />,
           },
           {
+=======
+>>>>>>> f8d4d6b271751940461e78b1dbd7268255fa9756
             path: "help-support",
             element: <HelpSupportPage />,
           },
@@ -297,6 +306,10 @@ export const router = createBrowserRouter([
       {
         path: "business-day",
         element: <BusinessDayIntegration />,
+      },
+          {
+        path: "scenario-automations/new",
+        element: <CreateScenarioAutomations />,
       },
     ],
   },

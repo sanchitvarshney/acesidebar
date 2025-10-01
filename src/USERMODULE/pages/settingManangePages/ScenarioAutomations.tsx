@@ -55,14 +55,14 @@ const ScenarioAutomations = () => {
               Scenario Automations
             </Typography>
           </Box>
-          <Button variant="contained">New Scenario</Button>
+          <Button variant="contained" onClick={() => navigate("/scenario-automations/new")}>New Scenario</Button>
         </Box>
 
         <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 2 }}>
 
            <div className="w-full h-full flex flex-col items-center justify-center gap-2">
              <img src={emptyImg} alt="scenario" className="w-40" />
-            <Typography>You haven’t created any scenario automations. <span className="text-blue-600 cursor-pointer hover:underline">Create New</span></Typography>
+            <Typography>You haven’t created any scenario automations. <span className="text-blue-600 cursor-pointer hover:underline" onClick={() => navigate("/scenario-automations/new")}>Create New</span></Typography>
            </div>
         </Box>
       </Box>

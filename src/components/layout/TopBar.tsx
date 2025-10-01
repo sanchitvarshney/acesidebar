@@ -219,7 +219,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             color="inherit"
             aria-label="open drawer"
             edge="start"
-            onClick={()=> navigate("/users-contacts")}
+            onClick={()=> navigate("/quick-action")}
             sx={{ mr: 2, color: "#3f4346" }}
           >
             <AddIcon

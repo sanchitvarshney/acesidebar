@@ -55,6 +55,36 @@ const ticketData: any = [
     closed: "17 days ago",
     resolved_late: true,
   },
+    {
+    id: 4,
+    title: "404 error when on a specific page #1",
+    description:
+      "Hi there, I tried to access my sales data in my account today but it showed a 404 error. Can you please help me fix this?",
+    status: "Closed",
+    group: "Escalations",
+    closed: "17 days ago",
+    resolved_late: true,
+  },
+    {
+    id: 5,
+    title: "404 error when on a specific page #1",
+    description:
+      "Hi there, I tried to access my sales data in my account today but it showed a 404 error. Can you please help me fix this?",
+    status: "Closed",
+    group: "Escalations",
+    closed: "17 days ago",
+    resolved_late: true,
+  },
+    {
+    id: 1,
+    title: "404 error when on a specific page #1",
+    description:
+      "Hi there, I tried to access my sales data in my account today but it showed a 404 error. Can you please help me fix this?",
+    status: "Closed",
+    group: "Escalations",
+    closed: "17 days ago",
+    resolved_late: true,
+  },
 ];
 
 const getUserData = () => {
@@ -120,7 +150,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", height: "calc(100vh - 98px)" }}>
+    <Box sx={{ display: "flex", height: "calc(100vh - 96px)" }}>
       {/* Left Sidebar */}
       <Box
         sx={{
@@ -289,7 +319,7 @@ const ProfilePage = () => {
         </Box>
 
         {/* Main Content */}
-        <Box sx={{ flex: 1, p: 3, bgcolor: "#f5f6fa", overflow: "auto" }}>
+        <Box sx={{ flex: 1, p: 2, bgcolor: "#fff", overflow: "auto" }}>
           {tab === 0 && (
             <OverviewTab
               user={{

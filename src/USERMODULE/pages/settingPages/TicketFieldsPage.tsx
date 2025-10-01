@@ -43,8 +43,6 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../reduxStore/Store";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
@@ -253,6 +251,8 @@ const TicketFieldsPage: React.FC = () => {
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     setDragOverIndex(index);
+       setOpenDrawer(true);
+    // console.log("drag over", index);
   };
 
   const handleDragLeave = () => {
@@ -309,6 +309,7 @@ const TicketFieldsPage: React.FC = () => {
   };
 
   const handleAddField = (e: any, fieldId: any) => {
+       setOpenDrawer(true);
     const fieldType = fieldTypes.find((ft) => ft.id === fieldId);
     if (fieldType) {
       const newField = {
@@ -328,6 +329,7 @@ const TicketFieldsPage: React.FC = () => {
       };
 
       const newFields = [...fields];
+      console.log("newFields", newFields.length);
 
       newFields.push(newField);
 
@@ -347,6 +349,18 @@ const TicketFieldsPage: React.FC = () => {
   };
 
   const handleSaveField = (updatedField: any) => {
+    const payload = {
+      customers_can_edit: updatedField.canEdit,
+      displayed_to_customers: updatedField.canView,
+      label: updatedField.labelForAgents,
+      label_for_customers: updatedField.labelForCustomers,
+      position: fields.length+1,
+      required_for_agents: updatedField.requiredForAgents,
+      required_for_closure: updatedField.requiredWhenClosing,
+      required_for_customers: updatedField.requiredForCustomers,
+      type: updatedField.type,
+    };
+    console.log("payload", payload);
     setFields((prev) =>
       prev.map((field) => (field.id === updatedField.id ? updatedField : field))
     );

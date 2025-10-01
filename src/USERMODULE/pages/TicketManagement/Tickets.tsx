@@ -130,7 +130,6 @@ const Tickets: React.FC = () => {
   // Fetch live priority list
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
-  const [AgentOptions, setAgentOptions] = useState<any>([]);
   const STATUS_OPTIONS: StatusOption[] =
     statusList?.map((item: any) => ({
       label: item.statusName,
@@ -211,7 +210,7 @@ const Tickets: React.FC = () => {
           typeof dept?.deptID === "number"
             ? String(dept?.deptID)
             : dept?.deptID,
-        agent: agentValue?.agentID,
+        agent: agentValue?.UserId,
       },
     };
 
@@ -411,6 +410,8 @@ const Tickets: React.FC = () => {
     commanApi(payload);
   };
 
+ 
+
   // Quick update handlers
   const handleQuickUpdateOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -418,6 +419,7 @@ const Tickets: React.FC = () => {
   ) => {
     event.stopPropagation();
     const merged = applyOverrides(ticket);
+  
     setTrackTicketId(merged?.ticketNumber);
     setQuickUpdateAnchorEl(true);
     setQuickUpdateValues({
@@ -433,9 +435,8 @@ const Tickets: React.FC = () => {
     setAgentValue(
       merged.assignee
         ? {
-            fName: merged.assignee.name?.split(" ")[0] || "",
-            lName: merged.assignee.name?.split(" ").slice(1).join(" ") || "",
-            UserId: merged.assignee.id || merged.assignee.UserId,
+            Name: merged.assignee.name,
+            UserId: merged.assignee.id || merged.assignee.userID,
           }
         : null
     );
@@ -666,7 +667,7 @@ const Tickets: React.FC = () => {
           />
 
           <SingleValueAsynAutocomplete
-            value={agentValue}
+            value={agentValue?.Name}
             label="Assignee"
             qtkMethod={triggerSeachAgent}
             onChange={setAgentValue}
