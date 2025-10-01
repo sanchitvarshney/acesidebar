@@ -5,15 +5,11 @@
  *  trigger: "id"       -> open on click of element with that id
  *******************************************************************/
 (function () {
-  console.log("Widget script starting...");
-  console.log("ajxtrChatBot object:", window.ajxtrChatBot);
   const configV = window.ajxtrChatBot?.visitor || {};
   const configB = window.ajxtrChatBot?.bot || {};
   const { buttonColor = "#2567B3", sliderStyle = "pop", position = "br" } = configB;
-  console.log("Widget configuration:", { sliderStyle, position, buttonColor });
   const trigger = configB.trigger || 'default';   // "default" | "element-id"
   const isDefault = trigger === 'default';
-  console.log("isDefault:", isDefault);
   
   // Add a visible debug message
   if (window.innerWidth <= 768) {
@@ -137,7 +133,6 @@
   toggleBtn.appendChild(badge);
   
   if (isDefault) {
-    console.log("Appending toggle button to body");
     document.body.appendChild(toggleBtn);
     const btnStyle = toggleBtn.style;
     
@@ -199,14 +194,8 @@
   /* ----------  MESSAGE HANDLING  ---------- */
   if (window.addEventListener) {
     window.addEventListener('message', function(event) {
-      console.log('=== MESSAGE RECEIVED FROM IFRAME ===');
-      console.log('Origin:', event.origin);
-      console.log('Data:', event.data);
-      console.log('====================================');
-
       // Handle close message from iframe
       if (event.data && event.data.type === 'iframe' && event.data.close === true) {
-        console.log('Closing iframe as requested from postMessage...');
         closeIframe();
       }
       
@@ -244,8 +233,6 @@
         frame.classList.remove("open");
         if (isDefault && toggleBtn) toggleBtn.innerHTML = chatIcon;
       }
-      
-      console.log('Iframe closed via postMessage');
     }
   }
 
@@ -361,7 +348,6 @@
 
   /* ----------  WIRE EVENT  ---------- */
   if (isDefault) {
-    console.log("Adding click event listener to toggle button");
     toggleBtn.addEventListener("click", toggleChat);
   } else {
     /* wait for the element to exist */
