@@ -17,6 +17,7 @@ import {
   Call,
   Refresh,
   RocketLaunch,
+  Star,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -26,11 +27,12 @@ const quickActions = [
   {
     id: "send-email",
     title: "Send an e-mail",
-    description: "Compose and send email",
+    description: "Compose and send professional emails",
     icon: <Email sx={{ fontSize: 32 }} />,
     color: "#1976d2",
     bgColor: "#e3f2fd",
     action: "email",
+    featured: true,
   },
   {
     id: "raise-ticket",
@@ -91,8 +93,8 @@ const QuickActions: React.FC = () => {
     setSelectedAction(action);
     switch (action) {
       case "email":
-        setQuickFormType("email");
-        setQuickFormOpen(true);
+        // Navigate to send-email page
+        navigate('/send-email');
         break;
       case "ticket":
         setQuickFormType("ticket");
@@ -251,13 +253,20 @@ const QuickActions: React.FC = () => {
                    <Card
                      sx={{
                        borderRadius: 2,
-                       border: "1px solid #e0e0e0",
+                       border: action.featured ? `2px solid ${action.color}` : "1px solid #e0e0e0",
                        cursor: "pointer",
-                       transition: "all 0.2s ease",
+                       transition: "all 0.3s ease",
                        p: 3,
+                       position: "relative",
+                       background: action.featured 
+                         ? `linear-gradient(135deg, ${action.bgColor} 0%, ${action.bgColor}dd 100%)`
+                         : "white",
                        "&:hover": {
-                         boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                         boxShadow: action.featured 
+                           ? `0 12px 32px ${action.color}30, 0 8px 24px rgba(0,0,0,0.12)`
+                           : "0 8px 24px rgba(0,0,0,0.12)",
                          borderColor: action.color,
+                         transform: action.featured ? "translateY(-6px)" : "translateY(-4px)",
                        },
                        "&:focus": {
                          outline: "none",
@@ -279,27 +288,60 @@ const QuickActions: React.FC = () => {
                        }
                      }}
                    >
+                     {/* Featured Badge */}
+                     {action.featured && (
+                       <Box
+                         sx={{
+                           position: "absolute",
+                           top: -8,
+                           right: -8,
+                           bgcolor: "#ffd700",
+                           color: "#000",
+                           borderRadius: "50%",
+                           width: 32,
+                           height: 32,
+                           display: "flex",
+                           alignItems: "center",
+                           justifyContent: "center",
+                           boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                           zIndex: 1,
+                         }}
+                       >
+                         <Star sx={{ fontSize: 16 }} />
+                       </Box>
+                     )}
 
                       <Box sx={{ textAlign: "center" }}>
                         <Avatar
                           sx={{
                             width: 64,
                             height: 64,
-                            bgcolor: action.bgColor,
+                            bgcolor: action.featured ? "white" : action.bgColor,
                             color: action.color,
                             mx: "auto",
                             mb: 2,
+                            boxShadow: action.featured ? "0 4px 12px rgba(0,0,0,0.15)" : "none",
                           }}
                         >
                           {action.icon}
                         </Avatar>
                         <Typography
                           variant="subtitle1"
-                          sx={{ fontWeight: 600, mb: 1 }}
+                          sx={{ 
+                            fontWeight: 600, 
+                            mb: 1,
+                            color: action.featured ? action.color : "inherit"
+                          }}
                         >
                           {action.title}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: "#666" }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: action.featured ? "#555" : "#666",
+                            fontWeight: action.featured ? 500 : 400
+                          }}
+                        >
                           {action.description}
                         </Typography>
                       </Box>

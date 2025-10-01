@@ -21,6 +21,7 @@ import {
   ExitToApp,
   HourglassEmpty as HourglassEmptyIcon,
   ArrowDropDown as ArrowDropDownIcon,
+  Email as EmailIcon,
 } from "@mui/icons-material";
 import AddIcon from '@mui/icons-material/Add';
 import AccountPopup from "../popup/AccountPopup";
@@ -136,6 +137,10 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
 
   const handleAdvancedSearchClose = () => {
     setAdvancedSearchOpen(false);
+  };
+
+  const handleEmailCompositionOpen = () => {
+    navigate('/send-email');
   };
 
   const handleLogout = () => {
@@ -270,6 +275,15 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             sx={{ color: "#3f4346", mr: 2 }}
           >
             <HourglassEmptyIcon />
+          </IconButton>
+
+          <IconButton
+            onClick={handleEmailCompositionOpen}
+            size="large"
+            aria-label="compose email"
+            sx={{ color: "#3f4346", mr: 2 }}
+          >
+            <EmailIcon />
           </IconButton>
 
           <IconButton

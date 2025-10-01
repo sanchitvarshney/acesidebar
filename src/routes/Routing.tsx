@@ -66,6 +66,7 @@ import SetupWizard from "../setupWizard/SetupWizard";
 import AutomationMaster from "../USERMODULE/pages/settingManangePages/AutomationMaster";
 import ScenarioAutomations from "../USERMODULE/pages/settingManangePages/ScenarioAutomations";
 import CreateScenarioAutomations from "../USERMODULE/pages/settingManangePages/CreateScenarioAutomations";
+import SendEmailPage from "../pages/SendEmailPage";
 
 
 export const router = createBrowserRouter([
@@ -302,6 +303,10 @@ export const router = createBrowserRouter([
           {
         path: "scenario-automations/new",
         element: <CreateScenarioAutomations />,
+      },
+      {
+        path: "send-email",
+        element: <SendEmailPage />,
       },
     ],
   },
