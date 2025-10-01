@@ -60,6 +60,19 @@
     }
     #support-toggle:hover{ transform:scale(1.1); }
 
+    /* ---- unread badge ---- */
+    #support-badge{
+      position:absolute; top: -5px; right: 0px; min-width:20px; height:20px;
+      background:#ff4444; color:#fff; border-radius:10px; font-size:12px;
+      display:flex; align-items:center; justify-content:center; padding:0 6px;
+      box-shadow:0 2px 6px rgba(0,0,0,.3); font-weight:bold;
+      opacity:0; transform:scale(0); transition:opacity .3s ease, transform .3s ease;
+      z-index:1000001;
+    }
+    #support-badge.show{ opacity:1; transform:scale(1); }
+    #support-badge.pulse{ animation:badge-pulse .6s ease-in-out; }
+    @keyframes badge-pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.2); } }
+
     /* ---- spinner ---- */
     .ajxtr-loader{
       width:24px; height:24px; border:3px solid rgba(255,255,255,.3);
@@ -79,6 +92,13 @@
   const toggleBtn = document.createElement("div");
   toggleBtn.id = "support-toggle";
   toggleBtn.innerHTML = chatIcon;
+  
+  /* ---- unread badge ---- */
+  const badge = document.createElement("div");
+  badge.id = "support-badge";
+  badge.textContent = "0";
+  toggleBtn.appendChild(badge);
+  
   if (isDefault) {
     document.body.appendChild(toggleBtn);
     const btnStyle = toggleBtn.style;
@@ -90,6 +110,86 @@
   let isOpen = false;
   let frameBuilt = false;
   let loading = false;
+  let unreadCount = 0;
+
+  /* ----------  MESSAGE HANDLING  ---------- */
+  if (window.addEventListener) {
+    window.addEventListener('message', function(event) {
+      console.log('=== MESSAGE RECEIVED FROM IFRAME ===');
+      console.log('Origin:', event.origin);
+      console.log('Data:', event.data);
+      console.log('====================================');
+
+      // Handle close message from iframe
+      if (event.data && event.data.type === 'iframe' && event.data.close === true) {
+        console.log('Closing iframe as requested from postMessage...');
+        closeIframe();
+      }
+      
+      // Handle unread message count
+      if (event.data && event.data.type === 'unread_count') {
+        updateUnreadCount(event.data.count || 0);
+      }
+      
+      // Handle new message received
+      if (event.data && event.data.type === 'new_message') {
+        if (!isOpen) {
+          incrementUnreadCount();
+        }
+      }
+    });
+  }
+
+  function closeIframe() {
+    const frame = document.getElementById("support-frame");
+    const toggleBtn = document.getElementById("support-toggle");
+    
+    if (frame && isOpen) {
+      isOpen = false;
+      
+      if (sliderStyle === "slider") {
+        // SLIDER CLOSE animation
+        frame.classList.add("closing");
+        if (isDefault && toggleBtn) toggleBtn.innerHTML = chatIcon;
+        frame.addEventListener("transitionend", function handler() {
+          frame.classList.remove("open", "closing");
+          frame.removeEventListener("transitionend", handler);
+        });
+      } else {
+        // normal close for pop
+        frame.classList.remove("open");
+        if (isDefault && toggleBtn) toggleBtn.innerHTML = chatIcon;
+      }
+      
+      console.log('Iframe closed via postMessage');
+    }
+  }
+
+  function updateUnreadCount(count) {
+    unreadCount = count;
+    const badge = document.getElementById("support-badge");
+    if (badge) {
+      badge.textContent = count > 99 ? '99+' : count.toString();
+      if (count > 0) {
+        badge.classList.add('show');
+        if (count === 1) {
+          badge.classList.add('pulse');
+          setTimeout(() => badge.classList.remove('pulse'), 600);
+        }
+      } else {
+        badge.classList.remove('show');
+      }
+    }
+  }
+
+  function incrementUnreadCount() {
+    unreadCount++;
+    updateUnreadCount(unreadCount);
+  }
+
+  function clearUnreadCount() {
+    updateUnreadCount(0);
+  }
 
   /* ----------  REUSABLE TOGGLE  ---------- */
   function toggleChat() {
@@ -103,14 +203,15 @@
       frame.id = "support-frame";
       frame.src = "https://chat-bot-blond-seven.vercel.app";
 
-      frame.addEventListener("load", () => {
-        loading = false;
-        if (isDefault) toggleBtn.innerHTML = crossIcon;
-        frame.classList.add(sliderStyle);
-        frame.style.display = "block";
-        requestAnimationFrame(() => {
-          frame.classList.add("open");
-          isOpen = true;
+        frame.addEventListener("load", () => {
+          loading = false;
+          if (isDefault) toggleBtn.innerHTML = crossIcon;
+          frame.classList.add(sliderStyle);
+          frame.style.display = "block";
+          requestAnimationFrame(() => {
+            frame.classList.add("open");
+            isOpen = true;
+            clearUnreadCount(); // Clear unread count when chat opens
 
           /* slider-only geometry (once) */
           if (sliderStyle === "slider") {
@@ -143,6 +244,11 @@
       /* normal toggle for pop or slider-open */
       frame.classList.toggle("open", isOpen);
       if (isDefault) toggleBtn.innerHTML = isOpen ? crossIcon : chatIcon;
+      
+      // Clear unread count when opening chat
+      if (isOpen) {
+        clearUnreadCount();
+      }
     }
   }
 
