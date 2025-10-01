@@ -527,6 +527,7 @@ const Tickets: React.FC = () => {
     <Paper
       elevation={0}
       sx={{
+        border: "2px solid #d4e6ff",
         boxShadow: "none",
         maxWidth: 400,
         minWidth: 380,
