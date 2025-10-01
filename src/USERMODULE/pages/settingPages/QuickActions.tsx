@@ -196,6 +196,7 @@ const QuickActions: React.FC = () => {
         {/* Search Bar */}
         <TextField
           fullWidth
+          autoFocus
           placeholder="Search quick actions..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

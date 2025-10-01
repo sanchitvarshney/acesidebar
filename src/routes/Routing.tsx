@@ -169,13 +169,8 @@ export const router = createBrowserRouter([
         ],
       },
       {
-<<<<<<< HEAD
-        path: "users-contacts",
-        element: <QuickActions />,
-=======
         path: "quick-action",
-        element: <UsersContactsPage />,
->>>>>>> f8d4d6b271751940461e78b1dbd7268255fa9756
+        element: <QuickActions />,
       },
       {
         path: "settings",
@@ -204,13 +199,10 @@ export const router = createBrowserRouter([
           },
       
           {
-<<<<<<< HEAD
-            path: "users-contacts",
+            path: "quick-action",
             element: <QuickActions />,
           },
           {
-=======
->>>>>>> f8d4d6b271751940461e78b1dbd7268255fa9756
             path: "help-support",
             element: <HelpSupportPage />,
           },
