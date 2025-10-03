@@ -43,6 +43,7 @@ import {
   useLazyGetUserBySeachQuery,
 } from "../../../services/agentServices";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
+import { useGetTicketFieldQuery } from "../../../services/ticketField";
 
 interface TicketFormData {
   user_name: string;
@@ -63,6 +64,7 @@ const CreateTicketPage: React.FC = () => {
     useGetPriorityListQuery();
 
   const { data: tagList } = useGetTagListQuery();
+  const { data: ticketFields } = useGetTicketFieldQuery({});
 
   const { showToast } = useToast();
   const [tagOptions, setTagOptions] = useState<any>();
@@ -331,35 +333,46 @@ const CreateTicketPage: React.FC = () => {
               Ticket details
             </Typography>
 
+            {/* Priority */}
+
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <FormControl fullWidth size="small" variant="outlined">
-                <InputLabel>Type</InputLabel>
-                <Select
-                  value={newTicket.priority.toString()}
-                  onChange={(e) =>
-                    setNewTicket((prev) => ({ ...prev, type: e.target.value }))
-                  }
-                  label="Type"
-                  startAdornment={
-                    <ConfirmationNumber
-                      fontSize="small"
-                      sx={{ color: "#666", mr: 1 }}
-                    />
-                  }
-                  sx={{
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#9ca3af",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
-                    },
-                    backgroundColor: "#fff",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {typeList?.map((option: any) => (
-                    <MenuItem key={option.key} value={option.key}>
-                      {/* <Box
+              {ticketFields?.map((field: any) => {
+                switch (field.ui.widget) {
+                  case "select":
+                    return (
+                      <>
+                        <FormControl fullWidth size="small" variant="outlined">
+                          <InputLabel>Type</InputLabel>
+                          <Select
+                            value={newTicket.priority.toString()}
+                            onChange={(e) =>
+                              setNewTicket((prev) => ({
+                                ...prev,
+                                type: e.target.value,
+                              }))
+                            }
+                            label="Type"
+                            startAdornment={
+                              <ConfirmationNumber
+                                fontSize="small"
+                                sx={{ color: "#666", mr: 1 }}
+                              />
+                            }
+                            sx={{
+                              "&:hover .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "#9ca3af",
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  borderColor: "#1976d2",
+                                },
+                              backgroundColor: "#fff",
+                              fontSize: "0.875rem",
+                            }}
+                          >
+                            {typeList?.map((option: any) => (
+                              <MenuItem key={option.key} value={option.key}>
+                                {/* <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
                         
@@ -372,202 +385,230 @@ const CreateTicketPage: React.FC = () => {
                                 flexShrink: 0,
                               }}
                             /> */}
-                      {option.typeName}
+                                {option.typeName}
 
-                      {/*                      
+                                {/*                      
                       </Box> */}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                        <FormControl fullWidth size="small" variant="outlined">
+                          <InputLabel>Priority</InputLabel>
+                          <Select
+                            value={newTicket.priority.toString()}
+                            onChange={(e) =>
+                              handleInputChange("priority", e.target.value)
+                            }
+                            label="Priority"
+                            startAdornment={
+                              <PriorityHigh
+                                fontSize="small"
+                                sx={{ color: "#666", mr: 1 }}
+                              />
+                            }
+                            sx={{
+                              "&:hover .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "#9ca3af",
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  borderColor: "#1976d2",
+                                },
+                              backgroundColor: "#fff",
+                              fontSize: "0.875rem",
+                            }}
+                          >
+                            {priorityList?.map((option: any) => (
+                              <MenuItem key={option.key} value={option.key}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                  }}
+                                >
+                                  {isPriorityListLoading ? (
+                                    <CircularProgress size={18} />
+                                  ) : (
+                                    <>
+                                      <Box
+                                        sx={{
+                                          width: 12,
+                                          height: 12,
+                                          borderRadius: "50%",
+                                          backgroundColor: option.color,
+                                          flexShrink: 0,
+                                        }}
+                                      />
+                                      {option.specification}
+                                    </>
+                                  )}
+                                </Box>
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                        <SingleValueAsynAutocomplete
+                          value={dept}
+                          label="Department"
+                          qtkMethod={triggerDept}
+                          onChange={setDept}
+                          loading={deptLoading}
+                          // isFallback={true}
+                          icon={
+                            <Business
+                              fontSize="small"
+                              sx={{ color: "#666", mr: 1 }}
+                            />
+                          }
+                          size="small"
+                          optionLabelKey="deptName"
+                        />
+                        <SingleValueAsynAutocomplete
+                          value={agentValue}
+                          label="Assignee"
+                          qtkMethod={triggerSeachAgent}
+                          onChange={setAgentValue}
+                          loading={seachAgentLoading}
+                          isFallback={true}
+                          icon={
+                            <Assignment
+                              fontSize="small"
+                              sx={{ color: "#666", mr: 1 }}
+                            />
+                          }
+                          renderOptionExtra={(user) => (
+                            <Typography variant="body2" color="text.secondary">
+                              {user.email}
+                            </Typography>
+                          )}
+                          size="small"
+                        />
 
-              {/* Priority */}
-              <FormControl fullWidth size="small" variant="outlined">
-                <InputLabel>Priority</InputLabel>
-                <Select
-                  value={newTicket.priority.toString()}
-                  onChange={(e) =>
-                    handleInputChange("priority", e.target.value)
-                  }
-                  label="Priority"
-                  startAdornment={
-                    <PriorityHigh
-                      fontSize="small"
-                      sx={{ color: "#666", mr: 1 }}
-                    />
-                  }
-                  sx={{
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#9ca3af",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
-                    },
-                    backgroundColor: "#fff",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {priorityList?.map((option: any) => (
-                    <MenuItem key={option.key} value={option.key}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        {isPriorityListLoading ? (
-                          <CircularProgress size={18} />
-                        ) : (
-                          <>
-                            <Box
+                        <Autocomplete
+                          multiple
+                          disableClearable
+                          popupIcon={null}
+                          getOptionLabel={(option) => {
+                            if (typeof option === "string") return option;
+                            return option?.tagName || option.name || "";
+                          }}
+                          options={displayOptions}
+                          value={tagValue}
+                          onChange={(event, newValue) => {
+                            handleSelectedOption(event, newValue, "tag");
+                          }}
+                          onInputChange={(_, value) => {
+                            setChangeTabValue(value);
+                            fetchTagOptions(value);
+                          }}
+                          filterOptions={(x) => x}
+                          getOptionDisabled={(option) =>
+                            option === "Type to search"
+                          }
+                          noOptionsText={
+                            changeTagValue.length < 3
+                              ? "Type at least 3 characters to search"
+                              : "No tags found"
+                          }
+                          renderOption={(props, option) => {
+                            return (
+                              <li {...props} key={option.tagID}>
+                                {typeof option === "string" ? (
+                                  option
+                                ) : (
+                                  <div
+                                    className="flex items-center gap-3 p-1 rounded-md w-full"
+                                    style={{ cursor: "pointer" }}
+                                  >
+                                    <div className="flex flex-col">
+                                      <Typography
+                                        variant="subtitle2"
+                                        sx={{ fontWeight: 600 }}
+                                      >
+                                        {option?.tagName}
+                                      </Typography>
+                                    </div>
+                                  </div>
+                                )}
+                              </li>
+                            );
+                          }}
+                          renderTags={(editTags, getTagProps) =>
+                            editTags.map((option, index) => {
+                              const label =
+                                typeof option === "string"
+                                  ? option
+                                  : option?.tagName ||
+                                    option?.name ||
+                                    "Unknown Tag";
+
+                              return (
+                                <Chip
+                                  key={index}
+                                  label={label}
+                                  onDelete={() => {
+                                    const newTags = editTags.filter(
+                                      (_, i) => i !== index
+                                    );
+                                    setTagValue(newTags);
+                                  }}
+                                  sx={{
+                                    "& .MuiChip-deleteIcon": {
+                                      color: "error.main",
+                                    },
+                                    "& .MuiChip-deleteIcon:hover": {
+                                      color: "#e87f8c",
+                                    },
+                                  }}
+                                />
+                              );
+                            })
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Tags"
+                              variant="outlined"
+                              size="medium"
+                              fullWidth
+                              InputProps={{
+                                ...params.InputProps,
+                                startAdornment: (
+                                  <>
+                                    <LocalOffer
+                                      fontSize="small"
+                                      sx={{ color: "#666", mr: 1 }}
+                                    />
+                                    {params.InputProps.startAdornment}
+                                  </>
+                                ),
+                              }}
                               sx={{
-                                width: 12,
-                                height: 12,
-                                borderRadius: "50%",
-                                backgroundColor: option.color,
-                                flexShrink: 0,
+                                "& .MuiOutlinedInput-root": {
+                                  borderRadius: "4px",
+                                  backgroundColor: "#f9fafb",
+                                  "&:hover fieldset": {
+                                    borderColor: "#9ca3af",
+                                  },
+                                  "&.Mui-focused fieldset": {
+                                    borderColor: "#1a73e8",
+                                  },
+                                },
+                                "& label.Mui-focused": { color: "#1a73e8" },
+                                "& label": { fontWeight: "bold" },
                               }}
                             />
-                            {option.specification}
-                          </>
-                        )}
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <SingleValueAsynAutocomplete
-                value={dept}
-                label="Department"
-                qtkMethod={triggerDept}
-                onChange={setDept}
-                loading={deptLoading}
-                // isFallback={true}
-                icon={
-                  <Business fontSize="small" sx={{ color: "#666", mr: 1 }} />
-                }
-                size="small"
-                optionLabelKey="deptName"
-              />
-              <SingleValueAsynAutocomplete
-                value={agentValue}
-                label="Assignee"
-                qtkMethod={triggerSeachAgent}
-                onChange={setAgentValue}
-                loading={seachAgentLoading}
-                isFallback={true}
-                icon={
-                  <Assignment fontSize="small" sx={{ color: "#666", mr: 1 }} />
-                }
-                renderOptionExtra={(user) => (
-                  <Typography variant="body2" color="text.secondary">
-                    {user.email}
-                  </Typography>
-                )}
-                size="small"
-              />
-
-              <Autocomplete
-                multiple
-                disableClearable
-                popupIcon={null}
-                getOptionLabel={(option) => {
-                  if (typeof option === "string") return option;
-                  return option?.tagName || option.name || "";
-                }}
-                options={displayOptions}
-                value={tagValue}
-                onChange={(event, newValue) => {
-                  handleSelectedOption(event, newValue, "tag");
-                }}
-                onInputChange={(_, value) => {
-                  setChangeTabValue(value);
-                  fetchTagOptions(value);
-                }}
-                filterOptions={(x) => x}
-                getOptionDisabled={(option) => option === "Type to search"}
-                noOptionsText={
-                  changeTagValue.length < 3
-                    ? "Type at least 3 characters to search"
-                    : "No tags found"
-                }
-                renderOption={(props, option) => {
-                  return (
-                    <li {...props} key={option.tagID}>
-                      {typeof option === "string" ? (
-                        option
-                      ) : (
-                        <div
-                          className="flex items-center gap-3 p-1 rounded-md w-full"
-                          style={{ cursor: "pointer" }}
-                        >
-                          <div className="flex flex-col">
-                            <Typography
-                              variant="subtitle2"
-                              sx={{ fontWeight: 600 }}
-                            >
-                              {option?.tagName}
-                            </Typography>
-                          </div>
-                        </div>
-                      )}
-                    </li>
-                  );
-                }}
-                renderTags={(editTags, getTagProps) =>
-                  editTags.map((option, index) => {
-                    const label =
-                      typeof option === "string"
-                        ? option
-                        : option?.tagName || option?.name || "Unknown Tag";
-
-                    return (
-                      <Chip
-                        key={index}
-                        label={label}
-                        onDelete={() => {
-                          const newTags = editTags.filter(
-                            (_, i) => i !== index
-                          );
-                          setTagValue(newTags);
-                        }}
-                        sx={{
-                          "& .MuiChip-deleteIcon": { color: "error.main" },
-                          "& .MuiChip-deleteIcon:hover": { color: "#e87f8c" },
-                        }}
-                      />
+                          )}
+                        />
+                      </>
                     );
-                  })
+
+                  default:
+                    return null;
                 }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Tags"
-                    variant="outlined"
-                    size="medium"
-                    fullWidth
-                    InputProps={{
-                      ...params.InputProps,
-                      startAdornment: (
-                        <>
-                          <LocalOffer
-                            fontSize="small"
-                            sx={{ color: "#666", mr: 1 }}
-                          />
-                          {params.InputProps.startAdornment}
-                        </>
-                      ),
-                    }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "4px",
-                        backgroundColor: "#f9fafb",
-                        "&:hover fieldset": { borderColor: "#9ca3af" },
-                        "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
-                      },
-                      "& label.Mui-focused": { color: "#1a73e8" },
-                      "& label": { fontWeight: "bold" },
-                    }}
-                  />
-                )}
-              />
+              })}
             </Box>
           </Box>
         </Box>
