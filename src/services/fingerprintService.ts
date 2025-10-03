@@ -54,9 +54,9 @@ class FingerprintService {
       }
       
     } catch (error) {
-      console.error('Error Initializing Fingerprint');
+      console.error('Error Initializing Fingerprint:', error);
       this.visitorId = this.generateFallbackId();
-      
+      console.log('Using fallback visitor ID during initialization:', this.visitorId);
     } finally {
       this.isInitialized = true;
     }
@@ -88,8 +88,11 @@ class FingerprintService {
   }
 
   private generateFallbackId(): string {
-    // Generate a fallback ID if fingerprint fails
-    return 'fallback_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+    // Generate a more unique fallback ID if fingerprint fails
+    const randomPart = Math.random().toString(36).substr(2, 9);
+    const timestamp = Date.now().toString(36);
+    const userAgent = navigator.userAgent ? btoa(navigator.userAgent).substr(0, 8) : 'unknown';
+    return `fallback_${randomPart}_${timestamp}_${userAgent}`;
   }
 
   public getVisitorId(): string | null {
@@ -106,16 +109,17 @@ class FingerprintService {
         const fp = await this.fpPromise;
         const result = await fp.get();
         this.visitorId = result.visitorId;
-        // Not storing in localStorage for security purposes
+        console.log('Fingerprint generated successfully:', this.visitorId);
         return this.visitorId;
       } catch (error) {
-        console.error('Error Getting Fingerprint');
+        console.error('Error Getting Fingerprint:', error);
       }
     }
 
-    // Return fallback ID without storing in localStorage
+    // Return fallback ID if fingerprint fails
     const fallbackId = this.generateFallbackId();
     this.visitorId = fallbackId;
+    console.log('Using fallback visitor ID:', fallbackId);
     return fallbackId;
   }
 
@@ -126,7 +130,12 @@ class FingerprintService {
         'x-visitor-uid': visitorId
       };
     }
-    return {};
+    // Return fallback ID if no visitor ID is available yet
+    const fallbackId = this.generateFallbackId();
+    this.visitorId = fallbackId;
+    return {
+      'x-visitor-uid': fallbackId
+    };
   }
 
   public async getHeadersAsync(): Promise<Record<string, string>> {
