@@ -725,7 +725,7 @@ const Tickets: React.FC = () => {
     return (
       <div
         key={merged?.ticketNumber}
-        className="bg-white border-2 border-[#d4e6ff] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative hover:bg-[#f6f8fb]"
+        className="w-full overflow-auto bg-white border-2 border-[#d4e6ff] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative hover:bg-[#f6f8fb]"
         onClick={() => handleTicketSubjectClick(merged.ticketNumber)}
       >
         {/* Top section */}
@@ -1015,7 +1015,7 @@ const Tickets: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-98px)] ">
+      <div className="flex flex-col bg-[#f5f5f5] h-[calc(100vh-98px)]  ">
         {/* Main Header Bar */}
         {/* {
     isQuick ? (

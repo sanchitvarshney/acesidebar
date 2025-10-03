@@ -21,6 +21,7 @@ import {
 import {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
+  useLazyTriggerGetSLAListQuery,
 } from "../../../services/agentServices";
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
@@ -51,7 +52,7 @@ const StatusTab = ({ ticket }: any) => {
   const [changeTagValue, setChangeTabValue] = useState("");
   const [type, setType] = useState("");
   const [priority, setPriority] = useState("");
-  const [sla, setSLA] = useState("");
+  const [sla, setSLA] = useState<any>("");
   const [status, setStatus] = useState<any>("");
   const [dept, setDept] = useState<any>("");
   const [agent, setAgent] = useState<any>("");
@@ -68,6 +69,11 @@ const StatusTab = ({ ticket }: any) => {
     useLazyGetAgentsBySeachQuery();
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
   const displayOptions = changeTagValue.length >= 3 ? options : [];
+  const [triggerSLA, { isLoading: slaLoading }] = useLazyTriggerGetSLAListQuery()
+
+
+  
+  
 
   // update status handler
 
@@ -107,6 +113,7 @@ const StatusTab = ({ ticket }: any) => {
 
   useEffect(() => {
     if (ticket) {
+    
       if (ticket.tags) {
         setTagValue((prev) => [...prev, ...ticket.tags]);
       }
@@ -130,6 +137,9 @@ const StatusTab = ({ ticket }: any) => {
           deptName: ticket?.deptName?.name,
         };
         setDept(department);
+      }
+      if(ticket.dueDate){
+        setSLA(ticket?.dueDate);
       }
 
       if (ticket.email && ticket.username && ticket.userID) {
@@ -303,27 +313,19 @@ const StatusTab = ({ ticket }: any) => {
             {!ticket ? (
               <Skeleton variant="rectangular" height={40} />
             ) : (
-              <Select
-                fullWidth
-                variant="standard"
-                size="medium"
+              <SingleValueAsynAutocomplete
                 value={sla}
-                onChange={(e) => setSLA(e.target.value)}
-                sx={{
-                  fontSize: { xs: "14px", sm: "16px" },
-                }}
-              >
-                {(SLAOptions || []).map((sla: any) => (
-                  <MenuItem key={sla.value} value={sla.value}>
-                    <Typography
-                      variant="body2"
-                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                    >
-                      {sla.label}
-                    </Typography>
-                  </MenuItem>
-                ))}
-              </Select>
+                qtkMethod={triggerSLA}
+                onChange={setSLA}
+                loading={slaLoading}
+           
+                variant={"standard"}
+                size="small"
+                showIcon={false}
+                optionLabelKey="sla"
+                placeholder="Select SLA"
+              />
+      
             )}
           </div>
           <div>

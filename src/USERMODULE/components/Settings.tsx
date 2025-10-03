@@ -560,15 +560,15 @@ const Settings: React.FC = () => {
   const activeSection = menuSections.find((section) => section.id === activeId);
 
   return (
-    <div className="flex w-full h-[calc(100vh-100px)] bg-gray-50">
+    <div className="flex w-full h-[calc(100vh-98px)] bg-gray-50">
       <SettingsMenu
         menuSections={menuSections}
         onSelect={handleMenuSelect}
         activeId={activeId}
         onSubsectionSelect={handleSubsectionSelect}
       />
-      <main className="flex-1 p-4 overflow-y-auto">
-        <div className="my-4">
+      <main className="flex-1 p-2 overflow-y-auto">
+        <div className="my-2">
           {/* Show subsections as cards when a main section is selected */}
           {activeSection &&
           activeSection.subsections &&

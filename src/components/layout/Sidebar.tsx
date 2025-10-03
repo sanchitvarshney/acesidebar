@@ -62,15 +62,17 @@ const ColoredShortcutButton = styled(IconButton)<{ bgcolor: string }>(
 interface SidebarProps {
   open: boolean;
   handleDrawerToggle: () => void;
+  onClose?: any;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ open }) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const { signOut } = useAuth();
   const { toggleHelpCenter } = useHelpCenter();
   const navigate = useNavigate();
   
   const handleNavigation = (path: string) => {
     navigate(path);
+    onClose();
   };
 
   return (
@@ -155,7 +157,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
             <ExitToAppIcon fontSize="medium" sx={{ color: "#fff" }} />
           </IconButton>
         </Box>
+
+
       </Box>
+
     </StyledDrawer>
   );
 };

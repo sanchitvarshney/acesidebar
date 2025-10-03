@@ -14,10 +14,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setToggle } from "../../reduxStore/Slices/shotcutSlices";
 import { RootState } from "../../reduxStore/Store";
 
-const drawerWidth = 0;
-
 const Main = styled("main", {
-  shouldForwardProp: (prop) => prop !== "open" && prop !== "isPopupOpen" && prop !== "helpCenterOpen",
+  shouldForwardProp: (prop) =>
+    prop !== "open" && prop !== "isPopupOpen" && prop !== "helpCenterOpen",
 })<{
   open?: boolean;
   isPopupOpen?: boolean;
@@ -29,9 +28,11 @@ const Main = styled("main", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  marginLeft: `-${drawerWidth}px`,
-  backgroundColor: "#fafafa",
-  minHeight: "80vh",
+
+  backgroundColor: "#f5f5f5",
+  width: "100%",
+  height: "100%",
+  overflow: "auto",
   ...(open && {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
@@ -40,7 +41,7 @@ const Main = styled("main", {
     marginLeft: 0,
   }),
   ...(helpCenterOpen && {
-    marginLeft: '480px', // 80px (sidebar) + 400px (help center) = 480px
+    marginLeft: "300px", // 80px (sidebar) + 400px (help center) = 480px
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -70,19 +71,19 @@ const MainContent = styled(Box)(({ theme }) => ({
   padding: theme.spacing(0),
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
-  
+  overflow: "auto",
 }));
 
 const MainLayout = () => {
-
   const { isAnyPopupOpen } = usePopupContext();
   const { showOfflineModal, setShowOfflineModal, handleResume } = useStatus();
   const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
-  const { isOpen } = useSelector((state:RootState) => state.shotcut);
+  const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const dispatch = useDispatch();
 
   const handleDrawerToggle = () => {
-   dispatch(setToggle(!isOpen));  
+    dispatch(setToggle(!isOpen));
+
   };
 
   const handleCloseOfflineModal = () => {
@@ -90,11 +91,16 @@ const MainLayout = () => {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", overflow: "hidden" }}>
       <CssBaseline />
       <TopBar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
-      <Sidebar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
-      <Main open={isOpen} isPopupOpen={isAnyPopupOpen} helpCenterOpen={helpCenterOpen} sx={{ position: 'relative' }}>
+      <Sidebar open={isOpen} handleDrawerToggle={handleDrawerToggle} onClose={closeHelpCenter} />
+      <Main
+        open={isOpen}
+        isPopupOpen={isAnyPopupOpen}
+        helpCenterOpen={helpCenterOpen}
+        sx={{ position: "relative" }}
+      >
         <MainContent>
           <Suspense
             fallback={
@@ -107,16 +113,13 @@ const MainLayout = () => {
             <Outlet />
           </Suspense>
         </MainContent>
-        
+
         {/* Help Center Slider - positioned inside main content */}
-        <HelpCenterSlider 
-          open={helpCenterOpen} 
-          onClose={closeHelpCenter} 
-        />
+        <HelpCenterSlider open={helpCenterOpen} onClose={closeHelpCenter} />
       </Main>
       {/* <BottomBar /> */}
       <PrivateTurnstile />
-      
+
       {/* Offline Status Modal */}
       <OfflineStatusModal
         open={showOfflineModal}

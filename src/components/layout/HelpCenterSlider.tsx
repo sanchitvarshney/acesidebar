@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 interface HelpCenterSliderProps {
   open: boolean;
@@ -33,6 +34,7 @@ interface HelpCenterSliderProps {
 }
 
 const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) => {
+ const { isOpen } = useSelector((state: any) => state.shotcut);
   const [gettingStartedExpanded, setGettingStartedExpanded] = useState(true);
   const navigate = useNavigate();
 
@@ -92,9 +94,9 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
     <>
       {/* Sliding Panel */}
       <motion.div
-        initial={{ x: '-400px' }} // Start from left of sidebar position
+        initial={{ x: '0px' }} // Start from left of sidebar position
         animate={{ x: 0 }}
-        exit={{ x: '-400px' }}
+        exit={{ x: '0px' }}
         transition={{ 
           type: 'spring', 
           damping: 25, 
@@ -104,16 +106,16 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
         style={{
           position: 'fixed',
           top: 0,
-          left: '80px', // Start after sidebar (sidebar width is 80px)
-          width: '400px',
-          height: '100vh',
+          left: isOpen ? "78px" : '0px', // Start after sidebar (sidebar width is 80px)
+          width: '300px',
+          height: 'calc(100vh - 5px)',
           backgroundColor: '#f5f5f5',
           zIndex: 1000,
-          overflowY: 'auto',
+          overflow: 'hidden',
           boxShadow: '4px 0 20px rgba(0, 0, 0, 0.15)',
         }}
       >
-            <Box sx={{ p: 3, height: '100%' }}>
+            <Box sx={{ p: 2, height: '100%' }}>
               {/* Header */}
               <Box sx={{ 
                 display: 'flex', 

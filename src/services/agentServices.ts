@@ -45,6 +45,13 @@ const agentServices = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    triggerGetSLAList: builder.query<any, any>({
+      query: (credentials) => ({
+        url: `/sla/list?search=${credentials.search}&department=${credentials.department}&priority=${credentials.priority}`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
   }),
   overrideExisting: false,
 });
@@ -56,5 +63,6 @@ export const {
   useLazyGetDepartmentBySeachQuery,
   useLazyGetUserBySeachQuery,
   useLazyGetDepartmentListQuery,
-  useLazyGetAgentListQuery
+  useLazyGetAgentListQuery,
+  useLazyTriggerGetSLAListQuery,
 } = agentServices;

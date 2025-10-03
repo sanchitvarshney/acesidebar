@@ -1,6 +1,7 @@
 import { GridColDef } from "@mui/x-data-grid";
 import { Chip, Typography } from "@mui/material";
 import TextInputCellRenderer from "../USERMODULE/components/TextInputCellRenderer";
+import { Text } from "lucide-react";
 
 export const columns: GridColDef[] = [
   {
@@ -67,25 +68,7 @@ export const columns: GridColDef[] = [
     minWidth: 220,
     sortable: true,
     filterable: true,
-    renderCell: (params) => (
-      <Typography
-        variant="body2"
-        sx={{
-          color: "#1976d2",
-          textDecoration: "none",
-          cursor: "pointer",
-          "&:hover": { textDecoration: "underline" },
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-        onClick={() => window.open(`mailto:${params.value}`)}
-      >
-        {params.value || "-"}
-      </Typography>
-    ),
-    headerAlign: "left",
-    align: "left",
+    renderCell: (params) => <TextInputCellRenderer {...params} />,
   },
   {
     field: "phoneNumber",
@@ -94,18 +77,7 @@ export const columns: GridColDef[] = [
     minWidth: 140,
     sortable: true,
     filterable: true,
-    renderCell: (params) => (
-      <Typography
-        variant="body2"
-        sx={{
-          color: "#424242",
-          fontFamily: "monospace",
-          fontSize: "0.875rem",
-        }}
-      >
-        {params.value || "-"}
-      </Typography>
-    ),
+    renderCell: (params) => <TextInputCellRenderer {...params} />,
     headerAlign: "left",
     align: "left",
   },
@@ -117,23 +89,7 @@ export const columns: GridColDef[] = [
     sortable: true,
     filterable: true,
     renderCell: (params) => (
-      <Typography
-        variant="body2"
-        sx={{
-          color: "#1877f2",
-          cursor: params.value ? "pointer" : "default",
-          "&:hover": params.value ? { textDecoration: "underline" } : {},
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-        onClick={() =>
-          params.value &&
-          window.open(`https://facebook.com/${params.value}`, "_blank")
-        }
-      >
-        {params.value || "-"}
-      </Typography>
+    <TextInputCellRenderer {...params} />
     ),
     headerAlign: "left",
     align: "left",
@@ -146,23 +102,7 @@ export const columns: GridColDef[] = [
     sortable: true,
     filterable: true,
     renderCell: (params) => (
-      <Typography
-        variant="body2"
-        sx={{
-          color: "#1da1f2",
-          cursor: params.value ? "pointer" : "default",
-          "&:hover": params.value ? { textDecoration: "underline" } : {},
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-        onClick={() =>
-          params.value &&
-          window.open(`https://twitter.com/${params.value}`, "_blank")
-        }
-      >
-        {params.value ? `@${params.value}` : "-"}
-      </Typography>
+     <TextInputCellRenderer {...params} />
     ),
     headerAlign: "left",
     align: "left",

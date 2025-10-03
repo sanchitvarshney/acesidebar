@@ -7,10 +7,10 @@ import {
   Typography,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
+
 import EditUser from "../pages/EditUser";
 import ConfirmationModal from "../../components/reusable/ConfirmationModal";
 
@@ -59,6 +59,93 @@ const TextInputCellRenderer = (props: any) => {
             </Typography>
           </div>
         );
+      case "email":
+        return (
+          <div
+            className="flex items-center gap-3 cursor-pointer w-full h-full"
+            onClick={() => window.open(`mailto:${row.email}`)}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#1976d2",
+                textDecoration: "none",
+                cursor: "pointer",
+                "&:hover": { textDecoration: "underline" },
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                textAlign: "left",
+              }}
+            >
+              {row.email || "-"}
+            </Typography>
+          </div>
+        );
+      case "phoneNumber":
+        return (
+          <div className="flex items-center gap-3 cursor-pointer w-full h-full">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#424242",
+                fontFamily: "monospace",
+                fontSize: "0.875rem",
+              }}
+            >
+              {row.phoneNumber || "-"}
+            </Typography>
+          </div>
+        );
+      case "facebook":
+        return (
+          <div
+            className="flex items-center gap-3 cursor-pointer w-full h-full"
+            onClick={() =>
+              row.facebook &&
+              window.open(`https://facebook.com/${row.facebook}`, "_blank")
+            }
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#1877f2",
+                cursor: row.facebook ? "pointer" : "default",
+                "&:hover": row.facebook ? { textDecoration: "underline" } : {},
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {row.facebook || "-"}
+            </Typography>
+          </div>
+        );
+      case "twitter":
+        return (
+          <div
+            className="flex items-center gap-3 cursor-pointer w-full h-full"
+            onClick={() =>
+              row.twitter &&
+              window.open(`https://twitter.com/${row.twitter}`, "_blank")
+            }
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#1da1f2",
+                cursor: row.twitter ? "pointer" : "default",
+                "&:hover": row.twitter ? { textDecoration: "underline" } : {},
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {row.twitter ? `@${row.twitter}` : "-"}
+            </Typography>
+          </div>
+        );
+
       case "actions":
         return (
           <>
