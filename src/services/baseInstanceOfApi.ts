@@ -27,7 +27,7 @@ const API_CONFIG = {
  * Add authentication and request tracking headers
  * @param headers - The headers object to modify
  */
-const addAuthHeaders = (headers: Headers): void => {
+const addAuthHeaders = async (headers: Headers): Promise<void> => {
   // Create standardized headers
   const standardHeaders = createRequestHeaders(true);
 
@@ -36,11 +36,20 @@ const addAuthHeaders = (headers: Headers): void => {
     headers.set(key, value);
   });
 
-  // Add fingerprint visitor ID header
-  const fingerprintHeaders = fingerprintService.getHeaders();
-  Object.entries(fingerprintHeaders).forEach(([key, value]) => {
-    headers.set(key, value);
-  });
+  // Add fingerprint visitor ID header (async to ensure we get a proper ID)
+  try {
+    const fingerprintHeaders = await fingerprintService.getHeadersAsync();
+    Object.entries(fingerprintHeaders).forEach(([key, value]) => {
+      headers.set(key, value);
+    });
+  } catch (error) {
+    console.error('Error getting fingerprint headers:', error);
+    // Fallback to sync method if async fails
+    const fingerprintHeaders = fingerprintService.getHeaders();
+    Object.entries(fingerprintHeaders).forEach(([key, value]) => {
+      headers.set(key, value);
+    });
+  }
 };
 
 /**
@@ -100,7 +109,7 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
     baseUrl: baseUrl || API_CONFIG.baseUrl,
     prepareHeaders: async (headers) => {
       // Add authentication headers
-      addAuthHeaders(headers);
+      await addAuthHeaders(headers);
 
       // Add Turnstile headers for state-changing requests
       const method = args.method || "GET";
