@@ -1100,9 +1100,7 @@ const Tickets: React.FC = () => {
                 >
                   {sortBy}
                 </Button>
-                {isTicketsFetching ? (
-                  <CircularProgress size={16} />
-                ) : (
+         
                   <IconButton
                     size="small"
                     color="primary"
@@ -1116,9 +1114,15 @@ const Tickets: React.FC = () => {
                     aria-label="Refresh"
                     title="Refresh"
                   >
-                    <RefreshIcon fontSize="small" />
+                   {
+                    isTicketsFetching ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      <RefreshIcon fontSize="small" />
+                    )
+                   }
                   </IconButton>
-                )}
+         
 
                 <TicketSortingPopover
                   anchorEl={sortingPopoverAnchorEl}

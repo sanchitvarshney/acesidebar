@@ -7,8 +7,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Switch,
-  styled,
   TextField,
   Divider,
 } from "@mui/material";
@@ -16,83 +14,103 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import StackEditor from "../../../components/reusable/Editor";
+import { IconSwitch } from "../../../utils/create-user-columnDefs";
+import { useGetPlaceholdersQuery } from "../../../services/placeholderServices";
 
-const IconSwitch = styled(Switch)(({ theme }) => ({
-  width: 46,
-  height: 26,
-  padding: 0,
-  display: "flex",
-  "& .MuiSwitch-switchBase": {
-    padding: 2,
-    "&.Mui-checked": {
-      transform: "translateX(20px)",
-      color: "#fff",
-      "& + .MuiSwitch-track": {
-        backgroundColor: "#22c55e", // green background when ON
-        opacity: 1,
-        border: 0,
-      },
-    },
-  },
-  "& .MuiSwitch-thumb": {
-    backgroundColor: "#fff",
-    width: 22,
-    height: 22,
-    borderRadius: "50%",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-    position: "relative",
-  },
-  "& .MuiSwitch-track": {
-    borderRadius: 26 / 2,
-    backgroundColor: "#e4e6eb", // grey background when OFF
-    opacity: 1,
-    transition: theme.transitions.create(["background-color"], {
-      duration: 300,
-    }),
-    position: "relative",
-    "&:before, &:after": {
-      content: '""',
-      position: "absolute",
-      top: "50%",
-      transform: "translateY(-50%)",
-      width: 14,
-      height: 14,
-      display: "inline-block",
-      textAlign: "center",
-      lineHeight: "14px",
-      fontSize: 12,
-      fontWeight: 700,
-    },
-    // Left check symbol
-    "&:before": {
-      left: 6,
-      content: '"✓"',
-      color: "#16a34a",
-      opacity: 0.9,
-    },
-    // Right close symbol
-    "&:after": {
-      right: 6,
-      content: '"✕"',
-      color: "#7d8895",
-      opacity: 0.9,
-    },
-  },
-  // When checked, invert the symbol colors for better contrast
-  "& .Mui-checked + .MuiSwitch-track": {
-    "&:before": {
-      color: "#ffffff",
-    },
-    "&:after": {
-      color: "#e1e7ee",
-    },
-  },
-}));
+
 
 const CreateEmailNotificationsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { event } = location.state;
+
+  const { data: placeholders } = useGetPlaceholdersQuery();
+
+  // Form state management
+  const [formData, setFormData] = useState<any>({
+    eventType: event?.type || '',
+    eventLabel: event?.label || '',
+    subject: placeholders?.Ticket?.Subject || '',
+    message: '',
+    isEnabled: true,
+    language: 'en',
+    recipients: [],
+    templateId: event?.id || ''
+  });
+
+
+ 
+  useEffect(() => {
+    if (placeholders?.Ticket?.Subject) {
+      setFormData((prev:any) => ({
+        ...prev,
+        subject: placeholders.Ticket.Subject
+      }));
+    }
+  }, [placeholders]);
+
+  // Form validation
+
+
+  // Handle form field changes
+  const handleSubjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev:any) => ({
+      ...prev,
+      subject: e.target.value
+    }));
+   
+  };
+
+  const handleMessageChange = (content: string) => {
+    setFormData((prev:any) => ({
+      ...prev,
+      message: content
+    }));
+
+  };
+
+  const handleNotificationToggle = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    setFormData((prev:any) => ({
+      ...prev,
+      isEnabled: checked
+    }));
+  };
+
+  // Create the payload for submission
+  const createPayload = () => {
+    return {
+      eventType: formData.eventType,        
+      eventLabel: formData.eventLabel,      
+      subject: formData.subject.trim(),     
+      message: formData.message.trim(), 
+      isEnabled: formData.isEnabled,  
+      language: formData.language,
+      recipients: formData.recipients, 
+      templateId: formData.templateId,    
+
+    };
+  };
+
+  // Handle form submission
+  const handleSubmit = async () => {
+
+
+      const payload = createPayload();
+      console.log('Email Notification Payload:', payload);
+      
+  
+  };
+
+  const handleCancel = () => {
+    navigate("/email_notifications");
+  };
+
+  const handlePreview = () => {
+    // TODO: Implement preview functionality
+    console.log('Preview payload:', createPayload());
+  };
+
+
 
   return (
     <Box
@@ -110,7 +128,8 @@ const CreateEmailNotificationsPage = () => {
           display: "flex",
           flexDirection: "column",
           gap: 2,
-          height: "100%",
+          height: "calc(100vh - 110px)",
+          
         }}
       >
         {/* Header Section */}
@@ -135,8 +154,8 @@ const CreateEmailNotificationsPage = () => {
               Notification
             </Typography>
             <IconSwitch
-              checked={true}
-              onChange={() => {}}
+              checked={formData.isEnabled}
+              onChange={handleNotificationToggle}
               color="success"
               sx={{ mr: 2 }}
             />
@@ -149,7 +168,7 @@ const CreateEmailNotificationsPage = () => {
             gap: 2,
             flexDirection: "column",
             height: "calc(100vh - 245px)",
-            overflow: "hidden",
+            overflow: "auto",
             py: 2,
             px: 5,
           }}
@@ -168,11 +187,12 @@ const CreateEmailNotificationsPage = () => {
 
             <TextField
               fullWidth
-              value=""
+              value={formData.subject}
               size="small"
-              onChange={(e) => {}}
-              placeholder="Enter agent name"
+              onChange={handleSubjectChange}
+              placeholder="Enter email subject"
               required
+     
             />
           </Box>
           <Box
@@ -186,42 +206,56 @@ const CreateEmailNotificationsPage = () => {
               Message <span className="text-red-500">*</span>
             </Typography>
             <StackEditor
-              onChange={(content: string) => {}}
+              onChange={handleMessageChange}
               onFocus={undefined}
-              initialContent={` 
+              initialContent={formData.message || ` 
   
-    <div style="height: 100px ;background-color: #8e98a0; color: #fff; padding: 10px; font-size: 20px">
+    <div style=" height: 100px ;background-color: #8e98a0; color: #fff; padding: 10px; font-size: 20px">
       Hi 
       <br style="background-color: #8e98a0; color: #fff;"  />
      A new <span style="font-weight: bold; padding: 10px">ticket has been created.</span> Please have a look at the details and reply to the query.
     </div>
     <br/> <br/> 
     <div>
-      <span style="font-weight: bold; padding: 10px">Subject: {{subject}}</span>
+      <span style="font-weight: bold; padding: 10px">Subject: ${placeholders?.Ticket?.Subject}</span>
       <br/>
-      <p>{{ticket.description}}</p>
+      <p>${placeholders?.Ticket?.Description}</p>
     </div>
         <br/> <br/>     <br/> <br/> 
-    <div>Button</div>
+    <div><button style="!cursor: pointer">Reply</button></div>
  
 `}
               isFull={false}
-              customHeight="240px"
+              customHeight="220px"
             />
           </Box>
         </Box>
         <Divider />
         <Box sx={{ display: "flex", gap: 1, justifyContent: "space-between" }}>
-          <Button variant="text" color="primary" sx={{ fontWeight: 600 }}>
+          <Button 
+            variant="text" 
+            color="primary" 
+            sx={{ fontWeight: 600 }}
+            onClick={handlePreview}
+          >
             Preview
           </Button>
           <div className="flex gap-2">
-            {" "}
-            <Button variant="text" color="primary" sx={{ fontWeight: 600 }}>
+            <Button 
+              variant="text" 
+              color="primary" 
+              sx={{ fontWeight: 600 }}
+              onClick={handleCancel}
+            >
               Cancel
             </Button>
-            <Button variant="contained" color="primary">
-              Save
+            <Button 
+              variant="contained" 
+              color="primary"
+              onClick={handleSubmit}
+          
+            >
+            Save
             </Button>
           </div>
         </Box>

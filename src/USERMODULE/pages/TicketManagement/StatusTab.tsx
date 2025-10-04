@@ -23,6 +23,7 @@ import {
   useLazyGetDepartmentBySeachQuery,
   useLazyTriggerGetSLAListQuery,
 } from "../../../services/agentServices";
+import { format } from "date-fns";
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import { set } from "react-hook-form";
@@ -56,7 +57,7 @@ const StatusTab = ({ ticket }: any) => {
     useLazyGetAgentsBySeachQuery();
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
   const displayOptions = changeTagValue.length >= 3 ? options : [];
-  const [triggerSLA, { isLoading: slaLoading }] =
+  const [triggerSLA] =
     useLazyTriggerGetSLAListQuery();
 
   const [inputValue, setInputValue] = useState("");
@@ -66,18 +67,20 @@ const StatusTab = ({ ticket }: any) => {
   const debouncedValue: any = useDebounce(inputValue, 500);
 
   const handleUpdateTicket = () => {
+    const formatted = format(new Date(dueDate), "dd-mm-yyyy HH:mm");
     const payload = {
       url: "edit-properties/" + ticket?.ticketId,
       method: "PUT",
       body: {
         ticket: ticket?.ticketId,
-
+        sla: sla.key,
         type: type,
         priority: priority,
         status: status,
         tags: tagValue.map((tag: any) => tag?.tagID),
         department: `${dept.deptID}`,
         agent: agent.agentID,
+        dueDate: formatted,
       },
     };
 
@@ -513,7 +516,7 @@ const StatusTab = ({ ticket }: any) => {
                         marginRight: "auto",
                       },
                       "& .MuiPickersActionBar-actionButton": {
-                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                        fontSize: { xs: "0.75rem", sm: "0.775rem" },
                         padding: { xs: "6px 12px", sm: "8px 16px" },
                       },
                     },

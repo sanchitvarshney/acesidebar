@@ -34,6 +34,8 @@ import ExportContact from "../components/ExportContact";
 import AddContact from "../components/AddContact";
 import { Close } from "@mui/icons-material";
 import { useGetAgentsQuery } from "../../services/agentServices";
+import nocontact from "../../assets/image/no-contact.svg";
+import error from "../../assets/CesmuejcOxpX1663753174254.svg";
 
 const ContactList = () => {
   const [isExport, setIsExport] = useState(false);
@@ -849,25 +851,11 @@ const ContactList = () => {
                   >
                     {agentListError ? (
                       <>
-                        <Typography variant="h6" color="error" sx={{ mb: 1 }}>
-                          Error loading users
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Please try refreshing the page
-                        </Typography>
+                       <img src={nocontact} alt="No Contact"  className="w-40 h-40"/>
                       </>
                     ) : (
                       <>
-                        <Typography
-                          variant="h6"
-                          color="textSecondary"
-                          sx={{ mb: 1 }}
-                        >
-                          No users match your current selection.
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Try adjusting your search criteria or filters
-                        </Typography>
+                         <img src={error} alt="error"  className="w-40 h-40"/>
                       </>
                     )}
                   </Box>
