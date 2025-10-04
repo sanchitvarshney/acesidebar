@@ -1,5 +1,6 @@
-
+import { validate } from "uuid";
 import { baseInstanceOfApi } from "./baseInstanceOfApi";
+import { Preview } from "@mui/icons-material";
 
 const placeholderServices = baseInstanceOfApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -10,8 +11,22 @@ const placeholderServices = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    validatePlaceholders: builder.mutation<any, any>({
+      query: (credentials) => ({
+        url: "/utility/common/placeholders/validate",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+   previewNotification: builder.mutation<any, any>({
+      query: (credentials) => ({
+        url: "/utility/common/placeholders/preview",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetPlaceholdersQuery } = placeholderServices;
+export const { useGetPlaceholdersQuery ,useValidatePlaceholdersMutation,usePreviewNotificationMutation} = placeholderServices;

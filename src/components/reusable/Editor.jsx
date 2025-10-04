@@ -908,4 +908,4 @@ const StackEditor = ({
   );
 };
 
-export default StackEditor;
+export default React.memo(StackEditor);

@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -15,9 +14,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import StackEditor from "../../../components/reusable/Editor";
 import { IconSwitch } from "../../../utils/create-user-columnDefs";
-import { useGetPlaceholdersQuery } from "../../../services/placeholderServices";
-
-
+import {
+  useGetPlaceholdersQuery,
+  useValidatePlaceholdersMutation,
+  usePreviewNotificationMutation,
+} from "../../../services/placeholderServices";
 
 const CreateEmailNotificationsPage = () => {
   const navigate = useNavigate();
@@ -25,80 +26,100 @@ const CreateEmailNotificationsPage = () => {
   const { event } = location.state;
 
   const { data: placeholders } = useGetPlaceholdersQuery();
+  const [validatePlaceholders] = useValidatePlaceholdersMutation();
+  const [previewNotification] = usePreviewNotificationMutation();
 
   // Form state management
   const [formData, setFormData] = useState<any>({
-    eventType: event?.type || '',
-    eventLabel: event?.label || '',
-    subject: placeholders?.Ticket?.Subject || '',
-    message: '',
+    eventType: event?.type || "",
+    eventLabel: event?.label || "",
+    subject: placeholders?.Ticket?.Subject || "",
+    message: "",
     isEnabled: true,
-    language: 'en',
+    language: "en",
     recipients: [],
-    templateId: event?.id || ''
+    templateId: event?.id || "",
   });
 
+  // console.log("payload", placeholders);
+  //   useEffect(() => {
+  //     if (placeholders?.Ticket?.Subject) {
+  //       setFormData((prev: any) => ({
+  //         ...prev,
+  //         subject: placeholders.Ticket.Subject,
+  //         message: `
 
- 
-  useEffect(() => {
-    if (placeholders?.Ticket?.Subject) {
-      setFormData((prev:any) => ({
-        ...prev,
-        subject: placeholders.Ticket.Subject
-      }));
-    }
-  }, [placeholders]);
+  //     <div style=" height: 100px ;background-color: #8e98a0; color: #fff; padding: 10px; font-size: 20px">
+  //       Hi
+  //       <br style="background-color: #8e98a0; color: #fff;"  />
+  //      A new <span style="font-weight: bold; padding: 10px">ticket has been created.</span> Please have a look at the details and reply to the query.
+  //     </div>
+  //     <br/> <br/>
+  //     <div>
+  //       <span style="font-weight: bold; padding: 10px">Subject: ${placeholders?.Ticket?.Subject}</span>
+  //       <br/>
+  //       <p>${placeholders?.Ticket?.Description}</p>
+  //     </div>
+  //         <br/> <br/>     <br/> <br/>
+  //     <div><button style="!cursor: pointer">Reply</button></div>
+
+  // `,
+  //       }));
+  //     }
+  //   }, [placeholders]);
 
   // Form validation
 
-
   // Handle form field changes
   const handleSubjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev:any) => ({
+    setFormData((prev: any) => ({
       ...prev,
-      subject: e.target.value
+      subject: e.target.value,
     }));
-   
   };
 
   const handleMessageChange = (content: string) => {
-    setFormData((prev:any) => ({
+    setFormData((prev: any) => ({
       ...prev,
-      message: content
-    }));
-
-  };
-
-  const handleNotificationToggle = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    setFormData((prev:any) => ({
-      ...prev,
-      isEnabled: checked
+      message: content,
     }));
   };
 
-  // Create the payload for submission
-  const createPayload = () => {
-    return {
-      eventType: formData.eventType,        
-      eventLabel: formData.eventLabel,      
-      subject: formData.subject.trim(),     
-      message: formData.message.trim(), 
-      isEnabled: formData.isEnabled,  
-      language: formData.language,
-      recipients: formData.recipients, 
-      templateId: formData.templateId,    
-
-    };
+  const handleNotificationToggle = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean
+  ) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      isEnabled: checked,
+    }));
   };
 
   // Handle form submission
   const handleSubmit = async () => {
+    const title = formData.subject.trim();
+    const payload = {
+      title,
+      content: {
+        eventType: formData.eventType,
+        eventLabel: formData.eventLabel,
 
+        message: formData.message.trim(),
+        isEnabled: formData.isEnabled,
+        language: formData.language,
+        recipients: formData.recipients,
+        templateId: formData.templateId,
+      },
+    };
 
-      const payload = createPayload();
-      console.log('Email Notification Payload:', payload);
-      
-  
+    validatePlaceholders(payload).then((response: any) => {
+      if (response?.data) {
+        console.log("Email Notification Payload:", payload);
+      } else {
+        console.log("Email Notification Payload:", payload);
+      }
+    });
+    console.log("Email Notification Payload:", payload);
   };
 
   const handleCancel = () => {
@@ -106,11 +127,28 @@ const CreateEmailNotificationsPage = () => {
   };
 
   const handlePreview = () => {
-    // TODO: Implement preview functionality
-    console.log('Preview payload:', createPayload());
+    const payload = {
+      ticketID: "1",
+      data: {
+        eventType: formData.eventType,
+        eventLabel: formData.eventLabel,
+        subject: formData.subject,
+        message: formData.message.trim(),
+        isEnabled: formData.isEnabled,
+        language: formData.language,
+        recipients: formData.recipients,
+        templateId: formData.templateId,
+      },
+    };
+    previewNotification(payload).then((response: any) => {
+      if (response?.data) {
+        console.log("Email Notification Payload:", payload);
+      } else {
+        console.log("Email Notification Payload:", payload);
+      }
+    });
+    console.log("Email Notification Payload:", payload);
   };
-
-
 
   return (
     <Box
@@ -129,7 +167,6 @@ const CreateEmailNotificationsPage = () => {
           flexDirection: "column",
           gap: 2,
           height: "calc(100vh - 110px)",
-          
         }}
       >
         {/* Header Section */}
@@ -192,7 +229,6 @@ const CreateEmailNotificationsPage = () => {
               onChange={handleSubjectChange}
               placeholder="Enter email subject"
               required
-     
             />
           </Box>
           <Box
@@ -208,13 +244,11 @@ const CreateEmailNotificationsPage = () => {
             <StackEditor
               onChange={handleMessageChange}
               onFocus={undefined}
-              initialContent={formData.message || ` 
-  
-    <div style=" height: 100px ;background-color: #8e98a0; color: #fff; padding: 10px; font-size: 20px">
+              initialContent={`<div style=" height: 100px ;background-color: #8e98a0; color: #fff; padding: 10px; font-size: 20px">
       Hi 
-      <br style="background-color: #8e98a0; color: #fff;"  />
-     A new <span style="font-weight: bold; padding: 10px">ticket has been created.</span> Please have a look at the details and reply to the query.
-    </div>
+       <br style="background-color: #8e98a0; color: #fff;"  />
+      A new <span style="font-weight: bold; padding: 10px">ticket has been created.</span> Please have a look at the details and reply to the query.
+     </div>
     <br/> <br/> 
     <div>
       <span style="font-weight: bold; padding: 10px">Subject: ${placeholders?.Ticket?.Subject}</span>
@@ -222,9 +256,7 @@ const CreateEmailNotificationsPage = () => {
       <p>${placeholders?.Ticket?.Description}</p>
     </div>
         <br/> <br/>     <br/> <br/> 
-    <div><button style="!cursor: pointer">Reply</button></div>
- 
-`}
+    <div><button style="!cursor: pointer">Reply</button></div>`}
               isFull={false}
               customHeight="220px"
             />
@@ -232,30 +264,25 @@ const CreateEmailNotificationsPage = () => {
         </Box>
         <Divider />
         <Box sx={{ display: "flex", gap: 1, justifyContent: "space-between" }}>
-          <Button 
-            variant="text" 
-            color="primary" 
+          <Button
+            variant="text"
+            color="primary"
             sx={{ fontWeight: 600 }}
             onClick={handlePreview}
           >
             Preview
           </Button>
           <div className="flex gap-2">
-            <Button 
-              variant="text" 
-              color="primary" 
+            <Button
+              variant="text"
+              color="primary"
               sx={{ fontWeight: 600 }}
               onClick={handleCancel}
             >
               Cancel
             </Button>
-            <Button 
-              variant="contained" 
-              color="primary"
-              onClick={handleSubmit}
-          
-            >
-            Save
+            <Button variant="contained" color="primary" onClick={handleSubmit}>
+              Save
             </Button>
           </div>
         </Box>
