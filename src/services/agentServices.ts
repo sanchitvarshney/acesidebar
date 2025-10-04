@@ -58,7 +58,6 @@ const agentServices = baseInstanceOfApi.injectEndpoints({
 
 export const {
   useGetAgentsQuery,
-
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
   useLazyGetUserBySeachQuery,

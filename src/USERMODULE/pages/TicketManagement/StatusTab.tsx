@@ -30,24 +30,11 @@ import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValu
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-
-const SLAOptions = [
-  { value: "1h", label: "1 Hour" },
-  { value: "4h", label: "4 Hours" },
-  { value: "8h", label: "8 Hours" },
-  { value: "24h", label: "1 Day" },
-  { value: "48h", label: "2 Days" },
-  { value: "72h", label: "3 Days" },
-  { value: "1w", label: "1 Week" },
-  { value: "2w", label: "2 Weeks" },
-  { value: "1m", label: "1 Month" },
-];
+import { useDebounce } from "../../../hooks/useDebounce";
+import { id } from "zod/v4/locales";
 
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
-
-  // Debug log to check ticket data
-  console.log("StatusTab - ticket data:", ticket);
   const [tagValue, setTagValue] = useState<any[]>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
   const [type, setType] = useState("");
@@ -69,13 +56,14 @@ const StatusTab = ({ ticket }: any) => {
     useLazyGetAgentsBySeachQuery();
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
   const displayOptions = changeTagValue.length >= 3 ? options : [];
-  const [triggerSLA, { isLoading: slaLoading }] = useLazyTriggerGetSLAListQuery()
+  const [triggerSLA, { isLoading: slaLoading }] =
+    useLazyTriggerGetSLAListQuery();
 
+  const [inputValue, setInputValue] = useState("");
+  const [slaOptions, setSlaOptions] = useState<any[]>([]);
+  const [isSlaLoading, setIsSlaLoading] = useState(false);
 
-  
-  
-
-  // update status handler
+  const debouncedValue: any = useDebounce(inputValue, 500);
 
   const handleUpdateTicket = () => {
     const payload = {
@@ -88,7 +76,7 @@ const StatusTab = ({ ticket }: any) => {
         priority: priority,
         status: status,
         tags: tagValue.map((tag: any) => tag?.tagID),
-        department: `${dept.deptId}`,
+        department: `${dept.deptID}`,
         agent: agent.agentID,
       },
     };
@@ -113,7 +101,6 @@ const StatusTab = ({ ticket }: any) => {
 
   useEffect(() => {
     if (ticket) {
-    
       if (ticket.tags) {
         setTagValue((prev) => [...prev, ...ticket.tags]);
       }
@@ -133,13 +120,13 @@ const StatusTab = ({ ticket }: any) => {
 
       if (ticket.deptName) {
         const department = {
-          deptId: ticket?.deptName?.key,
+          deptID: ticket?.deptName?.key,
           deptName: ticket?.deptName?.name,
         };
         setDept(department);
       }
-      if(ticket.dueDate){
-        setSLA(ticket?.dueDate);
+      if (ticket.sla) {
+        setSLA(ticket?.sla);
       }
 
       if (ticket.email && ticket.username && ticket.userID) {
@@ -195,6 +182,61 @@ const StatusTab = ({ ticket }: any) => {
     }
   };
 
+  const handleOnChange = (newValue: any) => {
+    setSLA(newValue);
+  };
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      if (!debouncedValue) {
+        setSlaOptions([]);
+        setIsSlaLoading(false);
+        return;
+      }
+
+      if (!dept?.deptID || !priority) {
+        setSlaOptions([]);
+        setIsSlaLoading(false);
+        return;
+      }
+
+      const decoded = decodeURIComponent(debouncedValue);
+      const value = decoded.replace(/\D/g, "");
+      const valueInNumber = Number(value);
+
+      if (isNaN(valueInNumber)) {
+        showToast("Please enter a valid Key of SLA.", "error");
+        setIsSlaLoading(false);
+        return;
+      }
+
+      setIsSlaLoading(true);
+      
+      try {
+        const res = await triggerSLA({
+          search: value,
+          department: dept.deptID,
+          priority: priority,
+        }).unwrap();
+
+        const data = Array.isArray(res) ? res : res?.data;
+
+        if (Array.isArray(data) && data.length > 0) {
+          setSlaOptions(data);
+        } else {
+          setSlaOptions([]);
+        }
+      } catch (error) {
+        console.error("SLA fetch error:", error);
+        setSlaOptions([]);
+      } finally {
+        setIsSlaLoading(false);
+      }
+    };
+
+    fetchOptions();
+  }, [debouncedValue, triggerSLA, dept?.deptID, priority]);
+
   return (
     <div className="w-full h-[calc(100vh-100px)] overflow-hidden bg-[#f0f5fd]">
       <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-255px)] overflow-y-auto">
@@ -230,7 +272,7 @@ const StatusTab = ({ ticket }: any) => {
                 value={type}
                 onChange={(e) => setType(e.target.value)}
                 sx={{
-                  fontSize: { xs: "14px", sm: "16px" },
+                  fontSize: { xs: "10px", sm: "12px" },
                 }}
               >
                 {[...((typeList as any[]) || [])].map((name: any) => (
@@ -255,17 +297,12 @@ const StatusTab = ({ ticket }: any) => {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 sx={{
-                  fontSize: { xs: "14px", sm: "16px" },
+                  fontSize: { xs: "10px", sm: "12px" },
                 }}
               >
                 {statusList?.map((status: any) => (
-                  <MenuItem key={status.key} value={status.key}>
-                    <Typography
-                      variant="body2"
-                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                    >
-                      {status?.statusName}
-                    </Typography>
+                  <MenuItem key={status.statusID} value={status.statusID}>
+                    {status?.statusName}
                   </MenuItem>
                 ))}
               </Select>
@@ -286,14 +323,19 @@ const StatusTab = ({ ticket }: any) => {
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
                 sx={{
-                  fontSize: { xs: "14px", sm: "16px" },
+                  fontSize: { xs: "10px", sm: "12px" },
                 }}
               >
                 {[...((priorityList as any[]) || [])].map((priority: any) => (
                   <MenuItem key={priority.key} value={priority.key}>
                     <Typography
                       variant="body2"
-                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        fontSize: { xs: "10px", sm: "12px" },
+                      }}
                     >
                       <span
                         className="w-3 h-3 inline-block"
@@ -313,19 +355,75 @@ const StatusTab = ({ ticket }: any) => {
             {!ticket ? (
               <Skeleton variant="rectangular" height={40} />
             ) : (
-              <SingleValueAsynAutocomplete
+              <Autocomplete
+                disableClearable
+                popupIcon={null}
+                disablePortal={false}
+                slotProps={{
+                  popper: {
+                    sx: { zIndex: 200000 },
+                  },
+                }}
                 value={sla}
-                qtkMethod={triggerSLA}
-                onChange={setSLA}
-                loading={slaLoading}
-           
-                variant={"standard"}
-                size="small"
-                showIcon={false}
-                optionLabelKey="sla"
-                placeholder="Select SLA"
+                options={slaOptions}
+                loading={isSlaLoading}
+                getOptionLabel={(option: any) => {
+                  if (typeof option === "string") return option;
+                  return `${option?.hrs} : ${option?.graceMinutes}`;
+                }}
+                onChange={(_, newVal: any) => handleOnChange(newVal)}
+                onInputChange={(_, newVal) => setInputValue(newVal)}
+                filterOptions={(x) => x}
+                noOptionsText="No Data Found"
+                renderOption={(props, option: any) => (
+                  <li {...props} key={option?.key}>
+                    <div className="flex flex-col">
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: { xs: "12px", sm: "14px" },
+                        }}
+                      >
+                        {`${option?.hrs} : ${option?.graceMinutes}`}
+                      </Typography>
+                    </div>
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    size="small"
+                    fullWidth
+                    variant="standard"
+                    sx={{
+                      // For single select selected value
+                      "& .MuiAutocomplete-inputRoot": {
+                        "& .MuiAutocomplete-input": {
+                          fontSize: { xs: "14px", sm: "12px" }, // selected value font size
+                        },
+                      },
+                      // For multiple select chips
+                      "& .MuiChip-root": {
+                        fontSize: { xs: "12px", sm: "14px" },
+                        height: { xs: 24, sm: 28 },
+                      },
+                    }}
+                    InputProps={{
+                      ...params.InputProps,
+
+                      endAdornment: (
+                        <>
+                          {isSlaLoading ? (
+                            <CircularProgress color="inherit" size={16} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
               />
-      
             )}
           </div>
           <div>

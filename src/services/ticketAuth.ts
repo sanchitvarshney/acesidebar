@@ -29,7 +29,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     }),
     getStatusList: builder.query<any, void>({
       query: () => ({
-        url: "/status/list",
+        url: "/status/list?type=ticket",
         method: "GET",
       }),
       transformResponse: (response: any) => response?.data,
