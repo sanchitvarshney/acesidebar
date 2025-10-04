@@ -714,14 +714,17 @@ const ThreadItem = ({
             {/* Modal Header */}
             <Box
               sx={{
+                width: "100%",
                 borderBottom: "1px solid #e0e0e0",
                 backgroundColor: "#f8f9fa",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                px:3,
+                py:1.5,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 3 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, }}>
                 <Avatar
                   src={item?.replyType === "AGENT" ? agentAvatar : userAvatar}
                   alt={item?.replyType}

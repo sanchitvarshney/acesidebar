@@ -59,11 +59,12 @@ import {
   useGetTaskListMutation,
 } from "../../../services/threadsApi";
 import { useToast } from "../../../hooks/useToast";
-import { useGetStatusListQuery } from "../../../services/ticketAuth";
+
 import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/24683078_6986783.svg";
 import KanbanPage from "./KanbanPage";
-import { V } from "framer-motion/dist/types.d-Cjd591yU";
+
+import { useGetStatusListTaskQuery } from "../../../services/ticketAuth";
 
 type TaskPropsType = {
   isAddTask?: boolean;
@@ -75,7 +76,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const { user } = useAuth();
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [searchQuery, setSearchQuery] = React.useState("");
-  const { data: statusList } = useGetStatusListQuery();
+  const { data: statusList } = useGetStatusListTaskQuery();
   const [taskDialogOpen, setTaskDialogOpen] = React.useState(false);
   const [showCommentForm, setShowCommentForm] = React.useState(false);
   const [showAttachments, setShowAttachments] = React.useState(false);
@@ -496,7 +497,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     return taskSearchConditions.length > 0 && getConditionErrors().length === 0;
   };
 
-  const handleChangeMode = (v:any) => {
+  const handleChangeMode = (v: any) => {
     if (viewMode === "list") {
       setViewMode(v);
     } else {
@@ -761,7 +762,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   );
 
   return (
-    <div className="flex flex-col    h-[calc(100vh-105px)]  ">
+    <div className="flex flex-col    h-[calc(100vh-98px)]  ">
       {taskListData?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-gray-500">
           <img src={noTask} alt="No Tasks" className="my-3 w-[30%]" />
@@ -802,7 +803,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
             }}
             onCreateTask={() => setTaskDialogOpen(true)}
             viewMode={viewMode}
-            changeViewMode={(v:any)=>handleChangeMode(v)}
+            changeViewMode={(v: any) => handleChangeMode(v)}
             isAddTask={isAddTask}
           />
           {/* Main Content: Tasks + Details */}
@@ -849,7 +850,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   taskId={taskId?.taskId}
                 />
                 {/* RIGHT SECTION - Task Details & Actions */}
-                <div className="w-[65%] h-calc(100vh-165px) flex bg-gray-50 ">
+                <div className="w-[65%] h-calc(100vh-200px) flex bg-gray-50 ">
                   {/* Right Sidebar Tabs */}
                   <div className="w-20 bg-white border-r flex flex-col items-center justify-center">
                     <div className="p-4 space-y-4">
@@ -1735,9 +1736,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                 </div>
               </>
             ) : (
-                
               <KanbanPage />
-              
             )}
           </div>
         </>

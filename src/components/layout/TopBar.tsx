@@ -278,15 +278,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           </IconButton>
 
           <IconButton
-            onClick={handleEmailCompositionOpen}
-            size="large"
-            aria-label="compose email"
-            sx={{ color: "#3f4346", mr: 2 }}
-          >
-            <EmailIcon />
-          </IconButton>
-
-          <IconButton
             ref={accountButtonRef}
             size="small"
             edge="end"

@@ -34,6 +34,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+        getStatusListTask: builder.query<any, void>({
+      query: () => ({
+        url: "/status/list?type=task",
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
     getTypeList: builder.query<any, void>({
       query: () => ({
         url: "/type/list",
@@ -244,6 +251,7 @@ export const {
   useGetStaffListQuery,
   useAdvancedSearchMutation,
   useGetStatusListQuery,
+  useGetStatusListTaskQuery,
   useGetTypeListQuery,
   useGetLinkTicketQuery,
   useGetSessionQuery,

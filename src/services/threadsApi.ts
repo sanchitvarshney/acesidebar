@@ -82,7 +82,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     }),
     getTaskList: builder.mutation<any, any>({
       query: (credentials) => ({
-        url: `/task/list/${credentials.url}`,
+        url: `/task/list${credentials.url}`,
         method: "GET",
       }),
     }),

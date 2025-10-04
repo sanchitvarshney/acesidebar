@@ -124,6 +124,7 @@ const KanbanPage: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
         description: "Conduct comprehensive security audit of the application",
         ticketID: "TICKET-008",
       },
+      
     ],
     pagination: {
       currentPage: 1,

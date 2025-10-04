@@ -1,13 +1,5 @@
 import React, { memo, useMemo } from "react";
-import {
-  IconButton,
-  Tooltip,
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Chip,
-} from "@mui/material";
+import { IconButton, Card, CardContent, Typography, Chip } from "@mui/material";
 import {
   KeyboardTab as KeyboardTabIcon,
   MoreVert as MoreVertIcon,
@@ -16,6 +8,7 @@ import {
 import StartIcon from "@mui/icons-material/Start";
 import { filterTasksBySearch } from "../utils/taskUtils";
 import TaskListSkeleton from "../../../skeleton/TaskListSkeleton";
+import notask from "../../../../assets/image/box_empty_state_200x200.svg";
 
 interface KanbanBoardProps {
   tasks: any;
@@ -31,7 +24,10 @@ interface KanbanBoardProps {
   loadingTaskId?: string | null;
   loadingAttachmentTaskId?: string | null;
   taskId: any;
-  onTaskStatusUpdate?: (taskId: string, newStatus: { key: string; name: string }) => void;
+  onTaskStatusUpdate?: (
+    taskId: string,
+    newStatus: { key: string; name: string }
+  ) => void;
 }
 
 // Kanban columns configuration
@@ -110,7 +106,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
     const toggleColumnCollapse = (columnId: string) => {
       setCollapsedColumns((prev) => {
         const next = new Set(prev);
-    
+
         const isCollapsed = next.has(columnId);
 
         if (isCollapsed) {
@@ -118,7 +114,9 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
           next.delete(columnId);
           setOpenOrder((prevOrder) => {
             // Move to end as most recently opened
-            let nextOrder = prevOrder.filter((id) => id !== columnId).concat(columnId);
+            let nextOrder = prevOrder
+              .filter((id) => id !== columnId)
+              .concat(columnId);
             // Enforce max 3 open
             if (nextOrder.length > 3) {
               const toClose = nextOrder[0];
@@ -130,7 +128,9 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
         } else {
           // Collapse column
           next.add(columnId);
-          setOpenOrder((prevOrder) => prevOrder.filter((id) => id !== columnId));
+          setOpenOrder((prevOrder) =>
+            prevOrder.filter((id) => id !== columnId)
+          );
         }
 
         return next;
@@ -273,7 +273,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
         {/* Search functionality removed */}
 
         {/* Kanban Board */}
-        <div className="flex w-[calc(100%-55px)] bg-[#e3e6ed]  px-6 gap-4 h-[calc(100vh-150px)] overflow-auto">
+        <div className="flex w-[calc(100%-55px)] bg-[#e3e6ed]  px-6 gap-4 h-[calc(100vh-168px)] overflow-auto">
           {columnsWithCounts.map((column) => (
             <div
               key={column.id}
@@ -329,7 +329,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
                         fontWeight: 500,
                         fontSize: "0.75rem",
                         height: "20px",
-                        mt:1
+                        mt: 1,
                       }}
                     />
                     {/* Column title - vertical */}
@@ -525,17 +525,24 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
                       {(!tasksByColumn[column.id] ||
                         tasksByColumn[column.id].length === 0) && (
                         <div
-                          className={`text-center py-8 transition-all duration-200 ${
+                          className={`text-center py-8 transition-all duration-200 flex h-[calc(100vh-270px)] overflow-hidden  justify-center items-center ${
                             dragOverColumn === column.id
                               ? "text-blue-500"
                               : "text-gray-400"
                           }`}
                         >
-                          <Typography variant="body2">
-                            {dragOverColumn === column.id
-                              ? `Drop task here to move to ${column.title.toLowerCase()}`
-                              : `No tasks in ${column.title.toLowerCase()}`}
-                          </Typography>
+                          {dragOverColumn === column.id ? (
+                            <Typography variant="body2">
+                              {`Drop task here to move to 
+                              ${column.title.toLowerCase()}`}
+                            </Typography>
+                          ) : (
+                            <img
+                              src={notask}
+                              alt="No Task"
+                              className="w-40 h-40"
+                            />
+                          )}
                         </div>
                       )}
                     </div>

@@ -410,8 +410,6 @@ const Tickets: React.FC = () => {
     commanApi(payload);
   };
 
- 
-
   // Quick update handlers
   const handleQuickUpdateOpen = (
     event: React.MouseEvent<HTMLElement>,
@@ -419,7 +417,7 @@ const Tickets: React.FC = () => {
   ) => {
     event.stopPropagation();
     const merged = applyOverrides(ticket);
-  
+
     setTrackTicketId(merged?.ticketNumber);
     setQuickUpdateAnchorEl(true);
     setQuickUpdateValues({
@@ -1001,13 +999,17 @@ const Tickets: React.FC = () => {
             <div className="flex flex-col">
               <span className="text-gray-500 mb-1">Due Date</span>
               <span className="text-gray-800 font-semibold">
-                {merged?.dueDate || "~"}
+                {`${merged?.due?.dt}  ${merged?.due?.tm}` || "~"}
               </span>
             </div>
           </div>
 
           {/* Red dot at the end */}
-          <div className="w-3 h-3 bg-red-500 rounded-full ml-auto"></div>
+          {merged?.due.isDue && (
+            <Tooltip title={`${merged?.due?.msg}`}>
+              <div className="w-3 h-3 bg-red-500 rounded-full ml-auto" />
+            </Tooltip>
+          )}
         </div>
       </div>
     );
@@ -1100,29 +1102,26 @@ const Tickets: React.FC = () => {
                 >
                   {sortBy}
                 </Button>
-         
-                  <IconButton
-                    size="small"
-                    color="primary"
-                    onClick={() => refetch()}
-                    disabled={isTicketsFetching}
-                    sx={{
-                      ml: 1,
-                      bgcolor: "#ffffff",
-                      boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)",
-                    }}
-                    aria-label="Refresh"
-                    title="Refresh"
-                  >
-                   {
-                    isTicketsFetching ? (
-                      <CircularProgress size={16} />
-                    ) : (
-                      <RefreshIcon fontSize="small" />
-                    )
-                   }
-                  </IconButton>
-         
+
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={() => refetch()}
+                  disabled={isTicketsFetching}
+                  sx={{
+                    ml: 1,
+                    bgcolor: "#ffffff",
+                    boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)",
+                  }}
+                  aria-label="Refresh"
+                  title="Refresh"
+                >
+                  {isTicketsFetching ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <RefreshIcon fontSize="small" />
+                  )}
+                </IconButton>
 
                 <TicketSortingPopover
                   anchorEl={sortingPopoverAnchorEl}

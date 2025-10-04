@@ -32,7 +32,7 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { useDebounce } from "../../../hooks/useDebounce";
-import { id } from "zod/v4/locales";
+
 
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
@@ -43,7 +43,7 @@ const StatusTab = ({ ticket }: any) => {
   const [sla, setSLA] = useState<any>("");
   const [status, setStatus] = useState<any>("");
   const [dept, setDept] = useState<any>("");
-  const [agent, setAgent] = useState<any>("");
+  const [agent, setAgent] = useState<any>({});
   const [options, setOptions] = useState<any>([]);
   const [dueDate, setDueDate] = useState<any>("");
   const [isUpdate, setIsUpdate] = useState(0);
@@ -67,7 +67,8 @@ const StatusTab = ({ ticket }: any) => {
   const debouncedValue: any = useDebounce(inputValue, 500);
 
   const handleUpdateTicket = () => {
-    const formatted = format(new Date(dueDate), "dd-mm-yyyy HH:mm");
+    const formatted = format(new Date(dueDate), "dd-mm-yyyy HH:mm") || "";
+    
     const payload = {
       url: "edit-properties/" + ticket?.ticketId,
       method: "PUT",
@@ -134,7 +135,7 @@ const StatusTab = ({ ticket }: any) => {
 
       if (ticket.email && ticket.username && ticket.userID) {
         const agent = {
-          agentId: ticket.userID,
+          agentID: ticket.userID,
           fName: ticket.username,
           emailAddress: ticket.email,
         };
