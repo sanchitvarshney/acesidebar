@@ -141,7 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           <IconButton
             size="medium"
             onClick={toggleHelpCenter}
-            sx={{ background: "#fff" }}
+            sx={{ background: "#fff",mb:1 }}
           >
             <img 
               src={setupWizardIcon} 

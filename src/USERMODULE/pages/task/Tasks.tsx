@@ -87,7 +87,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [editingCommentId, setEditingCommentId] = React.useState<string | null>(
     null
   );
-  const [taskStatus, setTaskStatus] = useState<string>("");
+  const [taskStatus, setTaskStatus] = useState<any>("");
   const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
@@ -137,12 +137,12 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const taskDetailsRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (taskcomment?.data?.status?.key !== "--") {
+    if (taskcomment?.data?.status?.key !== "--") { 
       setTaskStatus(taskcomment?.data?.status?.key);
     }
   }, [taskcomment?.data?.status]);
 
-  //fetch tasks
+  //fetch Tasks
   const fetchTasks = async () => {
     const payload = {
       ticket: ticketId,
@@ -284,9 +284,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
   const handleStatusChange = async (
     taskId: string,
+    ticket:any,
     newStatus: Task["status"]
   ) => {
-    const url = `${ticketId}/${taskId}?status=${newStatus}`;
+   
+    const url = `${ticketId ? ticketId : ticket}/${taskId}?status=${newStatus}`;
 
     try {
       const response = await changeStatus({ url, method: "PUT" }).unwrap();
@@ -762,7 +764,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   );
 
   return (
-    <div className="flex flex-col    h-[calc(100vh-98px)]  ">
+    <div className="flex flex-col w-full  h-[calc(100vh-98px)]  overflow-hidden ">
       {taskListData?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-gray-500">
           <img src={noTask} alt="No Tasks" className="my-3 w-[30%]" />
@@ -1030,10 +1032,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             <div className="flex gap-2">
                               <FormControl size="small">
                                 <Select
-                                  value={taskStatus || ""}
+                                  value={taskStatus}
                                   onChange={(e) =>
                                     handleStatusChange(
                                       taskcomment?.data?.taskID,
+                                      taskcomment?.data?.ticketID,
                                       e.target.value as Task["status"]
                                     )
                                   }
@@ -1043,18 +1046,14 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     !statusList || statusList.length === 0
                                   }
                                 >
-                                  <MenuItem value="" disabled>
-                                    {!statusList || statusList.length === 0
-                                      ? "No status available"
-                                      : "Select Status"}
-                                  </MenuItem>
+                             
                                   {statusList?.map((option: any) => (
                                     <MenuItem
                                       key={option.key}
                                       value={option.key}
                                     >
                                       <div className="flex items-center">
-                                        {option.statusName}
+                                        {option.name}
                                       </div>
                                     </MenuItem>
                                   ))}
@@ -1074,7 +1073,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               task={taskcomment?.data}
                               getStatusIcon={getStatusIcon}
                               onStatusChange={(taskId, newStatus) =>
-                                handleStatusChange(taskId, newStatus)
+                                handleStatusChange(taskId, ticketId,newStatus)
                               }
                             />
 
