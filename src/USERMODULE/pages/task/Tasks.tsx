@@ -137,10 +137,13 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const taskDetailsRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (taskcomment?.data?.status?.key !== "--") { 
-      setTaskStatus(taskcomment?.data?.status?.key);
+    const nextKey = taskcomment?.data?.status?.key;
+    if (nextKey && nextKey !== "--") {
+      setTaskStatus(String(nextKey));
+    } else {
+      setTaskStatus("");
     }
-  }, [taskcomment?.data?.status]);
+  }, [taskcomment?.data?.status?.key]);
 
   //fetch Tasks
   const fetchTasks = async () => {
@@ -267,7 +270,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   const saveEditedComment = (commentId: string, newText: string) => {
-    console.log(`Saving edited comment ${commentId}: ${newText}`);
+   
     setEditingCommentId(null);
   };
 
@@ -275,19 +278,16 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
     setEditingCommentId(null);
   };
 
-  // Current agent - in real app this would come from authentication context
   //@ts-ignore
   const currentAgent = user?.name; // from shared data
 
-  // Filter tasks to show only current agent's tasks
-  // const tasks = taskList?.filter((task: any) => task.assignor === currentAgent);
+
 
   const handleStatusChange = async (
     taskId: string,
-    ticket:any,
+    ticket: any,
     newStatus: Task["status"]
   ) => {
-   
     const url = `${ticketId ? ticketId : ticket}/${taskId}?status=${newStatus}`;
 
     try {
@@ -1046,14 +1046,13 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     !statusList || statusList.length === 0
                                   }
                                 >
-                             
                                   {statusList?.map((option: any) => (
                                     <MenuItem
                                       key={option.key}
-                                      value={option.key}
+                                      value={String(option.key)}
                                     >
                                       <div className="flex items-center">
-                                        {option.name}
+                                        {option.statusName ?? option.name}
                                       </div>
                                     </MenuItem>
                                   ))}
@@ -1073,7 +1072,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               task={taskcomment?.data}
                               getStatusIcon={getStatusIcon}
                               onStatusChange={(taskId, newStatus) =>
-                                handleStatusChange(taskId, ticketId,newStatus)
+                                handleStatusChange(taskId, ticketId, newStatus)
                               }
                             />
 

@@ -59,6 +59,7 @@ import SLAPoliciesPage from "../USERMODULE/pages/settingManangePages/SLAPolicies
 import SLAEditPage from "../USERMODULE/pages/settingManangePages/SLAEditPage";
 import BusinessDayIntegration from "../USERMODULE/components/BusinessDayIntegration";
 import EmailNotificationsPage from "../USERMODULE/pages/settingManangePages/EmailNotificationsPage";
+import EmailSettingsPage from "../USERMODULE/pages/settingManangePages/EmailSettingsPage";
 import CanenResponseMasterPage from "../USERMODULE/pages/settingManangePages/CanenResponseMasterPage";
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
 import CreateEmailNotificationsPage from "../USERMODULE/pages/settingManangePages/CreateEmailNotificationsPage";
@@ -246,6 +247,10 @@ export const router = createBrowserRouter([
       {
         path: "settings/emails/email-notifications",
         element: <EmailNotificationsPage />,
+      },
+      {
+        path: "settings/emails/email-settings",
+        element: <EmailSettingsPage />,
       },
       {
         path: "settings/tickets-workflows/automations",

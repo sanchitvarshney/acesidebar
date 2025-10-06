@@ -412,15 +412,6 @@ const menuSections: MenuSection[] = [
     description: "Email settings, templates, notifications, and diagnostics",
     subsections: [
       {
-        id: "emails",
-        icon: FaEnvelope,
-        iconClass: "text-red-500",
-        title: "Emails",
-        description: "Emails from osTicket",
-        route: "/settings/emails/emails",
-        source: "osTicket",
-      },
-      {
         id: "email-settings",
         icon: FaCog,
         iconClass: "text-blue-500",
@@ -437,15 +428,7 @@ const menuSections: MenuSection[] = [
         description: "Email notifications from Freshdesk",
         route: "/settings/emails/email-notifications",
       },
-      {
-        id: "templates",
-        icon: FaFileAlt,
-        iconClass: "text-purple-500",
-        title: "Templates",
-        description: "Templates from osTicket",
-        route: "/settings/emails/templates",
-        source: "osTicket",
-      },
+
       {
         id: "banlist",
         icon: FaBan,
