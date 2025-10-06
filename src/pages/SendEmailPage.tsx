@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -10,7 +10,12 @@ import {
   Divider,
   AppBar,
   Toolbar,
+  Menu,
+  MenuItem,
+  Popover,
 } from "@mui/material";
+import Picker from "@emoji-mart/react";
+import emojiData from "@emoji-mart/data";
 import {
   Close as CloseIcon,
   Send as SendIcon,
@@ -55,6 +60,14 @@ const SendEmailPage: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const colorInputRef = useRef<HTMLInputElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  const [fontMenuAnchorEl, setFontMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [moreMenuAnchorEl, setMoreMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [emojiAnchorEl, setEmojiAnchorEl] = useState<null | HTMLElement>(null);
+  const [isEmojiOpen, setIsEmojiOpen] = useState(false);
+  const savedRangeRef = useRef<Range | null>(null);
 
   const handleAddRecipient = (type: "to" | "cc" | "bcc", email: string) => {
     if (email.trim() && email.includes("@")) {
@@ -103,6 +116,105 @@ const SendEmailPage: React.FC = () => {
     }));
   };
 
+  const focusEditor = () => {
+    editorRef.current?.focus();
+  };
+
+  const exec = (command: string, value?: string) => {
+    focusEditor();
+    // document.execCommand is deprecated but widely supported for simple formatting
+    // eslint-disable-next-line
+    document.execCommand(command, false, value);
+  };
+
+  const saveSelection = () => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      savedRangeRef.current = selection.getRangeAt(0);
+    }
+  };
+
+  const restoreSelection = () => {
+    const selection = window.getSelection();
+    if (selection && savedRangeRef.current) {
+      selection.removeAllRanges();
+      selection.addRange(savedRangeRef.current);
+    }
+  };
+
+  const openEmojiPicker = (e: React.MouseEvent<HTMLElement>) => {
+    saveSelection();
+    setEmojiAnchorEl(e.currentTarget);
+    setIsEmojiOpen(true);
+  };
+
+  const closeEmojiPicker = () => {
+    setEmojiAnchorEl(null);
+    setIsEmojiOpen(false);
+  };
+
+  const handleEmojiSelect = (emoji: any) => {
+    closeEmojiPicker();
+    focusEditor();
+    restoreSelection();
+    const native = emoji?.native || "";
+    if (!native) return;
+    exec("insertText", native);
+    // Ensure state sync in case input event doesn't fire
+    if (editorRef.current) {
+      setEmailData((prev) => ({ ...prev, body: editorRef.current!.innerHTML }));
+    }
+  };
+
+  const handleInsertLink = () => {
+    const url = window.prompt("Enter URL", "https://");
+    if (!url) return;
+    exec("createLink", url);
+  };
+
+  const handlePickColor = () => {
+    colorInputRef.current?.click();
+  };
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    exec("foreColor", e.target.value);
+  };
+
+  const openFontMenu = (e: React.MouseEvent<HTMLElement>) => {
+    setFontMenuAnchorEl(e.currentTarget);
+  };
+
+  const closeFontMenu = () => setFontMenuAnchorEl(null);
+
+  const selectFontSize = (size: 1 | 2 | 3 | 4 | 5 | 6 | 7) => {
+    exec("fontSize", String(size));
+    closeFontMenu();
+  };
+
+  const openMoreMenu = (e: React.MouseEvent<HTMLElement>) => {
+    setMoreMenuAnchorEl(e.currentTarget);
+  };
+
+  const closeMoreMenu = () => setMoreMenuAnchorEl(null);
+
+  const clearFormatting = () => {
+    exec("removeFormat");
+    closeMoreMenu();
+  };
+
+  const removeLink = () => {
+    exec("unlink");
+    closeMoreMenu();
+  };
+
+  // Initialize editor content once to avoid caret jumps on re-render
+  useEffect(() => {
+    if (editorRef.current && emailData.body) {
+      editorRef.current.innerHTML = emailData.body;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSend = async () => {
     if (emailData.to.length === 0) {
       alert("Please add at least one recipient");
@@ -117,7 +229,11 @@ const SendEmailPage: React.FC = () => {
     setIsSending(true);
 
     try {
-      console.log("Sending email:", emailData);
+      const payload: EmailData = {
+        ...emailData,
+        body: editorRef.current?.innerHTML ?? emailData.body,
+      };
+      console.log("Sending email:", payload);
       // Here you would implement the actual email sending logic
       alert("Email sent successfully!");
 
@@ -181,7 +297,7 @@ const SendEmailPage: React.FC = () => {
 
       {/* Email Content */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <div className="w-full min-h-[calc(100vh-228px)] overflow-y-scroll">
+        <div className="w-full min-h-[calc(100vh-228px)] overflow-y-scroll" style={{ overflowY: isEmojiOpen ? "hidden" : "auto" }}>
           {/* From Field */}
           <Box
             sx={{ p: 2, borderBottom: "1px solid #e0e0e0", bgcolor: "#f8f9fa" }}
@@ -323,23 +439,28 @@ const SendEmailPage: React.FC = () => {
             />
           </Box>
 
-          {/* Email Body */}
+          {/* Email Body - Rich Text */}
           <Box sx={{ flex: 1, p: 2 }}>
-            <TextField
-              fullWidth
-              multiline
-              placeholder="Compose your message..."
-              value={emailData.body}
-              onChange={(e) =>
-                setEmailData((prev) => ({ ...prev, body: e.target.value }))
-              }
-              variant="standard"
-              InputProps={{ disableUnderline: true }}
+            <Box
+              ref={editorRef}
+              contentEditable
+              suppressContentEditableWarning
+              onKeyUp={saveSelection}
+              onMouseUp={saveSelection}
+              onInput={(e) => {
+                const html = (e.target as HTMLDivElement).innerHTML;
+                setEmailData((prev) => ({ ...prev, body: html }));
+              }}
               sx={{
-                height: "100%",
-                "& .MuiInputBase-input": {
-                  height: "100% !important",
-                  resize: "none",
+                minHeight: 240,
+                border: "1px solid #e0e0e0",
+                borderRadius: 1,
+                p: 2,
+                outline: "none",
+                typography: "body1",
+                '&:empty:before': {
+                  content: '"Compose your message..."',
+                  color: "#9e9e9e",
                 },
               }}
             />
@@ -403,13 +524,13 @@ const SendEmailPage: React.FC = () => {
             </Tooltip>
 
             <Tooltip title="Emoji">
-              <IconButton>
+              <IconButton onClick={openEmojiPicker}>
                 <EmojiIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="Insert link">
-              <IconButton>
+              <IconButton onClick={handleInsertLink}>
                 <LinkIcon />
               </IconButton>
             </Tooltip>
@@ -417,37 +538,37 @@ const SendEmailPage: React.FC = () => {
             <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
 
             <Tooltip title="Bold">
-              <IconButton>
+              <IconButton onClick={() => exec("bold")}>
                 <BoldIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="Italic">
-              <IconButton>
+              <IconButton onClick={() => exec("italic")}>
                 <ItalicIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="Underline">
-              <IconButton>
+              <IconButton onClick={() => exec("underline")}>
                 <UnderlineIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="Text color">
-              <IconButton>
+              <IconButton onClick={handlePickColor}>
                 <ColorIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="Font size">
-              <IconButton>
+              <IconButton onClick={openFontMenu}>
                 <FontSizeIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="More options">
-              <IconButton>
+              <IconButton onClick={openMoreMenu}>
                 <MoreIcon />
               </IconButton>
             </Tooltip>
@@ -474,6 +595,48 @@ const SendEmailPage: React.FC = () => {
         multiple
         style={{ display: "none" }}
       />
+      {/* Hidden color input */}
+      <input
+        type="color"
+        ref={colorInputRef}
+        onChange={handleColorChange}
+        style={{ display: "none" }}
+      />
+
+      {/* Font size menu */}
+      <Menu
+        anchorEl={fontMenuAnchorEl}
+        open={Boolean(fontMenuAnchorEl)}
+        onClose={closeFontMenu}
+      >
+        <MenuItem onClick={() => selectFontSize(2)}>Small</MenuItem>
+        <MenuItem onClick={() => selectFontSize(3)}>Normal</MenuItem>
+        <MenuItem onClick={() => selectFontSize(4)}>Large</MenuItem>
+        <MenuItem onClick={() => selectFontSize(5)}>X-Large</MenuItem>
+      </Menu>
+
+      {/* Emoji picker */}
+      <Popover
+        open={Boolean(emojiAnchorEl)}
+        anchorEl={emojiAnchorEl}
+        onClose={closeEmojiPicker}
+        anchorOrigin={{ vertical: "top", horizontal: "left" }}
+        transformOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Box sx={{ p: 1 }} onMouseDown={(e) => e.preventDefault()} onWheel={(e) => e.stopPropagation()}>
+          <Picker data={emojiData} onEmojiSelect={handleEmojiSelect} locale="en" theme="light" previewPosition="none" />
+        </Box>
+      </Popover>
+
+      {/* More options menu */}
+      <Menu
+        anchorEl={moreMenuAnchorEl}
+        open={Boolean(moreMenuAnchorEl)}
+        onClose={closeMoreMenu}
+      >
+        <MenuItem onClick={clearFormatting}>Clear formatting</MenuItem>
+        <MenuItem onClick={removeLink}>Remove link</MenuItem>
+      </Menu>
     </Box>
   );
 };

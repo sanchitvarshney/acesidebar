@@ -305,8 +305,8 @@ const StatusTab = ({ ticket }: any) => {
                 }}
               >
                 {statusList?.map((status: any) => (
-                  <MenuItem key={status.statusID} value={status.statusID}>
-                    {status?.statusName}
+                  <MenuItem key={status.key} value={status.key}>
+                    {status?.name}
                   </MenuItem>
                 ))}
               </Select>

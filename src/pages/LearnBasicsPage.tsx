@@ -28,7 +28,9 @@ import { useNavigate } from "react-router-dom";
 
 const LearnBasicsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [completedModules, setCompletedModules] = useState<number[]>([1, 2]); // First 2 modules completed
+
+  const [completedModules, setCompletedModules] = useState<number[]>([1, 2]);
+
 
   const learnBasicsItems = [
     {
@@ -89,243 +91,91 @@ const LearnBasicsPage: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        height: "calc(100vh - 96px)",
-        // backgroundColor: "#f5f5f5",
-        p: 2,
-        overflow: "hidden",
-        maxWidth: "80%",
-        mx: "auto",
-      }}
-    >
-      {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          mb: 4,
-          backgroundColor: "white",
-          p: 1,
-          borderRadius: 2,
-          boxShadow: 1,
-        }}
-      >
-        <IconButton onClick={() => navigate(-1)} sx={{ mr: 2 }}>
-          <ArrowBackIcon />
-        </IconButton>
-        <Box>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 700, color: "#1a1a1a", mb: 1 }}
+    <div className="w-full  ">
+      <Box sx={{ display: "grid", gap: 2 }}>
+        {learnBasicsItems.map((item) => (
+          <Card
+            key={item.id}
+            sx={{
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+              border: completedModules.includes(item.id)
+                ? "2px solid #4caf50"
+                : "1px solid #e0e0e0",
+              "&:hover": {
+                transform: "translateY(-2px)",
+                boxShadow: 4,
+                borderColor: "#1976d2",
+              },
+            }}
+            onClick={() => handleModuleClick(item.id)}
           >
-            Learn the Basics
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#666" }}>
-            Master Ajaxter with our comprehensive learning modules
-          </Typography>
-        </Box>
-      </Box>
-
-      <div className="w-full max-h-[calc(100vh-335px)] overflow-auto p-1">
-        {/* Progress Section */}
-        <Card sx={{ mb: 1, boxShadow: 2, flexGrow: 0 }}>
-          <CardContent>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, color: "#1a1a1a" }}
-              >
-                Getting Started Progress
-              </Typography>
-              <Chip
-                label={`${completedCount}/${totalCount} completed`}
-                color="primary"
-                icon={<StarIcon />}
-              />
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}
-              >
-                <Typography
-                  variant="h3"
-                  sx={{ color: "#4caf50", fontWeight: 700 }}
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    backgroundColor: completedModules.includes(item.id)
+                      ? "#e8f5e8"
+                      : "#f5f5f5",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                 >
-                  {Math.round(progressPercentage)}%
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#666" }}>
-                  {completedCount} of {totalCount} modules completed
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={progressPercentage}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: "#e0e0e0",
-                  "& .MuiLinearProgress-bar": {
-                    backgroundColor: "#4caf50",
-                    borderRadius: 4,
-                  },
-                }}
-              />
-            </Box>
-          </CardContent>
-        </Card>
+                  {item.icon}
+                </Box>
 
-        {/* Learning Modules */}
-        <Box sx={{ mb: 0 }}>
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 600, mb: 3, color: "#1a1a1a" }}
-          >
-            Learning Modules
-          </Typography>
-
-          <Box sx={{ display: "grid", gap: 2 }}>
-            {learnBasicsItems.map((item) => (
-              <Card
-                key={item.id}
-                sx={{
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  border: completedModules.includes(item.id)
-                    ? "2px solid #4caf50"
-                    : "1px solid #e0e0e0",
-                  "&:hover": {
-                    transform: "translateY(-2px)",
-                    boxShadow: 4,
-                    borderColor: "#1976d2",
-                  },
-                }}
-                onClick={() => handleModuleClick(item.id)}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-                    <Box
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        backgroundColor: completedModules.includes(item.id)
-                          ? "#e8f5e8"
-                          : "#f5f5f5",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
+                <Box sx={{ flex: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      mb: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 600, color: "#1a1a1a" }}
                     >
-                      {item.icon}
-                    </Box>
-
-                    <Box sx={{ flex: 1 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          mb: 1,
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, color: "#1a1a1a" }}
-                        >
-                          {item.title}
-                        </Typography>
-                        {completedModules.includes(item.id) && (
-                          <Chip
-                            label="Completed"
-                            size="small"
-                            color="success"
-                            icon={<CheckCircleIcon />}
-                          />
-                        )}
-                      </Box>
-                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
-                        {item.description}
-                      </Typography>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                      >
-                        <Chip
-                          label={item.type}
-                          size="small"
-                          variant="outlined"
-                          sx={{ textTransform: "capitalize" }}
-                        />
-                        <Typography variant="caption" sx={{ color: "#999" }}>
-                          {item.duration}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box>
-                      <PlayArrowIcon sx={{ color: "#1976d2", fontSize: 28 }} />
-                    </Box>
+                      {item.title}
+                    </Typography>
+                    {completedModules.includes(item.id) && (
+                      <Chip
+                        label="Completed"
+                        size="small"
+                        color="success"
+                        icon={<CheckCircleIcon />}
+                      />
+                    )}
                   </Box>
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
-        </Box>
-      </div>
+                  <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                    {item.description}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Chip
+                      label={item.type}
+                      size="small"
+                      variant="outlined"
+                      sx={{ textTransform: "capitalize" }}
+                    />
+                    <Typography variant="caption" sx={{ color: "#999" }}>
+                      {item.duration}
+                    </Typography>
+                  </Box>
+                </Box>
 
-      {/* Action Buttons */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          justifyContent: "center",
-          backgroundColor: "white",
-          p: 3,
-          borderRadius: 2,
-          boxShadow: 1,
-        }}
-      >
-        <Button
-          variant="outlined"
-          size="large"
-          onClick={() => navigate(-1)}
-          sx={{
-            px: 4,
-            py: 1.5,
-            borderColor: "#1976d2",
-            color: "#1976d2",
-            "&:hover": {
-              borderColor: "#1565c0",
-              backgroundColor: "#e3f2fd",
-            },
-          }}
-        >
-          Back to Dashboard
-        </Button>
-        <Button
-          variant="contained"
-          size="large"
-          startIcon={<PlayArrowIcon />}
-          sx={{
-            px: 4,
-            py: 1.5,
-            backgroundColor: "#1976d2",
-            "&:hover": {
-              backgroundColor: "#1565c0",
-            },
-          }}
-        >
-          Continue Learning
-        </Button>
+                <Box>
+                  <PlayArrowIcon sx={{ color: "#1976d2", fontSize: 28 }} />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        ))}
       </Box>
-    </Box>
+    </div>
   );
 };
 

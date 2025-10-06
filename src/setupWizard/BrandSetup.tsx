@@ -119,7 +119,7 @@ const BrandSetup = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
   ];
 
   return (
-    <div className="max-w-4xl h-[calc(100vh-185px)] flex flex-col items-center justify-center overflow-y-auto  ">
+    <div className=" flex flex-col items-center justify-center ">
       {/* Header */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}

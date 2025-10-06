@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Typography,
@@ -33,51 +33,112 @@ interface HelpCenterSliderProps {
   onClose: () => void;
 }
 
-const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) => {
- const { isOpen } = useSelector((state: any) => state.shotcut);
-  const [gettingStartedExpanded, setGettingStartedExpanded] = useState(true);
-  const navigate = useNavigate();
 
-  const setupWizardSteps = [
+ export const baseSteps = [
     { 
       id: 1, 
       title: "Learn the basics", 
-      completed: true, 
-      icon: <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 20 }} />
+      completed: false, 
+      icon: <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 20 }} />,
+      path:"learn-basics"
     },
     { 
       id: 2, 
       title: "Brand Info", 
       completed: false, 
-      icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />
+      icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />, 
+      path:"brand-info"
     },
     { 
       id: 3, 
       title: "SMTP Config", 
       completed: false, 
-      icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />
+      icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />,
+      path:"smtp-config"
     },
     { 
       id: 4, 
       title: "WhatsApp Config", 
       completed: false, 
       isOptional: true,
-      icon: <StarIcon sx={{ color: '#ff9800', fontSize: 20 }} />
+      icon: <StarIcon sx={{ color: '#ff9800', fontSize: 20 }} />,
+      path:"whatsapp-config"
     },
     { 
       id: 5, 
       title: "Google reCAPTCHA", 
       completed: false, 
       isOptional: true,
-      icon: <StarIcon sx={{ color: '#ff9800', fontSize: 20 }} />
+      icon: <StarIcon sx={{ color: '#ff9800', fontSize: 20 }} />,
+      path:"recaptcha"
     },
     { 
       id: 6, 
       title: "Completion", 
       completed: false, 
-      icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />
+      icon: <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />,
+      path:"completion"
     },
   ];
+
+const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) => {
+ const { isOpen } = useSelector((state: any) => state.shotcut);
+  const [gettingStartedExpanded, setGettingStartedExpanded] = useState(true);
+  const navigate = useNavigate();
+
+  // Read completion from localStorage to show accurate progress
+  const storageKey = 'setupWizardCompletedPaths';
+  const [completedPaths, setCompletedPaths] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? new Set<string>(arr) : new Set<string>();
+    } catch {
+      return new Set<string>();
+    }
+  });
+
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        const arr = raw ? JSON.parse(raw) : [];
+        setCompletedPaths(Array.isArray(arr) ? new Set<string>(arr) : new Set<string>());
+      } catch {}
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
+
+  const setupWizardSteps = useMemo(() => {
+    return baseSteps.map(step => {
+      const isCompleted = completedPaths.has(step.path) || step.completed;
+      const dynamicIcon = isCompleted
+        ? <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 20 }} />
+        : step.isOptional
+          ? <StarIcon sx={{ color: '#ff9800', fontSize: 20 }} />
+          : <CancelIcon sx={{ color: '#f44336', fontSize: 20 }} />;
+      return {
+        ...step,
+        completed: isCompleted,
+        icon: dynamicIcon,
+      };
+    });
+  }, [completedPaths]);
+
+  useEffect(() => {
+  const handler = () => {
+    const raw = localStorage.getItem(storageKey);
+    const arr = raw ? JSON.parse(raw) : [];
+    setCompletedPaths(Array.isArray(arr) ? new Set<string>(arr) : new Set<string>());
+  };
+  window.addEventListener('storage', handler);
+  window.addEventListener('setupWizardProgress', handler as EventListener);
+  return () => {
+    window.removeEventListener('storage', handler);
+    window.removeEventListener('setupWizardProgress', handler as EventListener);
+  };
+}, []);
 
   const completedCount = setupWizardSteps.filter(item => item.completed).length;
   const totalCount = setupWizardSteps.length;
@@ -189,10 +250,15 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({ open, onClose }) =>
                       <ListItem
                         key={item.id}
                         onClick={() => {
-                          if (item.title === "Learn the basics") {
-                            navigate('/learn-basics');
-                            // Don't close the slider - keep it open
-                          }
+                         navigate(`/getting-started/${item.path}`, {
+                           state: {
+                             id: item.id,
+                             title: item.title,
+                             completed: item.completed,
+                             path: item.path,
+                             isOptional: item.isOptional
+                           }
+                         });
                         }}
                         sx={{
                           py: 1,

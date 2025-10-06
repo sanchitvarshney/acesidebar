@@ -69,7 +69,7 @@ const SMTPConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
   };
 
   return (
-    <div className="max-w-4xl h-[calc(100vh-185px)] flex flex-col items-center justify-center overflow-y-auto  ">
+    <div className=" flex flex-col items-center justify-center ">
       {/* Header */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -95,7 +95,7 @@ const SMTPConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           SMTP Configuration
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-md text-gray-600">
           Configure your SMTP settings to enable email notifications and ticket
           communications.
         </p>

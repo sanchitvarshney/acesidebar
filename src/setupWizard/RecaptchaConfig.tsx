@@ -119,7 +119,7 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
   };
 
   return (
-    <div className="w-full h-[calc(100vh-190px)]  overflow-y-auto p-4 ">
+    <div className="w-full">
       {/* Header */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}

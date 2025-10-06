@@ -63,12 +63,17 @@ import CanenResponseMasterPage from "../USERMODULE/pages/settingManangePages/Can
 import AccountSettings from "../USERMODULE/pages/settingManangePages/AccountSettings";
 import CreateEmailNotificationsPage from "../USERMODULE/pages/settingManangePages/CreateEmailNotificationsPage";
 import SetupWizard from "../setupWizard/SetupWizard";
+import BrandSetup from "../setupWizard/BrandSetup";
+import SMTPConfig from "../setupWizard/SMTPConfig";
+import WhatsappConfig from "../setupWizard/WhatsappConfig";
+import RecaptchaConfig from "../setupWizard/RecaptchaConfig";
+import Completion from "../setupWizard/Completion";
 import AutomationMaster from "../USERMODULE/pages/settingManangePages/AutomationMaster";
 import ScenarioAutomations from "../USERMODULE/pages/settingManangePages/ScenarioAutomations";
 import CreateScenarioAutomations from "../USERMODULE/pages/settingManangePages/CreateScenarioAutomations";
 import SendEmailPage from "../pages/SendEmailPage";
 import LearnBasicsPage from "../pages/LearnBasicsPage";
-
+import SetUpPage from "../pages/SetUpPage";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -143,7 +148,7 @@ export const router = createBrowserRouter([
         path: "tasks",
         element: <Tasks />,
       },
-    
+
       {
         path: "chat",
         element: <Chat />,
@@ -199,7 +204,7 @@ export const router = createBrowserRouter([
             path: "agents-productivity",
             element: <AgentsProductivityPage />,
           },
-      
+
           {
             path: "quick-action",
             element: <QuickActions />,
@@ -212,7 +217,6 @@ export const router = createBrowserRouter([
             path: "emails",
             element: <EmailsPage />,
           },
-        
         ],
       },
       {
@@ -227,7 +231,7 @@ export const router = createBrowserRouter([
         path: "create-department",
         element: <CreateDepartmentPage />,
       },
-         {
+      {
         path: "create-email-notification",
         element: <CreateEmailNotificationsPage />,
       },
@@ -243,13 +247,13 @@ export const router = createBrowserRouter([
         path: "settings/emails/email-notifications",
         element: <EmailNotificationsPage />,
       },
-         {
+      {
         path: "settings/tickets-workflows/automations",
         element: <AutomationMaster />,
       },
-             {
+      {
         path: "settings/tickets-workflows/scenario-automations",
-        element: <ScenarioAutomations  />,
+        element: <ScenarioAutomations />,
       },
       {
         path: "settings/agents-productivity/canned-responses",
@@ -280,7 +284,7 @@ export const router = createBrowserRouter([
         path: "settings/system-account/account-exports",
         element: <AccountExport />,
       },
- 
+
       {
         path: "settings/system-account/system",
         element: <AccountSecurity />,
@@ -301,7 +305,7 @@ export const router = createBrowserRouter([
         path: "business-day",
         element: <BusinessDayIntegration />,
       },
-          {
+      {
         path: "scenario-automations/new",
         element: <CreateScenarioAutomations />,
       },
@@ -310,8 +314,39 @@ export const router = createBrowserRouter([
         element: <SendEmailPage />,
       },
       {
-        path: "learn-basics",
-        element: <LearnBasicsPage />,
+        path: "getting-started",
+        element: <SetUpPage />,
+        children: [
+          {
+            index: true,
+            element: <LearnBasicsPage />,
+          },
+
+          {
+            path: "learn-basics",
+            element: <LearnBasicsPage />,
+          },
+          {
+            path: "brand-info",
+            element: <BrandSetup />,
+          },
+          {
+            path: "smtp-config",
+            element: <SMTPConfig />,
+          },
+          {
+            path: "whatsapp-config",
+            element: <WhatsappConfig />,
+          },
+          {
+            path: "recaptcha",
+            element: <RecaptchaConfig />,
+          },
+          {
+            path: "completion",
+            element: <Completion />,
+          },
+        ],
       },
     ],
   },

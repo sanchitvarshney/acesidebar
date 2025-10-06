@@ -37,7 +37,7 @@ const Completion = ({ onNext, onBack, isFirstStep, isLastStep, data }: any) => {
   };
 
   return (
-    <div className="w-full h-[calc(100vh-185px)] flex flex-col items-center justify-center">
+    <div className="w-full  flex flex-col items-center justify-center">
       {/* Success Animation */}
       <motion.div
         initial={{ scale: 0 }}
@@ -108,7 +108,7 @@ const Completion = ({ onNext, onBack, isFirstStep, isLastStep, data }: any) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowInviteForm(true)}
-            className="flex-1 max-w-xs px-8 py-6 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all text-lg shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+            className="flex-1 max-w-xs px-6 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all text-lg shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
           >
             <svg
               className="w-6 h-6"
@@ -131,7 +131,7 @@ const Completion = ({ onNext, onBack, isFirstStep, isLastStep, data }: any) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => (window.location.href = "/admin/dashboard")}
-            className="flex-1 max-w-xs px-8 py-6 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-900 transition-all text-lg shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+            className="flex-1 max-w-xs px-6 py-4 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-900 transition-all text-lg shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
           >
             <svg
               className="w-6 h-6"

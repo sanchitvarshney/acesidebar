@@ -65,7 +65,7 @@ const WhatsappConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
   };
 
   return (
-    <div className="w-full overflow-y-auto py-6">
+    <div className="w-full">
       {/* Header */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
