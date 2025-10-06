@@ -1,4 +1,4 @@
-import { Email, Person, Subject, Warning } from "@mui/icons-material";
+import { Email, Person, Subject, Topic, Warning } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -15,28 +15,22 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import StackEditor from "../../components/reusable/Editor";
 import { useToast } from "../../hooks/useToast";
-import { useEditTicketMutation } from "../../services/threadsApi";
+import {
+  useEditTicketMutation,
+  useGetTopicListQuery,
+} from "../../services/threadsApi";
 import { useLazyGetUserBySeachQuery } from "../../services/agentServices";
 import SingleValueAsynAutocomplete from "../../components/reusable/SingleValueAsynAutocomplete";
 
-const SourceOptions: any = [
-  { value: "web", label: "Web" },
-  { value: "email", label: "Email" },
-  { value: "phone", label: "Phone" },
-  { value: "chat", label: "Chat" },
-  { value: "app", label: "App" },
-  { value: "social_media", label: "Social Media" },
-  { value: "other", label: "Other" },
-];
-
 const EditTicket = ({ onClose, open, ticket, onUpdated }: any) => {
   const { showToast } = useToast();
-
+  const { data: topicList } = useGetTopicListQuery({});
   const [errors, setErrors] = useState<{ subject?: string; body?: string }>({});
   const [editData, setEditData] = useState<any>({
     contact: "",
     subject: "",
     source: "",
+    topic: "",
     body: "",
   });
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
@@ -199,6 +193,33 @@ const EditTicket = ({ onClose, open, ticket, onUpdated }: any) => {
             isFallback={true}
           />
 
+          <FormControl fullWidth size="small" variant="outlined">
+            <InputLabel>Topic</InputLabel>
+            <Select
+              value={editData.topic}
+              onChange={(e) =>
+                setEditData((prev: any) => ({
+                  ...prev,
+                  topic: e.target.value,
+                }))
+              }
+              label="Topic"
+              startAdornment={
+                <Topic fontSize="small" sx={{ color: "#666", mr: 1 }} />
+              }
+              sx={{
+                backgroundColor: "#fff",
+                fontSize: "0.775rem",
+              }}
+            >
+              {topicList?.map((option: any) => (
+                <MenuItem key={option.key} value={option.key}>
+                  {option.topic}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           {/* Subject Field */}
           <TextField
             label="Subject*"
@@ -234,7 +255,6 @@ const EditTicket = ({ onClose, open, ticket, onUpdated }: any) => {
               {errors.subject}
             </FormHelperText>
           )}
-
 
           {/* Message Body */}
           <Box sx={{ flex: 1, minHeight: 300 }}>

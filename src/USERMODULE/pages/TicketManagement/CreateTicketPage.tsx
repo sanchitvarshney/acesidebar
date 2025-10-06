@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import {
   Box,
   Typography,
@@ -33,10 +33,10 @@ import {
   useGetTypeListQuery,
 } from "../../../services/ticketAuth";
 import { useToast } from "../../../hooks/useToast";
-
+import TopicIcon from '@mui/icons-material/Topic';
 import StackEditor from "../../../components/reusable/Editor";
 import { useNavigate } from "react-router-dom";
-import { fetchOptions, isValidEmail } from "../../../utils/Utils";
+
 import {
   useLazyGetAgentsBySeachQuery,
   useLazyGetDepartmentBySeachQuery,
@@ -44,6 +44,7 @@ import {
 } from "../../../services/agentServices";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 import { useGetTicketFieldQuery } from "../../../services/ticketField";
+import { useGetTopicListQuery } from "../../../services/threadsApi";
 
 interface TicketFormData {
   user_name: string;
@@ -54,6 +55,7 @@ interface TicketFormData {
   priority: string;
   format: string;
   type: string;
+  topic: string;
   recipients: any;
 }
 
@@ -62,7 +64,7 @@ const CreateTicketPage: React.FC = () => {
   const [createTicket, { isLoading: isCreating }] = useCreateTicketMutation();
   const { data: priorityList, isLoading: isPriorityListLoading } =
     useGetPriorityListQuery();
-
+const { data: topicList } = useGetTopicListQuery({});
   const { data: tagList } = useGetTagListQuery();
   const { data: ticketFields } = useGetTicketFieldQuery({});
 
@@ -92,6 +94,7 @@ const CreateTicketPage: React.FC = () => {
     priority: "", // Set to 0 initially, will be updated when priorityList loads
     format: "html",
     type: "",
+    topic:"",
     recipients: null,
   });
 
@@ -144,6 +147,7 @@ const CreateTicketPage: React.FC = () => {
         tags: tagValue.map((tag: any) => tag?.tagID),
         assignee: agentValue?.agentID,
         department: dept?.deptID,
+        topic:newTicket?.topic,
       };
 
       const res = await createTicket(payload).unwrap();
@@ -269,6 +273,7 @@ const CreateTicketPage: React.FC = () => {
                 priority: "",
                 format: "html",
                 type: "",
+                topic: "",
                 recipients: [],
               });
               setErrors({});
@@ -341,10 +346,46 @@ const CreateTicketPage: React.FC = () => {
                   case "select":
                     return (
                       <>
+                      <FormControl fullWidth size="small" variant="outlined">
+                          <InputLabel>Topic</InputLabel>
+                          <Select
+                            value={newTicket.topic.toString()}
+                            onChange={(e) =>
+                              setNewTicket((prev) => ({
+                                ...prev,
+                                topic: e.target.value,
+                              }))
+                            }
+                            label="Topic"
+                            startAdornment={
+                              <TopicIcon
+                                fontSize="small"
+                                sx={{ color: "#666", mr: 1 }}
+                              />
+                            }
+                            sx={{
+                              "&:hover .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "#9ca3af",
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  borderColor: "#1976d2",
+                                },
+                              backgroundColor: "#fff",
+                              fontSize: "0.775rem",
+                            }}
+                          >
+                            {topicList?.map((option: any) => (
+                              <MenuItem key={option.key} value={option.key}>
+                                {option.topic}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
                         <FormControl fullWidth size="small" variant="outlined">
                           <InputLabel>Type</InputLabel>
                           <Select
-                            value={newTicket.priority.toString()}
+                            value={newTicket.type.toString()}
                             onChange={(e) =>
                               setNewTicket((prev) => ({
                                 ...prev,
@@ -367,28 +408,12 @@ const CreateTicketPage: React.FC = () => {
                                   borderColor: "#1976d2",
                                 },
                               backgroundColor: "#fff",
-                              fontSize: "0.875rem",
+                              fontSize: "0.775rem",
                             }}
                           >
                             {typeList?.map((option: any) => (
                               <MenuItem key={option.key} value={option.key}>
-                                {/* <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        
-                            <Box
-                              sx={{
-                                width: 12,
-                                height: 12,
-                                borderRadius: "50%",
-                                backgroundColor: option.color,
-                                flexShrink: 0,
-                              }}
-                            /> */}
                                 {option.typeName}
-
-                                {/*                      
-                      </Box> */}
                               </MenuItem>
                             ))}
                           </Select>
@@ -416,7 +441,7 @@ const CreateTicketPage: React.FC = () => {
                                   borderColor: "#1976d2",
                                 },
                               backgroundColor: "#fff",
-                              fontSize: "0.875rem",
+                              fontSize: "0.775rem",
                             }}
                           >
                             {priorityList?.map((option: any) => (

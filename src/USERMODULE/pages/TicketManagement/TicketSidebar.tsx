@@ -139,7 +139,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
   // Handle max filters alert animation - now safe to use variables
   useEffect(() => {
-    if (!canAddMoreFilters && activeFilters.length === MAX_FILTERS) {
+    if (!drawerOpen && !canAddMoreFilters && activeFilters.length === MAX_FILTERS) {
       setShowMaxFiltersAlert(true);
 
       // Hide alert after 3 seconds
@@ -262,7 +262,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
   }
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
-    if (!canAddMoreFilters) {
+    if (!canAddMoreFilters && !drawerOpen) {
       // Show alert when user tries to add more filters beyond limit
       setShowMaxFiltersAlert(true);
 
@@ -715,25 +715,27 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
               </Box>
             )}
 
-            {/* Max Filters Reached Alert*/}
-            <Slide
-              direction="up"
-              in={showMaxFiltersAlert}
-              mountOnEnter
-              unmountOnExit
-            >
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: "80px",
-                  left: "10px",
-                  right: "10px",
-                  zIndex: 1000,
-                }}
+            {/* Max Filters Reached Alert - hidden when drawer is open */}
+            {!drawerOpen && (
+              <Slide
+                direction="up"
+                in={showMaxFiltersAlert}
+                mountOnEnter
+                unmountOnExit
               >
-                <CustomAlert title="You have exceeded the maximum number of filters" />
-              </Box>
-            </Slide>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: "80px",
+                    left: "10px",
+                    right: "10px",
+                    zIndex: 1000,
+                  }}
+                >
+                  <CustomAlert title="You have exceeded the maximum number of filters" />
+                </Box>
+              </Slide>
+            )}
           </>
         )}
       </Box>
@@ -844,7 +846,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                   {field.type === "dropdown" && field.name === "priority" && (
                     <FormControl fullWidth size="small">
                       <Select
-                        // name={field.name}
+                        name={field.name}
                         value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
                         renderValue={(selected) => {

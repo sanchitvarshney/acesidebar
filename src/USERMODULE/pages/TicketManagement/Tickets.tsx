@@ -744,16 +744,19 @@ const Tickets: React.FC = () => {
           {/* Right column: Title and description */}
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <h3 className="text-md font-medium text-gray-900">
-                  {merged?.subject || ""}
-                </h3>
-                <span className="text-gray-400 text-sm">
-                  ({merged?.stats?.totalThreads || 0})
-                </span>
-                <span className="text-sm text-gray-500">
-                  {merged?.lastupdate?.timeAgo || ""}
-                </span>
+              <div>
+                <span className="text-gray-400 text-xs">{merged?.topic}</span>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-md font-medium text-gray-900">
+                    {merged?.subject || ""}
+                  </h3>
+                  <span className="text-gray-400 text-sm">
+                    ({merged?.stats?.totalThreads || 0})
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {merged?.lastupdate?.timeAgo || ""}
+                  </span>
+                </div>
               </div>
               <CustomToolTip
                 title={renderProperties}
@@ -766,7 +769,7 @@ const Tickets: React.FC = () => {
                 <IconButton
                   size="small"
                   onClick={(e) => handleQuickUpdateOpen(e, merged)}
-                  className="text-gray-400 hover:text-gray-600 p-1"
+                  className="text-gray-400 hover:text-gray-600 "
                 >
                   <MoreVertIcon fontSize="small" />
                 </IconButton>

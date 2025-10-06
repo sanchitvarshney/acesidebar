@@ -34,7 +34,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: "GET",
       }),
     }),
-    
+
     getWatcher: builder.query({
       query: (credentials) => ({
         url: `/ticket/staff/list-watcher/${credentials.ticket}`,
@@ -86,6 +86,13 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getTopicList: builder.query<any, any>({
+      query: () => ({
+        url: `/topic/list`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
     editTicket: builder.mutation({
       query: (credentials) => ({
         url: `/ticket/edit/${credentials.ticket}/${credentials.client}`,
@@ -110,4 +117,5 @@ export const {
   useCommanApiForTaskListMutation,
   useGetTaskListMutation,
   useEditTicketMutation,
+  useGetTopicListQuery,
 } = extendedTicketApi;
