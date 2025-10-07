@@ -76,6 +76,7 @@ import SendEmailPage from "../pages/SendEmailPage";
 import LearnBasicsPage from "../pages/LearnBasicsPage";
 import SetUpPage from "../pages/SetUpPage";
 import EmailServerPage from "../USERMODULE/pages/settingManangePages/EmailServer";
+import NewSupportEmail from "../USERMODULE/pages/settingManangePages/NewSupportEmail";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -252,6 +253,10 @@ export const router = createBrowserRouter([
       {
         path: "settings/emails/email-settings",
         element: <EmailServerPage />,
+      },
+         {
+        path: "settings/emails/new-support-email",
+        element: <NewSupportEmail />,
       },
       {
         path: "settings/emails/email-settings-advanced",

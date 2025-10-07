@@ -11,8 +11,18 @@ const settingServices = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    updateEmailNotificationsSettingStatus: builder.mutation({
+      query: (credentials) => ({
+        url: `/notification/mail/status/${credentials?.key}?type=${credentials?.type}`,
+        method: "PUT",
+      }),
+      transformResponse: (response: any) => response,
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetEmailNotificationsSettingsQuery } = settingServices;
+export const {
+  useGetEmailNotificationsSettingsQuery,
+  useUpdateEmailNotificationsSettingStatusMutation,
+} = settingServices;

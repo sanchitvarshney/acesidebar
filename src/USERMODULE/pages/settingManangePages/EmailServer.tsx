@@ -142,7 +142,7 @@ const EmailServerPage: React.FC = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => {}}
+              onClick={() => navigate("/settings/emails/new-support-email")}
               size="small"
             >
               New support email
