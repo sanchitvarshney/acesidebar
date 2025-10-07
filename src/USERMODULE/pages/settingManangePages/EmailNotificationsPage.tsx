@@ -21,6 +21,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 import { useNavigate } from "react-router-dom";
+import { useGetEmailNotificationsSettingsQuery } from "../../../services/settingServices";
 
 const tabs = [
   { label: "Agent Notifications", value: "1" },
@@ -31,25 +32,22 @@ const tabs = [
 
 const EmailNotificationsPage = () => {
   const navigate = useNavigate();
-
-  const [events, setEvents] = useState([
-    { label: "New Ticket Created", active: true },
-    { label: "Ticket Assigned to Group", active: false },
-    { label: "Ticket Assigned to Agent", active: false },
-    { label: "Requester Replies to Ticket", active: true },
-    { label: "Ticket Unattended in Group", active: true },
-    { label: "First Response SLA Violation", active: true },
-    { label: "Resolution Time SLA Violation", active: true },
-  ]);
+  const { data: listSettings } = useGetEmailNotificationsSettingsQuery({});
+  const [events, setEvents] = useState<any>();
   const [value, setValue] = useState("1");
+
+  useEffect(() => {
+    if (!listSettings) return;
+    setEvents(listSettings);
+  }, [listSettings]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
   const handleToggle = (index: number) => {
-    const updated = [...events];
-    updated[index].active = !updated[index].active;
-    setEvents(updated);
+    // const updated = [...events];
+    // updated[index].active = !updated[index].active;
+    // setEvents(updated);
   };
 
   const IconSwitch = styled(Switch)(({ theme }) => ({
@@ -169,7 +167,7 @@ const EmailNotificationsPage = () => {
             {/* )} */}
           </Box>
         </Box>
-        <TabContext value={value}>
+        <TabContext  value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <TabList onChange={handleChange} aria-label="lab API tabs example">
               {tabs.map((tab) => (
@@ -177,7 +175,165 @@ const EmailNotificationsPage = () => {
               ))}
             </TabList>
           </Box>
-          <TabPanel value="1">
+          <div className="w-full max-h-[calc(100vh-210px)]  overflow-y-auto">
+            <TabPanel value="1">
+              {" "}
+              <List
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  bgcolor: "background.paper",
+                  borderRadius: 2,
+                  boxShadow: 2,
+                }}
+              >
+                {events?.agentNotification.map((event: any, index: number) => (
+                  <ListItem
+                  
+                    key={event?.key}
+                    secondaryAction={
+                      <Button
+                        variant="text"
+                        size="small"
+                        sx={{ fontWeight: 600 }}
+                        onClick={() => {
+                          navigate(`/create-email-notification`, {
+                            state: { event },
+                          });
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    }
+                    sx={{
+                      bgcolor: index % 2 === 1 ? "grey.50" : "white",
+                      borderBottom: "1px solid #eee",
+                    }}
+                  >
+                    <IconSwitch
+                      checked={event.status}
+                      onChange={() => handleToggle(event.key)}
+                      color="success"
+                      sx={{ mr: 2 }}
+                    />
+                    <ListItemText
+                      primary={event.title}
+                      primaryTypographyProps={{
+                        fontWeight: 600,
+                        color: event.active ? "text.primary" : "text.secondary",
+                      }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </TabPanel>
+            <TabPanel value="2">
+              {" "}
+              <List
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  bgcolor: "background.paper",
+                  borderRadius: 2,
+                  boxShadow: 2,
+                }}
+              >
+                {events?.ccNotification.map((event: any, index: number) => (
+                  <ListItem
+                    key={index}
+                    secondaryAction={
+                      <Button
+                        variant="text"
+                        size="small"
+                        sx={{ fontWeight: 600 }}
+                        onClick={() => {
+                          navigate(`/create-email-notification`, {
+                            state: { event },
+                          });
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    }
+                    sx={{
+                      bgcolor: index % 2 === 1 ? "grey.50" : "white", // alternate row color
+                      borderBottom: "1px solid #eee",
+                    }}
+                  >
+                    <IconSwitch
+                      checked={event.status}
+                      onChange={() => handleToggle(event.key)}
+                      color="success"
+                      sx={{ mr: 2 }}
+                    />
+                    <ListItemText
+                      primary={event.title}
+                      primaryTypographyProps={{
+                        fontWeight: 600,
+                        color: event.status ? "text.primary" : "text.secondary",
+                      }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </TabPanel>
+            <TabPanel value="3">
+              {" "}
+              <List
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  bgcolor: "background.paper",
+                  borderRadius: 2,
+                  boxShadow: 2,
+                }}
+              >
+                {events?.customerNotification.map(
+                  (event: any, index: number) => (
+                    <ListItem
+                      key={event?.key}
+                      secondaryAction={
+                        <Button
+                          variant="text"
+                          size="small"
+                          sx={{ fontWeight: 600 }}
+                          onClick={() => {
+                            navigate(`/create-email-notification`, {
+                              state: { event },
+                            });
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      }
+                      sx={{
+                        bgcolor: index % 2 === 1 ? "grey.50" : "white", // alternate row color
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <IconSwitch
+                        checked={event.status}
+                        onChange={() => handleToggle(index)}
+                        color="success"
+                        sx={{ mr: 2 }}
+                      />
+                      <ListItemText
+                        primary={event.title}
+                        primaryTypographyProps={{
+                          fontWeight: 600,
+                          color: event.status
+                            ? "text.primary"
+                            : "text.secondary",
+                        }}
+                      />
+                    </ListItem>
+                  )
+                )}
+              </List>
+            </TabPanel>
+          </div>
+
+          {/* <TabPanel value="4">
             {" "}
             <List
               sx={{
@@ -200,7 +356,6 @@ const EmailNotificationsPage = () => {
                         navigate(`/create-email-notification`, {
                           state: { event },
                         });
-                      
                       }}
                     >
                       Edit
@@ -227,160 +382,7 @@ const EmailNotificationsPage = () => {
                 </ListItem>
               ))}
             </List>
-          </TabPanel>
-          <TabPanel value="2">
-            {" "}
-            <List
-              sx={{
-                width: "100%",
-                height: "100%",
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                boxShadow: 2,
-              }}
-            >
-              {events.map((event, index) => (
-                <ListItem
-                  key={index}
-                  secondaryAction={
-                    <Button
-                      variant="text"
-                      size="small"
-                      sx={{ fontWeight: 600 }}
-                      onClick={() => {
-                        navigate(`/create-email-notification`, {
-                          state: { event },
-                        });
-                      
-                      }}
-                    >
-                      Edit
-                    </Button>
-                  }
-                  sx={{
-                    bgcolor: index % 2 === 1 ? "grey.50" : "white", // alternate row color
-                    borderBottom: "1px solid #eee",
-                  }}
-                >
-                  <IconSwitch
-                    checked={event.active}
-                    onChange={() => handleToggle(index)}
-                    color="success"
-                    sx={{ mr: 2 }}
-                  />
-                  <ListItemText
-                    primary={event.label}
-                    primaryTypographyProps={{
-                      fontWeight: 600,
-                      color: event.active ? "text.primary" : "text.secondary",
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </TabPanel>
-          <TabPanel value="3">
-            {" "}
-            <List
-              sx={{
-                width: "100%",
-                height: "100%",
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                boxShadow: 2,
-              }}
-            >
-              {events.map((event, index) => (
-                <ListItem
-                  key={index}
-                  secondaryAction={
-                    <Button
-                      variant="text"
-                      size="small"
-                      sx={{ fontWeight: 600 }}
-                      onClick={() => {
-                        navigate(`/create-email-notification`, {
-                          state: { event },
-                        });
-                      
-                      }}
-                    >
-                      Edit
-                    </Button>
-                  }
-                  sx={{
-                    bgcolor: index % 2 === 1 ? "grey.50" : "white", // alternate row color
-                    borderBottom: "1px solid #eee",
-                  }}
-                >
-                  <IconSwitch
-                    checked={event.active}
-                    onChange={() => handleToggle(index)}
-                    color="success"
-                    sx={{ mr: 2 }}
-                  />
-                  <ListItemText
-                    primary={event.label}
-                    primaryTypographyProps={{
-                      fontWeight: 600,
-                      color: event.active ? "text.primary" : "text.secondary",
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </TabPanel>
-          <TabPanel value="4">
-            {" "}
-            <List
-              sx={{
-                width: "100%",
-                height: "100%",
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                boxShadow: 2,
-              }}
-            >
-              {events.map((event, index) => (
-                <ListItem
-                  key={index}
-                  secondaryAction={
-                    <Button
-                      variant="text"
-                      size="small"
-                      sx={{ fontWeight: 600 }}
-                      onClick={() => {
-                        navigate(`/create-email-notification`, {
-                          state: { event },
-                        });
-                      
-                      }}
-                    >
-                      Edit
-                    </Button>
-                  }
-                  sx={{
-                    bgcolor: index % 2 === 1 ? "grey.50" : "white", // alternate row color
-                    borderBottom: "1px solid #eee",
-                  }}
-                >
-                  <IconSwitch
-                    checked={event.active}
-                    onChange={() => handleToggle(index)}
-                    color="success"
-                    sx={{ mr: 2 }}
-                  />
-                  <ListItemText
-                    primary={event.label}
-                    primaryTypographyProps={{
-                      fontWeight: 600,
-                      color: event.active ? "text.primary" : "text.secondary",
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </TabPanel>
+          </TabPanel> */}
         </TabContext>
 
         {/* </Card> */}

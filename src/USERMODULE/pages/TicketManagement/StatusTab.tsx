@@ -43,7 +43,7 @@ const StatusTab = ({ ticket }: any) => {
   const [sla, setSLA] = useState<any>("");
   const [status, setStatus] = useState<any>("");
   const [dept, setDept] = useState<any>("");
-  const [agent, setAgent] = useState<any>({});
+  const [agent, setAgent] = useState<any>("");
   const [options, setOptions] = useState<any>([]);
   const [dueDate, setDueDate] = useState<any>("");
   const [isUpdate, setIsUpdate] = useState(0);
@@ -64,11 +64,13 @@ const StatusTab = ({ ticket }: any) => {
   const [slaOptions, setSlaOptions] = useState<any[]>([]);
   const [isSlaLoading, setIsSlaLoading] = useState(false);
 
+  console.log("agent", agent);
+
   const debouncedValue: any = useDebounce(inputValue, 500);
 
   const handleUpdateTicket = () => {
-    const formatted = format(new Date(dueDate), "dd-mm-yyyy HH:mm") || "";
-    
+    const formatted = dueDate && format(new Date(dueDate), "dd-mm-yyyy HH:mm") || "";
+  
     const payload = {
       url: "edit-properties/" + ticket?.ticketId,
       method: "PUT",
@@ -243,7 +245,7 @@ const StatusTab = ({ ticket }: any) => {
 
   return (
     <div className="w-full h-[calc(100vh-100px)] overflow-hidden bg-[#f0f5fd]">
-      <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-255px)] overflow-y-auto">
+      <div className="w-full min-h-[calc(100vh-265px)] max-h-[calc(100vh-265px)] overflow-y-auto">
         <div className="w-full space-y-3 p-2 sm:p-3">
           <Typography variant="subtitle1">Properties</Typography>
 
@@ -607,6 +609,7 @@ const StatusTab = ({ ticket }: any) => {
                 size="small"
                 showIcon={false}
                 placeholder="Select Agent"
+                  optionLabelKey="fName"
               />
             )}
           </div>

@@ -132,9 +132,12 @@ const Tickets: React.FC = () => {
   const { data: statusList } = useGetStatusListQuery();
   const STATUS_OPTIONS: StatusOption[] =
     statusList?.map((item: any) => ({
-      label: item.statusName,
+      label: item.name,
       value: item.key,
-    })) || [];
+    }));
+
+
+    console.log("statusList", statusList);
 
   // Fetch sorting options
   const { data: sortingOptions } = useGetTicketSortingOptionsQuery();
@@ -644,9 +647,9 @@ const Tickets: React.FC = () => {
                   },
                 }}
               >
-                {STATUS_OPTIONS.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    <span className="text-gray-700">{option.label}</span>
+                {STATUS_OPTIONS?.map((option) => (
+                  <MenuItem key={option?.value} value={option?.value}>
+                    <span className="text-gray-700">{option?.label}</span>
                   </MenuItem>
                 ))}
               </Select>
