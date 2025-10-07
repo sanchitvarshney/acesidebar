@@ -13,32 +13,32 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import StackEditor from "../../../components/reusable/Editor";
-import { IconSwitch } from "../../../utils/create-user-columnDefs";
 import {
-  useGetPlaceholdersQuery,
   useValidatePlaceholdersMutation,
   usePreviewNotificationMutation,
 } from "../../../services/placeholderServices";
+import { useGetEmailNotificationsSettingsTemplateQuery } from "../../../services/settingServices";
 
 const CreateEmailNotificationsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { event } = location.state;
-
-  const { data: placeholders } = useGetPlaceholdersQuery();
   const [validatePlaceholders] = useValidatePlaceholdersMutation();
   const [previewNotification] = usePreviewNotificationMutation();
+  const { data: template } = useGetEmailNotificationsSettingsTemplateQuery({
+    key: event?.key && event?.key,
+  });
 
   // Form state management
   const [formData, setFormData] = useState<any>({
     eventType: event?.type || "",
-    eventLabel: event?.label || "",
-    subject: placeholders?.Ticket?.Subject || "",
+    eventLabel: event?.title || "",
+    subject: template?.subject || "",
     message: "",
     isEnabled: true,
     language: "en",
     recipients: [],
-    templateId: event?.id || "",
+    templateId: event?.key || "",
   });
 
   // console.log("payload", placeholders);
@@ -85,15 +85,6 @@ const CreateEmailNotificationsPage = () => {
     }));
   };
 
-  const handleNotificationToggle = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    checked: boolean
-  ) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      isEnabled: checked,
-    }));
-  };
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -179,23 +170,14 @@ const CreateEmailNotificationsPage = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings/emails/email-notifications")}>
+            <IconButton
+              onClick={() => navigate("/settings/emails/email-notifications")}
+            >
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
-              Agent Notifications / {event.label}
+              Agent Notifications / {event.title}
             </Typography>
-          </Box>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <Typography variant="body2" sx={{ fontSize: 12 }}>
-              Notification
-            </Typography>
-            <IconSwitch
-              checked={formData.isEnabled}
-              onChange={handleNotificationToggle}
-              color="success"
-              sx={{ mr: 2 }}
-            />
           </Box>
         </Box>
 
@@ -251,9 +233,9 @@ const CreateEmailNotificationsPage = () => {
      </div>
     <br/> <br/> 
     <div>
-      <span style="font-weight: bold; padding: 10px">Subject: ${placeholders?.Ticket?.Subject}</span>
+      <span style="font-weight: bold; padding: 10px">Subject: ${template?.subject}</span>
       <br/>
-      <p>${placeholders?.Ticket?.Description}</p>
+      <p>${template?.content}</p>
     </div>
         <br/> <br/>     <br/> <br/> 
     <div><button style="!cursor: pointer">Reply</button></div>`}

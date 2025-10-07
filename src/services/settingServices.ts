@@ -18,6 +18,13 @@ const settingServices = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response,
     }),
+    getEmailNotificationsSettingsTemplate: builder.query({
+      query: (credentials) => ({
+        url: `/notification/mail/template/${credentials?.key}`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
   }),
   overrideExisting: false,
 });
@@ -25,4 +32,5 @@ const settingServices = baseInstanceOfApi.injectEndpoints({
 export const {
   useGetEmailNotificationsSettingsQuery,
   useUpdateEmailNotificationsSettingStatusMutation,
+  useGetEmailNotificationsSettingsTemplateQuery,
 } = settingServices;

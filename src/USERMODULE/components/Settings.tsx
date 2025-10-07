@@ -418,7 +418,6 @@ const menuSections: MenuSection[] = [
         title: "Email Settings",
         description: "Email settings from osTicket",
         route: "/settings/emails/email-settings",
-        source: "osTicket",
       },
       {
         id: "email-notifications",

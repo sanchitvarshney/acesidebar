@@ -232,9 +232,9 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
                 style={{ color: "#666" }}
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2.625"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.625"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="lucide lucide-tablet-smartphone-icon lucide-tablet-smartphone"
               >
                 <rect width="10" height="14" x="3" y="8" rx="2" />

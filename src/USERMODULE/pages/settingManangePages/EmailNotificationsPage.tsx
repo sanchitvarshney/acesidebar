@@ -97,7 +97,7 @@ const EmailNotificationsPage = () => {
         transform: "translateX(20px)",
         color: "#fff",
         "& + .MuiSwitch-track": {
-          backgroundColor: "#22c55e", // green background when ON
+          backgroundColor: "#22c55e", 
           opacity: 1,
           border: 0,
         },
@@ -113,7 +113,7 @@ const EmailNotificationsPage = () => {
     },
     "& .MuiSwitch-track": {
       borderRadius: 26 / 2,
-      backgroundColor: "#e4e6eb", // grey background when OFF
+      backgroundColor: "#e4e6eb", 
       opacity: 1,
       transition: theme.transitions.create(["background-color"], {
         duration: 300,

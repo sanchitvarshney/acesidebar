@@ -64,7 +64,6 @@ const StatusTab = ({ ticket }: any) => {
   const [slaOptions, setSlaOptions] = useState<any[]>([]);
   const [isSlaLoading, setIsSlaLoading] = useState(false);
 
-  console.log("agent", agent);
 
   const debouncedValue: any = useDebounce(inputValue, 500);
 
@@ -135,17 +134,14 @@ const StatusTab = ({ ticket }: any) => {
         setSLA(ticket?.sla);
       }
 
-      if (ticket.email && ticket.username && ticket.userID) {
-        const agent = {
-          agentID: ticket.userID,
-          fName: ticket.username,
-          emailAddress: ticket.email,
-        };
+      if (ticket.assignee) {
+       
 
-        setAgent(agent);
+        setAgent(ticket?.assignee);
       }
     }
   }, [ticket, isUpdate]);
+
 
   const fetchOptions = (value: string) => {
     if (!value || value.length < 3) return [];
@@ -187,6 +183,8 @@ const StatusTab = ({ ticket }: any) => {
       });
     }
   };
+
+ 
 
   const handleOnChange = (newValue: any) => {
     setSLA(newValue);
@@ -609,7 +607,7 @@ const StatusTab = ({ ticket }: any) => {
                 size="small"
                 showIcon={false}
                 placeholder="Select Agent"
-                  optionLabelKey="fName"
+                  optionLabelKey="name"
               />
             )}
           </div>

@@ -434,7 +434,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                     <FormControl fullWidth size="small">
                       <Select
                         name={field.name}
-                        value={filters[field.name]}
+                        value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
                         displayEmpty
                         renderValue={(selected) => {
@@ -509,7 +509,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                     <FormControl fullWidth size="small">
                       <Select
                         name={field.name}
-                        value={filters[field.name]}
+                        value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
                         displayEmpty
                       >
@@ -531,7 +531,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       fullWidth
                       size="small"
                       name={field.name}
-                      value={filters[field.name]}
+                      value={filters[field.name] ?? ""}
                       onChange={handleChange}
                       variant="filled"
                       placeholder={field.placeholder || field.label || ""}
@@ -819,7 +819,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                       fullWidth
                       size="small"
                       name={field.name}
-                      value={filters[field.name]}
+                      value={filters[field.name] ?? ""}
                       onChange={handleChange}
                       variant="filled"
                       sx={{

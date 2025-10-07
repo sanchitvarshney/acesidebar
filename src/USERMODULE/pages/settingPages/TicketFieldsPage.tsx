@@ -428,7 +428,7 @@ const TicketFieldsPage: React.FC = () => {
   });
 
   return (
-    <Box sx={{ bgcolor: "grey.50", height: "calc(100vh - 100px)" }}>
+    <Box sx={{ bgcolor: "grey.50", height: "calc(100vh - 96px)", overflow:"hidden" }}>
       <Box sx={{ mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <IconButton onClick={() => navigate("/settings/tickets-workflows")}>
@@ -548,7 +548,7 @@ const TicketFieldsPage: React.FC = () => {
 
             {/* Fields List */}
             <Box
-              sx={{ p: 2, maxHeight: "calc(100vh - 235px)", overflowY: "auto" }}
+              sx={{ p: 2, maxHeight: "calc(100vh - 240px)", overflowY: "auto" }}
             >
               <Box
                 onDragOver={(e) => {
