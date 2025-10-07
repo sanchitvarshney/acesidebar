@@ -66,7 +66,7 @@ const EmailSettingsPage: React.FC = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings/emails")}>
+            <IconButton onClick={() => navigate("/settings/emails/email-settings")}>
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
@@ -75,7 +75,7 @@ const EmailSettingsPage: React.FC = () => {
           </Box>
         </Box>
 
-        <div className="w-full max-h-[calc(100vh-150px)] overflow-y-auto">
+        <div className="w-full max-h-[calc(100vh-180px)] p-2 overflow-y-auto">
           <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
             <SettingRow
               title="Create a new ticket for each customer response"

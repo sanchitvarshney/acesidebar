@@ -75,6 +75,7 @@ import CreateScenarioAutomations from "../USERMODULE/pages/settingManangePages/C
 import SendEmailPage from "../pages/SendEmailPage";
 import LearnBasicsPage from "../pages/LearnBasicsPage";
 import SetUpPage from "../pages/SetUpPage";
+import EmailServerPage from "../USERMODULE/pages/settingManangePages/EmailServer";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -250,6 +251,10 @@ export const router = createBrowserRouter([
       },
       {
         path: "settings/emails/email-settings",
+        element: <EmailServerPage />,
+      },
+      {
+        path: "settings/emails/email-settings-advanced",
         element: <EmailSettingsPage />,
       },
       {

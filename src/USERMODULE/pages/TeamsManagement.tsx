@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import {
   Box,
@@ -13,10 +13,6 @@ import {
   Chip,
   Popover,
   Paper,
-  Checkbox,
-  FormControlLabel,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -26,7 +22,7 @@ import {
   LinearProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import AddIcon from "@mui/icons-material/Add";
+
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
 import WorkIcon from "@mui/icons-material/Work";
@@ -34,7 +30,6 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import CustomSideBarPanel from "../../components/reusable/CustomSideBarPanel";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Close } from "@mui/icons-material";
@@ -467,29 +462,7 @@ const TeamsManagement = () => {
 
       {/* Right Sidebar */}
     
-      {/* Action Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleEditTeam}>
-          <EditIcon sx={{ mr: 1 }} />
-          Edit Team
-        </MenuItem>
-        <MenuItem onClick={() => {
-          const mockEvent = { currentTarget: null } as any;
-          handleViewMembers(mockEvent, selectedTeam);
-        }}>
-          <VisibilityIcon sx={{ mr: 1 }} />
-          View Members
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleDeleteTeam} sx={{ color: "error.main" }}>
-          <DeleteIcon sx={{ mr: 1 }} />
-          Delete Team
-        </MenuItem>
-      </Menu>
+
 
       {/* Member Details Popover */}
       <Popover
