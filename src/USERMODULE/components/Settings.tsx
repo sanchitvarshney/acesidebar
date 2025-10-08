@@ -435,7 +435,6 @@ const menuSections: MenuSection[] = [
         title: "Banlist",
         description: "Banlist from osTicket",
         route: "/settings/emails/banlist",
-        source: "osTicket",
       },
       {
         id: "diagnostics",
@@ -444,7 +443,6 @@ const menuSections: MenuSection[] = [
         title: "Diagnostics",
         description: "Diagnostics from osTicket",
         route: "/settings/emails/diagnostics",
-        source: "osTicket",
       },
     ],
   },

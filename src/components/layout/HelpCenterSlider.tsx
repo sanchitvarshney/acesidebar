@@ -270,7 +270,7 @@ const HelpCenterSlider: React.FC<HelpCenterSliderProps> = ({
                 ) : (
                   <ExpandMoreIcon />
                 )}
-                <span onClick={() => {
+                <span className="cursor-pointer z-10" onClick={() => {
                   localStorage.removeItem(storageKey);
                   toggleHelpCenter();
                 }}>

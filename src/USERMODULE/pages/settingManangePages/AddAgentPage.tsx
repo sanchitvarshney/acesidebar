@@ -228,7 +228,7 @@ const AddAgentPage = () => {
   return (
     <Box
       sx={{
-        height: "calc(100vh - 200px)",
+        height: "calc(100vh - 98px)",
         bgcolor: "#f5f5f5",
       }}
     >
@@ -298,17 +298,17 @@ const AddAgentPage = () => {
       {/* Main Content */}
       <Box
         sx={{
-          p: 3,
+          p: 2,
           display: "flex",
           flexDirection: "column",
           gap: 2,
           backgroundColor: "#fff",
           overflow: "auto",
-          maxHeight: "calc(100vh - 250px)",
+          maxHeight: "calc(100vh - 260px)",
         }}
       >
         {/* Tab 1: Agent Configuration with Stepper */}
-        <TabPanel value={activeTab} index={0}>
+        <TabPanel  value={activeTab} index={0} >
           <Box sx={{ margin: "0 auto" }}>
             <Stepper activeStep={activeStep} orientation="vertical">
               {steps.map((step, index) => (

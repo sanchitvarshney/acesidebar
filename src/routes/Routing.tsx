@@ -77,6 +77,9 @@ import LearnBasicsPage from "../pages/LearnBasicsPage";
 import SetUpPage from "../pages/SetUpPage";
 import EmailServerPage from "../USERMODULE/pages/settingManangePages/EmailServer";
 import NewSupportEmail from "../USERMODULE/pages/settingManangePages/NewSupportEmail";
+import Banlist from "../USERMODULE/pages/settingManangePages/Banlist";
+import AddNewBanlist from "../USERMODULE/pages/settingManangePages/AddNewBanlist";
+import DiagnosticsPage from "../USERMODULE/pages/settingManangePages/DiagnosticsPage";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -261,6 +264,18 @@ export const router = createBrowserRouter([
       {
         path: "settings/emails/email-settings-advanced",
         element: <EmailSettingsPage />,
+      },
+        {
+        path: "settings/emails/banlist",
+        element: <Banlist />,
+      },
+              {
+        path: "settings/emails/add-new-banlist",
+        element: <AddNewBanlist />,
+      },
+                 {
+        path: "settings/emails/diagnostics",
+        element: <DiagnosticsPage />,
       },
       {
         path: "settings/tickets-workflows/automations",
