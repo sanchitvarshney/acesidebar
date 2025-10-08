@@ -229,7 +229,7 @@ const CreateTeamPage = () => {
   return (
     <Box
       sx={{
-        height: "calc(100vh - 96px)",
+        height: "calc(100vh - 98px)",
         bgcolor: "#f5f5f5",
         display: "flex",
         flexDirection: "column",
@@ -238,7 +238,9 @@ const CreateTeamPage = () => {
       {/* Header */}
       <Box sx={{ borderBottom: "1px solid #e0e0e0", bgcolor: "#fff" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton onClick={() => navigate("/settings/agents-productivity/teams")}>
+          <IconButton
+            onClick={() => navigate("/settings/agents-productivity/teams")}
+          >
             <ArrowBackIcon />
           </IconButton>
           <Typography
@@ -285,12 +287,14 @@ const CreateTeamPage = () => {
         {/* Left Panel - Form */}
         <Box sx={{ flex: 2, overflowY: "auto", minHeight: 0 }}>
           <TabPanel value={activeTab} index={0}>
-            <Stack spacing={3}>
+            <Stack spacing={2}>
               {/* Basic Information */}
               <Card>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    Basic Information
+                <CardContent
+                  sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                >
+                  <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                    Team Information
                   </Typography>
                   <Stack spacing={2}>
                     <TextField
@@ -343,13 +347,7 @@ const CreateTeamPage = () => {
                       </TextField>
                     </Box>
                   </Stack>
-                </CardContent>
-              </Card>
-
-              {/* Team Settings */}
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                  <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
                     Team Settings
                   </Typography>
                   <Stack spacing={2}>
@@ -382,67 +380,10 @@ const CreateTeamPage = () => {
                         <MenuItem value="Least Busy">Least Busy</MenuItem>
                         <MenuItem value="Manual">Manual</MenuItem>
                       </TextField>
-                      <TextField
-                        type="number"
-                        fullWidth
-                        label="Max Members"
-                        value={formData.maxMembers}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "maxMembers",
-                            parseInt(e.target.value)
-                          )
-                        }
-                      />
                     </Box>
-                    <Box sx={{ display: "flex", gap: 2 }}>
-                      <TextField
-                        fullWidth
-                        label="Working Hours"
-                        value={formData.workingHours}
-                        onChange={(e) =>
-                          handleInputChange("workingHours", e.target.value)
-                        }
-                      />
-                      <TextField
-                        select
-                        fullWidth
-                        label="Timezone"
-                        value={formData.timezone}
-                        onChange={(e) =>
-                          handleInputChange("timezone", e.target.value)
-                        }
-                      >
-                        {timezones.map((tz) => (
-                          <MenuItem key={tz} value={tz}>
-                            {tz}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Box>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={formData.autoAssignment}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "autoAssignment",
-                              e.target.checked
-                            )
-                          }
-                        />
-                      }
-                      label="Enable Auto Assignment"
-                    />
                   </Stack>
-                </CardContent>
-              </Card>
-
-              {/* Notifications */}
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    Notifications
+                  <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                   Team Notifications
                   </Typography>
                   <Stack spacing={2}>
                     <FormControlLabel
@@ -498,7 +439,7 @@ const CreateTeamPage = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      mb: 2,
+                      mb: 1,
                     }}
                   >
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>

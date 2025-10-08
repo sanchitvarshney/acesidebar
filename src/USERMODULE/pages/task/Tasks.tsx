@@ -65,6 +65,7 @@ import noTask from "../../../assets/24683078_6986783.svg";
 import KanbanPage from "./KanbanPage";
 
 import { useGetStatusListTaskQuery } from "../../../services/ticketAuth";
+import { useSelector } from "react-redux";
 
 type TaskPropsType = {
   isAddTask?: boolean;
@@ -91,7 +92,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [page, setPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
-
+  const { isOpenTask } = useSelector((state: any) => state.shotcut);
   const [
     getAllTaskList,
     { data: taskListData, isLoading: taskListDataLoading },
@@ -144,6 +145,11 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       setTaskStatus("");
     }
   }, [taskcomment?.data?.status?.key]);
+
+  useEffect(() => {
+    if (!isOpenTask) return;
+    setTaskDialogOpen(true);
+  }, [isOpenTask]);
 
   //fetch Tasks
   const fetchTasks = async () => {
@@ -270,7 +276,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   };
 
   const saveEditedComment = (commentId: string, newText: string) => {
-   
     setEditingCommentId(null);
   };
 
@@ -280,8 +285,6 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
   //@ts-ignore
   const currentAgent = user?.name; // from shared data
-
-
 
   const handleStatusChange = async (
     taskId: string,

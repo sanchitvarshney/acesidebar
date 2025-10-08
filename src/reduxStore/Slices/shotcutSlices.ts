@@ -7,7 +7,7 @@ interface CounterState {
   isReply: boolean;
   selectedIndex: string | number;
   isOpen: boolean;
-
+  isOpenTask: boolean;
 }
 
 const initialState: CounterState = {
@@ -17,7 +17,7 @@ const initialState: CounterState = {
   isReply: true,
   selectedIndex: "1",
   isOpen: true,
- 
+  isOpenTask: false,
 };
 
 const shotcutSlice = createSlice({
@@ -39,10 +39,12 @@ const shotcutSlice = createSlice({
     setSelectedIndex: (state, action) => {
       state.selectedIndex = action.payload;
     },
-        setToggle: (state, action) => {
+    setToggle: (state, action) => {
       state.isOpen = action.payload;
     },
-
+    setOpenTask: (state, action) => {
+      state.isOpenTask = action.payload;
+    },
   },
 });
 
@@ -53,6 +55,6 @@ export const {
   setIsReply,
   setSelectedIndex,
   setToggle,
- 
+  setOpenTask
 } = shotcutSlice.actions;
 export default shotcutSlice.reducer;

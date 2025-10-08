@@ -20,6 +20,8 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setOpenTask } from "../../../reduxStore/Slices/shotcutSlices";
 
 const quickActions = [
   {
@@ -64,6 +66,7 @@ const quickActions = [
 const QuickActions: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+const dispatch = useDispatch();
 
   // Filter actions based on search query
   const filteredActions = quickActions.filter((action) => {
@@ -90,6 +93,8 @@ const QuickActions: React.FC = () => {
         // Handle call action
         break;
       case "task":
+        dispatch(setOpenTask(true));
+        navigate("/tasks");
         break;
       case "contact":
         break;
