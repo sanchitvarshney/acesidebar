@@ -72,6 +72,8 @@ const StackEditor = ({
   shouldFocus = false,
   shouldFocusNotify = false,
   onFocus,
+  removeIcon = false,
+
   ...props
 }) => {
   const {
@@ -558,8 +560,13 @@ const StackEditor = ({
             <button className="ql-bold" aria-label="Bold"></button>
             <button className="ql-italic" aria-label="Italic"></button>
             <button className="ql-underline" aria-label="Underline"></button>
-            <button className="ql-link" aria-label="Link"></button>
-            <button className="ql-image" aria-label="Image"></button>
+            {!removeIcon && (
+              <>
+                <button className="ql-link" aria-label="Link"></button>{" "}
+                <button className="ql-image" aria-label="Image"></button>
+              </>
+            )}
+
             {/* <button className="ql-video" aria-label="Video"></button> */}
 
             <select className="ql-color " aria-label="Font Color"></select>

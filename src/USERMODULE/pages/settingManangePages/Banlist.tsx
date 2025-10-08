@@ -22,6 +22,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 const banned_emails = [
   {
@@ -225,6 +227,14 @@ const Banlist = () => {
                   >
                     Last Updated
                   </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      color: "#1a1a1a",
+                      borderBottom: "2px solid #e0e0e0",
+                    }}
+                  />
                 </TableRow>
               </TableHead>
 
@@ -297,6 +307,32 @@ const Banlist = () => {
                         }}
                       >
                         {row.last_updated || "Not assigned"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "14px",
+                          color: "#65676b",
+                        }}
+                      >
+                        <div className="flex gap-2">
+                          <IconButton
+                            aria-label="edit"
+                            onClick={() => navigate(`/settings/emails/add-new-banlist`, { state: row })}
+                            size="small"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            aria-label="delete"
+                            onClick={() => {}}
+                            size="small"
+                            sx={{
+                              color: "red",
+                            }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

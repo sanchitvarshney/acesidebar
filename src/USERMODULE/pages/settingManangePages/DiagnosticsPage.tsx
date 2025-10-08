@@ -152,18 +152,20 @@ const DiagnosticsPage = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+
+            borderBottom: "1px solid #e0e0e0",
             mb: 1,
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings")}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 2 }}>
+            <IconButton onClick={() => navigate("/settings/emails")}>
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
@@ -172,233 +174,88 @@ const DiagnosticsPage = () => {
           </Box>
         </Box>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            height: "calc(100vh - 200px)",
-            overflow: "hidden",
-          }}
-        >
-          <Paper
-            elevation={0}
+        <div className=" w-full  h-[calc(100vh-294px)] overflow-y-auto">
+          <Box
             sx={{
-              border: "1px solid #e0e0e0",
-              borderRadius: 1,
-              maxWidth: 800,
-              width: "100%",
-              backgroundColor: "#ffffff",
-              display: "flex",
-              flexDirection: "column",
+              px: 10,
+              py: 2,
             }}
           >
-            {/* Scrollable Form Content */}
-            <Box
-              sx={{
-                flex: 1,
-                overflowY: "auto",
-                px: 6,
-                py: 2,
-              }}
-            >
-              {/* Error Messages */}
-              {(errors.fromEmail || errors.toEmail || errors.subject) && (
-                <Box sx={{ mb: 2 }}>
-                  {errors.fromEmail && (
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "error.main",
-                        fontStyle: "italic",
-                        mb: 1,
-                      }}
-                    >
-                      {errors.fromEmail}
-                    </Typography>
-                  )}
-                  {errors.toEmail && (
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "error.main",
-                        fontStyle: "italic",
-                        mb: 1,
-                      }}
-                    >
-                      {errors.toEmail}
-                    </Typography>
-                  )}
-                  {errors.subject && (
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "error.main",
-                        fontStyle: "italic",
-                        mb: 1,
-                      }}
-                    >
-                      {errors.subject}
-                    </Typography>
-                  )}
-                </Box>
-              )}
-
-              <form onSubmit={handleSubmit}>
-                {/* From Email Section */}
-                <Box sx={{ mb: 2}}>
+            {/* Error Messages */}
+            {(errors.fromEmail || errors.toEmail || errors.subject) && (
+              <Box sx={{ mb: 2 }}>
+                {errors.fromEmail && (
                   <Typography
-                    variant="subtitle2"
+                    variant="body2"
                     sx={{
-                      fontWeight: 600,
-                      color: "#374151",
+                      color: "error.main",
+                      fontStyle: "italic",
                       mb: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
                     }}
                   >
-                    <PersonIcon sx={{ fontSize: 20, color: "#6b7280" }} />
-                    From
-                    <Typography
-                      component="span"
-                      sx={{ color: "error.main", ml: 0.5 }}
-                    >
-                      *
-                    </Typography>
+                    {errors.fromEmail}
                   </Typography>
-                  <FormControl fullWidth variant="outlined" size="small">
-                    <Select
-                      value={formData.fromEmail}
-                      onChange={(e) =>
-                        handleInputChange("fromEmail", e.target.value)
-                      }
-                      required
-                      displayEmpty
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "#d1d5db",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "#9ca3af",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "#3b82f6",
-                          },
-                        },
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        — Select FROM Email —
-                      </MenuItem>
-                      <MenuItem value="admin@example.com">
-                        admin@example.com
-                      </MenuItem>
-                      <MenuItem value="support@example.com">
-                        support@example.com
-                      </MenuItem>
-                      <MenuItem value="noreply@example.com">
-                        noreply@example.com
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-
-                {/* To Email Section */}
-                <Box sx={{ mb: 2 }}>
+                )}
+                {errors.toEmail && (
                   <Typography
-                    variant="subtitle2"
+                    variant="body2"
                     sx={{
-                      fontWeight: 600,
-                      color: "#374151",
+                      color: "error.main",
+                      fontStyle: "italic",
                       mb: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
                     }}
                   >
-                    <EmailIcon sx={{ fontSize: 20, color: "#6b7280" }} />
-                    To
-                    <Typography
-                      component="span"
-                      sx={{ color: "error.main", ml: 0.5 }}
-                    >
-                      *
-                    </Typography>
+                    {errors.toEmail}
                   </Typography>
-
-                  <SingleValueAsynAutocomplete
-                    qtkMethod={triggerSeachAgent}
-                    value={formData.toEmail}
-                    onChange={(e: any) =>
-                      handleInputChange("toEmail", e.target.value)
-                    }
-                    placeholder="Search Email"
-                    renderOptionExtra={(user: any) => (
-                      <Typography variant="body2" color="text.secondary">
-                        {user.email}
-                      </Typography>
-                    )}
-                    icon={
-                      <EmailIcon
-                        sx={{
-                          color: "#9ca3af",
-                          mr: 1,
-                          fontSize: 20,
-                        }}
-                      />
-                    }
-                    isFallback={true}
-                    loading={seachAgentLoading}
-                  />
-                </Box>
-
-                {/* Subject Section */}
-                <Box sx={{ mb: 4 }}>
+                )}
+                {errors.subject && (
                   <Typography
-                    variant="subtitle2"
+                    variant="body2"
                     sx={{
-                      fontWeight: 600,
-                      color: "#374151",
+                      color: "error.main",
+                      fontStyle: "italic",
                       mb: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
                     }}
                   >
-                    <SubjectIcon sx={{ fontSize: 20, color: "#6b7280" }} />
-                    Subject
-                    <Typography
-                      component="span"
-                      sx={{ color: "error.main", ml: 0.5 }}
-                    >
-                      *
-                    </Typography>
+                    {errors.subject}
                   </Typography>
-                  <TextField
-                    fullWidth
-                    placeholder="Enter email subject"
-                    value={formData.subject}
+                )}
+              </Box>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              {/* From Email Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    mb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <PersonIcon sx={{ fontSize: 20, color: "#6b7280" }} />
+                  From
+                  <Typography
+                    component="span"
+                    sx={{ color: "error.main", ml: 0.5 }}
+                  >
+                    *
+                  </Typography>
+                </Typography>
+                <FormControl fullWidth variant="outlined" size="small">
+                  <Select
+                    value={formData.fromEmail}
                     onChange={(e) =>
-                      handleInputChange("subject", e.target.value)
+                      handleInputChange("fromEmail", e.target.value)
                     }
-                    variant="outlined"
-                    size="small"
                     required
-                    error={!!errors.subject}
-                    helperText={errors.subject}
-                    InputProps={{
-                      startAdornment: (
-                        <SubjectIcon
-                          sx={{
-                            color: "#9ca3af",
-                            mr: 1,
-                            fontSize: 20,
-                          }}
-                        />
-                      ),
-                    }}
+                    displayEmpty
                     sx={{
+                      width: "40%",
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
                           borderColor: "#d1d5db",
@@ -411,84 +268,199 @@ const DiagnosticsPage = () => {
                         },
                       },
                     }}
+                  >
+                    <MenuItem value="" disabled>
+                      — Select FROM Email —
+                    </MenuItem>
+                    <MenuItem value="admin@example.com">
+                      admin@example.com
+                    </MenuItem>
+                    <MenuItem value="support@example.com">
+                      support@example.com
+                    </MenuItem>
+                    <MenuItem value="noreply@example.com">
+                      noreply@example.com
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+
+              {/* To Email Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    mb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <EmailIcon sx={{ fontSize: 20, color: "#6b7280" }} />
+                  To
+                  <Typography
+                    component="span"
+                    sx={{ color: "error.main", ml: 0.5 }}
+                  >
+                    *
+                  </Typography>
+                </Typography>
+
+                <SingleValueAsynAutocomplete
+                  qtkMethod={triggerSeachAgent}
+                  value={formData.toEmail}
+                  onChange={(e: any) =>
+                    handleInputChange("toEmail", e.target.value)
+                  }
+                  placeholder="Search Email"
+                  renderOptionExtra={(user: any) => (
+                    <Typography variant="body2" color="text.secondary">
+                      {user.email}
+                    </Typography>
+                  )}
+                  icon={
+                    <EmailIcon
+                      sx={{
+                        color: "#9ca3af",
+                        mr: 1,
+                        fontSize: 20,
+                      }}
+                    />
+                  }
+                  isFallback={true}
+                  loading={seachAgentLoading}
+                  width={"60%"}
+                />
+              </Box>
+
+              {/* Subject Section */}
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    mb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <SubjectIcon sx={{ fontSize: 20, color: "#6b7280" }} />
+                  Subject
+                  <Typography
+                    component="span"
+                    sx={{ color: "error.main", ml: 0.5 }}
+                  >
+                    *
+                  </Typography>
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder="Enter email subject"
+                  value={formData.subject}
+                  onChange={(e) => handleInputChange("subject", e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  required
+                  error={!!errors.subject}
+                  helperText={errors.subject}
+                  InputProps={{
+                    startAdornment: (
+                      <SubjectIcon
+                        sx={{
+                          color: "#9ca3af",
+                          mr: 1,
+                          fontSize: 20,
+                        }}
+                      />
+                    ),
+                  }}
+                  sx={{
+                    width: "80%",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "#d1d5db",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#9ca3af",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#3b82f6",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* Message Section */}
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    mb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <SendIcon sx={{ fontSize: 20, color: "#6b7280" }} />
+                  Message
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#6b7280", ml: 1 }}
+                  >
+                    (email message to send)
+                  </Typography>
+                </Typography>
+                <Box sx={{}}>
+                  <StackEditor
+                    onChange={(content: string) => {
+                      handleInputChange("message", content);
+                    }}
+                    onFocus={undefined}
+                    initialContent={formData.message}
+                    isFull={false}
+                    customHeight="200px"
+                    removeIcon={true}
                   />
                 </Box>
-
-                {/* Message Section */}
-                <Box sx={{ mb: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      fontWeight: 600,
-                      color: "#374151",
-                      mb: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <SendIcon sx={{ fontSize: 20, color: "#6b7280" }} />
-                    Message
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "#6b7280", ml: 1 }}
-                    >
-                      (email message to send)
-                    </Typography>
-                  </Typography>
-                  <Box sx={{}}>
-                    <StackEditor
-                      onChange={(content: string) => {
-                        handleInputChange("message", content);
-                      }}
-                      onFocus={undefined}
-                      initialContent={formData.message}
-                      isFull={false}
-                      customHeight="200px"
-                    />
-                  </Box>
-                </Box>
-              </form>
-            </Box>
-
-            {/* Fixed Bottom Section with Buttons */}
-            <Box
-              sx={{
-                borderTop: "1px solid #e0e0e0",
-                p: 3,
-                backgroundColor: "#fafafa",
-                flexShrink: 0,
-              }}
-            >
-              <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
-                <Button
-                  variant="text"
-                  onClick={handleCancel}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleReset}
-                  disabled={isSubmitting}
-                  color="error"
-                >
-                  Reset
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  startIcon={
-                    isSubmitting ? <CircularProgress size={16} /> : <SendIcon />
-                  }
-                >
-                  {isSubmitting ? "Sending..." : "Send Message"}
-                </Button>
               </Box>
-            </Box>
-          </Paper>
+            </form>
+          </Box>
+        </div>
+
+        {/* Fixed Bottom Section with Buttons */}
+        <Box
+          sx={{
+            borderTop: "1px solid #e0e0e0",
+            p: 3,
+            backgroundColor: "#fafafa",
+            flexShrink: 0,
+          }}
+        >
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+            <Button
+              variant="text"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+              sx={{ fontWeight: 600 }}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Send Message"}
+            </Button>
+          </Box>
         </Box>
       </Box>
 

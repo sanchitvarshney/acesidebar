@@ -32,10 +32,11 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import EmailIcon from "@mui/icons-material/Email";
 import BlockIcon from "@mui/icons-material/Block";
 import NotesIcon from "@mui/icons-material/Notes";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AddNewBanlist = () => {
   const navigate = useNavigate();
+  const editData = useLocation().state;
   const [formData, setFormData] = useState<any>({
     banStatus: "active",
     emailAddress: "",
@@ -121,6 +122,14 @@ const AddNewBanlist = () => {
     navigate("/settings/emails/banlist");
   };
 
+  useEffect(() => {
+    if (!editData) return;
+    setFormData({
+      emailAddress: editData.email,
+      internalNotes: editData.internalNotes,
+    });
+  }, [editData]);
+
   return (
     <Box
       sx={{
@@ -131,7 +140,7 @@ const AddNewBanlist = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
@@ -139,9 +148,10 @@ const AddNewBanlist = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+            borderBottom: "1px solid #e0e0e0",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 2 }}>
             <IconButton onClick={() => navigate("/settings/emails/banlist")}>
               <ArrowBackIcon />
             </IconButton>
@@ -150,248 +160,156 @@ const AddNewBanlist = () => {
             </Typography>
           </Box>
         </Box>
-        <div className="flex justify-center items-center h-[calc(100vh-220px)]">
-          <Paper
-            elevation={0}
-            sx={{
-              border: "1px solid #e0e0e0",
-              borderRadius: 1,
-              maxWidth: 800,
-              width: "100%",
-              backgroundColor: "#ffffff",
-          
-            }}
-          >
-            <Box sx={{ p: 6 }}>
-              {/* Error Message */}
-              {errors.emailAddress && (
+        <div className=" w-full  h-[calc(100vh-294px)] overflow-auto">
+          <Box sx={{ py: 1, px: 10 }}>
+            {/* Error Message */}
+            {errors.emailAddress && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "error.main",
+                  fontStyle: "italic",
+                  mb: 2,
+                }}
+              >
+                {errors.emailAddress}
+              </Typography>
+            )}
+
+            {/* Email Address Section */}
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 600,
+                  color: "#374151",
+                  mb: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <EmailIcon sx={{ fontSize: 20, color: "#6b7280" }} />
+                Email Address
                 <Typography
-                  variant="body2"
-                  sx={{
-                    color: "error.main",
-                    fontStyle: "italic",
-                    mb: 2,
-                  }}
+                  component="span"
+                  sx={{ color: "error.main", ml: 0.5 }}
                 >
-                  {errors.emailAddress}
+                  *
                 </Typography>
-              )}
-
-              <form onSubmit={handleSubmit}>
-                {/* Ban Status Section */}
-                <Box sx={{ mb: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      fontWeight: 600,
-                      color: "#374151",
-                      mb: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <BlockIcon sx={{ fontSize: 20, color: "#6b7280" }} />
-                    Ban Status
-                    <Typography
-                      component="span"
-                      sx={{ color: "error.main", ml: 0.5 }}
-                    >
-                      *
-                    </Typography>
-                  </Typography>
-                  <FormControl fullWidth variant="outlined" size="small">
-                    <Select
-                      value={formData.banStatus}
-                      onChange={(e) =>
-                        handleInputChange("banStatus", e.target.value)
-                      }
-                      required
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "#d1d5db",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "#9ca3af",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "#3b82f6",
-                          },
-                        },
-                      }}
-                    >
-                      <MenuItem value="active">Active</MenuItem>
-                      <MenuItem value="disabled">Disabled</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-
-                {/* Email Address Section */}
-                <Box sx={{ mb: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      fontWeight: 600,
-                      color: "#374151",
-                      mb: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <EmailIcon sx={{ fontSize: 20, color: "#6b7280" }} />
-                    Email Address
-                    <Typography
-                      component="span"
-                      sx={{ color: "error.main", ml: 0.5 }}
-                    >
-                      *
-                    </Typography>
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    placeholder="Enter email address to ban"
-                    value={formData.emailAddress}
-                    onChange={(e) =>
-                      handleInputChange("emailAddress", e.target.value)
-                    }
-                    variant="outlined"
-                    size="small"
-                    required
-                    error={!!errors.emailAddress}
-                    helperText={errors.emailAddress}
-                    InputProps={{
-                      startAdornment: (
-                        <EmailIcon
-                          sx={{
-                            color: "#9ca3af",
-                            mr: 1,
-                            fontSize: 20,
-                          }}
-                        />
-                      ),
-                    }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          borderColor: "#d1d5db",
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#9ca3af",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#3b82f6",
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-
-                {/* Internal Notes Section */}
-                <Box sx={{ mb: 4 }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      fontWeight: 600,
-                      color: "#374151",
-                      mb: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <NotesIcon sx={{ fontSize: 20, color: "#6b7280" }} />
-                    Internal Notes
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "#6b7280", ml: 1 }}
-                    >
-                      (Admin Notes)
-                    </Typography>
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    placeholder="Add internal notes about this ban..."
-                    value={formData.internalNotes}
-                    onChange={(e) =>
-                      handleInputChange("internalNotes", e.target.value)
-                    }
-                    variant="outlined"
-                    multiline
-                    rows={4}
-                    size="small"
-                    InputProps={{
-                      startAdornment: (
-                        <NotesIcon
-                          sx={{
-                            color: "#9ca3af",
-                            mr: 1,
-                            fontSize: 20,
-                            alignSelf: "flex-start",
-                            mt: 1,
-                          }}
-                        />
-                      ),
-                    }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          borderColor: "#d1d5db",
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#9ca3af",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#3b82f6",
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-
-                <Divider sx={{ my: 2 }} />
-
-                {/* Action Buttons */}
-                <Box
-                  sx={{ display: "flex", gap: 2, justifyContent: "center" }}
-                >
-                  <Button
-                    variant="text"
-                    onClick={handleCancel}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={handleReset}
-                    disabled={isSubmitting}
-                    color="error"
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <CircularProgress size={16} />
-                        Adding...
-                      </Box>
-                    ) : (
-                      "Add"
-                    )}
-                  </Button>
-                </Box>
-              </form>
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="Enter email address to ban"
+                value={formData.emailAddress}
+                onChange={(e) =>
+                  handleInputChange("emailAddress", e.target.value)
+                }
+                variant="outlined"
+                size="small"
+                required
+                error={!!errors.emailAddress}
+                helperText={errors.emailAddress}
+                sx={{
+                  maxWidth: "50%",
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#d1d5db",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#9ca3af",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#3b82f6",
+                    },
+                  },
+                }}
+              />
             </Box>
-          </Paper>
+
+            {/* Internal Notes Section */}
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 600,
+                  color: "#374151",
+                  mb: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <NotesIcon sx={{ fontSize: 20, color: "#6b7280" }} />
+                Internal Notes
+                <Typography variant="caption" sx={{ color: "#6b7280", ml: 1 }}>
+                  (Admin Notes)
+                </Typography>
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="Add internal notes about this ban..."
+                value={formData.internalNotes}
+                onChange={(e) =>
+                  handleInputChange("internalNotes", e.target.value)
+                }
+                variant="outlined"
+                multiline
+                rows={8}
+                size="small"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#d1d5db",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#9ca3af",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#3b82f6",
+                    },
+                  },
+                }}
+              />
+            </Box>
+          </Box>
         </div>
+        {/* Action Buttons */}
+        <Box
+          sx={{
+            borderTop: "1px solid #e0e0e0",
+            p: 3,
+            backgroundColor: "#fafafa",
+            flexShrink: 0,
+          }}
+        >
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+            <Button
+              variant="text"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+              sx={{ fontWeight: 600, width: "100px" }}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              sx={{ width: "100px" }}
+            >
+              {isSubmitting ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <CircularProgress size={16} />
+                  Adding...
+                </Box>
+              ) : (
+                "Add"
+              )}
+            </Button>
+          </Box>
+        </Box>
       </Box>
 
       {/* Right Sidebar */}
@@ -420,51 +338,6 @@ const AddNewBanlist = () => {
                 Use this section to manually add a new email address to the
                 banned list. Once added, the email will be blocked from
                 registering or accessing your services.
-              </Typography>
-
-              <Box
-                component="form"
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                  maxWidth: 400,
-                }}
-                noValidate
-                autoComplete="off"
-              >
-                <TextField
-                  label="Email Address"
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                />
-                <TextField
-                  label="Reason (optional)"
-                  variant="outlined"
-                  size="small"
-                  multiline
-                  rows={2}
-                  fullWidth
-                />
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: "#1877f2",
-                    "&:hover": { backgroundColor: "#145dbf" },
-                    fontWeight: 600,
-                    textTransform: "none",
-                  }}
-                >
-                  Add to Ban List
-                </Button>
-              </Box>
-
-              <Typography
-                variant="caption"
-                sx={{ display: "block", mt: 2, color: "#888" }}
-              >
-                Note: Newly added emails will take effect immediately.
               </Typography>
             </CardContent>
           </Card>
