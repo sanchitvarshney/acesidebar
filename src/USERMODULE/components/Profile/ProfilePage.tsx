@@ -32,6 +32,7 @@ import TicketsTab from "./TicketsTab";
 import ActivityTab from "./ActivityTab";
 import SettingsTab from "./SettingsTab";
 import SecurityTab from "./SecurityTab";
+import { useGetUserOverviewDataQuery } from "../../../services/auth";
 
 const ticketData: any = [
   {
@@ -55,7 +56,7 @@ const ticketData: any = [
     closed: "17 days ago",
     resolved_late: true,
   },
-    {
+  {
     id: 4,
     title: "404 error when on a specific page #1",
     description:
@@ -65,7 +66,7 @@ const ticketData: any = [
     closed: "17 days ago",
     resolved_late: true,
   },
-    {
+  {
     id: 5,
     title: "404 error when on a specific page #1",
     description:
@@ -75,7 +76,7 @@ const ticketData: any = [
     closed: "17 days ago",
     resolved_late: true,
   },
-    {
+  {
     id: 1,
     title: "404 error when on a specific page #1",
     description:
@@ -98,25 +99,16 @@ const getUserData = () => {
 };
 
 const ProfilePage = () => {
-  const userData = getUserData();
   const navigate = useNavigate();
-
-  const username = userData?.username || userData?.user?.username || "John Doe";
-  const role = userData?.role || userData?.user?.role || "CEO";
-  const company = userData?.company || "Freshworks";
-  const email = userData?.email || userData?.user?.email || "abcd.com";
-  const phone = userData?.phone || userData?.user?.phone || "27637738";
-  const address = userData?.address || "7, fngu ,wiuf ";
 
   const userId = useParams().id;
 
+  const { data: UserData } = useGetUserOverviewDataQuery({
+    client: userId,
+    skip: !userId,
+    refetchOnMountOrArgChange: true,
+  });
   const [tab, setTab] = useState<number>(0);
-
-  const initials = useMemo(() => {
-    if (!username) return "?";
-    const parts = String(username).split(" ");
-    return (parts[0]?.[0] || "").toUpperCase();
-  }, [username]);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -320,19 +312,7 @@ const ProfilePage = () => {
 
         {/* Main Content */}
         <Box sx={{ flex: 1, p: 2, bgcolor: "#fff", overflow: "auto" }}>
-          {tab === 0 && (
-            <OverviewTab
-              user={{
-                username,
-                role,
-                company,
-                email,
-                phone,
-                address,
-                initials,
-              }}
-            />
-          )}
+          {tab === 0 && <OverviewTab user={UserData} />}
           {tab === 1 && <TicketsTab tickets={ticketData} />}
           {tab === 2 && <ActivityTab />}
           {tab === 3 && <SettingsTab />}
@@ -358,7 +338,7 @@ const ProfilePage = () => {
       <ChangePassword
         open={isChangePassword}
         onClose={() => setIsChangePassword(false)}
-        onConfirm={() => {}}
+        userId={userId}
       />
 
       <CustomSideBarPanel
@@ -369,8 +349,8 @@ const ProfilePage = () => {
       >
         <MergeContact
           data={{
-            userName: username,
-            userEmail: email,
+            userName: UserData?.fullName,
+            userEmail: UserData?.email,
             isPrimaryEmail: isPrimaryEmail,
           }}
           close={() => setIsMerge(false)}

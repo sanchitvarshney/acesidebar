@@ -179,8 +179,9 @@ const MergeContact = ({ data, close }: any) => {
       >
         {step === 1 && (
           <List>
-            {selectedOption?.map((item: any) => (
+            {selectedOption?.map((item: any,index:number) => (
               <ListItem
+                key={index}
                 sx={{
                   width: "100%",
                   display: "flex",

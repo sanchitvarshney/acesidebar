@@ -44,7 +44,7 @@ const TextInputCellRenderer = (props: any) => {
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`${row?.agentID}`);
+              navigate(`${row?.userID}`);
             }}
           >
             {row?.avatar ? (
@@ -93,7 +93,7 @@ const TextInputCellRenderer = (props: any) => {
                 fontSize: "0.875rem",
               }}
             >
-              {row.phoneNumber || "-"}
+              {row.phone || "-"}
             </Typography>
           </div>
         );

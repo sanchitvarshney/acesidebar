@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
-import { Apps, AddTask } from "@mui/icons-material";
+import { Apps, AddTask, More } from "@mui/icons-material";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import Tasks from "../task/Tasks";
 import Sidebar from "../../../components/layout/Sidebar";
@@ -11,10 +11,10 @@ import CustomerInfoSection from "./CustomerInfoSection";
 import InteractionHistorySection from "./InteractionHistorySection";
 import IconsSection from "./IconsSection";
 import InfoTab from "./InfoTab";
-import { Drawer, Button, Typography, Modal } from "@mui/material";
-
+import { Button, Typography, Modal } from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
+import ClickAwayListener from "@mui/material/ClickAwayListener";
 import ForwardPanel from "./ForwardPanel";
-
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import { useGetTicketDetailStaffViewQuery } from "../../../services/ticketDetailAuth";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,6 +28,7 @@ import { useDispatch } from "react-redux";
 import { useToast } from "../../../hooks/useToast";
 import { useGetTicketListQuery } from "../../../services/ticketAuth";
 import { AnimatePresence, motion } from "framer-motion";
+import MoreOptionsPage from "../../../components/MoreOptionsPage";
 
 const TicketDetailTemplate = () => {
   const navigate = useNavigate();
@@ -35,6 +36,15 @@ const TicketDetailTemplate = () => {
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const openTicketNumber = useParams().id;
+  const [openMoreOptions, setOpenMoreOptions] = useState(false);
+
+  const handleMoreClose = () => {
+    setOpenMoreOptions(false);
+  };
+
+  const handleMoreOpen = () => {
+    setOpenMoreOptions(true);
+  };
   const { data: ticket, isFetching: isTicketDetailLoading } =
     useGetTicketDetailStaffViewQuery(
       openTicketNumber
@@ -265,14 +275,6 @@ const TicketDetailTemplate = () => {
             onNextTicket={handleNextTicket}
             hasPreviousTicket={hasPreviousTicket}
             hasNextTicket={hasNextTicket}
-            onTicketUpdated={(updated: any) => {
-              try {
-                setHeaderOverride({
-                  subject: updated?.subject,
-                  description: updated?.description,
-                });
-              } catch (_) {}
-            }}
           />
         </div>
         <div
@@ -344,7 +346,6 @@ const TicketDetailTemplate = () => {
                     exit={{ x: "100%", opacity: 0 }} // animate out when hidden
                     transition={{ duration: 0.2, ease: "easeInOut" }}
                   >
-                
                     <div
                       style={{
                         width: "100%",
@@ -609,33 +610,84 @@ const TicketDetailTemplate = () => {
                 marginTop: "16px",
               }}
             >
-              {/* Apps Icon */}
-              <button
-                onClick={() => {
-                  // Add your Apps icon click handler here
-                  console.log("Apps icon clicked");
-                }}
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  backgroundColor: "#f5f5f5",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#e8f0fe";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "#f5f5f5";
-                }}
-              >
-                <Apps style={{ fontSize: "20px", color: "#666" }} />
-              </button>
+              <ClickAwayListener onClickAway={handleMoreClose}>
+                <div >
+                  <Tooltip
+                    onClose={handleMoreClose}
+                    open={openMoreOptions}
+                    disableFocusListener
+                    disableHoverListener
+                    disableTouchListener
+                    sx={{
+                      backgroundColor: "#fff",
+                      zIndex: 0,
+                    }}
+                    title={
+                      <MoreOptionsPage
+                        ticket={displayHeader}
+                        ticketNumber={openTicketNumber}
+                        onTicketUpdated={(updated: any) => {
+                          try {
+                            setHeaderOverride({
+                              subject: updated?.subject,
+                              description: updated?.description,
+                            });
+                          } catch (_) {}
+                        }}
+                        close={handleMoreClose}
+                      />
+                    }
+                    slotProps={{
+                      popper: {
+                        disablePortal: true,
+                      },
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#fff",
+                          color: "#333",
+                          boxShadow: "0px 2px 8px rgba(0,0,0,0.15)",
+                          fontSize: "0.875rem",
+                          borderRadius: "8px",
+                          p: 1,
+                          mb:1
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#cfcfcfff", 
+                         
+                        },
+                      },
+                    }}
+                    arrow
+                    placement="left"
+                  >
+                    <button
+                      onClick={handleMoreOpen}
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        backgroundColor: "#f5f5f5",
+                        border: "1px solid #e0e0e0",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#e8f0fe";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f5f5f5";
+                      }}
+                    >
+                      <Apps style={{ fontSize: "20px", color: "#666" }} />
+                    </button>
+                  </Tooltip>
+                </div>
+              </ClickAwayListener>
 
               {/* AddTask Icon */}
               <div style={{ position: "relative" }}>

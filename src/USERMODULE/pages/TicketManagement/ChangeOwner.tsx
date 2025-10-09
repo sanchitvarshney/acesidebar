@@ -19,7 +19,7 @@ import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValu
 interface ChangeOwnerProps {
   open: boolean;
   onClose: () => void;
-  ticketId: string | number;
+  ticketId: any | number;
   currentOwner?: {
     id: string;
     name: string;

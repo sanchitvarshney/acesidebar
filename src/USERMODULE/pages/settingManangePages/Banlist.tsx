@@ -17,6 +17,7 @@ import {
   TableRow,
   LinearProgress,
   CircularProgress,
+  TablePagination,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -24,58 +25,50 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-
-const banned_emails = [
-  {
-    id: 1,
-    email: "spamuser@example.com",
-    status: "banned",
-    date_added: "2025-10-01T10:23:45Z",
-    date_updated: "2025-10-05T15:12:00Z",
-  },
-  {
-    id: 2,
-    email: "bot123@fakeemail.com",
-    status: "banned",
-    date_added: "2025-09-20T09:00:00Z",
-    date_updated: "2025-09-21T14:30:00Z",
-  },
-  {
-    id: 3,
-    email: "malicious.user@phishmail.net",
-    status: "banned",
-    date_added: "2025-10-03T18:45:12Z",
-    date_updated: "2025-10-06T11:00:30Z",
-  },
-  {
-    id: 4,
-    email: "testspam@randommail.org",
-    status: "pending_review",
-    date_added: "2025-10-07T08:30:00Z",
-    date_updated: "2025-10-07T09:00:00Z",
-  },
-];
+import { useLazyGetBanEmailListQuery } from "../../../services/settingServices";
+import empty from "../../../assets/image/overview-empty-state.svg";
 
 const Banlist = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredTeams, setFilteredTeams] = useState(banned_emails);
+  const [page, setPage] = useState(0); // 0-based for TablePagination
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [rows, setRows] = useState<any[]>([]);
+  const [triggerGetList, { isFetching }] = useLazyGetBanEmailListQuery();
+
+  const fetchList = async (p = page, limit = rowsPerPage, search = searchTerm) => {
+    const params = { page: p + 1, limit, search };
+    const res: any = await triggerGetList(params, true);
+    const data = res?.data;
+    const list =
+      data?.data?.items || data?.data?.list || data?.items || data?.list || data?.data || [];
+    const total =
+      data?.data?.total || data?.total || data?.pagination?.total || list?.length || 0;
+    setRows(Array.isArray(list) ? list : []);
+    setTotalCount(Number(total) || 0);
+  };
+
+  useEffect(() => {
+    fetchList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage]);
+
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchTerm(value);
-    applyFilters(value);
+    setPage(0);
+    fetchList(0, rowsPerPage, value);
   };
-  const applyFilters = (search: string) => {
-    let filtered = banned_emails;
 
-    // Search filter
-    if (search) {
-      filtered = filtered.filter((team) =>
-        team.email.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage);
+  };
 
-    setFilteredTeams(filtered);
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newLimit = parseInt(event.target.value, 10);
+    setRowsPerPage(newLimit);
+    setPage(0);
   };
 
   return (
@@ -107,13 +100,13 @@ const Banlist = () => {
             </Typography>
           </Box>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            {/* {agentListLoading ? (
+            {isFetching ? (
               <CircularProgress size={16} />
-            ) : ( */}
+            ) : null}
             <IconButton
               size="small"
               color="primary"
-              // onClick={() => getAgentList()}
+              onClick={() => fetchList()}
 
               sx={{ border: "1px solid #e0e0e0" }}
               aria-label="Refresh"
@@ -121,7 +114,6 @@ const Banlist = () => {
             >
               <RefreshIcon fontSize="small" />
             </IconButton>
-            {/* )} */}
 
             <Button
               variant="contained"
@@ -160,14 +152,13 @@ const Banlist = () => {
         <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
           <TableContainer
             sx={{
-              height: "calc(100vh - 280px)",
+              height: "calc(100vh - 340px)",
               minHeight: "400px",
             }}
           >
             <Table stickyHeader>
               <TableHead sx={{ position: "relative" }}>
-                {/* Linear Progress Loader in Header */}
-                {/* {agentListLoading && (
+                {isFetching && (
                   <LinearProgress
                     sx={{
                       position: "absolute",
@@ -184,7 +175,7 @@ const Banlist = () => {
                       },
                     }}
                   />
-                )} */}
+                )}
                 <TableRow sx={{ bgcolor: "#f8f9fa" }}>
                   <TableCell
                     sx={{
@@ -239,9 +230,9 @@ const Banlist = () => {
               </TableHead>
 
               <TableBody>
-                {filteredTeams.length === 0 ? (
+                {rows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 8,border:"none" }}>
                       <Box
                         sx={{
                           display: "flex",
@@ -250,19 +241,14 @@ const Banlist = () => {
                           gap: 2,
                         }}
                       >
-                        <Typography variant="h6" color="textSecondary">
-                          No agents found
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          Create a new agent to get started
-                        </Typography>
+                        <img src={empty} alt="No Data" className="w-40"/>
                       </Box>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  banned_emails.map((row: any, index: number) => (
+                  rows.map((row: any, index: number) => (
                     <TableRow
-                      key={row.id || row.key || index}
+                      key={row.id || row.key || row._id || index}
                       hover
                       sx={{
                         "&:last-child td, &:last-child th": { border: 0 },
@@ -278,11 +264,11 @@ const Banlist = () => {
                           color: "#1a1a1a",
                         }}
                       >
-                        {row.email}
+                        {row.email || row.address || row.ban_email}
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={row.status || "N/A"}
+                          label={row.status || row.state || "N/A"}
                           size="small"
                           sx={{
                             bgcolor: "#e3f2fd",
@@ -298,7 +284,7 @@ const Banlist = () => {
                           color: "#65676b",
                         }}
                       >
-                        {row.date_added || "Not assigned"}
+                        {row.date_added || row.created_at || row.createdAt || "Not assigned"}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -306,7 +292,7 @@ const Banlist = () => {
                           color: "#65676b",
                         }}
                       >
-                        {row.last_updated || "Not assigned"}
+                        {row.last_updated || row.updated_at || row.updatedAt || "Not assigned"}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -340,6 +326,16 @@ const Banlist = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+          sx={{borderTop:"1px solid #e0e0e0"}}
+            component="div"
+            count={totalCount}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[10, 20, 50]}
+          />
         </Card>
       </Box>
 

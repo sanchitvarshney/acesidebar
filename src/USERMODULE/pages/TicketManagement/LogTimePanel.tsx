@@ -23,7 +23,7 @@ import { useCommanApiMutation } from "../../../services/threadsApi";
 interface LogTimePanelProps {
   open: boolean;
   onClose: () => void;
-  ticketId: string | number;
+  ticketId: string | number | any;
 }
 
 interface Agent {

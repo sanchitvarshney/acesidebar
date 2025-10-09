@@ -21,12 +21,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
-type OverviewTabProps = {
-  user: UserProfileInfo & { initials: string };
-  ticketsSample?: TicketItem[];
-};
 
-const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
+
+const OverviewTab: React.FC<any> = ({ user }) => {
   const [expandedSections, setExpandedSections] = useState({
     userInfo: true,
     apps: true,
@@ -74,19 +71,19 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   border: "4px solid #e8f0fe",
                 }}
               >
-                {user.initials}
+                {user?.fullName?.charAt(0)?.toUpperCase()}
               </Avatar>
               <Box sx={{ flex: 1 }}>
                 <Typography
                   variant="h4"
                   sx={{ fontWeight: 600, color: "#202124", mb: 1 }}
                 >
-                  {user.username}
+                  {user?.fullName}
                 </Typography>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <Chip
                     icon={<WorkIcon />}
-                    label={user.role}
+                    label={user?.role || "--"}
                     size="medium"
                     sx={{
                       bgcolor: "#e8f0fe",
@@ -97,7 +94,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   />
                   <Chip
                     icon={<BusinessIcon />}
-                    label={user.company}
+                    label={user?.company || "--"}
                     variant="outlined"
                     size="medium"
                     sx={{
@@ -109,7 +106,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   />
                 </Stack>
                 <Typography variant="body1" sx={{ color: "#5f6368" }}>
-                  {user.email} • {user.phone}
+                  {user?.email} • {user?.phone}
                 </Typography>
               </Box>
               <Button
@@ -185,28 +182,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                   sx={{ fontWeight: 600, color: "#202124" }}
                 >
                   12
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                      minWidth: 180,
-                  textAlign: "center",
-                  p: 1,
-                  borderRadius: 2,
-                  cursor: "pointer",
-                  "&:hover": { bgcolor: "action.hover" },
-                }}
-                onClick={(e: any) => setMetricOpen(e.currentTarget)}
-              >
-                <SupportIcon sx={{ fontSize: 32, color: "#5f6368", mb: 1 }} />
-                <Typography variant="body2" sx={{ color: "#5f6368" }}>
-                  Resolved
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 600, color: "#202124" }}
-                >
-                  35
                 </Typography>
               </Box>
               <Box
@@ -307,7 +282,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ user }) => {
                     Phone number | Work
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#202124" }}>
-                    {user.phone}
+                    {user?.phone}
                   </Typography>
                 </Box>
               </Stack>

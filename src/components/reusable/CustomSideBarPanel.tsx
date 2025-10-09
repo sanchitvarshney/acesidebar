@@ -49,6 +49,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
       }}
       // hideBackdrop
       sx={{
+        zIndex: 9999,
         "& .MuiDrawer-paper": {
           width: width,
           position: "absolute",
@@ -56,6 +57,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           backgroundColor: "#f9fafb",
           zIndex: 0,
           pointerEvents: "auto",
+        
         },
       }}
     >

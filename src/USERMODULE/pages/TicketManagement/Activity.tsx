@@ -159,7 +159,7 @@ const TimelineOppositeContent = ({
 interface ActivityProps {
   open: boolean;
   onClose: () => void;
-  ticketId: string | number;
+  ticketId: any | number;
 }
 
 interface ActivityItem {

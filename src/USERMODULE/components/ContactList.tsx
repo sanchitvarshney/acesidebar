@@ -36,6 +36,7 @@ import { Close } from "@mui/icons-material";
 import { useGetAgentsQuery } from "../../services/agentServices";
 import nocontact from "../../assets/image/no-contact.svg";
 import error from "../../assets/CesmuejcOxpX1663753174254.svg";
+import { useGetUserListQuery } from "../../services/auth";
 
 const ContactList = () => {
   const [isExport, setIsExport] = useState(false);
@@ -78,10 +79,10 @@ const ContactList = () => {
     "twitter",
   ]);
   const {
-    data: agentList,
-    isLoading: agentListData,
-    error: agentListError,
-  } = useGetAgentsQuery();
+    data: userList,
+    isLoading: listLoading,
+    error: userListError,
+  } = useGetUserListQuery();
   const [modelOpenref, setModelOpenref] = useState<null | HTMLElement>(null);
 
   // Field options for filter (matching your images)
@@ -334,8 +335,8 @@ const ContactList = () => {
 
   // Apply filters to data
   const filterData = useMemo(() => {
-    return applyFilters(agentList || []);
-  }, [agentList, applyFilters]);
+    return applyFilters(userList || []);
+  }, [userList, applyFilters]);
 
   // Filter columns based on visibility
   const filteredColumns = useMemo(() => {
@@ -821,9 +822,9 @@ const ContactList = () => {
           >
             <DataGrid
               rows={filterData || []}
-              getRowId={(row) => row.agentID}
+              getRowId={(row) => row.userID}
               columns={filteredColumns}
-              loading={agentListData} // Show loading state when data is being fetched
+              loading={listLoading} // Show loading state when data is being fetched
               paginationModel={paginationModel}
               onPaginationModelChange={setPaginationModel}
               initialState={{
@@ -849,13 +850,17 @@ const ContactList = () => {
                       color: "#666",
                     }}
                   >
-                    {agentListError ? (
+                    {userListError ? (
                       <>
-                       <img src={nocontact} alt="No Contact"  className="w-40 h-40"/>
+                        <img
+                          src={nocontact}
+                          alt="No Contact"
+                          className="w-40 h-40"
+                        />
                       </>
                     ) : (
                       <>
-                         <img src={error} alt="error"  className="w-40 h-40"/>
+                        <img src={error} alt="error" className="w-40 h-40" />
                       </>
                     )}
                   </Box>
@@ -882,7 +887,6 @@ const ContactList = () => {
                         zIndex: 1,
                       }}
                     >
-                    
                       <Box sx={{ width: "100%" }}>
                         <LinearProgress />
                       </Box>

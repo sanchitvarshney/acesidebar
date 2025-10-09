@@ -57,7 +57,7 @@ import ImageViewComponent from "../../components/ImageViewComponent";
 interface AttachmentsProps {
   open: boolean;
   onClose: () => void;
-  ticketId: string | number;
+  ticketId: any | number;
 }
 
 const Attachments: React.FC<AttachmentsProps> = ({
