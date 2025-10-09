@@ -211,7 +211,7 @@ const EmailNotificationsPage = () => {
               ))}
             </TabList>
           </Box>
-          <div className="w-full max-h-[calc(100vh-230px)]  overflow-y-auto">
+          <div className="w-full max-h-[calc(100vh-240px)]  overflow-y-auto  custom-scrollbar">
             {listSettingsLoading ? (
               <div className="w-full h-80 flex justify-center items-center">
                 <CircularProgress />
@@ -401,6 +401,7 @@ const EmailNotificationsPage = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
+            className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Card sx={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>

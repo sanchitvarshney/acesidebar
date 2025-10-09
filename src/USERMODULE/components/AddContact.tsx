@@ -867,54 +867,6 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
               </div>
             </Box>
 
-            {/* Identification */}
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: 2,
-                  color: "#1976d2",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Badge sx={{ fontSize: 20 }} />
-                Identification
-              </Typography>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Controller
-                  name="external_id"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={
-                        <Typography>
-                          Unique External ID{" "}
-                          <span className="text-red-500 text-lg font-bold">
-                            *
-                          </span>
-                        </Typography>
-                      }
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.external_id}
-                      helperText={errors.external_id?.message}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Badge color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </div>
-            </Box>
           </Box>
         </Box>
       </DialogContent>

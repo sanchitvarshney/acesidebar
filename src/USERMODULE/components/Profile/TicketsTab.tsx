@@ -65,7 +65,7 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ tickets }) => {
       >
         <Box>
           <Stack spacing={2}>
-            <div className="w-full h-[calc(100vh-220px)] overflow-y-scroll gap-2 flex flex-col">
+            <div className="w-full h-[calc(100vh-220px)] overflow-y-scroll gap-2 flex flex-col custom-scrollbar">
               {filteredTickets?.map((item, index) => (
                 <Card
                   key={index}

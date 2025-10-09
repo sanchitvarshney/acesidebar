@@ -180,7 +180,15 @@ const AutomationMaster = () => {
           </Box>
         </Box>
         <TabContext value={value}>
-          <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              minHeight: 0,
+              overflow: "hidden",
+            }}
+          >
             <Box
               sx={{
                 borderBottom: 1,
@@ -191,13 +199,19 @@ const AutomationMaster = () => {
               }}
             >
               <Typography variant="subtitle1">Rules that run on:</Typography>
-              <TabList onChange={handleChange} aria-label="lab API tabs example">
+              <TabList
+                onChange={handleChange}
+                aria-label="lab API tabs example"
+              >
                 {tabs.map((tab) => (
                   <Tab key={tab.value} label={tab.label} value={tab.value} />
                 ))}
               </TabList>
             </Box>
-            <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p:2 }}>
+            <Box
+              sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 2 }}
+              className="custom-scrollbar"
+            >
               <TabPanel value="1" sx={{ p: 0, height: "100%" }}>
                 <TicketCreationAutomation />
               </TabPanel>
@@ -244,7 +258,9 @@ const AutomationMaster = () => {
                         primary={event.label}
                         primaryTypographyProps={{
                           fontWeight: 600,
-                          color: event.active ? "text.primary" : "text.secondary",
+                          color: event.active
+                            ? "text.primary"
+                            : "text.secondary",
                         }}
                       />
                     </ListItem>
@@ -294,7 +310,9 @@ const AutomationMaster = () => {
                         primary={event.label}
                         primaryTypographyProps={{
                           fontWeight: 600,
-                          color: event.active ? "text.primary" : "text.secondary",
+                          color: event.active
+                            ? "text.primary"
+                            : "text.secondary",
                         }}
                       />
                     </ListItem>
@@ -317,6 +335,7 @@ const AutomationMaster = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
+        className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Card sx={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>

@@ -43,12 +43,12 @@ const OverviewTab: React.FC<any> = ({ user }) => {
   };
 
   return (
-    <Box sx={{ display: "flex", height: "100%", bgcolor: "#f8f9fa" }}>
+    <Box sx={{ display: "flex", height: "100%", bgcolor: "#f8f9fa", overflow: "hidden" }} >
 
       {/* Main Content Area */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }} >
         {/* Content */}
-        <Box sx={{ flex: 1, p: 3, overflow: "auto" }}>
+        <Box sx={{ flex: 1, p: 3, overflow: "auto" }} className="custom-scrollbar">
           {/* Profile header card with edit */}
           <Paper
             elevation={0}

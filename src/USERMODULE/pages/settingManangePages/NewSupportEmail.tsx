@@ -200,6 +200,7 @@ const NewSupportEmail: React.FC = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
+            className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Card sx={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>

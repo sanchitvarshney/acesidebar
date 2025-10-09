@@ -285,7 +285,7 @@ const CreateTeamPage = () => {
         }}
       >
         {/* Left Panel - Form */}
-        <Box sx={{ flex: 2, overflowY: "auto", minHeight: 0 }}>
+        <Box sx={{ flex: 2, overflowY: "auto", minHeight: 0 }}    className="custom-scrollbar">
           <TabPanel value={activeTab} index={0}>
             <Stack spacing={2}>
               {/* Basic Information */}

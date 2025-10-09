@@ -166,7 +166,7 @@ const CreateScenarioAutomations = () => {
           New Scenario
         </Typography>
 
-        <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 2 }}>
+        <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 2 }}     className="custom-scrollbar">
           {/* Scenario Name */}
           <Box sx={{ mb: 3 }}>
             <Typography

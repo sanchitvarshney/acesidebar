@@ -101,7 +101,7 @@ const MainLayout = () => {
         helpCenterOpen={helpCenterOpen}
         sx={{ position: "relative" }}
       >
-        <MainContent>
+        <MainContent className="custom-scrollbar">
           <Suspense
             fallback={
               <div className="flex items-center justify-center">

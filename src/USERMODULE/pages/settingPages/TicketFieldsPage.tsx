@@ -455,9 +455,10 @@ const TicketFieldsPage: React.FC = () => {
         <Box
           sx={{
             flex: { xs: 1, lg: "0 0 300px" },
-            maxHeight: "calc(100vh - 170px)",
+            maxHeight: "calc(100vh - 178px)",
             overflowY: "auto",
           }}
+            className="custom-scrollbar"
         >
           <Card>
             <CardContent>
@@ -548,7 +549,8 @@ const TicketFieldsPage: React.FC = () => {
 
             {/* Fields List */}
             <Box
-              sx={{ p: 2, maxHeight: "calc(100vh - 240px)", overflowY: "auto" }}
+              sx={{ p: 2, maxHeight: "calc(100vh - 248px)", overflowY: "auto" }}
+                  className="custom-scrollbar"
             >
               <Box
                 onDragOver={(e) => {

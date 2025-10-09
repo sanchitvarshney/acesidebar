@@ -49,6 +49,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
       }}
       // hideBackdrop
       sx={{
+       
         zIndex: 9999,
         "& .MuiDrawer-paper": {
           width: width,
@@ -60,6 +61,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
         
         },
       }}
+  
     >
       {isHeader && title && (
         <Box
@@ -86,7 +88,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
         </Box>
       )}
       <div
-        className="w-full  h-[calc(100vh-0px)] overflow-y-auto"
+        className="w-full  h-[calc(100vh-0px)] overflow-y-auto custom-scrollbar"
         style={{
           pointerEvents: "auto", // 👈 Re-enable interactions inside Drawer content
         }}

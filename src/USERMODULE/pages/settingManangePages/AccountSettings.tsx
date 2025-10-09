@@ -20,7 +20,7 @@ const AccountSettings = () => {
   const navigate = useNavigate();
   return (
     <Box width="100%" height="calc(100vh - 96px)" p={2}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb:2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
         <IconButton onClick={() => navigate("/settings/system-account")}>
           <ArrowBackIcon />
         </IconButton>
@@ -39,6 +39,7 @@ const AccountSettings = () => {
           maxHeight: "calc(100vh - 170px)",
           overflow: "auto",
         }}
+        className="custom-scrollbar"
       >
         {/* Developer Account */}
         <Card

@@ -311,13 +311,13 @@ const ProfilePage = () => {
         </Box>
 
         {/* Main Content */}
-        <Box sx={{ flex: 1, p: 2, bgcolor: "#fff", overflow: "auto" }}>
+        <div style={{ flex: 1, padding: 2, backgroundColor: "#fff", overflow: "auto" }} className="custom-scrollbar">
           {tab === 0 && <OverviewTab user={UserData} />}
           {tab === 1 && <TicketsTab tickets={ticketData} />}
           {tab === 2 && <ActivityTab />}
           {tab === 3 && <SettingsTab />}
           {tab === 4 && <SecurityTab />}
-        </Box>
+        </div>
       </Box>
 
       {/* Modals - Keep all existing functionality */}

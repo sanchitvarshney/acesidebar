@@ -75,7 +75,7 @@ const EmailSettingsPage: React.FC = () => {
           </Box>
         </Box>
 
-        <div className="w-full max-h-[calc(100vh-180px)] p-2 overflow-y-auto">
+        <div className="w-full max-h-[calc(100vh-180px)] p-2 overflow-y-auto  custom-scrollbar">
           <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
             <SettingRow
               title="Create a new ticket for each customer response"

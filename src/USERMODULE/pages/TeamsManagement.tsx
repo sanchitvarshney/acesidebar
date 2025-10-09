@@ -86,20 +86,61 @@ const sampleTeams = [
   {
     id: 1,
     name: "Customer Support Team",
-    description: "Primary customer support team handling all customer inquiries",
+    description:
+      "Primary customer support team handling all customer inquiries",
     members: 8,
     department: "Customer Service",
     status: "Active",
     created: "2024-01-15",
     memberList: [
-      { id: 1, name: "John Doe", email: "john.doe@company.com", role: "Team Lead" },
-      { id: 2, name: "Jane Smith", email: "jane.smith@company.com", role: "Senior Agent" },
-      { id: 3, name: "Mike Johnson", email: "mike.johnson@company.com", role: "Agent" },
-      { id: 4, name: "Sarah Wilson", email: "sarah.wilson@company.com", role: "Agent" },
-      { id: 5, name: "David Brown", email: "david.brown@company.com", role: "Agent" },
-      { id: 6, name: "Lisa Davis", email: "lisa.davis@company.com", role: "Agent" },
-      { id: 7, name: "Tom Miller", email: "tom.miller@company.com", role: "Agent" },
-      { id: 8, name: "Amy Garcia", email: "amy.garcia@company.com", role: "Agent" },
+      {
+        id: 1,
+        name: "John Doe",
+        email: "john.doe@company.com",
+        role: "Team Lead",
+      },
+      {
+        id: 2,
+        name: "Jane Smith",
+        email: "jane.smith@company.com",
+        role: "Senior Agent",
+      },
+      {
+        id: 3,
+        name: "Mike Johnson",
+        email: "mike.johnson@company.com",
+        role: "Agent",
+      },
+      {
+        id: 4,
+        name: "Sarah Wilson",
+        email: "sarah.wilson@company.com",
+        role: "Agent",
+      },
+      {
+        id: 5,
+        name: "David Brown",
+        email: "david.brown@company.com",
+        role: "Agent",
+      },
+      {
+        id: 6,
+        name: "Lisa Davis",
+        email: "lisa.davis@company.com",
+        role: "Agent",
+      },
+      {
+        id: 7,
+        name: "Tom Miller",
+        email: "tom.miller@company.com",
+        role: "Agent",
+      },
+      {
+        id: 8,
+        name: "Amy Garcia",
+        email: "amy.garcia@company.com",
+        role: "Agent",
+      },
     ],
   },
   {
@@ -111,28 +152,84 @@ const sampleTeams = [
     status: "Active",
     created: "2024-01-20",
     memberList: [
-      { id: 9, name: "Alex Chen", email: "alex.chen@company.com", role: "Team Lead" },
-      { id: 10, name: "Maria Rodriguez", email: "maria.rodriguez@company.com", role: "Senior Engineer" },
-      { id: 11, name: "Kevin Lee", email: "kevin.lee@company.com", role: "Engineer" },
-      { id: 12, name: "Emma Taylor", email: "emma.taylor@company.com", role: "Engineer" },
-      { id: 13, name: "Chris Anderson", email: "chris.anderson@company.com", role: "Engineer" },
+      {
+        id: 9,
+        name: "Alex Chen",
+        email: "alex.chen@company.com",
+        role: "Team Lead",
+      },
+      {
+        id: 10,
+        name: "Maria Rodriguez",
+        email: "maria.rodriguez@company.com",
+        role: "Senior Engineer",
+      },
+      {
+        id: 11,
+        name: "Kevin Lee",
+        email: "kevin.lee@company.com",
+        role: "Engineer",
+      },
+      {
+        id: 12,
+        name: "Emma Taylor",
+        email: "emma.taylor@company.com",
+        role: "Engineer",
+      },
+      {
+        id: 13,
+        name: "Chris Anderson",
+        email: "chris.anderson@company.com",
+        role: "Engineer",
+      },
     ],
   },
   {
     id: 3,
     name: "Sales Team",
-    description: "Sales team responsible for customer acquisition and retention",
+    description:
+      "Sales team responsible for customer acquisition and retention",
     members: 6,
     department: "Sales",
     status: "Active",
     created: "2024-02-01",
     memberList: [
-      { id: 14, name: "Robert Wilson", email: "robert.wilson@company.com", role: "Sales Manager" },
-      { id: 15, name: "Jennifer Martinez", email: "jennifer.martinez@company.com", role: "Senior Sales Rep" },
-      { id: 16, name: "Daniel Thompson", email: "daniel.thompson@company.com", role: "Sales Rep" },
-      { id: 17, name: "Michelle White", email: "michelle.white@company.com", role: "Sales Rep" },
-      { id: 18, name: "James Harris", email: "james.harris@company.com", role: "Sales Rep" },
-      { id: 19, name: "Ashley Clark", email: "ashley.clark@company.com", role: "Sales Rep" },
+      {
+        id: 14,
+        name: "Robert Wilson",
+        email: "robert.wilson@company.com",
+        role: "Sales Manager",
+      },
+      {
+        id: 15,
+        name: "Jennifer Martinez",
+        email: "jennifer.martinez@company.com",
+        role: "Senior Sales Rep",
+      },
+      {
+        id: 16,
+        name: "Daniel Thompson",
+        email: "daniel.thompson@company.com",
+        role: "Sales Rep",
+      },
+      {
+        id: 17,
+        name: "Michelle White",
+        email: "michelle.white@company.com",
+        role: "Sales Rep",
+      },
+      {
+        id: 18,
+        name: "James Harris",
+        email: "james.harris@company.com",
+        role: "Sales Rep",
+      },
+      {
+        id: 19,
+        name: "Ashley Clark",
+        email: "ashley.clark@company.com",
+        role: "Sales Rep",
+      },
     ],
   },
   {
@@ -144,10 +241,30 @@ const sampleTeams = [
     status: "Inactive",
     created: "2024-02-10",
     memberList: [
-      { id: 20, name: "Rachel Green", email: "rachel.green@company.com", role: "Marketing Manager" },
-      { id: 21, name: "Steven King", email: "steven.king@company.com", role: "Marketing Specialist" },
-      { id: 22, name: "Nicole Scott", email: "nicole.scott@company.com", role: "Content Creator" },
-      { id: 23, name: "Brandon Adams", email: "brandon.adams@company.com", role: "Graphic Designer" },
+      {
+        id: 20,
+        name: "Rachel Green",
+        email: "rachel.green@company.com",
+        role: "Marketing Manager",
+      },
+      {
+        id: 21,
+        name: "Steven King",
+        email: "steven.king@company.com",
+        role: "Marketing Specialist",
+      },
+      {
+        id: 22,
+        name: "Nicole Scott",
+        email: "nicole.scott@company.com",
+        role: "Content Creator",
+      },
+      {
+        id: 23,
+        name: "Brandon Adams",
+        email: "brandon.adams@company.com",
+        role: "Graphic Designer",
+      },
     ],
   },
 ];
@@ -162,10 +279,11 @@ const TeamsManagement = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [showMemberDetails, setShowMemberDetails] = useState(false);
-  const [memberDetailsAnchor, setMemberDetailsAnchor] = useState<null | HTMLElement>(null);
+  const [memberDetailsAnchor, setMemberDetailsAnchor] =
+    useState<null | HTMLElement>(null);
 
   // Get unique departments for filter
-  const departments = Array.from(new Set(teams.map(team => team.department)));
+  const departments = Array.from(new Set(teams.map((team) => team.department)));
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -191,7 +309,7 @@ const TeamsManagement = () => {
     // Search filter
     if (search) {
       filtered = filtered.filter(
-        team =>
+        (team) =>
           team.name.toLowerCase().includes(search.toLowerCase()) ||
           team.description.toLowerCase().includes(search.toLowerCase()) ||
           team.department.toLowerCase().includes(search.toLowerCase())
@@ -200,12 +318,12 @@ const TeamsManagement = () => {
 
     // Status filter
     if (status !== "All") {
-      filtered = filtered.filter(team => team.status === status);
+      filtered = filtered.filter((team) => team.status === status);
     }
 
     // Department filter
     if (department !== "All") {
-      filtered = filtered.filter(team => team.department === department);
+      filtered = filtered.filter((team) => team.department === department);
     }
 
     setFilteredTeams(filtered);
@@ -221,7 +339,10 @@ const TeamsManagement = () => {
     setSelectedTeam(null);
   };
 
-  const handleViewMembers = (event: React.MouseEvent<HTMLElement>, team: any) => {
+  const handleViewMembers = (
+    event: React.MouseEvent<HTMLElement>,
+    team: any
+  ) => {
     setMemberDetailsAnchor(event.currentTarget);
     setSelectedTeam(team);
     setShowMemberDetails(true);
@@ -239,9 +360,13 @@ const TeamsManagement = () => {
   };
 
   const handleDeleteTeam = () => {
-    if (window.confirm(`Are you sure you want to delete "${selectedTeam.name}"?`)) {
-      setTeams(teams.filter(team => team.id !== selectedTeam.id));
-      setFilteredTeams(filteredTeams.filter(team => team.id !== selectedTeam.id));
+    if (
+      window.confirm(`Are you sure you want to delete "${selectedTeam.name}"?`)
+    ) {
+      setTeams(teams.filter((team) => team.id !== selectedTeam.id));
+      setFilteredTeams(
+        filteredTeams.filter((team) => team.id !== selectedTeam.id)
+      );
     }
     handleMenuClose();
   };
@@ -278,7 +403,9 @@ const TeamsManagement = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings/agents-productivity")}>
+            <IconButton
+              onClick={() => navigate("/settings/agents-productivity")}
+            >
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
@@ -363,27 +490,27 @@ const TeamsManagement = () => {
 
         {/* Teams Table */}
         <Paper sx={{ flex: 1, overflow: "hidden" }}>
-          <TableContainer sx={{ height: "100%" }}>
+          <TableContainer sx={{ height: "100%" }}    className="custom-scrollbar">
             <Table stickyHeader sx={{ position: "relative" }}>
               <TableHead>
-                 {false && (
-                                  <LinearProgress
-                                    sx={{
-                                      position: "absolute",
-                                      top: 0,
-                                      left: 0,
-                                      right: 0,
-                                      zIndex: 10,
-                                      height: 4,
-                                      "& .MuiLinearProgress-bar": {
-                                        backgroundColor: "#1976d2",
-                                      },
-                                      "& .MuiLinearProgress-root": {
-                                        backgroundColor: "#e0e0e0",
-                                      },
-                                    }}
-                                  />
-                                )}
+                {false && (
+                  <LinearProgress
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 10,
+                      height: 4,
+                      "& .MuiLinearProgress-bar": {
+                        backgroundColor: "#1976d2",
+                      },
+                      "& .MuiLinearProgress-root": {
+                        backgroundColor: "#e0e0e0",
+                      },
+                    }}
+                  />
+                )}
                 <TableRow>
                   {teamColumns.map((column) => (
                     <TableCell
@@ -401,7 +528,9 @@ const TeamsManagement = () => {
                 {filteredTeams.map((team) => (
                   <TableRow key={team.id} hover>
                     <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <WorkIcon sx={{ color: "#666" }} />
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
                           {team.name}
@@ -424,7 +553,9 @@ const TeamsManagement = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <BusinessIcon sx={{ color: "#666", fontSize: 16 }} />
                         <Typography variant="body2">
                           {team.department}
@@ -461,8 +592,6 @@ const TeamsManagement = () => {
       </Box>
 
       {/* Right Sidebar */}
-    
-
 
       {/* Member Details Popover */}
       <Popover
@@ -479,7 +608,14 @@ const TeamsManagement = () => {
         }}
       >
         <Paper sx={{ p: 2, minWidth: 300, maxWidth: 400 }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
               {selectedTeam?.name} Members
             </Typography>
@@ -487,7 +623,7 @@ const TeamsManagement = () => {
               <Close />
             </IconButton>
           </Box>
-          
+
           <Stack spacing={1}>
             {selectedTeam?.memberList?.map((member: any) => (
               <Box

@@ -489,7 +489,9 @@ const DepartmentsManagement = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings/agents-productivity")}>
+            <IconButton
+              onClick={() => navigate("/settings/agents-productivity")}
+            >
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
@@ -762,29 +764,29 @@ const DepartmentsManagement = () => {
               minHeight: "400px",
               position: "relative",
             }}
+            className="custom-scrollbar"
           >
-           
             <Table stickyHeader>
               <TableHead sx={{ position: "relative" }}>
-                 {/* Linear Progress Loader */}
-            {isGetDepartmentListLoading && (
-              <LinearProgress
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  zIndex: 1,
-                  height: 4,
-                  "& .MuiLinearProgress-bar": {
-                    backgroundColor: "#1976d2",
-                  },
-                  "& .MuiLinearProgress-root": {
-                    backgroundColor: "#e0e0e0",
-                  },
-                }}
-              />
-            )}
+                {/* Linear Progress Loader */}
+                {isGetDepartmentListLoading && (
+                  <LinearProgress
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 1,
+                      height: 4,
+                      "& .MuiLinearProgress-bar": {
+                        backgroundColor: "#1976d2",
+                      },
+                      "& .MuiLinearProgress-root": {
+                        backgroundColor: "#e0e0e0",
+                      },
+                    }}
+                  />
+                )}
                 <TableRow sx={{ bgcolor: "#f8f9fa" }}>
                   <TableCell
                     sx={{
@@ -941,6 +943,7 @@ const DepartmentsManagement = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
+        className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Department Overview */}

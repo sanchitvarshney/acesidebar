@@ -274,6 +274,7 @@ const CanenResponseMasterPage = () => {
       <Stack
         direction="row"
         sx={{ minHeight: "calc(100vh - 170px)", bgcolor: "background.paper" }}
+
       >
         {/* Left: Folders */}
         <Paper variant="outlined" square sx={{ width: 340 }}>
@@ -429,7 +430,7 @@ const CanenResponseMasterPage = () => {
         width={720}
       >
         <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-          <Box sx={{ p: 3, flex: 1, overflowY: "auto" }}>
+          <Box sx={{ p: 3, flex: 1, overflowY: "auto" }}  className="custom-scrollbar">
             <Box sx={{ pb: 2 }}>
               <TextField
                 fullWidth

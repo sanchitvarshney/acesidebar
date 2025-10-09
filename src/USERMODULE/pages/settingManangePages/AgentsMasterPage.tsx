@@ -223,7 +223,7 @@ const DepartmentsManagement = () => {
     defaultOperator?: string;
   } | null>(null);
   const [lastChipRef, setLastChipRef] = useState<null | HTMLElement>(null);
-    const [modelOpenref, setModelOpenref] = useState<null | HTMLElement>(null);
+  const [modelOpenref, setModelOpenref] = useState<null | HTMLElement>(null);
   const [filterValue, setFilterValue] = useState("");
   const [selectedOperator, setSelectedOperator] = useState("startsWith");
   const [checkboxValues, setCheckboxValues] = useState<string[]>([]);
@@ -233,7 +233,7 @@ const DepartmentsManagement = () => {
     "email",
     "isActive",
   ]);
-  const [getAgentList, { data: agentList, isLoading: agentListLoading,  }] =
+  const [getAgentList, { data: agentList, isLoading: agentListLoading }] =
     useLazyGetAgentListQuery();
 
   useEffect(() => {
@@ -471,14 +471,16 @@ const DepartmentsManagement = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/settings/agents-productivity")}>
+            <IconButton
+              onClick={() => navigate("/settings/agents-productivity")}
+            >
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
               Agents
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", gap: 2,alignItems:"center" }}>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             {agentListLoading ? (
               <CircularProgress size={16} />
             ) : (
@@ -749,6 +751,7 @@ const DepartmentsManagement = () => {
               height: "calc(100vh - 280px)",
               minHeight: "400px",
             }}
+            className="custom-scrollbar"
           >
             <Table stickyHeader>
               <TableHead sx={{ position: "relative" }}>
@@ -927,6 +930,7 @@ const DepartmentsManagement = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
+        className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Agent Overview */}
@@ -1104,7 +1108,7 @@ const DepartmentsManagement = () => {
             key={option.value}
             onClick={(e) => {
               e.stopPropagation();
-              setModelOpenref(filterMenuAnchor)
+              setModelOpenref(filterMenuAnchor);
               setFilterMenuAnchor(null);
               openFilterDialog(option.value, option.label);
             }}
@@ -1149,7 +1153,7 @@ const DepartmentsManagement = () => {
         disablePortal={false}
         PaperProps={{
           sx: {
-            mt:0.5,
+            mt: 0.5,
             borderRadius: 1,
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
             width: 400,

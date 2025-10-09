@@ -306,6 +306,7 @@ const AddAgentPage = () => {
           overflow: "auto",
           maxHeight: "calc(100vh - 260px)",
         }}
+           className="custom-scrollbar"
       >
         {/* Tab 1: Agent Configuration with Stepper */}
         <TabPanel  value={activeTab} index={0} >

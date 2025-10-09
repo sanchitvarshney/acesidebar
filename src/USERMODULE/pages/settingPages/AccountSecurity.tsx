@@ -187,6 +187,7 @@ const AccountSecurity = () => {
 
             overflowY: "auto",
           }}
+              className="custom-scrollbar"
         >
           <Card variant="outlined">
             {" "}
@@ -461,6 +462,7 @@ const AccountSecurity = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
+                  className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Agent Overview */}

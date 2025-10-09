@@ -49,7 +49,6 @@ const Banlist = () => {
     limit = rowsPerPage,
     search = searchTerm
   ) => {
-    
     const params = { page: p + 1, limit, search };
     const res: any = await triggerGetList(params);
     const data = res?.data;
@@ -192,6 +191,7 @@ const Banlist = () => {
               height: "calc(100vh - 340px)",
               minHeight: "400px",
             }}
+            className="custom-scrollbar"
           >
             <Table stickyHeader>
               <TableHead sx={{ position: "relative" }}>
@@ -408,6 +408,7 @@ const Banlist = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
+        className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Banned Email List */}

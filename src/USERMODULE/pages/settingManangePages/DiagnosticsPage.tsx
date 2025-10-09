@@ -174,7 +174,7 @@ const DiagnosticsPage = () => {
           </Box>
         </Box>
 
-        <div className=" w-full  h-[calc(100vh-294px)] overflow-y-auto">
+        <div className=" w-full  h-[calc(100vh-294px)] overflow-y-auto custom-scrollbar">
           <Box
             sx={{
               px: 10,
