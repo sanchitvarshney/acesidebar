@@ -3,3 +3,15 @@
   max-width: 45%;
   height: auto;
 }
+
+.custom-scrollbar {
+ 
+  scrollbar-width: thin; 
+  scrollbar-color: rgb(192, 192, 192) transparent; 
+  
+  -webkit-scrollbar {
+    width: 4px;
+  }
+
+
+}

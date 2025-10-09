@@ -2,7 +2,7 @@ import React from "react";
 
 const TaskListSkeleton: React.FC<{ count?: number }> = ({ count = 5 }) => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 overflow-hidden">
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}

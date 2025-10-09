@@ -721,7 +721,7 @@ const Tickets: React.FC = () => {
     return (
       <div
         key={merged?.ticketNumber}
-        className="w-full overflow-auto bg-white border-2 border-[#d4e6ff] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative hover:bg-[#f6f8fb]"
+        className="w-full min-w-[300px]  bg-white border-2 border-[#d4e6ff] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative hover:bg-[#f6f8fb]"
         onClick={() => handleTicketSubjectClick(merged.ticketNumber)}
       >
         {/* Top section */}
@@ -785,7 +785,7 @@ const Tickets: React.FC = () => {
         <div className="border-t border-gray-200 my-3"></div>
 
         {/* Bottom section with counts and user info */}
-        <div className="flex items-center gap-8 text-xs">
+        <div className="flex overflow-x-auto custom-scrollbar items-center gap-8 text-xs">
           <div>
             <Checkbox
               checked={selectedTickets.includes(merged?.ticketNumber)}
@@ -1190,7 +1190,7 @@ const Tickets: React.FC = () => {
         {/* Main Content: Tickets + Filters */}
         <div className="flex flex-1 h-0 min-h-0">
           <LeftMenu />
-          <div className="flex-1 h-full overflow-y-auto bg-gray-50">
+          <div className="flex-1 min-w-60 h-full overflow-y-auto bg-gray-50 custom-scrollbar">
             <div className="max-w-8xl mx-auto">
               {isTicketsFetching ? (
                 <TicketSkeleton />
@@ -1226,7 +1226,7 @@ const Tickets: React.FC = () => {
             </div>
           </div>
           {filtersOpen && (
-            <div className="w-80 min-w-[300px] border-l bg-white flex flex-col h-full">
+            <div className="w-80 min-w-[200px] border-l bg-white flex flex-col h-full">
               <div className="flex-1 overflow-y-auto h-full">
                 <TicketFilterPanel onApplyFilters={handleApplyFilters} />
               </div>

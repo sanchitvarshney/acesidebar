@@ -297,7 +297,7 @@ const SendEmailPage: React.FC = () => {
 
       {/* Email Content */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <div className="w-full min-h-[calc(100vh-228px)] overflow-y-scroll" style={{ overflowY: isEmojiOpen ? "hidden" : "auto" }}>
+        <div className="w-full max-h-[calc(100vh-228px)] overflow-y-scroll"  >
           {/* From Field */}
           <Box
             sx={{ p: 2, borderBottom: "1px solid #e0e0e0", bgcolor: "#f8f9fa" }}
@@ -552,12 +552,6 @@ const SendEmailPage: React.FC = () => {
             <Tooltip title="Underline">
               <IconButton onClick={() => exec("underline")}>
                 <UnderlineIcon />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Text color">
-              <IconButton onClick={handlePickColor}>
-                <ColorIcon />
               </IconButton>
             </Tooltip>
 

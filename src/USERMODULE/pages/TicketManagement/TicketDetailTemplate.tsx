@@ -37,7 +37,6 @@ const TicketDetailTemplate = () => {
   const { showToast } = useToast();
   const openTicketNumber = useParams().id;
   const [openMoreOptions, setOpenMoreOptions] = useState(false);
-
   const handleMoreClose = () => {
     setOpenMoreOptions(false);
   };
@@ -316,7 +315,7 @@ const TicketDetailTemplate = () => {
             <AnimatePresence mode="wait">
               <div
                 id="ticket-customer-info"
-                className="w-full h-[calc(100vh-215px)] overflow-auto p-2.5 transition-all duration-300 ease-in-out translate-x-0 opacity-100 "
+                className="w-full h-[calc(100vh-215px)]  overflow-y-auto overflow-x-hidden p-2.5 transition-all duration-300 ease-in-out translate-x-0 opacity-100 custom-scrollbar"
               >
                 {customerInfoContent === "customer" ? (
                   <motion.div
@@ -346,16 +345,9 @@ const TicketDetailTemplate = () => {
                     exit={{ x: "100%", opacity: 0 }} // animate out when hidden
                     transition={{ duration: 0.2, ease: "easeInOut" }}
                   >
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "calc(100vh - 240px)",
-                        overflow: "auto",
-                        padding: "0px",
-                      }}
-                    >
+            
                       <InfoTab />
-                    </div>
+              
                   </motion.div>
                 ) : (
                   /* Chat UI Content */
@@ -401,12 +393,14 @@ const TicketDetailTemplate = () => {
                     </div>
                     {/* Scrollable Chat Messages Area - Middle */}
                     <div
+                    className="custom-scrollbar"
                       style={{
                         flex: 1,
                         padding: "10px",
                         borderBottom: "1px solid #e0e0e0",
                         overflowY: "auto",
                         height: "calc(100vh - 180px)",
+                        
                       }}
                     >
                       <div
@@ -611,7 +605,7 @@ const TicketDetailTemplate = () => {
               }}
             >
               <ClickAwayListener onClickAway={handleMoreClose}>
-                <div >
+                <div>
                   <Tooltip
                     onClose={handleMoreClose}
                     open={openMoreOptions}
@@ -649,13 +643,12 @@ const TicketDetailTemplate = () => {
                           fontSize: "0.875rem",
                           borderRadius: "8px",
                           p: 1,
-                          mb:1
+                          mb: 1,
                         },
                       },
                       arrow: {
                         sx: {
-                          color: "#cfcfcfff", 
-                         
+                          color: "#cfcfcfff",
                         },
                       },
                     }}

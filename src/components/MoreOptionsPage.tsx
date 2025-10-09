@@ -26,7 +26,6 @@ const MoreOptionsPage = ({
   ticket,
   onTicketUpdated,
   ticketNumber,
-  close,
   onDrawerStateChange, // New prop to notify parent about drawer state
 }: any) => {
   const { showToast } = useToast();
@@ -70,7 +69,7 @@ const MoreOptionsPage = ({
       }
       if (res?.data?.type === "success") {
         setSpamTicketSuccess(true);
-        // setSpamValue(!spamValue);
+        setSpamValue(!spamValue);
       }
     });
   };
@@ -89,7 +88,6 @@ const MoreOptionsPage = ({
   const effectiveSubject = editOverrides.subject ?? ticket?.subject;
   const effectiveDescription = editOverrides.description ?? ticket?.body;
 
-  
   const isAnyDrawerOpen =
     isLogTimeModal ||
     isEditTicket ||
@@ -99,7 +97,6 @@ const MoreOptionsPage = ({
     isActivityModal ||
     isLinkModal ||
     isSpamModal;
-
 
   useEffect(() => {
     onDrawerStateChange && onDrawerStateChange(isAnyDrawerOpen);
@@ -209,7 +206,6 @@ const MoreOptionsPage = ({
         maxHeight: "calc(100vh - 200px)",
         overflowY: "auto",
         paddingRight: 1,
- 
       }}
       id="more-options-grid"
     >
@@ -399,8 +395,8 @@ const MoreOptionsPage = ({
           }}
           ticketId={ticketNumber}
           currentOwner={{
-            id: ticket?.userID,
-            name: ticket?.username,
+            id: ticket?.assignor?.userID,
+            name: ticket?.assignor?.name,
             email: ticket?.email,
           }}
         />

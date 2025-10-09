@@ -233,7 +233,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
       setTimeout(() => inputRef.current.focus(), 100);
     }
   }, [open]);
-  console.log("selectedDepartment", selectedDepartment);
+ 
 
   const fetchUserOptions = async (query: string) => {
     if (!query) {

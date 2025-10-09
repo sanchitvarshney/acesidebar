@@ -323,42 +323,7 @@ const menuSections: MenuSection[] = [
       },
     ],
   },
-  {
-    id: "users-contacts",
-    icon: FaUserFriends,
-    iconClass: "text-indigo-600 text-xl",
-    title: "Users & Contacts",
-    description: "User management and contact field configurations",
-    subsections: [
-      {
-        id: "users",
-        icon: FaUserFriends,
-        iconClass: "text-indigo-500",
-        title: "Users",
-        description: "Users from osTicket",
-        route: "/settings/users-contacts/users",
-        source: "osTicket",
-      },
-      {
-        id: "contact-fields",
-        icon: FaUsersCog,
-        iconClass: "text-green-500",
-        title: "Contact Fields",
-        description: "Contact fields from Freshdesk",
-        route: "/settings/users-contacts/contact-fields",
-        source: "Freshdesk",
-      },
-      {
-        id: "company-fields",
-        icon: FaBuilding,
-        iconClass: "text-blue-500",
-        title: "Company Fields",
-        description: "Company fields from Freshdesk",
-        route: "/settings/users-contacts/company-fields",
-        source: "Freshdesk",
-      },
-    ],
-  },
+
   {
     id: "help-support",
     icon: FaQuestionCircle,
@@ -547,7 +512,7 @@ const Settings: React.FC = () => {
         activeId={activeId}
         onSubsectionSelect={handleSubsectionSelect}
       />
-      <main className="flex-1 p-2 overflow-y-auto">
+      <main className="flex-1 p-2 overflow-y-auto custom-scrollbar">
         <div className="my-2">
           {/* Show subsections as cards when a main section is selected */}
           {activeSection &&

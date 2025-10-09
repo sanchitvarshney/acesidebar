@@ -196,7 +196,7 @@ const EditTicket = ({ onClose, open, ticket, onUpdated }: any) => {
           <FormControl fullWidth size="small" variant="outlined">
             <InputLabel>Topic</InputLabel>
             <Select
-              value={editData.topic}
+              value={editData.topic ?? ""}
               onChange={(e) =>
                 setEditData((prev: any) => ({
                   ...prev,
