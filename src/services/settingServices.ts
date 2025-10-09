@@ -25,12 +25,26 @@ const settingServices = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
-        getBanEmailList: builder.query({
+    getBanEmailList: builder.query({
       query: (credentials) => ({
         url: `/notification/mail/ban/list?page=${credentials?.page}&limit=${credentials?.limit}&search=${credentials?.search}`,
         method: "GET",
       }),
       transformResponse: (response: any) => response,
+    }),
+    addBanEmail: builder.mutation({
+      query: (credentials) => ({
+        url: "/notification/mail/ban/add",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+        removeBanEmail: builder.mutation({
+      query: (credentials) => ({
+        url: "/notification/mail/ban/remove",
+        method: "POST",
+        body: credentials,
+      }),
     }),
   }),
   overrideExisting: false,
@@ -40,5 +54,7 @@ export const {
   useGetEmailNotificationsSettingsQuery,
   useUpdateEmailNotificationsSettingStatusMutation,
   useGetEmailNotificationsSettingsTemplateQuery,
-  useLazyGetBanEmailListQuery
+  useLazyGetBanEmailListQuery,
+  useAddBanEmailMutation,
+  useRemoveBanEmailMutation
 } = settingServices;

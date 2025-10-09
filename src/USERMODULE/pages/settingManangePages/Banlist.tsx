@@ -25,26 +25,47 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { useLazyGetBanEmailListQuery } from "../../../services/settingServices";
+import {
+  useLazyGetBanEmailListQuery,
+  useRemoveBanEmailMutation,
+} from "../../../services/settingServices";
 import empty from "../../../assets/image/overview-empty-state.svg";
+import { useToast } from "../../../hooks/useToast";
 
 const Banlist = () => {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(0); // 0-based for TablePagination
+  const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [rows, setRows] = useState<any[]>([]);
   const [triggerGetList, { isFetching }] = useLazyGetBanEmailListQuery();
-
-  const fetchList = async (p = page, limit = rowsPerPage, search = searchTerm) => {
+  const [removeBanEmail, { isLoading: removeBanEmailLoading }] =
+    useRemoveBanEmailMutation();
+  const [trackId, setTrackId] = useState<any>("");
+  const fetchList = async (
+    p = page,
+    limit = rowsPerPage,
+    search = searchTerm
+  ) => {
+    
     const params = { page: p + 1, limit, search };
-    const res: any = await triggerGetList(params, true);
+    const res: any = await triggerGetList(params);
     const data = res?.data;
     const list =
-      data?.data?.items || data?.data?.list || data?.items || data?.list || data?.data || [];
+      data?.data?.items ||
+      data?.data?.list ||
+      data?.items ||
+      data?.list ||
+      data?.data ||
+      [];
     const total =
-      data?.data?.total || data?.total || data?.pagination?.total || list?.length || 0;
+      data?.data?.total ||
+      data?.total ||
+      data?.pagination?.total ||
+      list?.length ||
+      0;
     setRows(Array.isArray(list) ? list : []);
     setTotalCount(Number(total) || 0);
   };
@@ -65,12 +86,31 @@ const Banlist = () => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const newLimit = parseInt(event.target.value, 10);
     setRowsPerPage(newLimit);
     setPage(0);
   };
+  //remove ban email
+  const handleRemove = (data: any) => {
+    const payload = {
+      email: data.email,
+      ref: data.reference,
+    };
 
+    removeBanEmail(payload).then((res: any) => {
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message, "error");
+        return;
+      }
+      if (res?.data?.type === "success") {
+        showToast(res?.data?.message, "success");
+        fetchList();
+      }
+    });
+  };
   return (
     <Box
       sx={{
@@ -100,14 +140,11 @@ const Banlist = () => {
             </Typography>
           </Box>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            {isFetching ? (
-              <CircularProgress size={16} />
-            ) : null}
+            {isFetching ? <CircularProgress size={16} /> : null}
             <IconButton
               size="small"
               color="primary"
               onClick={() => fetchList()}
-
               sx={{ border: "1px solid #e0e0e0" }}
               aria-label="Refresh"
               title="Refresh"
@@ -232,7 +269,11 @@ const Banlist = () => {
               <TableBody>
                 {rows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 8,border:"none" }}>
+                    <TableCell
+                      colSpan={5}
+                      align="center"
+                      sx={{ py: 8, border: "none" }}
+                    >
                       <Box
                         sx={{
                           display: "flex",
@@ -241,7 +282,7 @@ const Banlist = () => {
                           gap: 2,
                         }}
                       >
-                        <img src={empty} alt="No Data" className="w-40"/>
+                        <img src={empty} alt="No Data" className="w-40" />
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -284,7 +325,10 @@ const Banlist = () => {
                           color: "#65676b",
                         }}
                       >
-                        {row.date_added || row.created_at || row.createdAt || "Not assigned"}
+                        {row.date_added ||
+                          row.created_at ||
+                          row.createdAt ||
+                          "Not assigned"}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -292,7 +336,10 @@ const Banlist = () => {
                           color: "#65676b",
                         }}
                       >
-                        {row.last_updated || row.updated_at || row.updatedAt || "Not assigned"}
+                        {row.last_updated ||
+                          row.updated_at ||
+                          row.updatedAt ||
+                          "Not assigned"}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -303,20 +350,33 @@ const Banlist = () => {
                         <div className="flex gap-2">
                           <IconButton
                             aria-label="edit"
-                            onClick={() => navigate(`/settings/emails/add-new-banlist`, { state: row })}
+                            onClick={() =>
+                              navigate(`/settings/emails/add-new-banlist`, {
+                                state: row,
+                              })
+                            }
                             size="small"
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
                           <IconButton
                             aria-label="delete"
-                            onClick={() => {}}
+                            onClick={() => {
+                              setTrackId(row.reference);
+                              handleRemove(row);
+                            }}
                             size="small"
                             sx={{
                               color: "red",
                             }}
+                            disabled={removeBanEmailLoading}
                           >
-                            <DeleteIcon fontSize="small" />
+                            {removeBanEmailLoading &&
+                            row.reference === trackId ? (
+                              <CircularProgress size={16} color="error" />
+                            ) : (
+                              <DeleteIcon fontSize="small" />
+                            )}
                           </IconButton>
                         </div>
                       </TableCell>
@@ -327,7 +387,7 @@ const Banlist = () => {
             </Table>
           </TableContainer>
           <TablePagination
-          sx={{borderTop:"1px solid #e0e0e0"}}
+            sx={{ borderTop: "1px solid #e0e0e0" }}
             component="div"
             count={totalCount}
             page={page}

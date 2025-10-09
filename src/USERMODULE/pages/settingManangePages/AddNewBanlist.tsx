@@ -6,45 +6,28 @@ import {
   IconButton,
   Typography,
   TextField,
-  Chip,
   Card,
   CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  LinearProgress,
   CircularProgress,
-  Paper,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
-  Divider,
-  InputAdornment,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import EmailIcon from "@mui/icons-material/Email";
-import BlockIcon from "@mui/icons-material/Block";
 import NotesIcon from "@mui/icons-material/Notes";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAddBanEmailMutation } from "../../../services/settingServices";
+import { useToast } from "../../../hooks/useToast";
 
 const AddNewBanlist = () => {
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const editData = useLocation().state;
   const [formData, setFormData] = useState<any>({
-    banStatus: "active",
     emailAddress: "",
     internalNotes: "",
   });
 
   const [errors, setErrors] = useState<any>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [addBanEmail, { isLoading: isSubmitting }] = useAddBanEmailMutation();
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -70,8 +53,6 @@ const AddNewBanlist = () => {
     e.preventDefault();
 
     const newErrors: any = {};
-
-    // Validate email
     if (!formData.emailAddress.trim()) {
       newErrors.emailAddress = "Email address is required";
     } else if (!validateEmail(formData.emailAddress)) {
@@ -83,38 +64,33 @@ const AddNewBanlist = () => {
       return;
     }
 
-    // Clear errors if validation passes
     setErrors({});
-    setIsSubmitting(true);
 
     try {
-      // Simulate API call or actual submission logic
-      console.log("Submitting banlist data:", formData);
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Show success message and reset form
-      alert("Email address added to ban list successfully!");
-      handleReset();
-    } catch (error) {
-      console.error("Error submitting banlist:", error);
-      alert("Failed to add email to ban list. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      const payload = {
+        email: formData.emailAddress,
+        notes: formData.internalNotes,
+      };
+      const res = await addBanEmail(payload).unwrap();
+      if (res?.type === "error") {
+        showToast(res?.message, "error");
+        return;
+      }
+      if (res?.type === "success") {
+        showToast(res?.message, "success");
+        handleReset();
+      }
+    } catch (error: any) {
+      return
     }
   };
 
   const handleReset = () => {
     setFormData({
-      banStatus: "active",
       emailAddress: "",
       internalNotes: "",
     });
     setErrors({});
-    setIsSubmitting(false);
-
-    console.log("Form has been reset");
   };
 
   const handleCancel = () => {
