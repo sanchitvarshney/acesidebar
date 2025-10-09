@@ -25,7 +25,7 @@
     }
     /* ---- pop ---- */
     #support-frame.pop{
-      width:35%; height:500px; bottom:100px; right:20px;
+      width:30%; height:85%; bottom:100px; right:20px;
       opacity:0; transform:translateY(20px);
       transition:opacity .4s ease, transform .4s ease;
       border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,.2);
