@@ -204,9 +204,10 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         m: 0,
       }}
     >
-  
-
-      <MuiBox sx={{ p: 2, flex: 1, overflowY: "auto", width: "100%" }}>
+      <MuiBox
+        sx={{ p: 2, flex: 1, overflowY: "auto", width: "100%" }}
+        className="custom-scrollbar"
+      >
         <MuiBox sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <Avatar sx={{ mr: 1, bgcolor: "primary.main" }}>D</Avatar>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -531,6 +532,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
         position: "relative",
         zIndex: 1200,
       }}
+      className="custom-scrollbar"
     >
       {panelContent}
     </MuiBox>

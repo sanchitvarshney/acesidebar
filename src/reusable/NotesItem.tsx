@@ -58,7 +58,7 @@ const NoteItem: FC<NoteItemProps> = ({
     >
       {/* Content Section */}
       <Typography variant="body2" sx={{ mb: 0.5 }}>
-        {data?.note || data?.name}
+        {data?.name}
       </Typography>
 
       <div className="flex flex-col">

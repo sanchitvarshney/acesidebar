@@ -58,10 +58,11 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           backgroundColor: "#f9fafb",
           zIndex: 0,
           pointerEvents: "auto",
+
         
         },
       }}
-  
+
     >
       {isHeader && title && (
         <Box

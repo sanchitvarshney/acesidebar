@@ -1947,6 +1947,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               },
             },
           }}
+          className="custom-scrollbar"
         >
           <div className="space-y-6" style={{ minWidth: 0 }}>
             {/* Conditions List */}

@@ -105,7 +105,7 @@ const MoreOptionsPage = ({
     {
       id: "change-owner",
       title: "Change Owner",
-      description: "Transfer ticket ownership",
+      // description: "Transfer ticket ownership",
       icon: <PersonAddAlt1Icon sx={{ color: "#1a73e8" }} />,
       iconBg: "#dbeafe",
       onClick: () => {
@@ -115,7 +115,7 @@ const MoreOptionsPage = ({
     {
       id: "edit-ticket",
       title: "Edit Ticket",
-      description: "Modify ticket details",
+      // description: "Modify ticket details",
       icon: <EditDocumentIcon sx={{ color: "#f59e0b" }} />,
       iconBg: "#fef3c7",
       onClick: () => {
@@ -125,7 +125,7 @@ const MoreOptionsPage = ({
     {
       id: "link-tickets",
       title: "Link Tickets",
-      description: "Connect related tickets",
+      // description: "Connect related tickets",
       icon: <LinkIcon sx={{ color: "#059669" }} />,
       iconBg: "#d1fae5",
       onClick: () => {
@@ -135,7 +135,7 @@ const MoreOptionsPage = ({
     {
       id: "manage-referrals",
       title: "Manage Referrals",
-      description: "Handle ticket referrals",
+      // description: "Handle ticket referrals",
       icon: <ManageAccountsIcon sx={{ color: "#9333ea" }} />,
       iconBg: "#f3e8ff",
       onClick: () => {
@@ -145,7 +145,7 @@ const MoreOptionsPage = ({
     {
       id: "attachments",
       title: "Attachments",
-      description: "Manage ticket files",
+      // description: "Manage ticket files",
       icon: <AttachFileIcon sx={{ color: "#dc2626" }} />,
       iconBg: "#fef2f2",
       onClick: () => {
@@ -155,7 +155,7 @@ const MoreOptionsPage = ({
     {
       id: "activity",
       title: "Activity",
-      description: "View ticket history",
+      // description: "View ticket history",
       icon: <ListIcon sx={{ color: "#0284c7" }} />,
       iconBg: "#e0f2fe",
       onClick: () => {
@@ -165,7 +165,7 @@ const MoreOptionsPage = ({
     {
       id: "log-time",
       title: "Log Time",
-      description: "Track time spent on ticket",
+      // description: "Track time spent on ticket",
       icon: <AddAlarmIcon sx={{ color: "#eab308" }} />,
       iconBg: "#fef7cd",
       onClick: () => {
@@ -175,7 +175,7 @@ const MoreOptionsPage = ({
     {
       id: "spam",
       title: ` ${spamValue ? "Unmark" : "Mark"} Spam`,
-      description: `${spamValue ? "Unmark" : "Mark"} ticket as spam`,
+      // description: `${spamValue ? "Unmark" : "Mark"} ticket as spam`,
       icon: <BlockIcon sx={{ color: "#dc2626" }} />,
       iconBg: "#fef2f2",
       onClick: () => {
@@ -185,7 +185,7 @@ const MoreOptionsPage = ({
     {
       id: "print",
       title: "Print",
-      description: "Print ticket details",
+      // description: "Print ticket details",
       icon: <LocalPrintshopIcon sx={{ color: "#0ea5e9" }} />,
       iconBg: "#f0f9ff",
       onClick: () => handlePrintData(ticketNumber),
@@ -206,7 +206,10 @@ const MoreOptionsPage = ({
         maxHeight: "calc(100vh - 200px)",
         overflowY: "auto",
         paddingRight: 1,
+        minWidth: { xs: "100%", md: 250 },
+        maxWidth: { xs: "100%", md: 250 },
       }}
+      className="custom-scrollbar"
       id="more-options-grid"
     >
       {moreOptions.length > 0 ? (
@@ -215,21 +218,24 @@ const MoreOptionsPage = ({
             key={option.id}
             onClick={option.onClick}
             sx={{
-              p: 2,
+              py: 0.8,
+              px:1.4,
+              mx:0.5,
               backgroundColor: "white",
-              borderRadius: 2,
-              border: "1px solid #e1e7ee",
+              borderRadius: 19,
+              // border: "1px solid #e1e7ee",
               cursor: "pointer",
-              transition: "all 0.2s ease",
+              // transition: "all 0.2s ease",
               "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                // transform: "translateY(-2px)",
+                // boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
                 borderColor: "#1a73e8",
+                backgroundColor: "#e0e0e0", //light gray
               },
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Box
+              {/* <Box
                 sx={{
                   width: 40,
                   height: 40,
@@ -239,9 +245,9 @@ const MoreOptionsPage = ({
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-              >
+              > */}
                 {option.icon}
-              </Box>
+              {/* </Box> */}
               <Box>
                 <Typography
                   variant="subtitle1"
@@ -249,9 +255,9 @@ const MoreOptionsPage = ({
                 >
                   {option.title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b" }}>
+                {/* <Typography variant="body2" sx={{ color: "#64748b" }}>
                   {option.description}
-                </Typography>
+                </Typography> */}
               </Box>
             </Box>
           </Box>

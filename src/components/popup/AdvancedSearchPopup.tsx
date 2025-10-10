@@ -888,7 +888,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
         </Box>
 
         {/* Stepper */}
-        <Box sx={{ p: 2, maxHeight: 400, overflowY: 'auto' }}>
+        <Box sx={{ p: 2, maxHeight: 400, overflowY: 'auto' }} className="custom-scrollbar">
           <Stepper activeStep={activeStep} orientation="vertical">
             {steps.map((step, index) => (
               <Step key={step.label}>

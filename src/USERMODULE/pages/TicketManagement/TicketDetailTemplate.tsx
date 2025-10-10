@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Zoom } from "@mui/material";
 import { Apps, AddTask, More } from "@mui/icons-material";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import Tasks from "../task/Tasks";
@@ -345,9 +345,7 @@ const TicketDetailTemplate = () => {
                     exit={{ x: "100%", opacity: 0 }} // animate out when hidden
                     transition={{ duration: 0.2, ease: "easeInOut" }}
                   >
-            
-                      <InfoTab />
-              
+                    <InfoTab />
                   </motion.div>
                 ) : (
                   /* Chat UI Content */
@@ -393,14 +391,13 @@ const TicketDetailTemplate = () => {
                     </div>
                     {/* Scrollable Chat Messages Area - Middle */}
                     <div
-                    className="custom-scrollbar"
+                      className="custom-scrollbar"
                       style={{
                         flex: 1,
                         padding: "10px",
                         borderBottom: "1px solid #e0e0e0",
                         overflowY: "auto",
                         height: "calc(100vh - 180px)",
-                        
                       }}
                     >
                       <div
@@ -612,6 +609,9 @@ const TicketDetailTemplate = () => {
                     disableFocusListener
                     disableHoverListener
                     disableTouchListener
+                    slots={{
+                      transition: Zoom,
+                    }}
                     sx={{
                       backgroundColor: "#fff",
                       zIndex: 0,
@@ -648,13 +648,14 @@ const TicketDetailTemplate = () => {
                       },
                       arrow: {
                         sx: {
-                          color: "#cfcfcfff",
+                          color: "#f0efefff",
                         },
                       },
                     }}
                     arrow
                     placement="left"
                   >
+                    {/* <Tooltip title="More" placement="left"> */}
                     <button
                       onClick={handleMoreOpen}
                       style={{
@@ -679,6 +680,7 @@ const TicketDetailTemplate = () => {
                       <Apps style={{ fontSize: "20px", color: "#666" }} />
                     </button>
                   </Tooltip>
+                  {/* </Tooltip> */}
                 </div>
               </ClickAwayListener>
 

@@ -28,7 +28,6 @@ const exportOptions = [
   "Twitter",
   "Address",
   "About",
-  "Unique external ID",
   "Title",
   "Work phone",
   "Other phone numbers",
@@ -231,50 +230,6 @@ export default function ExportContact() {
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                 {businessInfo.map((label) => (
-                  <FormControlLabel
-                    key={label}
-                    control={
-                      <Checkbox
-                        checked={selected.includes(label)}
-                        onChange={() => handleToggle(label)}
-                        sx={{
-                          color: "#1976d2",
-                          "&.Mui-checked": {
-                            color: "#1976d2",
-                          },
-                        }}
-                      />
-                    }
-                    label={
-                      <Typography variant="body2" sx={{ fontSize: "0.9rem" }}>
-                        {label}
-                      </Typography>
-                    }
-                  />
-                ))}
-              </Box>
-            </Box>
-          </Grid>
-
-          {/* Identification */}
-          <Grid size={6}>
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: 2,
-                  color: "#1976d2",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Settings sx={{ fontSize: 20 }} />
-                Identification
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                {identification.map((label) => (
                   <FormControlLabel
                     key={label}
                     control={

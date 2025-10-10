@@ -652,6 +652,7 @@ const { data: topicList } = useGetTopicListQuery({});
               overflowY: "auto",
               maxHeight: "calc(100vh - 198px)",
             }}
+            className="custom-scrollbar"
           >
             {/* Mandatory Fields Alert */}
             <Alert
