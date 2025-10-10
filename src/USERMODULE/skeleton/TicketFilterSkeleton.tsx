@@ -4,7 +4,7 @@ const skeletonRows = Array.from({ length: 7 });
 
 const TicketFilterSkeleton: React.FC = () => {
   return (
-    <div className="w-72 min-w-72 bg-white shadow rounded-lg flex flex-col h-full p-4 animate-pulse">
+    <div className="w-72 min-w-72 bg-white shadow rounded-lg flex flex-col h-full p-4 animate-pulse overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <div className="h-4 w-20 bg-gray-200 rounded" />
         <div className="h-3 w-16 bg-gray-200 rounded" />

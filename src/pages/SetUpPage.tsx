@@ -153,8 +153,10 @@ const SetUpPage: React.FC = () => {
           borderRadius: 0,
           width: "100%",
           maxHeight: "calc(100vh - 390px)",
+          minHeight: "calc(100vh - 390px)",
           overflow: "auto",
         }}
+        className="custom-scrollbar"
       >
         <CardContent>
           <Outlet />

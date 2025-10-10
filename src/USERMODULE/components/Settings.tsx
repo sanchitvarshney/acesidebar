@@ -338,7 +338,6 @@ const menuSections: MenuSection[] = [
         title: "Help Topics",
         description: "Help topics from osTicket",
         route: "/settings/help-support/help-topics",
-        source: "osTicket",
       },
       {
         id: "filters",
