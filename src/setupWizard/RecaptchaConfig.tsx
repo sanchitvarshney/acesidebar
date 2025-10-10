@@ -9,6 +9,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { setPayload } from "../reduxStore/Slices/setUpSlices";
 
 const steps = [
   {
@@ -23,56 +25,19 @@ const steps = [
   },
 ];
 
-const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
-  const [formData, setFormData] = useState({
-    siteKey: "",
-    secretKey: "",
-    version: "v2",
-  });
-
-  const [errors, setErrors] = useState<any>({});
+const RecaptchaConfig = () => {
+  const { payload } = useSelector((state: any) => state.setUp);
+  const dispatch = useDispatch();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev: any) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
+    dispatch(
+      setPayload({
+        ...payload,
+        recaptcha: { ...payload.recaptcha, [name]: value },
+      })
+    );
   };
-
-  const validateForm = () => {
-    const newErrors: any = {};
-
-    if (!formData.siteKey.trim()) {
-      newErrors.siteKey = "Site Key is required";
-    }
-
-    if (!formData.secretKey.trim()) {
-      newErrors.secretKey = "Secret Key is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    if (validateForm()) {
-      onNext({ recaptcha: formData });
-    }
-  };
-
-  
-
- 
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
@@ -102,7 +67,6 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
 
   const handleSkip = () => {
     if (!isStepOptional(activeStep)) {
-
       throw new Error("You can't skip a step that isn't optional.");
     }
 
@@ -120,31 +84,6 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
 
   return (
     <div className="w-full">
-      {/* Header */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-4"
-      >
-        <div className="w-[60px] h-[60px] bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-          <svg
-            className="w-10 h-10 text-blue-600"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Google reCAPTCHA Configuration
-        </h1>
-        <p className="text-md text-gray-600">
-          Configure Google reCAPTCHA to protect your ticket system from spam and
-          abuse.
-        </p>
-      </motion.div>
-
       {/* Info Card */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -193,7 +132,6 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.5 }}
-        onSubmit={handleSubmit}
         className=" w-full max-w-2xl mx-auto p-4"
       >
         <Box sx={{ width: "100%" }}>
@@ -239,17 +177,13 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
                     <TextField
                       label="Site Key"
                       name="siteKey"
-                      value={formData.siteKey}
+                      value={payload?.recaptcha?.siteKey}
                       onChange={handleInputChange}
                       placeholder="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
                       fullWidth
                       variant="standard"
                     />
-                    {errors.siteKey && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.siteKey}
-                      </p>
-                    )}
+
                     <p className="mt-1 text-xs text-gray-500">
                       This key is safe to use in client-side code
                     </p>
@@ -262,14 +196,10 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
                       variant="standard"
                       placeholder="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
                       name="secretKey"
-                      value={formData.secretKey}
+                      value={payload?.recaptcha?.secretKey}
                       onChange={handleInputChange}
                     />
-                    {errors.secretKey && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.secretKey}
-                      </p>
-                    )}
+
                     <p className="mt-1 text-xs text-gray-500">
                       Keep this key secret and secure
                     </p>
@@ -282,17 +212,12 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
                     <TextField
                       label="Site Key"
                       name="siteKey"
-                      value={formData.siteKey}
+                      value={payload?.recaptcha?.siteKey}
                       onChange={handleInputChange}
                       placeholder="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
                       fullWidth
                       variant="standard"
                     />
-                    {errors.siteKey && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.siteKey}
-                      </p>
-                    )}
                     <p className="mt-1 text-xs text-gray-500">
                       This key is safe to use in client-side code
                     </p>
@@ -305,14 +230,10 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
                       variant="standard"
                       placeholder="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
                       name="secretKey"
-                      value={formData.secretKey}
+                      value={payload?.recaptcha?.secretKey}
                       onChange={handleInputChange}
                     />
-                    {errors.secretKey && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.secretKey}
-                      </p>
-                    )}
+
                     <p className="mt-1 text-xs text-gray-500">
                       Keep this key secret and secure
                     </p>
@@ -341,8 +262,6 @@ const RecaptchaConfig = ({ onNext, onBack, isFirstStep, isLastStep }: any) => {
             </React.Fragment>
           )}
         </Box>
-
-    
       </motion.form>
     </div>
   );

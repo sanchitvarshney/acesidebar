@@ -17,61 +17,50 @@ import {
 } from "@mui/icons-material";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { baseSteps } from "../components/layout/HelpCenterSlider";
+import { useSelector } from "react-redux";
 
 const SetUpPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const item = location.state || {};
 
-
-  // Determine current step from state or URL
-  const currentPath =
-    item?.path || location.pathname.split("/").pop() || "learn-basics";
+  const currentPath = item?.path || location.pathname.split("/").pop();
   const currentIndex = Math.max(
     0,
-    baseSteps.findIndex((s:any) => s.path === currentPath)
+    baseSteps.findIndex((s: any) => s.path === currentPath)
   );
-  const currentTitle =
-    item?.title || baseSteps[currentIndex]?.title || "Learn the basics";
+  const currentTitle = item?.title || baseSteps[currentIndex]?.title;
+  const { payload } = useSelector((state: any) => state.setUp);
 
-
-  const storageKey = "setupWizardCompletedPaths";
   const readCompleted = (): Set<string> => {
     try {
-      const raw = localStorage.getItem(storageKey);
+      const raw = "";
       const arr = raw ? JSON.parse(raw) : [];
       return Array.isArray(arr) ? new Set<string>(arr) : new Set<string>();
     } catch {
       return new Set<string>();
     }
   };
-  const writeCompleted = (completed: Set<string>): void => {
-    localStorage.setItem(storageKey, JSON.stringify(Array.from(completed)));
-  };
+  const writeCompleted = (completed: Set<string>): void => {};
 
-  const [completedPaths, setCompletedPaths] = useState<Set<string>>(() =>
-    readCompleted()
-  );
+  const [completedPaths, setCompletedPaths] = useState<Set<string>>();
 
- 
   useEffect(() => {
-    if (!completedPaths.has(currentPath)) {
-      const next = new Set(completedPaths);
-      next.add(currentPath);
-      setCompletedPaths(next);
-      writeCompleted(next);
-    }
-
+    // if (!completedPaths.has(currentPath)) {
+    //   const next = new Set(completedPaths);
+    //   next.add(currentPath);
+    //   setCompletedPaths(next);
+    //   writeCompleted(next);
+    // }
   }, [currentPath]);
 
   const totalSteps = baseSteps.length;
-  const completedCount = completedPaths.size;
-  const progressPercentage = (completedCount / totalSteps) * 100;
-
+  // const completedCount = completedPaths.size;
+  // const progressPercentage = (completedCount / totalSteps) * 100;
+  const completedCount = 0;
+  const progressPercentage = 0;
   const nextStep = useMemo(() => {
-    return baseSteps[
-      Math.min(currentIndex + 1, baseSteps.length - 1)
-    ];
+    return baseSteps[Math.min(currentIndex + 1, baseSteps.length - 1)];
   }, [currentIndex]);
 
   // Remove old module-based progress; wizard progress is step-based now
@@ -195,11 +184,12 @@ const SetUpPage: React.FC = () => {
             variant="contained"
             sx={{ fontWeight: 600 }}
             startIcon={<PlayArrowIcon />}
-            onClick={() =>
+            onClick={() => {
               navigate(`/getting-started/${nextStep.path}`, {
                 state: { title: nextStep.title, path: nextStep.path },
-              })
-            }
+              });
+              console.log(payload, "<<<<<<<<<<<<<<<<<<<<payload");
+            }}
           >
             Continue Learning
           </Button>

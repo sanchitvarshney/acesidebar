@@ -55,6 +55,6 @@ export const {
   setIsReply,
   setSelectedIndex,
   setToggle,
-  setOpenTask
+  setOpenTask,
 } = shotcutSlice.actions;
 export default shotcutSlice.reducer;

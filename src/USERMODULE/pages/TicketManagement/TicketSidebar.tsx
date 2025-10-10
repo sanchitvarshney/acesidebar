@@ -793,7 +793,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           <Divider sx={{ mb: 2 }} />
 
           {/* Filters List */}
-          <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
+          <Box sx={{ flex: 1, overflowY: "auto", p: 2 }} className="custom-scrollbar">
             {criteriaArray.map((field: any) => (
               <Box
                 key={field.name}
