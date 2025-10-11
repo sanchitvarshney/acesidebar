@@ -14,11 +14,9 @@ const NotesTab = ({ ticketData }: any) => {
   const [noteList, setNoteList] = React.useState<any[]>([]);
   const [editNoteId, setEditNoteId] = React.useState<number | null>(null);
   const [triggerAddNote] = useCommanApiMutation();
-  const [triggerdeleteNote] =
-    useCommanApiMutation();
-  const [triggerEditNote] =
-    useCommanApiMutation();
-  
+  const [triggerdeleteNote] = useCommanApiMutation();
+  const [triggerEditNote] = useCommanApiMutation();
+
   // Local loading states for better control
   const [isSaving, setIsSaving] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
@@ -36,7 +34,7 @@ const NotesTab = ({ ticketData }: any) => {
 
   const handleSave = async () => {
     if (isSaving) return; // Prevent multiple saves
-    
+
     setIsSaving(true);
     try {
       if (editNoteId !== null) {
@@ -58,12 +56,19 @@ const NotesTab = ({ ticketData }: any) => {
           return;
         }
         if (res?.data?.type === "success") {
-          showToast(res?.data?.message || "Note updated successfully", "success");
-          setNoteList((prev) =>
-            prev.map((item) =>
-              item.key === editNoteId ? { ...item, note } : item
-            )
+          showToast(
+            res?.data?.message || "Note updated successfully",
+            "success"
           );
+          setNoteList((prev) =>
+            prev.map((item) => {
+              if (item?.key === editNoteId) {
+                return res?.data?.data;
+              }
+              return item;
+            })
+          );
+
           setEditNoteId(null);
           setIsEdit(false);
           setNote("");
@@ -76,8 +81,10 @@ const NotesTab = ({ ticketData }: any) => {
             note,
           },
         };
+
         // Create new note
         const res = await triggerAddNote(payload);
+
         if (res?.data?.type === "error") {
           showToast(res?.data?.message || "An error occurred", "error");
           return;
@@ -99,7 +106,7 @@ const NotesTab = ({ ticketData }: any) => {
 
   const handleDelete = async (id: number) => {
     if (isDeleting) return; // Prevent multiple deletes
-    
+
     setIsDeleting(true);
     try {
       const values = {
@@ -117,7 +124,7 @@ const NotesTab = ({ ticketData }: any) => {
       }
       if (res?.data?.type === "success") {
         showToast(res?.data?.message || "Note deleted successfully", "success");
-        setNoteList((prev) => prev.filter((item) => item.key !== id));
+        setNoteList((prev) => prev.filter((item) => item?.key !== id));
       }
     } catch (err) {
       console.error("Error deleting note:", err);
@@ -129,7 +136,7 @@ const NotesTab = ({ ticketData }: any) => {
 
   const handleEdit = (id: number) => {
     setIsNotes(false);
-    const noteToEdit = noteList.find((item) => item.key === id);
+    const noteToEdit = noteList.find((item) => item?.key === id);
     if (noteToEdit) {
       setNote(noteToEdit.note || noteToEdit.name || "");
       setEditNoteId(id);
@@ -182,10 +189,10 @@ const NotesTab = ({ ticketData }: any) => {
           )}
           {noteList.map((item: any) => (
             <NotesItem
-              key={item.key} // ✅ Added key
+              key={item?.key} // ✅ Added key
               data={item}
-              handleDelete={() => handleDelete(item.key)}
-              handleEdit={() => handleEdit(item.key)}
+              handleDelete={() => handleDelete(item?.key)}
+              handleEdit={() => handleEdit(item?.key)}
               isEdit={isEdit}
               handleSave={handleSave}
               loadingDelete={isDeleting}
@@ -199,7 +206,8 @@ const NotesTab = ({ ticketData }: any) => {
           ))}
         </div>
       ) : (
-        !isNotes && !isEdit && (
+        !isNotes &&
+        !isEdit && (
           <div className="flex flex-col items-center my-auto">
             <img src={emptyimg} alt="notes" className="mx-auto w-40 h-30" />
             {isSaving ? (

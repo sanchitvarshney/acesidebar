@@ -53,7 +53,7 @@ const AddNotes = ({ label = "Write your note here", rows = 4, inputText, note, o
       <div className="flex justify-end gap-2 mt-2">
         <Button 
           variant="text" 
-          color="inherit" 
+         sx={{fontWeight:600}}
           onClick={onCancel}
           disabled={isEditLoading || addingLoading}
         >

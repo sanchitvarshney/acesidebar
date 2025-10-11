@@ -70,8 +70,8 @@ const NoteItem: FC<NoteItemProps> = ({
           color="text.secondary"
           sx={{ fontSize: 11 }}
         >
-          {data?.creatDt?.timeStamp}
-          <br />({data?.creatDt?.ago})
+          {data?.createDt?.timeStamp}
+          <br />({data?.createDt?.ago})
         </Typography>
       </div>
 

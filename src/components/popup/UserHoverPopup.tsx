@@ -129,7 +129,7 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
               width: 16,
               height: 16,
               zIndex: 1,
-              left: 8,
+              left: 10,
               ...(placement.startsWith("top")
                 ? {
                     bottom: -8,
