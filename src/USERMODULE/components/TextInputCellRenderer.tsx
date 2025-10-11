@@ -1,6 +1,5 @@
 import {
   Avatar,
-  Checkbox,
   IconButton,
   Menu,
   MenuItem,
@@ -10,10 +9,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-
 import EditUser from "../pages/EditUser";
 import ConfirmationModal from "../../components/reusable/ConfirmationModal";
-
 import { useNavigate } from "react-router-dom";
 
 const TextInputCellRenderer = (props: any) => {
@@ -102,22 +99,22 @@ const TextInputCellRenderer = (props: any) => {
           <div
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={() =>
-              row.facebook &&
-              window.open(`https://facebook.com/${row.facebook}`, "_blank")
+              row?.socialData?.facebook &&
+              window.open(`https://facebook.com/${row?.socialData?.facebook}`, "_blank")
             }
           >
             <Typography
               variant="body2"
               sx={{
                 color: "#1877f2",
-                cursor: row.facebook ? "pointer" : "default",
-                "&:hover": row.facebook ? { textDecoration: "underline" } : {},
+                cursor: row?.socialData?.facebook ? "pointer" : "default",
+                "&:hover": row?.socialData?.facebook ? { textDecoration: "underline" } : {},
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
               }}
             >
-              {row.facebook || "-"}
+              {row?.socialData?.facebook || "-"}
             </Typography>
           </div>
         );
@@ -126,22 +123,22 @@ const TextInputCellRenderer = (props: any) => {
           <div
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={() =>
-              row.twitter &&
-              window.open(`https://twitter.com/${row.twitter}`, "_blank")
+              row?.socialData?.twitter &&
+              window.open(`https://twitter.com/${row?.socialData?.twitter}`, "_blank")
             }
           >
             <Typography
               variant="body2"
               sx={{
                 color: "#1da1f2",
-                cursor: row.twitter ? "pointer" : "default",
-                "&:hover": row.twitter ? { textDecoration: "underline" } : {},
+                cursor: row?.socialData?.twitter ? "pointer" : "default",
+                "&:hover": row?.socialData?.twitter ? { textDecoration: "underline" } : {},
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
               }}
             >
-              {row.twitter ? `@${row.twitter}` : "-"}
+              {row?.socialData?.twitter ? `${row?.socialData?.twitter}` : "-"}
             </Typography>
           </div>
         );

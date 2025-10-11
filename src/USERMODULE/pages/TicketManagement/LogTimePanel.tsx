@@ -185,11 +185,11 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
       }}
     >
       <MuiBox sx={{ p: 2, flex: 1, overflowY: "auto", width: "100%" }}>
-        <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 3 }}>
+        {/* <FormControl fullWidth size="small" variant="outlined" sx={{ mb: 3 }}>
           <InputLabel>Agent</InputLabel>
           <Select
           autoFocus
-          inputRef={inputRef}
+      
             value={logTimeFields.agent}
             label="Agent"
             onChange={(e) => handleLogTimeFieldChange("agent", e.target.value)}
@@ -212,6 +212,7 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
               },
               backgroundColor: "#fff",
               fontSize: "0.875rem",
+        
             }}
           >
             {agents?.map((agent: any) => (
@@ -220,7 +221,7 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         <TextField
           label="HH:MM"

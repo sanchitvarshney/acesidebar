@@ -1320,7 +1320,6 @@ const DepartmentsManagement = () => {
         isHeader={true}
         title={"Add Department"}
         width={"45%"}
-        btn={{ primary: "Add", secondary: "Cancel" }}
       >
         <Box sx={{ p: 3 }}>
           <Typography variant="body1">

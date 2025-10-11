@@ -33,7 +33,6 @@ import ImportContact from "../components/ImportContact";
 import ExportContact from "../components/ExportContact";
 import AddContact from "../components/AddContact";
 import { Close } from "@mui/icons-material";
-import { useGetAgentsQuery } from "../../services/agentServices";
 import nocontact from "../../assets/image/no-contact.svg";
 import error from "../../assets/CesmuejcOxpX1663753174254.svg";
 import { useGetUserListQuery } from "../../services/auth";
@@ -848,6 +847,7 @@ const ContactList = () => {
                       justifyContent: "center",
                       height: "100%",
                       color: "#666",
+                      overflow: "hidden",
                     }}
                   >
                     {userListError ? (
@@ -1262,7 +1262,6 @@ const ContactList = () => {
           isHeader={true}
           title={"Export Contact"}
           width={"45%"}
-          btn={{ main: "Export", secondary: "Cancel" }}
         >
           <ExportContact />
         </CustomSideBarPanel>
@@ -1273,7 +1272,6 @@ const ContactList = () => {
           isHeader={true}
           title={"Import Contact"}
           width={"45%"}
-          btn={{ primary: "Import", secondary: "Cancel" }}
         >
           <ImportContact />
         </CustomSideBarPanel>

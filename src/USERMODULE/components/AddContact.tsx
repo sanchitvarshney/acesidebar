@@ -16,6 +16,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Chip,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
@@ -24,9 +25,7 @@ import {
   Phone,
   Work,
   Person,
-  Badge,
   Close,
-  Save,
   Add,
   Delete,
   Business,
@@ -36,9 +35,10 @@ import {
   Twitter,
 } from "@mui/icons-material";
 import { Transition } from "../pages/EditUser";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCommanApiMutation } from "../../services/threadsApi";
 import { useToast } from "../../hooks/useToast";
+import { useGetTagListQuery } from "../../services/ticketAuth";
 
 // Zod schema
 const schema = z.object({
@@ -94,20 +94,6 @@ const mockCompanies = [
   "Mega Industries",
 ];
 
-// Mock tags data for autocomplete
-const mockTags = [
-  "VIP",
-  "Customer",
-  "Partner",
-  "Lead",
-  "Prospect",
-  "Active",
-  "Inactive",
-  "Priority",
-  "Follow-up",
-  "Important",
-];
-
 const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
   const { showToast } = useToast();
   const [emails, setEmails] = useState<
@@ -116,15 +102,58 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
   const [otherPhones, setOtherPhones] = useState<
     Array<{ value: string; primary: boolean; original_value: string }>
   >([]);
-
+  const { data: tagList } = useGetTagListQuery();
+  const [tagValue, setTagValue] = useState<any[]>([]);
+  const [changeTagValue, setChangeTabValue] = useState("");
+  const [options, setOptions] = useState<any>([]);
   const [triggerAddContact] = useCommanApiMutation();
+  const displayOptions = changeTagValue.length >= 3 ? options : [];
 
+  const fetchOptions = (value: string) => {
+    if (!value || value.length < 3) return [];
+    const filteredOptions = tagList?.filter((option: any) =>
+      option.tagName?.toLowerCase().includes(value?.toLowerCase())
+    );
+    return filteredOptions || [];
+  };
+
+  useEffect(() => {
+    if (changeTagValue.length >= 3) {
+      const filterValue: any = fetchOptions(changeTagValue);
+      setOptions(filterValue);
+    } else {
+      setOptions([]);
+    }
+  }, [changeTagValue, tagList]);
+
+  const handleSelectedOption = (_: any, newValue: any, type: string) => {
+    if (type === "tag") {
+      if (!Array.isArray(newValue) || newValue.length === 0) {
+        showToast("Tag already exists", "error");
+        return;
+      }
+
+      setTagValue((prev) => {
+        // Find newly added tags (those not already in prev)
+        const addedTags = newValue.filter(
+          (tag: any) => !prev.some((p) => p.tagID === tag.tagID)
+        );
+
+        if (addedTags.length === 0) {
+          // No new tags (all duplicates)
+          showToast("Tag already exists", "error");
+          return prev;
+        }
+
+        return [...prev, ...addedTags];
+      });
+    }
+  };
   const {
     control,
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -242,18 +271,18 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             Add Contact
           </Typography>
-          <Button
-            autoFocus
-            color="inherit"
-            onClick={handleSubmit(onSubmit)}
-          >
+          <Button autoFocus color="inherit" onClick={handleSubmit(onSubmit)}>
             Save
           </Button>
         </Toolbar>
       </AppBar>
       {/* Form Content */}
-      <DialogContent dividers sx={{ backgroundColor: "white" }}>
-        <Box sx={{ p: 1 }}>
+      <DialogContent
+        dividers
+        sx={{ backgroundColor: "white" }}
+        className="custom-scrollbar"
+      >
+        <Box sx={{ px: 8, py: 1 }}>
           {/* Mandatory Fields Alert */}
           <Alert
             severity="info"
@@ -398,7 +427,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                       alignItems: "flex-start",
                     }}
                   >
-                    <Box sx={{ flex: 1 }}>
+                    <Box sx={{ flex: 2 }}>
                       <TextField
                         value={email.value}
                         onChange={(e) =>
@@ -519,10 +548,10 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                       type="tel"
                       inputProps={{
                         pattern: "[0-9]*",
-                        inputMode: "numeric"
+                        inputMode: "numeric",
                       }}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        const value = e.target.value.replace(/[^0-9]/g, "");
                         field.onChange(value);
                       }}
                       InputProps={{
@@ -558,10 +587,10 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                       type="tel"
                       inputProps={{
                         pattern: "[0-9]*",
-                        inputMode: "numeric"
+                        inputMode: "numeric",
                       }}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        const value = e.target.value.replace(/[^0-9]/g, "");
                         field.onChange(value);
                       }}
                       InputProps={{
@@ -591,23 +620,26 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                       alignItems: "center",
                     }}
                   >
-                    <TextField
-                      value={phone.value}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, '');
-                        updateOtherPhone(index, "value", value);
-                      }}
-                      placeholder="Enter a phone number"
-                      size="small"
-                      variant="outlined"
-                      type="tel"
-                      inputProps={{
-                        pattern: "[0-9]*",
-                        inputMode: "numeric"
-                      }}
-                      sx={{ flex: 1 }}
-                    />
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <Box sx={{ flex: 2 }}>
+                      <TextField
+                        value={phone.value}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, "");
+                          updateOtherPhone(index, "value", value);
+                        }}
+                        placeholder="Enter a phone number"
+                        size="small"
+                        variant="outlined"
+                        type="tel"
+                        fullWidth
+                        inputProps={{
+                          pattern: "[0-9]*",
+                          inputMode: "numeric",
+                        }}
+                      />
+                    </Box>
+
+                    <FormControl size="small" sx={{ flex: 1 }}>
                       <InputLabel>Type</InputLabel>
                       <Select
                         value={phone.primary ? "primary" : "secondary"}
@@ -620,6 +652,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                         }
                         label="Type"
                         size="small"
+                        fullWidth
                       >
                         <MenuItem value="secondary">--</MenuItem>
                         <MenuItem value="primary">Primary</MenuItem>
@@ -764,52 +797,93 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 Tags
               </Typography>
               <div className="grid grid-cols-1 gap-4">
-                <Controller
-                  name="tags"
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={mockTags}
-                      freeSolo
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Tags"
-                          placeholder="Your choice"
-                          size="small"
-                          variant="outlined"
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <Tag color="action" fontSize="small" />
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      )}
-                      onChange={(_, newValue) => field.onChange(newValue)}
+                <Autocomplete
+                  multiple
+                  disableClearable
+                  popupIcon={null}
+                  getOptionLabel={(option) => {
+                    if (typeof option === "string") return option;
+                    return option.tagName || option.name || "";
+                  }}
+                  options={displayOptions}
+                  value={tagValue}
+                  onChange={(event, newValue) => {
+                    handleSelectedOption(event, newValue, "tag");
+                  }}
+                  onInputChange={(_, value) => setChangeTabValue(value)}
+                  filterOptions={(x) => x}
+                  getOptionDisabled={(option) => option === "Type to search"}
+                  noOptionsText={
+                    changeTagValue.length < 3
+                      ? "Type at least 3 characters to search"
+                      : "No tags found"
+                  }
+                  ListboxProps={{ className: "custom-scrollbar" }}
+                  renderOption={(props, option) => {
+                    return (
+                      <li {...props}>
+                        {typeof option === "string" ? (
+                          option
+                        ) : (
+                          <div
+                            className="flex items-center gap-3 p-1 rounded-md w-full custom-scrollbar"
+                            style={{ cursor: "pointer" }}
+                          >
+                            <div className="flex flex-col">
+                              <Typography
+                                variant="subtitle2"
+                                sx={{ fontWeight: 600 }}
+                              >
+                                {option.tagName}
+                              </Typography>
+                            </div>
+                          </div>
+                        )}
+                      </li>
+                    );
+                  }}
+                  renderTags={(editTags, getTagProps) =>
+                    editTags?.map((option, index) => (
+                      <Chip
+                        key={index}
+                        label={
+                          typeof option === "string"
+                            ? option
+                            : option.name ?? option.tagName
+                        }
+                        onDelete={() => {
+                          const newTags = editTags.filter(
+                            (_, i) => i !== index
+                          );
+                          setTagValue(newTags);
+                        }}
+                        sx={{
+                          "& .MuiChip-deleteIcon": {
+                            color: "error.main",
+                          },
+                          "& .MuiChip-deleteIcon:hover": {
+                            color: "#e87f8c",
+                          },
+                        }}
+                      />
+                    ))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      size="medium"
+                      fullWidth
+                      placeholder="Type to search tags..."
                       sx={{
                         "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
-                          },
+                          borderRadius: "4px",
+                          backgroundColor: "#f9fafb",
+                          "&:hover fieldset": { borderColor: "#9ca3af" },
+                          "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
                         },
-                        "& .MuiAutocomplete-popper": {
-                          zIndex: 9999,
-                        },
-                        "& .MuiAutocomplete-listbox": {
-                          zIndex: 9999,
-                        },
-                      }}
-                      slotProps={{
-                        popper: {
-                          sx: {
-                            zIndex: 9999,
-                          },
-                        },
+                        "& label.Mui-focused": { color: "#1a73e8" },
+                        "& label": { fontWeight: "bold" },
                       }}
                     />
                   )}
@@ -866,7 +940,6 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 />
               </div>
             </Box>
-
           </Box>
         </Box>
       </DialogContent>

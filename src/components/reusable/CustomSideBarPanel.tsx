@@ -9,7 +9,6 @@ interface CustomSideBarPanelProps {
   children: React.ReactNode;
   isHeader?: boolean;
   width?: number | string;
-  btn?: any;
   position?: any;
 }
 const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
@@ -19,7 +18,6 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   children,
   isHeader = true,
   width = 380,
-  btn,
   position = "right",
 }) => {
   return (
@@ -49,7 +47,6 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
       }}
       // hideBackdrop
       sx={{
-       
         zIndex: 9999,
         "& .MuiDrawer-paper": {
           width: width,
@@ -58,11 +55,8 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           backgroundColor: "#f9fafb",
           zIndex: 0,
           pointerEvents: "auto",
-
-        
         },
       }}
-
     >
       {isHeader && title && (
         <Box

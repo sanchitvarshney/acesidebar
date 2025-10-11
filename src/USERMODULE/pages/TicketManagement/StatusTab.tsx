@@ -32,8 +32,6 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { useDebounce } from "../../../hooks/useDebounce";
-
-
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
   const [tagValue, setTagValue] = useState<any[]>([]);
@@ -57,19 +55,16 @@ const StatusTab = ({ ticket }: any) => {
     useLazyGetAgentsBySeachQuery();
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
   const displayOptions = changeTagValue.length >= 3 ? options : [];
-  const [triggerSLA] =
-    useLazyTriggerGetSLAListQuery();
-
+  const [triggerSLA] = useLazyTriggerGetSLAListQuery();
   const [inputValue, setInputValue] = useState("");
   const [slaOptions, setSlaOptions] = useState<any[]>([]);
   const [isSlaLoading, setIsSlaLoading] = useState(false);
-
-
   const debouncedValue: any = useDebounce(inputValue, 500);
 
   const handleUpdateTicket = () => {
-    const formatted = dueDate && format(new Date(dueDate), "dd-mm-yyyy HH:mm") || "";
-  
+    const formatted =
+      (dueDate && format(new Date(dueDate), "dd-mm-yyyy HH:mm")) || "";
+
     const payload = {
       url: "edit-properties/" + ticket?.ticketId,
       method: "PUT",
@@ -135,13 +130,10 @@ const StatusTab = ({ ticket }: any) => {
       }
 
       if (ticket.assignee) {
-       
-
         setAgent(ticket?.assignee);
       }
     }
   }, [ticket, isUpdate]);
-
 
   const fetchOptions = (value: string) => {
     if (!value || value.length < 3) return [];
@@ -184,8 +176,6 @@ const StatusTab = ({ ticket }: any) => {
     }
   };
 
- 
-
   const handleOnChange = (newValue: any) => {
     setSLA(newValue);
   };
@@ -215,7 +205,7 @@ const StatusTab = ({ ticket }: any) => {
       }
 
       setIsSlaLoading(true);
-      
+
       try {
         const res = await triggerSLA({
           search: value,
@@ -607,7 +597,7 @@ const StatusTab = ({ ticket }: any) => {
                 size="small"
                 showIcon={false}
                 placeholder="Select Agent"
-                  optionLabelKey="name"
+                optionLabelKey="name"
               />
             )}
           </div>
@@ -637,6 +627,7 @@ const StatusTab = ({ ticket }: any) => {
                   ? "Type at least 3 characters to search"
                   : "No tags found"
               }
+              ListboxProps={{ className: "custom-scrollbar" }}
               renderOption={(props, option) => {
                 return (
                   <li {...props}>
@@ -644,7 +635,7 @@ const StatusTab = ({ ticket }: any) => {
                       option
                     ) : (
                       <div
-                        className="flex items-center gap-3 p-1 rounded-md w-full"
+                        className="flex items-center gap-3 p-1 rounded-md w-full "
                         style={{ cursor: "pointer" }}
                       >
                         <div className="flex flex-col">

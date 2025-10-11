@@ -16,6 +16,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Chip,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
@@ -24,7 +25,6 @@ import {
   Phone,
   Work,
   Person,
-  Badge,
   Close,
   Add,
   Delete,
@@ -35,10 +35,12 @@ import {
   Twitter,
 } from "@mui/icons-material";
 import { TransitionProps } from "@mui/material/transitions";
-import { forwardRef } from "react";
+import { forwardRef, useEffect } from "react";
 import { useState } from "react";
 import { useCommanApiMutation } from "../../services/threadsApi";
 import { Slide } from "@mui/material";
+import { useGetTagListQuery } from "../../services/ticketAuth";
+import { useToast } from "../../hooks/useToast";
 
 export const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -103,31 +105,70 @@ const mockCompanies = [
   "Mega Industries",
 ];
 
-// Mock tags data for autocomplete
-const mockTags = [
-  "VIP",
-  "Customer",
-  "Partner",
-  "Lead",
-  "Prospect",
-  "Active",
-  "Inactive",
-  "Priority",
-  "Follow-up",
-  "Important",
-];
-
-const EditUser = ({ isEdit, close, userData }: { isEdit: boolean; close: any; userData?: any }) => {
+const EditUser = ({
+  isEdit,
+  close,
+  userData,
+}: {
+  isEdit: boolean;
+  close: any;
+  userData?: any;
+}) => {
   const [commanApi] = useCommanApiMutation();
-  
-  // Initialize emails and other phones from userData or default
+  const { showToast } = useToast();
   const [emails, setEmails] = useState<
     Array<{ value: string; primary: boolean; label: string | undefined }>
   >(userData?.emails || [{ value: "", primary: true, label: undefined }]);
-  
   const [otherPhones, setOtherPhones] = useState<
     Array<{ value: string; primary: boolean; original_value: string }>
   >(userData?.other_phone_numbers || []);
+
+  const { data: tagList } = useGetTagListQuery();
+  const [tagValue, setTagValue] = useState<any[]>([]);
+  const [changeTagValue, setChangeTabValue] = useState("");
+  const [options, setOptions] = useState<any>([]);
+  const displayOptions = changeTagValue.length >= 3 ? options : [];
+
+  const fetchOptions = (value: string) => {
+    if (!value || value.length < 3) return [];
+    const filteredOptions = tagList?.filter((option: any) =>
+      option.tagName?.toLowerCase().includes(value?.toLowerCase())
+    );
+    return filteredOptions || [];
+  };
+
+  useEffect(() => {
+    if (changeTagValue.length >= 3) {
+      const filterValue: any = fetchOptions(changeTagValue);
+      setOptions(filterValue);
+    } else {
+      setOptions([]);
+    }
+  }, [changeTagValue, tagList]);
+
+  const handleSelectedOption = (_: any, newValue: any, type: string) => {
+    if (type === "tag") {
+      if (!Array.isArray(newValue) || newValue.length === 0) {
+        showToast("Tag already exists", "error");
+        return;
+      }
+
+      setTagValue((prev) => {
+        // Find newly added tags (those not already in prev)
+        const addedTags = newValue.filter(
+          (tag: any) => !prev.some((p) => p.tagID === tag.tagID)
+        );
+
+        if (addedTags.length === 0) {
+          // No new tags (all duplicates)
+          showToast("Tag already exists", "error");
+          return prev;
+        }
+
+        return [...prev, ...addedTags];
+      });
+    }
+  };
 
   const {
     control,
@@ -141,7 +182,9 @@ const EditUser = ({ isEdit, close, userData }: { isEdit: boolean; close: any; us
     defaultValues: {
       name: userData?.name || "",
       job_title: userData?.job_title || "",
-      emails: userData?.emails || [{ value: "", primary: true, label: undefined }],
+      emails: userData?.emails || [
+        { value: "", primary: true, label: undefined },
+      ],
       work_number: userData?.work_number || "",
       mobile_number: userData?.mobile_number || "",
       external_id: userData?.external_id || "",
@@ -374,75 +417,120 @@ const EditUser = ({ isEdit, close, userData }: { isEdit: boolean; close: any; us
                   )}
                 />
 
-                            {/* Tags */}
-            <Box>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  mb: 2,
-                  color: "#1976d2",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Tag sx={{ fontSize: 18 }} />
-                Tags
-              </Typography>
-              <div className="grid grid-cols-1 gap-6">
-                <Controller
-                  name="tags"
-                  control={control}
-                  render={({ field }) => (
+                {/* Tags */}
+                <Box>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      mb: 2,
+                      color: "#1976d2",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <Tag sx={{ fontSize: 18 }} />
+                    Tags
+                  </Typography>
+                  <div className="grid grid-cols-1 gap-6">
                     <Autocomplete
-                      {...field}
-                      options={mockTags}
-                      freeSolo
+                      multiple
+                      disableClearable
+                      popupIcon={null}
+                      getOptionLabel={(option) => {
+                        if (typeof option === "string") return option;
+                        return option.tagName || option.name || "";
+                      }}
+                      options={displayOptions}
+                      value={tagValue}
+                      onChange={(event, newValue) => {
+                        handleSelectedOption(event, newValue, "tag");
+                      }}
+                      onInputChange={(_, value) => setChangeTabValue(value)}
+                      filterOptions={(x) => x}
+                      getOptionDisabled={(option) =>
+                        option === "Type to search"
+                      }
+                      noOptionsText={
+                        changeTagValue.length < 3
+                          ? "Type at least 3 characters to search"
+                          : "No tags found"
+                      }
+                      ListboxProps={{ className: "custom-scrollbar" }}
+                      renderOption={(props, option) => {
+                        return (
+                          <li {...props}>
+                            {typeof option === "string" ? (
+                              option
+                            ) : (
+                              <div
+                                className="flex items-center gap-3 p-1 rounded-md w-full custom-scrollbar"
+                                style={{ cursor: "pointer" }}
+                              >
+                                <div className="flex flex-col">
+                                  <Typography
+                                    variant="subtitle2"
+                                    sx={{ fontWeight: 600 }}
+                                  >
+                                    {option.tagName}
+                                  </Typography>
+                                </div>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      }}
+                      renderTags={(editTags, getTagProps) =>
+                        editTags?.map((option, index) => (
+                          <Chip
+                            key={index}
+                            label={
+                              typeof option === "string"
+                                ? option
+                                : option.name ?? option.tagName
+                            }
+                            onDelete={() => {
+                              const newTags = editTags.filter(
+                                (_, i) => i !== index
+                              );
+                              setTagValue(newTags);
+                            }}
+                            sx={{
+                              "& .MuiChip-deleteIcon": {
+                                color: "error.main",
+                              },
+                              "& .MuiChip-deleteIcon:hover": {
+                                color: "#e87f8c",
+                              },
+                            }}
+                          />
+                        ))
+                      }
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Tags"
-                          placeholder="Your choice"
-                          size="small"
                           variant="outlined"
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <Tag color="action" fontSize="small" />
-                              </InputAdornment>
-                            ),
+                          size="medium"
+                          fullWidth
+                          placeholder="Type to search tags..."
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: "4px",
+                              backgroundColor: "#f9fafb",
+                              "&:hover fieldset": { borderColor: "#9ca3af" },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "#1a73e8",
+                              },
+                            },
+                            "& label.Mui-focused": { color: "#1a73e8" },
+                            "& label": { fontWeight: "bold" },
                           }}
                         />
                       )}
-                      onChange={(_, newValue) => field.onChange(newValue)}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
-                          },
-                        },
-                        "& .MuiAutocomplete-popper": {
-                          zIndex: 9999,
-                        },
-                        "& .MuiAutocomplete-listbox": {
-                          zIndex: 9999,
-                        },
-                      }}
-                      slotProps={{
-                        popper: {
-                          sx: {
-                            zIndex: 9999,
-                          },
-                        },
-                      }}
                     />
-                  )}
-                />
-              </div>
-            </Box>
+                  </div>
+                </Box>
               </div>
             </Box>
 
@@ -646,126 +734,71 @@ const EditUser = ({ isEdit, close, userData }: { isEdit: boolean; close: any; us
                   )}
                 />
 
-              {/* Other Phone Numbers */}
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1, color: "#666" }}>
-                  Other Phone Numbers
-                </Typography>
-                {otherPhones.map((phone, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      display: "flex",
-                      gap: 1,
-                      mb: 1,
-                      alignItems: "center",
-                    }}
-                  >
-                    <TextField
-                      value={phone.value}
-                      onChange={(e) =>
-                        updateOtherPhone(index, "value", e.target.value)
-                      }
-                      placeholder="Enter a phone number"
-                      size="small"
-                      variant="outlined"
-                      sx={{ flex: 1 }}
-                    />
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                      <InputLabel>Type</InputLabel>
-                      <Select
-                        value={phone.primary ? "primary" : "secondary"}
-                        onChange={(e) =>
-                          updateOtherPhone(
-                            index,
-                            "primary",
-                            e.target.value === "primary"
-                          )
-                        }
-                        label="Type"
-                        size="small"
-                      >
-                        <MenuItem value="secondary">--</MenuItem>
-                        <MenuItem value="primary">Primary</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <IconButton
-                      onClick={() => removeOtherPhone(index)}
-                      size="small"
-                      color="error"
-                    >
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  </Box>
-                ))}
-                <Button
-                  startIcon={<Add />}
-                  onClick={addOtherPhone}
-                  variant="text"
-                  size="small"
-                  sx={{ mt: 1 }}
-                >
-                  Add phone number
-                </Button>
-              </Box>
-              </div>
-            </Box>
-            {/* Identification Section */}
-            <Box>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  mb: 2,
-                  color: "#1976d2",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Badge sx={{ fontSize: 18 }} />
-                Identification
-              </Typography>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Controller
-                  name="external_id"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={
-                        <Typography>
-                          Unique External ID{" "}
-                          <span className="text-red-500 text-lg font-bold">
-                            *
-                          </span>
-                        </Typography>
-                      }
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.external_id}
-                      helperText={errors.external_id?.message}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Badge color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
+                {/* Other Phone Numbers */}
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1, color: "#666" }}>
+                    Other Phone Numbers
+                  </Typography>
+                  {otherPhones.map((phone, index) => (
+                    <Box
+                      key={index}
                       sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
-                          },
-                        },
+                        display: "flex",
+                        gap: 1,
+                        mb: 1,
+                        alignItems: "center",
                       }}
-                    />
-                  )}
-                />
+                    >
+                      <TextField
+                        value={phone.value}
+                        onChange={(e) =>
+                          updateOtherPhone(index, "value", e.target.value)
+                        }
+                        placeholder="Enter a phone number"
+                        size="small"
+                        variant="outlined"
+                        sx={{ flex: 1 }}
+                      />
+                      <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel>Type</InputLabel>
+                        <Select
+                          value={phone.primary ? "primary" : "secondary"}
+                          onChange={(e) =>
+                            updateOtherPhone(
+                              index,
+                              "primary",
+                              e.target.value === "primary"
+                            )
+                          }
+                          label="Type"
+                          size="small"
+                        >
+                          <MenuItem value="secondary">--</MenuItem>
+                          <MenuItem value="primary">Primary</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <IconButton
+                        onClick={() => removeOtherPhone(index)}
+                        size="small"
+                        color="error"
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ))}
+                  <Button
+                    startIcon={<Add />}
+                    onClick={addOtherPhone}
+                    variant="text"
+                    size="small"
+                    sx={{ mt: 1 }}
+                  >
+                    Add phone number
+                  </Button>
+                </Box>
               </div>
             </Box>
+
 
             {/* Company Information */}
             <Box>

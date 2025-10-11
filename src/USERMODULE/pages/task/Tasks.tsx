@@ -19,6 +19,7 @@ import {
   ListItemText,
   CircularProgress,
 } from "@mui/material";
+import TaskIcon from "@mui/icons-material/Task";
 import {
   FilterList as FilterListIcon,
   Add as AddIcon,
@@ -66,6 +67,7 @@ import KanbanPage from "./KanbanPage";
 
 import { useGetStatusListTaskQuery } from "../../../services/ticketAuth";
 import { useSelector } from "react-redux";
+import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 
 type TaskPropsType = {
   isAddTask?: boolean;
@@ -1744,38 +1746,32 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       )}
 
       {/* Create Task Drawer */}
-      <Drawer
-        anchor="right"
+
+      <CustomSideBarPanel
         open={taskDialogOpen}
-        onClose={() => setTaskDialogOpen(false)}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: "65%",
-            maxWidth: "65%",
-          },
-        }}
+        close={() => setTaskDialogOpen(false)}
+        title={
+          <div className="flex items-center gap-2">
+            <TaskIcon fontSize="small" />
+            <Typography variant="subtitle1" fontWeight={600}>
+              Create New Task
+            </Typography>
+          </div>
+        }
+        width={"65%"}
       >
         <div className="h-full flex flex-col">
-          {/* Header */}
-          <div className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Create New Task
-              </h2>
-              <IconButton onClick={() => setTaskDialogOpen(false)}>
-                <CloseIcon />
-              </IconButton>
-            </div>
-          </div>
-
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6" ref={newTaskContentRef}>
+          <div className="flex-1 overflow-y-auto p-6">
             <div className="space-y-6">
               <TextField
                 label="Task Title"
                 fullWidth
                 placeholder="Enter task title"
-                size="medium"
+                size="small"
+                sx={{
+                  width: { xs: "100%", md: "50%" },
+                }}
               />
 
               <TextField
@@ -1834,21 +1830,22 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   </Select>
                 </FormControl>
               </div>
-
-              <TextField
-                label="Associated Ticket ID"
-                fullWidth
-                placeholder="e.g., TK-2024-001"
-                size="medium"
-              />
-
-              <TextField
-                label="Tags"
-                fullWidth
-                placeholder="Enter tags separated by commas"
-                helperText="Tags help categorize and search tasks"
-                size="medium"
-              />
+              <div className="grid grid-cols-2 gap-6">
+                {" "}
+                <TextField
+                  label="Associated Ticket ID"
+                  fullWidth
+                  placeholder="e.g., TK-2024-001"
+                  size="medium"
+                />
+                <TextField
+                  label="Tags"
+                  fullWidth
+                  placeholder="Enter tags separated by commas"
+                  helperText="Tags help categorize and search tasks"
+                  size="medium"
+                />
+              </div>
             </div>
           </div>
 
@@ -1871,7 +1868,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
             </div>
           </div>
         </div>
-      </Drawer>
+      </CustomSideBarPanel>
 
       {/* Task Advanced Search Modal Slider */}
       <Drawer
