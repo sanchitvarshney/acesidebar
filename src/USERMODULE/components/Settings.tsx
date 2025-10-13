@@ -319,7 +319,6 @@ const menuSections: MenuSection[] = [
         title: "Arcade",
         description: "Arcade gamification from Freshdesk",
         route: "/settings/agents-productivity/arcade",
-        source: "Freshdesk",
       },
     ],
   },

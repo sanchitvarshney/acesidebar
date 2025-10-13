@@ -82,6 +82,7 @@ import AddNewBanlist from "../USERMODULE/pages/settingManangePages/AddNewBanlist
 import DiagnosticsPage from "../USERMODULE/pages/settingManangePages/DiagnosticsPage";
 import HelpTopics from "../USERMODULE/pages/settingManangePages/HelpTopics";
 import AddHelpTopic from "../USERMODULE/pages/settingManangePages/AddHelpTopic";
+import AradePage from "../USERMODULE/pages/settingManangePages/ArcadePage";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -337,9 +338,13 @@ export const router = createBrowserRouter([
         path: "settings/help-support/help-topics",
         element: <HelpTopics />,
       },
-           {
+      {
         path: "settings/help-support/add-help-topics",
         element: <AddHelpTopic />,
+      },
+      {
+        path: "settings/agents-productivity/arcade",
+        element: <AradePage />,
       },
       {
         path: "business-day",

@@ -274,7 +274,7 @@ const EmailNotificationsPage = () => {
                     )}
                   </List>
                 </TabPanel>
-                <TabPanel value="2" sx={{ p: 0 }}>
+                <TabPanel value="3" sx={{ p: 0 }}>
                   {" "}
                   <List
                     sx={{
@@ -328,7 +328,7 @@ const EmailNotificationsPage = () => {
                     ))}
                   </List>
                 </TabPanel>
-                <TabPanel value="3" sx={{ p: 0 }}>
+                <TabPanel value="2" sx={{ p: 0 }}>
                   {" "}
                   <List
                     sx={{
