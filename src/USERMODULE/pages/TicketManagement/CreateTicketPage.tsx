@@ -80,8 +80,8 @@ const { data: topicList } = useGetTopicListQuery({});
 
   const [triggerDept, { isLoading: deptLoading }] =
     useLazyGetDepartmentBySeachQuery();
-  const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
-    useLazyGetAgentsBySeachQuery();
+  // const [triggerSeachAgent, { isLoading: seachAgentLoading }] =
+  //   useLazyGetAgentsBySeachQuery();
   const [triggerSeachUser, { isLoading: seachUserLoading }] =
     useLazyGetUserBySeachQuery();
 
@@ -102,9 +102,9 @@ const { data: topicList } = useGetTopicListQuery({});
   const validateForm = (): boolean => {
     const newErrors: Partial<TicketFormData> = {};
 
-    if (!newTicket.user_email.trim()) {
-      newErrors.user_email = "Please select from address";
-    }
+    // if (!newTicket.user_email.trim()) {
+    //   newErrors.user_email = "Please select from address";
+    // }
     if (!newTicket.subject.trim()) {
       newErrors.subject = "Subject is required";
     }
@@ -493,9 +493,9 @@ const { data: topicList } = useGetTopicListQuery({});
                         <SingleValueAsynAutocomplete
                           value={agentValue}
                           label="Assignee"
-                          qtkMethod={triggerSeachAgent}
+                          qtkMethod={triggerSeachUser}
                           onChange={setAgentValue}
-                          loading={seachAgentLoading}
+                          loading={seachUserLoading}
                           isFallback={true}
                           icon={
                             <Assignment
@@ -678,7 +678,7 @@ const { data: topicList } = useGetTopicListQuery({});
             <Box
               sx={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}
             >
-              <SingleValueAsynAutocomplete
+              {/* <SingleValueAsynAutocomplete
                 value={newTicket?.user_name}
                 label="From *"
                 qtkMethod={triggerSeachUser}
@@ -705,7 +705,7 @@ const { data: topicList } = useGetTopicListQuery({});
                     {user.email}
                   </Typography>
                 )}
-              />
+              /> */}
 
               {/* Subject Field */}
               <TextField
