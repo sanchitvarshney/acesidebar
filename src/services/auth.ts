@@ -18,6 +18,13 @@ const extendedAuthApi = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    addUser: builder.mutation<any, void>({
+      query: (credentials) => ({
+        url: "/user/add",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
     getUserOverviewData: builder.query<any, any>({
       query: ({ client }: any) => ({
         url: `/user/overview/${client}`,
@@ -42,4 +49,5 @@ export const {
   useChangePasswordMutation,
   useGetUserListQuery,
   useGetUserOverviewDataQuery,
+  useAddUserMutation,
 } = extendedAuthApi;

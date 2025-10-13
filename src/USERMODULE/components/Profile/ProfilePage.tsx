@@ -88,15 +88,6 @@ const ticketData: any = [
   },
 ];
 
-const getUserData = () => {
-  try {
-    const userDataStr = localStorage.getItem("userData");
-    if (!userDataStr) return null;
-    return JSON.parse(userDataStr);
-  } catch {
-    return null;
-  }
-};
 
 const ProfilePage = () => {
   const navigate = useNavigate();

@@ -81,6 +81,7 @@ const ContactList = () => {
     data: userList,
     isLoading: listLoading,
     error: userListError,
+    refetch: refetchUserList,
   } = useGetUserListQuery();
   const [modelOpenref, setModelOpenref] = useState<null | HTMLElement>(null);
 
@@ -1276,7 +1277,9 @@ const ContactList = () => {
           <ImportContact />
         </CustomSideBarPanel>
 
-        <AddContact isAdd={isAdd} close={() => setIsAdd(false)} />
+        <AddContact isAdd={isAdd} close={() => {setIsAdd(false)
+          refetchUserList();
+        }} />
 
         {/* Filter Popover - Auto positioned near last chip or filter area */}
         <Popover

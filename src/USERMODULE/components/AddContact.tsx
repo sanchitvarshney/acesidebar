@@ -12,10 +12,6 @@ import {
   AppBar,
   Toolbar,
   Autocomplete,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Chip,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
@@ -39,43 +35,26 @@ import { useEffect, useState } from "react";
 import { useCommanApiMutation } from "../../services/threadsApi";
 import { useToast } from "../../hooks/useToast";
 import { useGetTagListQuery } from "../../services/ticketAuth";
-
+import MailIcon from "@mui/icons-material/Mail";
+import { useAddUserMutation } from "../../services/auth";
 // Zod schema
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   job_title: z.string().optional(),
-  emails: z
-    .array(
-      z.object({
-        value: z.string().email("Invalid email"),
-        primary: z.boolean(),
-        label: z.string().optional(),
-      })
-    )
-    .min(1, "At least one email is required"),
+  email: z.string().min(1, "At least one email is required"),
+  altEmail: z.string().optional(),
   work_number: z
     .string()
     .regex(/^\d+$/, "Work number must contain only digits"),
   mobile_number: z
     .string()
     .regex(/^\d+$/, "Mobile number must contain only digits"),
-  external_id: z
-    .string()
-    .regex(/^\d+$/, "External ID must contain only digits"),
   company: z.string().optional(),
   address: z.string().optional(),
   description: z.string().optional(),
   twitter: z.string().optional(),
   tags: z.string().optional(),
-  other_phone_numbers: z
-    .array(
-      z.object({
-        value: z.string(),
-        primary: z.boolean(),
-        original_value: z.string(),
-      })
-    )
-    .optional(),
+  other_number: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -96,17 +75,11 @@ const mockCompanies = [
 
 const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
   const { showToast } = useToast();
-  const [emails, setEmails] = useState<
-    Array<{ value: string; primary: boolean; label: string | undefined }>
-  >([{ value: "", primary: true, label: undefined }]);
-  const [otherPhones, setOtherPhones] = useState<
-    Array<{ value: string; primary: boolean; original_value: string }>
-  >([]);
   const { data: tagList } = useGetTagListQuery();
   const [tagValue, setTagValue] = useState<any[]>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
   const [options, setOptions] = useState<any>([]);
-  const [triggerAddContact] = useCommanApiMutation();
+  const [addUser, { isLoading }] = useAddUserMutation();
   const displayOptions = changeTagValue.length >= 3 ? options : [];
 
   const fetchOptions = (value: string) => {
@@ -154,92 +127,82 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: {
-      name: "",
-      emails: [{ value: "", primary: true, label: undefined }],
-      tags: "",
-      other_phone_numbers: [],
-    },
   });
 
-  const addEmail = () => {
-    const newEmail = { value: "", primary: false, label: undefined };
-    setEmails([...emails, newEmail]);
-    setValue("emails", [...emails, newEmail]);
-  };
+  // const addEmail = () => {
+  //   const newEmail = { value: "", primary: false, label: undefined };
+  //   setEmails([...emails, newEmail]);
+  //   setValue("emails", [...emails, newEmail]);
+  // };
 
-  const updateEmail = (index: number, field: string, value: any) => {
-    const updatedEmails = [...emails];
-    updatedEmails[index] = { ...updatedEmails[index], [field]: value };
-    setEmails(updatedEmails);
-    setValue("emails", updatedEmails);
-  };
+  // const updateEmail = (index: number, field: string, value: any) => {
+  //   const updatedEmails = emails;
+  //   updatedEmails[index] = { ...updatedEmails[index], [field]: value };
+  //   setEmails(updatedEmails);
+  //   // setValue("email", updatedEmails);
+  // };
 
-  const removeEmail = (index: number) => {
-    if (emails.length > 1) {
-      const updatedEmails = emails.filter((_, i) => i !== index);
-      setEmails(updatedEmails);
-      setValue("emails", updatedEmails);
-    }
-  };
+  // const removeEmail = (index: number) => {
+  //   if (emails.length > 1) {
+  //     const updatedEmails = emails.filter((_, i) => i !== index);
+  //     setEmails(updatedEmails);
+  //     setValue("email", updatedEmails);
+  //   }
+  // };
 
-  const addOtherPhone = () => {
-    const newPhone = { value: "", primary: false, original_value: "" };
-    setOtherPhones([...otherPhones, newPhone]);
-    setValue("other_phone_numbers", [...otherPhones, newPhone]);
-  };
+  // const addOtherPhone = () => {
+  //   const newPhone = { value: "", primary: false, original_value: "" };
+  //   setOtherPhones([...otherPhones, newPhone]);
+  //   setValue("other_phone_numbers", [...otherPhones, newPhone]);
+  // };
 
-  const updateOtherPhone = (index: number, field: string, value: any) => {
-    const updatedPhones = [...otherPhones];
-    updatedPhones[index] = { ...updatedPhones[index], [field]: value };
-    setOtherPhones(updatedPhones);
-    setValue("other_phone_numbers", updatedPhones);
-  };
+  // const updateOtherPhone = (index: number, field: string, value: any) => {
+  //   const updatedPhones = [...otherPhones];
+  //   updatedPhones[index] = { ...updatedPhones[index], [field]: value };
+  //   setOtherPhones(updatedPhones);
+  //   setValue("other_phone_numbers", updatedPhones);
+  // };
 
-  const removeOtherPhone = (index: number) => {
-    const updatedPhones = otherPhones.filter((_, i) => i !== index);
-    setOtherPhones(updatedPhones);
-    setValue("other_phone_numbers", updatedPhones);
-  };
+  // const removeOtherPhone = (index: number) => {
+  //   const updatedPhones = otherPhones.filter((_, i) => i !== index);
+  //   setOtherPhones(updatedPhones);
+  //   setValue("other_phone_numbers", updatedPhones);
+  // };
 
   const onSubmit = (data: FormData) => {
     // Transform data to match the expected payload structure
-    const payload = {
-      url: "add-contact",
-      body: {
-        name: data.name,
-        emails: data.emails.map((email) => ({
-          value: email.value,
-          primary: email.primary,
-          label: email.label,
-        })),
-        work_number: data.work_number,
-        mobile_number: data.mobile_number,
-        external_id: data.external_id,
-        address: data.address || "",
-
-        internal_fields: {
-          job_title: data.job_title || "",
-          tags: data.tags ? [data.tags] : [],
-          description: data.description || "",
-        },
-        mcr_company_ids: [],
-        other_phone_numbers: data.other_phone_numbers || [],
-        twitter: data.twitter || "",
-      },
+    const payload: any = {
+      name: data.name,
+      email: data.email,
+      altEmail: data.altEmail,
+      workNumber: data.work_number,
+      mobileNumber: data.mobile_number,
+      altMobileNumber: data.other_number,
+      address: data.address,
+      jobTitle: data.job_title,
+      company: data.company,
+      twitter: data.twitter,
     };
 
-    triggerAddContact(payload).then((res: any) => {
+    addUser(payload).then((res: any) => {
       console.log("res", res);
       if (res?.data?.type === "error") {
         showToast(res?.data?.message || "An error occurred", "error");
         return;
       }
-      showToast(res?.data?.message || "Contact added successfully", "success");
-      close();
+      if (res?.data?.type === "success") {
+        showToast(
+          res?.data?.message || "Contact added successfully",
+          "success"
+        );
+        reset();
+        close();
+        return;
+      }
     });
   };
 
@@ -257,6 +220,8 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
           overflow: "hidden",
         },
       }}
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
     >
       <AppBar sx={{ position: "relative" }}>
         <Toolbar>
@@ -271,7 +236,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             Add Contact
           </Typography>
-          <Button autoFocus color="inherit" onClick={handleSubmit(onSubmit)}>
+          <Button autoFocus color="inherit" type="submit">
             Save
           </Button>
         </Toolbar>
@@ -307,8 +272,6 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
 
           {/* Form Fields */}
           <Box
-            component="form"
-            onSubmit={handleSubmit(onSubmit)}
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -321,7 +284,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
               <Typography
                 variant="subtitle1"
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   color: "#1976d2",
                   fontWeight: 600,
                   display: "flex",
@@ -332,66 +295,61 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 <Person sx={{ fontSize: 20 }} />
                 Personal Information
               </Typography>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={
-                        <Typography>
-                          Full Name{" "}
-                          <span className="text-red-500 text-lg font-bold">
-                            *
-                          </span>
-                        </Typography>
-                      }
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.name}
-                      helperText={errors.name?.message}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Person color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
-                          },
-                        },
-                      }}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="job_title"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Title"
-                      placeholder="Enter a Title"
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Work color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Full Name{" "}
+                    <span className="text-red-500 text-lg font-bold">*</span>
+                  </Typography>
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        error={!!errors.name}
+                        helperText={errors.name?.message}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Person color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Job Title{" "}
+                    <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="job_title"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Work color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        error={!!errors.job_title}
+                        helperText={errors.job_title?.message}
+                      />
+                    )}
+                  />
+                </div>
               </div>
             </Box>
 
@@ -400,7 +358,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
               <Typography
                 variant="subtitle1"
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   color: "#1976d2",
                   fontWeight: 600,
                   display: "flex",
@@ -413,12 +371,10 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
               </Typography>
 
               {/* Email Fields */}
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1, color: "#666" }}>
-                  Email Addresses
-                </Typography>
-                {emails.map((email, index) => (
-                  <Box
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <Box>
+                  {/* {emails.map((email, index) => ( */}
+                  {/* <Box
                     key={index}
                     sx={{
                       display: "flex",
@@ -426,22 +382,34 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                       mb: 1,
                       alignItems: "flex-start",
                     }}
-                  >
-                    <Box sx={{ flex: 2 }}>
+                  > */}
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Email Address{" "}
+                    <span className="text-red-500 text-lg font-bold">*</span>
+                  </Typography>
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field, fieldState }) => (
                       <TextField
-                        value={email.value}
-                        onChange={(e) =>
-                          updateEmail(index, "value", e.target.value)
-                        }
-                        placeholder="Enter email address"
+                        {...field}
                         size="small"
                         variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <MailIcon color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
                         fullWidth
-                        error={!!errors.emails?.[index]?.value}
-                        helperText={errors.emails?.[index]?.value?.message}
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
                       />
-                    </Box>
-                    <FormControl size="small" sx={{ flex: 1 }}>
+                    )}
+                  />
+
+                  {/* <FormControl size="small" sx={{ flex: 1 }}>
                       <InputLabel>Type</InputLabel>
                       <Select
                         value={email.primary ? "primary" : "secondary"}
@@ -459,8 +427,8 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                         <MenuItem value="secondary">--</MenuItem>
                         <MenuItem value="primary">Primary</MenuItem>
                       </Select>
-                    </FormControl>
-                    {emails.length > 1 && (
+                    </FormControl> */}
+                  {/* {emails.length > 1 && (
                       <IconButton
                         onClick={() => removeEmail(index)}
                         size="small"
@@ -469,10 +437,10 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                       >
                         <Delete fontSize="small" />
                       </IconButton>
-                    )}
-                  </Box>
-                ))}
-                <Button
+                    )} */}
+                  {/* </Box> */}
+                  {/* ))} */}
+                  {/* <Button
                   startIcon={<Add />}
                   onClick={addEmail}
                   variant="text"
@@ -480,171 +448,51 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                   sx={{ mt: 1 }}
                 >
                   Add email address
-                </Button>
-              </Box>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Controller
-                  name="twitter"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Twitter"
-                      placeholder="Enter Twitter handle"
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Twitter color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </div>
-            </Box>
-
-            {/* Phone Numbers */}
-            <Box>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  mb: 2,
-                  color: "#1976d2",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Phone sx={{ fontSize: 20 }} />
-                Phone Numbers
-              </Typography>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Controller
-                  name="work_number"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={
-                        <Typography>
-                          Work Phone{" "}
-                          <span className="text-red-500 text-lg font-bold">
-                            *
-                          </span>
-                        </Typography>
-                      }
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.work_number}
-                      helperText={errors.work_number?.message}
-                      type="tel"
-                      inputProps={{
-                        pattern: "[0-9]*",
-                        inputMode: "numeric",
-                      }}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, "");
-                        field.onChange(value);
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Work color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="mobile_number"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={
-                        <Typography>
-                          Mobile Phone{" "}
-                          <span className="text-red-500 text-lg font-bold">
-                            *
-                          </span>
-                        </Typography>
-                      }
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.mobile_number}
-                      helperText={errors.mobile_number?.message}
-                      type="tel"
-                      inputProps={{
-                        pattern: "[0-9]*",
-                        inputMode: "numeric",
-                      }}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, "");
-                        field.onChange(value);
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Phone color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </div>
-
-              {/* Other Phone Numbers */}
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1, color: "#666" }}>
-                  Other Phone Numbers
-                </Typography>
-                {otherPhones.map((phone, index) => (
-                  <Box
+                </Button> */}
+                </Box>
+                <Box>
+                  {/* {emails.map((email, index) => ( */}
+                  {/* <Box
                     key={index}
                     sx={{
                       display: "flex",
-                      gap: 1,
+                      gap: 2,
                       mb: 1,
-                      alignItems: "center",
+                      alignItems: "flex-start",
                     }}
-                  >
-                    <Box sx={{ flex: 2 }}>
+                  > */}
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Alternate Email{" "}
+                    <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="altEmail"
+                    control={control}
+                    render={({ field, fieldState }) => (
                       <TextField
-                        value={phone.value}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, "");
-                          updateOtherPhone(index, "value", value);
-                        }}
-                        placeholder="Enter a phone number"
+                        {...field}
                         size="small"
                         variant="outlined"
-                        type="tel"
-                        fullWidth
-                        inputProps={{
-                          pattern: "[0-9]*",
-                          inputMode: "numeric",
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <MailIcon color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
                         }}
+                        fullWidth
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
                       />
-                    </Box>
+                    )}
+                  />
 
-                    <FormControl size="small" sx={{ flex: 1 }}>
+                  {/* <FormControl size="small" sx={{ flex: 1 }}>
                       <InputLabel>Type</InputLabel>
                       <Select
-                        value={phone.primary ? "primary" : "secondary"}
+                        value={email.primary ? "primary" : "secondary"}
                         onChange={(e) =>
-                          updateOtherPhone(
+                          updateEmail(
                             index,
                             "primary",
                             e.target.value === "primary"
@@ -657,34 +505,193 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                         <MenuItem value="secondary">--</MenuItem>
                         <MenuItem value="primary">Primary</MenuItem>
                       </Select>
-                    </FormControl>
-                    <IconButton
-                      onClick={() => removeOtherPhone(index)}
-                      size="small"
-                      color="error"
-                    >
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  </Box>
-                ))}
-                <Button
+                    </FormControl> */}
+                  {/* {emails.length > 1 && (
+                      <IconButton
+                        onClick={() => removeEmail(index)}
+                        size="small"
+                        color="error"
+                        sx={{ mt: 0.5 }}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    )} */}
+                  {/* </Box> */}
+                  {/* ))} */}
+                  {/* <Button
                   startIcon={<Add />}
-                  onClick={addOtherPhone}
+                  onClick={addEmail}
                   variant="text"
                   size="small"
                   sx={{ mt: 1 }}
                 >
-                  Add phone number
-                </Button>
-              </Box>
+                  Add email address
+                </Button> */}
+                </Box>
+
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Twitter <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="twitter"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Twitter color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        error={!!errors.twitter}
+                        helperText={errors.twitter?.message}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Work Phone{" "}
+                    <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="work_number"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        error={!!errors.work_number}
+                        helperText={errors.work_number?.message}
+                        type="tel"
+                        inputProps={{
+                          pattern: "[0-9]*",
+                          inputMode: "numeric",
+                        }}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, "");
+                          field.onChange(value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Work color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Mobile Phone{" "}
+                    <span className="text-red-500 text-lg font-bold">*</span>
+                  </Typography>
+                  <Controller
+                    name="mobile_number"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        error={!!errors.mobile_number}
+                        helperText={errors.mobile_number?.message}
+                        type="tel"
+                        inputProps={{
+                          pattern: "[0-9]*",
+                          inputMode: "numeric",
+                        }}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, "");
+                          field.onChange(value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Phone color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Other Phone{" "}
+                    <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="other_number"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        error={!!errors.other_number}
+                        helperText={errors.other_number?.message}
+                        type="tel"
+                        inputProps={{
+                          pattern: "[0-9]*",
+                          inputMode: "numeric",
+                        }}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, "");
+                          field.onChange(value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Phone color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </div>
             </Box>
+
+            {/* Phone Numbers */}
+            {/* <Box>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  mb: 1,
+                  color: "#1976d2",
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Phone sx={{ fontSize: 20 }} />
+                Phone Numbers
+              </Typography>
+
+            
+            </Box> */}
 
             {/* Company Information */}
             <Box>
               <Typography
                 variant="subtitle1"
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   color: "#1976d2",
                   fontWeight: 600,
                   display: "flex",
@@ -695,93 +702,101 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 <Business sx={{ fontSize: 20 }} />
                 Company Information
               </Typography>
-              <div className="grid grid-cols-1 gap-4">
-                <Controller
-                  name="company"
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={mockCompanies}
-                      freeSolo
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Company"
-                          placeholder="Enter company name"
-                          size="small"
-                          variant="outlined"
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <Business color="action" fontSize="small" />
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      )}
-                      onChange={(_, newValue) => field.onChange(newValue)}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
+              <div className="grid grid-cols-1 gap-8">
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Company Name{" "}
+                    <span className="text-red-500 text-lg font-bold">*</span>
+                  </Typography>
+                  <Controller
+                    name="company"
+                    control={control ?? ""}
+                    render={({ field }) => (
+                      <Autocomplete
+                        {...field}
+                        options={mockCompanies}
+                        freeSolo
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            size="small"
+                            variant="outlined"
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <Business color="action" fontSize="small" />
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        )}
+                        onChange={(_, newValue) => field.onChange(newValue)}
+                        sx={{
+                          width: "49%",
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 1,
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor: "#1976d2",
+                            },
                           },
-                        },
-                        "& .MuiAutocomplete-popper": {
-                          zIndex: 9999,
-                        },
-                        "& .MuiAutocomplete-listbox": {
-                          zIndex: 9999,
-                        },
-                      }}
-                      slotProps={{
-                        popper: {
-                          sx: {
+                          "& .MuiAutocomplete-popper": {
                             zIndex: 9999,
                           },
-                        },
-                      }}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="address"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Address"
-                      placeholder="Enter some text"
-                      fullWidth
-                      multiline
-                      rows={3}
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <LocationOn color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
+                          "& .MuiAutocomplete-listbox": {
+                            zIndex: 9999,
                           },
-                        },
-                      }}
-                    />
-                  )}
-                />
+                        }}
+                        slotProps={{
+                          popper: {
+                            sx: {
+                              zIndex: 9999,
+                            },
+                          },
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Address <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="address"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        multiline
+                        rows={3}
+                        variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <LocationOn color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 1,
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor: "#1976d2",
+                            },
+                          },
+                        }}
+                      />
+                    )}
+                  />
+                </div>
               </div>
             </Box>
 
             {/* Tags */}
-            <Box>
+            {/* <Box>
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -891,7 +906,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
               </div>
             </Box>
 
-            {/* About */}
+ 
             <Box>
               <Typography
                 variant="subtitle1"
@@ -939,7 +954,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                   )}
                 />
               </div>
-            </Box>
+            </Box> */}
           </Box>
         </Box>
       </DialogContent>

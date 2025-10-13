@@ -72,7 +72,7 @@ export const columns: GridColDef[] = [
   },
   {
     field: "phoneNumber",
-    headerName: "Work Phone",
+    headerName: "Mobile Number",
     flex: 0.9,
     minWidth: 140,
     sortable: true,
