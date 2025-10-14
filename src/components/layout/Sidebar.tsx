@@ -117,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           </ColoredShortcutButton>
           <ColoredShortcutButton
             bgcolor={iconColors[2]}
-            onClick={() => handleNavigation("/create-user")}
+            onClick={() => handleNavigation("/user")}
           >
             <PeopleIcon fontSize="inherit" />
           </ColoredShortcutButton>

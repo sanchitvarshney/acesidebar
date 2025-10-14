@@ -15,13 +15,7 @@ import {
   Menu as MenuIcon,
   Search as SearchIcon,
   Notifications as NotificationsIcon,
-  AccountCircle,
-  Settings,
-  Help,
-  ExitToApp,
   HourglassEmpty as HourglassEmptyIcon,
-  ArrowDropDown as ArrowDropDownIcon,
-  Email as EmailIcon,
 } from "@mui/icons-material";
 import AddIcon from '@mui/icons-material/Add';
 import AccountPopup from "../popup/AccountPopup";
@@ -48,8 +42,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const { currentStatus, statusOptions } = useStatus();
   const userData: any = user;
   const theme = useTheme();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const isMenuOpen = Boolean(anchorEl);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [accountPopupOpen, setAccountPopupOpen] = useState(false);
   const [tasksPopupOpen, setTasksPopupOpen] = useState(false);
@@ -60,8 +52,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const advancedSearchRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { setIsAnyPopupOpen } = usePopupContext();
-
-  const dispatch = useDispatch();
 
   // Update global popup state whenever any popup state changes
   useEffect(() => {
@@ -78,11 +68,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     advancedSearchOpen,
     setIsAnyPopupOpen,
   ]);
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleAccountButtonClick = () => {
     setAccountPopupOpen(!accountPopupOpen);
     // Close other popups if account popup is being opened
@@ -138,56 +123,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const handleAdvancedSearchClose = () => {
     setAdvancedSearchOpen(false);
   };
-
-  const handleEmailCompositionOpen = () => {
-    navigate('/send-email');
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   const menuId = "primary-search-account-menu";
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "right",
-      }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <MenuItem onClick={handleMenuClose}>
-        <AccountCircle fontSize="small" sx={{ mr: 1 }} />
-        <Typography variant="body2" onClick={() => navigate("/profile")}>
-          My Profile
-        </Typography>
-      </MenuItem>
-      <MenuItem onClick={handleMenuClose}>
-        <Settings fontSize="small" sx={{ mr: 1 }} />
-        <Typography variant="body2">Settings</Typography>
-      </MenuItem>
-      <MenuItem onClick={handleMenuClose}>
-        <Help fontSize="small" sx={{ mr: 1 }} />
-        <Typography variant="body2">Help</Typography>
-      </MenuItem>
-      <MenuItem onClick={handleMenuClose}>
-        <ExitToApp fontSize="small" sx={{ mr: 1 }} />
-        <Typography variant="body2" onClick={() => handleLogout()}>
-          Logout
-        </Typography>
-      </MenuItem>
-    </Menu>
-  );
-
   return (
     <AppBar
       position="fixed"
@@ -318,7 +254,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           </IconButton>
         </Box>
       </Toolbar>
-      {renderMenu}
 
       {/* Notification Popup */}
       <NotificationPopup

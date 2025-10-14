@@ -41,7 +41,7 @@ const TextInputCellRenderer = (props: any) => {
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`${row?.userID}`);
+              navigate(`user-profile/${row?.userID}`);
             }}
           >
             {row?.avatar ? (

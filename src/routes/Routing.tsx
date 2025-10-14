@@ -171,7 +171,7 @@ export const router = createBrowserRouter([
         element: <CreateTicketPage />,
       },
       {
-        path: "create-user",
+        path: "user",
         element: <CreateUser />,
         children: [
           {
@@ -179,7 +179,7 @@ export const router = createBrowserRouter([
             element: <ContactList />,
           },
           {
-            path: ":id",
+            path: "user-profile/:id",
             element: <ProfilePage />,
           },
         ],
