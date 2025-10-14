@@ -65,7 +65,7 @@ import { useAuth } from "../../../contextApi/AuthContext";
 import noTask from "../../../assets/24683078_6986783.svg";
 import KanbanPage from "./KanbanPage";
 
-import { useGetStatusListTaskQuery } from "../../../services/ticketAuth";
+import { useGetPriorityListQuery, useGetStatusListTaskQuery } from "../../../services/ticketAuth";
 import { useSelector } from "react-redux";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 
@@ -95,6 +95,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [currentTime, setCurrentTime] = React.useState(new Date());
   const { isOpenTask } = useSelector((state: any) => state.shotcut);
+   const { data: priorityList } = useGetPriorityListQuery();
   const [
     getAllTaskList,
     { data: taskListData, isLoading: taskListDataLoading },
@@ -631,7 +632,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
 
     // Select fields (Status, Priority)
     if (["status", "priority"].includes(field)) {
-      const options = field === "status" ? statusList || [] : priorityOptions;
+      const options = field === "status" ? statusList || [] : priorityList || [];
       const isMultiple = ["any_of", "none_of"].includes(conditionType);
       const currentValue = isMultiple
         ? Array.isArray(value)
@@ -863,11 +864,58 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                     <div className="p-4 space-y-4">
                       {!isAddTask && (
                         <Tooltip title="Details" placement="left">
+                          <span>
+                            <IconButton
+                              onClick={() => {
+                                if (!taskId) return;
+                                setRightActiveTab(0);
+                                handleTaskClick(taskId, "ticket");
+                              }}
+                              disabled={!taskId}
+                              sx={{
+                                width: 48,
+                                height: 48,
+                                borderRadius: "50%",
+                                transition: "all 0.2s",
+                                bgcolor:
+                                  rightActiveTab === 0
+                                    ? "primary.main"
+                                    : "transparent",
+                                color:
+                                  rightActiveTab === 0
+                                    ? "#fff"
+                                    : "text.secondary",
+                                boxShadow: rightActiveTab === 0 ? 3 : "none",
+                                "&:hover": {
+                                  bgcolor:
+                                    rightActiveTab === 0
+                                      ? "primary.dark"
+                                      : "grey.100",
+                                  color:
+                                    rightActiveTab === 0
+                                      ? "#fff"
+                                      : "text.primary",
+                                },
+                                "&:disabled": {
+                                  opacity: 0.6,
+                                  cursor: "not-allowed",
+                                },
+                              }}
+                            >
+                              <AssignmentIcon />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      )}
+
+                      <Tooltip title="Files" placement="left">
+                        <span>
                           <IconButton
                             onClick={() => {
                               if (!taskId) return;
-                              setRightActiveTab(0);
-                              handleTaskClick(taskId, "ticket");
+                              setRightActiveTab(1);
+
+                              handleTaskClick(taskId, "comments");
                             }}
                             disabled={!taskId}
                             sx={{
@@ -876,21 +924,21 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               borderRadius: "50%",
                               transition: "all 0.2s",
                               bgcolor:
-                                rightActiveTab === 0
+                                rightActiveTab === 1
                                   ? "primary.main"
                                   : "transparent",
                               color:
-                                rightActiveTab === 0
+                                rightActiveTab === 1
                                   ? "#fff"
                                   : "text.secondary",
-                              boxShadow: rightActiveTab === 0 ? 3 : "none",
+                              boxShadow: rightActiveTab === 1 ? 3 : "none",
                               "&:hover": {
                                 bgcolor:
-                                  rightActiveTab === 0
+                                  rightActiveTab === 1
                                     ? "primary.dark"
                                     : "grey.100",
                                 color:
-                                  rightActiveTab === 0
+                                  rightActiveTab === 1
                                     ? "#fff"
                                     : "text.primary",
                               },
@@ -900,92 +948,59 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               },
                             }}
                           >
-                            <AssignmentIcon />
+                            {loadingAttachmentTaskId === taskId ? (
+                              <CircularProgress
+                                size={20}
+                                sx={{ color: "inherit" }}
+                              />
+                            ) : (
+                              <AttachFileIcon />
+                            )}
                           </IconButton>
-                        </Tooltip>
-                      )}
-
-                      <Tooltip title="Files" placement="left">
-                        <IconButton
-                          onClick={() => {
-                            if (!taskId) return;
-                            setRightActiveTab(1);
-
-                            handleTaskClick(taskId, "comments");
-                          }}
-                          disabled={!taskId}
-                          sx={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: "50%",
-                            transition: "all 0.2s",
-                            bgcolor:
-                              rightActiveTab === 1
-                                ? "primary.main"
-                                : "transparent",
-                            color:
-                              rightActiveTab === 1 ? "#fff" : "text.secondary",
-                            boxShadow: rightActiveTab === 1 ? 3 : "none",
-                            "&:hover": {
-                              bgcolor:
-                                rightActiveTab === 1
-                                  ? "primary.dark"
-                                  : "grey.100",
-                              color:
-                                rightActiveTab === 1 ? "#fff" : "text.primary",
-                            },
-                            "&:disabled": {
-                              opacity: 0.6,
-                              cursor: "not-allowed",
-                            },
-                          }}
-                        >
-                          {loadingAttachmentTaskId === taskId ? (
-                            <CircularProgress
-                              size={20}
-                              sx={{ color: "inherit" }}
-                            />
-                          ) : (
-                            <AttachFileIcon />
-                          )}
-                        </IconButton>
+                        </span>
                       </Tooltip>
 
                       <Tooltip title="History" placement="left">
-                        <IconButton
-                          onClick={() => {
-                            if (!taskId) return;
-                            setRightActiveTab(2);
-                          }}
-                          disabled={!taskId}
-                          sx={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: "50%",
-                            transition: "all 0.2s",
-                            bgcolor:
-                              rightActiveTab === 2
-                                ? "primary.main"
-                                : "transparent",
-                            color:
-                              rightActiveTab === 2 ? "#fff" : "text.secondary",
-                            boxShadow: rightActiveTab === 2 ? 3 : "none",
-                            "&:hover": {
+                        <span>
+                          <IconButton
+                            onClick={() => {
+                              if (!taskId) return;
+                              setRightActiveTab(2);
+                            }}
+                            disabled={!taskId}
+                            sx={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: "50%",
+                              transition: "all 0.2s",
                               bgcolor:
                                 rightActiveTab === 2
-                                  ? "primary.dark"
-                                  : "grey.100",
+                                  ? "primary.main"
+                                  : "transparent",
                               color:
-                                rightActiveTab === 2 ? "#fff" : "text.primary",
-                            },
-                            "&:disabled": {
-                              opacity: 0.6,
-                              cursor: "not-allowed",
-                            },
-                          }}
-                        >
-                          <TrendingUpIcon />
-                        </IconButton>
+                                rightActiveTab === 2
+                                  ? "#fff"
+                                  : "text.secondary",
+                              boxShadow: rightActiveTab === 2 ? 3 : "none",
+                              "&:hover": {
+                                bgcolor:
+                                  rightActiveTab === 2
+                                    ? "primary.dark"
+                                    : "grey.100",
+                                color:
+                                  rightActiveTab === 2
+                                    ? "#fff"
+                                    : "text.primary",
+                              },
+                              "&:disabled": {
+                                opacity: 0.6,
+                                cursor: "not-allowed",
+                              },
+                            }}
+                          >
+                            <TrendingUpIcon />
+                          </IconButton>
+                        </span>
                       </Tooltip>
                     </div>
                   </div>
@@ -1786,9 +1801,9 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               <div className="grid grid-cols-2 gap-6">
                 <FormControl fullWidth>
                   <InputLabel>Priority</InputLabel>
-                  <Select label="Priority" size="medium">
-                    {priorityOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
+                  <Select label="Priority" size="medium" value={""}>
+                    {priorityList?.map((option:any) => (
+                      <MenuItem key={option.key} value={option.key || ""}>
                         <div className="flex items-center">
                           <div
                             className="w-3 h-3 rounded-full mr-2"
@@ -1824,7 +1839,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   <Select
                     label="Assigned To"
                     size="medium"
-                    value={currentAgent}
+                    value={currentAgent || ""}
                   >
                     <MenuItem value={currentAgent}>{currentAgent}</MenuItem>
                   </Select>

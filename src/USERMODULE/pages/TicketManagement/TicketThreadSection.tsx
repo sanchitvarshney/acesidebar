@@ -484,25 +484,28 @@ const ThreadItem = ({
                       : "border-gray-200"
                   } pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "}`}
                 >
-               <div className="flex items-center gap-2">   <span className="font-semibold text-[#1a73e8] text-sm">
-                    {item?.repliedBy?.name ?? item?.ticketId ?? "User"}
-                  </span>
-                  { item?.subject && isHovered && (
-                            <IconButton
-                              size="small"
-                              onClick={() => setIsModalOpen(true)}
-                              sx={{
-                                color: "#666",
-                                backgroundColor: "transparent",
-                                "&:hover": {
-                                  backgroundColor: "#f5f5f5",
-                                  color: "#1976d2",
-                                },
-                              }}
-                            >
-                              <OpenInFullIcon fontSize="small" />
-                            </IconButton>
-                          )}</div>
+                  <div className="flex items-center gap-2">
+                    {" "}
+                    <span className="font-semibold text-[#1a73e8] text-sm">
+                      {item?.repliedBy?.name ?? item?.ticketId ?? "User"}
+                    </span>
+                    {item?.subject && isHovered && (
+                      <IconButton
+                        size="small"
+                        onClick={() => setIsModalOpen(true)}
+                        sx={{
+                          color: "#666",
+                          backgroundColor: "transparent",
+                          "&:hover": {
+                            backgroundColor: "#f5f5f5",
+                            color: "#1976d2",
+                          },
+                        }}
+                      >
+                        <OpenInFullIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </div>
                   <div className="flex flex-col ">
                     {!item?.subject && (
                       <>
@@ -571,7 +574,6 @@ const ThreadItem = ({
                         </span>
                       </>
                     )}
-                      
                   </div>
                 </div>
 
@@ -720,11 +722,11 @@ const ThreadItem = ({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                px:3,
-                py:1.5,
+                px: 3,
+                py: 1.5,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <Avatar
                   src={item?.replyType === "AGENT" ? agentAvatar : userAvatar}
                   alt={item?.replyType}
@@ -811,13 +813,14 @@ const ThreadItem = ({
               <Typography variant="body2" sx={{ color: "#666" }}>
                 {bubbleFooter}
               </Typography>
-              { (!!item?.subject) || !isCurrentUser && (
-                <Rating
-                  name="rate-of-thread"
-                  value={ratingValue}
-                  onChange={(event, newValue: any) => handleReview(newValue)}
-                />
-              )}
+              {!!item?.subject ||
+                (!isCurrentUser && (
+                  <Rating
+                    name="rate-of-thread"
+                    value={ratingValue}
+                    onChange={(event, newValue: any) => handleReview(newValue)}
+                  />
+                ))}
             </Box>
           </Box>
         </Fade>
@@ -924,7 +927,7 @@ const TicketThreadSection = ({
   const [isSuccessModal, setIsSuccessModal] = useState<any>(false);
   const [notifyTag, setNotifyTag] = useState([]);
   const { data: shortcutList, isLoading: shortcutLoading } =
-    useGetShortCutListQuery({ refetchOnMountOrArgChange: true });
+    useGetShortCutListQuery({ refetchOnMountOrArgChange: true, skip: suggest });
   const [attachedFile, { isLoading: attachedLoading }] =
     useAttachedFileMutation();
 
@@ -1192,15 +1195,18 @@ const TicketThreadSection = ({
             entryId: serverData?.entryId || `temp-${Date.now()}`,
             message: finalMessage,
             body: finalMessage,
-            repliedBy: serverData?.repliedBy || { name: header?.agentName || "You" },
+            repliedBy: serverData?.repliedBy || {
+              name: header?.agentName || "You",
+            },
             replyType: "AGENT",
             subject: null,
-            attachments: images?.map((img) => ({
-              fileSignature: img?.fileId,
-              fileName: img?.name,
-              size: img?.size,
-              mime: img?.type,
-            })) || [],
+            attachments:
+              images?.map((img) => ({
+                fileSignature: img?.fileId,
+                fileName: img?.name,
+                size: img?.size,
+                mime: img?.type,
+              })) || [],
             isFlagged: false,
             entryType: selectedValue === "private" ? "PrvN" : "pbR",
             repliedAt: { timestamp: new Date().toISOString() },
@@ -1585,6 +1591,7 @@ const TicketThreadSection = ({
           {/* Accordion Item 1 */}
           <Accordion>
             <AccordionSummary
+              component="div"
               expandIcon={<ExpandMoreIcon />}
               sx={{
                 "& .MuiAccordionSummary-content": {

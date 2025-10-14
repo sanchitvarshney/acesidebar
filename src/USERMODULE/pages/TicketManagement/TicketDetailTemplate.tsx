@@ -629,6 +629,7 @@ const TicketDetailTemplate = () => {
                           } catch (_) {}
                         }}
                         close={handleMoreClose}
+                        openMoreOptions={openMoreOptions}
                       />
                     }
                     slotProps={{

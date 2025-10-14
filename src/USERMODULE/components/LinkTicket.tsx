@@ -56,6 +56,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   currentTicket,
   onClose,
 }) => {
+ 
   const { showToast } = useToast();
   const [triggerLinkTicket, { isLoading: linkTicketLoading }] =
     useCommanApiMutation();
@@ -73,6 +74,7 @@ const LinkTickets: React.FC<LinkTicketsProps> = ({
   const [activeTab, setActiveTab] = useState(0);
   const { data: linkTicketData, refetch: refetchLinkedTickets } = useGetLinkTicketQuery({
     ticketNumber: currentTicket?.id,
+    skip: !open,
   });
   const [trackId, setTrackId] = useState<any>("");
 

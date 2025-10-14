@@ -205,7 +205,7 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
     //     body: credentials,
     //   }),
     // }),
-    getLinkTicket: builder.query<any, { ticketNumber: string | number }>({
+    getLinkTicket: builder.query<any, any>({
       query: ({ ticketNumber }) => ({
         url: `/ticket/staff/link-ticket/${ticketNumber}`,
         method: "GET",

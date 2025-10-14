@@ -67,7 +67,7 @@ interface Referral {
   email?: string;
   department?: string;
   status: "pending" | "accepted" | "rejected" | "completed";
-  priority: "low" | "medium" | "high";
+  priority: any;
   assignedAt: string;
   dueDate?: string;
   notes?: string;
@@ -204,7 +204,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
   const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
-  const [priority, setPriority] = useState<any>();
+  const [priority, setPriority] = useState<any>("");
   const [dueDate, setDueDate] = useState<Dayjs | null>(null);
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -605,7 +605,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
               <FormControl  size="small" variant="outlined">
                 <InputLabel>Priority</InputLabel>
                 <Select
-                  value={priority}
+                  value={priority || ""}
                   onChange={(e) =>
                     setPriority(e.target.value)
                   }

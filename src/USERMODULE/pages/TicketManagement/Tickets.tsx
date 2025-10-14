@@ -570,7 +570,7 @@ const Tickets: React.FC = () => {
             </label>
             <FormControl fullWidth size="small" variant="outlined">
               <Select
-                value={quickUpdateValues.priority}
+                value={quickUpdateValues.priority || ""}
                 onChange={(e) =>
                   handleQuickUpdateChange("priority", e.target.value)
                 }

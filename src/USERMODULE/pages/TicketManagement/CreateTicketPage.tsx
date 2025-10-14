@@ -421,7 +421,7 @@ const { data: topicList } = useGetTopicListQuery({});
                         <FormControl fullWidth size="small" variant="outlined">
                           <InputLabel>Priority</InputLabel>
                           <Select
-                            value={newTicket.priority.toString()}
+                            value={newTicket.priority.toString() || ""}
                             onChange={(e) =>
                               handleInputChange("priority", e.target.value)
                             }

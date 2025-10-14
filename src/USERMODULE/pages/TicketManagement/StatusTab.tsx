@@ -263,7 +263,7 @@ const StatusTab = ({ ticket }: any) => {
                 variant="standard"
                 fullWidth
                 size="medium"
-                value={type}
+                value={type || ""}
                 onChange={(e) => setType(e.target.value)}
                 sx={{
                   fontSize: { xs: "10px", sm: "12px" },
@@ -288,7 +288,7 @@ const StatusTab = ({ ticket }: any) => {
                 fullWidth
                 variant="standard"
                 size="medium"
-                value={status}
+                value={status || ""}
                 onChange={(e) => setStatus(e.target.value)}
                 sx={{
                   fontSize: { xs: "10px", sm: "12px" },
@@ -314,14 +314,15 @@ const StatusTab = ({ ticket }: any) => {
                 fullWidth
                 variant="standard"
                 size="medium"
-                value={priority}
+                value={priority || ""}
+                defaultValue=""
                 onChange={(e) => setPriority(e.target.value)}
                 sx={{
                   fontSize: { xs: "10px", sm: "12px" },
                 }}
               >
-                {[...((priorityList as any[]) || [])].map((priority: any) => (
-                  <MenuItem key={priority.key} value={priority.key}>
+                {[...((priorityList as any[]) || [])]?.map((priority: any) => (
+                  <MenuItem key={priority?.key} value={priority?.key}>
                     <Typography
                       variant="body2"
                       sx={{
@@ -335,7 +336,7 @@ const StatusTab = ({ ticket }: any) => {
                         className="w-3 h-3 inline-block"
                         style={{ backgroundColor: priority.color || "#cccccc" }}
                       />
-                      {priority.specification}
+                      {priority?.specification}
                     </Typography>
                   </MenuItem>
                 ))}
