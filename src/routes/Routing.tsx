@@ -83,6 +83,7 @@ import DiagnosticsPage from "../USERMODULE/pages/settingManangePages/Diagnostics
 import HelpTopics from "../USERMODULE/pages/settingManangePages/HelpTopics";
 import AddHelpTopic from "../USERMODULE/pages/settingManangePages/AddHelpTopic";
 import AradePage from "../USERMODULE/pages/settingManangePages/ArcadePage";
+import StaffProfile from "../USERMODULE/pages/StaffProfile";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -183,6 +184,10 @@ export const router = createBrowserRouter([
             element: <ProfilePage />,
           },
         ],
+      },
+          {
+        path: "staff-profile/:id",
+        element: <StaffProfile />,
       },
       {
         path: "quick-action",

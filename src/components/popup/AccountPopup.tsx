@@ -267,7 +267,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
             }}
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/user/user-profile/${userData?.uID}`);
+              navigate(`/staff-profile/${userData?.uID}`);
               onClose();
             }}
           >
