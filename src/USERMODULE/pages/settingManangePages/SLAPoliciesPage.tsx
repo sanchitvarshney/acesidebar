@@ -130,9 +130,7 @@ const SLAPoliciesPage = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton
-              onClick={() => navigate("/settings/tickets-workflows")}
-            >
+            <IconButton onClick={() => navigate("/settings/tickets-workflows")}>
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
@@ -149,18 +147,15 @@ const SLAPoliciesPage = () => {
             >
               <RefreshIcon fontSize="small" />
             </IconButton>
-            {/* <Button
-              variant="contained"
-              size="small"
-              startIcon={<AddIcon />}
-              onClick={() => alert("Create SLA Policy - to be implemented")}
-            >
-              New Policy
-            </Button> */}
+            <Button variant="contained" color="primary" size="small" onClick={()=>navigate("/sla-policies/create-new")}>
+              New SLA Policy
+            </Button>
           </Box>
         </Box>
 
-        <TableContainer sx={{ height: "100%", position: "relative", border: "none" }} >
+        <TableContainer
+          sx={{ height: "100%", position: "relative", border: "none" }}
+        >
           {/* If loading in future */}
           {/* <LinearProgress sx={{ position: "absolute", top: 0, left: 0, right: 0 }} /> */}
           <Table
@@ -176,7 +171,10 @@ const SLAPoliciesPage = () => {
             </TableHead>
             <TableBody>
               {orderedPolicies.map((policy, idx) => (
-                <TableRow key={policy.id} sx={{ "&:hover": { backgroundColor: "transparent" } }}>
+                <TableRow
+                  key={policy.id}
+                  sx={{ "&:hover": { backgroundColor: "transparent" } }}
+                >
                   <TableCell>
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
                       <Box
@@ -199,11 +197,19 @@ const SLAPoliciesPage = () => {
                       </Typography>
                     </Box>
                   </TableCell>
-            
-                
+
                   <TableCell align="center">
-                    <CustomToolTip title={<Typography variant="body2" sx={{p:0.5}}>Default Policy cannot be turnned off</Typography>}>
-                      <Box component="span" sx={{ display: "inline-block", cursor: "not-allowed" }}>
+                    <CustomToolTip
+                      title={
+                        <Typography variant="body2" sx={{ p: 0.5 }}>
+                          Default Policy cannot be turnned off
+                        </Typography>
+                      }
+                    >
+                      <Box
+                        component="span"
+                        sx={{ display: "inline-block", cursor: "not-allowed" }}
+                      >
                         <Switch
                           checked={policy.isActive}
                           onChange={() => togglePolicy(policy.id)}

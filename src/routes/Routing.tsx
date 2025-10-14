@@ -189,6 +189,7 @@ export const router = createBrowserRouter([
         path: "staff-profile/:id",
         element: <StaffProfile />,
       },
+      
       {
         path: "quick-action",
         element: <QuickActions />,
@@ -299,6 +300,10 @@ export const router = createBrowserRouter([
       },
       {
         path: "sla-policies/:id",
+        element: <SLAEditPage />,
+      },
+           {
+        path: "sla-policies/create-new",
         element: <SLAEditPage />,
       },
       {

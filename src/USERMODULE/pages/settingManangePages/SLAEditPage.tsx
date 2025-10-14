@@ -78,9 +78,11 @@ const SLAEditPage = () => {
   const navigate = useNavigate();
   const params = useParams();
 
-  const [name, setName] = useState("Default policy");
+  const [name, setName] = useState(params?.id ? "Default policy" : "");
   const [description, setDescription] = useState(
-    "This policy ensures every ticket has an SLA if no other custom SLA matches the ticket."
+    params?.id
+      ? "This policy ensures every ticket has an SLA if no other custom SLA matches the ticket."
+      : ""
   );
 
   // Map department -> targets
@@ -184,7 +186,6 @@ const SLAEditPage = () => {
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          
         }}
       >
         {/* Header */}
@@ -197,11 +198,13 @@ const SLAEditPage = () => {
             borderBottom: "1px solid #e0e0e0",
           }}
         >
-          <IconButton onClick={() => navigate("/settings/tickets-workflows/sla-policies")}>
+          <IconButton
+            onClick={() => navigate("/settings/tickets-workflows/sla-policies")}
+          >
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            Edit SLA policy
+            {params.id ? "Edit SLA Policy" : "New SLA Policy"}
           </Typography>
         </Box>
 
@@ -522,8 +525,7 @@ const SLAEditPage = () => {
         </Box>
       </Box>
 
-
-          <Box
+      <Box
         sx={{
           maxHeight: "calc(100vh - 100px)",
           overflowY: "auto",
