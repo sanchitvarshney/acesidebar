@@ -15,12 +15,9 @@ import XIcon from "@mui/icons-material/X";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
-import { useAuth } from "../../../contextApi/AuthContext";
-import {
-  useCommanApiMutation,
-  useUpdateUserDataMutation,
-} from "../../../services/threadsApi";
+
 import { useToast } from "../../../hooks/useToast";
+import { useUpdateUserDataMutation } from "../../../services/auth";
 
 interface SharingDataType {
   id: string;

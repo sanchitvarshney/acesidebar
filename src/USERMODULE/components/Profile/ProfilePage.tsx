@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -6,7 +6,7 @@ import {
   Tabs,
   Typography,
   IconButton,
-  Avatar,
+  CircularProgress,
 } from "@mui/material";
 
 import {
@@ -32,7 +32,7 @@ import TicketsTab from "./TicketsTab";
 import ActivityTab from "./ActivityTab";
 import SettingsTab from "./SettingsTab";
 import SecurityTab from "./SecurityTab";
-import { useGetUserOverviewDataQuery } from "../../../services/auth";
+import { useLazyGetUserDataQuery } from "../../../services/auth";
 
 const ticketData: any = [
   {
@@ -88,19 +88,11 @@ const ticketData: any = [
   },
 ];
 
-
 const ProfilePage = () => {
   const navigate = useNavigate();
-
   const userId = useParams().id;
-
-  const { data: UserData } = useGetUserOverviewDataQuery({
-    client: userId,
-    skip: !userId,
-    refetchOnMountOrArgChange: true,
-  });
   const [tab, setTab] = useState<number>(0);
-
+  const [userData, setUserData] = useState<any>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isConvertProfile, setIsConvertProfile] = useState(false);
@@ -108,6 +100,8 @@ const ProfilePage = () => {
   const [isMerge, setIsMerge] = useState(false);
   const [isPrimaryEmail, setIsPrimaryEmail] = useState(false);
   const [commanApi] = useCommanApiMutation();
+  const [getUserData, { isLoading: getUserDataLoading }] =
+    useLazyGetUserDataQuery();
 
   const handleDelete = () => {
     const payload = {
@@ -131,13 +125,23 @@ const ProfilePage = () => {
     setIsMerge(true);
     setIsPrimaryEmail(true);
   };
+  const fetchData = () => {
+    getUserData({ client: userId }).then((res) => {
+      setUserData(res?.data);
+    });
+  };
+
+  useEffect(() => {
+    if (!userId) return;
+    fetchData();
+  }, [userId]);
 
   return (
     <Box sx={{ display: "flex", height: "calc(100vh - 96px)" }}>
       {/* Left Sidebar */}
       <Box
         sx={{
-          width: 280,
+          minWidth: 280,
           bgcolor: "background.paper",
           borderRight: "1px solid #e5e7eb",
           p: 3,
@@ -302,13 +306,28 @@ const ProfilePage = () => {
         </Box>
 
         {/* Main Content */}
-        <div style={{ flex: 1, padding: 2, backgroundColor: "#fff", overflow: "auto" }} className="custom-scrollbar">
-          {tab === 0 && <OverviewTab user={UserData} />}
-          {tab === 1 && <TicketsTab tickets={ticketData} />}
-          {tab === 2 && <ActivityTab />}
-          {tab === 3 && <SettingsTab />}
-          {tab === 4 && <SecurityTab />}
-        </div>
+        {getUserDataLoading ? (
+          <div className="w-full h-[calc(100vh-160px] flex justify-center align-center">
+            <CircularProgress />
+          </div>
+        ) : (
+          <div
+            style={{
+              flex: 1,
+
+              padding: 2,
+              backgroundColor: "#fff",
+              overflow: "auto",
+            }}
+            className="custom-scrollbar"
+          >
+            {tab === 0 && <OverviewTab user={userData} />}
+            {tab === 1 && <TicketsTab userId={userId} />}
+            {tab === 2 && <ActivityTab />}
+            {tab === 3 && <SettingsTab />}
+            {tab === 4 && <SecurityTab />}
+          </div>
+        )}
       </Box>
 
       {/* Modals - Keep all existing functionality */}
@@ -318,7 +337,15 @@ const ProfilePage = () => {
         onConfirm={handleDelete}
       />
 
-      <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />
+      <EditUser
+        isEdit={isEdit}
+        close={() => {
+          setIsEdit(false);
+          fetchData();
+        }}
+        userData={userData}
+        userId={userId}
+      />
 
       <ConvertProfile
         open={isConvertProfile}
@@ -340,8 +367,8 @@ const ProfilePage = () => {
       >
         <MergeContact
           data={{
-            userName: UserData?.fullName,
-            userEmail: UserData?.email,
+            userName: userData?.fullName,
+            userEmail: userData?.email,
             isPrimaryEmail: isPrimaryEmail,
           }}
           close={() => setIsMerge(false)}

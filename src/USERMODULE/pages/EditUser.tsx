@@ -12,11 +12,7 @@ import {
   AppBar,
   Toolbar,
   Autocomplete,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Chip,
+  CircularProgress,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
@@ -26,8 +22,6 @@ import {
   Work,
   Person,
   Close,
-  Add,
-  Delete,
   Business,
   LocationOn,
   Tag,
@@ -41,6 +35,9 @@ import { useCommanApiMutation } from "../../services/threadsApi";
 import { Slide } from "@mui/material";
 import { useGetTagListQuery } from "../../services/ticketAuth";
 import { useToast } from "../../hooks/useToast";
+import MailIcon from "@mui/icons-material/Mail";
+import { updateCacheWithNewRows } from "@mui/x-data-grid/hooks/features/rows/gridRowsUtils";
+import { useUpdateUserDataMutation } from "../../services/auth";
 
 export const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -55,38 +52,20 @@ export const Transition = forwardRef(function Transition(
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   job_title: z.string().optional(),
-  emails: z
-    .array(
-      z.object({
-        value: z.string().email("Invalid email"),
-        primary: z.boolean(),
-        label: z.string().optional(),
-      })
-    )
-    .min(1, "At least one email is required"),
+  email: z.string().min(1, "At least one email is required"),
+  altEmail: z.string().optional(),
   work_number: z
     .string()
     .regex(/^\d+$/, "Work number must contain only digits"),
   mobile_number: z
     .string()
     .regex(/^\d+$/, "Mobile number must contain only digits"),
-  external_id: z
-    .string()
-    .regex(/^\d+$/, "External ID must contain only digits"),
   company: z.string().optional(),
   address: z.string().optional(),
-  description: z.string().optional(),
+
   twitter: z.string().optional(),
   tags: z.string().optional(),
-  other_phone_numbers: z
-    .array(
-      z.object({
-        value: z.string(),
-        primary: z.boolean(),
-        original_value: z.string(),
-      })
-    )
-    .optional(),
+  other_number: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -109,20 +88,16 @@ const EditUser = ({
   isEdit,
   close,
   userData,
+  userId,
 }: {
   isEdit: boolean;
   close: any;
   userData?: any;
+  userId?: any;
 }) => {
-  const [commanApi] = useCommanApiMutation();
   const { showToast } = useToast();
-  const [emails, setEmails] = useState<
-    Array<{ value: string; primary: boolean; label: string | undefined }>
-  >(userData?.emails || [{ value: "", primary: true, label: undefined }]);
-  const [otherPhones, setOtherPhones] = useState<
-    Array<{ value: string; primary: boolean; original_value: string }>
-  >(userData?.other_phone_numbers || []);
-
+  const [updateUserData, { isLoading: updateLoading }] =
+    useUpdateUserDataMutation();
   const { data: tagList } = useGetTagListQuery();
   const [tagValue, setTagValue] = useState<any[]>([]);
   const [changeTagValue, setChangeTabValue] = useState("");
@@ -175,93 +150,62 @@ const EditUser = ({
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
+    reset,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: {
-      name: userData?.name || "",
-      job_title: userData?.job_title || "",
-      emails: userData?.emails || [
-        { value: "", primary: true, label: undefined },
-      ],
-      work_number: userData?.work_number || "",
-      mobile_number: userData?.mobile_number || "",
-      external_id: userData?.external_id || "",
-      company: userData?.company || "",
-      address: userData?.address || "",
-      description: userData?.description || "",
-      twitter: userData?.twitter || "",
-      tags: userData?.tags || "",
-      other_phone_numbers: userData?.other_phone_numbers || [],
-    },
   });
+  useEffect(() => {
+    if (!userId || !userData) return;
+    if (userData) {
+      reset({
+        name: userData.name || "",
+        job_title: userData.jobTitle || "",
+        email: userData.emailId || "",
+        altEmail: userData.emailAlt || "",
+        work_number: userData.workPhone || "",
+        mobile_number: userData.phoneNo || "",
+        company: userData.company || "",
+        address: userData.address || "",
+        other_number: userData.phoneAlt || "",
 
-  const addEmail = () => {
-    const newEmail = { value: "", primary: false, label: undefined };
-    setEmails([...emails, newEmail]);
-    setValue("emails", [...emails, newEmail]);
-  };
-
-  const updateEmail = (index: number, field: string, value: any) => {
-    const updatedEmails = [...emails];
-    updatedEmails[index] = { ...updatedEmails[index], [field]: value };
-    setEmails(updatedEmails);
-    setValue("emails", updatedEmails);
-  };
-
-  const removeEmail = (index: number) => {
-    if (emails.length > 1) {
-      const updatedEmails = emails.filter((_, i) => i !== index);
-      setEmails(updatedEmails);
-      setValue("emails", updatedEmails);
+        twitter: userData.socialData?.x || "",
+      });
     }
-  };
-
-  const addOtherPhone = () => {
-    const newPhone = { value: "", primary: false, original_value: "" };
-    setOtherPhones([...otherPhones, newPhone]);
-    setValue("other_phone_numbers", [...otherPhones, newPhone]);
-  };
-
-  const updateOtherPhone = (index: number, field: string, value: any) => {
-    const updatedPhones = [...otherPhones];
-    updatedPhones[index] = { ...updatedPhones[index], [field]: value };
-    setOtherPhones(updatedPhones);
-    setValue("other_phone_numbers", updatedPhones);
-  };
-
-  const removeOtherPhone = (index: number) => {
-    const updatedPhones = otherPhones.filter((_, i) => i !== index);
-    setOtherPhones(updatedPhones);
-    setValue("other_phone_numbers", updatedPhones);
-  };
+  }, [userData, userId]);
 
   const onSubmit = (data: FormData) => {
+    if(!userId){
+      showToast("User ID not available", "error");
+      return
+    }
     const payload = {
-      url: "update-user-profile",
+      key: userId,
+      type: "profile",
       body: {
         name: data.name,
-        job_title: data.job_title,
-        emails: data.emails.map((email) => ({
-          value: email.value,
-          primary: email.primary,
-          label: email.label,
-        })),
-        work_number: data.work_number,
-        mobile_number: data.mobile_number,
-        external_id: data.external_id,
-        company: data.company,
-        address: data.address,
-        description: data.description,
-        twitter: data.twitter,
-        tags: data.tags,
-        other_phone_numbers: data.other_phone_numbers || [],
+        jobTitle: data.job_title || "--",
+        email: data.email,
+        altEmail:data.altEmail || "--",
+        workNumber: data.work_number || "--",
+        mobileNumber: data.mobile_number || "--",
+        company: data.company || "--",
+        address: data.address || "--",
+        twitter: data.twitter || "--",
+        altPhone: data.other_number || "--",
       },
     };
-    commanApi(payload);
-    close();
-    console.log("Form submitted", payload);
+    updateUserData(payload).then((res: any) => {
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message, "error");
+        return;
+      }
+      if (res?.data?.type === "success") {
+        showToast(res?.data?.message, "success");
+        close();
+        return;
+      }
+    });
   };
 
   return (
@@ -293,17 +237,19 @@ const EditUser = ({
             Edit User
           </Typography>
           <Button autoFocus color="inherit" onClick={handleSubmit(onSubmit)}>
-            Save
+            {
+              updateLoading ? (
+                <CircularProgress size={16} color="inherit" />
+              ):(
+                "Save"
+              )
+            }
           </Button>
         </Toolbar>
       </AppBar>
       {/* Form Content */}
       <DialogContent dividers sx={{ backgroundColor: "white" }}>
-        <Box
-          sx={{
-            p: 1,
-          }}
-        >
+        <Box sx={{ px: 8, py: 1 }}>
           {/* Mandatory Fields Alert */}
           <Alert
             severity="info"
@@ -339,12 +285,12 @@ const EditUser = ({
               // pr: 1,
             }}
           >
-            {/* Personal Information Section */}
+            {/* Personal Information */}
             <Box>
               <Typography
                 variant="subtitle1"
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   color: "#1976d2",
                   fontWeight: 600,
                   display: "flex",
@@ -352,194 +298,73 @@ const EditUser = ({
                   gap: 1,
                 }}
               >
-                <Person sx={{ fontSize: 18 }} />
+                <Person sx={{ fontSize: 20 }} />
                 Personal Information
               </Typography>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={
-                        <Typography>
-                          Full Name{" "}
-                          <span className="text-red-500 text-lg font-bold">
-                            *
-                          </span>
-                        </Typography>
-                      }
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.name}
-                      helperText={errors.name?.message}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Person color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
-                          },
-                        },
-                      }}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="job_title"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label={"Title"}
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
-                          },
-                        },
-                      }}
-                    />
-                  )}
-                />
-
-                {/* Tags */}
-                <Box>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      mb: 2,
-                      color: "#1976d2",
-                      fontWeight: 600,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <Tag sx={{ fontSize: 18 }} />
-                    Tags
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Full Name{" "}
+                    <span className="text-red-500 text-lg font-bold">*</span>
                   </Typography>
-                  <div className="grid grid-cols-1 gap-6">
-                    <Autocomplete
-                      multiple
-                      disableClearable
-                      popupIcon={null}
-                      getOptionLabel={(option) => {
-                        if (typeof option === "string") return option;
-                        return option.tagName || option.name || "";
-                      }}
-                      options={displayOptions}
-                      value={tagValue}
-                      onChange={(event, newValue) => {
-                        handleSelectedOption(event, newValue, "tag");
-                      }}
-                      onInputChange={(_, value) => setChangeTabValue(value)}
-                      filterOptions={(x) => x}
-                      getOptionDisabled={(option) =>
-                        option === "Type to search"
-                      }
-                      noOptionsText={
-                        changeTagValue.length < 3
-                          ? "Type at least 3 characters to search"
-                          : "No tags found"
-                      }
-                      ListboxProps={{ className: "custom-scrollbar" }}
-                      renderOption={(props, option) => {
-                        return (
-                          <li {...props}>
-                            {typeof option === "string" ? (
-                              option
-                            ) : (
-                              <div
-                                className="flex items-center gap-3 p-1 rounded-md w-full custom-scrollbar"
-                                style={{ cursor: "pointer" }}
-                              >
-                                <div className="flex flex-col">
-                                  <Typography
-                                    variant="subtitle2"
-                                    sx={{ fontWeight: 600 }}
-                                  >
-                                    {option.tagName}
-                                  </Typography>
-                                </div>
-                              </div>
-                            )}
-                          </li>
-                        );
-                      }}
-                      renderTags={(editTags, getTagProps) =>
-                        editTags?.map((option, index) => (
-                          <Chip
-                            key={index}
-                            label={
-                              typeof option === "string"
-                                ? option
-                                : option.name ?? option.tagName
-                            }
-                            onDelete={() => {
-                              const newTags = editTags.filter(
-                                (_, i) => i !== index
-                              );
-                              setTagValue(newTags);
-                            }}
-                            sx={{
-                              "& .MuiChip-deleteIcon": {
-                                color: "error.main",
-                              },
-                              "& .MuiChip-deleteIcon:hover": {
-                                color: "#e87f8c",
-                              },
-                            }}
-                          />
-                        ))
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          size="medium"
-                          fullWidth
-                          placeholder="Type to search tags..."
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: "4px",
-                              backgroundColor: "#f9fafb",
-                              "&:hover fieldset": { borderColor: "#9ca3af" },
-                              "&.Mui-focused fieldset": {
-                                borderColor: "#1a73e8",
-                              },
-                            },
-                            "& label.Mui-focused": { color: "#1a73e8" },
-                            "& label": { fontWeight: "bold" },
-                          }}
-                        />
-                      )}
-                    />
-                  </div>
-                </Box>
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        error={!!errors.name}
+                        helperText={errors.name?.message}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Person color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Job Title{" "}
+                    <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="job_title"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Work color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        error={!!errors.job_title}
+                        helperText={errors.job_title?.message}
+                      />
+                    )}
+                  />
+                </div>
               </div>
             </Box>
 
-            {/* Contact Information Section */}
+            {/* Contact Information */}
             <Box>
               <Typography
                 variant="subtitle1"
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   color: "#1976d2",
                   fontWeight: 600,
                   display: "flex",
@@ -547,38 +372,50 @@ const EditUser = ({
                   gap: 1,
                 }}
               >
-                <Email sx={{ fontSize: 18 }} />
+                <Email sx={{ fontSize: 20 }} />
                 Contact Information
               </Typography>
 
               {/* Email Fields */}
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1, color: "#666" }}>
-                  Email Addresses
-                </Typography>
-                {emails.map((email, index) => (
-                  <Box
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <Box>
+                  {/* {emails.map((email, index) => ( */}
+                  {/* <Box
                     key={index}
                     sx={{
                       display: "flex",
-                      gap: 1,
+                      gap: 2,
                       mb: 1,
-                      alignItems: "center",
+                      alignItems: "flex-start",
                     }}
-                  >
-                    <TextField
-                      value={email.value}
-                      onChange={(e) =>
-                        updateEmail(index, "value", e.target.value)
-                      }
-                      placeholder="Enter email address"
-                      size="small"
-                      variant="outlined"
-                      sx={{ flex: 1 }}
-                      error={!!errors.emails?.[index]?.value}
-                      helperText={errors.emails?.[index]?.value?.message}
-                    />
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                  > */}
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Email Address{" "}
+                    <span className="text-red-500 text-lg font-bold">*</span>
+                  </Typography>
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <MailIcon color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        fullWidth
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                      />
+                    )}
+                  />
+
+                  {/* <FormControl size="small" sx={{ flex: 1 }}>
                       <InputLabel>Type</InputLabel>
                       <Select
                         value={email.primary ? "primary" : "secondary"}
@@ -591,23 +428,25 @@ const EditUser = ({
                         }
                         label="Type"
                         size="small"
+                        fullWidth
                       >
                         <MenuItem value="secondary">--</MenuItem>
                         <MenuItem value="primary">Primary</MenuItem>
                       </Select>
-                    </FormControl>
-                    {emails.length > 1 && (
+                    </FormControl> */}
+                  {/* {emails.length > 1 && (
                       <IconButton
                         onClick={() => removeEmail(index)}
                         size="small"
                         color="error"
+                        sx={{ mt: 0.5 }}
                       >
                         <Delete fontSize="small" />
                       </IconButton>
-                    )}
-                  </Box>
-                ))}
-                <Button
+                    )} */}
+                  {/* </Box> */}
+                  {/* ))} */}
+                  {/* <Button
                   startIcon={<Add />}
                   onClick={addEmail}
                   variant="text"
@@ -615,36 +454,226 @@ const EditUser = ({
                   sx={{ mt: 1 }}
                 >
                   Add email address
-                </Button>
-              </Box>
+                </Button> */}
+                </Box>
+                <Box>
+                  {/* {emails.map((email, index) => ( */}
+                  {/* <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      mb: 1,
+                      alignItems: "flex-start",
+                    }}
+                  > */}
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Alternate Email{" "}
+                    <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="altEmail"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        size="small"
+                        variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <MailIcon color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        fullWidth
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                      />
+                    )}
+                  />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Controller
-                  name="twitter"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Twitter"
-                      placeholder="Enter Twitter handle"
-                      fullWidth
-                      size="small"
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Twitter color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
+                  {/* <FormControl size="small" sx={{ flex: 1 }}>
+                      <InputLabel>Type</InputLabel>
+                      <Select
+                        value={email.primary ? "primary" : "secondary"}
+                        onChange={(e) =>
+                          updateEmail(
+                            index,
+                            "primary",
+                            e.target.value === "primary"
+                          )
+                        }
+                        label="Type"
+                        size="small"
+                        fullWidth
+                      >
+                        <MenuItem value="secondary">--</MenuItem>
+                        <MenuItem value="primary">Primary</MenuItem>
+                      </Select>
+                    </FormControl> */}
+                  {/* {emails.length > 1 && (
+                      <IconButton
+                        onClick={() => removeEmail(index)}
+                        size="small"
+                        color="error"
+                        sx={{ mt: 0.5 }}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    )} */}
+                  {/* </Box> */}
+                  {/* ))} */}
+                  {/* <Button
+                  startIcon={<Add />}
+                  onClick={addEmail}
+                  variant="text"
+                  size="small"
+                  sx={{ mt: 1 }}
+                >
+                  Add email address
+                </Button> */}
+                </Box>
+
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Twitter <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="twitter"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Twitter color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        error={!!errors.twitter}
+                        helperText={errors.twitter?.message}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Work Phone{" "}
+                    <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="work_number"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        error={!!errors.work_number}
+                        helperText={errors.work_number?.message}
+                        type="tel"
+                        inputProps={{
+                          pattern: "[0-9]*",
+                          inputMode: "numeric",
+                        }}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, "");
+                          field.onChange(value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Work color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Mobile Phone{" "}
+                    <span className="text-red-500 text-lg font-bold">*</span>
+                  </Typography>
+                  <Controller
+                    name="mobile_number"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        error={!!errors.mobile_number}
+                        helperText={errors.mobile_number?.message}
+                        type="tel"
+                        inputProps={{
+                          pattern: "[0-9]*",
+                          inputMode: "numeric",
+                        }}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, "");
+                          field.onChange(value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Phone color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Other Phone{" "}
+                    <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="other_number"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        error={!!errors.other_number}
+                        helperText={errors.other_number?.message}
+                        type="tel"
+                        inputProps={{
+                          pattern: "[0-9]*",
+                          inputMode: "numeric",
+                        }}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, "");
+                          field.onChange(value);
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Phone color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
               </div>
             </Box>
 
             {/* Phone Numbers Section */}
-            <Box>
+            {/* <Box>
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -734,7 +763,7 @@ const EditUser = ({
                   )}
                 />
 
-                {/* Other Phone Numbers */}
+      
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle2" sx={{ mb: 1, color: "#666" }}>
                     Other Phone Numbers
@@ -797,15 +826,14 @@ const EditUser = ({
                   </Button>
                 </Box>
               </div>
-            </Box>
-
+            </Box> */}
 
             {/* Company Information */}
             <Box>
               <Typography
                 variant="subtitle1"
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   color: "#1976d2",
                   fontWeight: 600,
                   display: "flex",
@@ -813,141 +841,99 @@ const EditUser = ({
                   gap: 1,
                 }}
               >
-                <Business sx={{ fontSize: 18 }} />
+                <Business sx={{ fontSize: 20 }} />
                 Company Information
               </Typography>
-              <div className="grid grid-cols-1 gap-6">
-                <Controller
-                  name="company"
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={mockCompanies}
-                      freeSolo
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Company"
-                          placeholder="Enter company name"
-                          size="small"
-                          variant="outlined"
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <Business color="action" fontSize="small" />
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      )}
-                      onChange={(_, newValue) => field.onChange(newValue)}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
+              <div className="grid grid-cols-1 gap-8">
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Company Name{" "}
+                    <span className="text-red-500 text-lg font-bold">*</span>
+                  </Typography>
+                  <Controller
+                    name="company"
+                    control={control ?? ""}
+                    render={({ field }) => (
+                      <Autocomplete
+                        {...field}
+                        options={mockCompanies}
+                        freeSolo
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            size="small"
+                            variant="outlined"
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <Business color="action" fontSize="small" />
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        )}
+                        onChange={(_, newValue) => field.onChange(newValue)}
+                        sx={{
+                          width: "49%",
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 1,
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor: "#1976d2",
+                            },
                           },
-                        },
-                        "& .MuiAutocomplete-popper": {
-                          zIndex: 9999,
-                        },
-                        "& .MuiAutocomplete-listbox": {
-                          zIndex: 9999,
-                        },
-                      }}
-                      slotProps={{
-                        popper: {
-                          sx: {
+                          "& .MuiAutocomplete-popper": {
                             zIndex: 9999,
                           },
-                        },
-                      }}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="address"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Address"
-                      placeholder="Enter some text"
-                      fullWidth
-                      multiline
-                      rows={3}
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <LocationOn color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
+                          "& .MuiAutocomplete-listbox": {
+                            zIndex: 9999,
                           },
-                        },
-                      }}
-                    />
-                  )}
-                />
-              </div>
-            </Box>
-
-            {/* About */}
-            <Box>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  mb: 2,
-                  color: "#1976d2",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Description sx={{ fontSize: 18 }} />
-                About
-              </Typography>
-              <div className="grid grid-cols-1 gap-6">
-                <Controller
-                  name="description"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Description"
-                      placeholder="Enter some text"
-                      fullWidth
-                      multiline
-                      rows={3}
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Description color="action" fontSize="small" />
-                          </InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 1,
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
+                        }}
+                        slotProps={{
+                          popper: {
+                            sx: {
+                              zIndex: 9999,
+                            },
                           },
-                        },
-                      }}
-                    />
-                  )}
-                />
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+
+                <div>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Address <span className="text-red-500 text-lg font-bold" />
+                  </Typography>
+                  <Controller
+                    name="address"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        multiline
+                        rows={3}
+                        variant="outlined"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <LocationOn color="action" fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 1,
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor: "#1976d2",
+                            },
+                          },
+                        }}
+                      />
+                    )}
+                  />
+                </div>
               </div>
             </Box>
           </Box>

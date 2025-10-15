@@ -10,8 +10,9 @@ import { Close } from "@mui/icons-material";
 
 import FifteenMpIcon from "@mui/icons-material/FifteenMp";
 import EditNoteIcon from "@mui/icons-material/EditNote";
-import { useUpdateUserDataMutation } from "../../../services/threadsApi";
+
 import { useToast } from "../../../hooks/useToast";
+import { useUpdateUserDataMutation } from "../../../services/auth";
 
 const getCharacters = (text: string) => {
   const val = 200 - text.length;

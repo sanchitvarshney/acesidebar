@@ -25,12 +25,25 @@ const extendedAuthApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
-    getUserOverviewData: builder.query<any, any>({
+    getUserData: builder.query<any, any>({
       query: ({ client }: any) => ({
-        url: `/user/overview/${client}`,
+        url: `/user/profile/overview/${client}`,
         method: "GET",
       }),
       transformResponse: (response: any) => response?.data,
+    }),
+    getUserTickets: builder.query<any, any>({
+      query: ({ client,page,limit }: any) => ({
+        url: `/user/profile/tickets/${client}?page=${page}&limit=${limit}`,
+        method: "GET",
+      }),
+    }),
+        updateUserData: builder.mutation({
+      query: (credentials) => ({
+        url: `/user/edit/${credentials?.key}?type=${credentials?.type}`,
+        method: "PUT",
+        body: credentials.body,
+      }),
     }),
 
     changePassword: builder.mutation({
@@ -48,6 +61,8 @@ export const {
   useLoginMutation,
   useChangePasswordMutation,
   useGetUserListQuery,
-  useGetUserOverviewDataQuery,
+  useLazyGetUserDataQuery,
   useAddUserMutation,
+  useLazyGetUserTicketsQuery,
+  useUpdateUserDataMutation
 } = extendedAuthApi;

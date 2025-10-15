@@ -22,8 +22,9 @@ import {
   Save,
   Close,
 } from "@mui/icons-material";
-import { useUpdateUserDataMutation } from "../../../services/threadsApi";
+
 import { useToast } from "../../../hooks/useToast";
+import { useUpdateUserDataMutation } from "../../../services/auth";
 
 interface CustomerInfoSectionProps {
   isExpanded: boolean;

@@ -21,8 +21,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import CustomDataUpdatePopover from "../../../reusable/CustomDataUpdatePopover";
 
-
-
 const OverviewTab: React.FC<any> = ({ user }) => {
   const [expandedSections, setExpandedSections] = useState({
     userInfo: true,
@@ -43,12 +41,21 @@ const OverviewTab: React.FC<any> = ({ user }) => {
   };
 
   return (
-    <Box sx={{ display: "flex", height: "100%", bgcolor: "#f8f9fa", overflow: "hidden" }} >
-
+    <Box
+      sx={{
+        display: "flex",
+        height: "100%",
+        bgcolor: "#f8f9fa",
+        overflow: "hidden",
+      }}
+    >
       {/* Main Content Area */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }} >
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {/* Content */}
-        <Box sx={{ flex: 1, p: 3, overflow: "auto" }} className="custom-scrollbar">
+        <Box
+          sx={{ flex: 1, p: 3, overflow: "auto" }}
+          className="custom-scrollbar"
+        >
           {/* Profile header card with edit */}
           <Paper
             elevation={0}
@@ -71,19 +78,19 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   border: "4px solid #e8f0fe",
                 }}
               >
-                {user?.fullName?.charAt(0)?.toUpperCase()}
+                {user?.name?.charAt(0)?.toUpperCase()}
               </Avatar>
               <Box sx={{ flex: 1 }}>
                 <Typography
                   variant="h4"
                   sx={{ fontWeight: 600, color: "#202124", mb: 1 }}
                 >
-                  {user?.fullName}
+                  {user?.name}
                 </Typography>
                 <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
                   <Chip
                     icon={<WorkIcon />}
-                    label={user?.role || "--"}
+                    label={user?.jobTitle || "--"}
                     size="medium"
                     sx={{
                       bgcolor: "#e8f0fe",
@@ -106,17 +113,34 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   />
                 </Stack>
                 <Typography variant="body1" sx={{ color: "#5f6368" }}>
-                  {user?.email} • {user?.phone}
+                  {user?.emailId}{" "}
+                  <Chip
+                    label={
+                      user?.isVerified?.email === "Y"
+                        ? "Verified"
+                        : "Not Verified"
+                    }
+                    variant="outlined"
+                    size="small"
+                    color={
+                      user?.isVerified?.email === "Y" ? "success" : "warning"
+                    }
+                  />{" "}
+                  • {user?.phoneNo}{" "}
+                  <Chip
+                    label={
+                      user?.isVerified?.mobile === "Y"
+                        ? "Verified"
+                        : "Not Verified"
+                    }
+                    variant="outlined"
+                    size="small"
+                    color={
+                      user?.isVerified?.mobile === "Y" ? "success" : "warning"
+                    }
+                  />
                 </Typography>
               </Box>
-              <Button
-                ref={editInfoAnchorRef}
-                variant="outlined"
-                size="small"
-                onClick={(e: any) => setEditInfoOpen(e.currentTarget)}
-              >
-                Edit info
-              </Button>
             </Box>
           </Paper>
 
@@ -136,11 +160,18 @@ const OverviewTab: React.FC<any> = ({ user }) => {
             >
               Ticket metrics
             </Typography>
-            <Box sx={{ width: "100%",display: "flex", alignItems: "center", justifyContent: "space-evenly" }}>
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-evenly",
+              }}
+            >
               <Box
                 ref={metricAnchorRef}
                 sx={{
-                      minWidth: 180,
+                  minWidth: 180,
                   textAlign: "center",
                   p: 1,
                   borderRadius: 2,
@@ -159,7 +190,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   variant="h6"
                   sx={{ fontWeight: 600, color: "#202124" }}
                 >
-                  47
+                  {user?.totalTicket ?? 0}
                 </Typography>
               </Box>
               <Box
@@ -181,12 +212,12 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   variant="h6"
                   sx={{ fontWeight: 600, color: "#202124" }}
                 >
-                  12
+                  {user?.openTicket ?? 0}
                 </Typography>
               </Box>
               <Box
                 sx={{
-                      minWidth: 180,
+                  minWidth: 180,
                   textAlign: "center",
                   p: 1,
                   borderRadius: 2,
@@ -205,7 +236,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   variant="h6"
                   sx={{ fontWeight: 600, color: "#202124" }}
                 >
-                  3
+                  {user?.overdueTicket ?? 0}
                 </Typography>
               </Box>
             </Box>
@@ -254,23 +285,37 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   >
                     Secondary email
                   </Typography>
-                  <Button
-                    variant="text"
-                    sx={{
-                      color: "#1a73e8",
-                      textTransform: "none",
-                      fontWeight: 500,
-                      p: 0,
-                      minWidth: "auto",
-                      "&:hover": { bgcolor: "transparent" },
-                    }}
-                    onClick={(e: any) => {
-                      e.stopPropagation();
-                      // setAnchorEl(e.currentTarget); // This state was removed, so this line is removed.
-                    }}
-                  >
-                    Add a secondary email
-                  </Button>
+                  {user?.emailAlt ? (
+                    // <div>
+                    <Typography variant="body2" sx={{ color: "#202124" }}>
+                      {user?.emailAlt}
+                    </Typography>
+                  ) : (
+                    // <Chip
+                    //     label={user?.isVerified?.email === "Y" ? "Verified" : "Unverified"}
+                    //     variant="outlined"
+                    //     size="small"
+                    //     color={user?.isVerified?.email === "Y" ? "success" : "error"}
+                    //   />
+                    // </div>
+                    <Button
+                      variant="text"
+                      sx={{
+                        color: "#1a73e8",
+                        textTransform: "none",
+                        fontWeight: 500,
+                        p: 0,
+                        minWidth: "auto",
+                        "&:hover": { bgcolor: "transparent" },
+                      }}
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                        // setAnchorEl(e.currentTarget); // This state was removed, so this line is removed.
+                      }}
+                    >
+                      Add a secondary email
+                    </Button>
+                  )}
                   {/* CustomDataUpdatePopover was removed, so this component is removed. */}
                 </Box>
 
@@ -282,7 +327,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                     Phone number | Work
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#202124" }}>
-                    {user?.phone}
+                    {user?.phoneNo} | {user?.phoneAlt}
                   </Typography>
                 </Box>
               </Stack>
@@ -351,8 +396,8 @@ const OverviewTab: React.FC<any> = ({ user }) => {
       >
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Preview of metric tickets. Use this to show a small list or
-            quick filters.
+            Preview of metric tickets. Use this to show a small list or quick
+            filters.
           </Typography>
           <Button
             variant="contained"

@@ -20,13 +20,6 @@ const extendedTicketApi = baseInstanceOfApi.injectEndpoints({
         body: credentials.body,
       }),
     }),
-    updateUserData: builder.mutation({
-      query: (credentials) => ({
-        url: `/user/edit/${credentials.USERID}?type=${credentials.type}`,
-        method: "PUT",
-        body: credentials.body,
-      }),
-    }),
 
     getAttacedFile: builder.query({
       query: (credentials) => ({
@@ -108,7 +101,6 @@ export const {
   useTicketStatusChangeMutation,
   useGetAttacedFileQuery,
   useCommanApiMutation,
-  useUpdateUserDataMutation,
   useGetShortCutListQuery,
   useEditShortcutMutation,
   useAddShortcutMutation,
