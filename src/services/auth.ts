@@ -33,12 +33,12 @@ const extendedAuthApi = baseInstanceOfApi.injectEndpoints({
       transformResponse: (response: any) => response?.data,
     }),
     getUserTickets: builder.query<any, any>({
-      query: ({ client,page,limit }: any) => ({
+      query: ({ client, page, limit }: any) => ({
         url: `/user/profile/tickets/${client}?page=${page}&limit=${limit}`,
         method: "GET",
       }),
     }),
-        updateUserData: builder.mutation({
+    updateUserData: builder.mutation({
       query: (credentials) => ({
         url: `/user/edit/${credentials?.key}?type=${credentials?.type}`,
         method: "PUT",
@@ -53,6 +53,21 @@ const extendedAuthApi = baseInstanceOfApi.injectEndpoints({
         body: credentials,
       }),
     }),
+
+    updateActiveStatus: builder.mutation({
+      query: (credentials) => ({
+        url: `/auth/status/${credentials.userId}`,
+        method: "PUT",
+        body: credentials.body,
+      }),
+    }),
+      getUserIsAvailable: builder.query<any, any>({
+      query: ({ userId }: any) => ({
+         url: `/auth/status/${userId}`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
   }),
   overrideExisting: false,
 });
@@ -64,5 +79,7 @@ export const {
   useLazyGetUserDataQuery,
   useAddUserMutation,
   useLazyGetUserTicketsQuery,
-  useUpdateUserDataMutation
+  useUpdateUserDataMutation,
+  useUpdateActiveStatusMutation,
+  useGetUserIsAvailableQuery
 } = extendedAuthApi;

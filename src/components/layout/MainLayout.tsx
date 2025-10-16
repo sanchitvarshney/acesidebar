@@ -1,4 +1,4 @@
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Box, CssBaseline, styled } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
@@ -13,6 +13,8 @@ import HelpCenterSlider from "./HelpCenterSlider";
 import { useDispatch, useSelector } from "react-redux";
 import { setToggle } from "../../reduxStore/Slices/shotcutSlices";
 import { RootState } from "../../reduxStore/Store";
+import { useGetUserIsAvailableQuery } from "../../services/auth";
+import { useAuth } from "../../contextApi/AuthContext";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) =>
@@ -75,26 +77,49 @@ const MainContent = styled(Box)(({ theme }) => ({
 }));
 
 const MainLayout = () => {
+  const { user } = useAuth();
   const { isAnyPopupOpen } = usePopupContext();
   const { showOfflineModal, setShowOfflineModal, handleResume } = useStatus();
+  const [timeElapsed, setTimeElapsed] = useState("");
   const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
   const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const dispatch = useDispatch();
+  const { setCurrentStatus } = useStatus();
+  const { data } = useGetUserIsAvailableQuery({
+    //@ts-ignore
+    userId: user?.uID,
+    //@ts-ignore
+    skip: !user?.uID,
+    refetchOnMountOrArgChange: true,
+  });
 
   const handleDrawerToggle = () => {
     dispatch(setToggle(!isOpen));
-
   };
 
   const handleCloseOfflineModal = () => {
     setShowOfflineModal(false);
   };
 
+  useEffect(() => {
+   
+    if (data) {
+      console.log(data)
+      setCurrentStatus(data?.is_offline === 'OFFLINE' ? "offline" : "available");
+      setTimeElapsed(data?.offline_start);
+  
+    }
+  }, [data]);
+
   return (
     <Box sx={{ display: "flex", overflow: "hidden" }}>
       <CssBaseline />
       <TopBar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
-      <Sidebar open={isOpen} handleDrawerToggle={handleDrawerToggle} onClose={closeHelpCenter} />
+      <Sidebar
+        open={isOpen}
+        handleDrawerToggle={handleDrawerToggle}
+        onClose={closeHelpCenter}
+      />
       <Main
         open={isOpen}
         isPopupOpen={isAnyPopupOpen}
@@ -124,6 +149,7 @@ const MainLayout = () => {
       <OfflineStatusModal
         open={showOfflineModal}
         onClose={handleCloseOfflineModal}
+        startTime={timeElapsed}
       />
     </Box>
   );

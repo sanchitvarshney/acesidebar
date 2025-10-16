@@ -37,6 +37,9 @@ export const StatusProvider: React.FC<StatusProviderProps> = ({ children }) => {
   ];
 
   const handleStatusChange = (status: string) => {
+
+
+
     setCurrentStatus(status);
     
     // Show offline modal when user goes offline

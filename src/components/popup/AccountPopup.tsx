@@ -19,6 +19,8 @@ import {
 import { useAuth } from "../../contextApi/AuthContext";
 import { useStatus } from "../../contextApi/StatusContext";
 import { useNavigate } from "react-router-dom";
+import { useUpdateActiveStatusMutation } from "../../services/auth";
+import { useToast } from "../../hooks/useToast";
 
 interface AccountPopupProps {
   open: boolean;
@@ -37,6 +39,9 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
   const { signOut } = useAuth();
   const { currentStatus, setCurrentStatus, statusOptions } = useStatus();
   const navigate = useNavigate();
+  const [updateActiveStatus, { isLoading }] = useUpdateActiveStatusMutation();
+  const { user } = useAuth();
+  const { showToast } = useToast();
 
   // Handle click outside to close popup
   useEffect(() => {
@@ -68,6 +73,30 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open, onClose, anchorEl]);
+  const handleChangeStatus = (value: any) => {
+  
+    const payload = {
+      //@ts-ignore
+      userId: user.uID,
+      body: { status: value === "offline" ? "OFFLINE": "ONLINE"},
+    };
+    updateActiveStatus(payload)
+      .then((res: any) => {
+        console.log(res)
+        if (res?.data?.type === "error") {
+          showToast(res?.data?.message, "error");
+          return;
+        }
+        if (res?.data?.type === "success") {
+          showToast(res?.data?.message, "success");
+          setCurrentStatus(value);
+      
+        }
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
+  };
 
   return (
     <Popper
@@ -197,7 +226,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
           <FormControl size="small" sx={{ minWidth: 120, mb: 2 }}>
             <Select
               value={currentStatus}
-              onChange={(e) => setCurrentStatus(e.target.value)}
+              onChange={(e) => handleChangeStatus(e.target.value)}
               sx={{
                 fontSize: "0.75rem",
                 height: 32,
