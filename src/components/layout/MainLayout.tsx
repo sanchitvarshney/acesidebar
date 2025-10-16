@@ -80,7 +80,7 @@ const MainLayout = () => {
   const { user } = useAuth();
   const { isAnyPopupOpen } = usePopupContext();
   const { showOfflineModal, setShowOfflineModal, handleResume } = useStatus();
-  const [timeElapsed, setTimeElapsed] = useState("");
+  const [timeElapsed, setTimeElapsed] = useState<any>("");
   const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
   const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const dispatch = useDispatch();
@@ -104,7 +104,7 @@ const MainLayout = () => {
   useEffect(() => {
    
     if (data) {
-      console.log(data)
+  
       setCurrentStatus(data?.is_offline === 'OFFLINE' ? "offline" : "available");
       setTimeElapsed(data?.offline_start);
   
@@ -150,6 +150,7 @@ const MainLayout = () => {
         open={showOfflineModal}
         onClose={handleCloseOfflineModal}
         startTime={timeElapsed}
+        onChangeTime={()=>setTimeElapsed("")}
       />
     </Box>
   );

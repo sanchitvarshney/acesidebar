@@ -11,12 +11,14 @@ interface OfflineStatusModalProps {
   open: boolean;
   onClose: () => void;
   startTime: any;
+  onChangeTime:any
 }
 
 const OfflineStatusModal: React.FC<OfflineStatusModalProps> = ({
   open,
   onClose,
   startTime,
+  onChangeTime
 }) => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const { currentStatus, handleResume } = useStatus();
@@ -27,7 +29,11 @@ const OfflineStatusModal: React.FC<OfflineStatusModalProps> = ({
 
   // Timer effect
 useEffect(() => {
+
+  
   if (!open || currentStatus !== "offline" || !startTime) return;
+
+
  
 
   const startTimestamp = new Date(startTime).getTime(); 
@@ -127,6 +133,8 @@ useEffect(() => {
       }
       if (res?.data?.type === "success") {
         showToast(res?.data?.message, "success");
+        onChangeTime()
+         setTimeElapsed(0);
         handleResume();
         onClose();
       }

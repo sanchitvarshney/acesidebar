@@ -82,7 +82,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
     };
     updateActiveStatus(payload)
       .then((res: any) => {
-        console.log(res)
+       
         if (res?.data?.type === "error") {
           showToast(res?.data?.message, "error");
           return;
