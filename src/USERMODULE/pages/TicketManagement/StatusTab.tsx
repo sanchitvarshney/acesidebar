@@ -23,7 +23,7 @@ import {
   useLazyGetDepartmentBySeachQuery,
   useLazyTriggerGetSLAListQuery,
 } from "../../../services/agentServices";
-import { format } from "date-fns";
+
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
 import { set } from "react-hook-form";
@@ -32,6 +32,7 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { useDebounce } from "../../../hooks/useDebounce";
+
 const StatusTab = ({ ticket }: any) => {
   const { showToast } = useToast();
   const [tagValue, setTagValue] = useState<any[]>([]);
@@ -62,9 +63,6 @@ const StatusTab = ({ ticket }: any) => {
   const debouncedValue: any = useDebounce(inputValue, 500);
 
   const handleUpdateTicket = () => {
-    const formatted =
-      (dueDate && format(new Date(dueDate), "dd-mm-yyyy HH:mm")) || "";
-
     const payload = {
       url: "edit-properties/" + ticket?.ticketId,
       method: "PUT",
@@ -77,7 +75,7 @@ const StatusTab = ({ ticket }: any) => {
         tags: tagValue.map((tag: any) => tag?.tagID),
         department: `${dept.deptID}`,
         agent: agent.agentID,
-        dueDate: formatted,
+        duedate: dueDate?.format("YYYY-MM-DD HH:mm:00")
       },
     };
 
@@ -432,11 +430,9 @@ const StatusTab = ({ ticket }: any) => {
               <DateTimePicker
                 value={dueDate || null}
                 onChange={(newValue: any) => {
-                  // Validate that the selected time is not in the past
-                  if (newValue && newValue.isBefore(dayjs())) {
-                    return; // Don't update if past time is selected
-                  }
-                  setDueDate(newValue);
+                  if (newValue && newValue.isBefore(dayjs())) return;
+
+                  setDueDate(newValue); // store Day.js object
                 }}
                 minDateTime={dayjs()}
                 maxDateTime={dayjs().add(7, "day")}

@@ -129,14 +129,14 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   • {user?.phoneNo}{" "}
                   <Chip
                     label={
-                      user?.isVerified?.mobile === "Y"
+                      user?.isVerified?.phone === "Y"
                         ? "Verified"
                         : "Not Verified"
                     }
                     variant="outlined"
                     size="small"
                     color={
-                      user?.isVerified?.mobile === "Y" ? "success" : "warning"
+                      user?.isVerified?.phone === "Y" ? "success" : "warning"
                     }
                   />
                 </Typography>

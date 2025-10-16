@@ -173,7 +173,7 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ userId }) => {
                                 spacing={1}
                                 sx={{ mb: 0.5 }}
                               >
-                                {item?.isOverdue && (
+                                {item?.due?.isDue && (
                                   <Chip
                                     label="Overdue"
                                     color="error"
