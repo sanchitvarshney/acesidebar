@@ -136,7 +136,7 @@ const OfflineStatusModal: React.FC<OfflineStatusModalProps> = ({
           return;
         }
         if (res?.data?.type === "success") {
-          showToast(res?.data?.message, "success");
+         
           dispatch(setStartTime(""));
           setTimeElapsed(0);
           handleResume();

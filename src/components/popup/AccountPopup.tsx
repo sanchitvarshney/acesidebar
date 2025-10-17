@@ -95,7 +95,6 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
         return;
       }
       if (res?.data?.type === "success") {
-        showToast(res?.data?.message, "success");
         setCurrentStatus(value);
         dispatch(setStartTime(res?.data?.data));
       }
