@@ -329,7 +329,7 @@ const TicketDetailHeader = ({
       </nav>
 
       {/* Action buttons */}
-      <div className="flex gap-2 ">
+      <div className="flex gap-2 ml-auto mr-10">
         <ActionButton
           icon={<ReplyIcon fontSize="small" className="text-blue-600" />}
           tooltip="Post Reply"
