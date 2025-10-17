@@ -112,7 +112,11 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                     }}
                   />
                 </Stack>
-                <Typography variant="body1" sx={{ color: "#5f6368" }} component="span">
+                <Typography
+                  variant="body1"
+                  sx={{ color: "#5f6368" }}
+                  component="span"
+                >
                   {user?.emailId}{" "}
                   <Chip
                     label={
@@ -149,6 +153,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
             elevation={0}
             sx={{
               p: 3,
+
               bgcolor: "white",
               borderRadius: 2,
               border: "1px solid #e8eaed",
@@ -163,6 +168,8 @@ const OverviewTab: React.FC<any> = ({ user }) => {
             <Box
               sx={{
                 width: "100%",
+                minHeight: 120,
+                maxHeight: 120,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-evenly",
@@ -176,7 +183,10 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   p: 1,
                   borderRadius: 2,
                   cursor: "pointer",
-                  "&:hover": { bgcolor: "action.hover" },
+                  "&:hover": {
+                    bgcolor: "#ecf5fd",
+                    border: "1px solid #0089fa",
+                  },
                 }}
                 onClick={(e: any) => setMetricOpen(e.currentTarget)}
               >
@@ -200,7 +210,10 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   p: 1,
                   borderRadius: 2,
                   cursor: "pointer",
-                  "&:hover": { bgcolor: "action.hover" },
+                  "&:hover": {
+                    bgcolor: "#fdfdecff",
+                    border: "1px solid #faf600ff",
+                  },
                 }}
                 onClick={(e: any) => setMetricOpen(e.currentTarget)}
               >
@@ -218,11 +231,15 @@ const OverviewTab: React.FC<any> = ({ user }) => {
               <Box
                 sx={{
                   minWidth: 180,
+
                   textAlign: "center",
                   p: 1,
                   borderRadius: 2,
                   cursor: "pointer",
-                  "&:hover": { bgcolor: "action.hover" },
+                  "&:hover": {
+                    bgcolor: "#ffeeee",
+                    border: "1px solid #ff0f0fff",
+                  },
                 }}
                 onClick={(e: any) => setMetricOpen(e.currentTarget)}
               >

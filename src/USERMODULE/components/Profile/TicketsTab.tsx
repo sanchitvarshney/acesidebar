@@ -254,9 +254,9 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ userId }) => {
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
-      {getUserTicketsLoading ||
-      !filteredTickets ||
-      filteredTickets.length === 0 ? (
+      {getUserTicketsLoading &&
+      (!filteredTickets ||
+      filteredTickets.length === 0) ? (
         <div className="w-full h-full flex justify-center items-center">
           <CircularProgress />
         </div>
