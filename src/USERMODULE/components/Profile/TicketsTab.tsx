@@ -31,6 +31,7 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ userId }) => {
     limit: 10,
     totalPages: 1,
   });
+
   const [tickets, setTickets] = useState<TicketItem[]>([]);
   const [getUserTickets, { isLoading: getUserTicketsLoading }] =
     useLazyGetUserTicketsQuery();
@@ -253,7 +254,9 @@ const TicketsTab: React.FC<TicketsTabProps> = ({ userId }) => {
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
-      {getUserTicketsLoading || !appliedFilters ? (
+      {getUserTicketsLoading ||
+      !filteredTickets ||
+      filteredTickets.length === 0 ? (
         <div className="w-full h-full flex justify-center items-center">
           <CircularProgress />
         </div>

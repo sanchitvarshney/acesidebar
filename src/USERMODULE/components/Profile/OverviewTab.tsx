@@ -247,7 +247,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
             elevation={0}
             sx={{
               p: 3,
-              mb: 3,
+              my: 3,
               bgcolor: "white",
               borderRadius: 2,
               border: "1px solid #e8eaed",
