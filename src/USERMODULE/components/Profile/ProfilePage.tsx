@@ -34,59 +34,6 @@ import SettingsTab from "./SettingsTab";
 import SecurityTab from "./SecurityTab";
 import { useLazyGetUserDataQuery } from "../../../services/auth";
 
-const ticketData: any = [
-  {
-    id: 2,
-    title: "Authentication failure #2",
-    description:
-      "Hello, We're receiving authentication failure errors while attempting to use your APIs. Can someone please help?",
-    status: "Open",
-    group: "Escalations",
-    created: "a month ago",
-    overdue: true,
-    overdue_by: "a month",
-  },
-  {
-    id: 1,
-    title: "404 error when on a specific page #1",
-    description:
-      "Hi there, I tried to access my sales data in my account today but it showed a 404 error. Can you please help me fix this?",
-    status: "Closed",
-    group: "Escalations",
-    closed: "17 days ago",
-    resolved_late: true,
-  },
-  {
-    id: 4,
-    title: "404 error when on a specific page #1",
-    description:
-      "Hi there, I tried to access my sales data in my account today but it showed a 404 error. Can you please help me fix this?",
-    status: "Closed",
-    group: "Escalations",
-    closed: "17 days ago",
-    resolved_late: true,
-  },
-  {
-    id: 5,
-    title: "404 error when on a specific page #1",
-    description:
-      "Hi there, I tried to access my sales data in my account today but it showed a 404 error. Can you please help me fix this?",
-    status: "Closed",
-    group: "Escalations",
-    closed: "17 days ago",
-    resolved_late: true,
-  },
-  {
-    id: 1,
-    title: "404 error when on a specific page #1",
-    description:
-      "Hi there, I tried to access my sales data in my account today but it showed a 404 error. Can you please help me fix this?",
-    status: "Closed",
-    group: "Escalations",
-    closed: "17 days ago",
-    resolved_late: true,
-  },
-];
 
 const ProfilePage = () => {
   const navigate = useNavigate();

@@ -22,7 +22,8 @@ const KanbanPage: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [currentTime, setCurrentTime] = React.useState(new Date());
 
   // State for tasks data
-  const [tasksData, setTasksData] = React.useState({
+ 
+ const [tasksData, setTasksData] = React.useState({
     data: [
       {
         taskId: "1",
@@ -133,7 +134,6 @@ const KanbanPage: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
       totalPages: 1,
     },
   });
-
   const taskListDataLoading = false;
 
   // Function to handle task status updates from drag and drop
@@ -163,8 +163,7 @@ const KanbanPage: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   const [taskId, setTaskId] = useState<any>();
 
   const fetchTasks = async () => {
-    // Simulate API call with test data
-    console.log("Fetching tasks with test data");
+
   };
 
   // when component unmount taskId set to empty

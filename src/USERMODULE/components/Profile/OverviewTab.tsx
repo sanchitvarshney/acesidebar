@@ -112,7 +112,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                     }}
                   />
                 </Stack>
-                <Typography variant="body1" sx={{ color: "#5f6368" }}>
+                <Typography variant="body1" sx={{ color: "#5f6368" }} component="span">
                   {user?.emailId}{" "}
                   <Chip
                     label={

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, Box, Typography, Button, CircularProgress } from "@mui/material";
+import {
+  Dialog,
+  DialogContent,
+  Box,
+  Typography,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import AlarmOffIcon from "@mui/icons-material/AlarmOff";
 import { useStatus } from "../../contextApi/StatusContext";
 import { useAuth } from "../../contextApi/AuthContext";
@@ -31,7 +38,6 @@ const OfflineStatusModal: React.FC<OfflineStatusModalProps> = ({
   // Timer effect
   useEffect(() => {
     if (!open || currentStatus !== "offline" || !startTime) return;
-    
 
     const startTimestamp = new Date(startTime).getTime();
 
@@ -41,7 +47,12 @@ const OfflineStatusModal: React.FC<OfflineStatusModalProps> = ({
     setTimeElapsed(getElapsedTime());
 
     const interval = setInterval(() => {
-      setTimeElapsed(getElapsedTime());
+      const elapsed = getElapsedTime();
+      setTimeElapsed(elapsed);
+
+      if (elapsed >= 86400) {
+        handleAutoLogout();
+      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -138,29 +149,27 @@ const OfflineStatusModal: React.FC<OfflineStatusModalProps> = ({
   };
 
   const handleAutoLogout = () => {
-    // Clear all local storage
-    localStorage.clear();
-    sessionStorage.clear();
+    const payload = {
+      //@ts-ignore
+      userId: user.uID,
+      body: { status: "ONLINE" },
+    };
+    updateActiveStatus(payload).then((res: any) => {
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message, "error");
+        return;
+      }
+      if (res?.data?.type === "success") {
+        document.title = "TMS";
+        resetFavicon();
 
-    // Clear all cookies
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        onClose();
+
+        signOut();
+
+        navigate("/login");
+      }
     });
-
-    // Reset document title and favicon
-    document.title = "TMS";
-    resetFavicon();
-
-    // Close the modal
-    onClose();
-
-    // Use the AuthContext signOut function
-    signOut();
-
-    // Navigate to login page
-    navigate("/login");
   };
 
   return (
@@ -272,13 +281,7 @@ const OfflineStatusModal: React.FC<OfflineStatusModalProps> = ({
             }}
             disabled={isLoading}
           >
-            {
-              isLoading ? (
-                <CircularProgress size={22}  />
-              ): (
-                "Resume"
-              )
-            }
+            {isLoading ? <CircularProgress size={22} /> : "Resume"}
           </Button>
         </Box>
       </DialogContent>

@@ -217,7 +217,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({
             />
           </IconButton>
         )}
-        <Typography variant="h6">
+        <Typography variant="h6" component="span">
           {" "}
           {step === "confirm" || step === "success"
             ? `Reset password`

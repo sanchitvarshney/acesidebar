@@ -1,4 +1,4 @@
-import React, {  useState, forwardRef } from "react";
+import React, { useState, forwardRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -14,7 +14,6 @@ import {
   RadioGroup,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
-
 
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -82,7 +81,9 @@ const ConvertProfile: React.FC<ConvertProfileProps> = ({
           alignItems: "center",
         }}
       >
-        <Typography variant="h6">Convert to agent</Typography>
+        <Typography variant="h6" component="span">
+          Convert to agent
+        </Typography>
 
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
