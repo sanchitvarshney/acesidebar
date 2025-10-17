@@ -11,6 +11,7 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Skeleton,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -21,6 +22,13 @@ import { useStatus } from "../../contextApi/StatusContext";
 import { useNavigate } from "react-router-dom";
 import { useUpdateActiveStatusMutation } from "../../services/auth";
 import { useToast } from "../../hooks/useToast";
+import { useDispatch } from "react-redux";
+import { setStartTime } from "../../reduxStore/Slices/setUpSlices";
+
+const statusOptions = [
+  { label: "Available", value: "available", color: "#4caf50" },
+  { label: "Offline", value: "offline", color: "#9e9e9e" },
+];
 
 interface AccountPopupProps {
   open: boolean;
@@ -37,11 +45,13 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   const { signOut } = useAuth();
-  const { currentStatus, setCurrentStatus, statusOptions } = useStatus();
+  const { currentStatus, setCurrentStatus } = useStatus();
   const navigate = useNavigate();
-  const [updateActiveStatus, { isLoading }] = useUpdateActiveStatusMutation();
+  const [updateActiveStatus, { isLoading: statusLoading }] =
+    useUpdateActiveStatusMutation();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const dispatch = useDispatch();
 
   // Handle click outside to close popup
   useEffect(() => {
@@ -74,28 +84,22 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
     };
   }, [open, onClose, anchorEl]);
   const handleChangeStatus = (value: any) => {
-  
     const payload = {
       //@ts-ignore
       userId: user.uID,
-      body: { status: value === "offline" ? "OFFLINE": "ONLINE"},
+      body: { status: value === "offline" ? "OFFLINE" : "ONLINE" },
     };
-    updateActiveStatus(payload)
-      .then((res: any) => {
-       
-        if (res?.data?.type === "error") {
-          showToast(res?.data?.message, "error");
-          return;
-        }
-        if (res?.data?.type === "success") {
-          showToast(res?.data?.message, "success");
-          setCurrentStatus(value);
-      
-        }
-      })
-      .catch((err: any) => {
-        console.log(err);
-      });
+    updateActiveStatus(payload).then((res: any) => {
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message, "error");
+        return;
+      }
+      if (res?.data?.type === "success") {
+        showToast(res?.data?.message, "success");
+        setCurrentStatus(value);
+        dispatch(setStartTime(res?.data?.data));
+      }
+    });
   };
 
   return (
@@ -223,68 +227,84 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
           </Typography>
 
           {/* Status Selector */}
-          <FormControl size="small" sx={{ minWidth: 120, mb: 2 }}>
-            <Select
-              value={currentStatus}
-              onChange={(e) => handleChangeStatus(e.target.value)}
-              sx={{
-                fontSize: "0.75rem",
-                height: 32,
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#dadce0",
-                },
-                "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#1976d2",
-                },
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "#1976d2",
-                },
-                backgroundColor: "#fff",
-              }}
-              renderValue={(selected) => {
-                const option = statusOptions.find(
-                  (opt) => opt.value === selected
-                );
-                return (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+         
+            <FormControl size="small" sx={{ minWidth: 120, mb: 2 }}>
+               {statusLoading ? (
+            <Skeleton
+              variant="rectangular"
+              width={120}
+              height={32}
+              sx={{ borderRadius: 1 }}
+            />
+          ) : (
+              <Select
+                value={currentStatus}
+                onChange={(e) => handleChangeStatus(e.target.value)}
+                sx={{
+                  fontSize: "0.75rem",
+                  height: 32,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#dadce0",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#1976d2",
+                  },
+                  backgroundColor: "#fff",
+                }}
+                renderValue={(selected) => {
+                  const option = statusOptions.find(
+                    (opt) => opt.value === selected
+                  );
+                  return (
                     <Box
-                      sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        backgroundColor: option?.color || "#4caf50",
-                        flexShrink: 0,
-                      }}
-                    />
-                    <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
-                      {option?.label || "Available"}
-                    </Typography>
-                  </Box>
-                );
-              }}
-            >
-              {statusOptions.map((option) => (
-                <MenuItem
-                  key={option.value}
-                  value={option.value}
-                  sx={{ fontSize: "0.75rem" }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Box
-                      sx={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: "50%",
-                        backgroundColor: option.color,
-                        flexShrink: 0,
-                      }}
-                    />
-                    {option.label}
-                  </Box>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                    >
+                      <Box
+                        sx={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          backgroundColor: option?.color || "#4caf50",
+                          flexShrink: 0,
+                        }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{ fontSize: "0.75rem" }}
+                      >
+                        {option?.label || "Available"}
+                      </Typography>
+                    </Box>
+                  );
+                }}
+              >
+                {statusOptions.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    value={option.value}
+                    sx={{ fontSize: "0.75rem" }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          backgroundColor: option.color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      {option.label}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+                 )}
+            </FormControl>
+       
           <Divider orientation="vertical" flexItem />
           <Button
             variant="outlined"

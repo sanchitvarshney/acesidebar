@@ -1,58 +1,51 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, Box, Typography, Button } from "@mui/material";
+import { Dialog, DialogContent, Box, Typography, Button, CircularProgress } from "@mui/material";
 import AlarmOffIcon from "@mui/icons-material/AlarmOff";
 import { useStatus } from "../../contextApi/StatusContext";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useUpdateActiveStatusMutation } from "../../services/auth";
 import { useToast } from "../../hooks/useToast";
+import { RootState } from "../../reduxStore/Store";
+import { useDispatch, useSelector } from "react-redux";
+import { setStartTime } from "../../reduxStore/Slices/setUpSlices";
 
 interface OfflineStatusModalProps {
   open: boolean;
   onClose: () => void;
-  startTime: any;
-  onChangeTime:any
 }
 
 const OfflineStatusModal: React.FC<OfflineStatusModalProps> = ({
   open,
   onClose,
-  startTime,
-  onChangeTime
 }) => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const { currentStatus, handleResume } = useStatus();
-  const { signOut,user } = useAuth();
+  const { signOut, user } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
- const [updateActiveStatus, { isLoading }] = useUpdateActiveStatusMutation()   
+  const [updateActiveStatus, { isLoading }] = useUpdateActiveStatusMutation();
+  const { startTime } = useSelector((state: RootState) => state.setUp);
+  const dispatch = useDispatch();
 
   // Timer effect
-useEffect(() => {
+  useEffect(() => {
+    if (!open || currentStatus !== "offline" || !startTime) return;
+    
 
-  
-  if (!open || currentStatus !== "offline" || !startTime) return;
+    const startTimestamp = new Date(startTime).getTime();
 
+    const getElapsedTime = () =>
+      Math.max(Math.floor((Date.now() - startTimestamp) / 1000), 0);
 
- 
-
-  const startTimestamp = new Date(startTime).getTime(); 
-
-  const getElapsedTime = () => Math.max(Math.floor((Date.now() - startTimestamp) / 1000), 0);
-
-  
-  setTimeElapsed(getElapsedTime());
-
-
-  const interval = setInterval(() => {
     setTimeElapsed(getElapsedTime());
-  }, 1000);
 
+    const interval = setInterval(() => {
+      setTimeElapsed(getElapsedTime());
+    }, 1000);
 
-  return () => clearInterval(interval);
-}, [open, startTime, currentStatus]);
-
-
+    return () => clearInterval(interval);
+  }, [open, startTime, currentStatus]);
 
   // Reset timer when modal opens and update document title and favicon
   useEffect(() => {
@@ -118,30 +111,30 @@ useEffect(() => {
   };
 
   const handleResumeClick = () => {
-
     const payload = {
       //@ts-ignore
       userId: user.uID,
-      body: { status: "ONLINE"},
-    }
+      body: { status: "ONLINE" },
+    };
 
-    updateActiveStatus(payload).then((res: any) => {
-      console.log(res);
-      if (res?.data?.type === "error") {
-        showToast(res?.data?.message, "error");
-        return;
-      }
-      if (res?.data?.type === "success") {
-        showToast(res?.data?.message, "success");
-        onChangeTime()
-         setTimeElapsed(0);
-        handleResume();
-        onClose();
-      }
-    }).catch((err: any) => {
-      console.log(err);
-    });
-    
+    updateActiveStatus(payload)
+      .then((res: any) => {
+        console.log(res);
+        if (res?.data?.type === "error") {
+          showToast(res?.data?.message, "error");
+          return;
+        }
+        if (res?.data?.type === "success") {
+          showToast(res?.data?.message, "success");
+          dispatch(setStartTime(""));
+          setTimeElapsed(0);
+          handleResume();
+          onClose();
+        }
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
   };
 
   const handleAutoLogout = () => {
@@ -277,8 +270,15 @@ useEffect(() => {
                 backgroundColor: "#f57c00",
               },
             }}
+            disabled={isLoading}
           >
-            Resume
+            {
+              isLoading ? (
+                <CircularProgress size={22}  />
+              ): (
+                "Resume"
+              )
+            }
           </Button>
         </Box>
       </DialogContent>

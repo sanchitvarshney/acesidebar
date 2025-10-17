@@ -15,6 +15,7 @@ import { setToggle } from "../../reduxStore/Slices/shotcutSlices";
 import { RootState } from "../../reduxStore/Store";
 import { useGetUserIsAvailableQuery } from "../../services/auth";
 import { useAuth } from "../../contextApi/AuthContext";
+import { setStartTime } from "../../reduxStore/Slices/setUpSlices";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) =>
@@ -80,12 +81,11 @@ const MainLayout = () => {
   const { user } = useAuth();
   const { isAnyPopupOpen } = usePopupContext();
   const { showOfflineModal, setShowOfflineModal, handleResume } = useStatus();
-  const [timeElapsed, setTimeElapsed] = useState<any>("");
   const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
   const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const dispatch = useDispatch();
   const { setCurrentStatus } = useStatus();
-  const { data } = useGetUserIsAvailableQuery({
+  const { data, isLoading: isGetUserIsAvailableLoading } = useGetUserIsAvailableQuery({
     //@ts-ignore
     userId: user?.uID,
     //@ts-ignore
@@ -104,9 +104,8 @@ const MainLayout = () => {
   useEffect(() => {
    
     if (data) {
-  
       setCurrentStatus(data?.is_offline === 'OFFLINE' ? "offline" : "available");
-      setTimeElapsed(data?.offline_start);
+      dispatch(setStartTime(data?.offline_start));
   
     }
   }, [data]);
@@ -149,8 +148,7 @@ const MainLayout = () => {
       <OfflineStatusModal
         open={showOfflineModal}
         onClose={handleCloseOfflineModal}
-        startTime={timeElapsed}
-        onChangeTime={()=>setTimeElapsed("")}
+     
       />
     </Box>
   );

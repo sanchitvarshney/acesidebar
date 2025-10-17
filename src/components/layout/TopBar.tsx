@@ -17,7 +17,7 @@ import {
   Notifications as NotificationsIcon,
   HourglassEmpty as HourglassEmptyIcon,
 } from "@mui/icons-material";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 import AccountPopup from "../popup/AccountPopup";
 import NotificationPopup from "../popup/NotificationPopup";
 import TasksPopup from "../popup/TasksPopup";
@@ -36,10 +36,14 @@ interface TopBarProps {
   open: boolean;
   handleDrawerToggle: () => void;
 }
+const statusOptions = [
+  { label: "Available", value: "available", color: "#4caf50" },
+  { label: "Offline", value: "offline", color: "#9e9e9e" },
+];
 
 const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const { user } = useAuth();
-  const { currentStatus, statusOptions } = useStatus();
+  const { currentStatus } = useStatus();
   const userData: any = user;
   const theme = useTheme();
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -156,16 +160,14 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
               }}
             />
           </IconButton>
-            <IconButton
+          <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
-            onClick={()=> navigate("/quick-action")}
+            onClick={() => navigate("/quick-action")}
             sx={{ mr: 2, color: "#3f4346" }}
           >
-            <AddIcon
-          
-            />
+            <AddIcon />
           </IconButton>
         </div>
         {/* Expanding Search Bar */}
@@ -188,7 +190,11 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton size="large" sx={{ color: "#3f4346", mr: 2 }}>
-            <img src={SwitcherIcon} alt="Switcher" style={{ width: 15, height: 15 }} />
+            <img
+              src={SwitcherIcon}
+              alt="Switcher"
+              style={{ width: 15, height: 15 }}
+            />
           </IconButton>
 
           <IconButton
@@ -231,19 +237,25 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
                 sx={{
                   width: 30,
                   height: 30,
-                  border: `3px solid ${statusOptions.find(opt => opt.value === currentStatus)?.color || '#4caf50'}`,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                  border: `3px solid ${
+                    statusOptions.find((opt) => opt.value === currentStatus)
+                      ?.color || "#4caf50"
+                  }`,
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                 }}
               />
             ) : (
               <Avatar
                 sizes="small"
-                sx={{ 
-                  backgroundColor: "primary.main", 
-                  width: 30, 
+                sx={{
+                  backgroundColor: "primary.main",
+                  width: 30,
                   height: 30,
-                  border: `3px solid ${statusOptions.find(opt => opt.value === currentStatus)?.color || '#4caf50'}`,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                  border: `3px solid ${
+                    statusOptions.find((opt) => opt.value === currentStatus)
+                      ?.color || "#4caf50"
+                  }`,
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                 }}
               >
                 {userData?.username

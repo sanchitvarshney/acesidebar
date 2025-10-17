@@ -3,11 +3,6 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 interface StatusContextType {
   currentStatus: string;
   setCurrentStatus: (status: string) => void;
-  statusOptions: Array<{
-    label: string;
-    value: string;
-    color: string;
-  }>;
   showOfflineModal: boolean;
   setShowOfflineModal: (show: boolean) => void;
   handleResume: () => void;
@@ -30,11 +25,6 @@ interface StatusProviderProps {
 export const StatusProvider: React.FC<StatusProviderProps> = ({ children }) => {
   const [currentStatus, setCurrentStatus] = useState<string>("available");
   const [showOfflineModal, setShowOfflineModal] = useState<boolean>(false);
-
-  const statusOptions = [
-    { label: "Available", value: "available", color: "#4caf50" },
-    { label: "Offline", value: "offline", color: "#9e9e9e" }
-  ];
 
   const handleStatusChange = (status: string) => {
 
@@ -59,7 +49,6 @@ export const StatusProvider: React.FC<StatusProviderProps> = ({ children }) => {
     <StatusContext.Provider value={{ 
       currentStatus, 
       setCurrentStatus: handleStatusChange, 
-      statusOptions,
       showOfflineModal,
       setShowOfflineModal,
       handleResume
