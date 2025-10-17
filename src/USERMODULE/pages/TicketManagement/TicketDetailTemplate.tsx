@@ -42,7 +42,7 @@ const TicketDetailTemplate = () => {
   };
 
   const handleMoreOpen = () => {
-    setOpenMoreOptions(true);
+    setOpenMoreOptions(p=>!p);
   };
   const { data: ticket, isFetching: isTicketDetailLoading } =
     useGetTicketDetailStaffViewQuery(
