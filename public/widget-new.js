@@ -32,29 +32,43 @@
             console.log("Mobile detected - width:", window.innerWidth);
         }
 
-        function loadExternalFiles() {
-            const settings = config.settings;
+         function loadExternalFiles() {
+             const settings = config.settings;
 
-            if (settings && settings.css) {
-                const cssUrl = settings.css.replace(/[\[\]]/g, '');
-                const cssLink = document.createElement("link");
-                cssLink.rel = "stylesheet";
-                cssLink.href = cssUrl;
-                document.head.appendChild(cssLink);
-            }
+             // Load CSS files
+             if (settings && settings.css) {
+                 Object.values(settings.css).forEach(cssUrl => {
+                     const cssLink = document.createElement("link");
+                     cssLink.rel = "stylesheet";
+                     cssLink.href = cssUrl;
+                     document.head.appendChild(cssLink);
+                     console.log("CSS loaded:", cssUrl);
+                 });
+             }
 
-            if (settings && settings.js) {
-                const jsUrl = settings.js.replace(/[\[\]]/g, '');
-                const jsScript = document.createElement("script");
-                jsScript.src = jsUrl;
-                jsScript.onload = function () {
-                    if (window.AjaxterWidget) {
-                        window.AjaxterWidget.init(config);
-                    }
-                };
-                document.head.appendChild(jsScript);
-            }
-        }
+             // Load JS files
+             if (settings && settings.js) {
+                 const jsUrls = Object.values(settings.js);
+                 let loadedCount = 0;
+                 
+                 jsUrls.forEach(jsUrl => {
+                     const jsScript = document.createElement("script");
+                     jsScript.src = jsUrl;
+                     jsScript.onload = function () {
+                         loadedCount++;
+                         console.log("JS loaded:", jsUrl);
+                         
+                         // Initialize widget when all JS files are loaded
+                         if (loadedCount === jsUrls.length) {
+                             if (window.AjaxterWidget) {
+                                 window.AjaxterWidget.init(config);
+                             }
+                         }
+                     };
+                     document.head.appendChild(jsScript);
+                 });
+             }
+         }
 
         loadExternalFiles();
 
