@@ -1,5 +1,10 @@
 /* Chat Widget CSS */
 
+/* Prevent pull-to-refresh when widget is open */
+html, body {
+  overscroll-behavior: none;
+}
+
 #support-frame{
   position:fixed; border:none; z-index:999999; overflow:hidden;
   pointer-events:none; display:none;

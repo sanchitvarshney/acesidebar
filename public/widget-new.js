@@ -207,12 +207,16 @@
             });
         }
 
-        function closeIframe() {
-            const frame = document.getElementById("support-frame");
-            const toggleBtn = document.getElementById("support-toggle");
+         function closeIframe() {
+             const frame = document.getElementById("support-frame");
+             const toggleBtn = document.getElementById("support-toggle");
 
-            if (frame && isOpen) {
-                isOpen = false;
+             if (frame && isOpen) {
+                 isOpen = false;
+                 
+                 // Restore pull-to-refresh when widget is closed
+                 document.body.style.overscrollBehavior = '';
+                 document.documentElement.style.overscrollBehavior = '';
 
                 if (sliderStyle === "slider") {
                     frame.classList.add("closing");
@@ -297,10 +301,14 @@
                         frame.classList.add("chat-button");
                     }
                     frame.style.display = "block";
-                    requestAnimationFrame(() => {
-                        frame.classList.add("open");
-                        isOpen = true;
-                        clearUnreadCount();
+                     requestAnimationFrame(() => {
+                         frame.classList.add("open");
+                         isOpen = true;
+                         clearUnreadCount();
+                         
+                         // Prevent pull-to-refresh on mobile when widget is open
+                         document.body.style.overscrollBehavior = 'none';
+                         document.documentElement.style.overscrollBehavior = 'none';
 
                         if (sliderStyle === "slider") {
                             frame.style.top = frame.style.bottom = "0";
