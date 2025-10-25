@@ -1,0 +1,134 @@
+/* Chat Widget CSS */
+
+#support-frame{
+  position:fixed; border:none; z-index:999999; overflow:hidden;
+  pointer-events:none; display:none;
+}
+
+/* ---- pop ---- */
+#support-frame.pop{
+  width:30%; height:85%; bottom:100px;
+  opacity:0; transform:translateY(20px);
+  transition:opacity .4s ease, transform .4s ease;
+  border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,.2);
+}
+#support-frame.pop.open{ opacity:1; transform:translateY(0); pointer-events:auto; }
+
+/* ---- pop positioning ---- */
+#support-frame.pop.position-br{
+  right: 15px; left: auto;
+}
+#support-frame.pop.position-bl{
+  left: 15px; right: auto;
+}
+
+/* ---- pop with chat button (bottom: 0) ---- */
+#support-frame.pop.chat-button{
+  bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* ---- slider  (open & close animation) ---- */
+#support-frame.slider{
+  top:0; bottom:0; height:100vh; width:0;
+  right:0; left:auto;
+  opacity:0; transform:translateX(100%);
+  transition:width .35s ease-out, transform .35s ease-out, opacity .25s ease;
+  border-top-left-radius:12px;
+  border-bottom-left-radius:12px;
+  border-left:1px solid #ccc;
+  box-shadow:-3px 0 5px -2px rgba(0,0,0,.2);
+}
+#support-frame.slider.open{
+  width:30%; transform:translateX(0); opacity:1; pointer-events:auto;
+}
+#support-frame.slider.closing{
+  width:0; transform:translateX(100%); opacity:0;
+}
+
+@media(max-width:768px){
+  #support-frame.pop{ 
+    width:100vw; 
+    height:100vh; 
+    height:100dvh; /* Use dynamic viewport height for mobile */
+    bottom:0; 
+    right:0; 
+    border-radius:0; 
+    top:0; /* Ensure it starts from top */
+  }
+  #support-frame.slider{ width:0; }
+  #support-frame.slider.open{ width:100vw; }
+  
+  
+  /* Mobile-specific positioning fixes */
+  #support-toggle{
+    bottom: max(20px, env(safe-area-inset-bottom)); /* Account for safe area */
+    right: max(20px, env(safe-area-inset-right));
+  }
+  
+  /* Ensure iframe covers full mobile screen properly */
+  #support-frame.pop.open{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 999999;
+  }
+}
+
+/* ---- toggle button ---- */
+#support-toggle{
+  position:fixed; width:60px; height:60px; border-radius:50%;
+  background:var(--button-color, #2567B3); color:#fff; cursor:pointer; z-index:1000000;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.2); transition:transform .3s ease;
+}
+#support-toggle:hover{ transform:scale(1.1); }
+
+/* ---- Chat button style (vertical text) ---- */
+#support-toggle.chat-button{
+  width: 40px; height: 126px; border-radius: 25px;
+  top: 50%; transform: translateY(-50%); 
+  display: flex; align-items: center; justify-content: center;
+  background: var(--button-color, #2567B3);
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  margin: 0; /* Ensure no margin affects positioning */
+}
+#support-toggle.chat-button:hover{ transform: translateY(-50%) scale(1.05); }
+
+#support-toggle.chat-button .chat-text{
+  color: #fff; font-weight: bold; font-size: 14px;
+  writing-mode: vertical-rl; text-orientation: mixed;
+  transform: rotate(180deg);
+  max-width: 100%; 
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* ---- unread badge ---- */
+#support-badge{
+  position:absolute; top: -5px; right: 0px; min-width:20px; height:20px;
+  background:#ff4444; color:#fff; border-radius:10px; font-size:12px;
+  display:flex; align-items:center; justify-content:center; padding:0 6px;
+  box-shadow:0 2px 6px rgba(0,0,0,.3); font-weight:bold;
+  opacity:0; transform:scale(0); transition:opacity .3s ease, transform .3s ease;
+  z-index:1000001;
+}
+#support-badge.show{ opacity:1; transform:scale(1); }
+#support-badge.pulse{ animation:badge-pulse .6s ease-in-out; }
+@keyframes badge-pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.2); } }
+
+/* ---- spinner ---- */
+.ajxtr-loader{
+  width:24px; height:24px; border:3px solid rgba(255,255,255,.3);
+  border-top-color:#fff; border-radius:50%;
+  animation:ajxtr-spin .8s linear infinite;
+}
+@keyframes ajxtr-spin{ to{ transform:rotate(360deg); } }

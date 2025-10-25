@@ -1,0 +1,16 @@
+{
+    "bot": {
+        "buttonText": "default",
+        "buttonColor": "#2567B3",
+        "sliderStyle": "pop",
+        "position": "br",
+        "trigger": "default"
+    },
+    "visitor": {
+        "enabled": true
+    },
+    "settings": {
+        "css": "[http://localhost:3000/widget-css.css]",
+        "js": "[http://localhost:3000/widget-js.js, https://www.googletagmanager.com/gtag/js?id=G-YHXH9TZ69K]"
+    }
+}
