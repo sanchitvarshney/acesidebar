@@ -9,6 +9,9 @@ import Tickets from "../USERMODULE/pages/TicketManagement/Tickets";
 import Tasks from "../USERMODULE/pages/task/Tasks";
 import KanbanPage from "../USERMODULE/pages/task/KanbanPage";
 import Chat from "../USERMODULE/pages/TicketManagement/Chat";
+import ChatsOverview from "../USERMODULE/pages/TicketManagement/ChatsOverview";
+import ChatsHistory from "../USERMODULE/pages/TicketManagement/ChatsHistory";
+import OnlineVisitors from "../USERMODULE/pages/TicketManagement/OnlineVisitors";
 import CreateTicketPage from "../USERMODULE/pages/TicketManagement/CreateTicketPage";
 import CreateUser from "../USERMODULE/pages/CreateUser";
 import LoginScreen from "../USERMODULE/screens/LoginScreen";
@@ -162,6 +165,20 @@ export const router = createBrowserRouter([
       {
         path: "chat",
         element: <Chat />,
+        children: [
+          {
+            path: "overview",
+            element: <ChatsOverview />,
+          },
+          {
+            path: "history", 
+            element: <ChatsHistory />,
+          },
+          {
+            path: "visitors",
+            element: <OnlineVisitors />,
+          },
+        ],
       },
       {
         path: "tickets/:id",

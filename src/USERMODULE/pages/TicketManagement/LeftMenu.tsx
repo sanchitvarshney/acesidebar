@@ -1,7 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Tooltip } from "@mui/material";
-import ForumIcon from "@mui/icons-material/Forum";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import AddTaskIcon from "@mui/icons-material/AddTask";
 
@@ -12,27 +11,24 @@ const LeftMenu: React.FC = () => {
   const isActive = (key: string) => {
     if (key === "Ticket") return location.pathname.startsWith("/tickets") || location.pathname === "/";
     if (key === "Task") return location.pathname.startsWith("/tasks");
-    if (key === "Chat") return location.pathname.startsWith("/chat");
     return false;
   };
 
   const goto = (key: string) => {
     if (key === "Ticket") navigate("/tickets");
     else if (key === "Task") navigate("/tasks");
-    else if (key === "Chat") navigate("/chat");
   };
 
   const getIcon = (key: string) => {
     if (key === "Ticket") return <ConfirmationNumberIcon sx={{ fontSize: 22 }} />;
     if (key === "Task") return <AddTaskIcon sx={{ fontSize: 22 }} />;
-    if (key === "Chat") return <ForumIcon sx={{ fontSize: 22 }} />;
     return null;
   };
 
   return (
     <div className="w-55 min-w-[55px] border-r bg-white h-full">
       <div className="py-2">
-        {["Ticket", "Task", "Chat"].map((item) => (
+        {["Ticket", "Task"].map((item) => (
           <Tooltip key={item} title={item} placement="right">
             <button
               aria-label={item}

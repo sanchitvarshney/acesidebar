@@ -6,6 +6,7 @@ import {
   People as PeopleIcon,
   Settings as SettingsIcon,
   ExitToApp as ExitToAppIcon,
+  Forum as ForumIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useHelpCenter } from "../../contextApi/HelpCenterContext";
@@ -40,6 +41,7 @@ const iconColors = [
   "#2563eb", // blue
   "#ff9800", // orange
   "#e74c3c", // red
+  "#9c27b0", // purple
 ];
 
 const ColoredShortcutButton = styled(IconButton)<{ bgcolor: string }>(
@@ -114,6 +116,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
             onClick={() => handleNavigation("/tickets")}
           >
             <AllInboxIcon fontSize="inherit" />
+          </ColoredShortcutButton>
+          <ColoredShortcutButton
+            bgcolor={iconColors[4]}
+            onClick={() => handleNavigation("/chat")}
+          >
+            <ForumIcon fontSize="inherit" />
           </ColoredShortcutButton>
           <ColoredShortcutButton
             bgcolor={iconColors[2]}
