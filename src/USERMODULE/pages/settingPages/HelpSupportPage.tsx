@@ -10,7 +10,6 @@ const HelpSupportPage: React.FC = () => {
           <p className="text-sm text-gray-500">• Help topics</p>
           <p className="text-sm text-gray-500">• Filters</p>
           <p className="text-sm text-gray-500">• Apps</p>
-          <p className="text-sm text-gray-500">• Plugins</p>
         </div>
       </div>
     </div>

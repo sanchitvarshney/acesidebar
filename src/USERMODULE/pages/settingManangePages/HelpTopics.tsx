@@ -19,6 +19,7 @@ import {
   CircularProgress,
   TablePagination,
 } from "@mui/material";
+import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -176,6 +177,8 @@ const HelpTopics = () => {
               color="primary"
               onClick={() => navigate("/settings/help-support/add-help-topics")}
               size="small"
+              sx={{ fontWeight: 600 }}
+              startIcon={<ControlPointDuplicateIcon />}
             >
               Add Help Topic
             </Button>
@@ -194,7 +197,7 @@ const HelpTopics = () => {
         >
           <TextField
             size="small"
-            placeholder="Search Email Address"
+            placeholder="Search ..."
             value={searchTerm}
             onChange={handleSearch}
             InputProps={{

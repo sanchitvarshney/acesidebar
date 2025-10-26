@@ -8,8 +8,6 @@ import {
   Stack,
   TextField,
   MenuItem,
-  Menu,
-  Divider,
   Chip,
   Popover,
   Paper,
@@ -22,14 +20,11 @@ import {
   LinearProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-
+import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
 import WorkIcon from "@mui/icons-material/Work";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Close } from "@mui/icons-material";
@@ -429,6 +424,8 @@ const TeamsManagement = () => {
               color="primary"
               onClick={() => navigate("/create-team")}
               size="small"
+              sx={{ fontWeight: 600 }}
+              startIcon={<ControlPointDuplicateIcon />}
             >
               New Team
             </Button>

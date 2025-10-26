@@ -81,7 +81,6 @@ import SetUpPage from "../pages/SetUpPage";
 import EmailServerPage from "../USERMODULE/pages/settingManangePages/EmailServer";
 import NewSupportEmail from "../USERMODULE/pages/settingManangePages/NewSupportEmail";
 import Banlist from "../USERMODULE/pages/settingManangePages/Banlist";
-import AddNewBanlist from "../USERMODULE/pages/settingManangePages/AddNewBanlist";
 import DiagnosticsPage from "../USERMODULE/pages/settingManangePages/DiagnosticsPage";
 import HelpTopics from "../USERMODULE/pages/settingManangePages/HelpTopics";
 import AddHelpTopic from "../USERMODULE/pages/settingManangePages/AddHelpTopic";
@@ -294,10 +293,6 @@ export const router = createBrowserRouter([
       {
         path: "settings/emails/banlist",
         element: <Banlist />,
-      },
-      {
-        path: "settings/emails/add-new-banlist",
-        element: <AddNewBanlist />,
       },
       {
         path: "settings/emails/diagnostics",

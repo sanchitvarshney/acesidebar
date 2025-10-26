@@ -356,15 +356,6 @@ const menuSections: MenuSection[] = [
         route: "/settings/help-support/apps",
         source: "Freshdesk",
       },
-      {
-        id: "plugins",
-        icon: FaPlug,
-        iconClass: "text-purple-500",
-        title: "Plugins",
-        description: "Plugins from osTicket",
-        route: "/settings/help-support/plugins",
-        source: "osTicket",
-      },
     ],
   },
   {

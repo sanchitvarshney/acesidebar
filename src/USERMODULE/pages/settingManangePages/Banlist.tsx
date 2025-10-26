@@ -29,8 +29,10 @@ import {
   useLazyGetBanEmailListQuery,
   useRemoveBanEmailMutation,
 } from "../../../services/settingServices";
+import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
 import empty from "../../../assets/image/overview-empty-state.svg";
 import { useToast } from "../../../hooks/useToast";
+import BanEmailDrawer from "../../components/reusable/BanEmailDrawer";
 
 const Banlist = () => {
   const { showToast } = useToast();
@@ -44,6 +46,7 @@ const Banlist = () => {
   const [removeBanEmail, { isLoading: removeBanEmailLoading }] =
     useRemoveBanEmailMutation();
   const [trackId, setTrackId] = useState<any>("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const fetchList = async (
     p = page,
     limit = rowsPerPage,
@@ -135,7 +138,7 @@ const Banlist = () => {
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
-              Banned Email Addresses
+              Banned e-mail addresse's
             </Typography>
           </Box>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
@@ -153,9 +156,11 @@ const Banlist = () => {
 
             <Button
               variant="contained"
-              color="primary"
-              onClick={() => navigate("/settings/emails/add-new-banlist")}
+              color="error"
+              onClick={() => setDrawerOpen(true)}
               size="small"
+              sx={{ fontWeight: 600 }}
+              startIcon={<ControlPointDuplicateIcon />}
             >
               Ban New Email
             </Button>
@@ -174,7 +179,7 @@ const Banlist = () => {
         >
           <TextField
             size="small"
-            placeholder="Search Email Address"
+            placeholder="Search ..."
             value={searchTerm}
             onChange={handleSearch}
             InputProps={{
@@ -224,16 +229,6 @@ const Banlist = () => {
                   >
                     Email
                   </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: "14px",
-                      color: "#1a1a1a",
-                      borderBottom: "2px solid #e0e0e0",
-                    }}
-                  >
-                    Status
-                  </TableCell>
 
                   <TableCell
                     sx={{
@@ -244,16 +239,6 @@ const Banlist = () => {
                     }}
                   >
                     Date Added
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: "14px",
-                      color: "#1a1a1a",
-                      borderBottom: "2px solid #e0e0e0",
-                    }}
-                  >
-                    Last Updated
                   </TableCell>
                   <TableCell
                     sx={{
@@ -307,18 +292,6 @@ const Banlist = () => {
                       >
                         {row.email || row.address || row.ban_email}
                       </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.status || row.state || "N/A"}
-                          size="small"
-                          sx={{
-                            bgcolor: "#e3f2fd",
-                            color: "#1976d2",
-                            fontWeight: 500,
-                            fontSize: "11px",
-                          }}
-                        />
-                      </TableCell>
                       <TableCell
                         sx={{
                           fontSize: "14px",
@@ -328,17 +301,6 @@ const Banlist = () => {
                         {row.date_added ||
                           row.created_at ||
                           row.createdAt ||
-                          "Not assigned"}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          fontSize: "14px",
-                          color: "#65676b",
-                        }}
-                      >
-                        {row.last_updated ||
-                          row.updated_at ||
-                          row.updatedAt ||
                           "Not assigned"}
                       </TableCell>
                       <TableCell
@@ -372,7 +334,7 @@ const Banlist = () => {
                             disabled={removeBanEmailLoading}
                           >
                             {removeBanEmailLoading &&
-                            row.reference === trackId ? (
+                              row.reference === trackId ? (
                               <CircularProgress size={16} color="error" />
                             ) : (
                               <DeleteIcon fontSize="small" />
@@ -503,6 +465,15 @@ const Banlist = () => {
           </Card>
         </Box>
       </Box>
+
+      {/* Ban Email Drawer */}
+      <BanEmailDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onSuccess={() => {
+          fetchList();
+        }}
+      />
     </Box>
   );
 };

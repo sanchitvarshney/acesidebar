@@ -27,6 +27,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
 import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -520,6 +521,8 @@ const DepartmentsManagement = () => {
               color="primary"
               onClick={() => navigate("/create-department")}
               size="small"
+              sx={{ fontWeight: 600 }}
+              startIcon={<ControlPointDuplicateIcon />}
             >
               New Department
             </Button>

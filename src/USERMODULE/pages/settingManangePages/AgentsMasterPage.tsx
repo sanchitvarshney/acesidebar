@@ -29,7 +29,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
-
+import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
 import WorkIcon from "@mui/icons-material/Work";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -200,7 +200,6 @@ const departmentColumns = [
 
 const DepartmentsManagement = () => {
   const navigate = useNavigate();
-  const [isAdd, setIsAdd] = useState(false);
   const [activeFilters, setActiveFilters] = useState<
     Array<{
       id: string;
@@ -502,16 +501,10 @@ const DepartmentsManagement = () => {
               color="primary"
               onClick={() => navigate("/add-agent")}
               size="small"
+              sx={{ fontWeight: 600 }}
+              startIcon={<ControlPointDuplicateIcon />}
             >
               New Agent
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setIsAdd(true)}
-              size="small"
-            >
-              Export
             </Button>
           </Box>
         </Box>
@@ -1312,21 +1305,6 @@ const DepartmentsManagement = () => {
           </Box>
         </Paper>
       </Popover>
-
-      {/* Add Department Sidebar Panel */}
-      <CustomSideBarPanel
-        open={isAdd}
-        close={() => setIsAdd(false)}
-        isHeader={true}
-        title={"Add Department"}
-        width={"45%"}
-      >
-        <Box sx={{ p: 3 }}>
-          <Typography variant="body1">
-            Add agent form will be implemented here.
-          </Typography>
-        </Box>
-      </CustomSideBarPanel>
     </Box>
   );
 };
