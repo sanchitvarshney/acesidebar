@@ -135,6 +135,7 @@ const EmailServerPage: React.FC = () => {
                 navigate("/settings/emails/email-settings-advanced")
               }
               size="small"
+              sx={{ fontWeight: 600 }}
               startIcon={<SettingsIcon size={18}/>}
             >
               Advanced setting
@@ -144,6 +145,7 @@ const EmailServerPage: React.FC = () => {
               color="primary"
               onClick={() => navigate("/settings/emails/new-support-email")}
               size="small"
+              sx={{ fontWeight: 600 }}
             >
               New support email
             </Button>

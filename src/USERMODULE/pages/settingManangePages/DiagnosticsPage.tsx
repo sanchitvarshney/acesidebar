@@ -457,6 +457,7 @@ const DiagnosticsPage = () => {
               variant="contained"
               onClick={handleSubmit}
               disabled={isSubmitting}
+              sx={{ fontWeight: 600 }}
             >
               {isSubmitting ? "Sending..." : "Send Message"}
             </Button>

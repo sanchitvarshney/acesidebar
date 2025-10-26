@@ -286,7 +286,7 @@ const BanEmailDrawer: React.FC<BanEmailDrawerProps> = ({
                         variant="outlined"
                         onClick={handleClose}
                         disabled={isSubmitting}
-                        sx={{ minWidth: 100 }}
+                        sx={{ minWidth: 100, fontWeight: 600 }}
                     >
                         Cancel
                     </Button>
@@ -294,7 +294,7 @@ const BanEmailDrawer: React.FC<BanEmailDrawerProps> = ({
                         variant="contained"
                         onClick={handleSubmit}
                         disabled={isSubmitting}
-                        sx={{ minWidth: 100 }}
+                        sx={{ minWidth: 100, fontWeight: 600 }}
                     >
                         {isSubmitting ? (
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
