@@ -250,8 +250,7 @@ const menuSections: MenuSection[] = [
         iconClass: "text-purple-500",
         title: "Tasks",
         description: "Tasks from osTicket",
-        route: "/settings/tasks-knowledge/tasks",
-        source: "osTicket",
+        route: "/settings/tasks-knowledge/tasks"
       },
       {
         id: "knowledgebase",

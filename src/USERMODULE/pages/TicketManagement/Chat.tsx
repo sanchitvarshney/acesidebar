@@ -128,25 +128,25 @@ const Chat: React.FC = () => {
           <div className="flex-1 h-full bg-white flex flex-col">
             {/* Chat header */}
             <div className="h-14 border-b flex items-center justify-between px-4">
-              <div className="flex items-center gap-3">
-                <Avatar src={activeThread?.avatarUrl} sx={{ width: 36, height: 36 }} />
-                <div className="leading-tight">
-                  <div className="font-semibold text-gray-800">{activeThread?.name || "Select a chat"}</div>
-                  <div className="text-xs text-gray-500">{activeThread?.online ? "Online" : "Offline"}</div>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Tooltip title="Audio call">
-                  <IconButton size="small"><PhoneIcon fontSize="small" /></IconButton>
-                </Tooltip>
-                <Tooltip title="Video call">
-                  <IconButton size="small"><VideoCallIcon fontSize="small" /></IconButton>
-                </Tooltip>
-                <Tooltip title="Details">
-                  <IconButton size="small"><InfoOutlinedIcon fontSize="small" /></IconButton>
-                </Tooltip>
-                <IconButton size="small"><MoreVertIcon fontSize="small" /></IconButton>
-              </div>
+                  <div className="flex items-center gap-3">
+                    <Avatar src={activeThread?.avatarUrl} sx={{ width: 36, height: 36 }} />
+                    <div className="leading-tight">
+                      <div className="font-semibold text-gray-800">{activeThread?.name || "Select a chat"}</div>
+                      <div className="text-xs text-gray-500">{activeThread?.online ? "Online" : "Offline"}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <Tooltip title="Audio call">
+                      <IconButton size="small"><PhoneIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <Tooltip title="Video call">
+                      <IconButton size="small"><VideoCallIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <Tooltip title="Details">
+                      <IconButton size="small"><InfoOutlinedIcon fontSize="small" /></IconButton>
+                    </Tooltip>
+                    <IconButton size="small"><MoreVertIcon fontSize="small" /></IconButton>
+                  </div>
             </div>
 
             {/* Content panels */}
@@ -172,7 +172,7 @@ const Chat: React.FC = () => {
                           <div className="text-sm">{m.text}</div>
                           <div className={`text-xs mt-1 ${m.sender === "user" ? "text-blue-100" : "text-gray-500"}`}>
                             {m.timestamp}
-                          </div>
+                            </div>
                         </div>
                       </div>
                     )
@@ -180,15 +180,15 @@ const Chat: React.FC = () => {
                   {activeThread?.online && (
                     <div className="flex items-center gap-2 text-blue-600">
                       <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
-                      <div className="mt-3 text-xs text-gray-500">{activeThread?.name} is typing...</div>
-                      <div ref={messagesEndRef} />
-                    </div>
+                  <div className="mt-3 text-xs text-gray-500">{activeThread?.name} is typing...</div>
+                  <div ref={messagesEndRef} />
+                </div>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="border-t flex items-start gap-2 px-3 bg-white py-2 min-h-[64px]">
+              <div className="border-t flex items-start gap-2 px-3 bg-white py-2 min-h-[64px]">
                 <Tooltip title="Emoji">
                   <IconButton size="small"><InsertEmoticonIcon /></IconButton>
                 </Tooltip>
@@ -221,11 +221,11 @@ const Chat: React.FC = () => {
                       '&:hover': { backgroundColor: '#e3f2fd' }
                     }}
                   >
-                    <SendIcon />
-                  </IconButton>
+                      <SendIcon />
+                    </IconButton>
                 </Tooltip>
-            </div>
-          </div>
+              </div>
+                    </div>
           ) : (
             <Outlet />
           )}
