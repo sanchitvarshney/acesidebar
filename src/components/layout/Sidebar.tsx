@@ -12,7 +12,8 @@ import { useAuth } from "../../contextApi/AuthContext";
 import { useHelpCenter } from "../../contextApi/HelpCenterContext";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
 import setupWizardIcon from "../../assets/image/setup-wizard.svg";
-
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../reduxStore/Store";
 const SIDEBAR_WIDTH = 80;
 const SIDEBAR_COLLAPSED_WIDTH = 0;
 
@@ -70,8 +71,10 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const { signOut } = useAuth();
   const { toggleHelpCenter } = useHelpCenter();
+  const { isOpen, expended } = useSelector((state: RootState) => state.shotcut);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   const handleNavigation = (path: string) => {
     navigate(path);
     onClose();
@@ -93,8 +96,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           flexDirection: "column",
           alignItems: "center",
           height: "100vh",
-          borderRight: "1px solid #e0e0e0",
+
           py: 2,
+          position: "relative",
+          overflow: "visible",
         }}
       >
         <Box
@@ -136,7 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
             <SettingsIcon fontSize="inherit" />
           </ColoredShortcutButton>
         </Box>
-        
+
         <Box
           sx={{
             display: "flex",
@@ -149,11 +154,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           <IconButton
             size="medium"
             onClick={toggleHelpCenter}
-            sx={{ background: "#fff",mb:1 }}
+            sx={{ background: "#fff", mb: 1 }}
           >
-            <img 
-              src={setupWizardIcon} 
-              alt="Setup Wizard" 
+            <img
+              src={setupWizardIcon}
+              alt="Setup Wizard"
               style={{ width: 24, height: 24 }}
             />
           </IconButton>
@@ -164,11 +169,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           >
             <ExitToAppIcon fontSize="medium" sx={{ color: "#fff" }} />
           </IconButton>
+
         </Box>
-
-
       </Box>
-
     </StyledDrawer>
   );
 };

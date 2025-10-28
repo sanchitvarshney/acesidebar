@@ -1,50 +1,133 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Tooltip } from "@mui/material";
+import {
+  Box,
+  Collapse,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import AddTaskIcon from "@mui/icons-material/AddTask";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const LeftMenu: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [gettingStartedExpanded, setGettingStartedExpanded] = useState(false);
 
-  const isActive = (key: string) => {
-    if (key === "Ticket") return location.pathname.startsWith("/tickets") || location.pathname === "/";
-    if (key === "Task") return location.pathname.startsWith("/tasks");
-    return false;
-  };
-
-  const goto = (key: string) => {
-    if (key === "Ticket") navigate("/tickets");
-    else if (key === "Task") navigate("/tasks");
-  };
-
-  const getIcon = (key: string) => {
-    if (key === "Ticket") return <ConfirmationNumberIcon sx={{ fontSize: 22 }} />;
-    if (key === "Task") return <AddTaskIcon sx={{ fontSize: 22 }} />;
-    return null;
-  };
+  const gettingStartedItems = [
+    {
+      id: 1,
+      title: "Learn the basics",
+      completed: false,
+      isOptional: false,
+      icon: <AddTaskIcon />,
+    },
+    {
+      id: 2,
+      title: "Advanced setup",
+      completed: true,
+      isOptional: true,
+      icon: <AddTaskIcon />,
+    },
+  ];
 
   return (
-    <div className="w-55 min-w-[55px] border-r bg-white h-full">
-      <div className="py-2">
-        {["Ticket", "Task"].map((item) => (
-          <Tooltip key={item} title={item} placement="right">
-            <button
-              aria-label={item}
-              onClick={() => goto(item)}
-              className={`w-full text-left px-4 py-3 hover:bg-blue-100 flex items-center ${isActive(item) ? "bg-blue-200 font-semibold" : ""
-                }`}
+    <Box
+      sx={{
+        height: "100%",
+        position: "relative",
+        overflow: "visible",
+        width: gettingStartedExpanded ? 240 : 55,
+        transition: "width 0.3s ease",
+      }}
+    >
+      {/* Mini Sidebar (Hidden when gettingStartedExpanded) */}
+      <Box
+        sx={{
+          opacity: gettingStartedExpanded ? 0 : 1,
+          visibility: gettingStartedExpanded ? "hidden" : "visible",
+          transition: "opacity 0.2s ease, visibility 0.2s ease",
+          width: 55,
+          minWidth: 55,
+
+          height: "100%",
+        }}
+      >
+        <IconButton
+          sx={{
+            borderRadius: 0,
+            borderTopRightRadius: 10,
+            borderBottomRightRadius: 10,
+            position: "absolute",
+            bottom: "calc(100% - 700px)",
+            right: 10,
+          }}
+          onClick={() => setGettingStartedExpanded(true)}
+        >
+          <ArrowForwardIosIcon />
+        </IconButton>
+      </Box>
+
+      {/* Expanded Collapse (Replaces sidebar) */}
+      <Collapse
+        in={gettingStartedExpanded}
+        orientation="horizontal"
+        timeout={400}
+        unmountOnExit={false}
+         sx={{ display: "flex" , mt:10 }}
+      >
+        <Box
+          sx={{
+            width: 240,
+            p: 2,
+            bgcolor: "#fafafa",
+            height: "100%",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 1,
+            }}
+          >
+            <Typography variant="subtitle1" fontWeight={600}>
+              Getting Started
+            </Typography>
+
+            <IconButton
+              size="small"
+              onClick={() => setGettingStartedExpanded(false)}
             >
-              <span className="text-gray-700">{getIcon(item)}</span>
-            </button>
-          </Tooltip>
-        ))}
-      </div>
-    </div>
+              <ArrowForwardIosIcon sx={{ transform: "rotate(180deg)" }} />
+            </IconButton>
+          </Box>
+
+          <List dense>
+            {gettingStartedItems.map((item) => (
+              <ListItem
+                key={item.id}
+                sx={{
+                  borderRadius: 1,
+                  "&:hover": { bgcolor: "#f0f0f0" },
+                }}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.title} />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Collapse>
+    </Box>
   );
 };
 
 export default LeftMenu;
-
-

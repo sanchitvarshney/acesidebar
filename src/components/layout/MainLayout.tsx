@@ -1,5 +1,12 @@
 import { Suspense, useEffect, useState } from "react";
-import { Box, CssBaseline, styled } from "@mui/material";
+import {
+  Box,
+  Collapse,
+  CssBaseline,
+  IconButton,
+  styled,
+  Typography,
+} from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { Outlet } from "react-router-dom";
@@ -11,11 +18,13 @@ import PrivateTurnstile from "../common/PrivateTurnstile";
 import OfflineStatusModal from "../popup/OfflineStatusModal";
 import HelpCenterSlider from "./HelpCenterSlider";
 import { useDispatch, useSelector } from "react-redux";
-import { setToggle } from "../../reduxStore/Slices/shotcutSlices";
+import { setExpended, setToggle } from "../../reduxStore/Slices/shotcutSlices";
 import { RootState } from "../../reduxStore/Store";
 import { useGetUserIsAvailableQuery } from "../../services/auth";
 import { useAuth } from "../../contextApi/AuthContext";
 import { setStartTime } from "../../reduxStore/Slices/setUpSlices";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import LeftMenu from "../../USERMODULE/pages/TicketManagement/LeftMenu";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) =>
@@ -82,16 +91,17 @@ const MainLayout = () => {
   const { isAnyPopupOpen } = usePopupContext();
   const { showOfflineModal, setShowOfflineModal, handleResume } = useStatus();
   const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
-  const { isOpen } = useSelector((state: RootState) => state.shotcut);
+  const { isOpen, expended } = useSelector((state: RootState) => state.shotcut);
   const dispatch = useDispatch();
   const { setCurrentStatus } = useStatus();
-  const { data, isLoading: isGetUserIsAvailableLoading } = useGetUserIsAvailableQuery({
-    //@ts-ignore
-    userId: user?.uID,
-    //@ts-ignore
-    skip: !user?.uID,
-    refetchOnMountOrArgChange: true,
-  });
+  const { data, isLoading: isGetUserIsAvailableLoading } =
+    useGetUserIsAvailableQuery({
+      //@ts-ignore
+      userId: user?.uID,
+      //@ts-ignore
+      skip: !user?.uID,
+      refetchOnMountOrArgChange: true,
+    });
 
   const handleDrawerToggle = () => {
     dispatch(setToggle(!isOpen));
@@ -102,11 +112,11 @@ const MainLayout = () => {
   };
 
   useEffect(() => {
-   
     if (data) {
-      setCurrentStatus(data?.is_offline === 'OFFLINE' ? "offline" : "available");
+      setCurrentStatus(
+        data?.is_offline === "OFFLINE" ? "offline" : "available"
+      );
       dispatch(setStartTime(data?.offline_start));
-  
     }
   }, [data]);
 
@@ -114,11 +124,20 @@ const MainLayout = () => {
     <Box sx={{ display: "flex", overflow: "hidden" }}>
       <CssBaseline />
       <TopBar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
+
       <Sidebar
         open={isOpen}
         handleDrawerToggle={handleDrawerToggle}
         onClose={closeHelpCenter}
       />
+
+      
+   
+     
+        <LeftMenu />
+     
+   
+
       <Main
         open={isOpen}
         isPopupOpen={isAnyPopupOpen}
@@ -148,7 +167,6 @@ const MainLayout = () => {
       <OfflineStatusModal
         open={showOfflineModal}
         onClose={handleCloseOfflineModal}
-     
       />
     </Box>
   );

@@ -1019,16 +1019,8 @@ const Tickets: React.FC = () => {
   return (
     <>
       <div className="flex flex-col bg-[#f5f5f5] h-[calc(100vh-98px)]  ">
-        {/* Main Header Bar */}
-        {/* {
-    isQuick ? (
-      <CreateTicketQuickActions
-        onSendEmail={() => navigate("/create-ticket?mode=email")}
-        onWriteNote={() => navigate("/create-ticket?mode=note")}
-        onCall={() => navigate("/create-ticket?mode=call")}
-      /> */}
-        {/* // ):( */}
-        {/* //   <> */}
+        
+       
         <div className="flex items-center justify-between px-2 py-1 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -1189,7 +1181,7 @@ const Tickets: React.FC = () => {
         </div>
         {/* Main Content: Tickets + Filters */}
         <div className="flex flex-1 h-0 min-h-0">
-          <LeftMenu />
+     
           <div className="flex-1 min-w-60 h-full overflow-y-auto bg-gray-50 custom-scrollbar">
             <div className="max-w-8xl mx-auto">
               {isTicketsFetching ? (
