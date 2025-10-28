@@ -10,6 +10,7 @@ interface CustomSideBarPanelProps {
   isHeader?: boolean;
   width?: number | string;
   position?: any;
+  id?: string;
 }
 const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   open,
@@ -19,9 +20,11 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   isHeader = true,
   width = 380,
   position = "right",
+  id,
 }) => {
   return (
     <Drawer
+      id={id}
       // elevation={0}
       anchor={position}
       open={open}

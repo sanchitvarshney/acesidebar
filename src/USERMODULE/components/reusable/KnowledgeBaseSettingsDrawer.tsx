@@ -158,9 +158,11 @@ const KnowledgeBaseSettingsDrawer: React.FC<KnowledgeBaseSettingsDrawerProps> = 
                         </Box>
                     </Box>
                 </Box>
-                <CustomAlert
+              <div className="p-3">
+                  <CustomAlert
                         title="Disabling knowledge base disables clients' interface."
                     />
+              </div>
 
                 {/* Footer */}
                 <Box

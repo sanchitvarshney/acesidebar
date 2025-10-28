@@ -139,7 +139,11 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
 
   // Handle max filters alert animation - now safe to use variables
   useEffect(() => {
-    if (!drawerOpen && !canAddMoreFilters && activeFilters.length === MAX_FILTERS) {
+    if (
+      !drawerOpen &&
+      !canAddMoreFilters &&
+      activeFilters.length === MAX_FILTERS
+    ) {
       setShowMaxFiltersAlert(true);
 
       // Hide alert after 3 seconds
@@ -772,6 +776,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
       </Box>
 
       <CustomSideBarPanel
+        id="drawer-root"
         open={drawerOpen}
         close={() => {
           setDrawerOpen(false);
@@ -793,7 +798,10 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
           <Divider sx={{ mb: 2 }} />
 
           {/* Filters List */}
-          <Box sx={{ flex: 1, overflowY: "auto", p: 2 }} className="custom-scrollbar">
+          <Box
+            sx={{ flex: 1, overflowY: "auto", p: 2 }}
+            className="custom-scrollbar"
+          >
             {criteriaArray.map((field: any) => (
               <Box
                 key={field.name}
@@ -885,6 +893,15 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                             selected
                           );
                         }}
+                        MenuProps={{
+                          container: () =>
+                            document.getElementById("drawer-root"),
+                          PaperProps: {
+                            sx: {
+                              zIndex: 9999, // higher than MUI Drawer (default: 1200)
+                            },
+                          },
+                        }}
                       >
                         {field.choices?.map(
                           (opt: {
@@ -926,6 +943,15 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                         name={field.name}
                         value={filters[field.name] ?? ""}
                         onChange={handleSelectChange}
+                        MenuProps={{
+                          container: () =>
+                            document.getElementById("drawer-root"),
+                          PaperProps: {
+                            sx: {
+                              zIndex: 9999, // higher than MUI Drawer (default: 1200)
+                            },
+                          },
+                        }}
                       >
                         {field.choices?.map(
                           (opt: { value: string; label: string }) => (
@@ -972,6 +998,15 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                             ? filters[field.name]
                             : []
                         }
+                        MenuProps={{
+                          container: () =>
+                            document.getElementById("drawer-root"),
+                          PaperProps: {
+                            sx: {
+                              zIndex: 9999, // higher than MUI Drawer (default: 1200)
+                            },
+                          },
+                        }}
                         onChange={(e) => handleChipChange(e, field.name)}
                         displayEmpty
                         renderValue={(selected) => {
