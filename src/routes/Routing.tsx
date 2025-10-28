@@ -82,6 +82,7 @@ import EmailServerPage from "../USERMODULE/pages/settingManangePages/EmailServer
 import NewSupportEmail from "../USERMODULE/pages/settingManangePages/NewSupportEmail";
 import Banlist from "../USERMODULE/pages/settingManangePages/Banlist";
 import TasksSettings from "../USERMODULE/pages/settingManangePages/TasksSettings";
+import TicketFilters from "../USERMODULE/pages/settingManangePages/TicketFilters";
 import DiagnosticsPage from "../USERMODULE/pages/settingManangePages/DiagnosticsPage";
 import HelpTopics from "../USERMODULE/pages/settingManangePages/HelpTopics";
 import AddHelpTopic from "../USERMODULE/pages/settingManangePages/AddHelpTopic";
@@ -364,6 +365,10 @@ export const router = createBrowserRouter([
       {
         path: "settings/help-support/add-help-topics",
         element: <AddHelpTopic />,
+      },
+      {
+        path: "settings/help-support/filters",
+        element: <TicketFilters />,
       },
       {
         path: "settings/agents-productivity/arcade",

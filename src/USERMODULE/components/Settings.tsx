@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import SettingsMenu from "../../components/Settings/SettingsMenu";
 import SettingsSearchBar from "../../components/Settings/SearchBar";
+import KnowledgeBaseSettingsDrawer from "../../USERMODULE/components/reusable/KnowledgeBaseSettingsDrawer";
 import {
   FaRobot,
   FaUsersCog,
@@ -249,7 +250,7 @@ const menuSections: MenuSection[] = [
         icon: FaTasks,
         iconClass: "text-purple-500",
         title: "Tasks",
-        description: "Tasks from osTicket",
+        description: "Manage your tasks and workflows to streamline your workflow",
         route: "/settings/tasks-knowledge/tasks"
       },
       {
@@ -257,9 +258,8 @@ const menuSections: MenuSection[] = [
         icon: FaBook,
         iconClass: "text-blue-500",
         title: "Knowledgebase",
-        description: "Knowledge base from osTicket",
-        route: "/settings/tasks-knowledge/knowledgebase",
-        source: "osTicket",
+        description: "Create and manage your knowledge base to provide detailed information and support for your users",
+        route: "#",
       },
     ],
   },
@@ -334,7 +334,7 @@ const menuSections: MenuSection[] = [
         icon: FaQuestionCircle,
         iconClass: "text-cyan-500",
         title: "Help Topics",
-        description: "Help topics from osTicket",
+        description: "Create and manage help topics to provide detailed information and support for your users",
         route: "/settings/help-support/help-topics",
       },
       {
@@ -342,19 +342,18 @@ const menuSections: MenuSection[] = [
         icon: FaFilter,
         iconClass: "text-blue-500",
         title: "Filters",
-        description: "Filters from osTicket",
+        description: "Set up filters to automatically route tickets based on specific criteria",
         route: "/settings/help-support/filters",
-        source: "osTicket",
       },
-      {
-        id: "apps",
-        icon: FaPuzzlePiece,
-        iconClass: "text-green-500",
-        title: "Apps",
-        description: "Apps from Freshdesk",
-        route: "/settings/help-support/apps",
-        source: "Freshdesk",
-      },
+      // {
+      //   id: "apps",
+      //   icon: FaPuzzlePiece,
+      //   iconClass: "text-green-500",
+      //   title: "Apps",
+      //   description: "Apps from Freshdesk",
+      //   route: "/settings/help-support/apps",
+      //   source: "Freshdesk",
+      // },
     ],
   },
   {
@@ -362,14 +361,14 @@ const menuSections: MenuSection[] = [
     icon: FaEnvelope,
     iconClass: "text-red-600 text-xl",
     title: "Emails",
-    description: "Email settings, templates, notifications, and diagnostics",
+    description: "Configure email settings, templates, notifications, and diagnostics",
     subsections: [
       {
         id: "email-settings",
         icon: FaCog,
         iconClass: "text-blue-500",
         title: "Email Settings",
-        description: "Email settings from osTicket",
+        description: "Configure email settings for your email server and email notifications",
         route: "/settings/emails/email-settings",
       },
       {
@@ -377,7 +376,7 @@ const menuSections: MenuSection[] = [
         icon: FaEnvelopeOpenText,
         iconClass: "text-green-500",
         title: "Email Notifications",
-        description: "Email notifications from Freshdesk",
+        description: "Configure email notifications for different events and actions",
         route: "/settings/emails/email-notifications",
       },
 
@@ -403,6 +402,7 @@ const menuSections: MenuSection[] = [
 
 const Settings: React.FC = () => {
   const [activeId, setActiveId] = useState<string>(menuSections[0].id);
+  const [knowledgeBaseDrawerOpen, setKnowledgeBaseDrawerOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -478,6 +478,12 @@ const Settings: React.FC = () => {
   // Handle subsection selection
   const handleSubsectionSelect = useCallback(
     (sectionId: string, subsectionId: string) => {
+      // Special case for knowledgebase - open drawer instead of navigating
+      if (subsectionId === "knowledgebase") {
+        setKnowledgeBaseDrawerOpen(true);
+        return;
+      }
+
       const section = menuSections.find((s) => s.id === sectionId);
       const subsection = section?.subsections?.find(
         (s) => s.id === subsectionId
@@ -504,8 +510,8 @@ const Settings: React.FC = () => {
         <div className="my-2">
           {/* Show subsections as cards when a main section is selected */}
           {activeSection &&
-          activeSection.subsections &&
-          activeId !== "recent" ? (
+            activeSection.subsections &&
+            activeId !== "recent" ? (
             <div className="max-w-6xl mx-auto">
               {/* Section Header */}
               <div className="mb-8">
@@ -538,13 +544,12 @@ const Settings: React.FC = () => {
                       <div className="flex items-center justify-between">
                         {subsection.source ? (
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                              subsection.source === "osTicket"
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${subsection.source === "osTicket"
                                 ? "bg-blue-100 text-blue-800"
                                 : subsection.source === "Freshdesk"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
                           >
                             {subsection.source}
                           </span>
@@ -578,6 +583,16 @@ const Settings: React.FC = () => {
           )}
         </div>
       </main>
+
+      {/* Knowledge Base Settings Drawer */}
+      <KnowledgeBaseSettingsDrawer
+        open={knowledgeBaseDrawerOpen}
+        onClose={() => setKnowledgeBaseDrawerOpen(false)}
+        onSave={(settings: any) => {
+          console.log("Knowledge Base settings saved:", settings);
+          // Handle saving knowledge base settings here
+        }}
+      />
     </div>
   );
 };
