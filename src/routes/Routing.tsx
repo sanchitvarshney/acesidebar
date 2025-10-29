@@ -18,6 +18,7 @@ import LoginScreen from "../USERMODULE/screens/LoginScreen";
 import SignupScreen from "../USERMODULE/screens/SignupScreen";
 import Settings from "../USERMODULE/components/Settings";
 import SessionManagementPage from "../USERMODULE/pages/SessionManagementPage";
+import SessionExpiredPage from "../pages/SessionExpiredPage";
 
 // Settings page components
 import SystemAccountPage from "../USERMODULE/pages/settingPages/SystemAccountPage";
@@ -139,6 +140,10 @@ export const router = createBrowserRouter([
         <SessionManagementPage />
       </Protected>
     ),
+  },
+  {
+    path: "/session-expired",
+    element: <SessionExpiredPage />,
   },
 
   // Main App (Protected) Routes

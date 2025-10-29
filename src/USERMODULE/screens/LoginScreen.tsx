@@ -31,6 +31,7 @@ import imagePadLock from "../../assets/image/padlock.webp";
 import GoogleRecaptcha, {
   GoogleRecaptchaRef,
 } from "../../components/reusable/GoogleRecaptcha";
+import { sessionManager } from "../../utils/SessionManager";
 
 type RegisterFormData = z.infer<typeof loginSchema>;
 
@@ -101,6 +102,19 @@ const LoginScreen = () => {
       setRememberMe(true);
     }
   }, [setValue]);
+
+  // Generate session ID when component mounts (when someone visits login page)
+  useEffect(() => {
+    // Create a new session when someone visits the login page
+    const session = sessionManager.createSession();
+    console.log("Login page visited - Session created:", session.sessionId);
+    
+    // Cleanup function to stop session checking when component unmounts
+    return () => {
+      // Don't clear session here as user might navigate away temporarily
+      // Session will be managed by SessionManager
+    };
+  }, []);
 
   const forgotSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -175,6 +189,13 @@ const LoginScreen = () => {
   const onSubmit = async (data: RegisterFormData) => {
     if (!isCaptchaVerified || !captchaToken) {
       showToast("Please complete the security verification", "error");
+      return;
+    }
+
+    // Check if session is expired before proceeding with login
+    const isSessionValid = sessionManager.checkSessionExpiration();
+    if (!isSessionValid) {
+      // Session expired, user will be redirected to session expired page
       return;
     }
 

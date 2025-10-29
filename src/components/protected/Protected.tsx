@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/image/ajaxter-logo.webp";
 import { decrypt } from "../../utils/encryption";
+import { sessionManager } from "../../utils/SessionManager";
 
 interface ProtectedProps {
   children: ReactNode;
@@ -23,11 +24,13 @@ const Protected: React.FC<ProtectedProps> = ({
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     if (authentication && !isAuthenticated) {
+      // User needs to be authenticated but isn't
       navigate("/login");
       return;
     }
 
     if (!authentication && isAuthenticated) {
+      // User is authenticated but shouldn't be (e.g., on login page)
       navigate("/");
       return;
     }
