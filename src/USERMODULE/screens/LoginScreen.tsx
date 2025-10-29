@@ -16,7 +16,6 @@ import { useState, useRef, useEffect } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useForm } from "react-hook-form";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { loginSchema } from "../../zodSchema/AuthSchema";
@@ -25,8 +24,10 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../../hooks/useToast";
 import { useLoginMutation } from "../../services/auth";
 import { decrypt } from "../../utils/encryption";
-import imageBackground from "../../assets/image/Banner-hepl-desk@2x.png";
-import imagePadLock from "../../assets/image/padlock.webp";
+import GoogleIcon from "@mui/icons-material/Google";
+import VpnLockIcon from "@mui/icons-material/VpnLock";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import GoogleRecaptcha, {
   GoogleRecaptchaRef,
@@ -66,9 +67,70 @@ const LoginScreen = () => {
   const recaptchaRef = useRef<GoogleRecaptchaRef>(null);
   const forgotRecaptchaRef = useRef<GoogleRecaptchaRef>(null);
   const [baseUrl, setBaseUrl] = useState<any>(null);
+  const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
+  const [companyName, setCompanyName] = useState<string>("");
+  const [companyNameTouched, setCompanyNameTouched] = useState<boolean>(false);
+  const [companyNameSubmitted, setCompanyNameSubmitted] = useState<boolean>(false);
+
+  // Get dynamic domain suffix from current window host
+  const getDynamicDomain = () => {
+    const hostname = window.location.hostname;
+    // Remove port if exists (e.g., localhost:3000 -> localhost)
+    const domain = hostname.split(':')[0];
+    // If it's localhost or IP, return as is, otherwise return with dot
+    if (domain === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(domain)) {
+      return `.${domain}`;
+    }
+    // Extract domain from subdomain (e.g., app.example.com -> .example.com)
+    const parts = domain.split('.');
+    if (parts.length > 2) {
+      return `.${parts.slice(-2).join('.')}`;
+    }
+    return `.${domain}`;
+  };
 
   const handleChange = (event: any) => {
     setBaseUrl(event.target.value as string);
+  };
+
+  const handleDomainNext = () => {
+    setCompanyNameSubmitted(true);
+    const trimmedName = companyName.trim();
+
+    if (!trimmedName) {
+      showToast("Please enter a company name", "error");
+      return;
+    }
+
+    // Validate minimum length
+    if (trimmedName.length < 3) {
+      showToast("Company name must be at least 3 characters", "error");
+      return;
+    }
+
+    // Validate maximum length
+    if (trimmedName.length > 15) {
+      showToast("Company name must be at most 15 characters", "error");
+      return;
+    }
+
+    // Validate company name format: alphanumeric and hyphens only
+    const companyPattern = /^[a-zA-Z0-9-]+$/;
+    if (!companyPattern.test(trimmedName)) {
+      showToast("Company name can only contain letters, numbers, and hyphens", "error");
+      return;
+    }
+
+    // Proceed to login form - baseUrl will be managed separately through "Change Url" field
+    setShowLoginForm(true);
+  };
+
+  const handleGoBack = () => {
+    setShowLoginForm(false);
+    setCompanyName("");
+    setBaseUrl(null);
+    setCompanyNameTouched(false);
+    setCompanyNameSubmitted(false);
   };
 
   useEffect(() => {
@@ -108,7 +170,7 @@ const LoginScreen = () => {
     // Create a new session when someone visits the login page
     const session = sessionManager.createSession();
     console.log("Login page visited - Session created:", session.sessionId);
-    
+
     // Cleanup function to stop session checking when component unmounts
     return () => {
       // Don't clear session here as user might navigate away temporarily
@@ -254,7 +316,6 @@ const LoginScreen = () => {
         signIn();
         setIsCaptchaVerified(false);
         setCaptchaToken("");
-        // Redirect to session management page
         navigation("/session-management");
         return;
       } else {
@@ -347,50 +408,54 @@ const LoginScreen = () => {
     <Box
       sx={{
         height: "100vh",
-        backgroundColor: "#ffffff",
+        width: "100vw",
+        backgroundColor: "#1877f2",
+        display: "flex",
+        padding: { xs: 2, md: 4 },
+        overflow: "hidden",
         position: "fixed",
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        overflow: "hidden",
       }}
     >
-      {/* Main 2-Grid Layout */}
-      <Box sx={{ display: "flex", height: "100vh" }}>
-        {/* Left Visual Section - 2/3 width */}
+      {/* Main Layout - Split Screen */}
+      <Box
+        sx={{
+          display: "flex",
+          width: "100%",
+          height: "100%",
+          backgroundColor: "#ffffff",
+          borderRadius: { xs: 2, md: 3 },
+          overflow: "hidden",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        }}
+      >
+        {/* Left Section - Login Form */}
         <Box
           sx={{
-            flex: "0 0 66.666667%",
-            height: "100vh",
-            display: { xs: "none", lg: "flex" },
+            flex: { xs: "1", md: "0 0 45%" },
+            backgroundColor: "#ffffff",
+            display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
-            padding: 4,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: { xs: 3, md: 6 },
             position: "relative",
+            overflow: "auto",
+            maxHeight: "100%",
           }}
         >
-          {/* Overlay for better text readability */}
+          {/* Logo - Top Left */}
           <Box
             sx={{
               position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background:
-                "linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%)",
-              zIndex: 1,
-            }}
-          />
-
-          {/* Top Logo */}
-          <Box
-            sx={{
+              top: { xs: 24, md: 40 },
+              left: { xs: 24, md: 40 },
               display: "flex",
               alignItems: "center",
-              zIndex: 2,
-              position: "relative",
+              gap: 1,
             }}
           >
             <Box
@@ -418,7 +483,7 @@ const LoginScreen = () => {
             <Typography
               variant="h4"
               sx={{
-                color: "white",
+                color: "#1a1a1a",
                 fontWeight: 700,
                 fontSize: "28px",
               }}
@@ -441,11 +506,11 @@ const LoginScreen = () => {
             }}
           >
             {/* Left side - Text */}
-            <Box sx={{ flex: "0 0 50%", pr: 4 }}>
+            <Box sx={{ flex: "0 0 100%", pr: 4 }}>
               <Typography
-                variant="h2"
+                variant="h4"
                 sx={{
-                  color: "white",
+                  color: "#ccc",
                   fontWeight: 700,
                   fontSize: "48px",
                   lineHeight: 1.2,
@@ -460,9 +525,9 @@ const LoginScreen = () => {
               </Typography>
 
               <Typography
-                variant="h5"
+                variant="h6"
                 sx={{
-                  color: "white",
+                  color: "#ddd",
                   fontWeight: 400,
                   fontSize: "24px",
                   opacity: 0.9,
@@ -471,27 +536,6 @@ const LoginScreen = () => {
               >
                 Your trusted support partner for all your technical needs
               </Typography>
-            </Box>
-            <Box
-              sx={{
-                flex: "0 0 40%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                position: "relative",
-              }}
-            >
-              <Box
-                component="img"
-                src={imageBackground}
-                alt="Ajaxter"
-                sx={{
-                  width: "100%",
-                  maxWidth: 500,
-                  height: "auto",
-                  objectFit: "contain",
-                }}
-              />
             </Box>
           </Box>
 
@@ -508,72 +552,22 @@ const LoginScreen = () => {
               margin: "0 -16px -16px -16px",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Box
-                component="img"
-                src={imagePadLock}
-                alt="Security Lock"
-                sx={{
-                  width: 32,
-                  height: 32,
-                  objectFit: "contain",
-                }}
-              />
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "#1877f2",
-                    fontWeight: 700,
-                    fontSize: "16px",
-                    mb: 0.5,
-                  }}
-                >
-                  High security
-                </Typography>
-                <Divider sx={{ mb: 1, width: "80%" }} />
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}
-                >
-                  All content of the Ajaxter are TLS encrypted.
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#65676b", fontSize: "12px", lineHeight: 1.4 }}
-                >
-                  All protocols are available encrypted.
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography
-                sx={{
-                  color: "#65676b",
-                  fontSize: "12px",
-                  fontWeight: 400,
-                }}
-              >
-                © 2025-{new Date().getFullYear()} | All rights reserved
-              </Typography>
-            </Box>
           </Box>
         </Box>
 
         <Box
           sx={{
-            flex: "0 0 33.333333%",
+            flex: "0 0 65%",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "flex-start",
             minHeight: "100vh",
+            paddingLeft: { xs: 2, md: 6 },
           }}
         >
           <Box
             sx={{
-              width: "100%",
-              maxWidth: 400,
+              width: "60%",
               padding: 4,
             }}
           >
@@ -644,27 +638,22 @@ const LoginScreen = () => {
                 </Box>
 
                 <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                  <Button
-                    type="button"
-                    variant="outlined"
+                  <IconButton
                     onClick={() => setIsForgot(false)}
                     sx={{
-                      flex: 1,
-                      py: 1.5,
-                      borderRadius: 2,
-                      textTransform: "none",
-                      fontSize: "16px",
-                      fontWeight: 600,
-                      borderColor: "#dadde1",
-                      color: "#1a1a1a",
+                      color: "#1877f2",
+                      padding: "8px",
+                      border: "1px solid #e0e0e0",
+                      backgroundColor: "#ffffff",
+                      borderRadius: "8px",
                       "&:hover": {
+                        backgroundColor: "rgba(24, 119, 242, 0.08)",
                         borderColor: "#1877f2",
-                        backgroundColor: "rgba(24, 119, 242, 0.05)",
                       },
                     }}
                   >
-                    Cancel
-                  </Button>
+                    <ArrowBackIcon sx={{ fontSize: 24 }} />
+                  </IconButton>
                   <Button
                     type="submit"
                     variant="contained"
@@ -690,8 +679,156 @@ const LoginScreen = () => {
                   </Button>
                 </Box>
               </Box>
+            ) : !showLoginForm ? (
+              // Domain Entry Step
+              <Box>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
+                >
+                  Secure Login to Your Account
+                  <Typography variant="body2" sx={{ color: "#65676b", mb: 3 }}>Please enter your Ajaxter domain name and we’ll help you out!
+
+                  </Typography>
+                </Typography>
+
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  placeholder="company name"
+                  value={companyName}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    let filteredValue = value.replace(/[^a-zA-Z0-9]/g, '');
+                    filteredValue = filteredValue.replace(/-+$/, '');
+                    if (filteredValue.length <= 15) {
+                      setCompanyName(filteredValue);
+                    }
+                  }}
+                  onBlur={() => setCompanyNameTouched(true)}
+                  error={
+                    (companyNameSubmitted || companyNameTouched) && !companyName.trim()
+                      ? true
+                      : false
+                  }
+                  inputProps={{
+                    maxLength: 15,
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <VpnLockIcon
+                          sx={{
+                            color: (companyNameSubmitted || companyNameTouched) && !companyName.trim()
+                              ? "#d32f2f"
+                              : "#1877f2"
+                          }}
+                        />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end" sx={{ margin: 0, height: "100%" }}>
+                        <Box
+                          sx={{
+                            backgroundColor: "#f5f5f5",
+                            padding: "0 14px",
+                            minHeight: "56px",
+                            marginLeft: "12px",
+                            marginRight: "-1px",
+                            borderLeft: "1px solid #e0e0e0",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxSizing: "border-box",
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              color: "#666",
+                              fontWeight: 500,
+                              fontSize: "16px",
+                              whiteSpace: "nowrap",
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            {getDynamicDomain()}
+                          </Typography>
+                        </Box>
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    mb: 3,
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      fontSize: "16px",
+                      paddingRight: "0 !important",
+                      overflow: "hidden",
+                      "& fieldset": {
+                        borderColor: "#dadde1",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#1877f2",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#1877f2",
+                      },
+                      "&.Mui-error fieldset": {
+                        borderColor: "#d32f2f",
+                      },
+                      "&.Mui-error:hover fieldset": {
+                        borderColor: "#d32f2f",
+                      },
+                      "&.Mui-error.Mui-focused fieldset": {
+                        borderColor: "#d32f2f",
+                      },
+                    },
+                    "& .MuiOutlinedInput-input": {
+                      paddingRight: "12px !important",
+                    },
+                    "& .MuiInputAdornment-root": {
+                      height: "100%",
+                      maxHeight: "none",
+                    },
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      handleDomainNext();
+                    }
+                  }}
+                />
+
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleDomainNext}
+                  disabled={!companyName.trim() || companyName.trim().length < 3 || companyName.trim().length > 15}
+                  endIcon={<ArrowForwardIcon />}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    backgroundColor: "#1877f2",
+                    "&:hover": {
+                      backgroundColor: "#166fe5",
+                    },
+                    "&:disabled": {
+                      backgroundColor: "rgba(0, 0, 0, 0.12)",
+                      color: "rgba(0, 0, 0, 0.26)",
+                    },
+                  }}
+                >
+                  Next
+                </Button>
+              </Box>
             ) : (
-              <Box component="form" onSubmit={handleFormSubmit} noValidate>
+              // Login Form StepePlease enter your LiveAgent domain name and we’ll help you out!
+
+
+              <Box component="form" onSubmit={handleFormSubmit} noValidate sx={{ width: "100%" }}>
                 {/* URL Input - Hidden on mobile */}
                 <TextField
                   label="Change Url"
@@ -710,7 +847,7 @@ const LoginScreen = () => {
                   variant="h5"
                   sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
                 >
-                  Log in to Ajaxter
+                  Login to Access Your Account
                 </Typography>
 
                 <TextField
@@ -868,37 +1005,57 @@ const LoginScreen = () => {
                   sx={{ mb: 2, alignItems: "flex-start" }}
                 />
 
-                <Button
-                  variant="contained"
-                  disabled={!isFormValid || isLoading}
-                  sx={{
-                    width: "100%",
-                    py: 1.5,
-                    mb: 2,
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    backgroundColor: "#1877f2",
-                    "&:hover": {
-                      backgroundColor: "#166fe5",
-                    },
-                    "&:disabled": {
-                      backgroundColor: "rgba(0, 0, 0, 0.12)",
-                      color: "rgba(0, 0, 0, 0.26)",
-                    },
-                  }}
-                  type="submit"
-                  onClick={handleSubmit(onSubmit)}
-                >
-                  {isLoading ? (
-                    <CircularProgress size={20} sx={{ color: "white" }} />
-                  ) : (
-                    "Log in"
-                  )}
-                </Button>
+                {/* Back Button and Login Button in Same Line */}
+                <Box sx={{ mb: 2, display: "flex", gap: 2, alignItems: "center" }}>
+                  <IconButton
+                    onClick={handleGoBack}
+                    sx={{
+                      color: "#1877f2",
+                      padding: "8px",
+                      border: "1px solid #e0e0e0",
+                      backgroundColor: "#ffffff",
+                      borderRadius: "8px",
+                      flexShrink: 0,
+                      "&:hover": {
+                        backgroundColor: "rgba(24, 119, 242, 0.08)",
+                        borderColor: "#1877f2",
+                      },
+                    }}
+                  >
+                    <ArrowBackIcon sx={{ fontSize: 24 }} />
+                  </IconButton>
 
-                <Box sx={{ textAlign: "center", mb: 2 }}>
+                  <Button
+                    variant="contained"
+                    disabled={!isFormValid || isLoading}
+                    sx={{
+                      flex: 1,
+                      py: 1.5,
+                      borderRadius: 2,
+                      textTransform: "none",
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      backgroundColor: "#1877f2",
+                      "&:hover": {
+                        backgroundColor: "#166fe5",
+                      },
+                      "&:disabled": {
+                        backgroundColor: "rgba(0, 0, 0, 0.12)",
+                        color: "rgba(0, 0, 0, 0.26)",
+                      },
+                    }}
+                    type="submit"
+                    onClick={handleSubmit(onSubmit)}
+                  >
+                    {isLoading ? (
+                      <CircularProgress size={20} sx={{ color: "white" }} />
+                    ) : (
+                      "Log in"
+                    )}
+                  </Button>
+                </Box>
+
+                <Box sx={{ textAlign: "left", mb: 2, display: "flex", gap: 2, justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap" }}>
                   <Link
                     component="button"
                     underline="hover"
@@ -909,43 +1066,23 @@ const LoginScreen = () => {
                     }}
                     onClick={() => setIsForgot(true)}
                   >
-                    Forgotten password?
+                    Forgot Username?
+                  </Link>
+                  <Divider orientation="vertical" flexItem sx={{ height: 20, borderColor: "#dadde1", borderRightWidth: 2 }} />
+                  <Link
+                    component="button"
+                    underline="hover"
+                    sx={{
+                      color: "#1877f2",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                    }}
+                    onClick={() => setIsForgot(true)}
+                  >
+                    Forgot/Reset Password?
                   </Link>
                 </Box>
 
-                <Divider sx={{ my: 3 }}>
-                  <Typography variant="body2" sx={{ color: "#65676b", px: 2 }}>
-                    or
-                  </Typography>
-                </Divider>
-
-                <Button
-                  variant="outlined"
-                  sx={{
-                    width: "100%",
-                    py: 1.5,
-                    mb: 3,
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    borderColor: "#dadde1",
-                    color: "#1a1a1a",
-                    "&:hover": {
-                      borderColor: "#1877f2",
-                      backgroundColor: "rgba(24, 119, 242, 0.05)",
-                    },
-                  }}
-                  onClick={() => {
-                    const baseUrl =
-                      process.env.REACT_APP_FRONTEND_URL ||
-                      window.location.origin;
-                    window.location.href = `${baseUrl}/ticket/support`;
-                  }}
-                >
-                  <SupportAgentIcon sx={{ mr: 1, fontSize: 20 }} />
-                  Login as Customer
-                </Button>
               </Box>
             )}
           </Box>
