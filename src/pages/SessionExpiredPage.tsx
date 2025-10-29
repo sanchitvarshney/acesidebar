@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     Box,
     Typography,
@@ -6,21 +6,51 @@ import {
     Container,
     Paper,
     Alert,
+    CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { WarningAmber as WarningAmberIcon } from "@mui/icons-material";
+import { sessionManager } from "../utils/SessionManager";
 
 const SessionExpiredPage: React.FC = () => {
     const navigate = useNavigate();
+    const [isValidating, setIsValidating] = useState(true);
 
+    // Prevent direct access to session expired page
+    useEffect(() => {
+        const currentSession = sessionManager.getCurrentSession();
+        const isSessionValid = sessionManager.isSessionValid();
+        
+        if (!currentSession || isSessionValid) {
+            navigate("/login", { replace: true });
+            return;
+        }
+
+
+        setIsValidating(false);
+    }, [navigate]);
+
+    // Show loading while validating access
+    if (isValidating) {
+        return (
+            <Box
+                sx={{
+                    minHeight: "100vh",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#f5f5f5",
+                }}
+            >
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
     const handleGoToLogin = () => {
-        // Clear any existing session data
         sessionStorage.clear();
         localStorage.removeItem("userToken");
         localStorage.removeItem("userData");
         localStorage.removeItem("baseUrl");
-
-        // Navigate to login page
         navigate("/login");
     };
 
