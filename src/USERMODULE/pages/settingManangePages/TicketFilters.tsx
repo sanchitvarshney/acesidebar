@@ -322,6 +322,9 @@ const TicketFilters: React.FC = () => {
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
+            sx={{
+              fontWeight: 600
+            }}
             onClick={() => setAddFilterDrawerOpen(true)}
           >
             Add New Filter
@@ -329,6 +332,9 @@ const TicketFilters: React.FC = () => {
 
           <Button
             variant="outlined"
+            sx={{
+              fontWeight: 600
+            }}
             startIcon={<SettingsIcon />}
             endIcon={<ArrowDownwardIcon sx={{ fontSize: 16 }} />}
             onClick={handleMoreClick}

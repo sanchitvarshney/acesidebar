@@ -18,40 +18,36 @@ const SettingsMenu = ({
           <div key={section.id} className="mb-4">
             {/* Main Section */}
             <div
-              className={`flex items-start gap-4 mb-2 cursor-pointer p-4 rounded-lg transition-all duration-300 group relative
-                ${
-                  activeId === section.id
-                    ? "bg-blue-50 border-l-4 border-blue-500 shadow-sm"
-                    : "hover:bg-gray-50 hover:shadow-sm hover:scale-[1.02] border-l-4 border-transparent"
+              className={`flex items-start gap-4 mb-2 cursor-pointer p-4 transition-all duration-300 group relative
+    ${activeId === section.id
+                  ? "bg-blue-50 border-l-4 border-blue-500 shadow-sm border-[1px]"
+                  : "hover:bg-gray-50 hover:border-blue-500 hover:border-[1px] hover:shadow-sm hover:scale-[1.02] border-l-4 border-transparent"
                 }`}
               onClick={() => onSelect(section.id)}
             >
-              <div className={`transition-all duration-300 ${
-                activeId === section.id 
-                  ? "scale-110" 
+
+              <div className={`transition-all duration-300 ${activeId === section.id
+                  ? "scale-110"
                   : "group-hover:scale-110"
-              }`}>
-                {section.icon({ 
-                  className: `${section.iconClass} transition-colors duration-300 ${
-                    activeId === section.id 
-                      ? "text-blue-600" 
+                }`}>
+                {section.icon({
+                  className: `${section.iconClass} transition-colors duration-300 ${activeId === section.id
+                      ? "text-blue-600"
                       : "group-hover:text-blue-500"
-                  }` 
+                    }`
                 })}
               </div>
               <div className="flex-1">
-                <div className={`font-semibold text-base mb-1 transition-colors duration-300 ${
-                  activeId === section.id 
-                    ? "text-blue-800" 
+                <div className={`font-semibold text-base mb-1 transition-colors duration-300 ${activeId === section.id
+                    ? "text-blue-800"
                     : "text-gray-800 group-hover:text-gray-900"
-                }`}>
+                  }`}>
                   {section.title}
                 </div>
-                <div className={`text-sm leading-tight transition-colors duration-300 ${
-                  activeId === section.id 
-                    ? "text-blue-600" 
+                <div className={`text-[12px] leading-tight transition-colors duration-300 ${activeId === section.id
+                    ? "text-blue-600"
                     : "text-gray-500 group-hover:text-gray-600"
-                }`}>
+                  }`}>
                   {section.description}
                 </div>
               </div>
