@@ -25,6 +25,7 @@ import { useAuth } from "../../contextApi/AuthContext";
 import { setStartTime } from "../../reduxStore/Slices/setUpSlices";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LeftMenu from "../../USERMODULE/pages/TicketManagement/LeftMenu";
+import GlobalBackButtonPrevention from "../GlobalBackButtonPrevention";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) =>
@@ -122,6 +123,7 @@ const MainLayout = () => {
 
   return (
     <Box sx={{ display: "flex", overflow: "hidden" }}>
+      <GlobalBackButtonPrevention />
       <CssBaseline />
       <TopBar open={isOpen} handleDrawerToggle={handleDrawerToggle} />
 

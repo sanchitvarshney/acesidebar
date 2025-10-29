@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../../assets/image/ajaxter-logo.webp";
 import { decrypt } from "../../utils/encryption";
 import { sessionManager } from "../../utils/SessionManager";
+import GlobalBackButtonPrevention from "../GlobalBackButtonPrevention";
 
 interface ProtectedProps {
   children: ReactNode;
@@ -53,7 +54,12 @@ const Protected: React.FC<ProtectedProps> = ({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <GlobalBackButtonPrevention />
+      {children}
+    </>
+  );
 };
 
 export default Protected;

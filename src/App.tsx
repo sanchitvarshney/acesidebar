@@ -17,9 +17,6 @@ import theme from "./theme";
 import "./font.css"
 import { TabsProvider } from "./contextApi/TabsContext";
 import ErrorBoundary from "./components/ErrorBoundary";
-
-
-
 // Placeholder components for routes
 
 function App() {
@@ -50,5 +47,6 @@ function App() {
     </ErrorBoundary>
   );
 }
+
 
 export default App;
