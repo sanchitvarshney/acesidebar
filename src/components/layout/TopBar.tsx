@@ -16,6 +16,7 @@ import {
   Search as SearchIcon,
   Notifications as NotificationsIcon,
   HourglassEmpty as HourglassEmptyIcon,
+  ExitToApp as ExitToAppIcon,
 } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
 import AccountPopup from "../popup/AccountPopup";
@@ -42,7 +43,7 @@ const statusOptions = [
 ];
 
 const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { currentStatus } = useStatus();
   const userData: any = user;
   const theme = useTheme();
@@ -263,6 +264,15 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
                   : "T"}
               </Avatar>
             )}
+          </IconButton>
+
+          <IconButton
+            size="large"
+            onClick={signOut}
+            aria-label="logout"
+            sx={{ color: "#3f4346", mr: 2 }}
+          >
+            <ExitToAppIcon />
           </IconButton>
         </Box>
       </Toolbar>

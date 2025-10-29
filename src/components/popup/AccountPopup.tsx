@@ -308,6 +308,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
           <Button
             variant="outlined"
             sx={{
+              fontWeight: 600,
               textTransform: "none",
               borderRadius: 2,
               px: 3,
@@ -357,6 +358,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
             sx={{
               borderColor: "#dadce0",
               color: "#d93025",
+              fontWeight: 600,
               textTransform: "none",
               borderRadius: 2,
               py: 1.5,
@@ -366,7 +368,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
               },
             }}
           >
-            Sign out
+            Log Out
           </Button>
         </Box>
 

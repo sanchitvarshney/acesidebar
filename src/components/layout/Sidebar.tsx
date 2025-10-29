@@ -5,11 +5,9 @@ import {
   SignalCellularAlt as SignalIcon,
   People as PeopleIcon,
   Settings as SettingsIcon,
-  ExitToApp as ExitToAppIcon,
   Forum as ForumIcon,
 } from "@mui/icons-material";
 import AddTaskIcon from "@mui/icons-material/AddTask";
-import { useAuth } from "../../contextApi/AuthContext";
 import { useHelpCenter } from "../../contextApi/HelpCenterContext";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
 import setupWizardIcon from "../../assets/image/setup-wizard.svg";
@@ -71,7 +69,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
-  const { signOut } = useAuth();
   const { toggleHelpCenter } = useHelpCenter();
   const { isOpen, expended } = useSelector((state: RootState) => state.shotcut);
   const dispatch = useDispatch();
@@ -170,14 +167,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
               style={{ width: 24, height: 24 }}
             />
           </IconButton>
-          <IconButton
-            size="medium"
-            onClick={signOut}
-            sx={{ background: "#36577a" }}
-          >
-            <ExitToAppIcon fontSize="medium" sx={{ color: "#fff" }} />
-          </IconButton>
-
         </Box>
       </Box>
     </StyledDrawer>
