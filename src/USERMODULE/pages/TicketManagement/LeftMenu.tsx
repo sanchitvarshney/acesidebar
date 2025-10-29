@@ -39,99 +39,116 @@ const LeftMenu: React.FC = () => {
     <Box
       sx={{
         height: "100%",
-        minHeight:"100vh",
-        position: "relative",
+        minHeight: "calc(100vh - 70px)",
+
         overflow: "visible",
         width: gettingStartedExpanded ? 240 : 55,
         transition: "width 0.3s ease",
         backgroundColor: "#e8f0fe",
+        marginTop: 8,
+        display: "flex",
+            position: "relative",
       }}
     >
-      
-      <Box
-        sx={{
-          opacity: gettingStartedExpanded ? 0 : 1,
-          visibility: gettingStartedExpanded ? "hidden" : "visible",
-          transition: "opacity 0.2s ease, visibility 0.2s ease",
-          width: 55,
-          minWidth: 55,
-          backgroundColor: "#e8f0fe",
-          height: "100%",
-        }}
-      >
-        <IconButton
-          sx={{
-            borderRadius: 0,
-            borderTopRightRadius: 10,
-            borderBottomRightRadius: 10,
-            position: "absolute",
-            bottom: "calc(100% - 700px)",
-            right: 10,
-          }}
-          onClick={() => setGettingStartedExpanded(true)}
-        >
-          <ArrowForwardIosIcon />
-        </IconButton>
-      </Box>
-
       {/* Expanded Collapse (Replaces sidebar) */}
-      <Collapse
-        in={gettingStartedExpanded}
-        orientation="horizontal"
-        timeout={400}
-        unmountOnExit={false}
-        sx={{
-          display: "flex",
-          mt: 10,
-          backgroundColor: "#e8f0fe",
-          height: "100%",
-        
-        }}
-      >
-        <Box
+      <div>
+        <Collapse
+          in={gettingStartedExpanded}
+          orientation="horizontal"
+          timeout={400}
+          unmountOnExit={false}
           sx={{
-            width: 240,
-            p: 2,
-            bgcolor: "#e8f0fe",
+            display: "flex",
+        backgroundColor: "#e8f0fe",
             height: "100%",
+            minHeight: "calc(100vh - 70px)",
           }}
         >
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 1,
+              width: 240,
+              p: 2,
+              // bgcolor: "#ff",
+              height: "100%",
+              display:"flex",
+              justifyContent:"space-between",
+              flexDirection:"column"
+
             }}
           >
-            <Typography variant="subtitle1" fontWeight={600}>
-              Getting Started
-            </Typography>
-
-            <IconButton
-              size="small"
-              onClick={() => setGettingStartedExpanded(false)}
+          <Box>
+              <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 1,
+              }}
             >
-              <ArrowForwardIosIcon sx={{ transform: "rotate(180deg)" }} />
-            </IconButton>
+              <Typography variant="subtitle1" fontWeight={600}>
+                Getting Started
+              </Typography>
+
+           
+            </Box>
+
+            <List dense>
+              {gettingStartedItems.map((item) => (
+                <ListItem
+                  key={item.id}
+                  sx={{
+                    borderRadius: 1,
+                    "&:hover": { bgcolor: "#f0f0f0" },
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.title} />
+                </ListItem>
+              ))}
+            </List>
           </Box>
 
-          <List dense>
-            {gettingStartedItems.map((item) => (
-              <ListItem
-                key={item.id}
-                sx={{
-                  borderRadius: 1,
-                  "&:hover": { bgcolor: "#f0f0f0" },
-                }}
+         <div className="flex justify-end">
+          
+                 <IconButton
+                size="small"
+                onClick={() => setGettingStartedExpanded(false)}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.title} />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Collapse>
+                <ArrowForwardIosIcon sx={{ transform: "rotate(180deg)" }} />
+              </IconButton>
+         </div>
+          
+          </Box>
+        </Collapse>
+      </div>
+      <div>
+        {!gettingStartedExpanded && (
+          <Box
+            sx={{
+              opacity: gettingStartedExpanded ? 0 : 1,
+              transition: "opacity 0.2s ease, visibility 0.2s ease",
+              width: 55,
+              minWidth: 55,
+              justifyItems: "flex-end",
+              height: "100%",
+            }}
+          >
+            <IconButton
+              sx={{
+                borderRadius: 0,
+                borderTopRightRadius: 10,
+                borderBottomRightRadius: 10,
+                position: "absolute",
+                bottom: "calc(100% - 715px)",
+                right: 10,
+              }}
+              onClick={() => setGettingStartedExpanded(true)}
+            >
+              <ArrowForwardIosIcon />
+            </IconButton>
+          </Box>
+        )}
+      </div>
     </Box>
   );
 };

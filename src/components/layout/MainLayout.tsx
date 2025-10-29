@@ -135,7 +135,9 @@ const MainLayout = () => {
       />
 
      
-       {location.pathname === "/tickets" && <LeftMenu />}
+    
+         {location.pathname === "/tickets" && <LeftMenu />}
+
    
 
       <Main
