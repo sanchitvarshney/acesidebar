@@ -8,6 +8,7 @@ import {
   ExitToApp as ExitToAppIcon,
   Forum as ForumIcon,
 } from "@mui/icons-material";
+import AddTaskIcon from "@mui/icons-material/AddTask";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useHelpCenter } from "../../contextApi/HelpCenterContext";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
@@ -43,6 +44,7 @@ const iconColors = [
   "#ff9800", // orange
   "#e74c3c", // red
   "#9c27b0", // purple
+  "#00bcd4", // cyan
 ];
 
 const ColoredShortcutButton = styled(IconButton)<{ bgcolor: string }>(
@@ -127,6 +129,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
             onClick={() => handleNavigation("/chat")}
           >
             <ForumIcon fontSize="inherit" />
+          </ColoredShortcutButton>
+          <ColoredShortcutButton
+            bgcolor={iconColors[5]}
+            onClick={() => handleNavigation("/tasks")}
+          >
+            <AddTaskIcon fontSize="inherit" />
           </ColoredShortcutButton>
           <ColoredShortcutButton
             bgcolor={iconColors[2]}
