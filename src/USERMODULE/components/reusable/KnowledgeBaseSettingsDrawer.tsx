@@ -15,6 +15,7 @@ import {
     Info as InfoIcon,
 } from "@mui/icons-material";
 import CustomAlert from "../../../components/reusable/CustomAlert";
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 interface KnowledgeBaseSettingsDrawerProps {
     open: boolean;
@@ -69,9 +70,12 @@ const KnowledgeBaseSettingsDrawer: React.FC<KnowledgeBaseSettingsDrawerProps> = 
                         backgroundColor: "#f8f9fa",
                     }}
                 >
+                    <div className="flex items-center gap-2">
+                        <MenuBookIcon />
                     <Typography variant="h6" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
                         Knowledge Base Settings
                     </Typography>
+                    </div>
                     <IconButton onClick={handleClose} size="small">
                         <CloseIcon />
                     </IconButton>

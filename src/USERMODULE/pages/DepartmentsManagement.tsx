@@ -27,7 +27,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
+import ControlPointDuplicateIcon from "@mui/icons-material/ControlPointDuplicate";
 import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -38,7 +38,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Close } from "@mui/icons-material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useLazyGetDepartmentListQuery } from "../../services/agentServices";
-
 
 const DepartmentsManagement = () => {
   const [isAdd, setIsAdd] = useState(false);
@@ -321,7 +320,7 @@ const DepartmentsManagement = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
@@ -329,6 +328,9 @@ const DepartmentsManagement = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>

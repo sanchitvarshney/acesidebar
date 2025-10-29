@@ -96,7 +96,7 @@ const EmailServerPage: React.FC = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
@@ -104,6 +104,9 @@ const EmailServerPage: React.FC = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+                 p: 2,
+               borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -118,16 +121,7 @@ const EmailServerPage: React.FC = () => {
           </Box>
 
           <Box sx={{ display: "flex", gap: 2 }}>
-            <IconButton
-              size="small"
-              color="primary"
-              onClick={() => window.location.reload()}
-              sx={{ border: "1px solid #e0e0e0" }}
-              aria-label="Refresh"
-              title="Refresh"
-            >
-              <RefreshIcon fontSize="small" />
-            </IconButton>
+          
             <Button
               variant="outlined"
               color="primary"

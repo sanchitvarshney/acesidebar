@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import { useStatus } from "../../contextApi/StatusContext";
 import { useHelpCenter } from "../../contextApi/HelpCenterContext";
@@ -103,6 +103,7 @@ const MainLayout = () => {
       skip: !user?.uID,
       refetchOnMountOrArgChange: true,
     });
+  const location = useLocation();
 
   const handleDrawerToggle = () => {
     dispatch(setToggle(!isOpen));
@@ -133,11 +134,8 @@ const MainLayout = () => {
         onClose={closeHelpCenter}
       />
 
-      
-   
      
-        <LeftMenu />
-     
+       {location.pathname === "/tickets" && <LeftMenu />}
    
 
       <Main

@@ -319,14 +319,20 @@ const TicketFieldsPage: React.FC = () => {
         // Persist order change for the dragged field (1-based order)
         triggerChangeOrder({ field: draggedItem, order: newIndex + 1 })
           .then((res: any) => {
-            const isSuccess = res?.data?.type === "success" || res?.data?.status === "success" || res?.data?.success === true;
+            const isSuccess =
+              res?.data?.type === "success" ||
+              res?.data?.status === "success" ||
+              res?.data?.success === true;
             if (!isSuccess) {
               showToast(res?.data?.message || "Reorder failed", "error");
               return;
             }
             // Update UI only on success
             setFields(newFields);
-            showToast(res?.data?.message || "Reordered successfully", "success");
+            showToast(
+              res?.data?.message || "Reordered successfully",
+              "success"
+            );
           })
           .catch((err: any) => {
             showToast(err?.data?.message || "An error occurred", "error");
@@ -428,8 +434,21 @@ const TicketFieldsPage: React.FC = () => {
   });
 
   return (
-    <Box sx={{ bgcolor: "grey.50", height: "calc(100vh - 96px)", overflow:"hidden" }}>
-      <Box sx={{ mb: 2 }}>
+    <Box
+      sx={{
+        bgcolor: "grey.50",
+        height: "calc(100vh - 96px)",
+        overflow: "hidden",
+      }}
+    >
+      <Box
+        sx={{
+          mb: 1,
+          p: 2,
+          borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa",
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <IconButton onClick={() => navigate("/settings/tickets-workflows")}>
             <ArrowBackIcon />
@@ -438,10 +457,6 @@ const TicketFieldsPage: React.FC = () => {
             Ticket Fields
           </Typography>
         </Box>
-        <Typography variant="body1" color="text.secondary">
-          Customize your ticket type to categorize, prioritize, and route
-          tickets efficiently.
-        </Typography>
       </Box>
 
       <Box
@@ -458,7 +473,7 @@ const TicketFieldsPage: React.FC = () => {
             maxHeight: "calc(100vh - 178px)",
             overflowY: "auto",
           }}
-            className="custom-scrollbar"
+          className="custom-scrollbar"
         >
           <Card>
             <CardContent>
@@ -550,7 +565,7 @@ const TicketFieldsPage: React.FC = () => {
             {/* Fields List */}
             <Box
               sx={{ p: 2, maxHeight: "calc(100vh - 248px)", overflowY: "auto" }}
-                  className="custom-scrollbar"
+              className="custom-scrollbar"
             >
               <Box
                 onDragOver={(e) => {

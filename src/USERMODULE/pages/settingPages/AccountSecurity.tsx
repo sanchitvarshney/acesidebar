@@ -166,13 +166,15 @@ const AccountSecurity = () => {
       <Box
         sx={{
           flex: 1,
-          p: 2,
+          p: 0,
           display: "flex",
           flexDirection: "column",
           gap: 2,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2,     p: 2,
+          borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa", }}>
           <IconButton onClick={() => navigate("/settings/system-account")}>
             <ArrowBackIcon />
           </IconButton>
@@ -183,9 +185,10 @@ const AccountSecurity = () => {
 
         <Box
           sx={{
-            maxHeight: "calc(100vh - 180px)",
+            maxHeight: "calc(100vh - 195px)",
 
             overflowY: "auto",
+            px:2
           }}
               className="custom-scrollbar"
         >

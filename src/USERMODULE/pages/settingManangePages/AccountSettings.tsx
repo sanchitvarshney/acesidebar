@@ -19,8 +19,18 @@ import { useNavigate } from "react-router-dom";
 const AccountSettings = () => {
   const navigate = useNavigate();
   return (
-    <Box width="100%" height="calc(100vh - 96px)" p={2}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+    <Box width="100%" height="calc(100vh - 110px)" p={0}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          mb: 1,
+          p: 2,
+          borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa",
+        }}
+      >
         <IconButton onClick={() => navigate("/settings/system-account")}>
           <ArrowBackIcon />
         </IconButton>
@@ -36,8 +46,9 @@ const AccountSettings = () => {
           gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))" },
           alignItems: "stretch",
           justifyItems: "stretch",
-          maxHeight: "calc(100vh - 170px)",
+          maxHeight: "calc(100vh - 200px)",
           overflow: "auto",
+          p: 2,
         }}
         className="custom-scrollbar"
       >

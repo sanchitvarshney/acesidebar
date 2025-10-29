@@ -25,11 +25,12 @@ import {
   TableRow,
   LinearProgress,
   CircularProgress,
+  TablePagination,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
-import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
+import ControlPointDuplicateIcon from "@mui/icons-material/ControlPointDuplicate";
 import WorkIcon from "@mui/icons-material/Work";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -459,7 +460,7 @@ const DepartmentsManagement = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
@@ -467,6 +468,9 @@ const DepartmentsManagement = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -741,8 +745,8 @@ const DepartmentsManagement = () => {
         <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
           <TableContainer
             sx={{
-              height: "calc(100vh - 280px)",
-              minHeight: "400px",
+              height: "calc(100vh - 365px)",
+              minHeight: "300px",
             }}
             className="custom-scrollbar"
           >
@@ -911,6 +915,16 @@ const DepartmentsManagement = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            sx={{ borderTop: "1px solid #e0e0e0" }}
+            component="div"
+            count={1}
+            page={1}
+            onPageChange={() => {}}
+            rowsPerPage={1}
+            onRowsPerPageChange={() => {}}
+            rowsPerPageOptions={[10, 20, 50]}
+          />
         </Card>
       </Box>
 

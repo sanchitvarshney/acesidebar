@@ -19,7 +19,7 @@ import {
   CircularProgress,
   TablePagination,
 } from "@mui/material";
-import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
+import ControlPointDuplicateIcon from "@mui/icons-material/ControlPointDuplicate";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -149,6 +149,9 @@ const HelpTopics = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -211,8 +214,8 @@ const HelpTopics = () => {
         <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
           <TableContainer
             sx={{
-              height: "calc(100vh - 340px)",
-              minHeight: "400px",
+              height: "calc(100vh - 380px)",
+              minHeight: "300px",
             }}
             className="custom-scrollbar"
           >

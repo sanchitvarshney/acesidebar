@@ -265,15 +265,6 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
               </Avatar>
             )}
           </IconButton>
-
-          <IconButton
-            size="large"
-            onClick={signOut}
-            aria-label="logout"
-            sx={{ color: "#3f4346", mr: 2 }}
-          >
-            <ExitToAppIcon />
-          </IconButton>
         </Box>
       </Toolbar>
 

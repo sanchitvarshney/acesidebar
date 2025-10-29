@@ -311,17 +311,19 @@ const SessionManagementPage: React.FC = () => {
                               active
                             </Typography>
                           </div>
-                          <Button
+                         {
+                          !isLoadingDeleteSession && (
+                             <Button
                             variant="contained"
                             size="small"
                             onClick={handleConfirmDeleteAll}
                           >
-                            {isLoadingDeleteSession ? (
-                              <CircularProgress size={20} />
-                            ) : (
-                            "End All Sessions"
-                           )} 
+                         
+                            End All Sessions
+                         
                           </Button>
+                          )
+                         }
                         </div>
                       </div>
 

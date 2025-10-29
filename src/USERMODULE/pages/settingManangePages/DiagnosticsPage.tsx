@@ -160,11 +160,13 @@ const DiagnosticsPage = () => {
             alignItems: "center",
             justifyContent: "space-between",
 
+            p: 2,
             borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
             mb: 1,
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, p: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, }}>
             <IconButton onClick={() => navigate("/settings/emails")}>
               <ArrowBackIcon />
             </IconButton>

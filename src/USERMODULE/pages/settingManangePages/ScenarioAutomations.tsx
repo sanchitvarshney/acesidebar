@@ -1,4 +1,4 @@
-import emptyImg from "../../../assets/image/overview-empty-state.svg"
+import emptyImg from "../../../assets/image/overview-empty-state.svg";
 import {
   Box,
   IconButton,
@@ -16,7 +16,6 @@ import { useNavigate } from "react-router-dom";
 const ScenarioAutomations = () => {
   const navigate = useNavigate();
 
-
   return (
     <Box
       sx={{
@@ -29,7 +28,7 @@ const ScenarioAutomations = () => {
       {/* Left Content */}
       <Box
         sx={{
-          p: 1,
+          p: 0,
           display: "flex",
           flexDirection: "column",
           gap: 2,
@@ -45,6 +44,9 @@ const ScenarioAutomations = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -55,15 +57,27 @@ const ScenarioAutomations = () => {
               Scenario Automations
             </Typography>
           </Box>
-          <Button variant="contained" onClick={() => navigate("/scenario-automations/new")}>New Scenario</Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/scenario-automations/new")}
+          >
+            New Scenario
+          </Button>
         </Box>
 
         <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 2 }}>
-
-           <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-             <img src={emptyImg} alt="scenario" className="w-40" />
-            <Typography>You haven’t created any scenario automations. <span className="text-blue-600 cursor-pointer hover:underline" onClick={() => navigate("/scenario-automations/new")}>Create New</span></Typography>
-           </div>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+            <img src={emptyImg} alt="scenario" className="w-40" />
+            <Typography>
+              You haven’t created any scenario automations.{" "}
+              <span
+                className="text-blue-600 cursor-pointer hover:underline"
+                onClick={() => navigate("/scenario-automations/new")}
+              >
+                Create New
+              </span>
+            </Typography>
+          </div>
         </Box>
       </Box>
 

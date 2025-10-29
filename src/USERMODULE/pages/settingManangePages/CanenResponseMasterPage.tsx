@@ -459,6 +459,10 @@ const CanenResponseMasterPage = () => {
         sx={{
           py: 2,
           justifyContent: "space-between",
+                       p: 2,
+               borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa",
+          mb:1,
         }}
       >
         {" "}
@@ -528,7 +532,7 @@ const CanenResponseMasterPage = () => {
 
       <Stack
         direction="row"
-        sx={{ minHeight: "calc(100vh - 170px)", bgcolor: "background.paper" }}
+        sx={{ minHeight: "calc(100vh - 185px)", bgcolor: "background.paper" }}
       >
         {/* Left: Folders */}
         <Paper variant="outlined" square sx={{ width: 340 }}>

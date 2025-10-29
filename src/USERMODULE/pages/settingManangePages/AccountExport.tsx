@@ -157,17 +157,25 @@ const rows = [
 const AccountExport = () => {
   const navigate = useNavigate();
   return (
-    <div className=" h-[calc(100vh-160px)] w-full ">
-               <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb:2 }}>
+    <div className=" h-[calc(100vh-100px)] w-full ">
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          mb: 1,
+          p: 2,
+          borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa",
+        }}
+      >
         <IconButton onClick={() => navigate("/settings/system-account")}>
           <ArrowBackIcon />
         </IconButton>
-       
+
         <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
           Account Export
         </Typography>
-    
-       
       </Box>
       <DataGrid
         rows={rows}

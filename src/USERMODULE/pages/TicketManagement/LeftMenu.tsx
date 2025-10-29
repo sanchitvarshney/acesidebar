@@ -16,8 +16,6 @@ import AddTaskIcon from "@mui/icons-material/AddTask";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const LeftMenu: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
   const [gettingStartedExpanded, setGettingStartedExpanded] = useState(false);
 
   const gettingStartedItems = [
@@ -41,13 +39,15 @@ const LeftMenu: React.FC = () => {
     <Box
       sx={{
         height: "100%",
+        minHeight:"100vh",
         position: "relative",
         overflow: "visible",
         width: gettingStartedExpanded ? 240 : 55,
         transition: "width 0.3s ease",
+        backgroundColor: "#e8f0fe",
       }}
     >
-      {/* Mini Sidebar (Hidden when gettingStartedExpanded) */}
+      
       <Box
         sx={{
           opacity: gettingStartedExpanded ? 0 : 1,
@@ -55,7 +55,7 @@ const LeftMenu: React.FC = () => {
           transition: "opacity 0.2s ease, visibility 0.2s ease",
           width: 55,
           minWidth: 55,
-
+          backgroundColor: "#e8f0fe",
           height: "100%",
         }}
       >
@@ -80,13 +80,19 @@ const LeftMenu: React.FC = () => {
         orientation="horizontal"
         timeout={400}
         unmountOnExit={false}
-         sx={{ display: "flex" , mt:10 }}
+        sx={{
+          display: "flex",
+          mt: 10,
+          backgroundColor: "#e8f0fe",
+          height: "100%",
+        
+        }}
       >
         <Box
           sx={{
             width: 240,
             p: 2,
-            bgcolor: "#fafafa",
+            bgcolor: "#e8f0fe",
             height: "100%",
           }}
         >

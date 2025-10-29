@@ -123,7 +123,7 @@ const Banlist = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
@@ -131,6 +131,9 @@ const Banlist = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+                         p: 2,
+               borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -172,9 +175,10 @@ const Banlist = () => {
             gap: 2,
             alignItems: "center",
             flexWrap: "wrap",
-            p: 2,
+            p: 1,
             bgcolor: "#f8f9fa",
             borderRadius: 2,
+            mx:1
           }}
         >
           <TextField
@@ -193,8 +197,9 @@ const Banlist = () => {
         <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
           <TableContainer
             sx={{
-              height: "calc(100vh - 340px)",
-              minHeight: "400px",
+              height: "calc(100vh - 380px)",
+              minHeight: "300px",
+              px:2
             }}
             className="custom-scrollbar"
           >

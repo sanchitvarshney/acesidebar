@@ -816,7 +816,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
           />
           {/* Main Content: Tasks + Details */}
           <div className="flex flex-1 h-0 min-h-0">
-            {!isAddTask && <LeftMenu />}
+          
 
             {/* LEFT SECTION - Task List & Filters */}
             {viewMode === "list" ? (

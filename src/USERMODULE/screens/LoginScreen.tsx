@@ -1002,7 +1002,7 @@ const LoginScreen = () => {
                       </Link>
                     </Typography>
                   }
-                  sx={{ mb: 2, alignItems: "flex-start" }}
+                  sx={{ mb: 2, display:"flex", justifyContent:"flex-start", alignItems:"center" }}
                 />
 
                 {/* Back Button and Login Button in Same Line */}

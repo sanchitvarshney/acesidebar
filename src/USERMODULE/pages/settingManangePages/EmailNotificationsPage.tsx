@@ -97,7 +97,7 @@ const EmailNotificationsPage = () => {
         transform: "translateX(20px)",
         color: "#fff",
         "& + .MuiSwitch-track": {
-          backgroundColor: "#22c55e", 
+          backgroundColor: "#22c55e",
           opacity: 1,
           border: 0,
         },
@@ -113,7 +113,7 @@ const EmailNotificationsPage = () => {
     },
     "& .MuiSwitch-track": {
       borderRadius: 26 / 2,
-      backgroundColor: "#e4e6eb", 
+      backgroundColor: "#e4e6eb",
       opacity: 1,
       transition: theme.transitions.create(["background-color"], {
         duration: 300,
@@ -167,7 +167,7 @@ const EmailNotificationsPage = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
@@ -175,6 +175,9 @@ const EmailNotificationsPage = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -211,7 +214,7 @@ const EmailNotificationsPage = () => {
               ))}
             </TabList>
           </Box>
-          <div className="w-full max-h-[calc(100vh-240px)]  overflow-y-auto  custom-scrollbar">
+          <div className="w-full max-h-[calc(100vh-280px)]  overflow-y-auto  custom-scrollbar">
             {listSettingsLoading ? (
               <div className="w-full h-80 flex justify-center items-center">
                 <CircularProgress />
@@ -401,7 +404,7 @@ const EmailNotificationsPage = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
-            className="custom-scrollbar"
+        className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Card sx={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>

@@ -17,7 +17,6 @@ import {
   TableRow,
   LinearProgress,
   Divider,
-  Pagination,
   Menu,
   MenuItem,
   FormControlLabel,
@@ -320,11 +319,6 @@ const TeamsManagement = () => {
   const [checkboxValues, setCheckboxValues] = useState<string[]>([]);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 5,
-  });
 
   // Field options for filter - Corporate relevant filters
   const fieldOptions = [
@@ -408,13 +402,6 @@ const TeamsManagement = () => {
       default:
         return "default";
     }
-  };
-
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setPagination((prev) => ({ ...prev, page: value }));
   };
 
   const removeFilter = (filterId: string) => {
@@ -570,7 +557,7 @@ const TeamsManagement = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
@@ -578,6 +565,9 @@ const TeamsManagement = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 1,
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -1030,17 +1020,7 @@ const TeamsManagement = () => {
           </Stack>
         </Paper>
       </Popover>
-      {/* Pagination */}
-      <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-        <Pagination
-          count={pagination.totalPages}
-          page={pagination.page}
-          onChange={handlePageChange}
-          color="primary"
-          size="small"
-        />
-      </Box>
-      {/* Filter Options Menu */}
+
       <Menu
         anchorEl={
           activeFilters.length > 0 && lastChipRef
