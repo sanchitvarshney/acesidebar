@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="230" height="230" id="sad-browser-large" data-supported-dps="230x230">
+  <path fill="#FFF" d="M167 149.8c0 .3-.2.5-.5.5h-104c-.3 0-.5-.2-.5-.5v-70c0-.3.2-.5.5-.5h104c.3 0 .5.2.5.5v70z"/>
+  <path fill="#005E93" d="M166 80.3v68H64v-68h102m1-3H63c-1.1 0-2 .9-2 2v70c0 1.1.9 2 2 2h104c1.1 0 2-.9 2-2v-70c0-1.1-.9-2-2-2z"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" fill="#00A0DC" d="M97 132.3h4v4h-4zM129 132.3h4v4h-4zM101 128.3h4v4h-4zM125 128.3h4v4h-4zM105 124.3h4v4h-4zM109 124.3h4v4h-4zM113 124.3h4v4h-4zM117 124.3h4v4h-4zM121 124.3h4v4h-4z"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" fill="#9BDAF3" d="M64 80.3h102v12H64z"/>
+  <circle fill-rule="evenodd" clip-rule="evenodd" fill="#005E93" cx="70" cy="86.3" r="2"/>
+  <circle fill-rule="evenodd" clip-rule="evenodd" fill="#005E93" cx="77.5" cy="86.3" r="2"/>
+  <circle fill-rule="evenodd" clip-rule="evenodd" fill="#005E93" cx="85" cy="86.3" r="2"/>
+  <path fill="none" stroke="#005E93" stroke-width="3" stroke-miterlimit="10" d="M64 93.8h105"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" fill="#00A0DC" d="M98 108.3h6v6h-6zM126 108.3h6v6h-6z"/>
+</svg>

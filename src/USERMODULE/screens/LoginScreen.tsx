@@ -22,12 +22,13 @@ import { loginSchema } from "../../zodSchema/AuthSchema";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../hooks/useToast";
-import { useLoginMutation } from "../../services/auth";
+import { useLoginMutation, useLazyLoginPrecheckQuery } from "../../services/auth";
 import { decrypt } from "../../utils/encryption";
 import GoogleIcon from "@mui/icons-material/Google";
 import VpnLockIcon from "@mui/icons-material/VpnLock";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ErrorIcon from '@mui/icons-material/Error';
 
 import GoogleRecaptcha, {
   GoogleRecaptchaRef,
@@ -68,20 +69,98 @@ const LoginScreen = () => {
   const forgotRecaptchaRef = useRef<GoogleRecaptchaRef>(null);
   const [baseUrl, setBaseUrl] = useState<any>(null);
   const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
-  const [companyName, setCompanyName] = useState<string>("");
+  const [companyName, setCompanyName] = useState<string>("COM0001");
   const [companyNameTouched, setCompanyNameTouched] = useState<boolean>(false);
   const [companyNameSubmitted, setCompanyNameSubmitted] = useState<boolean>(false);
+  const [triggerLoginPrecheck, { isFetching: isPrecheckLoading }] = useLazyLoginPrecheckQuery();
+  const [precheckError, setPrecheckError] = useState<string>("");
+  const [brandName, setBrandName] = useState<string>("Ajaxter");
+  const [isStep2Loading, setIsStep2Loading] = useState<boolean>(false);
+
+  // Decide which step to show based on current host
+  useEffect(() => {
+    const host = window.location.hostname.split(":")[0];
+    const isTmsHost = host.startsWith("tms.");
+    if (isTmsHost) {
+      setShowLoginForm(false); // show step 1 (domain entry)
+    } else {
+      setShowLoginForm(true); // show step 2 (login) for non-tms hosts (incl. localhost)
+      setIsStep2Loading(true);
+    }
+  }, []);
+
+  // On step 2 (non tms hosts), fetch and set brand name from tenant subdomain; on error redirect to tms host
+  useEffect(() => {
+    const { hostname } = window.location;
+    const host = hostname.split(":")[0];
+    const isTmsHost = host.startsWith("tms.");
+    if (isTmsHost) return;
+
+    // Determine tenant from subdomain
+    const parts = host.split(".");
+    let tenantSub = "";
+    if (host === "localhost") {
+      tenantSub = ""; // no tenant for plain localhost
+    } else if (host.endsWith(".localhost")) {
+      // e.g., tenant.localhost
+      tenantSub = parts.length >= 2 ? parts[0] : "";
+    } else {
+      // e.g., tenant.example.com or a.b.c.example.com
+      tenantSub = parts[0];
+    }
+
+    if (!tenantSub) {
+      // Plain localhost: no tenant precheck, show form immediately
+      setIsStep2Loading(false);
+      return;
+    }
+
+    if (tenantSub) {
+      (async () => {
+        try {
+          const res: any = await triggerLoginPrecheck({ tenant: tenantSub });
+          if (res?.data?.success && res?.data?.data?.name) {
+            setBrandName(res.data.data.name);
+            setIsStep2Loading(false);
+          } else {
+            // Redirect back to tms host on failure
+            const { protocol, port } = window.location;
+            const parts = host.split('.');
+            const isLocalLike = host === "localhost" || host.endsWith(".localhost");
+            const apexDomain = isLocalLike
+              ? "localhost"
+              : (parts.length > 2 ? parts.slice(-2).join('.') : host);
+            const targetHost = isLocalLike
+              ? `tms.${apexDomain}${port ? `:${port}` : ""}`
+              : `tms.${apexDomain}`;
+            window.location.href = `${protocol}//${targetHost}`;
+          }
+        } catch {
+          const { protocol, port } = window.location;
+          const parts = host.split('.');
+          const isLocalLike = host === "localhost" || host.endsWith(".localhost");
+          const apexDomain = isLocalLike
+            ? "localhost"
+            : (parts.length > 2 ? parts.slice(-2).join('.') : host);
+          const targetHost = isLocalLike
+            ? `tms.${apexDomain}${port ? `:${port}` : ""}`
+            : `tms.${apexDomain}`;
+          window.location.href = `${protocol}//${targetHost}`;
+        }
+      })();
+    }
+  }, [triggerLoginPrecheck]);
 
   // Get dynamic domain suffix from current window host
   const getDynamicDomain = () => {
-    const hostname = window.location.hostname;
-    // Remove port if exists (e.g., localhost:3000 -> localhost)
+    const { hostname, port } = window.location;
     const domain = hostname.split(':')[0];
-    // If it's localhost or IP, return as is, otherwise return with dot
-    if (domain === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(domain)) {
-      return `.${domain}`;
+    const endsWithLocalhost = domain === 'localhost' || domain.endsWith('.localhost');
+    if (endsWithLocalhost) {
+      // Always show localhost with port (if any) and no leading dot
+      return port ? `localhost:${port}` : 'localhost';
     }
-    // Extract domain from subdomain (e.g., app.example.com -> .example.com)
+    // Extract apex domain (e.g., app.example.com -> .example.com)
     const parts = domain.split('.');
     if (parts.length > 2) {
       return `.${parts.slice(-2).join('.')}`;
@@ -93,44 +172,66 @@ const LoginScreen = () => {
     setBaseUrl(event.target.value as string);
   };
 
-  const handleDomainNext = () => {
+  const handleDomainNext = async () => {
     setCompanyNameSubmitted(true);
     const trimmedName = companyName.trim();
+    setPrecheckError("");
 
     if (!trimmedName) {
-      showToast("Please enter a company name", "error");
+      setPrecheckError("Please enter a company name");
       return;
     }
 
     // Validate minimum length
     if (trimmedName.length < 3) {
-      showToast("Company name must be at least 3 characters", "error");
+      setPrecheckError("Company name must be at least 3 characters");
       return;
     }
 
     // Validate maximum length
     if (trimmedName.length > 15) {
-      showToast("Company name must be at most 15 characters", "error");
+      setPrecheckError("Company name must be at most 15 characters");
       return;
     }
 
     // Validate company name format: alphanumeric and hyphens only
     const companyPattern = /^[a-zA-Z0-9-]+$/;
     if (!companyPattern.test(trimmedName)) {
-      showToast("Company name can only contain letters, numbers, and hyphens", "error");
+      setPrecheckError("Company name can only contain letters, numbers, and hyphens");
       return;
     }
 
-    // Proceed to login form - baseUrl will be managed separately through "Change Url" field
-    setShowLoginForm(true);
+    // Redirect to tenant.HOSTNAME[:PORT] immediately
+    const tenant = trimmedName;
+    const { protocol, hostname, port } = window.location;
+    const hostWithoutPort = hostname.split(":")[0];
+    const isLocalLike = hostWithoutPort === "localhost" || hostWithoutPort.endsWith(".localhost");
+    const apexDomain = (() => {
+      if (isLocalLike) return "localhost";
+      const parts = hostWithoutPort.split('.')
+      return parts.length > 2 ? parts.slice(-2).join('.') : hostWithoutPort;
+    })();
+    const targetHost = isLocalLike
+      ? `${tenant}.${apexDomain}${port ? `:${port}` : ""}`
+      : `${tenant}.${apexDomain}`;
+    window.location.href = `${protocol}//${targetHost}`;
   };
 
   const handleGoBack = () => {
-    setShowLoginForm(false);
-    setCompanyName("");
-    setBaseUrl(null);
-    setCompanyNameTouched(false);
-    setCompanyNameSubmitted(false);
+    // Redirect to tms.HOSTNAME (or tms.localhost:PORT on localhost)
+    const { protocol, hostname, port } = window.location;
+    const hostWithoutPort = hostname.split(":")[0];
+    const isLocalLike = hostWithoutPort === "localhost" || hostWithoutPort.endsWith(".localhost");
+    const apexDomain = (() => {
+      if (isLocalLike) return "localhost";
+      const parts = hostWithoutPort.split('.')
+      return parts.length > 2 ? parts.slice(-2).join('.') : hostWithoutPort;
+    })();
+    const targetHost = isLocalLike
+      ? `tms.${apexDomain}${port ? `:${port}` : ""}`
+      : `tms.${apexDomain}`;
+
+    window.location.href = `${protocol}//${targetHost}`;
   };
 
   useEffect(() => {
@@ -422,6 +523,7 @@ const LoginScreen = () => {
     >
       {/* Main Layout - Split Screen */}
       <Box
+        id="main-login-screen"
         sx={{
           display: "flex",
           width: "100%",
@@ -430,8 +532,14 @@ const LoginScreen = () => {
           borderRadius: { xs: 2, md: 3 },
           overflow: "hidden",
           boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+          position: "relative",
         }}
       >
+        {showLoginForm && isStep2Loading && (
+          <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', zIndex: 10 }}>
+            <CircularProgress />
+          </Box>
+        )}
         {/* Left Section - Login Form */}
         <Box
           sx={{
@@ -481,6 +589,7 @@ const LoginScreen = () => {
               </Typography>
             </Box>
             <Typography
+              id="ajaxter-brand"
               variant="h4"
               sx={{
                 color: "#1a1a1a",
@@ -488,7 +597,7 @@ const LoginScreen = () => {
                 fontSize: "28px",
               }}
             >
-              Ajaxter
+              {brandName}
             </Typography>
           </Box>
 
@@ -565,471 +674,280 @@ const LoginScreen = () => {
             paddingLeft: { xs: 2, md: 6 },
           }}
         >
-          <Box
-            sx={{
-              width: "60%",
-              padding: 4,
-            }}
-          >
-            {isForgot ? (
-              <Box
-                component="form"
-                onSubmit={handleForgotSubmit(onForgotSubmit)}
-                noValidate
-              >
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: 700, mb: 1, color: "#1a1a1a" }}
+          {showLoginForm && isStep2Loading ? (
+            <Box sx={{ flex: 1, width: "100%", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                width: "60%",
+                padding: 4,
+              }}
+            >
+              {isForgot ? (
+                <Box
+                  component="form"
+                  onSubmit={handleForgotSubmit(onForgotSubmit)}
+                  noValidate
                 >
-                  Forgot Password
-                </Typography>
-                <Typography variant="body1" sx={{ color: "#65676b", mb: 3 }}>
-                  Give us your email address and instructions to reset your
-                  password will be emailed to you.
-                </Typography>
-
-                <TextField
-                  {...registerForgot("email")}
-                  fullWidth
-                  variant="outlined"
-                  label="Email address"
-                  sx={{
-                    mb: 3,
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 2,
-                      fontSize: "16px",
-                      "& fieldset": {
-                        borderColor: "#dadde1",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "#1877f2",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#1877f2",
-                      },
-                    },
-                  }}
-                  error={
-                    isForgotSubmitted || forgotTouched.email
-                      ? !!forgotErrors.email
-                      : false
-                  }
-                />
-
-                <Box sx={{ mb: 3 }}>
-                  {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
-                    <GoogleRecaptcha
-                      ref={forgotRecaptchaRef}
-                      siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
-                      onVerify={handleForgotRecaptchaVerify}
-                      onError={handleForgotRecaptchaError}
-                      onExpire={handleForgotRecaptchaExpire}
-                      theme="light"
-                      size="normal"
-                    />
-                  ) : (
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "error.main", p: 2 }}
-                    >
-                      reCAPTCHA site key not configured
-                    </Typography>
-                  )}
-                </Box>
-
-                <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                  <IconButton
-                    onClick={() => setIsForgot(false)}
-                    sx={{
-                      color: "#1877f2",
-                      padding: "8px",
-                      border: "1px solid #e0e0e0",
-                      backgroundColor: "#ffffff",
-                      borderRadius: "8px",
-                      "&:hover": {
-                        backgroundColor: "rgba(24, 119, 242, 0.08)",
-                        borderColor: "#1877f2",
-                      },
-                    }}
+                  <Typography
+                    variant="h4"
+                    sx={{ fontWeight: 700, mb: 1, color: "#1a1a1a" }}
                   >
-                    <ArrowBackIcon sx={{ fontSize: 24 }} />
-                  </IconButton>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={!isForgotCaptchaVerified}
-                    sx={{
-                      flex: 1,
-                      py: 1.5,
-                      borderRadius: 2,
-                      textTransform: "none",
-                      fontSize: "16px",
-                      fontWeight: 600,
-                      backgroundColor: "#1877f2",
-                      "&:hover": {
-                        backgroundColor: "#166fe5",
-                      },
-                      "&:disabled": {
-                        backgroundColor: "rgba(0, 0, 0, 0.12)",
-                        color: "rgba(0, 0, 0, 0.26)",
-                      },
-                    }}
-                  >
-                    Reset Password
-                  </Button>
-                </Box>
-              </Box>
-            ) : !showLoginForm ? (
-              // Domain Entry Step
-              <Box>
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
-                >
-                  Secure Login to Your Account
-                  <Typography variant="body2" sx={{ color: "#65676b", mb: 3 }}>Please enter your Ajaxter domain name and we’ll help you out!
-
+                    Forgot Password
                   </Typography>
-                </Typography>
+                  <Typography variant="body1" sx={{ color: "#65676b", mb: 3 }}>
+                    Give us your email address and instructions to reset your
+                    password will be emailed to you.
+                  </Typography>
 
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  placeholder="company name"
-                  value={companyName}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    let filteredValue = value.replace(/[^a-zA-Z0-9]/g, '');
-                    filteredValue = filteredValue.replace(/-+$/, '');
-                    if (filteredValue.length <= 15) {
-                      setCompanyName(filteredValue);
+                  <TextField
+                    {...registerForgot("email")}
+                    fullWidth
+                    variant="outlined"
+                    label="Email address"
+                    sx={{
+                      mb: 3,
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        fontSize: "16px",
+                        "& fieldset": {
+                          borderColor: "#dadde1",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#1877f2",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#1877f2",
+                        },
+                      },
+                    }}
+                    error={
+                      isForgotSubmitted || forgotTouched.email
+                        ? !!forgotErrors.email
+                        : false
                     }
-                  }}
-                  onBlur={() => setCompanyNameTouched(true)}
-                  error={
-                    (companyNameSubmitted || companyNameTouched) && !companyName.trim()
-                      ? true
-                      : false
-                  }
-                  inputProps={{
-                    maxLength: 15,
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <VpnLockIcon
-                          sx={{
-                            color: (companyNameSubmitted || companyNameTouched) && !companyName.trim()
-                              ? "#d32f2f"
-                              : "#1877f2"
-                          }}
-                        />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end" sx={{ margin: 0, height: "100%" }}>
-                        <Box
-                          sx={{
-                            backgroundColor: "#f5f5f5",
-                            padding: "0 14px",
-                            minHeight: "56px",
-                            marginLeft: "12px",
-                            marginRight: "-1px",
-                            borderLeft: "1px solid #e0e0e0",
-                            height: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxSizing: "border-box",
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              color: "#666",
-                              fontWeight: 500,
-                              fontSize: "16px",
-                              whiteSpace: "nowrap",
-                              lineHeight: 1.5,
-                            }}
-                          >
-                            {getDynamicDomain()}
-                          </Typography>
-                        </Box>
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    mb: 3,
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 2,
-                      fontSize: "16px",
-                      paddingRight: "0 !important",
-                      overflow: "hidden",
-                      "& fieldset": {
-                        borderColor: "#dadde1",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "#1877f2",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#1877f2",
-                      },
-                      "&.Mui-error fieldset": {
-                        borderColor: "#d32f2f",
-                      },
-                      "&.Mui-error:hover fieldset": {
-                        borderColor: "#d32f2f",
-                      },
-                      "&.Mui-error.Mui-focused fieldset": {
-                        borderColor: "#d32f2f",
-                      },
-                    },
-                    "& .MuiOutlinedInput-input": {
-                      paddingRight: "12px !important",
-                    },
-                    "& .MuiInputAdornment-root": {
-                      height: "100%",
-                      maxHeight: "none",
-                    },
-                  }}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      handleDomainNext();
-                    }
-                  }}
-                />
+                  />
 
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={handleDomainNext}
-                  disabled={!companyName.trim() || companyName.trim().length < 3 || companyName.trim().length > 15}
-                  endIcon={<ArrowForwardIcon />}
-                  sx={{
-                    py: 1.5,
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    backgroundColor: "#1877f2",
-                    "&:hover": {
-                      backgroundColor: "#166fe5",
-                    },
-                    "&:disabled": {
-                      backgroundColor: "rgba(0, 0, 0, 0.12)",
-                      color: "rgba(0, 0, 0, 0.26)",
-                    },
-                  }}
-                >
-                  Next
-                </Button>
-              </Box>
-            ) : (
-              // Login Form StepePlease enter your LiveAgent domain name and we’ll help you out!
-
-
-              <Box component="form" onSubmit={handleFormSubmit} noValidate sx={{ width: "100%" }}>
-                {/* URL Input - Hidden on mobile */}
-                <TextField
-                  label="Change Url"
-                  variant="standard"
-                  value={baseUrl}
-                  onChange={handleChange}
-                  size="small"
-                  sx={{
-                    width: 300,
-                    mb: 2,
-                    display: { xs: "none", sm: "block" },
-                  }}
-                />
-
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
-                >
-                  Login to Access Your Account
-                </Typography>
-
-                <TextField
-                  {...register("email")}
-                  fullWidth
-                  variant="outlined"
-                  label="Email address or mobile number"
-                  sx={{
-                    mb: 2,
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 2,
-                      fontSize: "16px",
-                      "& fieldset": {
-                        borderColor: "#dadde1",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "#1877f2",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#1877f2",
-                      },
-                    },
-                  }}
-                  autoComplete="email"
-                  error={
-                    isSubmitted || touchedFields.email ? !!errors.email : false
-                  }
-                />
-
-                <TextField
-                  {...register("password")}
-                  fullWidth
-                  variant="outlined"
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  sx={{
-                    mb: 2,
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 2,
-                      fontSize: "16px",
-                      "& fieldset": {
-                        borderColor: "#dadde1",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "#1877f2",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#1877f2",
-                      },
-                    },
-                  }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleToggleVisibility}
-                          edge="end"
-                          sx={{ color: "#65676b" }}
-                        >
-                          {showPassword ? (
-                            <VisibilityOffIcon />
-                          ) : (
-                            <VisibilityIcon />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  autoComplete="current-password"
-                  error={
-                    isSubmitted || touchedFields.password
-                      ? !!errors.password
-                      : false
-                  }
-                />
-
-                {/* Google reCAPTCHA Security Verification */}
-                <Box sx={{ mb: 2 }}>
-                  {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
-                    <GoogleRecaptcha
-                      ref={recaptchaRef}
-                      siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
-                      onVerify={handleRecaptchaVerify}
-                      onError={handleRecaptchaError}
-                      onExpire={handleRecaptchaExpire}
-                      theme="light"
-                      size="normal"
-                    />
-                  ) : (
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "error.main", p: 2 }}
-                    >
-                      reCAPTCHA site key not configured
-                    </Typography>
-                  )}
-                  {isCaptchaVerified &&
-                    (email.trim() === "" || password.trim() === "") && (
+                  <Box sx={{ mb: 3 }}>
+                    {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
+                      <GoogleRecaptcha
+                        ref={forgotRecaptchaRef}
+                        siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
+                        onVerify={handleForgotRecaptchaVerify}
+                        onError={handleForgotRecaptchaError}
+                        onExpire={handleForgotRecaptchaExpire}
+                        theme="light"
+                        size="normal"
+                      />
+                    ) : (
                       <Typography
-                        variant="caption"
-                        sx={{ color: "#65676b", mt: 1, display: "block" }}
+                        variant="body2"
+                        sx={{ color: "error.main", p: 2 }}
                       >
-                        Please fill in all required fields
+                        reCAPTCHA site key not configured
                       </Typography>
                     )}
-                </Box>
-                {/* Terms & Conditions Checkbox */}
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={termsAccepted}
-                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                  </Box>
+
+                  <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+                    <IconButton
+                      onClick={() => setIsForgot(false)}
                       sx={{
                         color: "#1877f2",
-                        "&.Mui-checked": {
-                          color: "#1877f2",
+                        padding: "8px",
+                        border: "1px solid #e0e0e0",
+                        backgroundColor: "#ffffff",
+                        borderRadius: "8px",
+                        "&:hover": {
+                          backgroundColor: "rgba(24, 119, 242, 0.08)",
+                          borderColor: "#1877f2",
                         },
                       }}
-                    />
-                  }
-                  label={
-                    <Typography
-                      variant="body2"
-                      sx={{ fontSize: "14px", color: "#65676b" }}
                     >
-                      I have read the{" "}
-                      <Link
-                        href="#"
-                        sx={{
-                          color: "#1877f2",
-                          textDecoration: "none",
-                          "&:hover": {
-                            textDecoration: "underline",
-                          },
-                        }}
-                      >
-                        Terms & Conditions
-                      </Link>{" "}
-                      and{" "}
-                      <Link
-                        href="#"
-                        sx={{
-                          color: "#1877f2",
-                          textDecoration: "none",
-                          "&:hover": {
-                            textDecoration: "underline",
-                          },
-                        }}
-                      >
-                        Privacy Policy
-                      </Link>
-                    </Typography>
-                  }
-                  sx={{ mb: 2, display:"flex", justifyContent:"flex-start", alignItems:"center" }}
-                />
-
-                {/* Back Button and Login Button in Same Line */}
-                <Box sx={{ mb: 2, display: "flex", gap: 2, alignItems: "center" }}>
-                  <IconButton
-                    onClick={handleGoBack}
+                      <ArrowBackIcon sx={{ fontSize: 24 }} />
+                    </IconButton>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={!isForgotCaptchaVerified}
+                      sx={{
+                        flex: 1,
+                        py: 1.5,
+                        borderRadius: 2,
+                        textTransform: "none",
+                        fontSize: "16px",
+                        fontWeight: 600,
+                        backgroundColor: "#1877f2",
+                        "&:hover": {
+                          backgroundColor: "#166fe5",
+                        },
+                        "&:disabled": {
+                          backgroundColor: "rgba(0, 0, 0, 0.12)",
+                          color: "rgba(0, 0, 0, 0.26)",
+                        },
+                      }}
+                    >
+                      Reset Password
+                    </Button>
+                  </Box>
+                </Box>
+              ) : !showLoginForm ? (
+                // Domain Entry Step
+                <Box>
+                  {/* URL Input - Hidden on mobile */}
+                  <TextField
+                    label="Change Url"
+                    variant="standard"
+                    value={baseUrl}
+                    onChange={handleChange}
+                    size="small"
                     sx={{
-                      color: "#1877f2",
-                      padding: "8px",
-                      border: "1px solid #e0e0e0",
-                      backgroundColor: "#ffffff",
-                      borderRadius: "8px",
-                      flexShrink: 0,
-                      "&:hover": {
-                        backgroundColor: "rgba(24, 119, 242, 0.08)",
-                        borderColor: "#1877f2",
+                      width: 300,
+                      mb: 2,
+                      display: { xs: "none", sm: "block" },
+                    }}
+                  />
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
+                  >
+                    Secure Login to Your Account
+                    <Typography variant="body2" sx={{ color: "#65676b", mb: 3 }}>Please enter your Ajaxter domain name and we’ll help you out!
+
+                    </Typography>
+                  </Typography>
+
+
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="company name"
+                    value={companyName}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      let filteredValue = value.replace(/[^a-zA-Z0-9]/g, '');
+                      filteredValue = filteredValue.replace(/-+$/, '');
+                      if (filteredValue.length <= 15) {
+                        setCompanyName(filteredValue);
+                      }
+                    }}
+                    onBlur={() => setCompanyNameTouched(true)}
+                    error={
+                      (companyNameSubmitted || companyNameTouched) && !companyName.trim()
+                        ? true
+                        : false
+                    }
+                    inputProps={{
+                      maxLength: 15,
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <VpnLockIcon
+                            sx={{
+                              color: (companyNameSubmitted || companyNameTouched) && !companyName.trim()
+                                ? "#d32f2f"
+                                : "#1877f2"
+                            }}
+                          />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end" sx={{ margin: 0, height: "100%" }}>
+                          <Box
+                            sx={{
+                              backgroundColor: "#f5f5f5",
+                              padding: "0 14px",
+                              minHeight: "56px",
+                              marginLeft: "12px",
+                              marginRight: "-1px",
+                              borderLeft: "1px solid #e0e0e0",
+                              height: "100%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              boxSizing: "border-box",
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                color: "#666",
+                                fontWeight: 500,
+                                fontSize: "16px",
+                                whiteSpace: "nowrap",
+                                lineHeight: 1.5,
+                              }}
+                            >
+                              {getDynamicDomain()}
+                            </Typography>
+                          </Box>
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      mb: 3,
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        fontSize: "16px",
+                        paddingRight: "0 !important",
+                        overflow: "hidden",
+                        "& fieldset": {
+                          borderColor: "#dadde1",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#1877f2",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#1877f2",
+                        },
+                        "&.Mui-error fieldset": {
+                          borderColor: "#d32f2f",
+                        },
+                        "&.Mui-error:hover fieldset": {
+                          borderColor: "#d32f2f",
+                        },
+                        "&.Mui-error.Mui-focused fieldset": {
+                          borderColor: "#d32f2f",
+                        },
+                      },
+                      "& .MuiOutlinedInput-input": {
+                        paddingRight: "12px !important",
+                      },
+                      "& .MuiInputAdornment-root": {
+                        height: "100%",
+                        maxHeight: "none",
                       },
                     }}
-                  >
-                    <ArrowBackIcon sx={{ fontSize: 24 }} />
-                  </IconButton>
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleDomainNext();
+                      }
+                    }}
+                  />
+
+                  {precheckError && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                      <ErrorIcon sx={{ color: '#d32f2f', fontSize: 16 }} />
+                      <Typography variant="caption" sx={{ color: '#d32f2f' }}>
+                        {precheckError}
+                      </Typography>
+                    </Box>
+                  )}
 
                   <Button
                     variant="contained"
-                    disabled={!isFormValid || isLoading}
+                    fullWidth
+                    onClick={handleDomainNext}
+                    disabled={
+                      isPrecheckLoading ||
+                      !companyName.trim() ||
+                      companyName.trim().length < 3 ||
+                      companyName.trim().length > 15
+                    }
+                    endIcon={<ArrowForwardIcon />}
                     sx={{
-                      flex: 1,
                       py: 1.5,
                       borderRadius: 2,
                       textTransform: "none",
@@ -1044,48 +962,268 @@ const LoginScreen = () => {
                         color: "rgba(0, 0, 0, 0.26)",
                       },
                     }}
-                    type="submit"
-                    onClick={handleSubmit(onSubmit)}
                   >
-                    {isLoading ? (
+                    {isPrecheckLoading ? (
                       <CircularProgress size={20} sx={{ color: "white" }} />
                     ) : (
-                      "Log in"
+                      "Next"
                     )}
                   </Button>
                 </Box>
+              ) : (
+                // Step 2: Show loader until tenant precheck completes
+                <Box sx={{ width: "100%" }}>
+                  {isStep2Loading ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 10 }}>
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <Box component="form" onSubmit={handleFormSubmit} noValidate sx={{ width: "100%" }}>
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
+                      >
+                        Login to Access Your Account
+                      </Typography>
 
-                <Box sx={{ textAlign: "left", mb: 2, display: "flex", gap: 2, justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap" }}>
-                  <Link
-                    component="button"
-                    underline="hover"
-                    sx={{
-                      color: "#1877f2",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                    }}
-                    onClick={() => setIsForgot(true)}
-                  >
-                    Forgot Username?
-                  </Link>
-                  <Divider orientation="vertical" flexItem sx={{ height: 20, borderColor: "#dadde1", borderRightWidth: 2 }} />
-                  <Link
-                    component="button"
-                    underline="hover"
-                    sx={{
-                      color: "#1877f2",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                    }}
-                    onClick={() => setIsForgot(true)}
-                  >
-                    Forgot/Reset Password?
-                  </Link>
+                      <TextField
+                        {...register("email")}
+                        fullWidth
+                        variant="outlined"
+                        label="Email address or mobile number"
+                        sx={{
+                          mb: 2,
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 2,
+                            fontSize: "16px",
+                            "& fieldset": {
+                              borderColor: "#dadde1",
+                            },
+                            "&:hover fieldset": {
+                              borderColor: "#1877f2",
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "#1877f2",
+                            },
+                          },
+                        }}
+                        autoComplete="email"
+                        error={
+                          isSubmitted || touchedFields.email ? !!errors.email : false
+                        }
+                      />
+
+                      <TextField
+                        {...register("password")}
+                        fullWidth
+                        variant="outlined"
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        sx={{
+                          mb: 2,
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 2,
+                            fontSize: "16px",
+                            "& fieldset": {
+                              borderColor: "#dadde1",
+                            },
+                            "&:hover fieldset": {
+                              borderColor: "#1877f2",
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "#1877f2",
+                            },
+                          },
+                        }}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                aria-label="toggle password visibility"
+                                onClick={handleToggleVisibility}
+                                edge="end"
+                                sx={{ color: "#65676b" }}
+                              >
+                                {showPassword ? (
+                                  <VisibilityOffIcon />
+                                ) : (
+                                  <VisibilityIcon />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                        autoComplete="current-password"
+                        error={
+                          isSubmitted || touchedFields.password
+                            ? !!errors.password
+                            : false
+                        }
+                      />
+
+                      {/* Google reCAPTCHA Security Verification */}
+                      <Box sx={{ mb: 2 }}>
+                        {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
+                          <GoogleRecaptcha
+                            ref={recaptchaRef}
+                            siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
+                            onVerify={handleRecaptchaVerify}
+                            onError={handleRecaptchaError}
+                            onExpire={handleRecaptchaExpire}
+                            theme="light"
+                            size="normal"
+                          />
+                        ) : (
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "error.main", p: 2 }}
+                          >
+                            reCAPTCHA site key not configured
+                          </Typography>
+                        )}
+                        {isCaptchaVerified &&
+                          (email.trim() === "" || password.trim() === "") && (
+                            <Typography
+                              variant="caption"
+                              sx={{ color: "#65676b", mt: 1, display: "block" }}
+                            >
+                              Please fill in all required fields
+                            </Typography>
+                          )}
+                      </Box>
+                      {/* Terms & Conditions Checkbox */}
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={termsAccepted}
+                            onChange={(e) => setTermsAccepted(e.target.checked)}
+                            sx={{
+                              color: "#1877f2",
+                              "&.Mui-checked": {
+                                color: "#1877f2",
+                              },
+                            }}
+                          />
+                        }
+                        label={
+                          <Typography
+                            variant="body2"
+                            sx={{ fontSize: "14px", color: "#65676b" }}
+                          >
+                            I have read the{" "}
+                            <Link
+                              href="#"
+                              sx={{
+                                color: "#1877f2",
+                                textDecoration: "none",
+                                "&:hover": {
+                                  textDecoration: "underline",
+                                },
+                              }}
+                            >
+                              Terms & Conditions
+                            </Link>{" "}
+                            and{" "}
+                            <Link
+                              href="#"
+                              sx={{
+                                color: "#1877f2",
+                                textDecoration: "none",
+                                "&:hover": {
+                                  textDecoration: "underline",
+                                },
+                              }}
+                            >
+                              Privacy Policy
+                            </Link>
+                          </Typography>
+                        }
+                        sx={{ mb: 2, display: "flex", justifyContent: "flex-start", alignItems: "center" }}
+                      />
+
+                      {/* Back Button and Login Button in Same Line */}
+                      <Box sx={{ mb: 2, display: "flex", gap: 2, alignItems: "center" }}>
+                        <IconButton
+                          onClick={handleGoBack}
+                          sx={{
+                            color: "#1877f2",
+                            padding: "8px",
+                            border: "1px solid #e0e0e0",
+                            backgroundColor: "#ffffff",
+                            borderRadius: "8px",
+                            flexShrink: 0,
+                            "&:hover": {
+                              backgroundColor: "rgba(24, 119, 242, 0.08)",
+                              borderColor: "#1877f2",
+                            },
+                          }}
+                        >
+                          <ArrowBackIcon sx={{ fontSize: 24 }} />
+                        </IconButton>
+
+                        <Button
+                          variant="contained"
+                          disabled={!isFormValid || isLoading}
+                          sx={{
+                            flex: 1,
+                            py: 1.5,
+                            borderRadius: 2,
+                            textTransform: "none",
+                            fontSize: "16px",
+                            fontWeight: 600,
+                            backgroundColor: "#1877f2",
+                            "&:hover": {
+                              backgroundColor: "#166fe5",
+                            },
+                            "&:disabled": {
+                              backgroundColor: "rgba(0, 0, 0, 0.12)",
+                              color: "rgba(0, 0, 0, 0.26)",
+                            },
+                          }}
+                          type="submit"
+                          onClick={handleSubmit(onSubmit)}
+                        >
+                          {isLoading ? (
+                            <CircularProgress size={20} sx={{ color: "white" }} />
+                          ) : (
+                            "Log in"
+                          )}
+                        </Button>
+                      </Box>
+
+                      <Box sx={{ textAlign: "left", mb: 2, display: "flex", gap: 2, justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap" }}>
+                        <Link
+                          component="button"
+                          underline="hover"
+                          sx={{
+                            color: "#1877f2",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                          }}
+                          onClick={() => setIsForgot(true)}
+                        >
+                          Forgot Username?
+                        </Link>
+                        <Divider orientation="vertical" flexItem sx={{ height: 20, borderColor: "#dadde1", borderRightWidth: 2 }} />
+                        <Link
+                          component="button"
+                          underline="hover"
+                          sx={{
+                            color: "#1877f2",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                          }}
+                          onClick={() => setIsForgot(true)}
+                        >
+                          Forgot/Reset Password?
+                        </Link>
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
-
-              </Box>
-            )}
-          </Box>
+              )}
+            </Box>
+          )}
         </Box>
       </Box>
     </Box>

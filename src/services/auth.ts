@@ -4,6 +4,16 @@ import { baseInstanceOfApi } from "./baseInstanceOfApi";
 
 const extendedAuthApi = baseInstanceOfApi.injectEndpoints({
   endpoints: (builder) => ({
+    // Pre-check login/tenant via GET
+    loginPrecheck: builder.query<any, { tenant: string } | string>({
+      query: (arg) => {
+        const tenant = typeof arg === "string" ? arg : arg.tenant;
+        return {
+          url: `/auth/login?type=login&tenant=${encodeURIComponent(tenant)}`,
+          method: "GET",
+        };
+      },
+    }),
     login: builder.mutation({
       query: (credentials) => ({
         url: "/auth/login",
@@ -73,6 +83,7 @@ const extendedAuthApi = baseInstanceOfApi.injectEndpoints({
 });
 
 export const {
+  useLazyLoginPrecheckQuery,
   useLoginMutation,
   useChangePasswordMutation,
   useGetUserListQuery,
