@@ -139,7 +139,7 @@ const LeftMenu: React.FC = () => {
                 borderTopRightRadius: 10,
                 borderBottomRightRadius: 10,
                 position: "absolute",
-                bottom: "calc(100% - 715px)",
+                bottom: "calc(100% - 640px)",
                 right: 10,
               }}
               onClick={() => setGettingStartedExpanded(true)}
