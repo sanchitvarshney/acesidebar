@@ -104,9 +104,13 @@ const handleUnauthorizedResponse = (): void => {
  * - Request logging for debugging
  */
 const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
-  const baseUrl = localStorage.getItem("baseUrl");
+  const storedBaseUrl = localStorage.getItem("baseUrl");
+  const effectiveBaseUrl =
+    storedBaseUrl && storedBaseUrl.trim() !== ""
+      ? storedBaseUrl
+      : API_CONFIG.baseUrl;
   const baseQuery = fetchBaseQuery({
-    baseUrl: baseUrl || API_CONFIG.baseUrl,
+    baseUrl: effectiveBaseUrl,
     prepareHeaders: async (headers) => {
       // Add authentication headers
       await addAuthHeaders(headers);

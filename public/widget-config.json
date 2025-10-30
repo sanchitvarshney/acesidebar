@@ -11,10 +11,10 @@
     },
     "settings": {
         "css": {
-            "widget": "https://acesidebar.vercel.app/widget-css.css"
+            "widget": "https://tms.ajaxter.com/widget-css.css"
         },
         "js": {
-            "widget": "https://acesidebar.vercel.app/widget-js.js",
+            "widget": "https://tms.ajaxter.com/widget-js.js",
             "analytics": "https://www.googletagmanager.com/gtag/js?id=G-YHXH9TZ69K"
         }
     }

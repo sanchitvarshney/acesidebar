@@ -54,8 +54,6 @@ class SessionManager {
 
     // Store in sessionStorage
     sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(sessionData));
-    
-    console.log("New session created:", sessionData.sessionId);
     return sessionData;
   }
 
@@ -69,7 +67,6 @@ class SessionManager {
       
       return JSON.parse(sessionData) as SessionData;
     } catch (error) {
-      console.error("Error parsing session data:", error);
       return null;
     }
   }
@@ -85,7 +82,6 @@ class SessionManager {
     const isValid = session.isActive && now < session.expiresAt;
     
     if (!isValid) {
-      console.log("Session expired or invalid");
       this.clearSession();
     }
     
@@ -103,7 +99,6 @@ class SessionManager {
     session.expiresAt = now + this.SESSION_DURATION;
     
     sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
-    console.log("Session extended until:", new Date(session.expiresAt));
     
     return true;
   }
@@ -113,7 +108,6 @@ class SessionManager {
    */
   public clearSession(): void {
     sessionStorage.removeItem(this.SESSION_KEY);
-    console.log("Session cleared");
   }
 
   /**
@@ -145,18 +139,15 @@ class SessionManager {
   public checkSessionExpiration(): boolean {
     const session = this.getCurrentSession();
     if (!session) {
-      console.log("No session found");
       return false;
     }
 
     const isValid = this.isSessionValid();
     if (!isValid) {
-      console.log("Session expired, redirecting to session expired page");
       this.handleSessionExpired();
       return false;
     }
 
-    console.log("Session is valid");
     return true;
   }
 
@@ -164,8 +155,6 @@ class SessionManager {
    * Handle session expiration
    */
   private handleSessionExpired(): void {
-    console.log("Session expired, redirect handler invoked");
-
     // Clear any authentication data
     localStorage.removeItem("userToken");
     localStorage.removeItem("userData");

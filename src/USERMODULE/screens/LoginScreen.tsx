@@ -796,19 +796,6 @@ const LoginScreen = () => {
               ) : !showLoginForm ? (
                 // Domain Entry Step
                 <Box>
-                  {/* URL Input - Hidden on mobile */}
-                  <TextField
-                    label="Change Url"
-                    variant="standard"
-                    value={baseUrl}
-                    onChange={handleChange}
-                    size="small"
-                    sx={{
-                      width: 300,
-                      mb: 2,
-                      display: { xs: "none", sm: "block" },
-                    }}
-                  />
                   <Typography
                     variant="h5"
                     sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
@@ -979,6 +966,20 @@ const LoginScreen = () => {
                     </Box>
                   ) : (
                     <Box component="form" onSubmit={handleFormSubmit} noValidate sx={{ width: "100%" }}>
+
+                      {/* URL Input - Hidden on mobile */}
+                      <TextField
+                        label="Change Url"
+                        variant="standard"
+                        value={baseUrl}
+                        onChange={handleChange}
+                        size="small"
+                        sx={{
+                          width: 300,
+                          mb: 2,
+                          display: { xs: "none", sm: "block" },
+                        }}
+                      />
                       <Typography
                         variant="h5"
                         sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
