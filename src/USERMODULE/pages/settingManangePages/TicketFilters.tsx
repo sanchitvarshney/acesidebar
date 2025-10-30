@@ -304,6 +304,7 @@ const TicketFilters: React.FC = () => {
           p: 2,
           borderBottom: "1px solid #e0e0e0",
           backgroundColor: "#fafafa",
+     
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -351,7 +352,7 @@ const TicketFilters: React.FC = () => {
           gridTemplateColumns: "80% 20%",
           overflow: "hidden",
           flexShrink: 0,
-          mt: 0.2,
+          mt: 1,
           mx: 1,
         }}
       >
