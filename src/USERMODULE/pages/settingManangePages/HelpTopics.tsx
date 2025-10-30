@@ -140,15 +140,14 @@ const HelpTopics = () => {
         overflow: "hidden",
       }}
     >
-      {/* Left Content */}
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-        {/* Header Section */}
+     
+      <Box sx={{display: "flex", flexDirection: "column", gap: 2 }}>
+   
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
             p: 2,
             borderBottom: "1px solid #e0e0e0",
             backgroundColor: "#fafafa",
@@ -193,8 +192,7 @@ const HelpTopics = () => {
             gap: 2,
             alignItems: "center",
             flexWrap: "wrap",
-            p: 2,
-            bgcolor: "#f8f9fa",
+            px: 2,
             borderRadius: 2,
           }}
         >
@@ -214,10 +212,9 @@ const HelpTopics = () => {
         <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
           <TableContainer
             sx={{
-              height: "calc(100vh - 380px)",
-              minHeight: "300px",
+              height: "calc(100vh - 320px)",
             }}
-            className="custom-scrollbar"
+            className="custom-scrollbar px-2"
           >
             <Table stickyHeader>
               <TableHead sx={{ position: "relative" }}>

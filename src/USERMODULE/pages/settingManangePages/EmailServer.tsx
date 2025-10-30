@@ -103,16 +103,13 @@ const EmailServerPage: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
-                 p: 2,
-               borderBottom: "1px solid #e0e0e0",
-          backgroundColor: "#fafafa",
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton
-              onClick={() => navigate("/settings/emails")}
-            >
+            <IconButton onClick={() => navigate("/settings/emails")}>
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
@@ -121,7 +118,6 @@ const EmailServerPage: React.FC = () => {
           </Box>
 
           <Box sx={{ display: "flex", gap: 2 }}>
-          
             <Button
               variant="outlined"
               color="primary"
@@ -130,7 +126,7 @@ const EmailServerPage: React.FC = () => {
               }
               size="small"
               sx={{ fontWeight: 600 }}
-              startIcon={<SettingsIcon size={18}/>}
+              startIcon={<SettingsIcon size={18} />}
             >
               Advanced setting
             </Button>
@@ -152,9 +148,8 @@ const EmailServerPage: React.FC = () => {
             gap: 2,
             alignItems: "center",
             flexWrap: "wrap",
-            p: 2,
-            bgcolor: "#f8f9fa",
             borderRadius: 2,
+            px:2
           }}
         >
           <TextField
@@ -168,7 +163,7 @@ const EmailServerPage: React.FC = () => {
             sx={{ minWidth: 250 }}
           />
         </Box>
-        <div className="w-full max-h-[calc(100vh-180px)] p-2 overflow-y-auto custom-scrollbar">
+        <div className="w-full max-h-[calc(100vh-180px)] px-2 overflow-y-auto custom-scrollbar">
           {/* Teams Table */}
           <Paper sx={{ flex: 1, overflow: "hidden" }}>
             <TableContainer sx={{ height: "100%" }}>

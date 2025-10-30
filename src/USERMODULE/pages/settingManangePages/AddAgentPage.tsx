@@ -229,23 +229,27 @@ const AddAgentPage = () => {
     <Box
       sx={{
         height: "calc(100vh - 98px)",
-        bgcolor: "#f5f5f5",
       }}
     >
       {/* Header */}
-      <Box sx={{ borderBottom: "1px solid #e0e0e0", bgcolor: "#fff" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton onClick={() => navigate("/settings/agents-productivity/agents")}>
+      <Box sx={{}}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
+          }}
+        >
+          <IconButton
+            onClick={() => navigate("/settings/agents-productivity/agents")}
+          >
             <ArrowBackIcon />
           </IconButton>
-          <Typography
-            variant="h5"
-            sx={{ p: 2, fontWeight: 600, color: "#1a1a1a" }}
-          >
+          <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
             Add Agent
-            <Typography variant="body1" sx={{ color: "#65676b" }}>
-              Create a new agent account with all necessary configurations
-            </Typography>
           </Typography>
         </Box>
 
@@ -253,6 +257,7 @@ const AddAgentPage = () => {
           value={activeTab}
           onChange={handleTabChange}
           aria-label="agent tabs"
+          sx={{mx:1}}
         >
           <Tab
             label="Agent Configuration"
@@ -298,18 +303,17 @@ const AddAgentPage = () => {
       {/* Main Content */}
       <Box
         sx={{
-          p: 2,
           display: "flex",
           flexDirection: "column",
           gap: 2,
           backgroundColor: "#fff",
           overflow: "auto",
-          maxHeight: "calc(100vh - 260px)",
+          maxHeight: "calc(100vh - 250px)",
         }}
-           className="custom-scrollbar"
+        className="custom-scrollbar"
       >
         {/* Tab 1: Agent Configuration with Stepper */}
-        <TabPanel  value={activeTab} index={0} >
+        <TabPanel value={activeTab} index={0}>
           <Box sx={{ margin: "0 auto" }}>
             <Stepper activeStep={activeStep} orientation="vertical">
               {steps.map((step, index) => (

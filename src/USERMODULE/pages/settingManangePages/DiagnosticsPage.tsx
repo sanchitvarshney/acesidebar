@@ -163,10 +163,9 @@ const DiagnosticsPage = () => {
             p: 2,
             borderBottom: "1px solid #e0e0e0",
             backgroundColor: "#fafafa",
-            mb: 1,
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <IconButton onClick={() => navigate("/settings/emails")}>
               <ArrowBackIcon />
             </IconButton>
@@ -176,11 +175,10 @@ const DiagnosticsPage = () => {
           </Box>
         </Box>
 
-        <div className=" w-full  h-[calc(100vh-294px)] overflow-y-auto custom-scrollbar">
+        <div className=" w-full  h-[calc(100vh-285px)] overflow-y-auto custom-scrollbar">
           <Box
             sx={{
-              px: 10,
-              py: 2,
+              px: 8,
             }}
           >
             {/* Error Messages */}

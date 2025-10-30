@@ -320,14 +320,13 @@ const DepartmentsManagement = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{  display: "flex", flexDirection: "column", gap: 1 }}>
         {/* Header Section */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
             p: 2,
             borderBottom: "1px solid #e0e0e0",
             backgroundColor: "#fafafa",
@@ -385,6 +384,7 @@ const DepartmentsManagement = () => {
             gridTemplateColumns: "80% 20%",
             overflow: "hidden",
             flexShrink: 0,
+            mx:1
           }}
         >
           {/* 80% Editable Area */}
@@ -604,11 +604,10 @@ const DepartmentsManagement = () => {
         </Box>
 
         {/* Table Section */}
-        <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+        <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)", mx:1 }}>
           <TableContainer
             sx={{
               height: "calc(100vh - 280px)",
-              minHeight: "400px",
               position: "relative",
             }}
             className="custom-scrollbar"

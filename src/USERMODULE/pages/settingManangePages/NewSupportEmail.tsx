@@ -99,14 +99,17 @@ const NewSupportEmail: React.FC = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
+
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -122,17 +125,11 @@ const NewSupportEmail: React.FC = () => {
               >
                 New support email
               </Typography>
-              <Typography
-                variant="body1"
-                sx={{ fontSize: 14, color: "#7a7a7a" }}
-              >
-                New support email
-              </Typography>
             </div>
           </Box>
         </Box>
 
-        <div className="w-full max-h-[calc(100vh-180px)] p-2 overflow-y-auto">
+        <div className="w-full max-h-[calc(100vh-180px)] px-2 overflow-y-auto">
           <div className="space-y-2">
             <Typography variant="subtitle1">Connect your email</Typography>
             <FormControl variant="outlined" size="small" sx={{ minWidth: 280 }}>
@@ -200,7 +197,7 @@ const NewSupportEmail: React.FC = () => {
           bgcolor: "#f8f9fa",
           borderLeft: "1px solid #e0e0e0",
         }}
-            className="custom-scrollbar"
+        className="custom-scrollbar"
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Card sx={{ boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>

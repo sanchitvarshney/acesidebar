@@ -174,7 +174,7 @@ const EmailNotificationsPage = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
+           
             p: 2,
             borderBottom: "1px solid #e0e0e0",
             backgroundColor: "#fafafa",
@@ -214,7 +214,7 @@ const EmailNotificationsPage = () => {
               ))}
             </TabList>
           </Box>
-          <div className="w-full max-h-[calc(100vh-280px)]  overflow-y-auto  custom-scrollbar">
+          <div className="w-full max-h-[calc(100vh-260px)]  px-2 overflow-y-auto  custom-scrollbar">
             {listSettingsLoading ? (
               <div className="w-full h-80 flex justify-center items-center">
                 <CircularProgress />

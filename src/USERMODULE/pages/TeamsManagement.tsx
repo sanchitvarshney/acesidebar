@@ -551,20 +551,17 @@ const TeamsManagement = () => {
     <Box
       sx={{
         height: "calc(100vh - 100px)",
-        display: "grid",
-        // gridTemplateColumns: "3fr 1fr",
-        overflow: "hidden",
+     
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 1 }}>
         {/* Header Section */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
             p: 2,
             borderBottom: "1px solid #e0e0e0",
             backgroundColor: "#fafafa",
@@ -605,16 +602,7 @@ const TeamsManagement = () => {
           </Box>
         </Box>
 
-        {/* Search and Filters */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            mb: 3,
-            alignItems: "center",
-            width: "100%",
-          }}
-        >
+ 
           <Box
             sx={{
               backgroundColor: "#fff",
@@ -624,7 +612,7 @@ const TeamsManagement = () => {
               display: "grid",
               gridTemplateColumns: "80% 20%",
               overflow: "hidden",
-              width: "100%",
+              mx:1
             }}
           >
             {/* 80% Editable Area */}
@@ -849,10 +837,10 @@ const TeamsManagement = () => {
               )}
             </Box>
           </Box>
-        </Box>
+  
 
         {/* Teams Table */}
-        <Paper sx={{ flex: 1, overflow: "hidden" }}>
+        <Paper sx={{ flex: 1, overflow: "hidden", mx: 1 }}>
           <TableContainer sx={{ height: "100%" }} className="custom-scrollbar">
             <Table stickyHeader sx={{ position: "relative" }}>
               <TableHead>

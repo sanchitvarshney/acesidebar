@@ -211,7 +211,6 @@ const CreateDepartmentPage = () => {
     }, 2000);
   };
 
-
   const handleDownloadMembers = () => {
     // Implement download functionality
     console.log("Downloading department members...");
@@ -263,51 +262,53 @@ const CreateDepartmentPage = () => {
     <Box
       sx={{
         height: "calc(100vh - 98px)",
-        bgcolor: "#f5f5f5",
-        overflow:"hidden"
+        overflow: "hidden",
       }}
     >
-      {/* Header */}
-      <Box sx={{ borderBottom: "1px solid #e0e0e0", bgcolor: "#fff" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton onClick={() => navigate("/settings/agents-productivity/departments")}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography
-            variant="h5"
-            sx={{ p: 2, fontWeight: 600, color: "#1a1a1a" }}
-          >
-            Create Department
-            <Typography variant="body1" sx={{ color: "#65676b" }}>
-              Set up a new department with all necessary configurations
-            </Typography>
-          </Typography>
-        </Box>
-
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          aria-label="department tabs"
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          p: 2,
+          borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa",
+        }}
+      >
+        <IconButton
+          onClick={() => navigate("/settings/agents-productivity/departments")}
         >
-          <Tab
-            label="Department Configuration"
-            icon={<SettingsIcon />}
-            iconPosition="start"
-            sx={{ textTransform: "none", fontWeight: 500 }}
-          />
-          <Tab
-            label="Department Members"
-            icon={<GroupIcon />}
-            iconPosition="start"
-            sx={{ textTransform: "none", fontWeight: 500 }}
-          />
-        </Tabs>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+          Create Department
+        </Typography>
       </Box>
+
+      <Tabs
+        value={activeTab}
+        onChange={handleTabChange}
+        aria-label="department tabs"
+        sx={{mx:1}}
+      >
+        <Tab
+          label="Department Configuration"
+          icon={<SettingsIcon />}
+          iconPosition="start"
+          sx={{ textTransform: "none", fontWeight: 500 }}
+        />
+        <Tab
+          label="Department Members"
+          icon={<GroupIcon />}
+          iconPosition="start"
+          sx={{ textTransform: "none", fontWeight: 500 }}
+        />
+      </Tabs>
 
       {/* Main Content */}
       <Box
         sx={{
-          p: 3,
+       
           display: "flex",
           flexDirection: "column",
           gap: 2,
@@ -315,7 +316,7 @@ const CreateDepartmentPage = () => {
           overflow: "auto",
           maxHeight: "calc(100vh - 260px)",
         }}
-           className="custom-scrollbar"
+        className="custom-scrollbar"
       >
         {/* Tab 1: Department Configuration with Stepper */}
         <TabPanel value={activeTab} index={0}>

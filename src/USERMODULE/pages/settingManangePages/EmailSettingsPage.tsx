@@ -55,14 +55,16 @@ const EmailSettingsPage: React.FC = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header Section */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
+                        p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -75,7 +77,7 @@ const EmailSettingsPage: React.FC = () => {
           </Box>
         </Box>
 
-        <div className="w-full max-h-[calc(100vh-180px)] p-2 overflow-y-auto  custom-scrollbar">
+        <div className="w-full max-h-[calc(100vh-180px)] px-2 overflow-y-auto  custom-scrollbar">
           <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
             <SettingRow
               title="Create a new ticket for each customer response"

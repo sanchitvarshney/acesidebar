@@ -292,9 +292,7 @@ const TicketFilters: React.FC = () => {
   return (
     <Box
       sx={{
-        p: 0,
-        backgroundColor: "#f8f9fa",
-        minHeight: "calc(100vh - 200px)",
+        height: "calc(100vh - 96px)",
       }}
     >
       {/* Header */}
@@ -303,7 +301,6 @@ const TicketFilters: React.FC = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 1,
           p: 2,
           borderBottom: "1px solid #e0e0e0",
           backgroundColor: "#fafafa",
@@ -323,7 +320,7 @@ const TicketFilters: React.FC = () => {
             variant="outlined"
             startIcon={<AddIcon />}
             sx={{
-              fontWeight: 600
+              fontWeight: 600,
             }}
             onClick={() => setAddFilterDrawerOpen(true)}
           >
@@ -333,7 +330,7 @@ const TicketFilters: React.FC = () => {
           <Button
             variant="outlined"
             sx={{
-              fontWeight: 600
+              fontWeight: 600,
             }}
             startIcon={<SettingsIcon />}
             endIcon={<ArrowDownwardIcon sx={{ fontSize: 16 }} />}
@@ -354,6 +351,8 @@ const TicketFilters: React.FC = () => {
           gridTemplateColumns: "80% 20%",
           overflow: "hidden",
           flexShrink: 0,
+          mt: 0.2,
+          mx: 1,
         }}
       >
         {/* 80% Editable Area */}
@@ -573,11 +572,12 @@ const TicketFilters: React.FC = () => {
       </Box>
 
       {/* Table */}
-      <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)", mt: 1 }}>
+      <Card
+        sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)", my: 1, mx: 1 }}
+      >
         <TableContainer
           sx={{
-            height: "calc(100vh - 360px)",
-            minHeight: "350px",
+            height: "calc(100vh - 320px)",
           }}
           className="custom-scrollbar"
         >

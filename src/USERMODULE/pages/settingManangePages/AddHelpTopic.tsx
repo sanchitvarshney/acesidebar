@@ -137,7 +137,6 @@ const AddHelpTopic = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
             borderBottom: "1px solid #e0e0e0",
           }}
         >

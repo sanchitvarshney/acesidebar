@@ -230,54 +230,53 @@ const CreateTeamPage = () => {
     <Box
       sx={{
         height: "calc(100vh - 98px)",
-        bgcolor: "#f5f5f5",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      {/* Header */}
-      <Box sx={{ borderBottom: "1px solid #e0e0e0", bgcolor: "#fff" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton
-            onClick={() => navigate("/settings/agents-productivity/teams")}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography
-            variant="h5"
-            sx={{ p: 2, fontWeight: 600, color: "#1a1a1a" }}
-          >
-            Create Team
-            <Typography variant="body1" sx={{ color: "#65676b" }}>
-              Set up a new team with members and configurations
-            </Typography>
-          </Typography>
-        </Box>
-
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          aria-label="team tabs"
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          p: 2,
+          borderBottom: "1px solid #e0e0e0",
+          backgroundColor: "#fafafa",
+        }}
+      >
+        <IconButton
+          onClick={() => navigate("/settings/agents-productivity/teams")}
         >
-          <Tab
-            label="Team Configuration"
-            icon={<SettingsIcon />}
-            iconPosition="start"
-            sx={{ textTransform: "none", fontWeight: 500 }}
-          />
-          <Tab
-            label="Team Members"
-            icon={<GroupIcon />}
-            iconPosition="start"
-            sx={{ textTransform: "none", fontWeight: 500 }}
-          />
-        </Tabs>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+          Create Team
+        </Typography>
       </Box>
+
+      <Tabs
+        value={activeTab}
+        onChange={handleTabChange}
+        aria-label="team tabs"
+        sx={{ mx: 1 }}
+      >
+        <Tab
+          label="Team Configuration"
+          icon={<SettingsIcon />}
+          iconPosition="start"
+          sx={{ textTransform: "none", fontWeight: 500 }}
+        />
+        <Tab
+          label="Team Members"
+          icon={<GroupIcon />}
+          iconPosition="start"
+          sx={{ textTransform: "none", fontWeight: 500 }}
+        />
+      </Tabs>
 
       {/* Main Content */}
       <Box
         sx={{
-          p: 2,
           display: "flex",
           gap: 3,
           flex: 1,
@@ -285,7 +284,10 @@ const CreateTeamPage = () => {
         }}
       >
         {/* Left Panel - Form */}
-        <Box sx={{ flex: 2, overflowY: "auto", minHeight: 0 }}    className="custom-scrollbar">
+        <Box
+          sx={{ flex: 2, overflowY: "auto", minHeight: 0 }}
+          className="custom-scrollbar"
+        >
           <TabPanel value={activeTab} index={0}>
             <Stack spacing={2}>
               {/* Basic Information */}
@@ -383,7 +385,7 @@ const CreateTeamPage = () => {
                     </Box>
                   </Stack>
                   <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-                   Team Notifications
+                    Team Notifications
                   </Typography>
                   <Stack spacing={2}>
                     <FormControlLabel
