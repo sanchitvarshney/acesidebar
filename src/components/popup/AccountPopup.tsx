@@ -1,13 +1,12 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import {
-  Popper,
-  Paper,
+  Drawer,
   Box,
   Typography,
   IconButton,
   Avatar,
-  Button,
   Divider,
+  Button,
   FormControl,
   Select,
   MenuItem,
@@ -15,7 +14,16 @@ import {
 } from "@mui/material";
 import {
   Close as CloseIcon,
-  CameraAlt as CameraIcon,
+  Person as PersonIcon,
+  Logout as LogoutIcon,
+  StarOutline as StarIcon,
+  FeedbackOutlined as FeedbackIcon,
+  ForumOutlined as ForumIcon,
+  HelpOutline as HelpIcon,
+  SendOutlined as SendIcon,
+  CreateOutlined as BlogIcon,
+  ContentCopy as CopyIcon,
+  HelpOutlineOutlined as QuestionIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useStatus } from "../../contextApi/StatusContext";
@@ -43,47 +51,49 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
   anchorEl,
   userData,
 }) => {
-  const popupRef = useRef<HTMLDivElement>(null);
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { currentStatus, setCurrentStatus } = useStatus();
   const navigate = useNavigate();
   const [updateActiveStatus, { isLoading: statusLoading }] =
     useUpdateActiveStatusMutation();
-  const { user } = useAuth();
   const { showToast } = useToast();
   const dispatch = useDispatch();
 
-  // Handle click outside to close popup
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      // Check if the click target is part of a MUI Select dropdown
-      const target = event.target as Element;
-      const isSelectDropdown =
-        target.closest(".MuiPopover-root") ||
-        target.closest(".MuiMenu-root") ||
-        target.closest('[role="listbox"]') ||
-        target.closest('[role="option"]');
-
-      if (
-        popupRef.current &&
-        !popupRef.current.contains(event.target as Node) &&
-        anchorEl &&
-        !anchorEl.contains(event.target as Node) &&
-        !isSelectDropdown
-      ) {
-        onClose();
-      }
-    };
-
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
+  const handleCopyEmail = () => {
+    if (userData?.email) {
+      navigator.clipboard.writeText(userData.email);
+      showToast("Email copied to clipboard", "success");
     }
+  };
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [open, onClose, anchorEl]);
-  const handleChangeStatus = (value: any) => {
+  const handleSignOut = () => {
+    // Clear all local storage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Clear all cookies
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
+    // Close the drawer
+    onClose();
+
+    // Use the AuthContext signOut function
+    signOut();
+
+    // Navigate to login page
+    navigate("/login");
+  };
+
+  const handleMyAccount = () => {
+    navigate(`/staff-profile/${userData?.uID}`);
+    onClose();
+  };
+
+  const handleChangeStatus = (value: string) => {
     const payload = {
       //@ts-ignore
       userId: user.uID,
@@ -101,291 +111,568 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
     });
   };
 
+  // Extract first name from username or full name
+  const getFirstName = () => {
+    const name = userData?.username || userData?.name || "";
+    return name.split(" ")[0] || "User";
+  };
+
   return (
-    <Popper
+    <Drawer
+      anchor="right"
       open={open}
-      anchorEl={anchorEl}
-      placement="bottom-end"
-      style={{ zIndex: 1300 }}
-      modifiers={[
-        { name: "offset", options: { offset: [0, 16] } }, // 8px arrow + 8px gap
-      ]}
+      onClose={onClose}
+      sx={{
+        "& .MuiDrawer-paper": {
+          width: { xs: "100%", sm: "25%" },
+          maxWidth: "100vw",
+          overflowX: "hidden",
+        },
+      }}
     >
-      <Paper
-        ref={popupRef}
-        elevation={8}
-        sx={{
-          width: 320,
-          borderRadius: 2,
-          overflow: "visible",
-          backgroundColor: "#fff",
-          border: "1px solid #e0e0e0",
-          position: "relative",
-          // Arrow tip border (larger, behind)
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: -9,
-            right: 24,
-            width: 0,
-            height: 0,
-            borderLeft: "9px solid transparent",
-            borderRight: "9px solid transparent",
-            borderBottom: "9px solid #e0e0e0",
-            zIndex: -1,
-          },
-          // Arrow tip (smaller, on top)
-          "&::after": {
-            content: '""',
-            position: "absolute",
-            top: -8,
-            right: 24,
-            width: 0,
-            height: 0,
-            borderLeft: "8px solid transparent",
-            borderRight: "8px solid transparent",
-            borderBottom: "8px solid #fff",
-            filter: "drop-shadow(0 -1px 1px rgba(0,0,0,0.1))",
-          },
-        }}
-      >
-        {/* Header */}
-        <Box sx={{ p: 2, borderBottom: "1px solid #e0e0e0" }}>
+      <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+
+
+        {/* User Profile Information Section */}
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            overflowX: "hidden",
+            p: 2,
+          }}
+        >
           <Box
             sx={{
+              mt: 5,
               display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              mb: 1,
+              flexDirection: "column",
+              alignItems: "center",
+              mb: 3,
             }}
           >
-            <Box>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 600, color: "#000" }}
-              >
-                {userData?.email}
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ color: "#666", display: "block" }}
-              >
-                Managed by {userData?.company ?? "--"}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconButton size="small" onClick={onClose} sx={{ color: "#666" }}>
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Profile Section */}
-        <Box sx={{ p: 2, textAlign: "center" }}>
-          <Box sx={{ position: "relative", display: "inline-block", mb: 2 }}>
             <Avatar
               sx={{
-                width: 80,
-                height: 80,
-                bgcolor: "#1a73e8",
-                fontSize: "2rem",
+                width: 100,
+                height: 100,
+                backgroundColor: "#86efac",
+                color: "#000",
+                fontSize: "2.5rem",
                 fontWeight: 600,
-                border: `4px solid ${
-                  statusOptions.find((opt) => opt.value === currentStatus)
-                    ?.color || "#4caf50"
-                }`,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                mb: 2,
               }}
+              src={userData?.image}
             >
               {userData?.username
                 ?.split(" ")
                 ?.map((n: any) => n[0])
-                .join("")}
+                ?.join("")
+                ?.toUpperCase() || "U"}
             </Avatar>
-            <IconButton
-              size="small"
+
+            <Typography
+              variant="h6"
               sx={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                backgroundColor: "#fff",
-                border: "2px solid #fff",
-                "&:hover": { backgroundColor: "#f5f5f5" },
+                fontWeight: 600,
+                color: "#000",
+                mb: 1,
               }}
             >
-              <CameraIcon fontSize="small" sx={{ color: "#666" }} />
-            </IconButton>
-          </Box>
+              {getFirstName()}
+            </Typography>
 
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, color: "#000", mb: 2 }}
-          >
-            Hi, {userData?.username}!
-          </Typography>
-
-          {/* Status Selector */}
-         
-            <FormControl size="small" sx={{ minWidth: 120, mb: 2 }}>
-               {statusLoading ? (
-            <Skeleton
-              variant="rectangular"
-              width={120}
-              height={32}
-              sx={{ borderRadius: 1 }}
-            />
-          ) : (
-              <Select
-                value={currentStatus}
-                onChange={(e) => handleChangeStatus(e.target.value)}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                mb: 1,
+              }}
+            >
+              <Typography
+                variant="body2"
                 sx={{
-                  fontSize: "0.75rem",
-                  height: 32,
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#dadce0",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#1976d2",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#1976d2",
-                  },
-                  backgroundColor: "#fff",
-                }}
-                renderValue={(selected) => {
-                  const option = statusOptions.find(
-                    (opt) => opt.value === selected
-                  );
-                  return (
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      <Box
-                        sx={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: "50%",
-                          backgroundColor: option?.color || "#4caf50",
-                          flexShrink: 0,
-                        }}
-                      />
-                      <Typography
-                        variant="caption"
-                        sx={{ fontSize: "0.75rem" }}
-                      >
-                        {option?.label || "Available"}
-                      </Typography>
-                    </Box>
-                  );
+                  color: "#666",
                 }}
               >
-                {statusOptions.map((option) => (
-                  <MenuItem
-                    key={option.value}
-                    value={option.value}
-                    sx={{ fontSize: "0.75rem" }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          backgroundColor: option.color,
-                          flexShrink: 0,
-                        }}
-                      />
-                      {option.label}
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Select>
-                 )}
+                {userData?.email || "user@example.com"}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={handleCopyEmail}
+                sx={{
+                  color: "#666",
+                  p: 0.5,
+                }}
+              >
+                <CopyIcon fontSize="small" />
+              </IconButton>
+            </Box>
+
+            {/* Status Selector */}
+            <FormControl size="small" sx={{ maxWidth: "75%", width: "100%" }}>
+              {statusLoading ? (
+                <Skeleton
+                  variant="rectangular"
+                  width={150}
+                  height={32}
+                  sx={{ borderRadius: 1 }}
+                />
+              ) : (
+                <Select
+                  value={currentStatus}
+                  onChange={(e) => handleChangeStatus(e.target.value)}
+                  sx={{
+                    fontSize: "0.875rem",
+                    height: 36,
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#dadce0",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#1976d2",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#1976d2",
+                    },
+                    backgroundColor: "#fff",
+                  }}
+                  renderValue={(selected) => {
+                    const option = statusOptions.find(
+                      (opt) => opt.value === selected
+                    );
+                    return (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            backgroundColor: option?.color || "#4caf50",
+                            flexShrink: 0,
+                          }}
+                        />
+                        <Typography variant="body2" sx={{ fontSize: "0.875rem" }}>
+                          {option?.label || "Available"}
+                        </Typography>
+                      </Box>
+                    );
+                  }}
+                >
+                  {statusOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            backgroundColor: option.color,
+                            flexShrink: 0,
+                          }}
+                        />
+                        {option.label}
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+              )}
             </FormControl>
-       
-          <Divider orientation="vertical" flexItem />
-          <Button
-            variant="outlined"
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          {/* Account Actions Section */}
+          <Box
             sx={{
-              fontWeight: 600,
-              textTransform: "none",
-              borderRadius: 2,
-              px: 3,
-              py: 1,
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/staff-profile/${userData?.uID}`);
-              onClose();
+              mt: 5,
+              mb: 5,
             }}
           >
-            Manage your TMS Account
-          </Button>
-        </Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+              }}
+            >
+              <Button
+                variant="outlined"
+                startIcon={<PersonIcon />}
+                onClick={handleMyAccount}
+                sx={{
+                  flex: 1,
+                  textTransform: "none",
+                  borderColor: "#e0e0e0",
+                  color: "#000",
+                  "&:hover": {
+                    borderColor: "#bdbdbd",
+                    backgroundColor: "#f5f5f5",
+                  },
+                  py: 1.5,
+                }}
+              >
+                My Account
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<LogoutIcon />}
+                onClick={handleSignOut}
+                sx={{
+                  flex: 1,
+                  textTransform: "none",
+                  borderColor: "#d32f2f",
+                  color: "#d32f2f",
+                  "&:hover": {
+                    borderColor: "#c62828",
+                    backgroundColor: "#ffebee",
+                  },
+                  py: 1.5,
+                }}
+              >
+                Sign Out
+              </Button>
+            </Box>
+          </Box>
 
-        <Divider />
+          <Divider sx={{ my: 2 }} />
 
-        {/* Sign Out Section */}
-        <Box sx={{ p: 2 }}>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={() => {
-              // Clear all local storage
-              localStorage.clear();
-              sessionStorage.clear();
-
-              // Clear all cookies
-              document.cookie.split(";").forEach((c) => {
-                document.cookie = c
-                  .replace(/^ +/, "")
-                  .replace(
-                    /=.*/,
-                    "=;expires=" + new Date().toUTCString() + ";path=/"
-                  );
-              });
-
-              // Close the popup
-              onClose();
-
-              // Use the AuthContext signOut function
-              signOut();
-
-              // Navigate to login page
-              navigate("/login");
-            }}
+          {/* Information and Help Links Section */}
+          <Box
             sx={{
-              borderColor: "#dadce0",
-              color: "#d93025",
-              fontWeight: 600,
-              textTransform: "none",
-              borderRadius: 2,
-              py: 1.5,
-              "&:hover": {
-                borderColor: "#d93025",
-                backgroundColor: "#fef7f7",
-              },
+              mb: 3,
             }}
           >
-            Log Out
-          </Button>
-        </Box>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 2,
+              }}
+            >
+              {/* Left Column */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 0.7,
+                    },
+                  }}
+                >
+                  <StarIcon sx={{ color: "#000", fontSize: 20 }} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#000",
+                      fontWeight: 400,
+                    }}
+                  >
+                    What's new?
+                  </Typography>
+                </Box>
 
-        {/* Footer */}
-        <Box sx={{ p: 2, pt: 1, textAlign: "center" }}>
-          <Typography variant="caption" sx={{ color: "#666" }}>
-            <span style={{ cursor: "pointer", textDecoration: "underline" }}>
-              Privacy Policy
-            </span>
-            {" • "}
-            <span style={{ cursor: "pointer", textDecoration: "underline" }}>
-              Terms of Service
-            </span>
-          </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 0.7,
+                    },
+                  }}
+                >
+                  <FeedbackIcon sx={{ color: "#000", fontSize: 20 }} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#000",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Feedback
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 0.7,
+                    },
+                  }}
+                >
+                  <ForumIcon sx={{ color: "#000", fontSize: 20 }} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#000",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Community
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Right Column */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 0.7,
+                    },
+                  }}
+                >
+                  <HelpIcon sx={{ color: "#000", fontSize: 20 }} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#000",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Help
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 0.7,
+                    },
+                  }}
+                >
+                  <SendIcon sx={{ color: "#000", fontSize: 20 }} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#000",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Take a tour
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 0.7,
+                    },
+                  }}
+                >
+                  <BlogIcon sx={{ color: "#000", fontSize: 20 }} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#000",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Blog
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          {/* Social Media Links Section */}
+          <Box
+            sx={{
+              mb: 3,
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 600,
+                textAlign: "center",
+                color: "#000",
+                mb: 2,
+              }}
+            >
+              Follow us for latest updates!
+            </Typography>
+
+            <Box
+              sx={{
+                display: "flex",
+                gap: 3,
+                justifyContent: "center",
+              }}
+            >
+              {/* Twitter/X */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 0.5,
+                  cursor: "pointer",
+                  "&:hover": {
+                    opacity: 0.7,
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    border: "1px solid #000",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "#000",
+                      fontWeight: 600,
+                      fontSize: "1rem",
+                    }}
+                  >
+                    𝕏
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#000",
+                    fontSize: "0.75rem",
+                  }}
+                >
+                  Twitter
+                </Typography>
+              </Box>
+
+              {/* LinkedIn */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 0.5,
+                  cursor: "pointer",
+                  "&:hover": {
+                    opacity: 0.7,
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    border: "1px solid #000",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "#000",
+                      fontWeight: 600,
+                      fontSize: "0.875rem",
+                    }}
+                  >
+                    in
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#000",
+                    fontSize: "0.75rem",
+                  }}
+                >
+                  Linkedin
+                </Typography>
+              </Box>
+
+              {/* YouTube */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 0.5,
+                  cursor: "pointer",
+                  "&:hover": {
+                    opacity: 0.7,
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    border: "1px solid #000",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 0,
+                      height: 0,
+                      borderLeft: "10px solid #000",
+                      borderTop: "7px solid transparent",
+                      borderBottom: "7px solid transparent",
+                      ml: 0.5,
+                    }}
+                  />
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#000",
+                    fontSize: "0.75rem",
+                  }}
+                >
+                  Youtube
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
         </Box>
-      </Paper>
-    </Popper>
+      </Box>
+    </Drawer>
   );
 };
 
