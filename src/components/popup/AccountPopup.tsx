@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Drawer,
   Box,
@@ -11,6 +11,8 @@ import {
   Select,
   MenuItem,
   Skeleton,
+  Paper,
+  Link,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -24,6 +26,7 @@ import {
   CreateOutlined as BlogIcon,
   ContentCopy as CopyIcon,
   HelpOutlineOutlined as QuestionIcon,
+  ArrowForward as ArrowForwardIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useStatus } from "../../contextApi/StatusContext";
@@ -58,6 +61,8 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
     useUpdateActiveStatusMutation();
   const { showToast } = useToast();
   const dispatch = useDispatch();
+  const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
+  const [countdown, setCountdown] = useState(6);
 
   const handleCopyEmail = () => {
     if (userData?.email) {
@@ -67,6 +72,14 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
   };
 
   const handleSignOut = () => {
+    // Reset countdown
+    setCountdown(6);
+    // Open sign-out confirmation drawer
+    setShowSignOutConfirmation(true);
+    onClose(); // Close the account drawer
+  };
+
+  const performSignOut = () => {
     // Clear all local storage
     localStorage.clear();
     sessionStorage.clear();
@@ -78,15 +91,28 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
 
-    // Close the drawer
-    onClose();
-
     // Use the AuthContext signOut function
     signOut();
 
     // Navigate to login page
     navigate("/login");
   };
+
+  const handleRedirectNow = () => {
+    performSignOut();
+  };
+
+  // Countdown timer for auto-redirect
+  useEffect(() => {
+    if (showSignOutConfirmation && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (showSignOutConfirmation && countdown === 0) {
+      performSignOut();
+    }
+  }, [showSignOutConfirmation, countdown]);
 
   const handleMyAccount = () => {
     navigate(`/staff-profile/${userData?.uID}`);
@@ -118,6 +144,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
   };
 
   return (
+    <>
     <Drawer
       anchor="right"
       open={open}
@@ -401,29 +428,6 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                     Feedback
                   </Typography>
                 </Box>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    cursor: "pointer",
-                    "&:hover": {
-                      opacity: 0.7,
-                    },
-                  }}
-                >
-                  <ForumIcon sx={{ color: "#000", fontSize: 20 }} />
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "#000",
-                      fontWeight: 400,
-                    }}
-                  >
-                    Community
-                  </Typography>
-                </Box>
               </Box>
 
               {/* Right Column */}
@@ -477,29 +481,6 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                     }}
                   >
                     Take a tour
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    cursor: "pointer",
-                    "&:hover": {
-                      opacity: 0.7,
-                    },
-                  }}
-                >
-                  <BlogIcon sx={{ color: "#000", fontSize: 20 }} />
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "#000",
-                      fontWeight: 400,
-                    }}
-                  >
-                    Blog
                   </Typography>
                 </Box>
               </Box>
@@ -673,6 +654,211 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
         </Box>
       </Box>
     </Drawer>
+
+      {/* Sign Out Confirmation Drawer - Full Screen */}
+      <Drawer
+        anchor="right"
+        open={showSignOutConfirmation}
+        onClose={() => {}} // Prevent closing by backdrop/ESC
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: "100%",
+            height: "100%",
+            maxWidth: "100vw",
+            backgroundColor: "#f5f5f5",
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 3,
+            position: "relative",
+            background: "linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)",
+          }}
+        >
+          {/* Decorative background circles */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: "300px",
+              height: "300px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.3)",
+              filter: "blur(40px)",
+              zIndex: 0,
+            }}
+          />
+          <Box
+            sx={{
+              position: "absolute",
+              top: "10%",
+              left: "10%",
+              width: "200px",
+              height: "200px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.2)",
+              filter: "blur(30px)",
+              zIndex: 0,
+            }}
+          />
+
+          {/* Main Content Card */}
+          <Paper
+            elevation={0}
+            sx={{
+              width: "100%",
+              maxWidth: 500,
+              borderRadius: 3,
+              overflow: "hidden",
+              position: "relative",
+              zIndex: 1,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            }}
+          >
+            {/* Top Decorative Section */}
+            <Box
+              sx={{
+                height: 120,
+                backgroundColor: "#fafafa",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {/* Decorative circles in header */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: -20,
+                  right: 20,
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "rgba(0, 0, 0, 0.05)",
+                  filter: "blur(20px)",
+                }}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: -30,
+                  left: 30,
+                  width: "100px",
+                  height: "100px",
+                  borderRadius: "50%",
+                  background: "rgba(0, 0, 0, 0.03)",
+                  filter: "blur(25px)",
+                }}
+              />
+            </Box>
+
+            {/* Content Section */}
+            <Box
+              sx={{
+                p: 4,
+                backgroundColor: "#fff",
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 600,
+                  color: "#000",
+                  mb: 3,
+                }}
+              >
+                Signed out
+              </Typography>
+
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#666",
+                  mb: 2,
+                  lineHeight: 1.6,
+                }}
+              >
+                You're being signed out from your account. Sign out from your{" "}
+                <Link
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // Open Google sign out in new window
+                    window.open(
+                      "https://accounts.google.com/logout",
+                      "_blank"
+                    );
+                  }}
+                  sx={{
+                    color: "#1976d2",
+                    textDecoration: "none",
+                    fontWeight: 500,
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
+                >
+                  Google account
+                </Link>{" "}
+                as well to prevent any unintended access from this browser.
+              </Typography>
+
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#666",
+                  mb: 4,
+                }}
+              >
+                You will be redirected to the login page in{" "}
+                <Typography
+                  component="span"
+                  sx={{
+                    fontWeight: 600,
+                    color: "#1976d2",
+                  }}
+                >
+                  {countdown} sec
+                </Typography>
+                .
+              </Typography>
+
+              <Button
+                variant="contained"
+                endIcon={<ArrowForwardIcon />}
+                onClick={handleRedirectNow}
+                fullWidth
+                sx={{
+                  backgroundColor: "#e3f2fd",
+                  color: "#1976d2",
+                  textTransform: "none",
+                  fontWeight: 500,
+                  py: 1.5,
+                  borderRadius: 2,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                  "&:hover": {
+                    backgroundColor: "#bbdefb",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  },
+                }}
+              >
+                Redirect Now
+              </Button>
+            </Box>
+          </Paper>
+        </Box>
+      </Drawer>
+    </>
   );
 };
 
