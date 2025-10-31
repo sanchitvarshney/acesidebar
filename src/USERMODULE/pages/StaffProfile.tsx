@@ -130,11 +130,11 @@ const StaffProfile = () => {
   return (
     <Box
       sx={{
-        width: "100%",
+        width: "75%",
         minHeight: "calc(100vh - 96px)",
-        backgroundColor: "#f5f5f5",
         padding: 3,
         overflow: "auto",
+        margin: "0 auto",
       }}
     >
       {/* User Profile Details Section */}
@@ -142,6 +142,7 @@ const StaffProfile = () => {
         elevation={0}
         sx={{
           backgroundColor: "#fff",
+          border: "1px solid #e5e7eb",
           borderRadius: 2,
           padding: 3,
           marginBottom: 3,
@@ -684,6 +685,7 @@ const StaffProfile = () => {
         elevation={0}
         sx={{
           backgroundColor: "#fff",
+          border: "1px solid #e5e7eb",
           borderRadius: 2,
           padding: 3,
           marginBottom: 3,
@@ -795,6 +797,7 @@ const StaffProfile = () => {
         elevation={0}
         sx={{
           backgroundColor: "#fff",
+          border: "1px solid #e5e7eb",
           borderRadius: 2,
           padding: 3,
           boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
