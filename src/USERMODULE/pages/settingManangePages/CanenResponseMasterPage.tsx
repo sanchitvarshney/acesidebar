@@ -835,7 +835,7 @@ const CanenResponseMasterPage = () => {
           <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
             <TableContainer
               sx={{
-                height: "calc(100vh - 340px)",
+                height: "calc(100vh - 300px)",
 
                 position: "relative",
               }}
@@ -1009,15 +1009,7 @@ const CanenResponseMasterPage = () => {
               </Table>
             </TableContainer>
           </Card>
-          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-            <Pagination
-              count={pagination.totalPages}
-              page={pagination.page}
-              onChange={handlePageChange}
-              color="primary"
-              size="small"
-            />
-          </Box>
+        
         </Box>
       </Stack>
       <Menu

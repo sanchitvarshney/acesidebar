@@ -135,7 +135,7 @@ const AutomationMaster = () => {
       {/* Left Content */}
       <Box
         sx={{
-          p: 1,
+         
           display: "flex",
           flexDirection: "column",
           gap: 2,
@@ -199,6 +199,7 @@ const AutomationMaster = () => {
                 display: "flex",
                 alignItems: "center",
                 gap: 2,
+                mx:1,
               }}
             >
               <Typography variant="subtitle1">Rules that run on:</Typography>

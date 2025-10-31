@@ -123,9 +123,11 @@ const ManageTags = () => {
 
   return (
     <div className="w-full h-full grid grid-cols-[3fr_1fr] ">
-      <div className=" min-h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-y-auto p-4  space-y-6 border-r border-gray-200">
+      <div className=" min-h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-y-auto p-0  space-y-6 border-r border-gray-200">
         <section className="space-y-4">
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2,        p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa", }}>
             <IconButton
               onClick={() => navigate("/settings/tickets-workflows")}
             >
@@ -135,10 +137,14 @@ const ManageTags = () => {
               Tags
             </Typography>
           </Box>
-          <Stack
+ 
+        </section>
+
+                 <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={1}
             alignItems={{ xs: "stretch", sm: "flex-start" }}
+            mx={1}
           >
             <TextField
               size="small"
@@ -173,16 +179,9 @@ const ManageTags = () => {
               Clear
             </Button>
           </Stack>
-        </section>
 
-        <Divider />
-
-        {/* {isTagListLoading ? (
-          <div className="flex items-center justify-center  text-gray-500">
-            <CircularProgress color="primary" />
-          </div>
-        ) : ( */}
-          <section className="space-y-2">
+    
+          <section className="space-y-2 mx-1">
             <Typography variant="subtitle1" fontWeight={600}>
               All tags
             </Typography>

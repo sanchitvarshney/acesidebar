@@ -66,35 +66,7 @@ const HelpTopics = () => {
   const [rows, setRows] = useState<any[]>(helpTopicData);
 
   const [trackId, setTrackId] = useState<any>("");
-  //   const fetchList = async (
-  //     p = page,
-  //     limit = rowsPerPage,
-  //     search = searchTerm
-  //   ) => {
-  //     const params = { page: p + 1, limit, search };
-  //     const res: any = await triggerGetList(params);
-  //     const data = res?.data;
-  //     const list =
-  //       data?.data?.items ||
-  //       data?.data?.list ||
-  //       data?.items ||
-  //       data?.list ||
-  //       data?.data ||
-  //       [];
-  //     const total =
-  //       data?.data?.total ||
-  //       data?.total ||
-  //       data?.pagination?.total ||
-  //       list?.length ||
-  //       0;
-  //     setRows(Array.isArray(list) ? list : []);
-  //     setTotalCount(Number(total) || 0);
-  //   };
-
-  //   useEffect(() => {
-  //     fetchList();
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, [page, rowsPerPage]);
+ 
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;

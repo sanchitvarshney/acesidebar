@@ -27,6 +27,7 @@ import {
   FormControlLabel,
   Checkbox,
   Divider,
+  TablePagination,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -172,6 +173,66 @@ const ChatsOverview: React.FC = () => {
   ];
 
   const recentSessions: ChatSession[] = [
+      {
+      id: "1",
+      customer: "John Doe",
+      agent: "Sarah Wilson",
+      status: "active",
+      startTime: "2:30 PM",
+      duration: "15 min",
+      priority: "high",
+      tags: ["Technical", "Urgent"],
+      lastMessage: "I need help with my account",
+      unreadCount: 3,
+    },
+    {
+      id: "2",
+      customer: "Jane Smith",
+      agent: "Mike Johnson",
+      status: "waiting",
+      startTime: "2:15 PM",
+      duration: "8 min",
+      priority: "medium",
+      tags: ["Billing"],
+      lastMessage: "When will my refund be processed?",
+      unreadCount: 0,
+    },
+    {
+      id: "3",
+      customer: "Bob Johnson",
+      agent: "Lisa Brown",
+      status: "resolved",
+      startTime: "1:45 PM",
+      duration: "25 min",
+      priority: "low",
+      tags: ["General"],
+      lastMessage: "Thank you for your help!",
+      unreadCount: 0,
+    },
+    {
+      id: "4",
+      customer: "Alice Brown",
+      agent: "Tom Wilson",
+      status: "active",
+      startTime: "2:00 PM",
+      duration: "12 min",
+      priority: "medium",
+      tags: ["Support"],
+      lastMessage: "Can you help me with this issue?",
+      unreadCount: 1,
+    },
+    {
+      id: "5",
+      customer: "Charlie Davis",
+      agent: "Emma Taylor",
+      status: "waiting",
+      startTime: "1:30 PM",
+      duration: "5 min",
+      priority: "high",
+      tags: ["Technical", "Critical"],
+      lastMessage: "The system is not responding",
+      unreadCount: 2,
+    },
     {
       id: "1",
       customer: "John Doe",
@@ -384,7 +445,16 @@ const ChatsOverview: React.FC = () => {
   let filterData = recentSessions;
   filterData = applyFilters(filterData);
   return (
-    <Box sx={{ p: 3, height: "100%", overflow: "hidden", width: "100%" }}>
+    <Box
+      sx={{
+        p: 3,
+        maxHeight: "calc(100vh - 96px)",
+        overflow: "auto",
+        width: "100%",
+        position: "relative",
+      
+      }}
+    >
       {/* Header */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
@@ -524,432 +594,441 @@ const ChatsOverview: React.FC = () => {
         </Card>
       </Box>
 
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          mb: 3,
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
+    
         <Box
           sx={{
-            backgroundColor: "#fff",
-            borderRadius: 1,
-            border: "1px solid #e0e0e0",
-
-            display: "grid",
-            gridTemplateColumns: "80% 20%",
-            overflow: "hidden",
+            display: "flex",
+            gap: 2,
+            mb: 3,
+            alignItems: "center",
             width: "100%",
           }}
         >
-          {/* 80% Editable Area */}
           <Box
             sx={{
-              p: 3,
-              cursor: activeFilters.length < 5 ? "pointer" : "default",
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              borderRight: "1px solid #e0e0e0",
-              "&:hover":
-                activeFilters.length < 5
-                  ? {
-                      backgroundColor: "#f8f9fa",
-                    }
-                  : {},
-            }}
-            onClick={
-              activeFilters.length < 5
-                ? (event) => setFilterMenuAnchor(event.currentTarget)
-                : undefined
-            }
-          >
-            {/* Editable Filter Input Area - Show only when no filters */}
-            {activeFilters.length === 0 && (
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}
-              >
-                <IconButton
-                  size="small"
-                  sx={{
-                    backgroundColor: "#f5f5f5",
-                    color: "#666",
-                    width: 32,
-                    height: 32,
-                    "&:hover": {
-                      backgroundColor: "#e0e0e0",
-                    },
-                  }}
-                >
-                  <AddIcon fontSize="small" />
-                </IconButton>
+              backgroundColor: "#fff",
+              borderRadius: 1,
+              border: "1px solid #e0e0e0",
 
-                <Typography
-                  variant="body1"
+              display: "grid",
+              gridTemplateColumns: "80% 20%",
+              overflow: "hidden",
+              width: "100%",
+            }}
+          >
+            {/* 80% Editable Area */}
+            <Box
+              sx={{
+                p: 3,
+                cursor: activeFilters.length < 5 ? "pointer" : "default",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                borderRight: "1px solid #e0e0e0",
+                "&:hover":
+                  activeFilters.length < 5
+                    ? {
+                        backgroundColor: "#f8f9fa",
+                      }
+                    : {},
+              }}
+              onClick={
+                activeFilters.length < 5
+                  ? (event) => setFilterMenuAnchor(event.currentTarget)
+                  : undefined
+              }
+            >
+              {/* Editable Filter Input Area - Show only when no filters */}
+              {activeFilters.length === 0 && (
+                <Box
                   sx={{
-                    color: "#999",
-                    fontSize: "0.875rem",
-                    fontStyle: "italic",
-                    userSelect: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
                     flex: 1,
                   }}
                 >
-                  Add a filter
-                </Typography>
-              </Box>
-            )}
-
-            {/* Applied Filters Display in Editable Area */}
-            {activeFilters.length > 0 && (
-              <Stack
-                direction="row"
-                spacing={1}
-                flexWrap="wrap"
-                useFlexGap
-                sx={{ alignItems: "center" }}
-              >
-                {activeFilters.map((filter, index) => (
-                  <Chip
-                    key={filter.id}
-                    ref={
-                      index === activeFilters.length - 1 ? setLastChipRef : null
-                    }
-                    label={`${filter.label}: "${filter.value}"`}
-                    onDelete={(e) => {
-                      e.stopPropagation();
-                      removeFilter(filter.id);
-                    }}
+                  <IconButton
                     size="small"
                     sx={{
-                      backgroundColor: "#e8e8e8",
-                      color: "#333",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      "& .MuiChip-deleteIcon": {
-                        color: "#666",
-                        "&:hover": {
-                          color: "#333",
-                        },
-                      },
-                    }}
-                  />
-                ))}
-
-                {/* Add filter placeholder after existing filters */}
-                {activeFilters.length < 5 && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      padding: "6px 12px",
-                      borderRadius: "16px",
-                      border: "1px dashed #d0d0d0",
-                      backgroundColor: "#f9f9f9",
-                      cursor: "pointer",
-                      color: "#999",
-                      fontSize: "0.875rem",
+                      backgroundColor: "#f5f5f5",
+                      color: "#666",
+                      width: 32,
+                      height: 32,
                       "&:hover": {
-                        borderColor: "#1976d2",
-                        backgroundColor: "#f5f5f5",
-                        color: "#666",
+                        backgroundColor: "#e0e0e0",
                       },
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setFilterMenuAnchor(e.currentTarget);
                     }}
                   >
                     <AddIcon fontSize="small" />
-                    <Typography
-                      variant="body2"
-                      sx={{ fontSize: "0.875rem", fontStyle: "italic" }}
-                    >
-                      Add a filter
-                    </Typography>
-                  </Box>
-                )}
-              </Stack>
-            )}
-          </Box>
+                  </IconButton>
 
-          {/* 20% Actions Area */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 1,
-              p: 2,
-              backgroundColor: "#f8f9fa",
-              borderLeft: "1px solid #e0e0e0",
-            }}
-          >
-            {/* Action buttons row */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 1,
-                alignItems: "center",
-              }}
-            >
-              {/* Clear all Filter button */}
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "#999",
+                      fontSize: "0.875rem",
+                      fontStyle: "italic",
+                      userSelect: "none",
+                      flex: 1,
+                    }}
+                  >
+                    Add a filter
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Applied Filters Display in Editable Area */}
               {activeFilters.length > 0 && (
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    clearAllFilters();
-                  }}
-                  sx={{
-                    borderColor: "#e0e0e0",
-                    color: "#666",
-                    textTransform: "none",
-                    fontSize: "0.75rem",
-                    minWidth: "auto",
-                    padding: "4px 8px",
-                    "&:hover": {
-                      borderColor: "#d32f2f",
-                      color: "#d32f2f",
-                      backgroundColor: "#fff5f5",
-                    },
-                  }}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  flexWrap="wrap"
+                  useFlexGap
+                  sx={{ alignItems: "center" }}
                 >
-                  Clear all Filter
-                </Button>
-              )}
+                  {activeFilters.map((filter, index) => (
+                    <Chip
+                      key={filter.id}
+                      ref={
+                        index === activeFilters.length - 1
+                          ? setLastChipRef
+                          : null
+                      }
+                      label={`${filter.label}: "${filter.value}"`}
+                      onDelete={(e) => {
+                        e.stopPropagation();
+                        removeFilter(filter.id);
+                      }}
+                      size="small"
+                      sx={{
+                        backgroundColor: "#e8e8e8",
+                        color: "#333",
+                        fontSize: "0.875rem",
+                        fontWeight: 500,
+                        "& .MuiChip-deleteIcon": {
+                          color: "#666",
+                          "&:hover": {
+                            color: "#333",
+                          },
+                        },
+                      }}
+                    />
+                  ))}
 
-              {/* Search icon */}
-              <IconButton
-                size="small"
-                sx={{
-                  color: "#666",
-                  border: "1px solid #e0e0e0",
-                  "&:hover": {
-                    color: "#1976d2",
-                    borderColor: "#1976d2",
-                    backgroundColor: "#f5f5f5",
-                  },
-                }}
-              >
-                <SearchIcon fontSize="small" />
-              </IconButton>
-            </Box>
-
-            {/* Filter counter */}
-            {activeFilters.length > 0 && (
-              <Typography
-                variant="body2"
-                sx={{
-                  color: activeFilters.length >= 5 ? "#f57c00" : "#999",
-                  fontSize: "0.7rem",
-                  textAlign: "center",
-                  fontStyle: "italic",
-                }}
-              >
-                {activeFilters.length >= 5
-                  ? "Maximum 5 filters reached"
-                  : `${activeFilters.length}/5`}
-              </Typography>
-            )}
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Chat History List */}
-      {/* <Box sx={{ height: "calc(100vh - 400px)", overflow: "auto" }}> */}
-      <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-        <TableContainer
-          sx={{
-            height: "calc(100vh - 530px)",
-
-            position: "relative",
-          }}
-          className="custom-scrollbar"
-        >
-          <Table stickyHeader>
-            <TableHead sx={{ position: "relative" }}>
-              {/* Linear Progress Loader */}
-              {false && (
-                <LinearProgress
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    zIndex: 1,
-                    height: 4,
-                    "& .MuiLinearProgress-bar": {
-                      backgroundColor: "#1976d2",
-                    },
-                    "& .MuiLinearProgress-root": {
-                      backgroundColor: "#e0e0e0",
-                    },
-                  }}
-                />
-              )}
-              <TableRow sx={{ bgcolor: "#f8f9fa" }}>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    color: "#1a1a1a",
-                    borderBottom: "2px solid #e0e0e0",
-                  }}
-                >
-                  Department Name
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    color: "#1a1a1a",
-                    borderBottom: "2px solid #e0e0e0",
-                  }}
-                >
-                  Type
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    color: "#1a1a1a",
-                    borderBottom: "2px solid #e0e0e0",
-                  }}
-                >
-                  Manager
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    color: "#1a1a1a",
-                    borderBottom: "2px solid #e0e0e0",
-                  }}
-                >
-                  Team Size
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    color: "#1a1a1a",
-                    borderBottom: "2px solid #e0e0e0",
-                  }}
-                >
-                  Status
-                </TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {filterData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                  {/* Add filter placeholder after existing filters */}
+                  {activeFilters.length < 5 && (
                     <Box
                       sx={{
                         display: "flex",
-                        flexDirection: "column",
                         alignItems: "center",
-                        gap: 2,
+                        gap: 1,
+                        padding: "6px 12px",
+                        borderRadius: "16px",
+                        border: "1px dashed #d0d0d0",
+                        backgroundColor: "#f9f9f9",
+                        cursor: "pointer",
+                        color: "#999",
+                        fontSize: "0.875rem",
+                        "&:hover": {
+                          borderColor: "#1976d2",
+                          backgroundColor: "#f5f5f5",
+                          color: "#666",
+                        },
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setFilterMenuAnchor(e.currentTarget);
                       }}
                     >
-                      <Typography variant="h6" color="textSecondary">
-                        No departments found
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Create a new department to get started
+                      <AddIcon fontSize="small" />
+                      <Typography
+                        variant="body2"
+                        sx={{ fontSize: "0.875rem", fontStyle: "italic" }}
+                      >
+                        Add a filter
                       </Typography>
                     </Box>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filterData.map((row: any, index: number) => (
-                  <TableRow
-                    key={row.id || row.key || index}
-                    hover
+                  )}
+                </Stack>
+              )}
+            </Box>
+
+            {/* 20% Actions Area */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 1,
+                p: 2,
+                backgroundColor: "#f8f9fa",
+                borderLeft: "1px solid #e0e0e0",
+              }}
+            >
+              {/* Action buttons row */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 1,
+                  alignItems: "center",
+                }}
+              >
+                {/* Clear all Filter button */}
+                {activeFilters.length > 0 && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      clearAllFilters();
+                    }}
                     sx={{
-                      "&:last-child td, &:last-child th": { border: 0 },
+                      borderColor: "#e0e0e0",
+                      color: "#666",
+                      textTransform: "none",
+                      fontSize: "0.75rem",
+                      minWidth: "auto",
+                      padding: "4px 8px",
                       "&:hover": {
-                        bgcolor: "#f8f9fa",
+                        borderColor: "#d32f2f",
+                        color: "#d32f2f",
+                        backgroundColor: "#fff5f5",
                       },
                     }}
                   >
-                    <TableCell
-                      sx={{
-                        fontWeight: 500,
-                        fontSize: "15px",
-                        color: "#1a1a1a",
-                      }}
-                    >
-                      {row.departmentName}
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={row.departmentType || "N/A"}
-                        size="small"
+                    Clear all Filter
+                  </Button>
+                )}
+
+                {/* Search icon */}
+                <IconButton
+                  size="small"
+                  sx={{
+                    color: "#666",
+                    border: "1px solid #e0e0e0",
+                    "&:hover": {
+                      color: "#1976d2",
+                      borderColor: "#1976d2",
+                      backgroundColor: "#f5f5f5",
+                    },
+                  }}
+                >
+                  <SearchIcon fontSize="small" />
+                </IconButton>
+              </Box>
+
+              {/* Filter counter */}
+              {activeFilters.length > 0 && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: activeFilters.length >= 5 ? "#f57c00" : "#999",
+                    fontSize: "0.7rem",
+                    textAlign: "center",
+                    fontStyle: "italic",
+                  }}
+                >
+                  {activeFilters.length >= 5
+                    ? "Maximum 5 filters reached"
+                    : `${activeFilters.length}/5`}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        </Box>
+
+        <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+          <TableContainer
+            sx={{
+              maxHeight: "calc(100vh - 350px)",
+              overflow: "auto",
+              position: "relative",
+            }}
+            className="custom-scrollbar"
+          >
+            <Table stickyHeader>
+              <TableHead sx={{ position: "relative" }}>
+                {/* Linear Progress Loader */}
+                {false && (
+                  <LinearProgress
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 1,
+                      height: 4,
+                      "& .MuiLinearProgress-bar": {
+                        backgroundColor: "#1976d2",
+                      },
+                      "& .MuiLinearProgress-root": {
+                        backgroundColor: "#e0e0e0",
+                      },
+                    }}
+                  />
+                )}
+                <TableRow sx={{ bgcolor: "#f8f9fa" }}>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      color: "#1a1a1a",
+                      borderBottom: "2px solid #e0e0e0",
+                    }}
+                  >
+                    Department Name
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      color: "#1a1a1a",
+                      borderBottom: "2px solid #e0e0e0",
+                    }}
+                  >
+                    Type
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      color: "#1a1a1a",
+                      borderBottom: "2px solid #e0e0e0",
+                    }}
+                  >
+                    Manager
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      color: "#1a1a1a",
+                      borderBottom: "2px solid #e0e0e0",
+                    }}
+                  >
+                    Team Size
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      color: "#1a1a1a",
+                      borderBottom: "2px solid #e0e0e0",
+                    }}
+                  >
+                    Status
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {filterData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                      <Box
                         sx={{
-                          bgcolor: "#e3f2fd",
-                          color: "#1976d2",
-                          fontWeight: 500,
-                          fontSize: "11px",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 2,
                         }}
-                      />
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontSize: "14px",
-                        color: "#65676b",
-                      }}
-                    >
-                      {row.manager || "Not assigned"}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        fontSize: "14px",
-                        color: "#65676b",
-                      }}
-                    >
-                      {row.agentCount || 0}
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={row.isActive === false ? "Inactive" : "Active"}
-                        size="small"
-                        sx={{
-                          bgcolor:
-                            row.isActive === false ? "#ffebee" : "#e8f5e8",
-                          color: row.isActive === false ? "#d32f2f" : "#2e7d32",
-                          fontWeight: 600,
-                          fontSize: "12px",
-                        }}
-                      />
+                      >
+                        <Typography variant="h6" color="textSecondary">
+                          No departments found
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          Create a new department to get started
+                        </Typography>
+                      </Box>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
+                ) : (
+                  filterData.map((row: any, index: number) => (
+                    <TableRow
+                      key={row.id || row.key || index}
+                      hover
+                      sx={{
+                        "&:last-child td, &:last-child th": { border: 0 },
+                        "&:hover": {
+                          bgcolor: "#f8f9fa",
+                        },
+                      }}
+                    >
+                      <TableCell
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: "15px",
+                          color: "#1a1a1a",
+                        }}
+                      >
+                        {row.departmentName}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={row.departmentType || "N/A"}
+                          size="small"
+                          sx={{
+                            bgcolor: "#e3f2fd",
+                            color: "#1976d2",
+                            fontWeight: 500,
+                            fontSize: "11px",
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "14px",
+                          color: "#65676b",
+                        }}
+                      >
+                        {row.manager || "Not assigned"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "14px",
+                          color: "#65676b",
+                        }}
+                      >
+                        {row.agentCount || 0}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={row.isActive === false ? "Inactive" : "Active"}
+                          size="small"
+                          sx={{
+                            bgcolor:
+                              row.isActive === false ? "#ffebee" : "#e8f5e8",
+                            color:
+                              row.isActive === false ? "#d32f2f" : "#2e7d32",
+                            fontWeight: 600,
+                            fontSize: "12px",
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {filterData.length > 0 && (
+            <TablePagination
+              component="div"
+              count={filterData.length}
+              page={0}
+              onPageChange={() => {}}
+              rowsPerPage={1}
+              onRowsPerPageChange={() => {}}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              labelRowsPerPage="Rows per page"
+            />
+          )}
+        </Card>
+   
 
-      {/* Pagination */}
-      <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-        <Pagination
-          count={pagination.totalPages}
-          page={pagination.page}
-          onChange={handlePageChange}
-          color="primary"
-          size="small"
-        />
-      </Box>
-      {/* Filter Options Menu */}
       <Menu
         anchorEl={
           activeFilters.length > 0 && lastChipRef

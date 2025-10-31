@@ -42,11 +42,12 @@ const SessionManagementPage: React.FC = () => {
     null
   );
   const [sessions, setSessions] = useState<any[]>([]);
+  const [endAllSessions, setEndAllSessions] = useState(false);
+  const [endSessions, setEndSessions] = useState(false);
   const [triggerLogOut, { isLoading: isLoadingLogOut }] =
     useTriggerLogOutMutation();
 
-  const [deleteSession, { isLoading: isLoadingDeleteSession }] =
-    useDeleteSessionMutation();
+  const [deleteSession] = useDeleteSessionMutation();
 
   // Dynamic limits (can be updated from API/localStorage). Defaults provided.
   const [maxDesktopSessions, setMaxDesktopSessions] = useState<number>(() => {
@@ -64,9 +65,8 @@ const SessionManagementPage: React.FC = () => {
     setSessions(sessionData?.data ?? []);
   }, [sessionData]);
 
-
-
   const handleDeleteSession = (sessionId: string) => {
+    setEndSessions(true);
     setSessionToDelete(sessionId);
     handleConfirmDelete(sessionId);
   };
@@ -80,8 +80,8 @@ const SessionManagementPage: React.FC = () => {
     deleteSession({ session: [targetId] })
       .unwrap()
       .then((res) => {
-        console.log("res", res);
         if (res?.type === "error") {
+          setEndSessions(false);
           return;
         }
         if (res?.type === "success" && res?.success) {
@@ -89,43 +89,47 @@ const SessionManagementPage: React.FC = () => {
             prev.filter((session) => session.sessionId !== targetId)
           );
           setSessionToDelete(null);
+          setEndSessions(false);
         }
       })
       .catch(() => {
+        setEndSessions(false);
         handleLogOut();
       })
       .finally(() => {
+        setEndSessions(false);
         setDeletingSessionId(null);
       });
   };
 
   const handleConfirmDeleteAll = async () => {
+    setEndAllSessions(true);
     const ids = sessions.map((session) => session.sessionId);
     try {
       deleteSession({ session: [ids] })
         .unwrap()
         .then((res) => {
-          console.log("res", res);
           if (res?.type === "error") {
-          
+            setEndAllSessions(false);
             return;
           }
           if (res?.type === "success" && res?.success) {
-           
             setSessions([]);
+            setEndAllSessions(false);
           }
         })
         .catch(() => {
+          setEndAllSessions(false);
           handleLogOut();
         });
     } catch (error: any) {
+      setEndAllSessions(false);
     }
   };
 
   const handleContinueToDashboard = () => {
     triggerRegenrate({})
       .then((res: any) => {
-      
         if (res?.data?.success && res?.data?.type === "session_regenerated") {
           localStorage.setItem("userToken", res?.data?.data?.token);
           const decryptedData = JSON.stringify(decrypt(res?.data?.data?.user));
@@ -169,8 +173,6 @@ const SessionManagementPage: React.FC = () => {
         navigate("/login");
       });
   };
-
-
 
   return (
     <Box className="w-full h-screen bg-gray-50 flex flex-col">
@@ -311,19 +313,20 @@ const SessionManagementPage: React.FC = () => {
                               active
                             </Typography>
                           </div>
-                         {
-                          !isLoadingDeleteSession && (
-                             <Button
-                            variant="contained"
-                            size="small"
-                            onClick={handleConfirmDeleteAll}
-                          >
-                         
-                            End All Sessions
-                         
-                          </Button>
-                          )
-                         }
+                          {!endSessions && (
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={handleConfirmDeleteAll}
+                              id="endAll"
+                            >
+                              {endAllSessions ? (
+                                <CircularProgress size={16} />
+                              ) : (
+                                "End All Sessions"
+                              )}
+                            </Button>
+                          )}
                         </div>
                       </div>
 
@@ -376,26 +379,29 @@ const SessionManagementPage: React.FC = () => {
                                     </Typography>
                                   </div>
                                 </div>
-                                <Button
-                                  variant="text"
-                                  size="small"
-                                  onClick={() =>
-                                    handleDeleteSession(session?.sessionId)
-                                  }
-                                  disabled={
-                                    deletingSessionId === session?.sessionId
-                                  }
-                                  sx={{
-                                    fontWeight: 600,
-                                  }}
-                                >
-                                  {isLoadingDeleteSession &&
-                                  deletingSessionId === session?.sessionId ? (
-                                    <CircularProgress size={16} />
-                                  ) : (
-                                    "End session"
-                                  )}
-                                </Button>
+                                {!endAllSessions && (
+                                  <Button
+                                    id="end"
+                                    variant="text"
+                                    size="small"
+                                    onClick={() =>
+                                      handleDeleteSession(session?.sessionId)
+                                    }
+                                    disabled={
+                                      deletingSessionId === session?.sessionId
+                                    }
+                                    sx={{
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {endSessions &&
+                                    deletingSessionId === session?.sessionId ? (
+                                      <CircularProgress  />
+                                    ) : (
+                                      "End session"
+                                    )}
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           ))}

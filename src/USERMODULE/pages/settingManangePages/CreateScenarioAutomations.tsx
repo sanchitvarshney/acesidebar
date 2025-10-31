@@ -153,7 +153,8 @@ const CreateScenarioAutomations = () => {
       {/* Left Content */}
       <Box
         sx={{
-          p: 1,
+        
+          
           display: "flex",
           flexDirection: "column",
           gap: 2,
@@ -162,9 +163,27 @@ const CreateScenarioAutomations = () => {
           overflow: "hidden",
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
-          New Scenario
-        </Typography>
+          <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton onClick={() => navigate("/settings/tickets-workflows")}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: "#1a1a1a" }}>
+              New Scenario
+            </Typography>
+          </Box>
+
+        </Box>
 
         <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", p: 2 }}     className="custom-scrollbar">
           {/* Scenario Name */}

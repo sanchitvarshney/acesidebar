@@ -23,6 +23,7 @@ import {
   Checkbox,
   Divider,
   TextField,
+  TablePagination,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -154,6 +155,63 @@ const OnlineVisitors: React.FC = () => {
   ];
 
   const visitors: OnlineVisitor[] = [
+        {
+      id: "1",
+      name: "John Doe",
+      email: "john@example.com",
+      location: "New York, NY",
+      country: "United States",
+      language: "English",
+      currentPage: "/products",
+      timeOnSite: "5 min",
+      visitCount: 3,
+      lastActivity: "2 min ago",
+      status: "engaged",
+      priority: "high",
+      source: "Google Search",
+      device: "Desktop",
+      browser: "Chrome",
+      ipAddress: "192.168.1.1",
+      canContact: true,
+    },
+    {
+      id: "2",
+      name: "Jane Smith",
+      email: "jane@example.com",
+      location: "London, UK",
+      country: "United Kingdom",
+      language: "English",
+      currentPage: "/support",
+      timeOnSite: "12 min",
+      visitCount: 1,
+      lastActivity: "1 min ago",
+      status: "browsing",
+      priority: "medium",
+      source: "Direct",
+      device: "Mobile",
+      browser: "Safari",
+      ipAddress: "192.168.1.2",
+      canContact: true,
+    },
+    {
+      id: "3",
+      name: "Bob Johnson",
+      email: "bob@example.com",
+      location: "Toronto, CA",
+      country: "Canada",
+      language: "English",
+      currentPage: "/pricing",
+      timeOnSite: "3 min",
+      visitCount: 5,
+      lastActivity: "30 sec ago",
+      status: "idle",
+      priority: "low",
+      source: "Social Media",
+      device: "Tablet",
+      browser: "Firefox",
+      ipAddress: "192.168.1.3",
+      canContact: false,
+    },
     {
       id: "1",
       name: "John Doe",
@@ -363,7 +421,14 @@ const OnlineVisitors: React.FC = () => {
   let filterData = visitors;
   filterData = applyFilters(filterData);
   return (
-    <Box sx={{ p: 3, height: "100%", overflow: "hidden", width: "100%" }}>
+    <Box
+      sx={{
+        p: 3,
+        maxHeight: "calc(100vh - 96px)",
+        overflowY: "auto",
+        width: "100%",
+      }}
+    >
       {/* Header */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
@@ -727,8 +792,8 @@ const OnlineVisitors: React.FC = () => {
       <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
         <TableContainer
           sx={{
-            height: "calc(100vh - 530px)",
-
+            maxHeight: "calc(100vh - 350px)",
+            overflow: "auto",
             position: "relative",
           }}
           className="custom-scrollbar"
@@ -897,19 +962,18 @@ const OnlineVisitors: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          component="div"
+          count={filterData.length}
+          page={0}
+          onPageChange={() => {}}
+          rowsPerPage={1}
+          onRowsPerPageChange={() => {}}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          labelRowsPerPage="Rows per page"
+        />
       </Card>
 
-      {/* Pagination */}
-      <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-        <Pagination
-          count={pagination.totalPages}
-          page={pagination.page}
-          onChange={handlePageChange}
-          color="primary"
-          size="small"
-        />
-      </Box>
-      {/* Filter Options Menu */}
       <Menu
         anchorEl={
           activeFilters.length > 0 && lastChipRef

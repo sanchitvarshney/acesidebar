@@ -209,16 +209,41 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
 
   return (
     <Drawer
-      anchor="right"
+      anchor='right'
       open={open}
-      onClose={onClose}
-      sx={{
-        '& .MuiDrawer-paper': {
-          width: "40%",
-          boxShadow: '-4px 0 8px rgba(0,0,0,0.1)',
-          border: 'none'
+      onClose={(event, reason) => {
+        if (reason === "escapeKeyDown") {
+          onClose();
+          return;
+        }
+        if (reason === "backdropClick") {
+          return;
         }
       }}
+      ModalProps={{
+        disableEscapeKeyDown: false,
+        keepMounted: true,
+        BackdropProps: {
+          style: {
+            backgroundColor: "rgb(255 255 255 / 50%)",
+            cursor: "default",
+            pointerEvents: "none",
+          },
+        },
+      }}
+      // hideBackdrop
+      sx={{
+        zIndex: 9999,
+        "& .MuiDrawer-paper": {
+          width: "40%",
+          position: "absolute",
+          top: 0,
+          backgroundColor: "#f9fafb",
+          zIndex: 0,
+          pointerEvents: "auto",
+        },
+      }}
+
     >
       {/* Header */}
       <Box sx={{

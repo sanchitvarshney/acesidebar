@@ -22,13 +22,16 @@ import { loginSchema } from "../../zodSchema/AuthSchema";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../hooks/useToast";
-import { useLoginMutation, useLazyLoginPrecheckQuery } from "../../services/auth";
+import {
+  useLoginMutation,
+  useLazyLoginPrecheckQuery,
+} from "../../services/auth";
 import { decrypt } from "../../utils/encryption";
 import GoogleIcon from "@mui/icons-material/Google";
 import VpnLockIcon from "@mui/icons-material/VpnLock";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ErrorIcon from '@mui/icons-material/Error';
+import ErrorIcon from "@mui/icons-material/Error";
 
 import GoogleRecaptcha, {
   GoogleRecaptchaRef,
@@ -71,22 +74,29 @@ const LoginScreen = () => {
   const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
   const [companyName, setCompanyName] = useState<string>("COM0001");
   const [companyNameTouched, setCompanyNameTouched] = useState<boolean>(false);
-  const [companyNameSubmitted, setCompanyNameSubmitted] = useState<boolean>(false);
-  const [triggerLoginPrecheck, { isFetching: isPrecheckLoading }] = useLazyLoginPrecheckQuery();
+  const [companyNameSubmitted, setCompanyNameSubmitted] =
+    useState<boolean>(false);
+  const [triggerLoginPrecheck, { isFetching: isPrecheckLoading }] =
+    useLazyLoginPrecheckQuery();
   const [precheckError, setPrecheckError] = useState<string>("");
   const [brandName, setBrandName] = useState<string>("Ajaxter");
   const [isStep2Loading, setIsStep2Loading] = useState<boolean>(false);
+   const [hostLoading, setHostLoading] = useState<boolean>(true);
 
   // Decide which step to show based on current host
   useEffect(() => {
+    setHostLoading(true);
     const host = window.location.hostname.split(":")[0];
     const isTmsHost = host.startsWith("tms.");
     if (isTmsHost) {
-      setShowLoginForm(false); // show step 1 (domain entry)
+      setShowLoginForm(false);
+    // show step 1 (domain entry)
     } else {
       setShowLoginForm(true); // show step 2 (login) for non-tms hosts (incl. localhost)
       setIsStep2Loading(true);
+     
     }
+      setHostLoading(false); 
   }, []);
 
   // On step 2 (non tms hosts), fetch and set brand name from tenant subdomain; on error redirect to tms host
@@ -125,11 +135,14 @@ const LoginScreen = () => {
           } else {
             // Redirect back to tms host on failure
             const { protocol, port } = window.location;
-            const parts = host.split('.');
-            const isLocalLike = host === "localhost" || host.endsWith(".localhost");
+            const parts = host.split(".");
+            const isLocalLike =
+              host === "localhost" || host.endsWith(".localhost");
             const apexDomain = isLocalLike
               ? "localhost"
-              : (parts.length > 2 ? parts.slice(-2).join('.') : host);
+              : parts.length > 2
+              ? parts.slice(-2).join(".")
+              : host;
             const targetHost = isLocalLike
               ? `tms.${apexDomain}${port ? `:${port}` : ""}`
               : `tms.${apexDomain}`;
@@ -137,11 +150,14 @@ const LoginScreen = () => {
           }
         } catch {
           const { protocol, port } = window.location;
-          const parts = host.split('.');
-          const isLocalLike = host === "localhost" || host.endsWith(".localhost");
+          const parts = host.split(".");
+          const isLocalLike =
+            host === "localhost" || host.endsWith(".localhost");
           const apexDomain = isLocalLike
             ? "localhost"
-            : (parts.length > 2 ? parts.slice(-2).join('.') : host);
+            : parts.length > 2
+            ? parts.slice(-2).join(".")
+            : host;
           const targetHost = isLocalLike
             ? `tms.${apexDomain}${port ? `:${port}` : ""}`
             : `tms.${apexDomain}`;
@@ -154,16 +170,17 @@ const LoginScreen = () => {
   // Get dynamic domain suffix from current window host
   const getDynamicDomain = () => {
     const { hostname, port } = window.location;
-    const domain = hostname.split(':')[0];
-    const endsWithLocalhost = domain === 'localhost' || domain.endsWith('.localhost');
+    const domain = hostname.split(":")[0];
+    const endsWithLocalhost =
+      domain === "localhost" || domain.endsWith(".localhost");
     if (endsWithLocalhost) {
       // Always show localhost with port (if any) and no leading dot
-      return port ? `localhost:${port}` : 'localhost';
+      return port ? `localhost:${port}` : "localhost";
     }
     // Extract apex domain (e.g., app.example.com -> .example.com)
-    const parts = domain.split('.');
+    const parts = domain.split(".");
     if (parts.length > 2) {
-      return `.${parts.slice(-2).join('.')}`;
+      return `.${parts.slice(-2).join(".")}`;
     }
     return `.${domain}`;
   };
@@ -197,7 +214,9 @@ const LoginScreen = () => {
     // Validate company name format: alphanumeric and hyphens only
     const companyPattern = /^[a-zA-Z0-9-]+$/;
     if (!companyPattern.test(trimmedName)) {
-      setPrecheckError("Company name can only contain letters, numbers, and hyphens");
+      setPrecheckError(
+        "Company name can only contain letters, numbers, and hyphens"
+      );
       return;
     }
 
@@ -205,11 +224,12 @@ const LoginScreen = () => {
     const tenant = trimmedName;
     const { protocol, hostname, port } = window.location;
     const hostWithoutPort = hostname.split(":")[0];
-    const isLocalLike = hostWithoutPort === "localhost" || hostWithoutPort.endsWith(".localhost");
+    const isLocalLike =
+      hostWithoutPort === "localhost" || hostWithoutPort.endsWith(".localhost");
     const apexDomain = (() => {
       if (isLocalLike) return "localhost";
-      const parts = hostWithoutPort.split('.')
-      return parts.length > 2 ? parts.slice(-2).join('.') : hostWithoutPort;
+      const parts = hostWithoutPort.split(".");
+      return parts.length > 2 ? parts.slice(-2).join(".") : hostWithoutPort;
     })();
     const targetHost = isLocalLike
       ? `${tenant}.${apexDomain}${port ? `:${port}` : ""}`
@@ -221,11 +241,12 @@ const LoginScreen = () => {
     // Redirect to tms.HOSTNAME (or tms.localhost:PORT on localhost)
     const { protocol, hostname, port } = window.location;
     const hostWithoutPort = hostname.split(":")[0];
-    const isLocalLike = hostWithoutPort === "localhost" || hostWithoutPort.endsWith(".localhost");
+    const isLocalLike =
+      hostWithoutPort === "localhost" || hostWithoutPort.endsWith(".localhost");
     const apexDomain = (() => {
       if (isLocalLike) return "localhost";
-      const parts = hostWithoutPort.split('.')
-      return parts.length > 2 ? parts.slice(-2).join('.') : hostWithoutPort;
+      const parts = hostWithoutPort.split(".");
+      return parts.length > 2 ? parts.slice(-2).join(".") : hostWithoutPort;
     })();
     const targetHost = isLocalLike
       ? `tms.${apexDomain}${port ? `:${port}` : ""}`
@@ -505,6 +526,14 @@ const LoginScreen = () => {
     }
   };
 
+  if (hostLoading) {
+    return (
+      <div style={{ textAlign: "center", padding: "50px" }}/>
+       
+    
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -536,7 +565,17 @@ const LoginScreen = () => {
         }}
       >
         {showLoginForm && isStep2Loading && (
-          <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', zIndex: 10 }}>
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#ffffff",
+              zIndex: 10,
+            }}
+          >
             <CircularProgress />
           </Box>
         )}
@@ -660,8 +699,7 @@ const LoginScreen = () => {
               borderRadius: "8px 8px 0 0",
               margin: "0 -16px -16px -16px",
             }}
-          >
-          </Box>
+          ></Box>
         </Box>
 
         <Box
@@ -675,7 +713,15 @@ const LoginScreen = () => {
           }}
         >
           {showLoginForm && isStep2Loading ? (
-            <Box sx={{ flex: 1, width: "100%", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Box
+              sx={{
+                flex: 1,
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <CircularProgress />
             </Box>
           ) : (
@@ -801,11 +847,14 @@ const LoginScreen = () => {
                     sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
                   >
                     Secure Login to Your Account
-                    <Typography variant="body2" sx={{ color: "#65676b", mb: 3 }}>Please enter your Ajaxter domain name and we’ll help you out!
-
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#65676b", mb: 3 }}
+                    >
+                      Please enter your Ajaxter domain name and we’ll help you
+                      out!
                     </Typography>
                   </Typography>
-
 
                   <TextField
                     fullWidth
@@ -814,15 +863,16 @@ const LoginScreen = () => {
                     value={companyName}
                     onChange={(e) => {
                       const value = e.target.value;
-                      let filteredValue = value.replace(/[^a-zA-Z0-9]/g, '');
-                      filteredValue = filteredValue.replace(/-+$/, '');
+                      let filteredValue = value.replace(/[^a-zA-Z0-9]/g, "");
+                      filteredValue = filteredValue.replace(/-+$/, "");
                       if (filteredValue.length <= 15) {
                         setCompanyName(filteredValue);
                       }
                     }}
                     onBlur={() => setCompanyNameTouched(true)}
                     error={
-                      (companyNameSubmitted || companyNameTouched) && !companyName.trim()
+                      (companyNameSubmitted || companyNameTouched) &&
+                      !companyName.trim()
                         ? true
                         : false
                     }
@@ -834,15 +884,20 @@ const LoginScreen = () => {
                         <InputAdornment position="start">
                           <VpnLockIcon
                             sx={{
-                              color: (companyNameSubmitted || companyNameTouched) && !companyName.trim()
-                                ? "#d32f2f"
-                                : "#1877f2"
+                              color:
+                                (companyNameSubmitted || companyNameTouched) &&
+                                !companyName.trim()
+                                  ? "#d32f2f"
+                                  : "#1877f2",
                             }}
                           />
                         </InputAdornment>
                       ),
                       endAdornment: (
-                        <InputAdornment position="end" sx={{ margin: 0, height: "100%" }}>
+                        <InputAdornment
+                          position="end"
+                          sx={{ margin: 0, height: "100%" }}
+                        >
                           <Box
                             sx={{
                               backgroundColor: "#f5f5f5",
@@ -915,9 +970,16 @@ const LoginScreen = () => {
                   />
 
                   {precheckError && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                      <ErrorIcon sx={{ color: '#d32f2f', fontSize: 16 }} />
-                      <Typography variant="caption" sx={{ color: '#d32f2f' }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 2,
+                      }}
+                    >
+                      <ErrorIcon sx={{ color: "#d32f2f", fontSize: 16 }} />
+                      <Typography variant="caption" sx={{ color: "#d32f2f" }}>
                         {precheckError}
                       </Typography>
                     </Box>
@@ -961,12 +1023,23 @@ const LoginScreen = () => {
                 // Step 2: Show loader until tenant precheck completes
                 <Box sx={{ width: "100%" }}>
                   {isStep2Loading ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 10 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        py: 10,
+                      }}
+                    >
                       <CircularProgress />
                     </Box>
                   ) : (
-                    <Box component="form" onSubmit={handleFormSubmit} noValidate sx={{ width: "100%" }}>
-
+                    <Box
+                      component="form"
+                      onSubmit={handleFormSubmit}
+                      noValidate
+                      sx={{ width: "100%" }}
+                    >
                       {/* URL Input - Hidden on mobile */}
                       <TextField
                         label="Change Url"
@@ -1010,7 +1083,9 @@ const LoginScreen = () => {
                         }}
                         autoComplete="email"
                         error={
-                          isSubmitted || touchedFields.email ? !!errors.email : false
+                          isSubmitted || touchedFields.email
+                            ? !!errors.email
+                            : false
                         }
                       />
 
@@ -1067,7 +1142,9 @@ const LoginScreen = () => {
                         {process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY ? (
                           <GoogleRecaptcha
                             ref={recaptchaRef}
-                            siteKey={process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY}
+                            siteKey={
+                              process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY
+                            }
                             onVerify={handleRecaptchaVerify}
                             onError={handleRecaptchaError}
                             onExpire={handleRecaptchaExpire}
@@ -1139,11 +1216,23 @@ const LoginScreen = () => {
                             </Link>
                           </Typography>
                         }
-                        sx={{ mb: 2, display: "flex", justifyContent: "flex-start", alignItems: "center" }}
+                        sx={{
+                          mb: 2,
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          alignItems: "center",
+                        }}
                       />
 
                       {/* Back Button and Login Button in Same Line */}
-                      <Box sx={{ mb: 2, display: "flex", gap: 2, alignItems: "center" }}>
+                      <Box
+                        sx={{
+                          mb: 2,
+                          display: "flex",
+                          gap: 2,
+                          alignItems: "center",
+                        }}
+                      >
                         <IconButton
                           onClick={handleGoBack}
                           sx={{
@@ -1185,14 +1274,27 @@ const LoginScreen = () => {
                           onClick={handleSubmit(onSubmit)}
                         >
                           {isLoading ? (
-                            <CircularProgress size={20} sx={{ color: "white" }} />
+                            <CircularProgress
+                              size={20}
+                              sx={{ color: "white" }}
+                            />
                           ) : (
                             "Log in"
                           )}
                         </Button>
                       </Box>
 
-                      <Box sx={{ textAlign: "left", mb: 2, display: "flex", gap: 2, justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap" }}>
+                      <Box
+                        sx={{
+                          textAlign: "left",
+                          mb: 2,
+                          display: "flex",
+                          gap: 2,
+                          justifyContent: "flex-start",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                        }}
+                      >
                         <Link
                           component="button"
                           underline="hover"
@@ -1205,7 +1307,15 @@ const LoginScreen = () => {
                         >
                           Forgot Username?
                         </Link>
-                        <Divider orientation="vertical" flexItem sx={{ height: 20, borderColor: "#dadde1", borderRightWidth: 2 }} />
+                        <Divider
+                          orientation="vertical"
+                          flexItem
+                          sx={{
+                            height: 20,
+                            borderColor: "#dadde1",
+                            borderRightWidth: 2,
+                          }}
+                        />
                         <Link
                           component="button"
                           underline="hover"

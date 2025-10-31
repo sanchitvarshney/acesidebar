@@ -24,6 +24,7 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  TablePagination,
 } from "@mui/material";
 import { Search as SearchIcon, Close } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
@@ -160,6 +161,62 @@ const ChatsHistory: React.FC = () => {
       resolution: "Account issue resolved successfully",
     },
     {
+      id: "2",
+      customer: "Jane Smith",
+      agent: "Mike Johnson",
+      status: "closed",
+      startTime: "2:15 PM",
+      endTime: "2:30 PM",
+      duration: "15 min",
+      priority: "medium",
+      tags: ["Billing", "Refund"],
+      lastMessage: "Refund processed successfully",
+      rating: 4,
+      resolution: "Refund request completed",
+    },
+    {
+      id: "3",
+      customer: "Bob Johnson",
+      agent: "Lisa Brown",
+      status: "resolved",
+      startTime: "1:45 PM",
+      endTime: "2:10 PM",
+      duration: "25 min",
+      priority: "low",
+      tags: ["General", "Information"],
+      lastMessage: "All questions answered",
+      rating: 5,
+      resolution: "Customer inquiry resolved",
+    },
+    {
+      id: "4",
+      customer: "Alice Brown",
+      agent: "Tom Wilson",
+      status: "abandoned",
+      startTime: "2:00 PM",
+      endTime: "2:05 PM",
+      duration: "5 min",
+      priority: "medium",
+      tags: ["Support", "Abandoned"],
+      lastMessage: "Customer left chat",
+      rating: 0,
+      resolution: "Customer disconnected",
+    },
+    {
+      id: "5",
+      customer: "Charlie Davis",
+      agent: "Emma Taylor",
+      status: "resolved",
+      startTime: "1:30 PM",
+      endTime: "1:55 PM",
+      duration: "25 min",
+      priority: "high",
+      tags: ["Technical", "Critical", "Resolved"],
+      lastMessage: "System issue fixed",
+      rating: 5,
+      resolution: "Critical system issue resolved",
+    },
+      {
       id: "2",
       customer: "Jane Smith",
       agent: "Mike Johnson",
@@ -367,7 +424,14 @@ const ChatsHistory: React.FC = () => {
   let filterData = historyData;
   filterData = applyFilters(filterData);
   return (
-    <Box sx={{ p: 3, height: "100%", overflow: "hidden", width: "100%" }}>
+    <Box
+      sx={{
+        p: 3,
+        maxHeight: "calc(100vh - 96px)",
+        overflowY: "auto",
+        width: "100%",
+      }}
+    >
       {/* Header */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
@@ -622,8 +686,8 @@ const ChatsHistory: React.FC = () => {
       <Card sx={{ flex: 1, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
         <TableContainer
           sx={{
-            height: "calc(100vh - 420px)",
-
+            maxHeight: "calc(100vh - 350px)",
+            overflow: "auto",
             position: "relative",
           }}
           className="custom-scrollbar"
@@ -792,20 +856,18 @@ const ChatsHistory: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </Card>
-      {/* </Box> */}
-
-      {/* Pagination */}
-      <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-        <Pagination
-          count={pagination.totalPages}
-          page={pagination.page}
-          onChange={handlePageChange}
-          color="primary"
-          size="small"
+        <TablePagination
+          component="div"
+          count={filterData.length}
+          page={0}
+          onPageChange={() => {}}
+          rowsPerPage={1}
+          onRowsPerPageChange={() => {}}
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          labelRowsPerPage="Rows per page"
         />
-      </Box>
-      {/* Filter Options Menu */}
+      </Card>
+
       <Menu
         anchorEl={
           activeFilters.length > 0 && lastChipRef

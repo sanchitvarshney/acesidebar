@@ -150,18 +150,40 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
       <Drawer
         anchor="right"
         open={open}
-        onClose={onClose}
+        onClose={(event, reason) => {
+          if (reason === "escapeKeyDown") {
+            onClose();
+            return;
+          }
+          if (reason === "backdropClick") {
+            return;
+          }
+        }}
+        ModalProps={{
+          disableEscapeKeyDown: false,
+          keepMounted: true,
+          BackdropProps: {
+            style: {
+              backgroundColor: "rgb(255 255 255 / 50%)",
+              cursor: "default",
+              pointerEvents: "none",
+            },
+          },
+        }}
+        // hideBackdrop
         sx={{
+          zIndex: 9999,
           "& .MuiDrawer-paper": {
             width: { xs: "100%", sm: "25%" },
-            maxWidth: "100vw",
-            overflowX: "hidden",
+            position: "absolute",
+            top: 0,
+            backgroundColor: "#f9fafb",
+            zIndex: 0,
+            pointerEvents: "auto",
           },
         }}
       >
         <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-
-
           {/* User Profile Information Section */}
           <Box
             sx={{
@@ -270,7 +292,9 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                         (opt) => opt.value === selected
                       );
                       return (
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           <Box
                             sx={{
                               width: 8,
@@ -280,7 +304,10 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                               flexShrink: 0,
                             }}
                           />
-                          <Typography variant="body2" sx={{ fontSize: "0.875rem" }}>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontSize: "0.875rem" }}
+                          >
                             {option?.label || "Available"}
                           </Typography>
                         </Box>
@@ -289,7 +316,9 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                   >
                     {statusOptions.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           <Box
                             sx={{
                               width: 8,
@@ -660,7 +689,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
       {/* Sign Out Confirmation Dialog - Center with Zoom Effect */}
       <Dialog
         open={showSignOutConfirmation}
-        onClose={() => { }} // Prevent closing by backdrop/ESC
+        onClose={() => {}} // Prevent closing by backdrop/ESC
         maxWidth="sm"
         fullWidth
         TransitionComponent={Grow}
@@ -691,166 +720,125 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
           },
         }}
       >
-        <Box
+        <Paper
+          elevation={0}
           sx={{
+            width: "100%",
+            borderRadius: 3,
+            overflow: "hidden",
             position: "relative",
-            backgroundColor: "transparent",
-            minHeight: "400px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            p: 3,
+            zIndex: 1,
           }}
         >
-          {/* Decorative background circles */}
+          {/* Top Decorative Section */}
           <Box
             sx={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              width: "300px",
-              height: "300px",
-              borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.3)",
-              filter: "blur(40px)",
-              zIndex: 0,
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              top: "10%",
-              left: "10%",
-              width: "200px",
-              height: "200px",
-              borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.2)",
-              filter: "blur(30px)",
-              zIndex: 0,
-            }}
-          />
-
-          {/* Main Content Card */}
-          <Paper
-            elevation={0}
-            sx={{
-              width: "100%",
-              borderRadius: 3,
-              overflow: "hidden",
+              height: 120,
+              backgroundColor: "#fafafa",
               position: "relative",
-              zIndex: 1,
-              boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+              overflow: "hidden",
             }}
           >
-            {/* Top Decorative Section */}
+            {/* Decorative circles in header */}
             <Box
               sx={{
-                height: 120,
-                backgroundColor: "#fafafa",
-                position: "relative",
-                overflow: "hidden",
+                position: "absolute",
+                top: -20,
+                right: 20,
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                background: "rgba(0, 0, 0, 0.05)",
+                filter: "blur(20px)",
               }}
-            >
-              {/* Decorative circles in header */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: -20,
-                  right: 20,
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "50%",
-                  background: "rgba(0, 0, 0, 0.05)",
-                  filter: "blur(20px)",
-                }}
-              />
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: -30,
-                  left: 30,
-                  width: "100px",
-                  height: "100px",
-                  borderRadius: "50%",
-                  background: "rgba(0, 0, 0, 0.03)",
-                  filter: "blur(25px)",
-                }}
-              />
-            </Box>
+            />
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: -30,
+                left: 30,
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                background: "rgba(0, 0, 0, 0.03)",
+                filter: "blur(25px)",
+              }}
+            />
+          </Box>
 
-            {/* Content Section */}
-            <Box
+          {/* Content Section */}
+          <Box
+            sx={{
+              p: 4,
+              backgroundColor: "#fff",
+            }}
+          >
+            <Typography
+              variant="h4"
               sx={{
-                p: 4,
-                backgroundColor: "#fff",
+                fontWeight: 600,
+                color: "#000",
+                mb: 3,
               }}
             >
+              Signed out
+            </Typography>
+
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#666",
+                mb: 2,
+                lineHeight: 1.6,
+              }}
+            >
+              You are being signed out from your account to ensure your security
+              and prevent any unintended access from this browser.
+            </Typography>
+
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#666",
+                mb: 4,
+              }}
+            >
+              You will be redirected to the login page in{" "}
               <Typography
-                variant="h4"
+                component="span"
                 sx={{
                   fontWeight: 600,
-                  color: "#000",
-                  mb: 3,
-                }}
-              >
-                Signed out
-              </Typography>
-
-              <Typography
-                variant="body1"
-                sx={{
-                  color: "#666",
-                  mb: 2,
-                  lineHeight: 1.6,
-                }}
-              >
-                You are being signed out from your account to ensure your security and prevent any unintended access from this browser.
-              </Typography>
-
-              <Typography
-                variant="body1"
-                sx={{
-                  color: "#666",
-                  mb: 4,
-                }}
-              >
-                You will be redirected to the login page in{" "}
-                <Typography
-                  component="span"
-                  sx={{
-                    fontWeight: 600,
-                    color: "#1976d2",
-                  }}
-                >
-                  {countdown} sec
-                </Typography>
-                .
-              </Typography>
-
-              <Button
-                variant="contained"
-                endIcon={<ArrowForwardIcon />}
-                onClick={handleRedirectNow}
-                fullWidth
-                sx={{
-                  backgroundColor: "#e3f2fd",
                   color: "#1976d2",
-                  textTransform: "none",
-                  fontWeight: 500,
-                  py: 1.5,
-                  borderRadius: 2,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                  "&:hover": {
-                    backgroundColor: "#bbdefb",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                  },
                 }}
               >
-                Redirect Now
-              </Button>
-            </Box>
-          </Paper>
-        </Box>
+                {countdown} sec
+              </Typography>
+              .
+            </Typography>
+
+            <Button
+              variant="contained"
+              endIcon={<ArrowForwardIcon />}
+              onClick={handleRedirectNow}
+              fullWidth
+              sx={{
+                backgroundColor: "#e3f2fd",
+                color: "#1976d2",
+                textTransform: "none",
+                fontWeight: 500,
+                py: 1.5,
+                borderRadius: 2,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                "&:hover": {
+                  backgroundColor: "#bbdefb",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                },
+              }}
+            >
+              Redirect Now
+            </Button>
+          </Box>
+        </Paper>
       </Dialog>
     </>
   );

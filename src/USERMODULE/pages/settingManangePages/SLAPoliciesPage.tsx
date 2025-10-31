@@ -27,7 +27,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useNavigate } from "react-router-dom";
 import CustomToolTip from "../../../reusable/CustomToolTip";
-import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
+import ControlPointDuplicateIcon from "@mui/icons-material/ControlPointDuplicate";
 
 type SlaPolicy = {
   id: number;
@@ -120,17 +120,17 @@ const SLAPoliciesPage = () => {
       }}
     >
       {/* Left Content */}
-      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ p: 0, display: "flex", flexDirection: "column", gap: 1 }}>
         {/* Header */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
-                           p: 2,
-               borderBottom: "1px solid #e0e0e0",
-          backgroundColor: "#fafafa"
+
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -151,7 +151,14 @@ const SLAPoliciesPage = () => {
             >
               <RefreshIcon fontSize="small" />
             </IconButton>
-            <Button variant="contained" color="primary" size="small" startIcon={<ControlPointDuplicateIcon />} sx={{ fontWeight: 600 }} onClick={()=>navigate("/sla-policies/create-new")}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<ControlPointDuplicateIcon />}
+              sx={{ fontWeight: 600 }}
+              onClick={() => navigate("/sla-policies/create-new")}
+            >
               New SLA Policy
             </Button>
           </Box>
