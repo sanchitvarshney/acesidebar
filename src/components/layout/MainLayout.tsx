@@ -81,7 +81,7 @@ const Main = styled("main", {
 
 const MainContent = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(8),
-  padding: theme.spacing(0),
+
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   overflow: "auto",
@@ -134,11 +134,7 @@ const MainLayout = () => {
         onClose={closeHelpCenter}
       />
 
-     
-    
-         {location.pathname === "/tickets" && <LeftMenu />}
-
-   
+      {location.pathname === "/tickets" && <LeftMenu />}
 
       <Main
         open={isOpen}

@@ -70,7 +70,6 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const { toggleHelpCenter } = useHelpCenter();
-  const { isOpen, expended } = useSelector((state: RootState) => state.shotcut);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

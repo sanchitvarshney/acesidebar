@@ -431,6 +431,9 @@ const ManageTags = () => {
         open={isDeleteTag}
         onClose={() => setIsDeleteTag(false)}
         onConfirm={() => handleDelete(deleteTagId)}
+        type="delete"
+        title="Delete Tag"
+        message="Are you sure you want to delete this tag?"
       />
     </div>
   );

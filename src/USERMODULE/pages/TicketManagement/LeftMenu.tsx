@@ -1,22 +1,22 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
   Collapse,
   IconButton,
   List,
   ListItem,
-  ListItemIcon,
   ListItemText,
   Tooltip,
   Typography,
 } from "@mui/material";
-import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+
 import AddTaskIcon from "@mui/icons-material/AddTask";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { useHelpCenter } from "../../../contextApi/HelpCenterContext";
 
 const LeftMenu: React.FC = () => {
   const [gettingStartedExpanded, setGettingStartedExpanded] = useState(false);
+  const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
 
   const gettingStartedItems = [
     {
@@ -26,7 +26,7 @@ const LeftMenu: React.FC = () => {
       isOptional: false,
       icon: <AddTaskIcon />,
     },
-    {
+ {
       id: 2,
       title: "Advanced setup",
       completed: true,
@@ -46,8 +46,8 @@ const LeftMenu: React.FC = () => {
         transition: "width 0.3s ease",
         backgroundColor: "#e8f0fe",
         marginTop: 8,
-        display: "flex",
-            position: "relative",
+        display: helpCenterOpen ? "none" : "flex",
+        position: "relative",
       }}
     >
       {/* Expanded Collapse (Replaces sidebar) */}
@@ -59,7 +59,7 @@ const LeftMenu: React.FC = () => {
           unmountOnExit={false}
           sx={{
             display: "flex",
-        backgroundColor: "#e8f0fe",
+            backgroundColor: "#e8f0fe",
             height: "100%",
             minHeight: "calc(100vh - 70px)",
           }}
@@ -67,57 +67,48 @@ const LeftMenu: React.FC = () => {
           <Box
             sx={{
               width: 240,
-              p: 2,
-              // bgcolor: "#ff",
-              height: "100%",
-              display:"flex",
-              justifyContent:"space-between",
-              flexDirection:"column"
+              py: 2,
 
+              height: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: "column",
             }}
           >
-          <Box>
-              <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 1,
-              }}
-            >
-              <Typography variant="subtitle1" fontWeight={600}>
-                Getting Started
-              </Typography>
-
-           
+            <Box sx={{ pr: 1 }}>
+              <List
+                dense
+                sx={{ display: "flex", gap: 1, flexDirection: "column" }}
+              >
+                {gettingStartedItems.map((item) => (
+                  <ListItem
+                    key={item.id}
+                    sx={{
+                      borderTopRightRadius: 30,
+                      borderBottomRightRadius: 30,
+                      py: 1,
+                      "&:hover": { bgcolor: "#fff" },
+                    }}
+                  >
+                    {/* <ListItemIcon>{item.icon}</ListItemIcon> */}
+                    <ListItemText primary={item.title} />
+                  </ListItem>
+                ))}
+              </List>
             </Box>
 
-            <List dense>
-              {gettingStartedItems.map((item) => (
-                <ListItem
-                  key={item.id}
-                  sx={{
-                    borderRadius: 1,
-                    "&:hover": { bgcolor: "#f0f0f0" },
-                  }}
-                >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.title} />
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-
-         <div className="flex justify-end">
-          
-                 <IconButton
-                size="small"
+            <div className="flex justify-end py-4 border-t border-gray-200">
+              <IconButton
                 onClick={() => setGettingStartedExpanded(false)}
+                sx={{
+                  borderRadius: 0,
+                  borderTopLeftRadius: 10,
+                  borderBottomLeftRadius: 10,
+                }}
               >
                 <ArrowForwardIosIcon sx={{ transform: "rotate(180deg)" }} />
               </IconButton>
-         </div>
-          
+            </div>
           </Box>
         </Collapse>
       </div>
@@ -139,8 +130,8 @@ const LeftMenu: React.FC = () => {
                 borderTopRightRadius: 10,
                 borderBottomRightRadius: 10,
                 position: "absolute",
-                bottom: "calc(100% - 640px)",
-                right: 10,
+                bottom: "5%",
+                right: "35%",
               }}
               onClick={() => setGettingStartedExpanded(true)}
             >

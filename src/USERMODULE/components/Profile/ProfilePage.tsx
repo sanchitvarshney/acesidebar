@@ -34,7 +34,6 @@ import SettingsTab from "./SettingsTab";
 import SecurityTab from "./SecurityTab";
 import { useLazyGetUserDataQuery } from "../../../services/auth";
 
-
 const ProfilePage = () => {
   const navigate = useNavigate();
   const userId = useParams().id;
@@ -282,6 +281,7 @@ const ProfilePage = () => {
         open={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
+        type={"delete"}
       />
 
       <EditUser

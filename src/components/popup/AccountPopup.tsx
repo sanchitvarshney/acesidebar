@@ -29,6 +29,7 @@ import {
   ContentCopy as CopyIcon,
   HelpOutlineOutlined as QuestionIcon,
   ArrowForward as ArrowForwardIcon,
+  Close,
 } from "@mui/icons-material";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useStatus } from "../../contextApi/StatusContext";
@@ -74,9 +75,8 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
   };
 
   const handleSignOut = () => {
-    // Reset countdown
     setCountdown(6);
-    // Open sign-out confirmation drawer
+
     setShowSignOutConfirmation(true);
     onClose(); // Close the account drawer
   };
@@ -162,24 +162,23 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
         ModalProps={{
           disableEscapeKeyDown: false,
           keepMounted: true,
+
           BackdropProps: {
             style: {
               backgroundColor: "rgb(255 255 255 / 50%)",
               cursor: "default",
-              pointerEvents: "none",
             },
           },
         }}
         // hideBackdrop
         sx={{
-          zIndex: 9999,
+          zIndex: 1300, // ✅ default MUI Drawer z-index
           "& .MuiDrawer-paper": {
             width: { xs: "100%", sm: "25%" },
-            position: "absolute",
-            top: 0,
             backgroundColor: "#f9fafb",
-            zIndex: 0,
-            pointerEvents: "auto",
+            position: "fixed",
+            zIndex: 1300, // ✅ matches Drawer z-index
+            overflow: "visible", // ✅ allow portals above it
           },
         }}
       >
@@ -200,6 +199,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                 flexDirection: "column",
                 alignItems: "center",
                 mb: 3,
+                position: "relative",
               }}
             >
               <Avatar
@@ -261,11 +261,20 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
               </Box>
 
               {/* Status Selector */}
-              <FormControl size="small" sx={{ maxWidth: "75%", width: "100%" }}>
+              <FormControl
+                size="small"
+                sx={{
+                  maxWidth: "75%",
+                  width: "100%",
+                  position: "relative",
+                  overflow: "visible",
+                  zIndex: 1500,
+                }}
+              >
                 {statusLoading ? (
                   <Skeleton
                     variant="rectangular"
-                    width={150}
+                    width={"100%"}
                     height={32}
                     sx={{ borderRadius: 1 }}
                   />
@@ -286,6 +295,15 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                         borderColor: "#1976d2",
                       },
                       backgroundColor: "#fff",
+                    }}
+                    MenuProps={{
+                      disablePortal: false,
+                      PaperProps: {
+                        sx: {
+                          zIndex: 2000,
+                          mt: 1,
+                        },
+                      },
                     }}
                     renderValue={(selected) => {
                       const option = statusOptions.find(
@@ -335,6 +353,16 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                   </Select>
                 )}
               </FormControl>
+
+              <Box sx={{ position: "absolute", top: "-5%", right: "12%" }}>
+                <IconButton
+                  size="small"
+                  onClick={onClose}
+                  sx={{ border: "1px solid #e0e0e0" }}
+                >
+                  <Close fontSize="small" />
+                </IconButton>
+              </Box>
             </Box>
 
             <Divider sx={{ my: 2 }} />

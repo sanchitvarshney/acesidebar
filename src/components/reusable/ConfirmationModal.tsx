@@ -10,6 +10,7 @@ import {
   IconButton,
   Slide,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -21,155 +22,75 @@ const Transition = forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
   ref: React.Ref<unknown>
 ) {
-  return <Slide direction="up" ref={ref} {...props} />;
+  return <Slide direction="down" ref={ref} {...props} />;
 });
 
 interface ConfirmationModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  type?: "delete" | "close" | "custom";
+  type: "delete" | "close";
   title?: string;
   message?: string;
   successMessage?: string;
   icon?: React.ReactNode;
-
-  isSuccess?: boolean;
   isLoading?: boolean;
 }
-
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   open,
   onClose,
   onConfirm,
   type = "delete",
-  title,
-  message,
-  successMessage,
+  title = "Delete Item",
+  message = "Are you sure you want to delete this item?",
   icon,
-
-  isSuccess = false,
-  isLoading = false,
+  isLoading,
 }) => {
-  const [step, setStep] = useState<"confirm" | "success">("confirm");
-
-  useEffect(() => {
-    if (open) setStep("confirm");
-  }, [open]);
-
   const handleConfirm = () => {
     onConfirm?.();
   };
-
-  useEffect(() => {
-    if (isSuccess) setStep("success");
-  }, [isSuccess]);
-
-  // Dynamic background color based on type
-  const typeBgColor =
-    type === "delete"
-      ? "#ffebee"
-      : type === "close" || type === "custom"
-      ? "#e3f2fd"
-      : "#f5f5f5";
-
-  // Defaults based on type
-  const defaultTitle =
-    type === "delete"
-      ? "Delete item?"
-      : type === "close" || type === "custom"
-      ? "Close item?"
-      : "Confirm action?";
-  const defaultMessage =
-    type === "delete"
-      ? "Are you sure you want to delete this item? This action cannot be undone."
-      : type === "close"
-      ? "Are you sure you want to close this item?"
-      : type === "custom"
-      ? "Are you sure you want to mark this ticket as spam?"
-      : "Are you sure you want to proceed?";
-  const defaultSuccessMessage =
-    type === "delete"
-      ? "Item deleted successfully"
-      : type === "close"
-      ? "Item closed successfully"
-      : type === "custom"
-      ? "Ticket Spam successfully"
-      : "Action completed successfully";
-
-  const defaultIcon =
-    type === "delete" ? (
-      <DeleteForeverIcon sx={{ fontSize: 50, color: "error.main" }} />
-    ) : type === "close" || type === "custom" ? null : ( // <CloseIcon sx={{ fontSize: 50, color: "info.main" }} />
-      <CheckCircleIcon sx={{ fontSize: 50, color: "success.main" }} />
-    );
 
   return (
     <Dialog
       open={open}
       maxWidth="xs"
       fullWidth
-      onClose={onClose}
+      onClose={(event, reason) => {
+        if (reason === "backdropClick") return;
+        onClose();
+      }}
       TransitionComponent={Transition}
       keepMounted
       PaperProps={{
         sx: {
-          borderRadius: 4,
-          boxShadow: 6,
-          px: 1,
-          py: 0.5,
-          backgroundColor: step === "confirm" ? typeBgColor : "#ffffff",
-          position: "relative",
+          backgroundColor: "#ffffff",
+          position: "fixed",
+          top: "-32px",
+          borderRadius: "0px 0px 8px 8px",
+          boxShadow: 4,
         },
       }}
       BackdropProps={{
         sx: {
           backdropFilter: "blur(3px)",
           backgroundColor: "rgba(0, 0, 0, 0.2)",
+          pointerEvents: "auto",
         },
       }}
     >
-      {step === "confirm" && (
-        <IconButton
-          onClick={onClose}
-          sx={{
-            position: "absolute",
-            top: 30,
-            right: 8,
-            color: "grey.600",
-            zIndex: 10,
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-      )}
-
-      {step === "confirm" && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            pt: 3,
-          }}
-        >
-          {icon || defaultIcon}
-        </Box>
-      )}
-
       <DialogTitle
         sx={{
           fontWeight: 600,
           fontSize: "1.1rem",
-          textAlign: "center",
           py: 2,
+          backgroundColor: "#f5f5f5",
         }}
       >
-        {step === "confirm" ? title || defaultTitle : "Success"}
+        {icon && <div>{icon}</div>}
+        <div>{title}</div>
       </DialogTitle>
-
+      <Divider />
       <DialogContent
-        dividers
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -178,106 +99,46 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           px: 2,
         }}
       >
-        {step === "confirm" && (
-          <Typography variant="body2" color="text.secondary" textAlign="center">
-            {message || defaultMessage}
-          </Typography>
-        )}
-
-        {step === "success" && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginTop: "10px",
-            }}
-          >
-            <Typography variant="body1" fontWeight="bold">
-              {successMessage || defaultSuccessMessage}
-            </Typography>
-
-            <motion.svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="40"
-              height="40"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="green"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial="hidden"
-              animate="visible"
-            >
-              <motion.circle
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="green"
-                variants={{
-                  hidden: { pathLength: 0 },
-                  visible: {
-                    pathLength: 1,
-                    transition: { duration: 0.5 },
-                  },
-                }}
-              />
-              <motion.path
-                d="M9 12l2 2l4-4"
-                stroke="green"
-                variants={{
-                  hidden: { pathLength: 0 },
-                  visible: {
-                    pathLength: 1,
-                    transition: { duration: 0.4, delay: 0.5 },
-                  },
-                }}
-              />
-            </motion.svg>
-          </motion.div>
-        )}
+        <Typography variant="body2" color="text.secondary" textAlign="center">
+          {message}
+        </Typography>
       </DialogContent>
 
-      <DialogActions sx={{ justifyContent: "center", p: 2, gap: 2 }}>
-        {step === "confirm" ? (
-          <Button
-            variant="contained"
-            color={
-              type === "delete"
-                ? "error"
-                : type === "close" || type === "custom"
-                ? "info"
-                : "primary"
-            }
-            onClick={handleConfirm}
-            sx={{ borderRadius: 5, textTransform: "none", px: 3 }}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : type === "delete" ? (
-              "Delete"
-            ) : type === "close" ? (
-              "Close"
-            ) : type === "custom" ? (
-              "Spam"
-            ) : (
-              "Confirm"
-            )}
-          </Button>
-        ) : (
-          <Button
-            variant="outlined"
-            onClick={onClose}
-            sx={{ borderRadius: 5, textTransform: "none", px: 4 }}
-          >
-            Go Back
-          </Button>
-        )}
+      <DialogActions sx={{ justifyContent: "flex-start", p: 2, gap: 2 }}>
+        <Button
+          variant="contained"
+          color={
+            type === "delete" ? "error" : type === "close" ? "info" : "primary"
+          }
+          onClick={handleConfirm}
+          sx={{ textTransform: "none", px: 3 }}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : type === "delete" ? (
+            "Delete"
+          ) : type === "close" ? (
+            "Close"
+          ) : type === "custom" ? (
+            "Spam"
+          ) : (
+            "Confirm"
+          )}
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={onClose}
+          sx={{
+            textTransform: "none",
+            px: 3,
+            backgroundColor: "#f5f5f5",
+            color: "black",
+          }}
+        >
+          Cancel
+        </Button>
       </DialogActions>
     </Dialog>
   );

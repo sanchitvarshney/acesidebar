@@ -219,8 +219,8 @@ const MoreOptionsPage = ({
             onClick={option.onClick}
             sx={{
               py: 0.8,
-              px:1.4,
-              mx:0.5,
+              px: 1.4,
+              mx: 0.5,
               backgroundColor: "white",
               borderRadius: 19,
               // border: "1px solid #e1e7ee",
@@ -246,7 +246,7 @@ const MoreOptionsPage = ({
                   justifyContent: "center",
                 }}
               > */}
-                {option.icon}
+              {option.icon}
               {/* </Box> */}
               <Box>
                 <Typography
@@ -492,16 +492,12 @@ const MoreOptionsPage = ({
           setSpamTicketSuccess(false);
         }}
         onConfirm={() => handleSpamTicket(ticketNumber, spamValue)}
-        type="custom"
         title={`${spamValue ? "Unspam" : "Spam"} Ticket`}
         message={`Are you sure you want to ${
           spamValue ? "unspam" : "spam"
         } this ticket?`}
-        isSuccess={spamTicketSuccess}
         isLoading={isSpamTicketLoading}
-        successMessage={`Ticket ${
-          spamValue ? "unspammed" : "spammed"
-        } successfully`}
+        type="close"
       />
     </Box>
   );

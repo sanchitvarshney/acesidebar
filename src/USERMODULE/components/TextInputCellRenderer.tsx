@@ -1,10 +1,4 @@
-import {
-  Avatar,
-  IconButton,
-  Menu,
-  MenuItem,
-  Typography,
-} from "@mui/material";
+import { Avatar, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -100,7 +94,10 @@ const TextInputCellRenderer = (props: any) => {
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={() =>
               row?.socialData?.facebook &&
-              window.open(`https://facebook.com/${row?.socialData?.facebook}`, "_blank")
+              window.open(
+                `https://facebook.com/${row?.socialData?.facebook}`,
+                "_blank"
+              )
             }
           >
             <Typography
@@ -108,7 +105,9 @@ const TextInputCellRenderer = (props: any) => {
               sx={{
                 color: "#1877f2",
                 cursor: row?.socialData?.facebook ? "pointer" : "default",
-                "&:hover": row?.socialData?.facebook ? { textDecoration: "underline" } : {},
+                "&:hover": row?.socialData?.facebook
+                  ? { textDecoration: "underline" }
+                  : {},
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -124,7 +123,10 @@ const TextInputCellRenderer = (props: any) => {
             className="flex items-center gap-3 cursor-pointer w-full h-full"
             onClick={() =>
               row?.socialData?.twitter &&
-              window.open(`https://twitter.com/${row?.socialData?.twitter}`, "_blank")
+              window.open(
+                `https://twitter.com/${row?.socialData?.twitter}`,
+                "_blank"
+              )
             }
           >
             <Typography
@@ -132,7 +134,9 @@ const TextInputCellRenderer = (props: any) => {
               sx={{
                 color: "#1da1f2",
                 cursor: row?.socialData?.twitter ? "pointer" : "default",
-                "&:hover": row?.socialData?.twitter ? { textDecoration: "underline" } : {},
+                "&:hover": row?.socialData?.twitter
+                  ? { textDecoration: "underline" }
+                  : {},
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -227,22 +231,15 @@ const TextInputCellRenderer = (props: any) => {
   return (
     <>
       {renderContent()}
-      {/* <CustomSideBarPanel
-        open={isEdit}
-        close={() => setIsEdit(false)}
-        width={"45%"}
-        title={"Edit User"}
-      > */}
+
       <EditUser isEdit={isEdit} close={() => setIsEdit(false)} />
-      {/* </CustomSideBarPanel> */}
+
       <ConfirmationModal
         open={isDelete}
         onClose={() => setIsDelete(false)}
         onConfirm={() => {}}
+        type="delete"
       />
-      {/* <CustomSideBarPanel open={isProfile} close={() => setIsProfile(false)} title={"Profile"} width={"65%"}>
-          <h1>profile</h1>
-        </CustomSideBarPanel> */}
     </>
   );
 };
