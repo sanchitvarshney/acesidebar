@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -23,17 +23,29 @@ const CreateEmailNotificationsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { event } = location.state;
+
   const [validatePlaceholders] = useValidatePlaceholdersMutation();
   const [previewNotification] = usePreviewNotificationMutation();
   const { data: template } = useGetEmailNotificationsSettingsTemplateQuery({
     key: event?.key && event?.key,
+    skip: !event?.key,
   });
+
+  useEffect(() => {
+    if (template) {
+      setFormData((prev: any) => ({
+        ...prev,
+        subject: template.subject,
+        message: template.content,
+      }));
+    }
+  }, [template]);
 
   // Form state management
   const [formData, setFormData] = useState<any>({
     eventType: event?.type || "",
     eventLabel: event?.title || "",
-    subject: template?.subject || "",
+    subject: "",
     message: "",
     isEnabled: true,
     language: "en",
@@ -41,36 +53,6 @@ const CreateEmailNotificationsPage = () => {
     templateId: event?.key || "",
   });
 
-  // console.log("payload", placeholders);
-  //   useEffect(() => {
-  //     if (placeholders?.Ticket?.Subject) {
-  //       setFormData((prev: any) => ({
-  //         ...prev,
-  //         subject: placeholders.Ticket.Subject,
-  //         message: `
-
-  //     <div style=" height: 100px ;background-color: #8e98a0; color: #fff; padding: 10px; font-size: 20px">
-  //       Hi
-  //       <br style="background-color: #8e98a0; color: #fff;"  />
-  //      A new <span style="font-weight: bold; padding: 10px">ticket has been created.</span> Please have a look at the details and reply to the query.
-  //     </div>
-  //     <br/> <br/>
-  //     <div>
-  //       <span style="font-weight: bold; padding: 10px">Subject: ${placeholders?.Ticket?.Subject}</span>
-  //       <br/>
-  //       <p>${placeholders?.Ticket?.Description}</p>
-  //     </div>
-  //         <br/> <br/>     <br/> <br/>
-  //     <div><button style="!cursor: pointer">Reply</button></div>
-
-  // `,
-  //       }));
-  //     }
-  //   }, [placeholders]);
-
-  // Form validation
-
-  // Handle form field changes
   const handleSubjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev: any) => ({
       ...prev,
@@ -84,7 +66,6 @@ const CreateEmailNotificationsPage = () => {
       message: content,
     }));
   };
-
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -153,10 +134,9 @@ const CreateEmailNotificationsPage = () => {
       {/* Left Content */}
       <Box
         sx={{
-          p: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 2,
+          gap: 1,
           height: "calc(100vh - 110px)",
         }}
       >
@@ -166,7 +146,9 @@ const CreateEmailNotificationsPage = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 1,
+            p: 2,
+            borderBottom: "1px solid #e0e0e0",
+            backgroundColor: "#fafafa",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -186,7 +168,7 @@ const CreateEmailNotificationsPage = () => {
             display: "flex",
             gap: 2,
             flexDirection: "column",
-            height: "calc(100vh - 245px)",
+            height: "calc(100vh - 240px)",
             overflow: "auto",
             py: 2,
             px: 5,
@@ -200,10 +182,14 @@ const CreateEmailNotificationsPage = () => {
               width: "100%",
             }}
           >
-            <Typography variant="subtitle2">
-              Subject <span className="text-red-500">*</span>
-            </Typography>
-
+            <div className="flex items-center justify-between">
+              <Typography variant="subtitle2">
+                Subject <span className="text-red-500">*</span>
+              </Typography>
+              <Button variant="text" color="primary">
+                Inset Placeholder
+              </Button>
+            </div>
             <TextField
               fullWidth
               value={formData.subject}
@@ -226,26 +212,21 @@ const CreateEmailNotificationsPage = () => {
             <StackEditor
               onChange={handleMessageChange}
               onFocus={undefined}
-              initialContent={`<div style=" height: 100px ;background-color: #8e98a0; color: #fff; padding: 10px; font-size: 20px">
-      Hi 
-       <br style="background-color: #8e98a0; color: #fff;"  />
-      A new <span style="font-weight: bold; padding: 10px">ticket has been created.</span> Please have a look at the details and reply to the query.
-     </div>
-    <br/> <br/> 
-    <div>
-      <span style="font-weight: bold; padding: 10px">Subject: ${template?.subject}</span>
-      <br/>
-      <p>${template?.content}</p>
-    </div>
-        <br/> <br/>     <br/> <br/> 
-    <div><button style="!cursor: pointer">Reply</button></div>`}
+              initialContent={`${formData.message}`}
               isFull={false}
               customHeight="220px"
             />
           </Box>
         </Box>
         <Divider />
-        <Box sx={{ display: "flex", gap: 1, justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            justifyContent: "space-between",
+            px: 2,
+          }}
+        >
           <Button
             variant="text"
             color="primary"

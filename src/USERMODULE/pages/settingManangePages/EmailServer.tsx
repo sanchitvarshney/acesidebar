@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -16,76 +16,74 @@ import {
   TableCell,
   TableBody,
   Chip,
-  Menu,
-  MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import { SettingsIcon } from "lucide-react";
-import { Stars } from "@mui/icons-material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-
-const emailSample = [
-  {
-    product: "Product 1",
-    name: "name 1",
-    email: "Email 1",
-    group: "Group 1",
-    status: "Active",
-  },
-  {
-    product: "Product 2",
-    name: "name 2",
-    email: "Email 2",
-    group: "Group 2",
-    status: "Inactive",
-  },
-  {
-    product: "Product 3",
-    name: "name 3",
-    email: "Email 3",
-    group: "Group 3",
-    status: "Active",
-  },
-];
+import { Delete, Stars } from "@mui/icons-material";
+import {
+  useDeleteEmailServerMutation,
+  useGetEmailServerListQuery,
+} from "../../../services/agentServices";
+import { useToast } from "../../../hooks/useToast";
 
 const EmailServerPage: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredTeams, setFilteredTeams] = useState(emailSample);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedTeam, setSelectedTeam] = useState<any>(null);
+  const [filteredTeams, setFilteredTeams] = useState<any>();
+  const [trackItem, setTrackItem] = useState<any>(null);
+  const {
+    data: emailServerList,
+    isLoading: emailServerLoading,
+    refetch,
+  } = useGetEmailServerListQuery({});
+  const [deleteEmailServer, { isLoading: deleteEmailServerLoading }] =
+    useDeleteEmailServerMutation();
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, team: any) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedTeam(team);
+  const handleDeleteItem = (itemId: any) => {
+    const payload = {
+      key: itemId,
+    };
+    deleteEmailServer(payload).then((res: any) => {
+      console.log("res", res);
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message, "error");
+        return;
+      }
+      if (res?.data?.type === "success") {
+        showToast(res?.data?.message, "success");
+        refetch();
+      }
+    });
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedTeam(null);
-  };
+  useEffect(() => {
+    setFilteredTeams(emailServerList);
+  }, [emailServerList]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchTerm(value);
-    applyFilters(searchTerm);
   };
 
-  const applyFilters = (search: string) => {
-    let filtered = emailSample;
+  useEffect(() => {
+    if (emailServerList) {
+      let filtered = emailServerList;
 
-    // Search filter
-    if (search) {
-      filtered = filtered.filter((team) =>
-        team.name.toLowerCase().includes(search.toLowerCase())
-      );
+      if (searchTerm.trim() !== "") {
+        filtered = emailServerList.filter(
+          (team: any) =>
+            team.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            team.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
+      setFilteredTeams(filtered);
     }
-
-    setFilteredTeams(filtered);
-  };
+  }, [emailServerList, searchTerm]);
   return (
     <Box
       sx={{
@@ -149,7 +147,7 @@ const EmailServerPage: React.FC = () => {
             alignItems: "center",
             flexWrap: "wrap",
             borderRadius: 2,
-            px:2
+            px: 2,
           }}
         >
           <TextField
@@ -169,7 +167,7 @@ const EmailServerPage: React.FC = () => {
             <TableContainer sx={{ height: "100%" }}>
               <Table stickyHeader sx={{ position: "relative" }}>
                 <TableHead>
-                  {false && (
+                  {emailServerLoading && (
                     <LinearProgress
                       sx={{
                         position: "absolute",
@@ -189,16 +187,13 @@ const EmailServerPage: React.FC = () => {
                   )}
                   <TableRow>
                     <TableCell sx={{ fontWeight: 600, bgcolor: "#f8f9fa" }}>
-                      Product
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 600, bgcolor: "#f8f9fa" }}>
                       Name
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600, bgcolor: "#f8f9fa" }}>
                       Email address
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600, bgcolor: "#f8f9fa" }}>
-                      Group
+                      Created
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600, bgcolor: "#f8f9fa" }}>
                       Status
@@ -209,41 +204,48 @@ const EmailServerPage: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredTeams.map((row: any, index) => (
-                    <TableRow key={index} hover>
-                      <TableCell>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Stars sx={{ color: "#666" }} />
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {row.product}
-                          </Typography>
-                        </Box>
-                      </TableCell>
+                  {filteredTeams?.map((row: any, index: any) => (
+                    <TableRow key={row?.key} hover>
                       <TableCell>
                         <Typography variant="body2" color="text.secondary">
-                          {row.name}
+                          {row?.name}
                         </Typography>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">{row.email}</Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">{row.group}</Typography>
+                        <Typography variant="body2">
+                          {row?.insert?.dt}
+                        </Typography>
                       </TableCell>
 
                       <TableCell>
-                        <Typography variant="body2" color="text.secondary">
-                          {row.status}
-                        </Typography>
+                        <Chip
+                          label={row.isActive ? "Active" : "Inactive"}
+                          color={row.isActive ? "success" : "error"}
+                          variant={row.isActive ? "filled" : "outlined"}
+                          size="small"
+                          sx={{
+                            fontWeight: 500,
+                            textTransform: "capitalize",
+                          }}
+                        />
                       </TableCell>
                       <TableCell>
                         <IconButton
                           size="small"
-                          onClick={(e) => handleMenuClick(e, row)}
+                          onClick={(e) => {
+                            setTrackItem(row?.key);
+                            handleDeleteItem(row?.key);
+                          }}
                         >
-                          <MoreVertIcon />
+                          {deleteEmailServerLoading &&
+                          row?.key === trackItem ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <Delete fontSize="small" color="error" />
+                          )}
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -253,28 +255,6 @@ const EmailServerPage: React.FC = () => {
             </TableContainer>
           </Paper>
         </div>
-        {/* Action Menu */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={() => {}}>Edit</MenuItem>
-          {/* <MenuItem
-            onClick={() => {
-              const mockEvent = { currentTarget: null } as any;
-              handleViewMembers(mockEvent, selectedTeam);
-            }}
-          >
-            <VisibilityIcon sx={{ mr: 1 }} />
-            View Members
-          </MenuItem>
-          <Divider />
-          <MenuItem onClick={handleDeleteTeam} sx={{ color: "error.main" }}>
-            <DeleteIcon sx={{ mr: 1 }} />
-            Delete Team
-          </MenuItem> */}
-        </Menu>
       </Box>
 
       {/* Right Sidebar */}

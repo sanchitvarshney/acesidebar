@@ -52,6 +52,19 @@ const agentServices = baseInstanceOfApi.injectEndpoints({
       }),
       transformResponse: (response: any) => response?.data,
     }),
+    getEmailServerList: builder.query<any, any>({
+      query: () => ({
+        url: `/notification/mail/server/list`,
+        method: "GET",
+      }),
+      transformResponse: (response: any) => response?.data,
+    }),
+    deleteEmailServer: builder.mutation({
+      query: (credentials) => ({
+        url: `/notification/mail/server/delete/${credentials.key}`,
+        method: "DELETE",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -64,4 +77,6 @@ export const {
   useLazyGetDepartmentListQuery,
   useLazyGetAgentListQuery,
   useLazyTriggerGetSLAListQuery,
+  useGetEmailServerListQuery,
+  useDeleteEmailServerMutation,
 } = agentServices;
