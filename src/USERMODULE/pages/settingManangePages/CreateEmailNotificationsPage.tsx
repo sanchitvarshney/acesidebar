@@ -8,6 +8,11 @@ import {
   CardContent,
   TextField,
   Divider,
+  Dialog,
+  DialogTitle,
+  List,
+  ListItemButton,
+  ListItemText,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -18,12 +23,30 @@ import {
   usePreviewNotificationMutation,
 } from "../../../services/placeholderServices";
 import { useGetEmailNotificationsSettingsTemplateQuery } from "../../../services/settingServices";
+import { Close } from "@mui/icons-material";
 
+const categories: any = {
+  Helpdesk: ["Helpdesk name", "Helpdesk URL"],
+  Tickets: ["Ticket ID", "Ticket subject", "Ticket status"],
+  "Ticket Fields": ["Custom field 1", "Custom field 2"],
+  Requester: ["Requester name", "Requester email"],
+  Company: [
+    "Company name",
+    "Company description",
+    "Company note",
+    "Company domains",
+    "Company Health score",
+    "Company Account tier",
+    "Company Renewal date",
+    "Company Industry",
+  ],
+};
 const CreateEmailNotificationsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { event } = location.state;
-
+  const [selectedCategory, setSelectedCategory] = useState<any>("Company");
+  const { event } = location?.state;
+  const [isPlaceholder, setIsPlaceholder] = useState(false);
   const [validatePlaceholders] = useValidatePlaceholdersMutation();
   const [previewNotification] = usePreviewNotificationMutation();
   const { data: template } = useGetEmailNotificationsSettingsTemplateQuery({
@@ -186,9 +209,93 @@ const CreateEmailNotificationsPage = () => {
               <Typography variant="subtitle2">
                 Subject <span className="text-red-500">*</span>
               </Typography>
-              <Button variant="text" color="primary">
-                Inset Placeholder
-              </Button>
+              <div>
+                <Button
+                  variant="text"
+                  color="primary"
+                  onClick={() => setIsPlaceholder((p) => !p)}
+                >
+                  Inset Placeholder
+                </Button>
+
+                <Dialog
+                  open={isPlaceholder}
+                  onClose={() => setIsPlaceholder(false)}
+                  maxWidth="sm"
+                  fullWidth
+                >
+                  <DialogTitle>
+                    <div className="flex items-center justify-between">
+                      <Typography variant="h6" className="font-semibold">
+                        Insert Placeholders
+                      </Typography>
+                      <IconButton onClick={() => setIsPlaceholder(false)}>
+                        <Close />
+                      </IconButton>
+                    </div>
+                    <Typography variant="body2" className="text-gray-500">
+                      Click to insert Placeholders in the content which will
+                      dynamically get resolved into the appropriate data.
+                    </Typography>
+                  </DialogTitle>
+                  <Divider />
+
+                  <div className="grid grid-cols-[200px_1fr] min-h-[400px]">
+                    {/* Left Sidebar */}
+                    <div>
+                      <List className="border-r p-0">
+                        {Object.keys(categories).map((cat) => (
+                          <ListItemButton
+                            key={cat}
+                            selected={selectedCategory === cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            sx={{
+                              borderLeft:
+                                selectedCategory === cat
+                                  ? "4px solid #1976d2"
+                                  : "4px solid transparent",
+                              color:
+                                selectedCategory === cat
+                                  ? "#1976d2"
+                                  : "inherit",
+                              "&.Mui-selected": {
+                                backgroundColor: "transparent",
+                              },
+                              "&:hover": {
+                                backgroundColor: "#f5f5f5",
+                              },
+                            }}
+                          >
+                            <ListItemText primary={cat} />
+                          </ListItemButton>
+                        ))}
+                      </List>
+                    </div>
+
+                    {/* Right Panel */}
+                    <div className="p-1 ">
+                      {categories[selectedCategory].map(
+                        (item: any, idx: number) => (
+                          <Button
+                            key={idx}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                              textTransform: "none",
+                              borderRadius: "4px",
+                              paddingX: "14px",
+                              paddingY: "6px",
+                              m: 0.8,
+                            }}
+                          >
+                            {item}
+                          </Button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </Dialog>
+              </div>
             </div>
             <TextField
               fullWidth

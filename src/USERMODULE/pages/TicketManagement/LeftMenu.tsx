@@ -1,11 +1,25 @@
 import React, { useState } from "react";
 import {
+  Alert,
+  alpha,
   Box,
+  Button,
+  Card,
+  Checkbox,
   Collapse,
+  Dialog,
+  DialogTitle,
+  Divider,
+  FormControlLabel,
   IconButton,
+  InputBase,
   List,
   ListItem,
   ListItemText,
+  MenuItem,
+  Select,
+  styled,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -13,10 +27,110 @@ import {
 import AddTaskIcon from "@mui/icons-material/AddTask";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useHelpCenter } from "../../../contextApi/HelpCenterContext";
+import SearchIcon from "@mui/icons-material/Search";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { Close, RadioButtonChecked } from "@mui/icons-material";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+
+const dummyData = {
+  status: [
+    "Answered",
+    "Calling",
+    "Chatting",
+    "Spam",
+    "Deleted",
+    "New",
+    "Open",
+    "Resolved",
+    "Postponed",
+    "Closed",
+  ],
+  source: [
+    "Email",
+    "Chat button",
+    "Contact form",
+    "Invitation",
+    "Call",
+    "Call widget",
+    "Facebook",
+    "Facebook message",
+    "Forum",
+    "X",
+    "Suggestion",
+    "Instagram",
+    "Instagram mention",
+    "Viber",
+    "WhatsApp",
+  ],
+  tags: ["Bug", "Feedback", "Feature request", "Urgent"],
+};
+
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.black, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.black, 0.25),
+  },
+  marginLeft: 0,
+
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(1),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  width: "100%",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    [theme.breakpoints.up("sm")]: {
+      width: "12ch",
+      "&:focus": {
+        width: "20ch",
+      },
+    },
+  },
+}));
 
 const LeftMenu: React.FC = () => {
   const [gettingStartedExpanded, setGettingStartedExpanded] = useState(false);
   const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
+  const [isOpenFilter, setIsOpenFilter] = useState(false);
+
+  const checkAllStatus = () => setSelectedStatus(dummyData.status);
+  const uncheckAllStatus = () => setSelectedStatus([]);
+
+  const [selectedStatus, setSelectedStatus] = useState(
+    dummyData.status.filter((s) => !["Spam", "Deleted"].includes(s))
+  );
+
+
+  const handleStatusToggle = (status: any) => {
+    setSelectedStatus((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status]
+    );
+  };
+
+
 
   const gettingStartedItems = [
     {
@@ -26,7 +140,7 @@ const LeftMenu: React.FC = () => {
       isOptional: false,
       icon: <AddTaskIcon />,
     },
- {
+    {
       id: 2,
       title: "Advanced setup",
       completed: true,
@@ -34,6 +148,22 @@ const LeftMenu: React.FC = () => {
       icon: <AddTaskIcon />,
     },
   ];
+
+  const handleCreateFilter = () => {
+    const payload = {
+      filterName: "My Support Filter",
+      conditions: {
+        status: ["Answered", "Calling", "Open", "Resolved"],
+        tags: {
+          operator: "contains",
+          values: ["urgent", "priority"],
+        },
+        source: ["Email", "Chat button", "Facebook message", "WhatsApp"],
+      },
+      searchCondition: "status",
+    };
+    console.log("Payload for create filter", payload);
+  };
 
   return (
     <Box
@@ -75,26 +205,51 @@ const LeftMenu: React.FC = () => {
               flexDirection: "column",
             }}
           >
-            <Box sx={{ pr: 1 }}>
+            <Box sx={{ p: 2 }}>
+              <div>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Ticket filters
+                </Typography>
+                <Search>
+                  <SearchIconWrapper>
+                    <SearchIcon />
+                  </SearchIconWrapper>
+                  <StyledInputBase
+                    placeholder="Search in All"
+                    inputProps={{ "aria-label": "search" }}
+                  />
+                </Search>
+              </div>
               <List
                 dense
-                sx={{ display: "flex", gap: 1, flexDirection: "column" }}
+                sx={{ display: "flex", gap: 1, flexDirection: "column", mt: 2 }}
               >
                 {gettingStartedItems.map((item) => (
                   <ListItem
                     key={item.id}
                     sx={{
-                      borderTopRightRadius: 30,
-                      borderBottomRightRadius: 30,
-                      py: 1,
+                      px: 2,
+                      cursor: "pointer",
                       "&:hover": { bgcolor: "#fff" },
                     }}
                   >
-                    {/* <ListItemIcon>{item.icon}</ListItemIcon> */}
                     <ListItemText primary={item.title} />
                   </ListItem>
                 ))}
               </List>
+              <Divider sx={{ my: 3 }} />
+
+              <Button
+                variant="text"
+                size="small"
+                color="primary"
+                startIcon={
+                  <AddCircleOutlineIcon fontSize="small" color="primary" />
+                }
+                onClick={() => setIsOpenFilter(true)}
+              >
+                New Filter
+              </Button>
             </Box>
 
             <div className="flex justify-end py-4 border-t border-gray-200">
@@ -140,6 +295,139 @@ const LeftMenu: React.FC = () => {
           </Box>
         )}
       </div>
+
+      <Dialog
+        onClose={() => setIsOpenFilter(false)}
+        open={isOpenFilter}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle
+          sx={{
+            border: "1px solid #ccc",
+            boxShadow: 3,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            p: 0,
+            py: 1,
+            px: 3,
+          }}
+        >
+          <Typography variant="subtitle2">Tickets - Create filter</Typography>
+          <IconButton color="inherit" onClick={() => setIsOpenFilter(false)}>
+            <Close />
+          </IconButton>
+        </DialogTitle>
+
+        <div className="w-full py-2 px-8 max-h-[calc(100vh-190px)] overflow-y-auto">
+          <div className="my-2">
+            <Typography variant="subtitle2">Filter name</Typography>
+            <TextField
+              size="small"
+              variant="outlined"
+              error={false}
+              fullWidth
+              sx={{
+                maxWidth: "40%",
+              }}
+            />
+          </div>
+          <Alert
+            severity="error"
+            sx={{
+              maxWidth: "60%",
+              p: 0,
+              px: 2,
+            }}
+          >
+            Filter name is mandatory
+          </Alert>
+          <Card
+            elevation={0}
+            sx={{
+              my: 1,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              borderRadius: "8px",
+              p: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {/* Status Section */}
+            <Box className="grid grid-cols-[1fr_4fr] gap-4">
+              <div className="flex items-center justify-between">
+                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                  Status
+                </Typography>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <IconButton size="small" onClick={checkAllStatus}>
+                    <RadioButtonChecked fontSize="small" /> 
+                  </IconButton>
+                  <IconButton size="small" onClick={uncheckAllStatus}>
+                    <RadioButtonUncheckedIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              </div>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                {dummyData.status.map((s) => (
+                <>
+                  <FormControlLabel
+                    key={s}
+                    control={
+                      <Checkbox
+                        checked={selectedStatus.includes(s)}
+                        onChange={() => handleStatusToggle(s)}
+                        size="small"
+                      />
+                    }
+                    label={<Typography variant="body2">{s}</Typography>}
+                  />
+                    <Divider /></>
+                ))}
+              </Box>
+            </Box>
+
+          
+
+
+            <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Add search condition:
+              </Typography>
+
+              <Select
+                size="small"
+                defaultValue=""
+                displayEmpty
+                sx={{ minWidth: 200 }}
+              >
+                <MenuItem value="">
+                  <em>Select condition</em>
+                </MenuItem>
+                <MenuItem value="status">Status</MenuItem>
+                <MenuItem value="tags">Tags</MenuItem>
+                <MenuItem value="source">Source</MenuItem>
+                <MenuItem value="date">Date</MenuItem>
+                <MenuItem value="priority">Priority</MenuItem>
+              </Select>
+            </Box>
+          </Card>
+          <div className="flex  gap-2 mt-4">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleCreateFilter}
+            >
+              Create
+            </Button>
+            <Button variant="text" sx={{ fontWeight: 600 }}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </Box>
   );
 };
