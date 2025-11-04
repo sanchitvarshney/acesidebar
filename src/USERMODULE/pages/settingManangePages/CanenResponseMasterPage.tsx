@@ -138,9 +138,6 @@ const CanenResponseMasterPage = () => {
 
   const [activeFolderId, setActiveFolderId] = useState<string>("general");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const [sortBy, setSortBy] = useState<"title" | "created" | "updated">(
-    "title"
-  );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<"create" | "edit">("create");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -386,19 +383,8 @@ const CanenResponseMasterPage = () => {
   filterData = applyFilters(filterData);
 
   const visibleResponses = useMemo(() => {
-    const list = responses.filter((r) => r.folderId === activeFolderId);
-    if (sortBy === "title") {
-      return [...list].sort((a, b) => a.title.localeCompare(b.title));
-    }
-    if (sortBy === "created") {
-      return [...list].sort(
-        (a, b) => +new Date(a.createdAt) - +new Date(b.createdAt)
-      );
-    }
-    return [...list].sort(
-      (a, b) => +new Date(a.updatedAt) - +new Date(b.updatedAt)
-    );
-  }, [responses, activeFolderId, sortBy]);
+    return responses.filter((r) => r.folderId === activeFolderId);
+  }, [responses, activeFolderId]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const allSelected = useMemo(() => {
@@ -492,22 +478,10 @@ const CanenResponseMasterPage = () => {
           )}
         </Stack>
         <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="body2" color="text.secondary">
-            Sort by:
-          </Typography>
-          <Select
-            size="small"
-            variant="standard"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-          >
-            <MenuItem value="title">Title</MenuItem>
-            <MenuItem value="created">Created</MenuItem>
-            <MenuItem value="updated">Updated</MenuItem>
-          </Select>
           <Button
             variant="outlined"
             size="small"
+            sx={{ fontWeight: 600 }}
             onClick={() => setNewFolderOpen(true)}
           >
             New Folder
@@ -515,6 +489,7 @@ const CanenResponseMasterPage = () => {
           <Button
             variant="contained"
             size="small"
+            sx={{ fontWeight: 600 }}
             onClick={() => {
               setDrawerMode("create");
               setEditingId(null);

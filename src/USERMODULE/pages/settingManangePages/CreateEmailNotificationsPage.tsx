@@ -186,8 +186,8 @@ const CreateEmailNotificationsPage = () => {
               <Typography variant="subtitle2">
                 Subject <span className="text-red-500">*</span>
               </Typography>
-              <Button variant="text" color="primary">
-                Inset Placeholder
+              <Button variant="text" color="primary" sx={{ fontWeight: 600 }}>
+                Insert Placeholder
               </Button>
             </div>
             <TextField

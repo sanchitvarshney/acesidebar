@@ -386,6 +386,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                   onClick={handleMyAccount}
                   sx={{
                     flex: 1,
+                    fontWeight: 600,
                     textTransform: "none",
                     borderColor: "#e0e0e0",
                     color: "#000",
@@ -404,6 +405,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                   onClick={handleSignOut}
                   sx={{
                     flex: 1,
+                    fontWeight: 600,
                     textTransform: "none",
                     borderColor: "#d32f2f",
                     color: "#d32f2f",
@@ -853,7 +855,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                 backgroundColor: "#e3f2fd",
                 color: "#1976d2",
                 textTransform: "none",
-                fontWeight: 500,
+                fontWeight: 600,
                 py: 1.5,
                 borderRadius: 2,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
