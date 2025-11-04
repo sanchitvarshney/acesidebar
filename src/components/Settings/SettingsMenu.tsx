@@ -21,7 +21,7 @@ const SettingsMenu = ({
               className={`flex items-start gap-4 mb-2 cursor-pointer p-4 transition-all duration-300 group relative
     ${activeId === section.id
                   ? "bg-blue-50 border-l-4 border-blue-500 shadow-sm border-[1px]"
-                  : "hover:bg-gray-50 hover:border-blue-500 hover:border-[1px] hover:shadow-sm hover:scale-[1.02] border-l-4 border-transparent"
+                  : "hover:bg-slate-200  border-transparent"
                 }`}
               onClick={() => onSelect(section.id)}
             >
