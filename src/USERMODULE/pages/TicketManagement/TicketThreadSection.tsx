@@ -29,10 +29,7 @@ import {
   Chip,
   ClickAwayListener,
   Box,
-  Paper,
   ListItem,
-  MenuList,
-  Drawer,
   Tooltip,
   Button,
   Avatar,
@@ -1243,6 +1240,7 @@ const TicketThreadSection = ({
     }
   }, [showEditorNote, showReplyEditor]);
 
+
   return (
     <div className="flex flex-col gap-2  w-full h-[100%]  overflow-hidden border border-r-2 border-[#e0e0e0]">
       <div className="w-full p-2 ">
@@ -1607,7 +1605,7 @@ const TicketThreadSection = ({
                 <Typography>Section 1</Typography>
               </Box>
 
-              {/* Right Section (Custom Add Icon) */}
+           
               <IconButton
                 size="small"
                 onClick={(e: any) => {

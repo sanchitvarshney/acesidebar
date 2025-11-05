@@ -247,8 +247,6 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
             },
             "& .MuiTab-root": {
               color: "#6b7280",
-              minWidth: { xs: "auto", sm: 60 },
-              padding: { xs: "8px 12px", sm: "12px 16px" },
               fontSize: { xs: "0.75rem", sm: "0.875rem" },
               "&.Mui-selected": {
                 color: "#1a73e8",
@@ -257,7 +255,6 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
             "& .MuiTabs-indicator": {
               backgroundColor: "#1a73e8",
             },
-            // Mobile scroll improvements
             "& .MuiTabs-scrollButtons": {
               display: { xs: "flex", sm: "flex" },
             },
@@ -271,9 +268,9 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
               aria-controls={`top-tabpanel-${index}`}
               aria-label={tab.label}
               sx={{
-                minWidth: { xs: "auto", sm: 60 },
-                flex: { xs: 1, sm: "none" },
-                maxWidth: { xs: "120px", sm: "none" },
+                // minWidth: { xs: "auto", sm: 60 },
+                // flex: { xs: 1, sm: "none" },
+                // maxWidth: { xs: "120px", sm: "none" },
               }}
             />
           ))}
