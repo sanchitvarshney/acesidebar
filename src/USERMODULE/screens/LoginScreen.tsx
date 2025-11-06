@@ -11,6 +11,7 @@ import {
   CircularProgress,
   Checkbox,
   FormControlLabel,
+  Tooltip,
 } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -32,6 +33,7 @@ import VpnLockIcon from "@mui/icons-material/VpnLock";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ErrorIcon from "@mui/icons-material/Error";
+import InfoIcon from "@mui/icons-material/Info";
 
 import GoogleRecaptcha, {
   GoogleRecaptchaRef,
@@ -81,7 +83,7 @@ const LoginScreen = () => {
   const [precheckError, setPrecheckError] = useState<string>("");
   const [brandName, setBrandName] = useState<string>("Ajaxter");
   const [isStep2Loading, setIsStep2Loading] = useState<boolean>(false);
-   const [hostLoading, setHostLoading] = useState<boolean>(true);
+  const [hostLoading, setHostLoading] = useState<boolean>(true);
 
   // Decide which step to show based on current host
   useEffect(() => {
@@ -90,13 +92,13 @@ const LoginScreen = () => {
     const isTmsHost = host.startsWith("tms.");
     if (isTmsHost) {
       setShowLoginForm(false);
-    // show step 1 (domain entry)
+      // show step 1 (domain entry)
     } else {
       setShowLoginForm(true); // show step 2 (login) for non-tms hosts (incl. localhost)
       setIsStep2Loading(true);
-     
+
     }
-      setHostLoading(false); 
+    setHostLoading(false);
   }, []);
 
   // On step 2 (non tms hosts), fetch and set brand name from tenant subdomain; on error redirect to tms host
@@ -141,8 +143,8 @@ const LoginScreen = () => {
             const apexDomain = isLocalLike
               ? "localhost"
               : parts.length > 2
-              ? parts.slice(-2).join(".")
-              : host;
+                ? parts.slice(-2).join(".")
+                : host;
             const targetHost = isLocalLike
               ? `tms.${apexDomain}${port ? `:${port}` : ""}`
               : `tms.${apexDomain}`;
@@ -156,8 +158,8 @@ const LoginScreen = () => {
           const apexDomain = isLocalLike
             ? "localhost"
             : parts.length > 2
-            ? parts.slice(-2).join(".")
-            : host;
+              ? parts.slice(-2).join(".")
+              : host;
           const targetHost = isLocalLike
             ? `tms.${apexDomain}${port ? `:${port}` : ""}`
             : `tms.${apexDomain}`;
@@ -526,209 +528,151 @@ const LoginScreen = () => {
     }
   };
 
+  // Apple logo SVG component
+  const AppleIcon = () => (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      style={{ marginRight: "8px" }}
+    >
+      <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+    </svg>
+  );
+
   if (hostLoading) {
     return (
-      <div style={{ textAlign: "center", padding: "50px" }}/>
-       
-    
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          width: "100vw",
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
     <Box
       sx={{
-        height: "100vh",
-        width: "100vw",
-        backgroundColor: "#1877f2",
+        minHeight: "100vh",
+        width: "100%",
+        maxWidth: "100%",
+        backgroundColor: "#ffffff",
         display: "flex",
-        padding: { xs: 2, md: 4 },
-        overflow: "hidden",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        flexDirection: "column",
+        position: "relative",
+        overflowX: "hidden",
+        boxSizing: "border-box",
       }}
     >
-      {/* Main Layout - Split Screen */}
+      {/* Fixed Header */}
       <Box
-        id="main-login-screen"
         sx={{
-          display: "flex",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
           width: "100%",
-          height: "100%",
+          maxWidth: "100%",
           backgroundColor: "#ffffff",
-          borderRadius: { xs: 2, md: 3 },
-          overflow: "hidden",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-          position: "relative",
+          zIndex: 1000,
+          paddingTop: { xs: 2, md: 3 },
+          paddingBottom: { xs: 2, md: 3 },
+          paddingLeft: { xs: 3, md: 5 },
+          paddingRight: { xs: 3, md: 5 },
+          boxSizing: "border-box",
+          overflowX: "hidden",
         }}
       >
-        {showLoginForm && isStep2Loading && (
+        {/* Logo */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+          }}
+        >
+          <Typography
+            component="span"
+            sx={{
+              color: "#2567B3",
+              fontWeight: 600,
+              fontSize: { xs: "20px", md: "24px" }
+            }}
+          >
+            Ajaxter.
+          </Typography>
+        </Box>
+
+        {/* Header Separator Line */}
+        <Box
+          sx={{
+            marginTop: { xs: 2, md: 2.5 },
+            height: "1px",
+            backgroundColor: "#e0e0e0",
+          }}
+        />
+      </Box>
+
+      {/* Main Content - Centered Form */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          alignItems: showLoginForm ? "center" : "flex-start",
+          justifyContent: "center",
+          padding: { xs: 2, md: 4 },
+          paddingTop: showLoginForm ? { xs: 2, md: 4 } : { xs: 3, md: 4 },
+          marginTop: { xs: "100px", md: "120px" },
+          minHeight: showLoginForm ? "calc(100vh - 100px)" : "auto",
+          maxHeight: showLoginForm ? "none" : "calc(100vh - 200px)",
+          overflowY: showLoginForm ? "auto" : "hidden",
+          overflowX: "hidden",
+          width: "100%",
+          maxWidth: "100%",
+          boxSizing: "border-box",
+        }}
+      >
+        {showLoginForm && isStep2Loading ? (
           <Box
             sx={{
-              position: "absolute",
-              inset: 0,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "#ffffff",
-              zIndex: 10,
+              width: "100%",
             }}
           >
             <CircularProgress />
           </Box>
-        )}
-        {/* Left Section - Login Form */}
-        <Box
-          sx={{
-            flex: { xs: "1", md: "0 0 45%" },
-            backgroundColor: "#ffffff",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: { xs: 3, md: 6 },
-            position: "relative",
-            overflow: "auto",
-            maxHeight: "100%",
-          }}
-        >
-          {/* Logo - Top Left */}
+        ) : (
           <Box
             sx={{
-              position: "absolute",
-              top: { xs: 24, md: 40 },
-              left: { xs: 24, md: 40 },
+              width: "100%",
+              maxWidth: "450px",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              gap: 1,
+              boxSizing: "border-box",
             }}
           >
+            {/* Form Container */}
             <Box
               sx={{
-                width: 40,
-                height: 40,
-                backgroundColor: "#1877f2",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                mr: 2,
-              }}
-            >
-              <Typography
-                sx={{
-                  color: "white",
-                  fontWeight: 700,
-                  fontSize: "20px",
-                }}
-              >
-                A
-              </Typography>
-            </Box>
-            <Typography
-              id="ajaxter-brand"
-              variant="h4"
-              sx={{
-                color: "#1a1a1a",
-                fontWeight: 700,
-                fontSize: "28px",
-              }}
-            >
-              {brandName}
-            </Typography>
-          </Box>
-
-          {/* Main Content */}
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              zIndex: 2,
-              position: "relative",
-              padding: 4,
-            }}
-          >
-            {/* Left side - Text */}
-            <Box sx={{ flex: "0 0 100%", pr: 4 }}>
-              <Typography
-                variant="h4"
-                sx={{
-                  color: "#ccc",
-                  fontWeight: 700,
-                  fontSize: "48px",
-                  lineHeight: 1.2,
-                  mb: 4,
-                  textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-                }}
-              >
-                Explore the things{" "}
-                <Box component="span" sx={{ color: "#FFD700" }}>
-                  you love.
-                </Box>
-              </Typography>
-
-              <Typography
-                variant="h6"
-                sx={{
-                  color: "#ddd",
-                  fontWeight: 400,
-                  fontSize: "24px",
-                  opacity: 0.9,
-                  textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
-                }}
-              >
-                Your trusted support partner for all your technical needs
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              zIndex: 2,
-              position: "relative",
-              backgroundColor: "white",
-              padding: 2,
-              borderRadius: "8px 8px 0 0",
-              margin: "0 -16px -16px -16px",
-            }}
-          ></Box>
-        </Box>
-
-        <Box
-          sx={{
-            flex: "0 0 65%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            minHeight: "100vh",
-            paddingLeft: { xs: 2, md: 6 },
-          }}
-        >
-          {showLoginForm && isStep2Loading ? (
-            <Box
-              sx={{
-                flex: 1,
                 width: "100%",
+                maxWidth: "100%",
+                backgroundColor: "#ffffff",
+                borderRadius: "8px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                padding: { xs: 3, md: 4 },
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                width: "60%",
-                padding: 4,
+                flexDirection: "column",
+                boxSizing: "border-box",
               }}
             >
               {isForgot ? (
@@ -738,7 +682,7 @@ const LoginScreen = () => {
                   noValidate
                 >
                   <Typography
-                    variant="h4"
+                    variant="h5"
                     sx={{ fontWeight: 700, mb: 1, color: "#1a1a1a" }}
                   >
                     Forgot Password
@@ -841,19 +785,19 @@ const LoginScreen = () => {
                 </Box>
               ) : !showLoginForm ? (
                 // Domain Entry Step
-                <Box>
+                <Box sx={{ width: "100%", maxWidth: "100%" }}>
                   <Typography
                     variant="h5"
-                    sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
+                    sx={{ fontWeight: 700, mb: 2, color: "#1a1a1a" }}
                   >
                     Secure Login to Your Account
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#65676b", mb: 3 }}
-                    >
-                      Please enter your Ajaxter domain name and we’ll help you
-                      out!
-                    </Typography>
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#65676b", mb: 2 }}
+                  >
+                    Please enter your Ajaxter domain name and we'll help you
+                    out!
                   </Typography>
 
                   <TextField
@@ -872,7 +816,7 @@ const LoginScreen = () => {
                     onBlur={() => setCompanyNameTouched(true)}
                     error={
                       (companyNameSubmitted || companyNameTouched) &&
-                      !companyName.trim()
+                        !companyName.trim()
                         ? true
                         : false
                     }
@@ -886,9 +830,9 @@ const LoginScreen = () => {
                             sx={{
                               color:
                                 (companyNameSubmitted || companyNameTouched) &&
-                                !companyName.trim()
+                                  !companyName.trim()
                                   ? "#d32f2f"
-                                  : "#1877f2",
+                                  : "#2567B3",
                             }}
                           />
                         </InputAdornment>
@@ -929,20 +873,20 @@ const LoginScreen = () => {
                       ),
                     }}
                     sx={{
-                      mb: 3,
+                      mb: 2,
                       "& .MuiOutlinedInput-root": {
-                        borderRadius: 2,
+                        borderRadius: 1,
                         fontSize: "16px",
                         paddingRight: "0 !important",
                         overflow: "hidden",
                         "& fieldset": {
-                          borderColor: "#dadde1",
+                          borderColor: "#e0e0e0",
                         },
                         "&:hover fieldset": {
-                          borderColor: "#1877f2",
+                          borderColor: "#2567B3",
                         },
                         "&.Mui-focused fieldset": {
-                          borderColor: "#1877f2",
+                          borderColor: "#2567B3",
                         },
                         "&.Mui-error fieldset": {
                           borderColor: "#d32f2f",
@@ -975,7 +919,7 @@ const LoginScreen = () => {
                         display: "flex",
                         alignItems: "center",
                         gap: 1,
-                        mb: 2,
+                        mb: 1.5,
                       }}
                     >
                       <ErrorIcon sx={{ color: "#d32f2f", fontSize: 16 }} />
@@ -998,18 +942,19 @@ const LoginScreen = () => {
                     endIcon={<ArrowForwardIcon />}
                     sx={{
                       py: 1.5,
-                      borderRadius: 2,
+                      borderRadius: 1,
                       textTransform: "none",
                       fontSize: "16px",
                       fontWeight: 600,
-                      backgroundColor: "#1877f2",
+                      backgroundColor: "#2567B3",
+                      color: "#ffffff",
                       "&:hover": {
-                        backgroundColor: "#166fe5",
+                        backgroundColor: "#1e4d8a",
                       },
                       "&:disabled": {
                         backgroundColor: "rgba(0, 0, 0, 0.12)",
                         color: "rgba(0, 0, 0, 0.26)",
-                      },
+                      }
                     }}
                   >
                     {isPrecheckLoading ? (
@@ -1020,8 +965,8 @@ const LoginScreen = () => {
                   </Button>
                 </Box>
               ) : (
-                // Step 2: Show loader until tenant precheck completes
-                <Box sx={{ width: "100%" }}>
+                // Step 2: Login Form - Network Solutions Style
+                <Box sx={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", overflowX: "hidden" }}>
                   {isStep2Loading ? (
                     <Box
                       sx={{
@@ -1029,6 +974,8 @@ const LoginScreen = () => {
                         alignItems: "center",
                         justifyContent: "center",
                         py: 10,
+                        width: "100%",
+                        maxWidth: "100%",
                       }}
                     >
                       <CircularProgress />
@@ -1038,28 +985,8 @@ const LoginScreen = () => {
                       component="form"
                       onSubmit={handleFormSubmit}
                       noValidate
-                      sx={{ width: "100%" }}
+                      sx={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", overflowX: "hidden" }}
                     >
-                      {/* URL Input - Hidden on mobile */}
-                      <TextField
-                        label="Change Url"
-                        variant="standard"
-                        value={baseUrl}
-                        onChange={handleChange}
-                        size="small"
-                        sx={{
-                          width: 300,
-                          mb: 2,
-                          display: { xs: "none", sm: "block" },
-                        }}
-                      />
-                      <Typography
-                        variant="h5"
-                        sx={{ fontWeight: 700, mb: 3, color: "#1a1a1a" }}
-                      >
-                        Login to Access Your Account
-                      </Typography>
-
                       <TextField
                         {...register("email")}
                         fullWidth
@@ -1068,17 +995,23 @@ const LoginScreen = () => {
                         sx={{
                           mb: 2,
                           "& .MuiOutlinedInput-root": {
-                            borderRadius: 2,
+                            borderRadius: 1,
                             fontSize: "16px",
                             "& fieldset": {
-                              borderColor: "#dadde1",
+                              borderColor: "#e0e0e0",
                             },
                             "&:hover fieldset": {
-                              borderColor: "#1877f2",
+                              borderColor: "#2567B3",
                             },
                             "&.Mui-focused fieldset": {
-                              borderColor: "#1877f2",
+                              borderColor: "#2567B3",
                             },
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: "14px",
+                            color: "#1a1a1a",
                           },
                         }}
                         autoComplete="email"
@@ -1093,22 +1026,28 @@ const LoginScreen = () => {
                         {...register("password")}
                         fullWidth
                         variant="outlined"
-                        label="Password"
+                        label="Password*"
                         type={showPassword ? "text" : "password"}
                         sx={{
                           mb: 2,
                           "& .MuiOutlinedInput-root": {
-                            borderRadius: 2,
+                            borderRadius: 1,
                             fontSize: "16px",
                             "& fieldset": {
-                              borderColor: "#dadde1",
+                              borderColor: "#e0e0e0",
                             },
                             "&:hover fieldset": {
-                              borderColor: "#1877f2",
+                              borderColor: "#2567B3",
                             },
                             "&.Mui-focused fieldset": {
-                              borderColor: "#1877f2",
+                              borderColor: "#2567B3",
                             },
+                          },
+                        }}
+                        InputLabelProps={{
+                          sx: {
+                            fontSize: "14px",
+                            color: "#1a1a1a",
                           },
                         }}
                         InputProps={{
@@ -1118,7 +1057,7 @@ const LoginScreen = () => {
                                 aria-label="toggle password visibility"
                                 onClick={handleToggleVisibility}
                                 edge="end"
-                                sx={{ color: "#65676b" }}
+                                sx={{ color: "#666" }}
                               >
                                 {showPassword ? (
                                   <VisibilityOffIcon />
@@ -1169,6 +1108,7 @@ const LoginScreen = () => {
                             </Typography>
                           )}
                       </Box>
+
                       {/* Terms & Conditions Checkbox */}
                       <FormControlLabel
                         control={
@@ -1176,9 +1116,9 @@ const LoginScreen = () => {
                             checked={termsAccepted}
                             onChange={(e) => setTermsAccepted(e.target.checked)}
                             sx={{
-                              color: "#1877f2",
+                              color: "#2567B3",
                               "&.Mui-checked": {
-                                color: "#1877f2",
+                                color: "#2567B3",
                               },
                             }}
                           />
@@ -1186,13 +1126,13 @@ const LoginScreen = () => {
                         label={
                           <Typography
                             variant="body2"
-                            sx={{ fontSize: "14px", color: "#65676b" }}
+                            sx={{ fontSize: "14px", color: "#1a1a1a" }}
                           >
                             I have read the{" "}
                             <Link
                               href="#"
                               sx={{
-                                color: "#1877f2",
+                                color: "#2567B3",
                                 textDecoration: "none",
                                 "&:hover": {
                                   textDecoration: "underline",
@@ -1205,7 +1145,7 @@ const LoginScreen = () => {
                             <Link
                               href="#"
                               sx={{
-                                color: "#1877f2",
+                                color: "#2567B3",
                                 textDecoration: "none",
                                 "&:hover": {
                                   textDecoration: "underline",
@@ -1224,7 +1164,7 @@ const LoginScreen = () => {
                         }}
                       />
 
-                      {/* Back Button and Login Button in Same Line */}
+                      {/* Back Button and Login Button */}
                       <Box
                         sx={{
                           mb: 2,
@@ -1236,15 +1176,15 @@ const LoginScreen = () => {
                         <IconButton
                           onClick={handleGoBack}
                           sx={{
-                            color: "#1877f2",
+                            color: "#2567B3",
                             padding: "8px",
                             border: "1px solid #e0e0e0",
                             backgroundColor: "#ffffff",
-                            borderRadius: "8px",
+                            borderRadius: 1,
                             flexShrink: 0,
                             "&:hover": {
-                              backgroundColor: "rgba(24, 119, 242, 0.08)",
-                              borderColor: "#1877f2",
+                              backgroundColor: "rgba(37, 103, 179, 0.08)",
+                              borderColor: "#2567B3",
                             },
                           }}
                         >
@@ -1257,18 +1197,19 @@ const LoginScreen = () => {
                           sx={{
                             flex: 1,
                             py: 1.5,
-                            borderRadius: 2,
+                            borderRadius: 1,
                             textTransform: "none",
                             fontSize: "16px",
                             fontWeight: 600,
-                            backgroundColor: "#1877f2",
+                            backgroundColor: "#2567B3",
+                            color: "#ffffff",
                             "&:hover": {
-                              backgroundColor: "#166fe5",
+                              backgroundColor: "#1e4d8a",
                             },
                             "&:disabled": {
                               backgroundColor: "rgba(0, 0, 0, 0.12)",
                               color: "rgba(0, 0, 0, 0.26)",
-                            },
+                            }
                           }}
                           type="submit"
                           onClick={handleSubmit(onSubmit)}
@@ -1299,9 +1240,12 @@ const LoginScreen = () => {
                           component="button"
                           underline="hover"
                           sx={{
-                            color: "#1877f2",
+                            color: "#2567B3",
                             fontSize: "14px",
-                            fontWeight: 500,
+                            fontWeight: 600,
+                            "&:hover": {
+                              textDecoration: "underline",
+                            },
                           }}
                           onClick={() => setIsForgot(true)}
                         >
@@ -1312,7 +1256,7 @@ const LoginScreen = () => {
                           flexItem
                           sx={{
                             height: 20,
-                            borderColor: "#dadde1",
+                            borderColor: "#e0e0e0",
                             borderRightWidth: 2,
                           }}
                         />
@@ -1320,9 +1264,12 @@ const LoginScreen = () => {
                           component="button"
                           underline="hover"
                           sx={{
-                            color: "#1877f2",
+                            color: "#2567B3",
                             fontSize: "14px",
-                            fontWeight: 500,
+                            fontWeight: 600,
+                            "&:hover": {
+                              textDecoration: "underline",
+                            },
                           }}
                           onClick={() => setIsForgot(true)}
                         >
@@ -1334,8 +1281,93 @@ const LoginScreen = () => {
                 </Box>
               )}
             </Box>
-          )}
+          </Box>
+        )}
+      </Box>
+
+      {/* Footer */}
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "100%",
+          padding: { xs: 2, md: 3 },
+          borderTop: "1px solid #e0e0e0",
+          backgroundColor: "#f8f8f8",
+          mt: "auto",
+          boxSizing: "border-box",
+          overflowX: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: { xs: 1, md: 2 },
+            mb: 2
+          }}
+        >
+          {[
+            "Legal",
+            "Privacy Policy",
+            "Terms of Use",
+            "Cookie Policy",
+            "Dispute Policy",
+            "DMCA Policy",
+            "Do Not Sell My Personal Information",
+            "Report Abuse",
+          ].map((link, index) => (
+            <React.Fragment key={link}>
+              {index > 0 && (
+                <Typography
+                  component="span"
+                  sx={{ color: "#666", fontSize: "12px", fontWeight: 600 }}
+                >
+                  |
+                </Typography>
+              )}
+              <Link
+                href="#"
+                sx={{
+                  color: "#1a1a1a",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration: "underline",
+                  },
+                  px: 0.5,
+                }}
+              >
+                {link}
+              </Link>
+            </React.Fragment>
+          ))}
         </Box>
+        <Typography
+          variant="body2"
+          sx={{
+            textAlign: "center",
+            color: "#666",
+            fontSize: "12px",
+            fontWeight: 600
+          }}
+        >
+          © Copyright {new Date().getFullYear() === 2025 ? "2025" : `2025 - ${new Date().getFullYear()}`} Ajaxter. All rights reserved.
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            textAlign: "center",
+            color: "#666",
+            fontSize: "12px",
+            fontWeight: 600,
+            mt: 0.5
+          }}
+        >
+          All registered trademarks herein are the property of their respective
+          owners.
+        </Typography>
       </Box>
     </Box>
   );

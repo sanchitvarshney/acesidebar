@@ -504,7 +504,6 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({
                 maxWidth: 500,
                 mx: "auto",
                 mt: 2,
-                fontFamily: "Arial, sans-serif",
                 height: "30vh",
                 overflow: "auto",
               }}
