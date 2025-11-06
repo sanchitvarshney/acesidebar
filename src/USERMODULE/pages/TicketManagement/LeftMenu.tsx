@@ -174,7 +174,7 @@ const LeftMenu: React.FC = () => {
         overflow: "visible",
         width: gettingStartedExpanded ? 240 : 55,
         transition: "width 0.3s ease",
-        backgroundColor: "#e8f0fe",
+        backgroundColor: "#e8eaec",
         marginTop: 8,
         display: helpCenterOpen ? "none" : "flex",
         position: "relative",
@@ -189,7 +189,7 @@ const LeftMenu: React.FC = () => {
           unmountOnExit={false}
           sx={{
             display: "flex",
-            backgroundColor: "#e8f0fe",
+            backgroundColor: "#e8eaec",
             height: "100%",
             minHeight: "calc(100vh - 70px)",
           }}

@@ -38,7 +38,7 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onToggleCustomerInfo, isCus
           backgroundColor: '#f5f5f5',
           border: '1px solid #e0e0e0',
           '&:hover': {
-            backgroundColor: '#e8f0fe',
+            backgroundColor: '#e8eaec',
           },
         }}
       >
@@ -61,7 +61,7 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onToggleCustomerInfo, isCus
           backgroundColor: activeContent === 'info' ? '#1976d2' : '#f5f5f5',
           border: '1px solid #e0e0e0',
           '&:hover': {
-            backgroundColor: activeContent === 'info' ? '#1565c0' : '#e8f0fe',
+            backgroundColor: activeContent === 'info' ? '#1565c0' : '#e8eaec',
           },
         }}
       >
@@ -80,7 +80,7 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onToggleCustomerInfo, isCus
           backgroundColor: activeContent === 'customer' ? '#1976d2' : '#f5f5f5',
           border: '1px solid #e0e0e0',
           '&:hover': {
-            backgroundColor: activeContent === 'customer' ? '#1565c0' : '#e8f0fe',
+            backgroundColor: activeContent === 'customer' ? '#1565c0' : '#e8eaec',
           },
         }}
       >
@@ -100,7 +100,7 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onToggleCustomerInfo, isCus
             backgroundColor: activeContent === 'chat' ? '#1976d2' : '#f5f5f5',
             border: '1px solid #e0e0e0',
             '&:hover': {
-              backgroundColor: activeContent === 'chat' ? '#1565c0' : '#e8f0fe',
+              backgroundColor: activeContent === 'chat' ? '#1565c0' : '#e8eaec',
             },
           }}
         >

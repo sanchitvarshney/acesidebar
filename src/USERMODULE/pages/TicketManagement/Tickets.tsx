@@ -523,7 +523,7 @@ const Tickets: React.FC = () => {
     <Paper
       elevation={0}
       sx={{
-        border: "2px solid #d4e6ff",
+        border: "2px solid #e8eaec",
         boxShadow: "none",
         maxWidth: 400,
         minWidth: 380,
@@ -721,7 +721,7 @@ const Tickets: React.FC = () => {
     return (
       <div
         key={merged?.ticketNumber}
-        className="w-full min-w-[300px]  bg-white border-2 border-[#d4e6ff] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative hover:bg-[#f6f8fb]"
+        className="w-full min-w-[300px]  bg-white border-2 border-[#e8eaec] rounded-xl mb-4 p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer relative hover:bg-[#f6f8fb]"
         onClick={() => handleTicketSubjectClick(merged.ticketNumber)}
       >
         {/* Top section */}
@@ -1021,7 +1021,7 @@ const Tickets: React.FC = () => {
       <div className="flex flex-col bg-[#f5f5f5] h-[calc(100vh-98px)]  ">
         
        
-        <div className="flex items-center justify-between px-2 py-1 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
+        <div className="flex items-center justify-between px-2 py-1 border border-[#e8eaec] bg-[#e8eaec] shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <Checkbox

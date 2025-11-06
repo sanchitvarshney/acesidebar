@@ -22,7 +22,7 @@ const ReplyStatusOptions = ({ onSetData }: any) => {
           key={item?.value}
           value={item?.value}
           onClick={() => {
-            onSetData(item?.value);
+            onSetData({ value: item?.value, label: item?.label });
           }}
         >
           {item?.label}

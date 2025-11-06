@@ -300,7 +300,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
         className="flex items-center justify-between mb-3 p-2"
         sx={{
           borderBottom: "1px solid #eee",
-          backgroundColor: "#e8f0fe",
+          backgroundColor: "#e8eaec",
         }}
       >
         <span className="font-semibold text-gray-700 text-sm">FILTERS</span>

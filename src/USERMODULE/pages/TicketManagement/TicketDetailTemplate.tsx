@@ -672,7 +672,7 @@ const TicketDetailTemplate = () => {
                         transition: "all 0.2s ease",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#e8f0fe";
+                        e.currentTarget.style.backgroundColor = "#e8eaec";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = "#f5f5f5";
@@ -704,7 +704,7 @@ const TicketDetailTemplate = () => {
                     transition: "all 0.2s ease",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#e8f0fe";
+                    e.currentTarget.style.backgroundColor = "#e8eaec";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = "#f5f5f5";
@@ -752,7 +752,7 @@ const TicketDetailTemplate = () => {
               alignItems: "center",
 
               borderBottom: "1px solid #eee",
-              backgroundColor: "#e8f0fe",
+              backgroundColor: "#e8eaec",
             }}
           >
             <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>

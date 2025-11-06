@@ -112,7 +112,7 @@ const SetupWizard = () => {
       {/* Left Grid - Fixed Sidebar */}
       <div
         className="w-full bg-red-300 text-white  "
-        style={{ backgroundColor: "#20364d" }}
+        style={{ backgroundColor: "#03363d" }}
       >
         <RightSidePanel steps={steps} currentStep={currentStep} />
       </div>

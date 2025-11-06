@@ -50,7 +50,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
                   gap: 2,
                   p: 2,
                   borderRadius: 2,
-                  bgcolor: "#e8f0fe",
+                  bgcolor: "#e8eaec",
                   border: "1px solid #dadce0",
                 }}
               >
@@ -142,7 +142,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
                 textTransform: "none",
                 "&:hover": {
                   borderColor: "#1a73e8",
-                  bgcolor: "#e8f0fe",
+                  bgcolor: "#e8eaec",
                 },
               }}
             >

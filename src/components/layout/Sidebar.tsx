@@ -31,7 +31,7 @@ const StyledDrawer = styled(Drawer, {
     width: open ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
     transition: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
     overflowX: "hidden",
-    backgroundColor: "#20364d",
+    backgroundColor: "#03363d",
     borderRight: "none",
   },
 }));

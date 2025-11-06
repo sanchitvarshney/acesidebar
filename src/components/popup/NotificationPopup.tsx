@@ -249,7 +249,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
       <Box sx={{
         p: 2,
         borderBottom: "1px solid #eee",
-        backgroundColor: "#e8f0fe",
+        backgroundColor: "#e8eaec",
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'

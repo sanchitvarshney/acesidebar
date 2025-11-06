@@ -40,6 +40,8 @@ import {
   Modal,
   Fade,
   Backdrop,
+  Menu,
+  ButtonGroup,
 } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -202,8 +204,8 @@ const ThreadItem = ({
       if (response?.type === "error" || response?.data?.type === "error") {
         showToast(
           response?.data?.message ||
-            response?.message ||
-            "Something went wrong",
+          response?.message ||
+          "Something went wrong",
           "error"
         );
         return;
@@ -345,10 +347,10 @@ const ThreadItem = ({
   const bubbleBackgroundColor = isReported
     ? "#fee2e2"
     : isCurrentUser && item?.entryType === "pbR"
-    ? "#f7faff"
-    : isCurrentUser && item?.entryType === "PrvN"
-    ? "#fef1e1"
-    : "#fafafa";
+      ? "#f7faff"
+      : isCurrentUser && item?.entryType === "PrvN"
+        ? "#fef1e1"
+        : "#fafafa";
   const bubbleFooter = isCurrentUser
     ? "IP: 127.0.0.1 | Location: India"
     : "IP: 127.0.0.1 | Location: India";
@@ -395,7 +397,7 @@ const ThreadItem = ({
           setTrackDownloadId("");
         }
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   return (
@@ -403,9 +405,8 @@ const ThreadItem = ({
       {/* Email content */}
       <div className="flex-1">
         <div
-          className={`rounded flex ${
-            isCurrentUser ? " flex-row-reverse" : "flex-row "
-          }`}
+          className={`rounded flex ${isCurrentUser ? " flex-row-reverse" : "flex-row "
+            }`}
         >
           <div className=" relative flex px-4 py-2 flex-col items-center">
             <div
@@ -475,11 +476,10 @@ const ThreadItem = ({
             <div className="flex items-center justify-between  w-full px-8 py-2">
               <div className={`w-full  flex flex-col`}>
                 <div
-                  className={`flex  items-center justify-between  w-full border-b-2 ${
-                    item?.entryType === "PrvN"
+                  className={`flex  items-center justify-between  w-full border-b-2 ${item?.entryType === "PrvN"
                       ? "border-[#f8d2a4ff]"
                       : "border-gray-200"
-                  } pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "}`}
+                    } pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "}`}
                 >
                   <div className="flex items-center gap-2">
                     {" "}
@@ -507,9 +507,8 @@ const ThreadItem = ({
                     {!item?.subject && (
                       <>
                         <div
-                          className={`flex items-center gap-2 ${
-                            isCurrentUser ? "justify-start" : "justify-end"
-                          }`}
+                          className={`flex items-center gap-2 ${isCurrentUser ? "justify-start" : "justify-end"
+                            }`}
                         >
                           <img src={isCurrentUser ? email : web} alt="ip" />
                           <span className="text-xs text-gray-400 ">
@@ -629,7 +628,7 @@ const ThreadItem = ({
                                   }}
                                 >
                                   {isDownloading &&
-                                  trackDownloadId === file?.fileSignature ? (
+                                    trackDownloadId === file?.fileSignature ? (
                                     <CircularProgress size={16} />
                                   ) : (
                                     <DownloadIcon fontSize="small" />
@@ -652,8 +651,8 @@ const ThreadItem = ({
                   borderTopColor: isReported
                     ? "#ffb6b6"
                     : item?.entryType === "PrvN"
-                    ? "#f8d2a4ff"
-                    : "#c3d9ff",
+                      ? "#f8d2a4ff"
+                      : "#c3d9ff",
                 }}
               >
                 {/* {item?.attachments.length > 0 ? (
@@ -868,7 +867,7 @@ const ThreadList = ({
           marginBottomClass={""}
           openOptionsId={openOptionsId}
           onToggleOptions={onToggleOptions}
-          // subjectTitle={subject.subject}
+        // subjectTitle={subject.subject}
         />
       )}
     </div>
@@ -917,6 +916,8 @@ const TicketThreadSection = ({
     (state: RootState) => state.shotcut
   );
   const [isReplyStatusOpen, setIsReplyStatusOpen] = useState<boolean>(false);
+  const [statusMenuAnchorEl, setStatusMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedButtonText, setSelectedButtonText] = useState<string>("Submit as In Progress");
   const [signature, setSignature] = useState("");
   const [signatureUpdateKey, setSignatureUpdateKey] = useState(0);
   const [shouldFocusEditor, setShouldFocusEditor] = useState(false);
@@ -1510,46 +1511,116 @@ const TicketThreadSection = ({
                     Reset
                   </Button>
 
-                  <Button
+                  {/* Split Button */}
+                  <ButtonGroup
                     variant="contained"
-                    onClick={handleSave}
                     sx={{
-                      backgroundColor: "#1a73e8",
-                      color: "white",
-                      fontWeight: 600,
-                      fontSize: "0.875rem",
-                      padding: "6px 16px",
-                      borderRadius: "0.375rem",
-                      "&:hover": {
-                        backgroundColor: "#1b66c9",
+                      "& .MuiButtonGroup-grouped": {
+                        border: "none",
                       },
                     }}
                   >
-                    {threadLoading ? (
-                      <CircularProgress size={16} color="inherit" />
-                    ) : (
-                      "Save"
-                    )}
-                  </Button>
-                  {/* <CustomToolTip
-                    title={
-                       <div style={{ pointerEvents: 'auto' }}>
-      <ReplyStatusOptions onSetData={(value: any) => console.log(value)} />
-    </div>
-                    }
-                    placement={"bottom-end"}
-                    open={isReplyStatusOpen}
-                    close={() => setIsReplyStatusOpen(false)}
-                  >
-                    <ToggleButton
-                      value="bold"
-                      aria-label="bold"
-                      size="small"
-                      onClick={() => setIsReplyStatusOpen(true)}
+                    {/* Main Save Button */}
+                    <Button
+                      onClick={handleSave}
+                      disabled={threadLoading}
+                      sx={{
+                        backgroundColor: "#374151",
+                        color: "white",
+                        fontWeight: 600,
+                        fontSize: "0.875rem",
+                        padding: "6px 16px",
+                        borderTopLeftRadius: "0.375rem",
+                        borderBottomLeftRadius: "0.375rem",
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 0,
+                        "&:hover": {
+                          backgroundColor: "#4b5563",
+                        },
+                        "&:disabled": {
+                          backgroundColor: "#374151",
+                          opacity: 0.7,
+                        },
+                      }}
                     >
-                      <ArrowDropDownIcon />
-                    </ToggleButton>
-                  </CustomToolTip> */}
+                      {threadLoading ? (
+                        <CircularProgress size={16} color="inherit" />
+                      ) : (
+                        selectedButtonText
+                      )}
+                    </Button>
+                    {/* Dropdown Button */}
+                    <Tooltip title="Select status" arrow>
+                      <Button
+                        onClick={(e) => {
+                          setStatusMenuAnchorEl(e.currentTarget);
+                          setIsReplyStatusOpen(true);
+                        }}
+                        disabled={threadLoading}
+                        sx={{
+                          backgroundColor: "#374151",
+                          color: "white",
+                          minWidth: "40px",
+                          padding: "6px 8px",
+                          borderTopRightRadius: "0.375rem",
+                          borderBottomRightRadius: "0.375rem",
+                          borderTopLeftRadius: 0,
+                          borderBottomLeftRadius: 0,
+                          borderLeft: "1px solid rgba(255, 255, 255, 0.2)",
+                          "&:hover": {
+                            backgroundColor: "#4b5563",
+                          },
+                          "&:focus": {
+                            outline: "1px solid #3b82f6",
+                            outlineOffset: "-1px",
+                          },
+                          "&:disabled": {
+                            backgroundColor: "#374151",
+                            opacity: 0.7,
+                          },
+                        }}
+                      >
+                        <ArrowDropDownIcon sx={{ fontSize: "1.2rem" }} />
+                      </Button>
+                    </Tooltip>
+                  </ButtonGroup>
+
+                  {/* Status Dropdown Menu */}
+                  <Menu
+                    anchorEl={statusMenuAnchorEl}
+                    open={isReplyStatusOpen}
+                    onClose={() => {
+                      setIsReplyStatusOpen(false);
+                      setStatusMenuAnchorEl(null);
+                    }}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "bottom",
+                      horizontal: "right",
+                    }}
+                    PaperProps={{
+                      sx: {
+                        mb: 0.5,
+                        minWidth: 200,
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      },
+                    }}
+                  >
+                    <ReplyStatusOptions
+                      onSetData={(data: any) => {
+                        // data should contain both value and label
+                        if (data?.label) {
+                          setSelectedButtonText(data.label);
+                        }
+                        setIsReplyStatusOpen(false);
+                        setStatusMenuAnchorEl(null);
+                        // You can add logic here to handle the status change
+                      }}
+                    />
+                  </Menu>
                 </div>
               </div>
             </AccordionDetails>
@@ -1605,7 +1676,7 @@ const TicketThreadSection = ({
                 <Typography>Section 1</Typography>
               </Box>
 
-           
+
               <IconButton
                 size="small"
                 onClick={(e: any) => {
@@ -1723,12 +1794,12 @@ const TicketThreadSection = ({
       {isSuccessModal && (
         <CustomModal
           open={isSuccessModal}
-          onClose={() => {}}
+          onClose={() => { }}
           title={"Ticket Save"}
           msg="Ticket save successfully"
           primaryButton={{
             title: "Go Next",
-            onClick: () => {},
+            onClick: () => { },
           }}
           secondaryButton={{
             title: "Ticket List",

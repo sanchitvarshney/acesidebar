@@ -55,7 +55,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between px-2 py-1 border border-[#d4e6ff] bg-[#e8f0fe] shadow-sm">
+    <div className="flex items-center justify-between px-2 py-1 border border-[#e8eaec] bg-[#e8eaec] shadow-sm">
       <div className="flex items-center  gap-2 flex-1 min-w-0">
         <Checkbox
           checked={masterChecked}

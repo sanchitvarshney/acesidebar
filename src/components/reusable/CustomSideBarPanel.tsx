@@ -69,7 +69,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
             p: 1.7,
             borderBottom: "1px solid #ccc",
             pointerEvents: "auto",
-            backgroundColor: "#e8f0fe",
+            backgroundColor: "#e8eaec",
           }}
         >
           <Typography
