@@ -955,7 +955,7 @@ const ContactList = () => {
                 },
 
                 "& .MuiDataGrid-columnHeader": {
-                  padding: "12px",
+                  padding: "8px",
                   "&:focus": {
                     outline: "none",
                   },
@@ -985,7 +985,7 @@ const ContactList = () => {
 
                 // Cell styling
                 "& .MuiDataGrid-cell": {
-                  padding: "12px",
+                  padding: "8px",
                   fontSize: "0.875rem",
                   color: "#333",
                   borderBottom: "none",

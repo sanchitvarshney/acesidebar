@@ -37,12 +37,12 @@ const StyledDrawer = styled(Drawer, {
 }));
 
 const iconColors = [
-  "#4caf50", // green
-  "#2563eb", // blue
-  "#ff9800", // orange
-  "#e74c3c", // red
-  "#9c27b0", // purple
-  "#00bcd4", // cyan
+  "#68868b", // green
+  "#68868b", // blue
+  "#68868b", // orange
+  "#68868b", // red
+  "#68868b", // purple
+  "#68868b", // cyan
 ];
 
 const ColoredShortcutButton = styled(IconButton)<{ bgcolor: string }>(

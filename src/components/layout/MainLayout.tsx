@@ -25,6 +25,7 @@ import { useAuth } from "../../contextApi/AuthContext";
 import { setStartTime } from "../../reduxStore/Slices/setUpSlices";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LeftMenu from "../../USERMODULE/pages/TicketManagement/LeftMenu";
+import UserLeftMenu from "../../USERMODULE/pages/UserManagement/UserLeftMenu";
 import GlobalBackButtonPrevention from "../GlobalBackButtonPrevention";
 
 const Main = styled("main", {
@@ -135,6 +136,7 @@ const MainLayout = () => {
       />
 
       {location.pathname === "/tickets" && <LeftMenu />}
+      {(location.pathname === "/user" || location.pathname.startsWith("/user/")) && <UserLeftMenu />}
 
       <Main
         open={isOpen}
