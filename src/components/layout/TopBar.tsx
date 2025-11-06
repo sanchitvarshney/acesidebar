@@ -133,9 +133,10 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     <AppBar
       position="fixed"
       sx={{
+        height: "60px",
+        backgroundColor: "#fff",
+        boxShadow: "1px 3px 6px rgb(227, 224, 224)",
         width: {
-          backgroundColor: "#fff",
-          boxShadow: "1px 3px 6px rgb(227, 224, 224)",
           sm: `calc(100% - ${open ? drawerWidth : collapsedDrawerWidth}px)`,
         },
         ml: { sm: `${open ? drawerWidth : collapsedDrawerWidth}px` },
@@ -145,7 +146,15 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         }),
       }}
     >
-      <Toolbar className="flex justify-between">
+      <Toolbar 
+        className="flex justify-between items-center" 
+        sx={{ 
+          minHeight: "60px !important", 
+          height: "60px",
+          alignItems: "center",
+          display: "flex"
+        }}
+      >
         <div className="flex items-center ">
           <IconButton
             color="inherit"
@@ -172,7 +181,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           </IconButton>
         </div>
         {/* Expanding Search Bar */}
-        <div>
+        <div className="flex items-center">
           <div className={` transition-all duration-200  w-[340px] relative`}>
             <div
               ref={advancedSearchRef}

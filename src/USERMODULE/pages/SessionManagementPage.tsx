@@ -199,7 +199,7 @@ const SessionManagementPage: React.FC = () => {
           justifyContent: "flex-end",
           alignItems: "center",
           px: 5,
-          py: 2,
+          height: "50px",
           gap: 2,
         }}
       >
