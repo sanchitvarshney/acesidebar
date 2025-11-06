@@ -228,23 +228,37 @@ const TicketDetailTemplate = () => {
     }
   }, [expandedAccordion]);
 
-  const handleToggleCustomerInfo = () => {
-    setIsCustomerInfoVisible(!isCustomerInfoVisible);
-  };
-
   const handleInfoClick = () => {
-    setCustomerInfoContent("info");
-    setIsCustomerInfoVisible(true);
+    if (customerInfoContent === "info" && isCustomerInfoVisible) {
+      // If same option is clicked and visible, hide it
+      setIsCustomerInfoVisible(false);
+    } else {
+      // Otherwise, show it with the selected content
+      setCustomerInfoContent("info");
+      setIsCustomerInfoVisible(true);
+    }
   };
 
   const handlePersonClick = () => {
-    setCustomerInfoContent("customer");
-    setIsCustomerInfoVisible(true);
+    if (customerInfoContent === "customer" && isCustomerInfoVisible) {
+      // If same option is clicked and visible, hide it
+      setIsCustomerInfoVisible(false);
+    } else {
+      // Otherwise, show it with the selected content
+      setCustomerInfoContent("customer");
+      setIsCustomerInfoVisible(true);
+    }
   };
 
   const handleChatClick = () => {
-    setCustomerInfoContent("chat");
-    setIsCustomerInfoVisible(true);
+    if (customerInfoContent === "chat" && isCustomerInfoVisible) {
+      // If same option is clicked and visible, hide it
+      setIsCustomerInfoVisible(false);
+    } else {
+      // Otherwise, show it with the selected content
+      setCustomerInfoContent("chat");
+      setIsCustomerInfoVisible(true);
+    }
   };
 
   return (
@@ -581,8 +595,6 @@ const TicketDetailTemplate = () => {
           >
             {/* Main Icons Section */}
             <IconsSection
-              onToggleCustomerInfo={handleToggleCustomerInfo}
-              isCustomerInfoVisible={isCustomerInfoVisible}
               onInfoClick={handleInfoClick}
               onPersonClick={handlePersonClick}
               onChatClick={handleChatClick}

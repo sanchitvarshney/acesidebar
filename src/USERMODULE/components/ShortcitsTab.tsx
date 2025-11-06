@@ -487,7 +487,8 @@ const ShortcutsTab = () => {
         ) : (
           <Button
             variant="contained"
-            sx={{ bgcolor: "#1a73e8", color: "white" }}
+            color="primary"
+            sx={{ fontWeight: 600 }}
             fullWidth
             onClick={handleAddNewShortcut}
           >

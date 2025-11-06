@@ -14,6 +14,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import CloseIcon from "@mui/icons-material/Close";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import {
   IconButton,
@@ -323,9 +324,30 @@ const TicketDetailHeader = ({
         >
           <ArrowBackIcon fontSize="small" />
         </IconButton>
-        <span className="text-[#1a73e8] font-semibold text-md">
-          {ticket?.ticketId && ticket?.ticketId}
-        </span>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <span className="text-[#1a73e8] font-semibold text-md">
+            {ticket?.ticketId && ticket?.ticketId}
+          </span>
+          <Tooltip title="Copy ticket number" arrow>
+            <IconButton
+              size="small"
+              onClick={() => {
+                if (ticket?.ticketId) {
+                  navigator.clipboard.writeText(ticket.ticketId);
+                  showToast("Ticket number copied to clipboard", "success");
+                }
+              }}
+              sx={{
+                width: 20,
+                height: 20,
+                padding: 0.5,
+                "&:hover": { bgcolor: "rgba(26, 115, 232, 0.08)" },
+              }}
+            >
+              <ContentCopyIcon sx={{ fontSize: 14, color: "#1a73e8" }} />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </nav>
 
       {/* Action buttons */}

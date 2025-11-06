@@ -1172,6 +1172,9 @@ const Tickets: React.FC = () => {
               variant="contained"
               color="inherit"
               size="small"
+              sx={{
+                fontWeight: 600
+              }}
               onClick={() => setFiltersOpen(!filtersOpen)}
               startIcon={<FilterListIcon fontSize="small" />}
               aria-label="Toggle Filters"

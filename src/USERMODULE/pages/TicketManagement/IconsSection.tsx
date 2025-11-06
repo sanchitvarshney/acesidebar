@@ -1,10 +1,8 @@
 import React from 'react';
 import { Box, IconButton } from '@mui/material';
-import { Person, Chat, ArrowForwardIos, Info } from '@mui/icons-material';
+import { Person, Chat, Info } from '@mui/icons-material';
 
 interface IconsSectionProps {
-  onToggleCustomerInfo: () => void;
-  isCustomerInfoVisible: boolean;
   onInfoClick: () => void;
   onPersonClick: () => void;
   onChatClick: () => void;
@@ -13,7 +11,7 @@ interface IconsSectionProps {
   
 }
 
-const IconsSection: React.FC<IconsSectionProps> = ({ onToggleCustomerInfo, isCustomerInfoVisible, onInfoClick, onPersonClick, onChatClick, chatCount = 0, activeContent }) => {
+const IconsSection: React.FC<IconsSectionProps> = ({ onInfoClick, onPersonClick, onChatClick, chatCount = 0, activeContent }) => {
   return (
     <Box
       sx={{
@@ -29,30 +27,7 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onToggleCustomerInfo, isCus
         justifyContent: 'flex-start',
       }}
     >
-      {/* Arrow Forward Icon - First */}
-      <IconButton
-        onClick={onToggleCustomerInfo}
-        sx={{
-          width: '40px',
-          height: '40px',
-          backgroundColor: '#f5f5f5',
-          border: '1px solid #e0e0e0',
-          '&:hover': {
-            backgroundColor: '#e8eaec',
-          },
-        }}
-      >
-        <ArrowForwardIos 
-          sx={{ 
-            fontSize: '20px', 
-            color: '#666',
-            transform: isCustomerInfoVisible ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.3s ease-in-out'
-          }} 
-        />
-      </IconButton>
-
-      {/* Info Icon - Second */}
+      {/* Info Icon */}
       <IconButton
         onClick={onInfoClick}
         sx={{
