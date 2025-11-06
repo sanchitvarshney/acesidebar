@@ -20,18 +20,16 @@ import {
   Select,
   styled,
   TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
 
-import AddTaskIcon from "@mui/icons-material/AddTask";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useHelpCenter } from "../../../contextApi/HelpCenterContext";
 import { useTicketsLayoutOptional } from "../../../contextApi/TicketsLayoutContext";
+import AddIcon from "@mui/icons-material/Add";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Close, RadioButtonChecked } from "@mui/icons-material";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 
 const dummyData = {
@@ -75,7 +73,6 @@ const Search = styled("div")(({ theme }) => ({
     backgroundColor: alpha(theme.palette.common.black, 0.25),
   },
   marginLeft: 0,
-
   width: "100%",
   [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(1),
@@ -98,7 +95,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   width: "100%",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     [theme.breakpoints.up("sm")]: {
@@ -110,9 +106,28 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+interface ViewItem {
+  id: string;
+  label: string;
+  count: number;
+  isSecondary?: boolean;
+}
+
+const viewsData: ViewItem[] = [
+  { id: "your-unsolved", label: "Your unsolved tickets", count: 1 },
+  { id: "unassigned", label: "Unassigned tickets", count: 0 },
+  { id: "all-unsolved", label: "All unsolved tickets", count: 1 },
+  { id: "recently-updated", label: "Recently updated tickets", count: 1 },
+  { id: "pending", label: "Pending tickets", count: 0 },
+  { id: "recently-solved", label: "Recently solved tickets", count: 0 },
+  { id: "suspended", label: "Suspended tickets", count: 0, isSecondary: true },
+  { id: "deleted", label: "Deleted tickets", count: 0, isSecondary: true },
+];
+
 const LeftMenu: React.FC = () => {
   const [internalExpanded, setInternalExpanded] = useState(false);
   const context = useTicketsLayoutOptional();
+  const [selectedViews, setSelectedViews] = useState<string[]>(["all-unsolved", "org2"]);
   
   const leftMenuExpanded = context?.leftMenuExpanded ?? internalExpanded;
   const setLeftMenuExpanded = context?.setLeftMenuExpanded ?? setInternalExpanded;
@@ -125,14 +140,15 @@ const LeftMenu: React.FC = () => {
   
   const { helpCenterOpen } = useHelpCenter();
   const [isOpenFilter, setIsOpenFilter] = useState(false);
-
-  const checkAllStatus = () => setSelectedStatus(dummyData.status);
-  const uncheckAllStatus = () => setSelectedStatus([]);
-
   const [selectedStatus, setSelectedStatus] = useState(
     dummyData.status.filter((s) => !["Spam", "Deleted"].includes(s))
   );
+  
+  const mainViews = viewsData.filter((view) => !view.isSecondary);
+  const secondaryViews = viewsData.filter((view) => view.isSecondary);
 
+  const checkAllStatus = () => setSelectedStatus(dummyData.status);
+  const uncheckAllStatus = () => setSelectedStatus([]);
 
   const handleStatusToggle = (status: any) => {
     setSelectedStatus((prev) =>
@@ -141,25 +157,6 @@ const LeftMenu: React.FC = () => {
         : [...prev, status]
     );
   };
-
-
-
-  const gettingStartedItems = [
-    {
-      id: 1,
-      title: "Learn the basics",
-      completed: false,
-      isOptional: false,
-      icon: <AddTaskIcon />,
-    },
-    {
-      id: 2,
-      title: "Advanced setup",
-      completed: true,
-      isOptional: true,
-      icon: <AddTaskIcon />,
-    },
-  ];
 
   const handleCreateFilter = () => {
     const payload = {
@@ -217,51 +214,207 @@ const LeftMenu: React.FC = () => {
               flexDirection: "column",
             }}
           >
-            <Box sx={{ p: 2 }}>
-              <div>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Ticket filters
-                </Typography>
-                <Search>
-                  <SearchIconWrapper>
-                    <SearchIcon />
-                  </SearchIconWrapper>
-                  <StyledInputBase
-                    placeholder="Search in All"
-                    inputProps={{ "aria-label": "search" }}
-                  />
-                </Search>
-              </div>
-              <List
-                dense
-                sx={{ display: "flex", gap: 1, flexDirection: "column", mt: 2 }}
-              >
-                {gettingStartedItems.map((item) => (
-                  <ListItem
-                    key={item.id}
-                    sx={{
-                      px: 2,
-                      cursor: "pointer",
-                      "&:hover": { bgcolor: "#fff" },
-                    }}
+            <Box sx={{ p: 2, display: "flex", flexDirection: "column", height: "100%" }}>
+              {/* Views Section */}
+              <Box sx={{ mb: 3 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1,
+                    pb: 1,
+                    borderBottom: "1px solid #e0e0e0",
+                  }}
+                >
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: 600, fontSize: "0.875rem" }}
                   >
-                    <ListItemText primary={item.title} />
-                  </ListItem>
-                ))}
-              </List>
-              <Divider sx={{ my: 3 }} />
+                    Views
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 0.5 }}>
+                    <IconButton
+                      size="small"
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        padding: 0.5,
+                        "&:hover": { bgcolor: "rgba(0, 0, 0, 0.04)" },
+                      }}
+                      onClick={() => setIsOpenFilter(true)}
+                    >
+                      <AddIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        padding: 0.5,
+                        "&:hover": { bgcolor: "rgba(0, 0, 0, 0.04)" },
+                      }}
+                      onClick={() => {
+                        // Handle refresh views
+                        console.log("Refresh views");
+                      }}
+                    >
+                      <RefreshIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  </Box>
+                </Box>
 
-              <Button
-                variant="text"
-                size="small"
-                color="primary"
-                startIcon={
-                  <AddCircleOutlineIcon fontSize="small" color="primary" />
-                }
-                onClick={() => setIsOpenFilter(true)}
-              >
-                New Filter
-              </Button>
+                {/* Search Input */}
+                <Box sx={{ mb: 2 }}>
+                  <Search>
+                    <SearchIconWrapper>
+                      <SearchIcon />
+                    </SearchIconWrapper>
+                    <StyledInputBase
+                      placeholder="Search in All"
+                      inputProps={{ "aria-label": "search" }}
+                    />
+                  </Search>
+                </Box>
+
+                {/* Main Views List */}
+                <List dense sx={{ p: 0 }}>
+                  {mainViews.map((view) => {
+                    const isSelected = selectedViews.includes(view.id);
+                    return (
+                      <ListItem
+                        key={view.id}
+                        onClick={() => {
+                          setSelectedViews((prev) =>
+                            prev.includes(view.id)
+                              ? prev.filter((id) => id !== view.id)
+                              : [...prev, view.id]
+                          );
+                        }}
+                        sx={{
+                          px: 1.5,
+                          py: 0.75,
+                          cursor: "pointer",
+                          borderRadius: "4px",
+                          mb: 0.5,
+                          bgcolor: isSelected
+                            ? "rgba(33, 150, 243, 0.1)"
+                            : "transparent",
+                          "&:hover": {
+                            bgcolor: isSelected
+                              ? "rgba(33, 150, 243, 0.15)"
+                              : "rgba(0, 0, 0, 0.04)",
+                          },
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: "0.8125rem",
+                                  color: isSelected ? "#2196F3" : "#424242",
+                                  fontWeight: isSelected ? 500 : 400,
+                                }}
+                              >
+                                {view.label}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: "0.8125rem",
+                                  color: "#757575",
+                                  ml: 1,
+                                }}
+                              >
+                                {view.count}
+                              </Typography>
+                            </Box>
+                          }
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+
+                {/* Separator */}
+                <Divider sx={{ my: 2 }} />
+
+                {/* Secondary Views List */}
+                <List dense sx={{ p: 0 }}>
+                  {secondaryViews.map((view) => {
+                    const isSelected = selectedViews.includes(view.id);
+                    return (
+                      <ListItem
+                        key={view.id}
+                        onClick={() => {
+                          setSelectedViews((prev) =>
+                            prev.includes(view.id)
+                              ? prev.filter((id) => id !== view.id)
+                              : [...prev, view.id]
+                          );
+                        }}
+                        sx={{
+                          px: 1.5,
+                          py: 0.75,
+                          cursor: "pointer",
+                          borderRadius: "4px",
+                          mb: 0.5,
+                          bgcolor: isSelected
+                            ? "rgba(33, 150, 243, 0.1)"
+                            : "transparent",
+                          "&:hover": {
+                            bgcolor: isSelected
+                              ? "rgba(33, 150, 243, 0.15)"
+                              : "rgba(0, 0, 0, 0.04)",
+                          },
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: "0.8125rem",
+                                  color: isSelected ? "#2196F3" : "#424242",
+                                  fontWeight: isSelected ? 500 : 400,
+                                }}
+                              >
+                                {view.label}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: "0.8125rem",
+                                  color: "#757575",
+                                  ml: 1,
+                                }}
+                              >
+                                {view.count}
+                              </Typography>
+                            </Box>
+                          }
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Box>
+
             </Box>
 
             <div className="flex justify-end py-4 border-t border-gray-200">
@@ -308,6 +461,7 @@ const LeftMenu: React.FC = () => {
         )}
       </div>
 
+      {/* Filter Dialog */}
       <Dialog
         onClose={() => setIsOpenFilter(false)}
         open={isOpenFilter}
@@ -384,25 +538,22 @@ const LeftMenu: React.FC = () => {
               </div>
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                 {dummyData.status.map((s) => (
-                <>
-                  <FormControlLabel
-                    key={s}
-                    control={
-                      <Checkbox
-                        checked={selectedStatus.includes(s)}
-                        onChange={() => handleStatusToggle(s)}
-                        size="small"
-                      />
-                    }
-                    label={<Typography variant="body2">{s}</Typography>}
-                  />
-                    <Divider /></>
+                  <React.Fragment key={s}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={selectedStatus.includes(s)}
+                          onChange={() => handleStatusToggle(s)}
+                          size="small"
+                        />
+                      }
+                      label={<Typography variant="body2">{s}</Typography>}
+                    />
+                    <Divider />
+                  </React.Fragment>
                 ))}
               </Box>
             </Box>
-
-          
-
 
             <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
