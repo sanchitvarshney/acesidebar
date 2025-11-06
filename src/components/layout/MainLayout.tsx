@@ -1,11 +1,8 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import {
   Box,
-  Collapse,
   CssBaseline,
-  IconButton,
   styled,
-  Typography,
 } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
@@ -18,15 +15,15 @@ import PrivateTurnstile from "../common/PrivateTurnstile";
 import OfflineStatusModal from "../popup/OfflineStatusModal";
 import HelpCenterSlider from "./HelpCenterSlider";
 import { useDispatch, useSelector } from "react-redux";
-import { setExpended, setToggle } from "../../reduxStore/Slices/shotcutSlices";
+import { setToggle } from "../../reduxStore/Slices/shotcutSlices";
 import { RootState } from "../../reduxStore/Store";
 import { useGetUserIsAvailableQuery } from "../../services/auth";
 import { useAuth } from "../../contextApi/AuthContext";
 import { setStartTime } from "../../reduxStore/Slices/setUpSlices";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LeftMenu from "../../USERMODULE/pages/TicketManagement/LeftMenu";
 import UserLeftMenu from "../../USERMODULE/pages/UserManagement/UserLeftMenu";
 import GlobalBackButtonPrevention from "../GlobalBackButtonPrevention";
+import { TicketsLayoutProvider } from "../../contextApi/TicketsLayoutContext";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) =>
@@ -91,13 +88,12 @@ const MainContent = styled(Box)(({ theme }) => ({
 const MainLayout = () => {
   const { user } = useAuth();
   const { isAnyPopupOpen } = usePopupContext();
-  const { showOfflineModal, setShowOfflineModal, handleResume } = useStatus();
+  const { showOfflineModal, setShowOfflineModal } = useStatus();
   const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
-  const { isOpen, expended } = useSelector((state: RootState) => state.shotcut);
+  const { isOpen } = useSelector((state: RootState) => state.shotcut);
   const dispatch = useDispatch();
   const { setCurrentStatus } = useStatus();
-  const { data, isLoading: isGetUserIsAvailableLoading } =
-    useGetUserIsAvailableQuery({
+  const { data } = useGetUserIsAvailableQuery({
       //@ts-ignore
       userId: user?.uID,
       //@ts-ignore
@@ -135,31 +131,59 @@ const MainLayout = () => {
         onClose={closeHelpCenter}
       />
 
-      {location.pathname === "/tickets" && <LeftMenu />}
-      {(location.pathname === "/user" || location.pathname.startsWith("/user/")) && <UserLeftMenu />}
-
-      <Main
-        open={isOpen}
-        isPopupOpen={isAnyPopupOpen}
-        helpCenterOpen={helpCenterOpen}
-        sx={{ position: "relative" }}
-      >
-        <MainContent className="custom-scrollbar">
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center">
-                {" "}
-                <img src={logo} alt="Ajaxter Logo" className="w-[300px]  " />
-              </div>
-            }
+      {location.pathname === "/tickets" ? (
+        <TicketsLayoutProvider>
+          <LeftMenu />
+          <Main
+            open={isOpen}
+            isPopupOpen={isAnyPopupOpen}
+            helpCenterOpen={helpCenterOpen}
+            sx={{ position: "relative" }}
           >
-            <Outlet />
-          </Suspense>
-        </MainContent>
+            <MainContent className="custom-scrollbar">
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center">
+                    {" "}
+                    <img src={logo} alt="Ajaxter Logo" className="w-[300px]  " />
+                  </div>
+                }
+              >
+                <Outlet />
+              </Suspense>
+            </MainContent>
 
-        {/* Help Center Slider - positioned inside main content */}
-        <HelpCenterSlider open={helpCenterOpen} onClose={closeHelpCenter} />
-      </Main>
+            {/* Help Center Slider - positioned inside main content */}
+            <HelpCenterSlider open={helpCenterOpen} onClose={closeHelpCenter} />
+          </Main>
+        </TicketsLayoutProvider>
+      ) : (
+        <>
+          {(location.pathname === "/user" || location.pathname.startsWith("/user/")) && <UserLeftMenu />}
+          <Main
+            open={isOpen}
+            isPopupOpen={isAnyPopupOpen}
+            helpCenterOpen={helpCenterOpen}
+            sx={{ position: "relative" }}
+          >
+            <MainContent className="custom-scrollbar">
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center">
+                    {" "}
+                    <img src={logo} alt="Ajaxter Logo" className="w-[300px]  " />
+                  </div>
+                }
+              >
+                <Outlet />
+              </Suspense>
+            </MainContent>
+
+            {/* Help Center Slider - positioned inside main content */}
+            <HelpCenterSlider open={helpCenterOpen} onClose={closeHelpCenter} />
+          </Main>
+        </>
+      )}
       {/* <BottomBar /> */}
       <PrivateTurnstile />
 

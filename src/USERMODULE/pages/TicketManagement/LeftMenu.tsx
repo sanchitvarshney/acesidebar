@@ -27,6 +27,7 @@ import {
 import AddTaskIcon from "@mui/icons-material/AddTask";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useHelpCenter } from "../../../contextApi/HelpCenterContext";
+import { useTicketsLayoutOptional } from "../../../contextApi/TicketsLayoutContext";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Close, RadioButtonChecked } from "@mui/icons-material";
@@ -110,8 +111,19 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const LeftMenu: React.FC = () => {
-  const [gettingStartedExpanded, setGettingStartedExpanded] = useState(false);
-  const { helpCenterOpen, closeHelpCenter } = useHelpCenter();
+  const [internalExpanded, setInternalExpanded] = useState(false);
+  const context = useTicketsLayoutOptional();
+  
+  const leftMenuExpanded = context?.leftMenuExpanded ?? internalExpanded;
+  const setLeftMenuExpanded = context?.setLeftMenuExpanded ?? setInternalExpanded;
+  
+  const gettingStartedExpanded = leftMenuExpanded;
+  
+  const setGettingStartedExpanded = (value: boolean) => {
+    setLeftMenuExpanded(value);
+  };
+  
+  const { helpCenterOpen } = useHelpCenter();
   const [isOpenFilter, setIsOpenFilter] = useState(false);
 
   const checkAllStatus = () => setSelectedStatus(dummyData.status);

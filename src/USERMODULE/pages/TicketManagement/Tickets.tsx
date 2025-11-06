@@ -48,6 +48,7 @@ import {
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 import CustomToolTip from "../../../reusable/CustomToolTip";
 import { Close } from "@mui/icons-material";
+import { useTicketsLayout } from "../../../contextApi/TicketsLayoutContext";
 
 // Priority/Status/Agent dropdown options
 interface PriorityOption {
@@ -77,7 +78,7 @@ const Tickets: React.FC = () => {
   const [triggerStatus, { isLoading: statusLoading }] = useCommanApiMutation();
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortType, setSortType] = useState<string | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  const { filtersOpen, setFiltersOpen } = useTicketsLayout();
   // Sorting popover state
   const [sortingPopoverAnchorEl, setSortingPopoverAnchorEl] =
     useState<HTMLElement | null>(null);
@@ -1171,7 +1172,7 @@ const Tickets: React.FC = () => {
               variant="contained"
               color="inherit"
               size="small"
-              onClick={() => setFiltersOpen((prev) => !prev)}
+              onClick={() => setFiltersOpen(!filtersOpen)}
               startIcon={<FilterListIcon fontSize="small" />}
               aria-label="Toggle Filters"
             >
