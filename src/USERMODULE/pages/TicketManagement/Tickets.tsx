@@ -530,6 +530,7 @@ const Tickets: React.FC = () => {
         minWidth: 380,
         position: "relative",
         overflow: "visible",
+        backgroundColor: "#ecf9f9",
         // borderRadius: 10,
       }}
       onMouseDown={(e) => e.stopPropagation()}
