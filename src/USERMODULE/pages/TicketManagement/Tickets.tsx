@@ -30,7 +30,7 @@ import {
 import TicketSkeleton from "../../skeleton/TicketSkeleton";
 import TablePagination from "@mui/material/TablePagination";
 
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 
 import TicketSortingPopover from "../../../components/shared/TicketSortingPopover";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -88,7 +88,7 @@ const Tickets: React.FC = () => {
   const [userPopupUser, setUserPopupUser] = useState<any>(null);
   const userPopupTimer = React.useRef<NodeJS.Timeout | null>(null);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
-  const [isCloseModal, setIsCloseModal] = useState(false);
+  const [isSpamModal, setIsSpamModal] = useState(false);
   const [agentValue, setAgentValue] = useState<any>(null);
 
   const [trackTicketId, setTrackTicketId] = useState("");
@@ -397,12 +397,13 @@ const Tickets: React.FC = () => {
     commanApi(payload);
   };
 
-  const handleClose = () => {
-    if (selectedTickets.length < 0) {
+  const handleSpam = () => {
+    if (selectedTickets.length <= 0) {
       return;
     }
+    setIsSpamModal(false);
     const payload = {
-      url: "close-ticket",
+      url: "spam-ticket",
       body: { ids: selectedTickets },
     };
 
@@ -1051,18 +1052,18 @@ const Tickets: React.FC = () => {
                   color="inherit"
                   size="small"
                   startIcon={
-                    <CheckCircleIcon
+                    <ReportProblemIcon
                       fontSize="small"
-                      sx={{ color: "#43a047" }}
+                      sx={{ color: "#ed6c02" }}
                     />
                   }
                   sx={{
                     fontSize: "0.875rem",
                     fontWeight: 500,
                   }}
-                  onClick={() => setIsCloseModal(true)}
+                  onClick={() => setIsSpamModal(true)}
                 >
-                  Close
+                  Spam
                 </Button>
 
                 <Button
@@ -1252,12 +1253,12 @@ const Tickets: React.FC = () => {
         successMessage={`Successfully deleted (${selectedTickets.length}) tickets.`}
       />
       <ConfirmationModal
-        open={isCloseModal}
-        onClose={() => setIsCloseModal(false)}
-        onConfirm={handleClose}
-        type="close"
-        message={`Are you sure you want to close (${selectedTickets.length}) ticket?`}
-        successMessage={`Successfully closed (${selectedTickets.length}) tickets.`}
+        open={isSpamModal}
+        onClose={() => setIsSpamModal(false)}
+        onConfirm={handleSpam}
+        type="spam"
+        title="Mark as Spam"
+        message={`Are you sure you want to mark (${selectedTickets.length}) ticket as spam?`}
       />
     </>
   );

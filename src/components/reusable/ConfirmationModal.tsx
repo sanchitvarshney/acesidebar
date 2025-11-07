@@ -29,7 +29,7 @@ interface ConfirmationModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  type: "delete" | "close";
+  type: "delete" | "close" | "spam" | "custom";
   title?: string;
   message?: string;
   successMessage?: string;
@@ -108,7 +108,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         <Button
           variant="contained"
           color={
-            type === "delete" ? "error" : type === "close" ? "info" : "primary"
+            type === "delete"
+              ? "error"
+              : type === "close"
+              ? "info"
+              : type === "spam"
+              ? "warning"
+              : "primary"
           }
           onClick={handleConfirm}
           sx={{ textTransform: "none", px: 3 }}
@@ -116,15 +122,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         >
           {isLoading ? (
             <CircularProgress size={24} color="inherit" />
-          ) : type === "delete" ? (
-            "Delete"
-          ) : type === "close" ? (
-            "Close"
-          ) : type === "custom" ? (
-            "Spam"
-          ) : (
-            "Confirm"
-          )}
+          ) : type === "delete"
+          ? "Delete"
+          : type === "close"
+          ? "Close"
+          : type === "spam"
+          ? "Spam"
+          : "Confirm"}
         </Button>
 
         <Button
