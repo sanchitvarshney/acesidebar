@@ -131,7 +131,9 @@ const MainLayout = () => {
         onClose={closeHelpCenter}
       />
 
-      {location.pathname === "/tickets" ? (
+      {location.pathname === "/tickets" ||
+      location.pathname === "/" ||
+      location.pathname.startsWith("/tickets/") ? (
         <TicketsLayoutProvider>
           <LeftMenu />
           <Main
