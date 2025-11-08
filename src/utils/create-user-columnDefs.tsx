@@ -1,7 +1,6 @@
 import { GridColDef } from "@mui/x-data-grid";
-import { Chip, styled, Switch, Typography } from "@mui/material";
+import { styled, Switch } from "@mui/material";
 import TextInputCellRenderer from "../USERMODULE/components/TextInputCellRenderer";
-import { Text } from "lucide-react";
 
 export const columns: GridColDef[] = [
   {
