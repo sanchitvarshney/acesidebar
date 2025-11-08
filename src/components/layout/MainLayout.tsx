@@ -34,13 +34,14 @@ const Main = styled("main", {
   helpCenterOpen?: boolean;
 }>(({ theme, open, isPopupOpen, helpCenterOpen }) => ({
   flexGrow: 1,
-  padding: theme.spacing(2),
+  padding: "5px",
   transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
 
-  backgroundColor: "#f5f5f5",
+  backgroundColor: "#fff",
+  border: "1px solid red",
   width: "100%",
   height: "100%",
   overflow: "auto",
