@@ -11,8 +11,6 @@ import AddTaskIcon from "@mui/icons-material/AddTask";
 import { useHelpCenter } from "../../contextApi/HelpCenterContext";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
 import setupWizardIcon from "../../assets/image/setup-wizard.svg";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../reduxStore/Store";
 const SIDEBAR_WIDTH = 80;
 const SIDEBAR_COLLAPSED_WIDTH = 0;
 
@@ -70,12 +68,11 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const { toggleHelpCenter } = useHelpCenter();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    onClose();
+    onClose?.();
   };
 
   return (
@@ -100,6 +97,27 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           overflow: "visible",
         }}
       >
+        {open && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              mb: 2,
+            }}
+          >
+            <img
+              src="https://ims.mscorpres.co.in/assets/images/mscorpres_auto_logo.png"
+              alt="MS Corp"
+              style={{
+                width: 48,
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          </Box>
+        )}
         <Box
           sx={{
             flex: 1,

@@ -24,6 +24,7 @@ import LeftMenu from "../../USERMODULE/pages/TicketManagement/LeftMenu";
 import UserLeftMenu from "../../USERMODULE/pages/UserManagement/UserLeftMenu";
 import GlobalBackButtonPrevention from "../GlobalBackButtonPrevention";
 import { TicketsLayoutProvider } from "../../contextApi/TicketsLayoutContext";
+import CookiesBanner from "../common/CookiesBanner";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) =>
@@ -195,6 +196,7 @@ const MainLayout = () => {
         open={showOfflineModal}
         onClose={handleCloseOfflineModal}
       />
+      <CookiesBanner />
     </Box>
   );
 };

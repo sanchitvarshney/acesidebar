@@ -146,16 +146,29 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
         }),
       }}
     >
-      <Toolbar 
-        className="flex justify-between items-center" 
-        sx={{ 
-          minHeight: "60px !important", 
+      <Toolbar
+        className="flex justify-between items-center"
+        sx={{
+          minHeight: "60px !important",
           height: "60px",
           alignItems: "center",
           display: "flex"
         }}
       >
         <div className="flex items-center ">
+          {!open && (
+            <Box sx={{ mr: 2, display: "flex", alignItems: "center" }}>
+              <img
+                src="https://ims.mscorpres.co.in/assets/images/mscorpres_auto_logo.png"
+                alt="MS Corp"
+                style={{
+                  width: 48,
+                  height: "auto", objectFit: "contain"
+                }}
+              />
+            </Box>
+          )}
+
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -247,10 +260,9 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
                 sx={{
                   width: 30,
                   height: 30,
-                  border: `3px solid ${
-                    statusOptions.find((opt) => opt.value === currentStatus)
+                  border: `3px solid ${statusOptions.find((opt) => opt.value === currentStatus)
                       ?.color || "#4caf50"
-                  }`,
+                    }`,
                   boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                 }}
               />
@@ -261,10 +273,9 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
                   backgroundColor: "primary.main",
                   width: 30,
                   height: 30,
-                  border: `3px solid ${
-                    statusOptions.find((opt) => opt.value === currentStatus)
+                  border: `3px solid ${statusOptions.find((opt) => opt.value === currentStatus)
                       ?.color || "#4caf50"
-                  }`,
+                    }`,
                   boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                 }}
               >
