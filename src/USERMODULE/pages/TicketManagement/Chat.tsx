@@ -113,7 +113,7 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-115px)]">
+    <div className="flex flex-col bg-[#f0f4f9] h-[calc(100vh-80px)]">
       <div className="flex items-center justify-between px-5 py-2 pb-2 border-b w-full bg-#f0f4f9">
         <span className="text-xl font-semibold">Chat</span>
         <div className="flex items-center gap-3">

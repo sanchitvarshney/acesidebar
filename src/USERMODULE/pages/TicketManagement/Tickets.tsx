@@ -1021,9 +1021,7 @@ const Tickets: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col bg-[#f5f5f5] h-[calc(100vh-98px)]  ">
-        
-       
+      <div className="flex flex-col bg-[#f5f5f5] h-[calc(100vh-80px)]  ">
         <div className="flex items-center justify-between px-2 py-1 border border-[#e8eaec] bg-[#e8eaec] shadow-sm">
           {/* Left: Title, master checkbox, count, and action buttons (inline) */}
           <div className="flex items-center gap-3 flex-1 min-w-0">

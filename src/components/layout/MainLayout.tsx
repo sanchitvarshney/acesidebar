@@ -42,7 +42,6 @@ const Main = styled("main", {
   }),
 
   backgroundColor: "#fff",
-  border: "1px solid red",
   width: "100%",
   height: "100%",
   overflow: "auto",
@@ -81,7 +80,6 @@ const Main = styled("main", {
 
 const MainContent = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(8),
-
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   overflow: "auto",
@@ -96,12 +94,12 @@ const MainLayout = () => {
   const dispatch = useDispatch();
   const { setCurrentStatus } = useStatus();
   const { data } = useGetUserIsAvailableQuery({
-      //@ts-ignore
-      userId: user?.uID,
-      //@ts-ignore
-      skip: !user?.uID,
-      refetchOnMountOrArgChange: true,
-    });
+    //@ts-ignore
+    userId: user?.uID,
+    //@ts-ignore
+    skip: !user?.uID,
+    refetchOnMountOrArgChange: true,
+  });
   const location = useLocation();
 
   const handleDrawerToggle = () => {
@@ -134,8 +132,8 @@ const MainLayout = () => {
       />
 
       {location.pathname === "/tickets" ||
-      location.pathname === "/" ||
-      location.pathname.startsWith("/tickets/") ? (
+        location.pathname === "/" ||
+        location.pathname.startsWith("/tickets/") ? (
         <TicketsLayoutProvider>
           <LeftMenu />
           <Main

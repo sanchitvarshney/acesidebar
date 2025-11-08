@@ -178,12 +178,12 @@ const LeftMenu: React.FC = () => {
     <Box
       sx={{
         height: "100%",
-        minHeight: "calc(100vh - 70px)",
+        minHeight: "calc(100vh - 60px)",
         overflow: "visible",
         width: gettingStartedExpanded ? 240 : 55,
         transition: "width 0.3s ease",
         backgroundColor: "#e3ebeb",
-        marginTop: 8,
+        marginTop: "60px",
         display: helpCenterOpen ? "none" : "flex",
         position: "relative",
       }}

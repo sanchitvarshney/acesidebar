@@ -274,7 +274,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = memo(
         {/* Search functionality removed */}
 
         {/* Kanban Board */}
-        <div className="flex w-[calc(100%-55px)] bg-[#e3e6ed]  px-6 gap-4 h-[calc(100vh-160px)] overflow-auto">
+        <div className="flex w-[calc(100%-55px)] bg-[#e3e6ed]  px-6 gap-4 h-[calc(100vh-138px)] overflow-auto">
           {columnsWithCounts.map((column) => (
             <div
               key={column.id}

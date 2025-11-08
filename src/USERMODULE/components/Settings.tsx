@@ -499,7 +499,7 @@ const Settings: React.FC = () => {
   const activeSection = menuSections.find((section) => section.id === activeId);
 
   return (
-    <div className="flex w-full h-[calc(100vh-98px)] bg-gray-50">
+    <div className="flex w-full h-[calc(100vh-80px)] bg-gray-50">
       <SettingsMenu
         menuSections={menuSections}
         onSelect={handleMenuSelect}

@@ -762,9 +762,6 @@ const TicketDetailTemplate = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-
-              borderBottom: "1px solid #eee",
-              backgroundColor: "#e8eaec",
             }}
           >
             <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>

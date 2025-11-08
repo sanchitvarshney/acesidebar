@@ -12,7 +12,7 @@ const SettingsMenu = ({
   onSubsectionSelect,
 }: SettingsMenuProps) => {
   return (
-    <aside className="w-80 min-w-[320px] border-r border-gray-200 bg-white flex flex-col h-[calc(100vh-98px)] p-4 overflow-y-auto shadow-sm custom-scrollbar">
+    <aside className="w-80 min-w-[320px] border-r border-gray-200 bg-white flex flex-col h-[calc(100vh-78px)] p-4 overflow-y-auto shadow-sm custom-scrollbar">
       {menuSections.length > 0 ? (
         menuSections.map((section: any) => (
           <div key={section.id} className="mb-4">

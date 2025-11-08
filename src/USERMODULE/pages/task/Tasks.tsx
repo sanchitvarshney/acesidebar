@@ -770,7 +770,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
   );
 
   return (
-    <div className="flex flex-col w-full  h-[calc(100vh-98px)]  overflow-hidden ">
+    <div className="flex flex-col w-full  h-[calc(100vh-80px)]  overflow-hidden ">
       {taskListData?.data?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-gray-500">
           <img src={noTask} alt="No Tasks" className="my-3 w-[30%]" />

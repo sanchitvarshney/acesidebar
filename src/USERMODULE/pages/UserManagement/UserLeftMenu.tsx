@@ -42,7 +42,7 @@ const UserLeftMenu: React.FC = () => {
     <Box
       sx={{
         height: "100%",
-        minHeight: "calc(100vh - 70px)",
+        minHeight: "calc(100vh - 65px)",
         overflow: "visible",
         width: expanded ? 240 : 55,
         transition: "width 0.3s ease",

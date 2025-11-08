@@ -78,7 +78,7 @@ const TaskList: React.FC<TaskListProps> = memo(
     }, [filteredTasks]);
 
     return (
-      <div className="w-[35%] flex flex-col border-r h-[calc(100vh-158px)] bg-white  ">
+      <div className="w-[35%] flex flex-col border-r h-[calc(100vh-138px)] ">
         {!isAddTask && (
           <div className="px-6 py-4 border-b bg-[#f5f5f5] border-b-[#ccc]">
             <div className="flex items-center gap-2 mb-3">
