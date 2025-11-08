@@ -29,7 +29,7 @@ const quickActions = [
     title: "Send an e-mail",
     description: "Compose and send professional emails",
     icon: <Email sx={{ fontSize: 32 }} />,
-    color: "#1976d2",
+    color: "#03363d",
     bgColor: "#e3f2fd",
     action: "email",
     featured: true,

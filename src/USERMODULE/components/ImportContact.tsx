@@ -139,7 +139,7 @@ export default function ImportContact() {
           sx={{
             mb: 3,
             borderRadius: 2,
-            "& .MuiAlert-icon": { color: "#1976d2" },
+            "& .MuiAlert-icon": { color: "#03363d" },
           }}
         >
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -153,7 +153,7 @@ export default function ImportContact() {
             variant="h6"
             sx={{
               mb: 2,
-              color: "#1976d2",
+              color: "#03363d",
               fontWeight: 600,
               display: "flex",
               alignItems: "center",
@@ -168,7 +168,7 @@ export default function ImportContact() {
             <Link 
               href="#" 
               underline="hover" 
-              sx={{ color: "#1976d2", fontWeight: 600 }}
+              sx={{ color: "#03363d", fontWeight: 600 }}
             >
               this article
             </Link>{" "}
@@ -187,7 +187,7 @@ export default function ImportContact() {
             variant="h6"
             sx={{
               mb: 2,
-              color: "#1976d2",
+              color: "#03363d",
               fontWeight: 600,
               display: "flex",
               alignItems: "center",
@@ -202,7 +202,7 @@ export default function ImportContact() {
           <Paper
             variant="outlined"
             sx={{
-              border: "2px dashed #1976d2",
+              border: "2px dashed #03363d",
               borderRadius: 3,
               p: 2,
               textAlign: "center",
@@ -222,7 +222,7 @@ export default function ImportContact() {
           >
             {file ? (
               <>
-                <UploadFile sx={{ fontSize: 48, color: "#1976d2", mb: 2 }} />
+                <UploadFile sx={{ fontSize: 48, color: "#03363d", mb: 2 }} />
                 <Typography variant="h6" color="primary" sx={{ mb: 1, fontWeight: 600 }}>
                   {file.name}
                 </Typography>
@@ -232,7 +232,7 @@ export default function ImportContact() {
               </>
             ) : (
               <>
-                <CloudUpload sx={{ fontSize: 48, color: "#1976d2", mb: 2 }} />
+                <CloudUpload sx={{ fontSize: 48, color: "#03363d", mb: 2 }} />
                 <Typography variant="h6" color="primary" sx={{ mb: 1, fontWeight: 600 }}>
                   Upload a CSV file
                 </Typography>
@@ -260,7 +260,7 @@ export default function ImportContact() {
             variant="h6"
             sx={{
               mb: 2,
-              color: "#1976d2",
+              color: "#03363d",
               fontWeight: 600,
               display: "flex",
               alignItems: "center",

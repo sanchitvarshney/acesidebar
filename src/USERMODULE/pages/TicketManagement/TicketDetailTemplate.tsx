@@ -430,7 +430,7 @@ const TicketDetailTemplate = () => {
                         >
                           <div
                             style={{
-                              backgroundColor: "#1976d2",
+                              backgroundColor: "#03363d",
                               color: "white",
                               padding: "8px 12px",
                               borderRadius: "18px 18px 4px 18px",
@@ -470,7 +470,7 @@ const TicketDetailTemplate = () => {
                         >
                           <div
                             style={{
-                              backgroundColor: "#1976d2",
+                              backgroundColor: "#03363d",
                               color: "white",
                               padding: "8px 12px",
                               borderRadius: "18px 18px 4px 18px",
@@ -512,7 +512,7 @@ const TicketDetailTemplate = () => {
                         >
                           <div
                             style={{
-                              backgroundColor: "#1976d2",
+                              backgroundColor: "#03363d",
                               color: "white",
                               padding: "8px 12px",
                               borderRadius: "18px 18px 4px 18px",
@@ -559,7 +559,7 @@ const TicketDetailTemplate = () => {
                       />
                       <button
                         style={{
-                          backgroundColor: "#1976d2",
+                          backgroundColor: "#03363d",
                           color: "white",
                           border: "none",
                           borderRadius: "50%",
@@ -684,7 +684,7 @@ const TicketDetailTemplate = () => {
                         transition: "all 0.2s ease",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#e8eaec";
+                        e.currentTarget.style.backgroundColor = "#e0e0e0";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = "#f5f5f5";
@@ -716,7 +716,7 @@ const TicketDetailTemplate = () => {
                     transition: "all 0.2s ease",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#e8eaec";
+                    e.currentTarget.style.backgroundColor = "#e0e0e0";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = "#f5f5f5";
@@ -731,7 +731,7 @@ const TicketDetailTemplate = () => {
                     position: "absolute",
                     top: "-6px",
                     right: "-6px",
-                    backgroundColor: "#1976d2",
+                    backgroundColor: "#03363d",
                     color: "white",
                     borderRadius: "50%",
                     width: "20px",
@@ -764,7 +764,7 @@ const TicketDetailTemplate = () => {
               alignItems: "center",
 
               borderBottom: "1px solid #eee",
-              backgroundColor: "#e8eaec",
+              backgroundColor: "#e0e0e0",
             }}
           >
             <Typography sx={{ flex: 1, fontSize: "17px", fontWeight: 600 }}>

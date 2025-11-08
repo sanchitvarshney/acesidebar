@@ -138,7 +138,7 @@ const ChangeOwner: React.FC<ChangeOwnerProps> = ({
             >
               <Avatar
                 src={currentOwner?.avatar}
-                sx={{ width: 40, height: 40, bgcolor: "#1976d2" }}
+                sx={{ width: 40, height: 40, bgcolor: "#03363d" }}
               >
                 {currentOwner?.name?.charAt(0)}
               </Avatar>

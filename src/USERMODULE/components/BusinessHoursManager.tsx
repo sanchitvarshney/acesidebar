@@ -255,7 +255,7 @@ const BusinessHoursManager: React.FC<BusinessHoursManagerProps> = ({
   };
 
   const holidayTypes = [
-    { value: "national", label: "National Holiday", color: "#1976d2" },
+    { value: "national", label: "National Holiday", color: "#03363d" },
     { value: "company", label: "Company Holiday", color: "#2e7d32" },
     { value: "personal", label: "Personal Holiday", color: "#f57c00" },
     { value: "religious", label: "Religious Holiday", color: "#9c27b0" },

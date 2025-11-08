@@ -258,7 +258,7 @@ const EditUser = ({
               display: "flex",
               alignItems: "center",
               borderRadius: 2,
-              "& .MuiAlert-icon": { color: "#1976d2" },
+              "& .MuiAlert-icon": { color: "#03363d" },
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -291,7 +291,7 @@ const EditUser = ({
                 variant="subtitle1"
                 sx={{
                   mb: 1,
-                  color: "#1976d2",
+                  color: "#03363d",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -365,7 +365,7 @@ const EditUser = ({
                 variant="subtitle1"
                 sx={{
                   mb: 1,
-                  color: "#1976d2",
+                  color: "#03363d",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -678,7 +678,7 @@ const EditUser = ({
                 variant="subtitle1"
                 sx={{
                   mb: 2,
-                  color: "#1976d2",
+                  color: "#03363d",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -718,7 +718,7 @@ const EditUser = ({
                         "& .MuiOutlinedInput-root": {
                           borderRadius: 1,
                           "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
+                            borderColor: "#03363d",
                           },
                         },
                       }}
@@ -755,7 +755,7 @@ const EditUser = ({
                         "& .MuiOutlinedInput-root": {
                           borderRadius: 1,
                           "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#1976d2",
+                            borderColor: "#03363d",
                           },
                         },
                       }}
@@ -834,7 +834,7 @@ const EditUser = ({
                 variant="subtitle1"
                 sx={{
                   mb: 1,
-                  color: "#1976d2",
+                  color: "#03363d",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -879,7 +879,7 @@ const EditUser = ({
                           "& .MuiOutlinedInput-root": {
                             borderRadius: 1,
                             "&:hover .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#1976d2",
+                              borderColor: "#03363d",
                             },
                           },
                           "& .MuiAutocomplete-popper": {
@@ -926,7 +926,7 @@ const EditUser = ({
                           "& .MuiOutlinedInput-root": {
                             borderRadius: 1,
                             "&:hover .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#1976d2",
+                              borderColor: "#03363d",
                             },
                           },
                         }}

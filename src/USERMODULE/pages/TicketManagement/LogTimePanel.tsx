@@ -205,10 +205,10 @@ const LogTimePanel: React.FC<LogTimePanelProps> = ({
                 borderColor: "#dadce0",
               },
               "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#1976d2",
+                borderColor: "#03363d",
               },
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#1976d2",
+                borderColor: "#03363d",
               },
               backgroundColor: "#fff",
               fontSize: "0.875rem",

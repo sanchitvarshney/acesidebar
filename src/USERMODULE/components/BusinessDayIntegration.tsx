@@ -76,7 +76,7 @@ const BusinessDayIntegration: React.FC<BusinessDayIntegrationProps> = ({
       message: "Ticket #T-001 assigned to John Doe",
       timestamp: "2 minutes ago",
       icon: <Assignment />,
-      color: "#1976d2",
+      color: "#03363d",
     },
     {
       id: "2",

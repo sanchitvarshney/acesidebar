@@ -580,7 +580,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
             onDrop={handleDrop}
             sx={{
               p: 2,
-              border: dragOver ? "2px dashed #1976d2" : "2px dashed #ccc",
+              border: dragOver ? "2px dashed #03363d" : "2px dashed #ccc",
               borderRadius: 2,
               textAlign: "center",
               backgroundColor: dragOver ? "#f3f8ff" : "#fafafa",
@@ -592,7 +592,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
             {isUploading ? (
               <CircularProgress size={45} />
             ) : (
-              <CloudUpload sx={{ fontSize: 48, color: "#1976d2", mb: 2 }} />
+              <CloudUpload sx={{ fontSize: 48, color: "#03363d", mb: 2 }} />
             )}
             <Typography variant="h6" sx={{ mb: 1 }}>
               {dragOver ? "Drop files here" : "Drag & drop files here"}

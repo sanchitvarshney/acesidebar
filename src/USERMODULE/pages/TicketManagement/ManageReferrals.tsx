@@ -622,7 +622,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                       borderColor: "#9ca3af",
                     },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976d2",
+                      borderColor: "#03363d",
                     },
                     backgroundColor: "#fff",
                     fontSize: "0.875rem",
@@ -750,7 +750,7 @@ const ManageReferrals: React.FC<ManageReferralsProps> = ({
                     }}
                   >
                     <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: "#1976d2" }}>
+                      <Avatar sx={{ bgcolor: "#03363d" }}>
                         {referral.type === "department" ? (
                           <Business />
                         ) : (

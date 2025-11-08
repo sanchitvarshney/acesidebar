@@ -1056,7 +1056,7 @@ const AddAgentPage = () => {
                   }}
                   sx={{
                     textTransform: "none",
-                    backgroundColor: "#1976d2",
+                    backgroundColor: "#03363d",
                   }}
                 >
                   Save

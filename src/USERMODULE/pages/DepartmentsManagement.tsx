@@ -495,7 +495,7 @@ const DepartmentsManagement = () => {
                       color: "#999",
                       fontSize: "0.875rem",
                       "&:hover": {
-                        borderColor: "#1976d2",
+                        borderColor: "#03363d",
                         backgroundColor: "#f5f5f5",
                         color: "#666",
                       },
@@ -574,8 +574,8 @@ const DepartmentsManagement = () => {
                   color: "#666",
                   border: "1px solid #e0e0e0",
                   "&:hover": {
-                    color: "#1976d2",
-                    borderColor: "#1976d2",
+                    color: "#03363d",
+                    borderColor: "#03363d",
                     backgroundColor: "#f5f5f5",
                   },
                 }}
@@ -625,7 +625,7 @@ const DepartmentsManagement = () => {
                       zIndex: 1,
                       height: 4,
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: "#1976d2",
+                        backgroundColor: "#03363d",
                       },
                       "& .MuiLinearProgress-root": {
                         backgroundColor: "#e0e0e0",
@@ -735,7 +735,7 @@ const DepartmentsManagement = () => {
                           size="small"
                           sx={{
                             bgcolor: "#e3f2fd",
-                            color: "#1976d2",
+                            color: "#03363d",
                             fontWeight: 500,
                             fontSize: "11px",
                           }}

@@ -214,7 +214,7 @@ const Banlist = () => {
                       zIndex: 10,
                       height: 4,
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: "#1976d2",
+                        backgroundColor: "#03363d",
                       },
                       "& .MuiLinearProgress-root": {
                         backgroundColor: "#e0e0e0",

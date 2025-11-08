@@ -236,8 +236,8 @@ const { data: topicList } = useGetTopicListQuery({});
               borderColor: "#dadce0",
               color: "#666",
               "&:hover": {
-                borderColor: "#1976d2",
-                color: "#1976d2",
+                borderColor: "#03363d",
+                color: "#03363d",
               },
             }}
           >
@@ -369,7 +369,7 @@ const { data: topicList } = useGetTopicListQuery({});
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
                                 {
-                                  borderColor: "#1976d2",
+                                  borderColor: "#03363d",
                                 },
                               backgroundColor: "#fff",
                               fontSize: "0.775rem",
@@ -405,7 +405,7 @@ const { data: topicList } = useGetTopicListQuery({});
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
                                 {
-                                  borderColor: "#1976d2",
+                                  borderColor: "#03363d",
                                 },
                               backgroundColor: "#fff",
                               fontSize: "0.775rem",
@@ -438,7 +438,7 @@ const { data: topicList } = useGetTopicListQuery({});
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
                                 {
-                                  borderColor: "#1976d2",
+                                  borderColor: "#03363d",
                                 },
                               backgroundColor: "#fff",
                               fontSize: "0.775rem",
@@ -660,7 +660,7 @@ const { data: topicList } = useGetTopicListQuery({});
               sx={{
                 mb: 3,
                 borderRadius: 2,
-                "& .MuiAlert-icon": { color: "#1976d2", pt: 1.5 },
+                "& .MuiAlert-icon": { color: "#03363d", pt: 1.5 },
               }}
             >
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -730,7 +730,7 @@ const { data: topicList } = useGetTopicListQuery({});
                   "& .MuiOutlinedInput-root": {
                     borderColor: errors.subject ? "#d32f2f" : "#dadce0",
                     "&.Mui-focused": {
-                      borderColor: errors.subject ? "#d32f2f" : "#1976d2",
+                      borderColor: errors.subject ? "#d32f2f" : "#03363d",
                     },
                   },
                 }}
@@ -811,7 +811,7 @@ const { data: topicList } = useGetTopicListQuery({});
                   position: "relative",
                 }}
               >
-                <Email sx={{ fontSize: 48, color: "#1976d2" }} />
+                <Email sx={{ fontSize: 48, color: "#03363d" }} />
                 <Box
                   sx={{
                     position: "absolute",

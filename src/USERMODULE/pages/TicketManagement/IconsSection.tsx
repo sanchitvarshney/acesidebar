@@ -33,10 +33,10 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onInfoClick, onPersonClick,
         sx={{
           width: '40px',
           height: '40px',
-          backgroundColor: activeContent === 'info' ? '#1976d2' : '#f5f5f5',
+          backgroundColor: activeContent === 'info' ? '#03363d' : '#f5f5f5',
           border: '1px solid #e0e0e0',
           '&:hover': {
-            backgroundColor: activeContent === 'info' ? '#1565c0' : '#e8eaec',
+            backgroundColor: activeContent === 'info' ? '#1565c0' : '#e0e0e0',
           },
         }}
       >
@@ -52,10 +52,10 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onInfoClick, onPersonClick,
         sx={{
           width: '40px',
           height: '40px',
-          backgroundColor: activeContent === 'customer' ? '#1976d2' : '#f5f5f5',
+          backgroundColor: activeContent === 'customer' ? '#03363d' : '#f5f5f5',
           border: '1px solid #e0e0e0',
           '&:hover': {
-            backgroundColor: activeContent === 'customer' ? '#1565c0' : '#e8eaec',
+            backgroundColor: activeContent === 'customer' ? '#1565c0' : '#e0e0e0',
           },
         }}
       >
@@ -72,10 +72,10 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onInfoClick, onPersonClick,
           sx={{
             width: '40px',
             height: '40px',
-            backgroundColor: activeContent === 'chat' ? '#1976d2' : '#f5f5f5',
+            backgroundColor: activeContent === 'chat' ? '#03363d' : '#f5f5f5',
             border: '1px solid #e0e0e0',
             '&:hover': {
-              backgroundColor: activeContent === 'chat' ? '#1565c0' : '#e8eaec',
+              backgroundColor: activeContent === 'chat' ? '#1565c0' : '#e0e0e0',
             },
           }}
         >
@@ -91,7 +91,7 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onInfoClick, onPersonClick,
             position: 'absolute',
             top: '-6px',
             right: '-6px',
-            backgroundColor: '#1976d2',
+            backgroundColor: '#03363d',
             color: 'white',
             borderRadius: '50%',
             width: '20px',

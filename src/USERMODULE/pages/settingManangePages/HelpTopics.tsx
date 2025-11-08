@@ -200,7 +200,7 @@ const HelpTopics = () => {
                       zIndex: 10,
                       height: 4,
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: "#1976d2",
+                        backgroundColor: "#03363d",
                       },
                       "& .MuiLinearProgress-root": {
                         backgroundColor: "#e0e0e0",
@@ -318,7 +318,7 @@ const HelpTopics = () => {
                           size="small"
                           sx={{
                             bgcolor: "#e3f2fd",
-                            color: "#1976d2",
+                            color: "#03363d",
                             fontWeight: 500,
                             fontSize: "11px",
                           }}

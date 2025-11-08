@@ -414,10 +414,10 @@ const ContactList = () => {
                       borderColor: "#e0e0e0",
                     },
                     "&:hover fieldset": {
-                      borderColor: "#1976d2",
+                      borderColor: "#03363d",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#1976d2",
+                      borderColor: "#03363d",
                     },
                   },
                 }}
@@ -429,7 +429,7 @@ const ContactList = () => {
                 onClick={() => setIsAdd(true)}
                 aria-label="Add new user"
                 sx={{
-                  color: "#1976d2",
+                  color: "#03363d",
                   textTransform: "none",
                   fontWeight: 500,
                   fontSize: "0.875rem",
@@ -449,7 +449,7 @@ const ContactList = () => {
                 }}
                 aria-label="Bulk update users"
                 sx={{
-                  color: "#1976d2",
+                  color: "#03363d",
                   textTransform: "none",
                   fontWeight: 500,
                   fontSize: "0.875rem",
@@ -467,7 +467,7 @@ const ContactList = () => {
                 onClick={() => setIsExport(true)}
                 aria-label="Download users"
                 sx={{
-                  color: "#1976d2",
+                  color: "#03363d",
                   textTransform: "none",
                   fontWeight: 500,
                   fontSize: "0.875rem",
@@ -610,7 +610,7 @@ const ContactList = () => {
                       color: "#999",
                       fontSize: "0.875rem",
                       "&:hover": {
-                        borderColor: "#1976d2",
+                        borderColor: "#03363d",
                         backgroundColor: "#f5f5f5",
                         color: "#666",
                       },
@@ -693,8 +693,8 @@ const ContactList = () => {
                   color: "#666",
                   border: "1px solid #e0e0e0",
                   "&:hover": {
-                    color: "#1976d2",
-                    borderColor: "#1976d2",
+                    color: "#03363d",
+                    borderColor: "#03363d",
                     backgroundColor: "#f5f5f5",
                   },
                 }}
@@ -921,9 +921,9 @@ const ContactList = () => {
 
                 // Checkbox column styling
                 "& .MuiDataGrid-checkboxInput": {
-                  color: "#1976d2",
+                  color: "#03363d",
                   "&.Mui-checked": {
-                    color: "#1976d2",
+                    color: "#03363d",
                   },
                 },
 
@@ -1206,7 +1206,7 @@ const ContactList = () => {
                           setVisibleColumns((prev) => [...prev, column.field]);
                         }}
                         sx={{
-                          color: "#1976d2",
+                          color: "#03363d",
                           "&:hover": {
                             backgroundColor: "rgba(25, 118, 210, 0.1)",
                           },
@@ -1248,7 +1248,7 @@ const ContactList = () => {
                 }}
                 sx={{
                   textTransform: "none",
-                  backgroundColor: "#1976d2",
+                  backgroundColor: "#03363d",
                 }}
               >
                 Save

@@ -320,7 +320,7 @@ const ThreadItem = ({
               minWidth: "60px",
               "&:hover": {
                 backgroundColor: "#f5f5f5",
-                color: "#1976d2",
+                color: "#03363d",
                 transform: "translateY(-1px)",
               },
             }}
@@ -495,7 +495,7 @@ const ThreadItem = ({
                           backgroundColor: "transparent",
                           "&:hover": {
                             backgroundColor: "#f5f5f5",
-                            color: "#1976d2",
+                            color: "#03363d",
                           },
                         }}
                       >
@@ -524,7 +524,7 @@ const ThreadItem = ({
                                 backgroundColor: "transparent",
                                 "&:hover": {
                                   backgroundColor: "#f5f5f5",
-                                  color: "#1976d2",
+                                  color: "#03363d",
                                 },
                               }}
                             >
@@ -543,13 +543,13 @@ const ThreadItem = ({
                               }
                               ref={optionsRef}
                               sx={{
-                                color: isOpen ? "#1976d2" : "#666",
+                                color: isOpen ? "#03363d" : "#666",
                                 backgroundColor: isOpen
                                   ? "#e3f2fd"
                                   : "transparent",
                                 "&:hover": {
                                   backgroundColor: "#f5f5f5",
-                                  color: "#1976d2",
+                                  color: "#03363d",
                                 },
                               }}
                             >
@@ -731,7 +731,7 @@ const ThreadItem = ({
                 <Box>
                   <Typography
                     variant="h6"
-                    sx={{ fontWeight: 600, color: "#1976d2" }}
+                    sx={{ fontWeight: 600, color: "#03363d" }}
                   >
                     {item?.repliedBy?.name ?? item?.ticketId ?? "User"}
                   </Typography>
@@ -746,7 +746,7 @@ const ThreadItem = ({
                   color: "#666",
                   "&:hover": {
                     backgroundColor: "#f5f5f5",
-                    color: "#1976d2",
+                    color: "#03363d",
                   },
                 }}
               >

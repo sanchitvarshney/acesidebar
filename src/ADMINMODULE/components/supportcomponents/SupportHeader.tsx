@@ -63,7 +63,7 @@ const SupportHeader = () => {
             fontSize={"1.2rem"}
             fontWeight={600}
             component="span"
-            sx={{ color: "#1976d2" }}
+            sx={{ color: "#03363d" }}
           >
             Help Desk
           </Typography>
@@ -73,7 +73,7 @@ const SupportHeader = () => {
               display: "flex",
               alignItems: "center",
               gap: 2,
-              color: "#1976d2",
+              color: "#03363d",
             }}
           >
             <List
@@ -101,7 +101,7 @@ const SupportHeader = () => {
                       "&:hover": {
                         backgroundColor: "transparent",
                         transform: "scale(1.05)",
-                        color: "#1976d2",
+                        color: "#03363d",
                         "&::after": {
                           width: "100%",
                         },
@@ -110,7 +110,7 @@ const SupportHeader = () => {
                         content: '""',
                         position: "absolute",
                         bottom: 0,
-                        color: "#1976d2",
+                        color: "#03363d",
                         left: 0,
                         width: isActive ? "100%" : "0%",
                         height: "2px",
@@ -164,7 +164,7 @@ const SupportHeader = () => {
                         position: "absolute",
                         bottom: "0",
                         left: "0",
-                        backgroundColor: "#1976d2",
+                        backgroundColor: "#03363d",
                         width: "0%",
                         height: "2px",
                         transition: "width 0.3s ease-in-out",
@@ -192,7 +192,7 @@ const SupportHeader = () => {
         sx={{
           display: "flex",
           alignItems: "center",
-          backgroundColor: "#1976d2",
+          backgroundColor: "#03363d",
           py: 2,
           px: 4,
           color: "white",

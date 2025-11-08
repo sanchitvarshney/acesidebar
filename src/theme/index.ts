@@ -121,7 +121,7 @@ export const theme = createTheme({
         },
         containedInherit: {
           backgroundColor: "#fff",
-          color: "#1976d2",
+          color: "#03363d",
           "&:hover": {
             backgroundColor: "#f5f5f5",
           },

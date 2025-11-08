@@ -192,7 +192,7 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
                     fontWeight: selectedDepartment === "Unassigned" ? 600 : 400,
                     color:
                       selectedDepartment === "Unassigned"
-                        ? "#1976d2"
+                        ? "#03363d"
                         : "inherit",
                     fontSize: 15,
                     mb: 0.5,
@@ -217,7 +217,7 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
                         selectedDepartment === item ? "#f0f4ff" : "transparent",
                       fontWeight: selectedDepartment === item ? 600 : 400,
                       color:
-                        selectedDepartment === item ? "#1976d2" : "inherit",
+                        selectedDepartment === item ? "#03363d" : "inherit",
                       fontSize: 15,
                       display: "flex",
                       alignItems: "center",
@@ -254,7 +254,7 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
                         : "transparent",
                     fontWeight: selectedAgent === "Unassigned" ? 600 : 400,
                     color:
-                      selectedAgent === "Unassigned" ? "#1976d2" : "inherit",
+                      selectedAgent === "Unassigned" ? "#03363d" : "inherit",
                     fontSize: 15,
                     mb: 0.5,
                     display: "flex",
@@ -277,7 +277,7 @@ const AgentAssignPopover: React.FC<AgentAssignPopoverProps> = ({
                       bgcolor:
                         selectedAgent === item ? "#f0f4ff" : "transparent",
                       fontWeight: selectedAgent === item ? 600 : 400,
-                      color: selectedAgent === item ? "#1976d2" : "inherit",
+                      color: selectedAgent === item ? "#03363d" : "inherit",
                       fontSize: 15,
                       display: "flex",
                       alignItems: "center",

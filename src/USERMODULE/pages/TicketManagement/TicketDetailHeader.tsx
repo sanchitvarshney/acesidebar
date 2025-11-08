@@ -314,7 +314,7 @@ const TicketDetailHeader = ({
 
 
   return (
-    <div className="flex items-center justify-between w-full px-6 py-2 border border-[#e8eaec]  bg-[#e8eaec] z-10">
+    <div className="flex items-center justify-between w-full px-6 py-2 border border-[#e0e0e0]  bg-[#e0e0e0] z-10">
       {/* Breadcrumb */}
       <nav className="flex items-center text-xs text-gray-500 font-medium gap-1">
         <IconButton

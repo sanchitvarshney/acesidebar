@@ -59,7 +59,7 @@ const TextInputCellRenderer = (props: any) => {
             <Typography
               variant="body2"
               sx={{
-                color: "#1976d2",
+                color: "#03363d",
                 textDecoration: "none",
                 cursor: "pointer",
                 "&:hover": { textDecoration: "underline" },

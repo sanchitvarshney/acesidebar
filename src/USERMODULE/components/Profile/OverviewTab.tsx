@@ -75,7 +75,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                   bgcolor: "#4285f4",
                   fontSize: 32,
                   fontWeight: "bold",
-                  border: "4px solid #e8eaec",
+                  border: "4px solid #e0e0e0",
                 }}
               >
                 {user?.name?.charAt(0)?.toUpperCase()}
@@ -93,7 +93,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                     label={user?.jobTitle || "--"}
                     size="medium"
                     sx={{
-                      bgcolor: "#e8eaec",
+                      bgcolor: "#e0e0e0",
                       color: "#1a73e8",
                       fontWeight: 500,
                       "& .MuiChip-icon": { color: "#1a73e8" },

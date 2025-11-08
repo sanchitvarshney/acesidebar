@@ -132,14 +132,14 @@ const ChatLeftMenu: React.FC = () => {
                         }
                       }}
                     >
-                      <ListItemIcon sx={{ minWidth: 40, color: isActive(item.path) ? '#1976d2' : '#666' }}>
+                      <ListItemIcon sx={{ minWidth: 40, color: isActive(item.path) ? '#03363d' : '#666' }}>
                         {item.icon}
                       </ListItemIcon>
                       <ListItemText 
                         primary={item.label}
                         primaryTypographyProps={{
                           fontSize: '0.875rem',
-                          color: isActive(item.path) ? '#1976d2' : '#666',
+                          color: isActive(item.path) ? '#03363d' : '#666',
                           fontWeight: isActive(item.path) ? 'medium' : 'normal'
                         }}
                       />

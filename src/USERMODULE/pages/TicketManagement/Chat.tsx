@@ -217,7 +217,7 @@ const Chat: React.FC = () => {
                     onClick={handleSend}
                     disabled={!composerValue.trim()}
                     sx={{ 
-                      color: composerValue.trim() ? '#1976d2' : '#ccc',
+                      color: composerValue.trim() ? '#03363d' : '#ccc',
                       '&:hover': { backgroundColor: '#e3f2fd' }
                     }}
                   >

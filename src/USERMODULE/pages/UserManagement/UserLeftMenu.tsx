@@ -46,7 +46,7 @@ const UserLeftMenu: React.FC = () => {
         overflow: "visible",
         width: expanded ? 240 : 55,
         transition: "width 0.3s ease",
-        backgroundColor: "#e8eaec",
+        backgroundColor: "#e0e0e0",
         marginTop: 8,
         display: helpCenterOpen ? "none" : "flex",
         position: "relative",
@@ -106,7 +106,7 @@ const UserLeftMenu: React.FC = () => {
                         primaryTypographyProps={{
                           fontSize: "0.875rem",
                           fontWeight: item.isActive ? 600 : 400,
-                          color: item.isActive ? "#1976d2" : "#333",
+                          color: item.isActive ? "#03363d" : "#333",
                         }}
                       />
                     </ListItemButton>

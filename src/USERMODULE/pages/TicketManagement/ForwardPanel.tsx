@@ -375,7 +375,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
             onDrop={handleDrop}
             sx={{
               p: 1,
-              border: isDragOver ? "2px dashed #1976d2" : "2px dashed #e0e0e0",
+              border: isDragOver ? "2px dashed #03363d" : "2px dashed #e0e0e0",
               borderRadius: 2,
               backgroundColor: isDragOver ? "#f3f8ff" : "#fafafa",
               textAlign: "center",
@@ -384,7 +384,7 @@ const ForwardPanel: React.FC<ForwardPanelProps> = ({
               opacity: canAddMoreFiles ? 1 : 0.6,
               "&:hover": canAddMoreFiles
                 ? {
-                    borderColor: "#1976d2",
+                    borderColor: "#03363d",
                     backgroundColor: "#f3f8ff",
                   }
                 : {},

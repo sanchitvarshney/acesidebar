@@ -118,7 +118,7 @@ const BusinessDayExample: React.FC = () => {
       timezone: "UTC+5:30",
       maxTicketsPerDay: 50,
       currentTickets: 23,
-      color: "#1976d2",
+      color: "#03363d",
     },
     {
       id: "2",

@@ -179,11 +179,10 @@ const LeftMenu: React.FC = () => {
       sx={{
         height: "100%",
         minHeight: "calc(100vh - 70px)",
-
         overflow: "visible",
         width: gettingStartedExpanded ? 240 : 55,
         transition: "width 0.3s ease",
-        backgroundColor: "#e8eaec",
+        backgroundColor: "#e3ebeb",
         marginTop: 8,
         display: helpCenterOpen ? "none" : "flex",
         position: "relative",
@@ -198,7 +197,7 @@ const LeftMenu: React.FC = () => {
           unmountOnExit={false}
           sx={{
             display: "flex",
-            backgroundColor: "#e8eaec",
+            backgroundColor: "#fff",
             height: "100%",
             minHeight: "calc(100vh - 70px)",
           }}
@@ -292,18 +291,15 @@ const LeftMenu: React.FC = () => {
                           );
                         }}
                         sx={{
-                          px: 1.5,
-                          py: 0.75,
+                          px: 1,
+                          py: 0.5,
                           cursor: "pointer",
-                          borderRadius: "4px",
+                          borderRadius: "999px",
                           mb: 0.5,
-                          bgcolor: isSelected
-                            ? "rgba(33, 150, 243, 0.1)"
-                            : "transparent",
+                          bgcolor: isSelected ? "#e8eaec" : "transparent",
+                          transition: "background-color 0.2s ease",
                           "&:hover": {
-                            bgcolor: isSelected
-                              ? "rgba(33, 150, 243, 0.15)"
-                              : "rgba(0, 0, 0, 0.04)",
+                            bgcolor: "#f1f3f4",
                           },
                         }}
                       >
@@ -320,8 +316,8 @@ const LeftMenu: React.FC = () => {
                                 variant="body2"
                                 sx={{
                                   fontSize: "0.8125rem",
-                                  color: isSelected ? "#2196F3" : "#424242",
-                                  fontWeight: isSelected ? 500 : 400,
+                                  color: isSelected ? "#1a73e8" : "#424242",
+                                  fontWeight: isSelected ? 600 : 500,
                                 }}
                               >
                                 {view.label}
@@ -362,18 +358,15 @@ const LeftMenu: React.FC = () => {
                           );
                         }}
                         sx={{
-                          px: 1.5,
-                          py: 0.75,
+                          px: 1,
+                          py: 0.5,
                           cursor: "pointer",
-                          borderRadius: "4px",
+                          borderRadius: "999px",
                           mb: 0.5,
-                          bgcolor: isSelected
-                            ? "rgba(33, 150, 243, 0.1)"
-                            : "transparent",
+                          bgcolor: isSelected ? "#e8eaec" : "transparent",
+                          transition: "background-color 0.2s ease",
                           "&:hover": {
-                            bgcolor: isSelected
-                              ? "rgba(33, 150, 243, 0.15)"
-                              : "rgba(0, 0, 0, 0.04)",
+                            bgcolor: "#f1f3f4",
                           },
                         }}
                       >
@@ -390,8 +383,8 @@ const LeftMenu: React.FC = () => {
                                 variant="body2"
                                 sx={{
                                   fontSize: "0.8125rem",
-                                  color: isSelected ? "#2196F3" : "#424242",
-                                  fontWeight: isSelected ? 500 : 400,
+                                  color: isSelected ? "#1a73e8" : "#424242",
+                                  fontWeight: isSelected ? 600 : 500,
                                 }}
                               >
                                 {view.label}

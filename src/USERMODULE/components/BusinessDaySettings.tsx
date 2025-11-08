@@ -119,7 +119,7 @@ const BusinessDaySettings: React.FC<BusinessDaySettingsProps> = ({
       {
         id: "1",
         name: "Support Team",
-        color: "#1976d2",
+        color: "#03363d",
         maxTickets: 50,
         workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       },
@@ -947,7 +947,7 @@ const BusinessDaySettings: React.FC<BusinessDaySettingsProps> = ({
                   fullWidth
                   label="Color"
                   type="color"
-                  defaultValue={selectedTeam?.color || "#1976d2"}
+                  defaultValue={selectedTeam?.color || "#03363d"}
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>

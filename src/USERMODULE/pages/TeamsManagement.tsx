@@ -730,7 +730,7 @@ const TeamsManagement = () => {
                         color: "#999",
                         fontSize: "0.875rem",
                         "&:hover": {
-                          borderColor: "#1976d2",
+                          borderColor: "#03363d",
                           backgroundColor: "#f5f5f5",
                           color: "#666",
                         },
@@ -809,8 +809,8 @@ const TeamsManagement = () => {
                     color: "#666",
                     border: "1px solid #e0e0e0",
                     "&:hover": {
-                      color: "#1976d2",
-                      borderColor: "#1976d2",
+                      color: "#03363d",
+                      borderColor: "#03363d",
                       backgroundColor: "#f5f5f5",
                     },
                   }}
@@ -854,7 +854,7 @@ const TeamsManagement = () => {
                       zIndex: 10,
                       height: 4,
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: "#1976d2",
+                        backgroundColor: "#03363d",
                       },
                       "& .MuiLinearProgress-root": {
                         backgroundColor: "#e0e0e0",
