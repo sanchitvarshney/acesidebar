@@ -8,7 +8,8 @@ import {
 import StartIcon from "@mui/icons-material/Start";
 import { filterTasksBySearch } from "../utils/taskUtils";
 import TaskListSkeleton from "../../../skeleton/TaskListSkeleton";
-import notask from "../../../../assets/image/box_empty_state_200x200.svg";
+// Using public folder to avoid Babel processing large SVG file
+const notask = "/box_empty_state_200x200.svg";
 
 interface KanbanBoardProps {
   tasks: any;
