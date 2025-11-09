@@ -95,8 +95,7 @@ const CookiesBanner = () => {
                     }}
                 />
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: "justify", fontSize: "12px" }}>
-                    <b>Important info about cookies. </b> <br /> By browsing our website or closing/agreeing this message,
-                    you consent to the use of cookies as described in our Cookie Policy.
+                    <b>Important info about cookies. </b> <br /> We use cookies for essential website functions and to better understand how you use Ajaxter, so we can create the best possible experience for you ❤️
                 </Typography>
 
                 <Box sx={{ display: "flex", gap: 1 }}>
