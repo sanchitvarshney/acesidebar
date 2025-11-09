@@ -18,17 +18,18 @@ import {
   HourglassEmpty as HourglassEmptyIcon,
   ExitToApp as ExitToAppIcon,
 } from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
+import AddIcon from "@mui/icons-material/AddCircle";
 import AccountPopup from "../popup/AccountPopup";
 import NotificationPopup from "../popup/NotificationPopup";
 import TasksPopup from "../popup/TasksPopup";
 import AdvancedSearchPopup from "../popup/AdvancedSearchPopup";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SwitcherIcon from "../../assets/image/switcher.svg";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import { useAuth } from "../../contextApi/AuthContext";
 import { useStatus } from "../../contextApi/StatusContext";
 import { useDispatch } from "react-redux";
+import EventNoteIcon from "@mui/icons-material/EventNote";
 
 const drawerWidth = 80;
 const collapsedDrawerWidth = 0;
@@ -56,6 +57,7 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
   const tasksButtonRef = React.useRef<HTMLButtonElement>(null);
   const advancedSearchRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { setIsAnyPopupOpen } = usePopupContext();
 
   // Update global popup state whenever any popup state changes
@@ -191,6 +193,17 @@ const TopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             sx={{ mr: 2, color: "#3f4346" }}
           >
             <AddIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            aria-label="calendar"
+            edge="start"
+            onClick={() =>
+              navigate(`${location.pathname}${location.search}#event`)
+            }
+            sx={{ mr: 2, color: "#3f4346" }}
+          >
+            <EventNoteIcon />
           </IconButton>
         </div>
         {/* Expanding Search Bar */}

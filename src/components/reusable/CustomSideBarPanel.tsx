@@ -11,6 +11,7 @@ interface CustomSideBarPanelProps {
   width?: number | string;
   position?: any;
   id?: string;
+  headerAction?: React.ReactNode;
 }
 const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   open,
@@ -21,6 +22,7 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
   width = 380,
   position = "right",
   id,
+  headerAction,
 }) => {
   return (
     <Drawer
@@ -79,6 +81,8 @@ const CustomSideBarPanel: React.FC<CustomSideBarPanelProps> = ({
           >
             {title}
           </Typography>
+
+          {headerAction && <Box sx={{ mr: 1 }}>{headerAction}</Box>}
 
           <IconButton onClick={close}>
             <CloseIcon fontSize="small" />

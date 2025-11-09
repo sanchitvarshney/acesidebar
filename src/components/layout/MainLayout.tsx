@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { usePopupContext } from "../../contextApi/PopupContext";
 import { useStatus } from "../../contextApi/StatusContext";
 import { useHelpCenter } from "../../contextApi/HelpCenterContext";
@@ -25,6 +25,7 @@ import UserLeftMenu from "../../USERMODULE/pages/UserManagement/UserLeftMenu";
 import GlobalBackButtonPrevention from "../GlobalBackButtonPrevention";
 import { TicketsLayoutProvider } from "../../contextApi/TicketsLayoutContext";
 import CookiesBanner from "../common/CookiesBanner";
+import EventDrawerPage from "../../pages/EventDrawerPage";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) =>
@@ -101,6 +102,14 @@ const MainLayout = () => {
     refetchOnMountOrArgChange: true,
   });
   const location = useLocation();
+  const navigate = useNavigate();
+  const isEventDrawerOpen = location.hash === "#event";
+
+  const handleEventDrawerClose = () => {
+    if (isEventDrawerOpen) {
+      navigate(`${location.pathname}${location.search}`, { replace: true });
+    }
+  };
 
   const handleDrawerToggle = () => {
     dispatch(setToggle(!isOpen));
@@ -195,6 +204,7 @@ const MainLayout = () => {
         onClose={handleCloseOfflineModal}
       />
       <CookiesBanner />
+      <EventDrawerPage open={isEventDrawerOpen} onClose={handleEventDrawerClose} />
     </Box>
   );
 };

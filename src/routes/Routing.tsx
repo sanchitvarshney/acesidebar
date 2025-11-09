@@ -89,6 +89,7 @@ import HelpTopics from "../USERMODULE/pages/settingManangePages/HelpTopics";
 import AddHelpTopic from "../USERMODULE/pages/settingManangePages/AddHelpTopic";
 import AradePage from "../USERMODULE/pages/settingManangePages/ArcadePage";
 import StaffProfile from "../USERMODULE/pages/StaffProfile";
+import EventDrawerPage from "../pages/EventDrawerPage";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
