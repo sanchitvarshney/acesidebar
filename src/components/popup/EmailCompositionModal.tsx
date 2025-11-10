@@ -263,7 +263,7 @@ const EmailCompositionModal: React.FC<EmailCompositionModalProps> = ({
                   onChange={(e) => setCurrentCc(e.target.value)}
                   onKeyPress={(e) => handleKeyPress(e, 'cc')}
                   onBlur={() => handleAddRecipient('cc', currentCc)}
-                  placeholder="Add Cc recipients"
+                  placeholder="CC recipients"
                   variant="standard"
                   InputProps={{ disableUnderline: true }}
                   sx={{ minWidth: 150 }}

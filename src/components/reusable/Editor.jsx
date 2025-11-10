@@ -766,7 +766,7 @@ const StackEditor = ({
                 className="text-xs text-gray-500 cursor-pointer hover:underline"
                 onClick={() => setShowCc(true)}
               >
-                Add Cc
+                CC
               </p>
             )}
             {!showBcc && (
@@ -774,7 +774,7 @@ const StackEditor = ({
                 className="text-xs text-gray-500 cursor-pointer hover:underline"
                 onClick={() => setShowBcc(true)}
               >
-                Add Bcc
+                Bcc
               </p>
             )}
           </div>
@@ -811,7 +811,7 @@ const StackEditor = ({
                   })
                 }
               >
-                Add Cc
+                CC
               </p>
             )}
           </div>
