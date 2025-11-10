@@ -204,8 +204,8 @@ const ThreadItem = ({
       if (response?.type === "error" || response?.data?.type === "error") {
         showToast(
           response?.data?.message ||
-          response?.message ||
-          "Something went wrong",
+            response?.message ||
+            "Something went wrong",
           "error"
         );
         return;
@@ -347,10 +347,10 @@ const ThreadItem = ({
   const bubbleBackgroundColor = isReported
     ? "#fee2e2"
     : isCurrentUser && item?.entryType === "pbR"
-      ? "#f7faff"
-      : isCurrentUser && item?.entryType === "PrvN"
-        ? "#fef1e1"
-        : "#fafafa";
+    ? "#f7faff"
+    : isCurrentUser && item?.entryType === "PrvN"
+    ? "#fef1e1"
+    : "#fafafa";
   const bubbleFooter = isCurrentUser
     ? "IP: 127.0.0.1 | Location: India"
     : "IP: 127.0.0.1 | Location: India";
@@ -397,7 +397,7 @@ const ThreadItem = ({
           setTrackDownloadId("");
         }
       })
-      .catch((error) => { });
+      .catch((error) => {});
   };
 
   return (
@@ -405,8 +405,9 @@ const ThreadItem = ({
       {/* Email content */}
       <div className="flex-1">
         <div
-          className={`rounded flex ${isCurrentUser ? " flex-row-reverse" : "flex-row "
-            }`}
+          className={`rounded flex ${
+            isCurrentUser ? " flex-row-reverse" : "flex-row "
+          }`}
         >
           <div className=" relative flex px-4 py-2 flex-col items-center">
             <div
@@ -476,10 +477,11 @@ const ThreadItem = ({
             <div className="flex items-center justify-between  w-full px-8 py-2">
               <div className={`w-full  flex flex-col`}>
                 <div
-                  className={`flex  items-center justify-between  w-full border-b-2 ${item?.entryType === "PrvN"
+                  className={`flex  items-center justify-between  w-full border-b-2 ${
+                    item?.entryType === "PrvN"
                       ? "border-[#f8d2a4ff]"
                       : "border-gray-200"
-                    } pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "}`}
+                  } pb-4  ${isCurrentUser ? " flex-row-reverse" : "flex-row "}`}
                 >
                   <div className="flex items-center gap-2">
                     {" "}
@@ -507,8 +509,9 @@ const ThreadItem = ({
                     {!item?.subject && (
                       <>
                         <div
-                          className={`flex items-center gap-2 ${isCurrentUser ? "justify-start" : "justify-end"
-                            }`}
+                          className={`flex items-center gap-2 ${
+                            isCurrentUser ? "justify-start" : "justify-end"
+                          }`}
                         >
                           <img src={isCurrentUser ? email : web} alt="ip" />
                           <span className="text-xs text-gray-400 ">
@@ -628,7 +631,7 @@ const ThreadItem = ({
                                   }}
                                 >
                                   {isDownloading &&
-                                    trackDownloadId === file?.fileSignature ? (
+                                  trackDownloadId === file?.fileSignature ? (
                                     <CircularProgress size={16} />
                                   ) : (
                                     <DownloadIcon fontSize="small" />
@@ -651,8 +654,8 @@ const ThreadItem = ({
                   borderTopColor: isReported
                     ? "#ffb6b6"
                     : item?.entryType === "PrvN"
-                      ? "#f8d2a4ff"
-                      : "#c3d9ff",
+                    ? "#f8d2a4ff"
+                    : "#c3d9ff",
                 }}
               >
                 {/* {item?.attachments.length > 0 ? (
@@ -867,7 +870,7 @@ const ThreadList = ({
           marginBottomClass={""}
           openOptionsId={openOptionsId}
           onToggleOptions={onToggleOptions}
-        // subjectTitle={subject.subject}
+          // subjectTitle={subject.subject}
         />
       )}
     </div>
@@ -916,8 +919,11 @@ const TicketThreadSection = ({
     (state: RootState) => state.shotcut
   );
   const [isReplyStatusOpen, setIsReplyStatusOpen] = useState<boolean>(false);
-  const [statusMenuAnchorEl, setStatusMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedButtonText, setSelectedButtonText] = useState<string>("Submit as In Progress");
+  const [statusMenuAnchorEl, setStatusMenuAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const [selectedButtonText, setSelectedButtonText] = useState<string>(
+    "Submit as In Progress"
+  );
   const [signature, setSignature] = useState("");
   const [signatureUpdateKey, setSignatureUpdateKey] = useState(0);
   const [shouldFocusEditor, setShouldFocusEditor] = useState(false);
@@ -1240,7 +1246,6 @@ const TicketThreadSection = ({
       setShouldFocusEditor(true);
     }
   }, [showEditorNote, showReplyEditor]);
-
 
   return (
     <div className="flex flex-col gap-2  w-full h-[100%]  overflow-hidden border border-r-2 border-[#e0e0e0]">
@@ -1676,7 +1681,6 @@ const TicketThreadSection = ({
                 <Typography>Section 1</Typography>
               </Box>
 
-
               <IconButton
                 size="small"
                 onClick={(e: any) => {
@@ -1684,9 +1688,7 @@ const TicketThreadSection = ({
 
                   dispatch(
                     setReplyValue(
-                      (prevMarkdown: any) =>
-                        prevMarkdown +
-                        "Content for section 1 inside the drawer."
+                      replyValue + "Content for section 1 inside the drawer."
                     )
                   );
                 }}
@@ -1794,12 +1796,12 @@ const TicketThreadSection = ({
       {isSuccessModal && (
         <CustomModal
           open={isSuccessModal}
-          onClose={() => { }}
+          onClose={() => {}}
           title={"Ticket Save"}
           msg="Ticket save successfully"
           primaryButton={{
             title: "Go Next",
-            onClick: () => { },
+            onClick: () => {},
           }}
           secondaryButton={{
             title: "Ticket List",

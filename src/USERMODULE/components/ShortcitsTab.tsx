@@ -83,7 +83,7 @@ const ShortcutsTab = () => {
       key: id,
     };
     deleteShortcut(payload).then((res: any) => {
-      console.log("res", res)
+      console.log("res", res);
       if (res?.data?.type === "error") {
         showToast(res?.data?.message || "An error occurred", "error");
         return;
@@ -105,7 +105,7 @@ const ShortcutsTab = () => {
           body: {
             shortcut: shortcutName,
             text: message,
-            type: selectedElement,
+            type: "HTML",
           },
         };
 
@@ -124,7 +124,7 @@ const ShortcutsTab = () => {
         const payload = {
           shortcut: shortcutName,
           text: message,
-          type: selectedElement,
+          type: "HTML",
         };
 
         addShortcut(payload).then((res: any) => {
@@ -133,7 +133,10 @@ const ShortcutsTab = () => {
             return;
           }
           refetch();
-  showToast(res?.data?.message || "Add shortcut successfully", "success");
+          showToast(
+            res?.data?.message || "Add shortcut successfully",
+            "success"
+          );
           resetForm();
           setIsAddShortcutOpen(false);
         });
@@ -187,24 +190,29 @@ const ShortcutsTab = () => {
   }, [loading]);
 
   // Filter shortcuts based on search query
-  const filteredShortcuts = shortcutList?.filter((item: any) => {
-    if (!searchQuery.trim()) return true;
-    
-    const searchLower = searchQuery.toLowerCase();
-    const shortcutName = item.shortcut?.toLowerCase() || '';
-    const shortcutText = item.text?.toLowerCase() || '';
-    
-    return shortcutName.includes(searchLower) || shortcutText.includes(searchLower);
-  }) || [];
+  const filteredShortcuts =
+    shortcutList?.filter((item: any) => {
+      if (!searchQuery.trim()) return true;
+
+      const searchLower = searchQuery.toLowerCase();
+      const shortcutName = item.shortcut?.toLowerCase() || "";
+      const shortcutText = item.text?.toLowerCase() || "";
+
+      return (
+        shortcutName.includes(searchLower) || shortcutText.includes(searchLower)
+      );
+    }) || [];
 
   return (
     <div className="p-2 w-full">
       <div className="font-semibold text-xs mb-2 text-gray-500">Shortcuts</div>
       {/* <div className="text-xs text-gray-500">No shortcuts found</div> */}
-      <CustomSearch 
-        width="100%" 
-        placeholder="Search shortcuts..." 
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} 
+      <CustomSearch
+        width="100%"
+        placeholder="Search shortcuts..."
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setSearchQuery(e.target.value)
+        }
       />
 
       <div className="my-3 wi-full h-[calc(100vh-350px)] overflow-y-auto">
@@ -306,7 +314,7 @@ const ShortcutsTab = () => {
                 },
               }}
             />
-
+            {/* 
             <Box sx={{ minWidth: 200 }}>
               <FormControl fullWidth>
                 <InputLabel>Add Element</InputLabel>
@@ -322,7 +330,7 @@ const ShortcutsTab = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Box>
+            </Box> */}
           </div>
         ) : (
           <div className="flex flex-col gap-3 my-2">

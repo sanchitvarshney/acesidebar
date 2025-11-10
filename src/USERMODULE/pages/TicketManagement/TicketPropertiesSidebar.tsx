@@ -267,11 +267,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
               id={`top-tab-${index}`}
               aria-controls={`top-tabpanel-${index}`}
               aria-label={tab.label}
-              sx={{
-                // minWidth: { xs: "auto", sm: 60 },
-                // flex: { xs: 1, sm: "none" },
-                // maxWidth: { xs: "120px", sm: "none" },
-              }}
+
             />
           ))}
         </Tabs>

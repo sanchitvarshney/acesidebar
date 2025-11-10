@@ -616,7 +616,7 @@ const StackEditor = ({
   const renderComponentBasedOnSelection = (
     <div className="flex items-center  ">
       {selectedIndex === "1" ? (
-        <span className="text-sm  ">Email: {ticketData?.email}</span>
+        <span className="text-sm  ">Email: {ticketData?.assignee?.email}</span>
       ) : (
         // <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
@@ -720,7 +720,9 @@ const StackEditor = ({
         <>
           <div>
             <span className="font-semibold text-gray-600 text-sm">To:</span>{" "}
-            <span className="text-sm text-gray-600">{ticketData?.email}</span>
+            <span className="text-sm text-gray-600">
+              {ticketData?.assignor?.email}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <p
@@ -886,9 +888,7 @@ const StackEditor = ({
               selectedValue === "private" ? "#fff3cd" : "transparent",
           }}
           headerTemplate={header}
-          placeholder={
-            selectedIndex === "1" ? "Reply..." : "Add a note, @mention"
-          }
+          placeholder={"Reply..."}
         />
       </div>
 
