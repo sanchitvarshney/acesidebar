@@ -6,11 +6,13 @@ interface GoogleRecaptchaProps {
   onError?: (error: string) => void;
   onExpire?: () => void;
   theme?: 'light' | 'dark';
-  size?: 'normal' | 'compact';
+  size?: 'normal' | 'compact' | 'invisible';
+  badge?: 'bottomright' | 'bottomleft' | 'inline';
 }
 
 export interface GoogleRecaptchaRef {
   reset: () => void;
+  execute?: () => void;
 }
 
 declare global {
@@ -31,11 +33,17 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
   onExpire,
   theme = 'light',
   size = 'normal',
+  badge = 'bottomright',
 }, ref) => {
   const recaptchaRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<number | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const sizeRef = useRef<typeof size>(size);
+
+  useEffect(() => {
+    sizeRef.current = size;
+  }, [size]);
 
 
   const reset = () => {
@@ -48,9 +56,24 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
     }
   };
 
-  // Expose reset function to parent component
+  const execute = () => {
+    if (
+      widgetIdRef.current !== null &&
+      window.grecaptcha &&
+      sizeRef.current === 'invisible'
+    ) {
+      try {
+        window.grecaptcha.execute(widgetIdRef.current);
+      } catch (error) {
+        onError?.('Unable to execute reCAPTCHA');
+      }
+    }
+  };
+
+  // Expose actions to parent component
   React.useImperativeHandle(ref, () => ({
     reset,
+    execute,
   }));
 
   useEffect(() => {
@@ -77,7 +100,7 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
     }
 
     try {
-      const widgetId = window.grecaptcha.render(recaptchaRef.current, {
+      const options: any = {
         sitekey: siteKey,
         theme: theme,
         size: size,
@@ -94,7 +117,13 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
         'error-callback': (error: any) => {
           onError?.('reCAPTCHA verification failed');
         },
-      });
+      };
+
+      if (size === 'invisible') {
+        options.badge = badge;
+      }
+
+      const widgetId = window.grecaptcha.render(recaptchaRef.current, options);
 
       widgetIdRef.current = widgetId;
        
@@ -134,10 +163,13 @@ const GoogleRecaptcha = React.forwardRef<GoogleRecaptchaRef, GoogleRecaptchaProp
       className="g-recaptcha"
       data-sitekey={siteKey}
       style={{
-        minWidth: '304px',
-        display: 'block',
-        visibility: 'visible',
-        opacity: 1,
+        minWidth: size === 'invisible' ? '0px' : '304px',
+        width: size === 'invisible' ? '0px' : '100%',
+        height: size === 'invisible' ? '0px' : 'auto',
+        overflow: 'hidden',
+        display: size === 'invisible' ? 'inline-block' : 'block',
+        visibility: size === 'invisible' ? 'hidden' : 'visible',
+        opacity: size === 'invisible' ? 0 : 1,
       }}
     />
   );
