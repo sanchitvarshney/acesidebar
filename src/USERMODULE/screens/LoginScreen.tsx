@@ -49,8 +49,8 @@ const LoginScreen = () => {
   const NEUTRAL_BORDER = "#d9d9d9";
   const { signIn } = useAuth();
   const navigation = useNavigate();
-  const INVISIBLE_RECAPTCHA_KEY =
-    process.env.REACT_APP_GOOGLE_INVISIBLE_SITE_KEY;
+  const VISIBLE_RECAPTCHA_KEY =
+    process.env.REACT_APP_GOOGLE_VISIBLE_SITE_KEY;
   const {
     register,
     handleSubmit,
@@ -69,6 +69,9 @@ const LoginScreen = () => {
   const { showToast } = useToast();
   const [login, { isLoading }] = useLoginMutation();
   const [isForgot, setIsForgot] = useState<boolean>(false);
+  const [forgotMode, setForgotMode] = useState<"password" | "username">(
+    "password"
+  );
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [isCaptchaVerified, setIsCaptchaVerified] = useState<boolean>(false);
   const [forgotCaptchaToken, setForgotCaptchaToken] = useState<string>("");
@@ -78,8 +81,6 @@ const LoginScreen = () => {
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const recaptchaRef = useRef<GoogleRecaptchaRef>(null);
   const forgotRecaptchaRef = useRef<GoogleRecaptchaRef>(null);
-  const pendingLoginDataRef = useRef<RegisterFormData | null>(null);
-  const pendingLoginSubmitRef = useRef<boolean>(false);
   const [baseUrl, setBaseUrl] = useState<any>(null);
   const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
   const [companyName, setCompanyName] = useState<string>("COM0001");
@@ -283,7 +284,8 @@ const LoginScreen = () => {
   const isFormValid =
     email.trim() !== "" &&
     password.trim() !== "" &&
-    termsAccepted;
+    termsAccepted &&
+    isCaptchaVerified;
 
   // Check for remembered email on component mount
   useEffect(() => {
@@ -331,9 +333,6 @@ const LoginScreen = () => {
   };
 
   const executeLogin = async (data: RegisterFormData, token: string) => {
-    pendingLoginDataRef.current = null;
-    pendingLoginSubmitRef.current = false;
-
     if (!token) {
       showToast("Please complete the security verification", "error");
       return;
@@ -404,12 +403,7 @@ const LoginScreen = () => {
         const errorMessage =
           result.data?.message || "Login failed. Please try again.";
         showToast(errorMessage, "error");
-        setIsCaptchaVerified(false);
-        setCaptchaToken("");
-
-        if (recaptchaRef.current) {
-          recaptchaRef.current.reset();
-        }
+        resetRecaptchaState();
 
         setValue("email", "");
         setValue("password", "");
@@ -430,12 +424,7 @@ const LoginScreen = () => {
         "error"
       );
 
-      setIsCaptchaVerified(false);
-      setCaptchaToken("");
-
-      if (recaptchaRef.current) {
-        recaptchaRef.current.reset();
-      }
+      resetRecaptchaState();
 
       setValue("email", "");
       setValue("password", "");
@@ -448,26 +437,24 @@ const LoginScreen = () => {
           emailField.focus();
         }
       }, 100);
-    } finally {
-      pendingLoginSubmitRef.current = false;
     }
   };
 
-  const handleRecaptchaVerify = async (token: string) => {
+  const handleRecaptchaVerify = (token: string) => {
     setCaptchaToken(token);
     setIsCaptchaVerified(true);
-
-    if (pendingLoginSubmitRef.current && pendingLoginDataRef.current) {
-      const formData = pendingLoginDataRef.current;
-      await executeLogin(formData, token);
-    }
   };
 
   const resetRecaptchaState = () => {
     setIsCaptchaVerified(false);
     setCaptchaToken("");
-    pendingLoginDataRef.current = null;
-    pendingLoginSubmitRef.current = false;
+    if (recaptchaRef.current) {
+      try {
+        recaptchaRef.current.reset();
+      } catch {
+        /* noop */
+      }
+    }
   };
 
   const handleRecaptchaError = (error: string) => {
@@ -508,31 +495,13 @@ const LoginScreen = () => {
     );
   };
 
-  const handleLoginAttempt = handleSubmit((data) => {
-    const executeFn = recaptchaRef.current?.execute;
-
-    // If invisible reCAPTCHA is available, trigger it before submitting.
-    if (typeof executeFn === "function") {
-      pendingLoginDataRef.current = data;
-      pendingLoginSubmitRef.current = true;
-      setIsCaptchaVerified(false);
-      setCaptchaToken("");
-      executeFn();
+  const handleLoginAttempt = handleSubmit(async (data) => {
+    if (!isCaptchaVerified || !captchaToken) {
+      showToast("Please complete the security verification", "error");
       return;
     }
 
-    if (!INVISIBLE_RECAPTCHA_KEY) {
-      showToast(
-        "Security verification is not configured. Please contact your administrator.",
-        "error"
-      );
-      return;
-    }
-
-    showToast(
-      "Security verification is still loading. Please try again in a moment.",
-      "error"
-    );
+    await executeLogin(data, captchaToken);
   });
 
 
@@ -548,7 +517,11 @@ const LoginScreen = () => {
         captcha: forgotCaptchaToken,
       };
 
-      showToast(`Password reset instructions sent to ${email}`, "success");
+      if (forgotMode === "password") {
+        showToast(`Password reset instructions sent to ${email}`, "success");
+      } else {
+        showToast(`Username recovery details sent to ${email}`, "success");
+      }
 
       setIsForgotCaptchaVerified(false);
       setForgotCaptchaToken("");
@@ -557,6 +530,7 @@ const LoginScreen = () => {
       }
 
       setIsForgot(false);
+      setForgotMode("password");
     } catch (error) {
       showToast(
         "Failed to send reset instructions. Please try again.",
@@ -585,9 +559,15 @@ const LoginScreen = () => {
   );
 
   const isStep1 = !showLoginForm;
-  const headingText = isForgot ? "Reset your password" : "Jump back in";
+  const headingText = isForgot
+    ? forgotMode === "password"
+      ? "Reset your password"
+      : "Recover your username"
+    : "Jump back in";
   const subheadingText = isForgot
-    ? "Enter your email address and we'll send instructions to reset your password."
+    ? forgotMode === "password"
+      ? "Enter your email address and we'll send instructions to reset your password."
+      : "Enter your email address and we'll send your workspace username."
     : isStep1
       ? "Enter your workspace domain to reach your team's ticket portal."
       : `Welcome back to the ${brandName || "Ajaxter"} support workspace. Sign in to pick up your tickets, tasks, and chats.`;
@@ -928,7 +908,9 @@ const LoginScreen = () => {
                         mb: 3,
                       }}
                     >
-                      We'll email you instructions to reset your password.
+                      {forgotMode === "password"
+                        ? "We'll email you instructions to reset your password."
+                        : "We'll email you your workspace username."}
                     </Typography>
                     <TextField
                       {...registerForgot("email")}
@@ -981,7 +963,15 @@ const LoginScreen = () => {
 
                     <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
                       <IconButton
-                        onClick={() => setIsForgot(false)}
+                        onClick={() => {
+                          setIsForgot(false);
+                          setForgotMode("password");
+                          setIsForgotCaptchaVerified(false);
+                          setForgotCaptchaToken("");
+                          if (forgotRecaptchaRef.current) {
+                            forgotRecaptchaRef.current.reset();
+                          }
+                        }}
                         sx={{
                           color: PRIMARY_COLOR,
                           padding: "8px",
@@ -1017,7 +1007,9 @@ const LoginScreen = () => {
                           },
                         }}
                       >
-                        Reset password
+                        {forgotMode === "password"
+                          ? "Reset password"
+                          : "Send username"}
                       </Button>
                     </Box>
                   </Box>
@@ -1112,26 +1104,33 @@ const LoginScreen = () => {
                         }
                       />
 
-                      {INVISIBLE_RECAPTCHA_KEY ? (
-                        <Box sx={{ height: 0, overflow: "hidden" }}>
+                      {VISIBLE_RECAPTCHA_KEY ? (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            mt: 1,
+                            mb: 2,
+                          }}
+                        >
                           <GoogleRecaptcha
                             ref={recaptchaRef}
-                            siteKey={INVISIBLE_RECAPTCHA_KEY}
+                            siteKey={VISIBLE_RECAPTCHA_KEY}
                             onVerify={handleRecaptchaVerify}
                             onError={handleRecaptchaError}
                             onExpire={handleRecaptchaExpire}
                             theme="light"
-                            size="invisible"
+                            size="normal"
                           />
                         </Box>
-                        ) : (
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "error.main", p: 2 }}
-                          >
-                          Invisible reCAPTCHA site key not configured
-                          </Typography>
-                        )}
+                      ) : (
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "error.main", p: 2 }}
+                        >
+                          Visible reCAPTCHA site key not configured
+                        </Typography>
+                      )}
 
                       <FormControlLabel
                         control={
@@ -1224,30 +1223,36 @@ const LoginScreen = () => {
                       >
                         <Link
                           component="button"
-                        underline="none"
+                          underline="none"
                           sx={{
-                          color: LINK_COLOR,
+                            color: LINK_COLOR,
                             fontWeight: 600,
-                          "&:hover": { textDecoration: "underline" },
+                            "&:hover": { textDecoration: "underline" },
                           }}
-                          onClick={() => setIsForgot(true)}
+                          onClick={() => {
+                            setForgotMode("username");
+                            setIsForgot(true);
+                          }}
                         >
-                        Forgot workspace username?
+                          Forgot workspace username?
                         </Link>
                       <Typography component="span" sx={{ color: "#d0d0d0" }}>
                         |
                       </Typography>
                         <Link
                           component="button"
-                        underline="none"
+                          underline="none"
                           sx={{
-                          color: LINK_COLOR,
+                            color: LINK_COLOR,
                             fontWeight: 600,
-                          "&:hover": { textDecoration: "underline" },
+                            "&:hover": { textDecoration: "underline" },
                           }}
-                          onClick={() => setIsForgot(true)}
+                          onClick={() => {
+                            setForgotMode("password");
+                            setIsForgot(true);
+                          }}
                         >
-                        Forgot password?
+                          Forgot password?
                         </Link>
                       </Box>
                     </Box>
@@ -1284,7 +1289,7 @@ const LoginScreen = () => {
 
             <Typography
               sx={{
-                fontSize: { xs: "22px", sm: "26px" },
+                fontSize: { xs: "20px", sm: "24px" },
                 fontWeight: 700,
                 color: "#1a1a1a",
               }}
