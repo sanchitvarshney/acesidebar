@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Checkbox,
   FormControlLabel,
-  Tooltip,
 } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -28,12 +27,10 @@ import {
   useLazyLoginPrecheckQuery,
 } from "../../services/auth";
 import { decrypt } from "../../utils/encryption";
-import GoogleIcon from "@mui/icons-material/Google";
 import VpnLockIcon from "@mui/icons-material/VpnLock";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ErrorIcon from "@mui/icons-material/Error";
-import InfoIcon from "@mui/icons-material/Info";
 import SecureLoginImage from "../../assets/image/login/secure-login-i1.jpg";
 
 import GoogleRecaptcha, {
@@ -81,7 +78,6 @@ const LoginScreen = () => {
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const recaptchaRef = useRef<GoogleRecaptchaRef>(null);
   const forgotRecaptchaRef = useRef<GoogleRecaptchaRef>(null);
-  const [baseUrl, setBaseUrl] = useState<any>(null);
   const [showLoginForm, setShowLoginForm] = useState<boolean>(false);
   const [companyName, setCompanyName] = useState<string>("COM0001");
   const [companyNameTouched, setCompanyNameTouched] = useState<boolean>(false);
@@ -196,10 +192,6 @@ const LoginScreen = () => {
     return `.${domain}`;
   };
 
-  const handleChange = (event: any) => {
-    setBaseUrl(event.target.value as string);
-  };
-
   const handleDomainNext = async () => {
     setCompanyNameSubmitted(true);
     const trimmedName = companyName.trim();
@@ -267,28 +259,6 @@ const LoginScreen = () => {
   };
 
   useEffect(() => {
-    if (!baseUrl || baseUrl === "" || baseUrl === null) {
-      localStorage.removeItem("baseUrl");
-      return;
-    } else {
-      localStorage.setItem("baseUrl", baseUrl);
-    }
-  }, [baseUrl]);
-
-  // Watch form values for validation
-  const watchedValues = watch();
-  const email = watchedValues.email || "";
-  const password = watchedValues.password || "";
-
-  // Check if form is valid and reCAPTCHA is verified
-  const isFormValid =
-    email.trim() !== "" &&
-    password.trim() !== "" &&
-    termsAccepted &&
-    isCaptchaVerified;
-
-  // Check for remembered email on component mount
-  useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     const isRemembered = localStorage.getItem("rememberMe") === "true";
 
@@ -297,6 +267,17 @@ const LoginScreen = () => {
       setRememberMe(true);
     }
   }, [setValue]);
+
+  // Watch form values for validation
+  const watchedValues = watch();
+  const email = watchedValues.email || "";
+  const password = watchedValues.password || "";
+
+  const isFormValid =
+    email.trim() !== "" &&
+    password.trim() !== "" &&
+    termsAccepted &&
+    isCaptchaVerified;
 
   // Generate session ID when component mounts (when someone visits login page)
   useEffect(() => {
@@ -407,7 +388,6 @@ const LoginScreen = () => {
 
         setValue("email", "");
         setValue("password", "");
-        localStorage.removeItem("baseUrl");
         setTimeout(() => {
           const emailField = document.querySelector(
             'input[name="email"]'
@@ -544,19 +524,6 @@ const LoginScreen = () => {
       }
     }
   };
-
-  // Apple logo SVG component
-  const AppleIcon = () => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      style={{ marginRight: "8px" }}
-    >
-      <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-    </svg>
-  );
 
   const isStep1 = !showLoginForm;
   const headingText = isForgot
