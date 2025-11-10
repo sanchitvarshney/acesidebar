@@ -25,7 +25,7 @@ interface EmailAutocompleteProps {
 
   value: any[];
   qtkMethod: any;
-  type: "cc" | "bcc" | "to" | "notify"; // so it knows which field it's for
+  type: "cc" | "bcc" | "to" | "notify" | "approvalTo" | "approvalCc"; // so it knows which field it's for
   optionLabelKey?: keyof any;
   onDelete: (index: number, type: string) => void;
   onChange: (value: any) => void;
@@ -108,7 +108,11 @@ const EmailAutocomplete: React.FC<EmailAutocompleteProps> = ({
       return;
     }
 
-    if (Array.isArray(value) && value.length >= 3) {
+    if (
+      Array.isArray(value) &&
+      value.length >= 3 &&
+      (type === "cc" || type === "bcc" || type === "approvalCc")
+    ) {
       showToast("Maximum 3 CC allowed", "error");
       return;
     }

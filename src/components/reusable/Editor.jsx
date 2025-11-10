@@ -3,6 +3,7 @@ import { Editor } from "primereact/editor";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CheckIcon from "@mui/icons-material/Check";
 import ReplyIcon from "@mui/icons-material/Reply";
+import FlakyIcon from '@mui/icons-material/Flaky';
 import PrivateConnectivityIcon from "@mui/icons-material/PrivateConnectivity";
 import PublicIcon from "@mui/icons-material/Public";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,15 +22,14 @@ import {
   LinearProgress,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ShortcutIcon from "@mui/icons-material/Shortcut";
 import CustomToolTip from "../../reusable/CustomToolTip";
 import { useToast } from "../../hooks/useToast";
-import { fetchOptions, isValidEmail } from "../../utils/Utils";
 import { useUploadFileApiMutation } from "../../services/uploadDocServices";
 import EmailAutocomplete from "./EmailAutocomplete";
 
 import { useLazyGetAgentsBySeachQuery } from "../../services/agentServices";
 import { setSelectedIndex } from "../../reduxStore/Slices/shotcutSlices";
+import CloseIcon from "@mui/icons-material/Close";
 
 const selectionsOptions = [
   {
@@ -43,9 +43,9 @@ const selectionsOptions = [
     value: "2",
   },
   {
-    id: 3,
-    name: "Forward",
-    value: "3",
+    id: 4,
+    name: "Need Approval",
+    value: "4",
   },
 ];
 const optionsofPrivate = [
@@ -81,11 +81,10 @@ const StackEditor = ({
     onCloseReply,
     signatureValue,
     isValues,
-    onForward,
     customHeight = "calc(100vh - 342px)",
     handleChangeValue,
     selectedValue,
-    changeNotify = () => {},
+    changeNotify = () => { },
     notifyTag = [],
 
     ticketData,
@@ -110,6 +109,9 @@ const StackEditor = ({
   const [ccValue, setCcValue] = React.useState([]);
   const [bccValue, setBccValue] = React.useState([]);
   const [localNotifyTag, setLocalNotifyTag] = React.useState(notifyTag || []);
+  const [approvalTo, setApprovalTo] = React.useState([]);
+  const [approvalCc, setApprovalCc] = React.useState([]);
+  const [showApprovalCc, setShowApprovalCc] = React.useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [uploadFileApi] = useUploadFileApiMutation();
   const [triggerSeachAgent] = useLazyGetAgentsBySeachQuery();
@@ -133,6 +135,16 @@ const StackEditor = ({
     changeNotify(newValue);
   };
 
+  const handleApprovalToChange = (value) => {
+    const normalized = Array.isArray(value) ? value : value ? [value] : [];
+    setApprovalTo(normalized);
+  };
+
+  const handleApprovalCcChange = (value) => {
+    const normalized = Array.isArray(value) ? value : value ? [value] : [];
+    setApprovalCc(normalized);
+  };
+
   // Handle deletion for all Autocomplete components
   const handleDelete = (index, type) => {
     if (type === "cc") {
@@ -145,6 +157,12 @@ const StackEditor = ({
       const newNotifyTag = localNotifyTag.filter((_, i) => i !== index);
       setLocalNotifyTag(newNotifyTag);
       changeNotify(newNotifyTag);
+    } else if (type === "approvalTo") {
+      const newApprovalTo = approvalTo.filter((_, i) => i !== index);
+      handleApprovalToChange(newApprovalTo);
+    } else if (type === "approvalCc") {
+      const newApprovalCc = approvalCc.filter((_, i) => i !== index);
+      handleApprovalCcChange(newApprovalCc);
     }
   };
 
@@ -193,7 +211,7 @@ const StackEditor = ({
         setTimeout(() => {
           try {
             inputEl.focus();
-          } catch (e) {}
+          } catch (e) { }
         }, 200);
       }
     }
@@ -332,7 +350,7 @@ const StackEditor = ({
       if (!imageElement) return;
       // imageElement.style.width = `${IMAGE_DEFAULT_WIDTH}%`;
       imageElement.style.maxWidth = `${IMAGE_DEFAULT_WIDTH}%`;
-    } catch (_) {}
+    } catch (_) { }
   };
 
   const setImageSizeByUrl = (quillInstance, imageUrl) => {
@@ -343,12 +361,12 @@ const StackEditor = ({
       imgs
         .filter((img) => (img?.src || "") === imageUrl)
         .forEach((img) => setImageElementSize(img));
-    } catch (_) {}
+    } catch (_) { }
   };
 
   // Handle paste images into editor: upload then insert URL
   useEffect(() => {
-    let removeListener = () => {};
+    let removeListener = () => { };
     let cancelled = false;
     let pasteInProgress = false;
 
@@ -381,7 +399,7 @@ const StackEditor = ({
             // Remove the base64 image if upload fails
             try {
               img.remove();
-            } catch (_) {}
+            } catch (_) { }
             showToast(err?.message || "Failed to upload pasted image", "error");
           }
         }
@@ -414,11 +432,11 @@ const StackEditor = ({
           event.preventDefault();
           try {
             event.stopPropagation();
-          } catch (_) {}
+          } catch (_) { }
           try {
             if (typeof event.stopImmediatePropagation === "function")
               event.stopImmediatePropagation();
-          } catch (_) {}
+          } catch (_) { }
           pasteInProgress = true;
           if (!process.env.REACT_APP_API_URL) {
             showToast("Missing API URL configuration", "error");
@@ -450,7 +468,7 @@ const StackEditor = ({
               dataImgs.forEach((img) => {
                 try {
                   img.remove();
-                } catch (_) {}
+                } catch (_) { }
               });
               showToast(err?.message || "Failed to upload image", "error");
             }
@@ -533,21 +551,34 @@ const StackEditor = ({
     };
   }, []);
 
+  const focusEditor = React.useCallback(() => {
+    const quill = editorRef.current?.getQuill?.();
+    if (!quill) return;
+    try {
+      const length = quill.getLength();
+      quill.focus();
+      quill.setSelection(length, 0);
+    } catch (error) {
+      console.error("Failed to focus editor", error);
+    }
+  }, []);
+
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => !prev);
   };
 
   const handleSelect = (index) => {
-    if (index === "3") {
-      onForward();
-    }
-
     setIsReply(index === "2" ? false : true);
     dispatch(setSelectedIndex(index));
     setShowBcc(false);
     setShowCc(false);
+    setShowApprovalCc(false);
+    handleApprovalToChange([]);
+    handleApprovalCcChange([]);
     setIsOptionsOpen(false); // Close after selection
     setOptionChangeKey((prevKey) => prevKey + 1);
+
+    setTimeout(focusEditor, 150);
   };
 
   const renderHeader = () => {
@@ -609,14 +640,19 @@ const StackEditor = ({
   const renderIcon =
     selectedIndex === "1" ? (
       <ReplyIcon fontSize="small" />
-    ) : selectedIndex === "3" ? (
-      <ShortcutIcon fontSize="small" />
+    ) : selectedIndex === "4" ? (
+      <FlakyIcon fontSize="small" />
     ) : null;
 
   const renderComponentBasedOnSelection = (
     <div className="flex items-center  ">
       {selectedIndex === "1" ? (
         <span className="text-sm  ">Email: {ticketData?.assignee?.email}</span>
+      ) : selectedIndex === "4" ? (
+        <div className="flex flex-col leading-tight">
+          <span className="text-sm font-medium text-gray-700">Need Approval</span>
+          <span className="text-xs text-gray-500">Only visible to you</span>
+        </div>
       ) : (
         // <Box sx={{ minWidth: 200 }}>
         <FormControl fullWidth>
@@ -724,21 +760,102 @@ const StackEditor = ({
               {ticketData?.assignor?.email}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <p
-              className="text-xs text-gray-500 cursor-pointer hover:underline  "
-              onClick={() => setShowCc((prev) => !prev)}
-            >
-              Cc
-            </p>
-            <p
-              className="text-xs text-gray-500 cursor-pointer hover:underline  "
-              onClick={() => setShowBcc((prev) => !prev)}
-            >
-              Bcc
-            </p>
+          <div className="flex items-center gap-2 ml-auto">
+            {!showCc && (
+              <p
+                className="text-xs text-gray-500 cursor-pointer hover:underline"
+                onClick={() => setShowCc(true)}
+              >
+                Add Cc
+              </p>
+            )}
+            {!showBcc && (
+              <p
+                className="text-xs text-gray-500 cursor-pointer hover:underline"
+                onClick={() => setShowBcc(true)}
+              >
+                Add Bcc
+              </p>
+            )}
           </div>
         </>
+      ) : selectedIndex === "4" ? (
+        <div className="w-full flex flex-col gap-2">
+          <div className="w-full flex flex-wrap items-center gap-2">
+            <span className="font-semibold text-gray-600 text-sm">To:</span>
+            <EmailAutocomplete
+              label="Add email address"
+              value={approvalTo}
+              onChange={handleApprovalToChange}
+              qtkMethod={triggerSeachAgent}
+              type="approvalTo"
+              onDelete={handleDelete}
+              optionLabelKey="email"
+              renderOptionExtra={(user) => (
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
+              )}
+              width={400}
+            />
+            {!showApprovalCc && (
+              <p
+                className="text-xs text-gray-500 cursor-pointer hover:underline ml-auto"
+                onClick={() =>
+                  setShowApprovalCc((prev) => {
+                    const next = !prev;
+                    if (!next) {
+                      handleApprovalCcChange([]);
+                    }
+                    return next;
+                  })
+                }
+              >
+                Add Cc
+              </p>
+            )}
+          </div>
+          {showApprovalCc && (
+            <div className="w-full flex flex-wrap items-center gap-2">
+              <span className="font-semibold text-gray-600 text-sm">Cc:</span>
+              <EmailAutocomplete
+                label="Cc"
+                value={approvalCc}
+                onChange={handleApprovalCcChange}
+                qtkMethod={triggerSeachAgent}
+                type="approvalCc"
+                onDelete={handleDelete}
+                optionLabelKey="email"
+                renderOptionExtra={(user) => (
+                  <Typography variant="body2" color="text.secondary">
+                    {user.email}
+                  </Typography>
+                )}
+                width={400}
+              />
+              <IconButton
+                size="small"
+                onClick={() => {
+                  handleApprovalCcChange([]);
+                  setShowApprovalCc(false);
+                }}
+                sx={{
+                  color: "text.secondary",
+                  border: "1px solid #e0e0e0",
+                  ml: 1,
+                  "&:hover": {
+                    color: "error.main",
+                    borderColor: "error.light",
+                  },
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
+          )}
+        </div>
+      ) : selectedIndex === "2" && selectedValue === "public" ? (
+        <div className="w-full" />
       ) : (
         <div className="w-full flex items-center gap-2">
           <span className="font-semibold text-gray-600 text-sm">Notify:</span>
@@ -764,16 +881,38 @@ const StackEditor = ({
   const editorHeight = isFullscreen
     ? "100vh"
     : isEditorExpended
-    ? "450px"
-    : (showCc || showBcc) && currentSignature
-    ? "calc(100vh - 552px)"
-    : showCc || showBcc
-    ? "calc(100vh - 378px)"
-    : currentSignature
-    ? "calc(100vh - 513px)"
-    : selectedIndex !== "1"
-    ? "calc(100vh - 352px)"
-    : customHeight;
+      ? "450px"
+      : (showCc || showBcc) && currentSignature
+        ? "calc(100vh - 552px)"
+        : showCc || showBcc
+          ? "calc(100vh - 378px)"
+          : currentSignature
+            ? "calc(100vh - 513px)"
+            : selectedIndex !== "1"
+              ? "calc(100vh - 352px)"
+              : customHeight;
+
+  const editorPlaceholder = React.useMemo(() => {
+    if (selectedIndex === "1") {
+      return "Reply to the customer...";
+    }
+    if (selectedIndex === "2") {
+      return selectedValue === "private"
+        ? "Add a private note (that will be not visible to customer only to your team)"
+        : "Add a public note (that will be visible to the customer)";
+    }
+    if (selectedIndex === "4") {
+      return "Add your approval request (that will be not visible to the customer)";
+    }
+    return "Start typing...";
+  }, [selectedIndex, selectedValue]);
+
+  const editorBackgroundColor =
+    selectedIndex === "4"
+      ? "#ecf9f9"
+      : selectedValue === "private"
+        ? "#fff3cd"
+        : "transparent";
 
   return (
     <div
@@ -802,7 +941,7 @@ const StackEditor = ({
                 title={renderToolTipComponent}
                 placement="bottom-start"
                 open={isOptionsOpen}
-                // close={() => setIsOptionsOpen(false)}
+              // close={() => setIsOptionsOpen(false)}
               >
                 <span
                   onClick={() => setIsOptionsOpen(true)}
@@ -839,37 +978,75 @@ const StackEditor = ({
           style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
         >
           {showCc && (
-            <EmailAutocomplete
-              label="CC"
-              value={ccValue}
-              onChange={setCcValue}
-              qtkMethod={triggerSeachAgent}
-              type="cc"
-              onDelete={handleDelete}
-              renderOptionExtra={(user) => (
-                <Typography variant="body2" color="text.secondary">
-                  {user.email}
-                </Typography>
-              )}
-              width={400}
-            />
+            <div className="flex items-center gap-2">
+              <EmailAutocomplete
+                label="CC"
+                value={ccValue}
+                onChange={setCcValue}
+                qtkMethod={triggerSeachAgent}
+                type="cc"
+                onDelete={handleDelete}
+                renderOptionExtra={(user) => (
+                  <Typography variant="body2" color="text.secondary">
+                    {user.email}
+                  </Typography>
+                )}
+                width={400}
+              />
+              <IconButton
+                size="small"
+                onClick={() => {
+                  setCcValue([]);
+                  setShowCc(false);
+                }}
+                sx={{
+                  color: "text.secondary",
+                  border: "1px solid #e0e0e0",
+                  "&:hover": {
+                    color: "error.main",
+                    borderColor: "error.light",
+                  },
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
           )}
 
           {showBcc && (
-            <EmailAutocomplete
-              label="Bcc"
-              value={bccValue}
-              onChange={setBccValue}
-              qtkMethod={triggerSeachAgent}
-              type="bcc"
-              onDelete={handleDelete}
-              renderOptionExtra={(user) => (
-                <Typography variant="body2" color="text.secondary">
-                  {user.email}
-                </Typography>
-              )}
-              width={400}
-            />
+            <div className="flex items-center gap-2">
+              <EmailAutocomplete
+                label="Bcc"
+                value={bccValue}
+                onChange={setBccValue}
+                qtkMethod={triggerSeachAgent}
+                type="bcc"
+                onDelete={handleDelete}
+                renderOptionExtra={(user) => (
+                  <Typography variant="body2" color="text.secondary">
+                    {user.email}
+                  </Typography>
+                )}
+                width={400}
+              />
+              <IconButton
+                size="small"
+                onClick={() => {
+                  setBccValue([]);
+                  setShowBcc(false);
+                }}
+                sx={{
+                  color: "text.secondary",
+                  border: "1px solid #e0e0e0",
+                  "&:hover": {
+                    color: "error.main",
+                    borderColor: "error.light",
+                  },
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
           )}
         </div>
       )}
@@ -884,11 +1061,10 @@ const StackEditor = ({
           onTextChange={(text) => onChange(text.htmlValue)}
           style={{
             height: editorHeight,
-            backgroundColor:
-              selectedValue === "private" ? "#fff3cd" : "transparent",
+            backgroundColor: editorBackgroundColor,
           }}
           headerTemplate={header}
-          placeholder={"Reply..."}
+          placeholder={editorPlaceholder}
         />
       </div>
 
