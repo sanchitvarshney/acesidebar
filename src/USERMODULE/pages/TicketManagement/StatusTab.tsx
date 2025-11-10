@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useGetPriorityListQuery,
   useGetStatusListQuery,
@@ -26,7 +26,6 @@ import {
 
 import { useToast } from "../../../hooks/useToast";
 import { useCommanApiMutation } from "../../../services/threadsApi";
-import { set } from "react-hook-form";
 import SingleValueAsynAutocomplete from "../../../components/reusable/SingleValueAsynAutocomplete";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -46,6 +45,8 @@ const StatusTab = ({ ticket }: any) => {
   const [options, setOptions] = useState<any>([]);
   const [dueDate, setDueDate] = useState<any>("");
   const [isUpdate, setIsUpdate] = useState(0);
+  const [isDirty, setIsDirty] = useState(false);
+  const initialSnapshotRef = useRef<any>(null);
   const { data: tagList } = useGetTagListQuery();
   const { data: priorityList } = useGetPriorityListQuery();
   const { data: statusList } = useGetStatusListQuery();
@@ -62,6 +63,75 @@ const StatusTab = ({ ticket }: any) => {
   const [isSlaLoading, setIsSlaLoading] = useState(false);
   const debouncedValue: any = useDebounce(inputValue, 500);
 
+  const getSlaKey = (value: any) => {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    if (typeof value === "object") return value.key ?? "";
+    return "";
+  };
+
+  const normalizeTags = (tags: any) => {
+    if (!Array.isArray(tags)) return "";
+    return tags
+      .map((tag: any) => {
+        if (typeof tag === "string") return tag;
+        return tag?.tagID ?? tag?.id ?? "";
+      })
+      .filter((tag: any) => tag !== "" && tag !== null && tag !== undefined)
+      .map((tag: any) => String(tag))
+      .sort()
+      .join("|");
+  };
+
+  const formatDueDateValue = (value: any) => {
+    if (!value) return "";
+    const parsed = dayjs.isDayjs(value) ? value : dayjs(value);
+    return parsed.isValid() ? parsed.format("YYYY-MM-DD HH:mm") : "";
+  };
+
+  const buildSnapshotFromState = () => ({
+    type: type || "",
+    priority: priority || "",
+    status: status || "",
+    slaKey: getSlaKey(sla),
+    deptId: dept?.deptID ?? "",
+    agentId: agent?.agentID ?? "",
+    tags: normalizeTags(tagValue),
+    dueDate: formatDueDateValue(dueDate),
+  });
+
+  const formatDueDateForPayload = (value: any) => {
+    if (!value) return undefined;
+    const parsed = dayjs.isDayjs(value) ? value : dayjs(value);
+    if (!parsed.isValid()) return undefined;
+    return parsed.format("YYYY-MM-DD HH:mm:00");
+  };
+
+  const buildSnapshotFromTicket = (ticketData: any) => ({
+    type: ticketData?.type?.key ?? "",
+    priority: ticketData?.priority?.key ?? "",
+    status: ticketData?.status?.key ?? "",
+    slaKey: getSlaKey(ticketData?.sla),
+    deptId: ticketData?.deptName?.key ?? "",
+    agentId: ticketData?.assignee?.agentID ?? "",
+    tags: normalizeTags(ticketData?.tags),
+    dueDate: formatDueDateValue(ticketData?.dueDate),
+  });
+
+  const areSnapshotsEqual = (a: any, b: any) => {
+    if (!a || !b) return false;
+    return (
+      a.type === b.type &&
+      a.priority === b.priority &&
+      a.status === b.status &&
+      a.slaKey === b.slaKey &&
+      a.deptId === b.deptId &&
+      a.agentId === b.agentId &&
+      a.tags === b.tags &&
+      a.dueDate === b.dueDate
+    );
+  };
+
   const handleUpdateTicket = () => {
     const payload = {
       url: "edit-properties/" + ticket?.ticketId,
@@ -75,7 +145,7 @@ const StatusTab = ({ ticket }: any) => {
         tags: tagValue.map((tag: any) => tag?.tagID),
         department: `${dept.deptID}`,
         agent: agent.agentID,
-        duedate: dueDate?.format("YYYY-MM-DD HH:mm:00")
+        duedate: formatDueDateForPayload(dueDate),
       },
     };
 
@@ -89,6 +159,8 @@ const StatusTab = ({ ticket }: any) => {
         }
         if (res?.success) {
           showToast(res?.message || res?.error?.message, "success");
+          initialSnapshotRef.current = buildSnapshotFromState();
+          setIsDirty(false);
         }
       })
       .catch((err) => {
@@ -99,37 +171,31 @@ const StatusTab = ({ ticket }: any) => {
 
   useEffect(() => {
     if (ticket) {
-      if (ticket.tags) {
-        setTagValue((prev) => [...prev, ...ticket.tags]);
-      }
+      const initialTags = Array.isArray(ticket.tags) ? [...ticket.tags] : [];
+      const initialStatus = ticket?.status?.key ?? "";
+      const initialPriority = ticket?.priority?.key ?? "";
+      const initialType = ticket?.type?.key ?? "";
+      const initialDept = ticket?.deptName
+        ? {
+            deptID: ticket?.deptName?.key,
+            deptName: ticket?.deptName?.name,
+          }
+        : "";
+      const initialSla = ticket?.sla ?? "";
+      const initialAgent = ticket?.assignee ?? "";
+      const initialDueDate = ticket?.dueDate ? dayjs(ticket.dueDate) : "";
 
-      if (ticket.status) {
-        setStatus(ticket.status.key);
-      }
+      setTagValue(initialTags);
+      setStatus(initialStatus);
+      setPriority(initialPriority);
+      setType(initialType);
+      setDept(initialDept);
+      setSLA(initialSla);
+      setAgent(initialAgent);
+      setDueDate(initialDueDate);
 
-      if (ticket.priority) {
-        const key = ticket.priority.key;
-        setPriority(key);
-      }
-
-      if (ticket.type) {
-        setType(ticket.type.key);
-      }
-
-      if (ticket.deptName) {
-        const department = {
-          deptID: ticket?.deptName?.key,
-          deptName: ticket?.deptName?.name,
-        };
-        setDept(department);
-      }
-      if (ticket.sla) {
-        setSLA(ticket?.sla);
-      }
-
-      if (ticket.assignee) {
-        setAgent(ticket?.assignee);
-      }
+      initialSnapshotRef.current = buildSnapshotFromTicket(ticket);
+      setIsDirty(false);
     }
   }, [ticket, isUpdate]);
 
@@ -149,6 +215,16 @@ const StatusTab = ({ ticket }: any) => {
       setOptions([]);
     }
   }, [changeTagValue, tagList]);
+
+  useEffect(() => {
+    if (!initialSnapshotRef.current) return;
+    const currentSnapshot = buildSnapshotFromState();
+    const hasChanges = !areSnapshotsEqual(
+      initialSnapshotRef.current,
+      currentSnapshot
+    );
+    setIsDirty(hasChanges);
+  }, [type, priority, status, sla, dept, agent, dueDate, tagValue]);
 
   const handleSelectedOption = (_: any, newValue: any, type: string) => {
     if (type === "tag") {
@@ -695,30 +771,32 @@ const StatusTab = ({ ticket }: any) => {
           </div>
         </div>
       </div>
-      <div className="my-2 px-2 sm:px-0">
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={handleUpdateTicket}
-          disabled={statusLoading || !ticket}
-          sx={{
-            padding: { xs: "13px 16px", sm: "10px 24px" },
-            fontSize: { xs: "14px", sm: "16px" },
-            fontWeight: { xs: 600, sm: 500 },
-            borderRadius: { xs: "8px", sm: "4px" },
-            textTransform: "none",
-            boxShadow: { xs: "0 2px 8px rgba(0,0,0,0.15)", sm: "none" },
-          }}
-        >
-          {!ticket ? (
-            <Skeleton width={60} height={20} />
-          ) : statusLoading ? (
-            <CircularProgress color="primary" size={20} />
-          ) : (
-            "Update"
-          )}
-        </Button>
-      </div>
+      {isDirty && (
+        <div className="my-2 px-2 sm:px-0">
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleUpdateTicket}
+            disabled={statusLoading || !ticket}
+            sx={{
+              padding: { xs: "13px 16px", sm: "10px 24px" },
+              fontSize: { xs: "14px", sm: "16px" },
+              fontWeight: { xs: 600, sm: 500 },
+              borderRadius: { xs: "8px", sm: "4px" },
+              textTransform: "none",
+              boxShadow: { xs: "0 2px 8px rgba(0,0,0,0.15)", sm: "none" },
+            }}
+          >
+            {!ticket ? (
+              <Skeleton width={60} height={20} />
+            ) : statusLoading ? (
+              <CircularProgress color="primary" size={20} />
+            ) : (
+              "Update"
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
