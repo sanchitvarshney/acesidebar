@@ -90,6 +90,7 @@ import AddHelpTopic from "../USERMODULE/pages/settingManangePages/AddHelpTopic";
 import AradePage from "../USERMODULE/pages/settingManangePages/ArcadePage";
 import StaffProfile from "../USERMODULE/pages/StaffProfile";
 import EventDrawerPage from "../pages/EventDrawerPage";
+import UserMainLayout from "../USERMODULE/screens/userModules/UserMainLayout";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -475,6 +476,11 @@ export const router = createBrowserRouter([
         element: <ArticleViewPage />,
       },
     ],
+  },
+  {
+    path:"/user-module",
+
+    element:<UserMainLayout/>
   },
 
   // Admin Management Routes
