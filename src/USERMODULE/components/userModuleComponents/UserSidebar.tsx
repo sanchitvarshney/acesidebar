@@ -108,8 +108,8 @@ const UserSidebar = () => {
               <Typography variant="subtitle1">name</Typography>
               <Typography variant="body2">email</Typography>
             </div>
-            <IconButton size="small">
-                <Settings fontSize="small" sx={{ color: "#fff" }} />
+            <IconButton size="small" onClick={() => navigate("/user-module/settings")}>
+              <Settings fontSize="small" sx={{ color: "#fff" }} />
             </IconButton>
           </div>{" "}
         </Box>

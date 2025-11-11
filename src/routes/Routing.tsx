@@ -94,6 +94,7 @@ import UserMainLayout from "../USERMODULE/screens/userModules/UserMainLayout";
 import UserHomeScreen from "../USERMODULE/screens/userModules/UserHomeScreen";
 import UserChatScreen from "../USERMODULE/screens/userModules/UserChatScreen";
 import UserTodoScreen from "../USERMODULE/screens/userModules/UserTodoScreen";
+import UserSettingsScreen from "../USERMODULE/screens/userModules/UserSettingsScreen";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -504,6 +505,10 @@ export const router = createBrowserRouter([
       {
         path: "tickets",
         element: <UserHomeScreen />,
+      },
+      {
+        path: "settings",
+        element: <UserSettingsScreen />,
       },
     ],
   },
