@@ -175,17 +175,6 @@ const UserSidebar = () => {
             );
           })}
         </List>
-        <Divider sx={{ my: 1, mx: 2 }} />
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <MailOutline />
-              </ListItemIcon>
-              <ListItemText primary="Mail Box" />
-            </ListItemButton>
-          </ListItem>
-        </List>
       </Box>
     </StyledDrawer>
   );
