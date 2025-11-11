@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Drawer,
   Box,
@@ -50,10 +50,32 @@ const StyledDrawer = styled(Drawer, {
 
 const UserSidebar = () => {
   const navigate = useNavigate();
-const { isOpenToggle } = useSelector((state: any) => state.genral);
+  const location = useLocation();
+  const { isOpenToggle } = useSelector((state: any) => state.genral);
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
+  const navItems = [
+    {
+      label: "All tickets",
+      icon: <AssignmentTurnedIn />,
+      path: "/user-module/tickets",
+    },
+    {
+      label: "Chat",
+      icon: <ChatBubbleOutline />,
+      path: "/user-module/chat",
+    },
+    {
+      label: "Tasks",
+      icon: <CheckCircleOutline />,
+      path: "/user-module/todo",
+    },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === "/user-module/tickets") {
+      return location.pathname === "/user-module" || location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -105,6 +127,7 @@ const { isOpenToggle } = useSelector((state: any) => state.genral);
           <button
             type="button"
             className="w-full rounded-full bg-white text-[#03363d] font-semibold py-3 shadow-sm border border-transparent hover:shadow-md hover:border-[#03363d]/20 transition-all text-sm flex items-center justify-center gap-2"
+            onClick={() => navigate("/user-module/tickets")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -124,18 +147,33 @@ const { isOpenToggle } = useSelector((state: any) => state.genral);
         </Box>
 
         <List>
-          {[
-            { label: "All Tickets", icon: <AssignmentTurnedIn /> },
-            { label: "Chat", icon: <ChatBubbleOutline /> },
-            { label: "To-Do", icon: <CheckCircleOutline /> },
-          ].map((item) => (
-            <ListItem key={item.label} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.label} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          {navItems.map((item) => {
+            const active = isActive(item.path);
+            return (
+              <ListItem key={item.label} disablePadding>
+                <ListItemButton
+                  onClick={() => navigate(item.path)}
+                  sx={{
+                    borderRadius: "12px",
+                    mx: 1,
+                    my: 0.5,
+                    bgcolor: active ? "#d1d5db" : "transparent",
+                    "&:hover": {
+                      bgcolor: active ? "#c4c8cd" : "#e5e7eb",
+                    },
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText
+                    primary={item.label}
+                    primaryTypographyProps={{
+                      fontWeight: active ? 600 : 500,
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
         </List>
         <Divider sx={{ my: 1, mx: 2 }} />
         <List>
