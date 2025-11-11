@@ -77,13 +77,39 @@ const UserTopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             )}
           </IconButton>
 
-          <Box sx={{ color: "#fff", ml: 1 }}>
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })}
+          <Box
+            sx={{
+              color: "#fff",
+              ml: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <Box
+              sx={{
+                textTransform: "uppercase",
+                fontSize: "11px",
+                letterSpacing: "1px",
+                display: "flex",
+                flexDirection: "column",
+                lineHeight: 1.2,
+              }}
+            >
+              <span>{new Date().toLocaleDateString("en-US", { weekday: "long" })}</span>
+              <span>
+                {new Date().toLocaleDateString("en-US", {
+                  month: "long",
+                })}
+              </span>
+              <span>{new Date().getFullYear()}</span>
+            </Box>
+            <Typography
+              variant="h3"
+              sx={{ fontWeight: 300, fontSize: "42px", lineHeight: 1 }}
+            >
+              {new Date().getDate().toString().padStart(2, "0")}
+            </Typography>
           </Box>
         </div>
 

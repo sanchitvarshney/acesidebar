@@ -12,9 +12,17 @@ import {
   ListItemText,
   Typography,
   Avatar,
+  Divider,
 } from "@mui/material";
 
-import { Inbox, Mail, Settings } from "@mui/icons-material";
+import {
+  AssignmentTurnedIn,
+  ChatBubbleOutline,
+  CheckCircleOutline,
+  Inbox,
+  MailOutline,
+  Settings,
+} from "@mui/icons-material";
 import { useSelector } from "react-redux";
 const SIDEBAR_WIDTH = 280;
 const SIDEBAR_COLLAPSED_WIDTH = 0;
@@ -93,17 +101,52 @@ const { isOpenToggle } = useSelector((state: any) => state.genral);
           </div>{" "}
         </Box>
 
-        <List >
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem key={text} disablePadding>
+        <Box sx={{ px: 2, mb: 2 }}>
+          <button
+            type="button"
+            className="w-full rounded-full bg-white text-[#03363d] font-semibold py-3 shadow-sm border border-transparent hover:shadow-md hover:border-[#03363d]/20 transition-all text-sm flex items-center justify-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-4 h-4"
+            >
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+            New Ticket
+          </button>
+        </Box>
+
+        <List>
+          {[
+            { label: "All Tickets", icon: <AssignmentTurnedIn /> },
+            { label: "Chat", icon: <ChatBubbleOutline /> },
+            { label: "To-Do", icon: <CheckCircleOutline /> },
+          ].map((item) => (
+            <ListItem key={item.label} disablePadding>
               <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <Inbox /> : <Mail />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} />
               </ListItemButton>
             </ListItem>
           ))}
+        </List>
+        <Divider sx={{ my: 1, mx: 2 }} />
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                <MailOutline />
+              </ListItemIcon>
+              <ListItemText primary="Mail Box" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Box>
     </StyledDrawer>
