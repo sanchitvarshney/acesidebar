@@ -2,6 +2,11 @@ import { Suspense, useEffect } from "react";
 import { Box, CssBaseline, styled } from "@mui/material";
 
 import UserTopBar from "../../components/userModuleComponents/UserTopBar";
+import UserSidebar from "../../components/userModuleComponents/UserSidebar";
+import { useDispatch, useSelector } from "react-redux";
+
+import { Outlet } from "react-router-dom";
+import { setToggale } from "../../../reduxStore/Slices/genralSlices";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) =>
@@ -63,29 +68,23 @@ const MainContent = styled(Box)(({ theme }) => ({
 }));
 
 const UserMainLayout = () => {
+  const { isOpenToggle } = useSelector((state: any) => state.genral);
+  const dispatch = useDispatch();
   return (
     <Box sx={{ width: "100%", display: "flex", overflow: "hidden" }}>
       <CssBaseline />
 
       <UserTopBar
-        open={true}
-        handleDrawerToggle={function (): void {
-          throw new Error("Function not implemented.");
-        }}
+        open={isOpenToggle}
+        handleDrawerToggle={() => dispatch(setToggale(!isOpenToggle))}
       />
+      <UserSidebar />
       <Main open={false} sx={{ position: "relative" }}>
         <MainContent className="custom-scrollbar">
           <Suspense
-            fallback={
-              <div className="flex items-center justify-center">
-   
-              </div>
-            }
+            fallback={<div className="flex items-center justify-center"></div>}
           >
-            {/* <Outlet /> */}
-            <h1>
-                hi
-            </h1>
+            <Outlet />
           </Suspense>
         </MainContent>
       </Main>

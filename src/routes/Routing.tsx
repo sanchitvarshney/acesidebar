@@ -91,6 +91,7 @@ import AradePage from "../USERMODULE/pages/settingManangePages/ArcadePage";
 import StaffProfile from "../USERMODULE/pages/StaffProfile";
 import EventDrawerPage from "../pages/EventDrawerPage";
 import UserMainLayout from "../USERMODULE/screens/userModules/UserMainLayout";
+import UserHomeScreen from "../USERMODULE/screens/userModules/UserHomeScreen";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -101,7 +102,7 @@ export const router = createBrowserRouter([
         <MainLayout />
       </Protected>
     ),
-    errorElement: <ErrorPage />, // ✅ added here (covers all children)
+    errorElement: <ErrorPage />, 
     children: [
       { index: true, element: <Tickets /> },
       { path: "tickets", element: <Tickets /> },
@@ -179,7 +180,7 @@ export const router = createBrowserRouter([
             element: <ChatsOverview />,
           },
           {
-            path: "history", 
+            path: "history",
             element: <ChatsHistory />,
           },
           {
@@ -210,11 +211,11 @@ export const router = createBrowserRouter([
           },
         ],
       },
-          {
+      {
         path: "staff-profile/:id",
         element: <StaffProfile />,
       },
-      
+
       {
         path: "quick-action",
         element: <QuickActions />,
@@ -323,7 +324,7 @@ export const router = createBrowserRouter([
         path: "sla-policies/:id",
         element: <SLAEditPage />,
       },
-           {
+      {
         path: "sla-policies/create-new",
         element: <SLAEditPage />,
       },
@@ -478,9 +479,19 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path:"/user-module",
+    path: "/user-module",
 
-    element:<UserMainLayout/>
+    element: <UserMainLayout />,
+    children: [
+      {
+        index: true,
+        element: <UserHomeScreen />,
+      },
+      {
+        path: "user-module",
+        element: <UserHomeScreen />,
+      },
+    ],
   },
 
   // Admin Management Routes

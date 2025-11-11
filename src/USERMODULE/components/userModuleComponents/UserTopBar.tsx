@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, use } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -6,19 +6,18 @@ import {
   Badge,
   Box,
   useTheme,
+  Tooltip,
+  Typography,
 } from "@mui/material";
-import {
-  Menu as MenuIcon,
-  Search as SearchIcon,
-  Notifications as NotificationsIcon,
-  HourglassEmpty as HourglassEmptyIcon,
-  ExitToApp as ExitToAppIcon,
-} from "@mui/icons-material";
+import { Notifications as NotificationsIcon } from "@mui/icons-material";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import EventNoteIcon from "@mui/icons-material/EventNote";
+import CustomToolTip from "../../../reusable/CustomToolTip";
 
-const drawerWidth = 80;
+const drawerWidth = 280;
 const collapsedDrawerWidth = 0;
 
 interface TopBarProps {
@@ -37,29 +36,28 @@ const UserTopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
     setNotificationOpen(!notificationOpen);
   };
 
-
   return (
     <AppBar
       position="fixed"
       sx={{
-        height: "60px",
-        backgroundColor: "#fff",
+        height: "70px",
+        backgroundColor: "#03363d",
         boxShadow: "1px 3px 6px rgb(227, 224, 224)",
         width: {
           sm: `calc(100% - ${open ? drawerWidth : collapsedDrawerWidth}px)`,
         },
         ml: { sm: `${open ? drawerWidth : collapsedDrawerWidth}px` },
-        transition: theme.transitions.create(["margin", "width"], {
+        transition: theme.transitions.create(["width"], {
           easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
+          duration: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
         }),
       }}
     >
       <Toolbar
         className="flex justify-between items-center"
         sx={{
-          minHeight: "60px !important",
-          height: "60px",
+          minHeight: "70px !important",
+          height: "70px",
           alignItems: "center",
           display: "flex",
         }}
@@ -70,15 +68,23 @@ const UserTopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, color: "#3f4346" }}
+            sx={{ mr: 2, color: "#fff" }}
           >
-            <MenuIcon
-              sx={{
-                transform: !open ? "rotate(0deg)" : "rotate(-90deg)",
-                transition: "transform 0.3s ease-in-out",
-              }}
-            />
+            {open ? (
+              <FullscreenIcon sx={{ color: "#fff" }} />
+            ) : (
+              <FullscreenExitIcon sx={{ color: "#fff" }} />
+            )}
           </IconButton>
+
+          <Box sx={{ color: "#fff", ml: 1 }}>
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </Box>
         </div>
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -91,7 +97,7 @@ const UserTopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             }
             sx={{ mr: 2, color: "#3f4346" }}
           >
-            <EventNoteIcon />
+            <EventNoteIcon sx={{ color: "#fff" }} />
           </IconButton>
           <IconButton
             ref={notificationRef}
@@ -101,7 +107,7 @@ const UserTopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
             sx={{ color: "#3f4346", mr: 2 }}
           >
             <Badge badgeContent={17} color="error">
-              <NotificationsIcon />
+              <NotificationsIcon sx={{ color: "#fff" }} />
             </Badge>
           </IconButton>
         </Box>
