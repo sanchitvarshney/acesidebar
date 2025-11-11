@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Plus, Search } from "lucide-react";
+import emailPlaceholder from "../../../assets/email.png";
 
 type TicketMessage = {
   id: string;
@@ -295,11 +296,15 @@ const initials = (value: string) =>
     .toUpperCase();
 
 const UserHomeScreen = () => {
-  const [selectedTicket, setSelectedTicket] = useState<Ticket>(mockTickets[0]);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   return (
-    <div className="w-full h-full min-h-[calc(100vh-74px)] grid grid-cols-[320px_1fr] gap-3 bg-[#f3f4f6] p-2">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+    <div className="w-full h-full min-h-[calc(100vh-74px)] flex gap-3 bg-[#f3f4f6] p-2">
+      <div
+        className={`bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden transition-all duration-300 ease-out ${
+          selectedTicket ? "w-[40%]" : "w-[70%]"
+        }`}
+      >
         <div className="flex items-center justify-between p-4">
           <div className="transition-all duration-200 w-[320px] relative">
             <div className="flex items-center w-full bg-white border border-gray-200 rounded-full px-4 py-2 shadow-sm transition-shadow focus-within:shadow-[0_1px_6px_rgba(32,33,36,0.18)] hover:shadow-[0_1px_6px_rgba(32,33,36,0.18)]">
@@ -320,12 +325,12 @@ const UserHomeScreen = () => {
             <Tooltip title="Refresh">
               <IconButton size="small">
                 <Refresh fontSize="small" />
-              </IconButton>
+            </IconButton>
             </Tooltip>
             <Tooltip title="New ticket">
               <IconButton size="small" color="primary">
                 <Plus size={18} />
-              </IconButton>
+            </IconButton>
             </Tooltip>
           </div>
         </div>
@@ -335,22 +340,24 @@ const UserHomeScreen = () => {
             {mockTickets.map((ticket) => {
               const priorityChip = getPriorityChip(ticket.priority);
               const statusChip = getStatusChip(ticket.status);
-              const isSelected = selectedTicket.id === ticket.id;
+              const isSelected = selectedTicket?.id === ticket.id;
 
               return (
                 <li
                   key={ticket.id}
-                  className={`border-b border-gray-100 last:border-b-0 bg-white ${
-                    isSelected ? "relative" : ""
-                  }`}
+                  className={`border-b border-gray-100 last:border-b-0 bg-white`}
                 >
                   <button
                     type="button"
-                    className={`w-full text-left px-4 py-3 transition-colors focus:outline-none ${
+                    className={`w-full text-left px-5 py-5 transition-all focus:outline-none ${
                       ticket.unread
                         ? "bg-[#f9fbff] hover:bg-[#eef4ff]"
                         : "bg-white hover:bg-slate-50"
-                    } ${isSelected ? "ring-1 ring-blue-200 bg-blue-50" : ""}`}
+                    } ${
+                      isSelected
+                        ? "ring-2 ring-[#00a884] bg-[#e6f7f3] scale-[0.98]"
+                        : "scale-100"
+                    }`}
                     onClick={() => setSelectedTicket(ticket)}
                   >
                     <div className="flex items-start gap-3">
@@ -418,231 +425,258 @@ const UserHomeScreen = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div>
-            <Typography variant="overline" className="tracking-wide text-gray-500">
-              {selectedTicket.id}
-            </Typography>
-            <Typography variant="h6" className="font-semibold text-gray-900">
-              {selectedTicket.subject}
-            </Typography>
-          </div>
-          <div className="flex items-center gap-1">
-            <Tooltip title="Star">
-              <IconButton size="small">
-                <Star fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Reply to requester">
-              <IconButton size="small">
-                <Reply fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Archive ticket">
-              <IconButton size="small">
-                <Archive fontSize="small" />
-            </IconButton>
-            </Tooltip>
-            <Tooltip title="Tag ticket">
-              <IconButton size="small">
-                <LabelOutlined fontSize="small" />
-            </IconButton>
-            </Tooltip>
-          </div>
-        </div>
+      <div
+        className={`bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden transition-all duration-300 ease-out ${
+          selectedTicket ? "flex-1" : "w-[30%]"
+        }`}
+      >
+        {selectedTicket ? (
+          <>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div>
+                <Typography variant="overline" className="tracking-wide text-gray-500">
+                  {selectedTicket.id}
+                </Typography>
+                <Typography variant="h6" className="font-semibold text-gray-900">
+                  {selectedTicket.subject}
+                </Typography>
+              </div>
+              <div className="flex items-center gap-1">
+                <Tooltip title="Star">
+                  <IconButton size="small">
+                    <Star fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Reply to requester">
+                  <IconButton size="small">
+                    <Reply fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Archive ticket">
+                  <IconButton size="small">
+                    <Archive fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Tag ticket">
+                  <IconButton size="small">
+                    <LabelOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </div>
 
-        <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center gap-3">
-          <Avatar
-            sx={{ width: 40, height: 40, bgcolor: "#1976d2", fontSize: "0.95rem" }}
-          >
-            {initials(selectedTicket.requester.name)}
-          </Avatar>
-          <div className="flex-1 min-w-[200px]">
-            <Typography variant="subtitle2" className="font-semibold text-gray-900">
-              {selectedTicket.requester.name}
-            </Typography>
-            <Typography variant="body2" className="text-gray-500">
-              {selectedTicket.requester.email}
-            </Typography>
-            {selectedTicket.requester.company && (
-              <Typography variant="body2" className="text-gray-500">
-                {selectedTicket.requester.company}
-              </Typography>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {selectedTicket.tags.map((tag) => (
-              <Chip key={tag} label={tag} size="small" variant="outlined" />
-            ))}
-          </div>
-          <Typography variant="body2" className="text-gray-500">
-            Updated {selectedTicket.lastUpdated}
-          </Typography>
-        </div>
-
-        <div className="px-5 py-2 border-b border-gray-100 grid grid-cols-2 gap-2 text-sm text-gray-600">
-          <div>
-            <span className="font-medium text-gray-700">Assigned agent:</span>{" "}
-            {selectedTicket.assignedTo}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Department:</span>{" "}
-            {selectedTicket.department}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Category:</span>{" "}
-            {selectedTicket.category}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Status:</span>{" "}
-            {selectedTicket.status}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Priority:</span>{" "}
-            {selectedTicket.priority}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Channel:</span>{" "}
-            {selectedTicket.channel}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">SLA due:</span>{" "}
-            {selectedTicket.slaDue}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Due date:</span>{" "}
-            {selectedTicket.createdAt}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Queue:</span>{" "}
-            {selectedTicket.queue}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Ticket type:</span>{" "}
-            {selectedTicket.type}
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto custom-scrollbar px-5 py-4 space-y-4">
-          {selectedTicket.messages.map((message) => {
-            const isAgent = message.role === "Agent" && !message.internal;
-            const isCustomer = message.role === "Customer";
-            const isInternal = message.internal || message.role === "Internal";
-
-            const alignment = isAgent
-              ? "justify-end"
-              : isInternal
-              ? "justify-center"
-              : "justify-start";
-
-            const bubbleBase =
-              "max-w-[70%] rounded-2xl border px-4 py-3 shadow-sm";
-            const bubbleTheme = isInternal
-              ? "bg-amber-50 border-amber-200"
-              : isAgent
-              ? "bg-orange-50 border-orange-200"
-              : "bg-blue-50 border-blue-200";
-            const headingColor = isInternal
-              ? "text-amber-800"
-              : isAgent
-              ? "text-orange-800"
-              : "text-blue-800";
-
-            return (
-              <div
-                key={message.id}
-                className={`flex ${alignment} items-start gap-3`}
+            <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center gap-3">
+              <Avatar
+                sx={{ width: 40, height: 40, bgcolor: "#1976d2", fontSize: "0.95rem" }}
               >
-                {isCustomer && (
-                  <Avatar
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      bgcolor: "#1d4ed8",
-                      fontSize: "0.75rem",
-                    }}
-                  >
-                    {initials(message.author)}
-                  </Avatar>
-                )}
-
-                <div className={`${bubbleBase} ${bubbleTheme}`}>
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <Typography
-                        variant="subtitle2"
-                        className={`font-semibold ${headingColor}`}
-                      >
-                        {message.author}
-                      </Typography>
-                      <Typography variant="caption" className="text-gray-500">
-                        {message.role}
-                      </Typography>
-                    </div>
-                    <Typography variant="caption" className="text-gray-500">
-                      {message.timestamp}
-                    </Typography>
-                  </div>
-                  <Typography
-                    component="pre"
-                    className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-gray-700"
-                  >
-                    {message.content}
+                {initials(selectedTicket.requester.name)}
+              </Avatar>
+              <div className="flex-1 min-w-[200px]">
+                <Typography variant="subtitle2" className="font-semibold text-gray-900">
+                  {selectedTicket.requester.name}
+                </Typography>
+                <Typography variant="body2" className="text-gray-500">
+                  {selectedTicket.requester.email}
+                </Typography>
+                {selectedTicket.requester.company && (
+                  <Typography variant="body2" className="text-gray-500">
+                    {selectedTicket.requester.company}
                   </Typography>
-                  {message.internal && (
-                    <Typography
-                      variant="caption"
-                      className="mt-3 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-amber-700"
-                    >
-                      Internal note
-                    </Typography>
-                  )}
-                </div>
-
-                {isAgent && (
-                  <Avatar
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      bgcolor: "#f97316",
-                      fontSize: "0.75rem",
-                    }}
-                  >
-                    {initials(message.author)}
-                  </Avatar>
                 )}
               </div>
-            );
-          })}
-        </div>
-
-        <Divider />
-        <div className="px-5 py-4 border-t border-gray-100 bg-gray-50">
-          <Typography variant="subtitle2" className="text-gray-600 mb-2">
-            Customer Reply
-          </Typography>
-          <div className="flex flex-col gap-3">
-            <textarea
-              rows={4}
-              className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder={`Reply to ${selectedTicket.requester.name}…`}
-            />
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button variant="outlined" size="small">
-                  Add internal note
-                </Button>
-                <Button variant="outlined" size="small">
-                  Insert macro
-                </Button>
+              <div className="flex items-center gap-2 flex-wrap">
+                {selectedTicket.tags.map((tag) => (
+                  <Chip key={tag} label={tag} size="small" variant="outlined" />
+                ))}
               </div>
-              <Button variant="contained" size="small">
-                Send reply
-              </Button>
+              <Typography variant="body2" className="text-gray-500">
+                Updated {selectedTicket.lastUpdated}
+              </Typography>
+            </div>
+
+            <div className="px-5 py-2 border-b border-gray-100 grid grid-cols-2 gap-2 text-sm text-gray-600">
+              <div>
+                <span className="font-medium text-gray-700">Assigned agent:</span>{" "}
+                {selectedTicket.assignedTo}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Department:</span>{" "}
+                {selectedTicket.department}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Category:</span>{" "}
+                {selectedTicket.category}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Status:</span>{" "}
+                {selectedTicket.status}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Priority:</span>{" "}
+                {selectedTicket.priority}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Channel:</span>{" "}
+                {selectedTicket.channel}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">SLA due:</span>{" "}
+                {selectedTicket.slaDue}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Due date:</span>{" "}
+                {selectedTicket.createdAt}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Queue:</span>{" "}
+                {selectedTicket.queue}
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Ticket type:</span>{" "}
+                {selectedTicket.type}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-5 py-4 space-y-4">
+              {selectedTicket.messages.map((message) => {
+                const isAgent = message.role === "Agent" && !message.internal;
+                const isCustomer = message.role === "Customer";
+                const isInternal = message.internal || message.role === "Internal";
+
+                const alignment = isAgent
+                  ? "justify-end"
+                  : isInternal
+                  ? "justify-center"
+                  : "justify-start";
+
+                const bubbleBase =
+                  "max-w-[70%] rounded-2xl border px-4 py-3 shadow-sm";
+                const bubbleTheme = isInternal
+                  ? "bg-amber-50 border-amber-200"
+                  : isAgent
+                  ? "bg-orange-50 border-orange-200"
+                  : "bg-blue-50 border-blue-200";
+                const headingColor = isInternal
+                  ? "text-amber-800"
+                  : isAgent
+                  ? "text-orange-800"
+                  : "text-blue-800";
+
+                return (
+                  <div
+                    key={message.id}
+                    className={`flex ${alignment} items-start gap-3`}
+                  >
+                    {isCustomer && (
+                      <Avatar
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          bgcolor: "#1d4ed8",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {initials(message.author)}
+                      </Avatar>
+                    )}
+
+                    <div className={`${bubbleBase} ${bubbleTheme}`}>
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <Typography
+                            variant="subtitle2"
+                            className={`font-semibold ${headingColor}`}
+                          >
+                            {message.author}
+                          </Typography>
+                          <Typography variant="caption" className="text-gray-500">
+                            {message.role}
+                          </Typography>
+                        </div>
+                        <Typography variant="caption" className="text-gray-500">
+                          {message.timestamp}
+                        </Typography>
+                      </div>
+                      <Typography
+                        component="pre"
+                        className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-gray-700"
+                      >
+                        {message.content}
+                      </Typography>
+                      {message.internal && (
+                        <Typography
+                          variant="caption"
+                          className="mt-3 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-amber-700"
+                        >
+                          Internal note
+                        </Typography>
+                      )}
+                    </div>
+
+                    {isAgent && (
+                      <Avatar
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          bgcolor: "#f97316",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {initials(message.author)}
+                      </Avatar>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <Divider />
+            <div className="px-5 py-4 border-t border-gray-100 bg-gray-50">
+              <Typography variant="subtitle2" className="text-gray-600 mb-2">
+                Customer Reply
+              </Typography>
+              <div className="flex flex-col gap-3">
+                <textarea
+                  rows={4}
+                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  placeholder={`Reply to ${selectedTicket.requester.name}…`}
+                />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Button variant="outlined" size="small">
+                      Add internal note
+                    </Button>
+                    <Button variant="outlined" size="small">
+                      Insert macro
+                    </Button>
+                  </div>
+                  <Button variant="contained" size="small">
+                    Send reply
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center bg-white">
+            <div className="text-center flex flex-col items-center gap-4 px-6">
+              <img
+                src={emailPlaceholder}
+                alt="Email placeholder"
+                className="w-32 h-32 object-contain"
+              />
+              <div>
+                <Typography variant="h6" className="text-gray-800">
+                  Keep your phone connected
+                </Typography>
+                <Typography variant="body2" className="text-gray-500 mt-1 max-w-sm">
+                  Select a ticket to view the full conversation. Stay connected to reply quickly
+                  and keep your workspace in sync.
+                </Typography>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
