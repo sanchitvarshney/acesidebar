@@ -298,7 +298,7 @@ const UserHomeScreen = () => {
   const [selectedTicket, setSelectedTicket] = useState<Ticket>(mockTickets[0]);
 
   return (
-    <div className="w-full h-full min-h-[calc(100vh-74px)] grid grid-cols-[2fr_3fr] gap-3 bg-[#f3f4f6] p-2">
+    <div className="w-full h-full min-h-[calc(100vh-74px)] grid grid-cols-[320px_1fr] gap-3 bg-[#f3f4f6] p-2">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-4">
           <div className="transition-all duration-200 w-[320px] relative">

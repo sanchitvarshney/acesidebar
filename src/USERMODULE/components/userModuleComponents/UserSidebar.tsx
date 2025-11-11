@@ -5,23 +5,14 @@ import {
   Box,
   IconButton,
   styled,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Typography,
   Avatar,
-  Divider,
 } from "@mui/material";
-
 import {
+  Settings,
   AssignmentTurnedIn,
   ChatBubbleOutline,
   CheckCircleOutline,
-  Inbox,
-  MailOutline,
-  Settings,
 } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 const SIDEBAR_WIDTH = 280;
@@ -56,18 +47,18 @@ const UserSidebar = () => {
   const navItems = [
     {
       label: "All tickets",
-      icon: <AssignmentTurnedIn />,
       path: "/user-module/tickets",
+    icon: AssignmentTurnedIn,
     },
     {
       label: "Chat",
-      icon: <ChatBubbleOutline />,
       path: "/user-module/chat",
+    icon: ChatBubbleOutline,
     },
     {
       label: "Tasks",
-      icon: <CheckCircleOutline />,
       path: "/user-module/todo",
+    icon: CheckCircleOutline,
     },
   ];
 
@@ -146,35 +137,38 @@ const UserSidebar = () => {
           </button>
         </Box>
 
-        <List>
+        <Box
+          sx={{
+            px: 2,
+            pb: 3,
+            mt: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
           {navItems.map((item) => {
             const active = isActive(item.path);
+            const Icon = item.icon;
             return (
-              <ListItem key={item.label} disablePadding>
-                <ListItemButton
-                  onClick={() => navigate(item.path)}
-                  sx={{
-                    borderRadius: "12px",
-                    mx: 1,
-                    my: 0.5,
-                    bgcolor: active ? "#d1d5db" : "transparent",
-                    "&:hover": {
-                      bgcolor: active ? "#c4c8cd" : "#e5e7eb",
-                    },
-                  }}
-                >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText
-                    primary={item.label}
-                    primaryTypographyProps={{
-                      fontWeight: active ? 600 : 500,
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
+              <button
+                key={item.label}
+                onClick={() => navigate(item.path)}
+                className={`w-28 h-28 rounded-3xl border-2 text-sm font-semibold tracking-wide transition-all flex items-center justify-center ${
+                  active
+                    ? "bg-[#00a884] border-[#00a884] text-white shadow-lg"
+                    : "border-slate-300 text-slate-600 hover:bg-[#00a884] hover:border-[#00a884] hover:text-white hover:shadow-lg"
+                }`}
+              >
+                <span className="flex flex-col items-center justify-center gap-2">
+                  <Icon fontSize="large" />
+                  <span>{item.label}</span>
+                </span>
+              </button>
             );
           })}
-        </List>
+        </Box>
       </Box>
     </StyledDrawer>
   );
