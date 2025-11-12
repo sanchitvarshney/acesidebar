@@ -92,6 +92,9 @@ import StaffProfile from "../USERMODULE/pages/StaffProfile";
 import EventDrawerPage from "../pages/EventDrawerPage";
 import UserMainLayout from "../USERMODULE/screens/userModules/UserMainLayout";
 import UserHomeScreen from "../USERMODULE/screens/userModules/UserHomeScreen";
+import UserChatScreen from "../USERMODULE/screens/userModules/UserChatScreen";
+import UserTodoScreen from "../USERMODULE/screens/userModules/UserTodoScreen";
+import UserSettingsScreen from "../USERMODULE/screens/userModules/UserSettingsScreen";
 
 export const router = createBrowserRouter([
   // Main App (Protected) Routes
@@ -490,6 +493,22 @@ export const router = createBrowserRouter([
       {
         path: "user-module",
         element: <UserHomeScreen />,
+      },
+      {
+        path: "chat",
+        element: <UserChatScreen />,
+      },
+      {
+        path: "todo",
+        element: <UserTodoScreen />,
+      },
+      {
+        path: "tickets",
+        element: <UserHomeScreen />,
+      },
+      {
+        path: "settings",
+        element: <UserSettingsScreen />,
       },
     ],
   },
