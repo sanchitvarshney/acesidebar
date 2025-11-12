@@ -180,7 +180,7 @@ const LeftMenu: React.FC = () => {
         height: "100%",
         minHeight: "calc(100vh - 60px)",
         overflow: "visible",
-        width: gettingStartedExpanded ? 240 : 55,
+        width: gettingStartedExpanded ? 240 : 35,
         transition: "width 0.3s ease",
         backgroundColor: "#e3ebeb",
         marginTop: "60px",
@@ -439,12 +439,18 @@ const LeftMenu: React.FC = () => {
           >
             <IconButton
               sx={{
+                backgroundColor: "#fff",
+                color: "#03363d",
+                "&:hover": {
+                  backgroundColor: "#f5f5f5",
+                },
+                boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)",
                 borderRadius: 0,
                 borderTopRightRadius: 10,
                 borderBottomRightRadius: 10,
                 position: "absolute",
                 bottom: "5%",
-                right: "35%",
+                right: "5px",
               }}
               onClick={() => setGettingStartedExpanded(true)}
             >
