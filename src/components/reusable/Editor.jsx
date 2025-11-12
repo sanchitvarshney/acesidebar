@@ -30,6 +30,7 @@ import EmailAutocomplete from "./EmailAutocomplete";
 import { useLazyGetAgentsBySeachQuery } from "../../services/agentServices";
 import { setSelectedIndex } from "../../reduxStore/Slices/shotcutSlices";
 import CloseIcon from "@mui/icons-material/Close";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
 
 const selectionsOptions = [
   {
@@ -611,7 +612,7 @@ const StackEditor = ({
               aria-label="Full Screen"
               onClick={toggleFullscreen}
             >
-              ⛶
+            <FullscreenIcon fontSize="small" />
             </button>
           </div>
         )}
@@ -880,21 +881,50 @@ const StackEditor = ({
     </div>
   );
 
-  const editorHeight = isFullscreen
-    ? "100vh"
-    : isEditorExpended
-    ? "450px"
-    : (showCc || showBcc) && currentSignature
-    ? "calc(100vh - 552px)"
-    : showCc || showBcc
-    ? "calc(100vh - 378px)"
-    : currentSignature
-    ? "calc(100vh - 513px)"
-    : selectedIndex !== "1"
-    ? "calc(100vh - 352px)"
-    : selectedIndex === "2" && selectedValue === "public"
-    ? "calc(100vh - 852px)"
-    : customHeight;
+  const baseEditorHeight = React.useMemo(() => {
+    if (selectedIndex === "2") {
+      return selectedValue === "public"
+        ? "calc(100vh - 314px)"
+        : "calc(100vh - 350px)";
+    }
+
+    if (selectedIndex === "4") {
+      return "calc(100vh - 346px)";
+    }
+
+    return customHeight;
+  }, [selectedIndex, selectedValue, customHeight]);
+
+  const editorHeight = React.useMemo(() => {
+    if (isFullscreen) {
+      return "70vh";
+    }
+
+    if (isEditorExpended) {
+      return "450px";
+    }
+
+    if ((showCc || showBcc) && currentSignature) {
+      return "calc(100vh - 552px)";
+    }
+
+    if (showCc || showBcc) {
+      return "calc(100vh - 378px)";
+    }
+
+    if (currentSignature) {
+      return "calc(100vh - 513px)";
+    }
+
+    return baseEditorHeight;
+  }, [
+    baseEditorHeight,
+    currentSignature,
+    isEditorExpended,
+    isFullscreen,
+    showBcc,
+    showCc,
+  ]);
 
   const editorPlaceholder = React.useMemo(() => {
     if (selectedIndex === "1") {

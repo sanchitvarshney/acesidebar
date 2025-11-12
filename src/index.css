@@ -160,9 +160,9 @@
 .editor-fullscreen {
   position: fixed !important;
   top: 8vh !important;
-  left: 10vh !important;
-  width: calc(100% - 12vh) !important;
-  height: calc(100% - 10vh) !important;
+  left: 85px !important;
+  width: calc(100% - 90px) !important;
+  height: calc(100% - 60px) !important;
   background: white;
   z-index: 9999 !important;
   padding: 10px;

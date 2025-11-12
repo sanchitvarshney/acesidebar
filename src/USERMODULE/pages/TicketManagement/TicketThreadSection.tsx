@@ -1262,7 +1262,7 @@ const TicketThreadSection = ({
             onToggleOptions={handleToggleOptions}
           />
         </div>
-        <div className="rounded   p-1 w-[75.8%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)">
+        <div className="rounded p-1 w-[75.8%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)" id="reply-editor-container">
           <Accordion
             elevation={0}
             expanded={showEditor || showReplyEditor || showEditorNote}
