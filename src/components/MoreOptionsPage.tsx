@@ -27,6 +27,7 @@ const MoreOptionsPage = ({
   onTicketUpdated,
   ticketNumber,
   onDrawerStateChange, // New prop to notify parent about drawer state
+  onMenuClose,
 }: any) => {
   const { showToast } = useToast();
   const [isLogTimeModal, setIsLogTimeModal] = useState(false);
@@ -42,10 +43,19 @@ const MoreOptionsPage = ({
   const [commanApi] = useCommanApiMutation();
   const [spamTicket, { isLoading: isSpamTicketLoading }] =
     useCommanApiMutation();
-  // Ensure we open the target panel first, then close the parent menu on the next tick
-  const openThenClose = (openSetter: (value: boolean) => void) => {
-    openSetter(true);
-  };
+  const handleMenuClose = React.useCallback(() => {
+    if (typeof onMenuClose === "function") {
+      onMenuClose();
+    }
+  }, [onMenuClose]);
+
+  const openThenClose = React.useCallback(
+    (openSetter: (value: boolean) => void) => {
+      openSetter(true);
+      handleMenuClose();
+    },
+    [handleMenuClose]
+  );
 
   const [editOverrides, setEditOverrides] = useState<{
     subject?: string;
@@ -74,7 +84,7 @@ const MoreOptionsPage = ({
     });
   };
 
-  const handlePrintData = (ticketId: any) => {
+  const handlePrintData = React.useCallback((ticketId: any) => {
     if (!ticketId || ticketId === "") {
       return;
     }
@@ -83,7 +93,7 @@ const MoreOptionsPage = ({
       method: "GET",
     };
     commanApi(payload);
-  };
+  }, [commanApi]);
 
   const effectiveSubject = editOverrides.subject ?? ticket?.subject;
   const effectiveDescription = editOverrides.description ?? ticket?.body;
@@ -101,17 +111,17 @@ const MoreOptionsPage = ({
   useEffect(() => {
     onDrawerStateChange && onDrawerStateChange(isAnyDrawerOpen);
   }, [isAnyDrawerOpen, onDrawerStateChange]);
-  const moreOptions = [
-    {
-      id: "change-owner",
-      title: "Change Owner",
-      // description: "Transfer ticket ownership",
-      icon: <PersonAddAlt1Icon sx={{ color: "#1a73e8" }} />,
-      iconBg: "#dbeafe",
-      onClick: () => {
-        openThenClose(setIsChangeOwnerModal);
+  const moreOptions = React.useMemo(
+    () => [
+      {
+        id: "change-owner",
+        title: "Change Owner",
+        icon: <PersonAddAlt1Icon sx={{ color: "#1a73e8" }} />,
+        iconBg: "#dbeafe",
+        onClick: () => {
+          openThenClose(setIsChangeOwnerModal);
+        },
       },
-    },
     {
       id: "edit-ticket",
       title: "Edit Ticket",
@@ -182,15 +192,19 @@ const MoreOptionsPage = ({
         openThenClose(setIsSpamModal);
       },
     },
-    {
-      id: "print",
-      title: "Print",
-      // description: "Print ticket details",
-      icon: <LocalPrintshopIcon sx={{ color: "#0ea5e9" }} />,
-      iconBg: "#f0f9ff",
-      onClick: () => handlePrintData(ticketNumber),
-    },
-  ];
+      {
+        id: "print",
+        title: "Print",
+        icon: <LocalPrintshopIcon sx={{ color: "#0ea5e9" }} />,
+        iconBg: "#f0f9ff",
+        onClick: () => {
+          handleMenuClose();
+          handlePrintData(ticketNumber);
+        },
+      },
+    ],
+    [handleMenuClose, handlePrintData, openThenClose, spamValue]
+  );
 
   useEffect(() => {
     if (ticket?.isSpam) {
@@ -299,15 +313,17 @@ const MoreOptionsPage = ({
         }
         width={600}
       >
-        <LinkTickets
-          open={isLinkModal}
-          onClose={() => setIsLinkModal(false)}
-          currentTicket={{
-            id: ticket?.ticketId,
-            title: ticket?.subject,
-            subject: ticket?.subject,
-          }}
-        />
+        {isLinkModal ? (
+          <LinkTickets
+            open={isLinkModal}
+            onClose={() => setIsLinkModal(false)}
+            currentTicket={{
+              id: ticket?.ticketId,
+              title: ticket?.subject,
+              subject: ticket?.subject,
+            }}
+          />
+        ) : null}
       </CustomSideBarPanel>
 
       <CustomSideBarPanel
@@ -323,13 +339,15 @@ const MoreOptionsPage = ({
         }
         width={600}
       >
-        <LogTimePanel
-          open={isLogTimeModal}
-          onClose={() => {
-            setIsLogTimeModal(false);
-          }}
-          ticketId={ticketNumber}
-        />
+        {isLogTimeModal ? (
+          <LogTimePanel
+            open={isLogTimeModal}
+            onClose={() => {
+              setIsLogTimeModal(false);
+            }}
+            ticketId={ticketNumber}
+          />
+        ) : null}
       </CustomSideBarPanel>
 
       <CustomSideBarPanel
@@ -348,34 +366,36 @@ const MoreOptionsPage = ({
         }
         width={600}
       >
-        <EditTicket
-          open={isEditTicket}
-          onClose={() => {
-            setIsEditTicket(false);
-          }}
-          ticket={{
-            subject: effectiveSubject,
-            description: effectiveDescription,
-            client: {
-              id: ticket?.userID,
-              name: ticket?.username,
-              email: ticket?.email,
-            },
-            ticketId: ticket?.ticketId,
-          }}
-          onUpdated={(updated: any) => {
-            try {
-              setEditOverrides({
-                subject: updated?.subject,
-                description: updated?.description,
-              });
-              // Bubble up if parent wants to sync global state
-              onTicketUpdated && onTicketUpdated(updated);
-            } catch (_) {
-              // optional callback
-            }
-          }}
-        />
+        {isEditTicket ? (
+          <EditTicket
+            open={isEditTicket}
+            onClose={() => {
+              setIsEditTicket(false);
+            }}
+            ticket={{
+              subject: effectiveSubject,
+              description: effectiveDescription,
+              client: {
+                id: ticket?.userID,
+                name: ticket?.username,
+                email: ticket?.email,
+              },
+              ticketId: ticket?.ticketId,
+            }}
+            onUpdated={(updated: any) => {
+              try {
+                setEditOverrides({
+                  subject: updated?.subject,
+                  description: updated?.description,
+                });
+                // Bubble up if parent wants to sync global state
+                onTicketUpdated && onTicketUpdated(updated);
+              } catch (_) {
+                // optional callback
+              }
+            }}
+          />
+        ) : null}
       </CustomSideBarPanel>
 
       {/* Change Owner Panel */}
@@ -394,18 +414,20 @@ const MoreOptionsPage = ({
         }
         width={600}
       >
-        <ChangeOwner
-          open={isChangeOwnerModal}
-          onClose={() => {
-            setIsChangeOwnerModal(false);
-          }}
-          ticketId={ticketNumber}
-          currentOwner={{
-            id: ticket?.assignor?.userID,
-            name: ticket?.assignor?.name,
-            email: ticket?.email,
-          }}
-        />
+        {isChangeOwnerModal ? (
+          <ChangeOwner
+            open={isChangeOwnerModal}
+            onClose={() => {
+              setIsChangeOwnerModal(false);
+            }}
+            ticketId={ticketNumber}
+            currentOwner={{
+              id: ticket?.assignor?.userID,
+              name: ticket?.assignor?.name,
+              email: ticket?.email,
+            }}
+          />
+        ) : null}
       </CustomSideBarPanel>
 
       {/* Manage Referrals Panel */}
@@ -424,16 +446,18 @@ const MoreOptionsPage = ({
         }
         width={700}
       >
-        <ManageReferrals
-          open={isManageReferralsModal}
-          onClose={() => {
-            setIsManageReferralsModal(false);
-          }}
-          ticket={{
-            id: ticket?.ticketId,
-            status: ticket?.status?.key,
-          }}
-        />
+        {isManageReferralsModal ? (
+          <ManageReferrals
+            open={isManageReferralsModal}
+            onClose={() => {
+              setIsManageReferralsModal(false);
+            }}
+            ticket={{
+              id: ticket?.ticketId,
+              status: ticket?.status?.key,
+            }}
+          />
+        ) : null}
       </CustomSideBarPanel>
 
       {/* Attachments Panel */}
@@ -452,13 +476,15 @@ const MoreOptionsPage = ({
         }
         width={800}
       >
-        <Attachments
-          open={isAttachmentsModal}
-          onClose={() => {
-            setIsAttachmentsModal(false);
-          }}
-          ticketId={ticketNumber}
-        />
+        {isAttachmentsModal ? (
+          <Attachments
+            open={isAttachmentsModal}
+            onClose={() => {
+              setIsAttachmentsModal(false);
+            }}
+            ticketId={ticketNumber}
+          />
+        ) : null}
       </CustomSideBarPanel>
 
       {/* Activity Panel */}
@@ -477,13 +503,15 @@ const MoreOptionsPage = ({
         }
         width={900}
       >
-        <Activity
-          open={isActivityModal}
-          onClose={() => {
-            setIsActivityModal(false);
-          }}
-          ticketId={ticketNumber}
-        />
+        {isActivityModal ? (
+          <Activity
+            open={isActivityModal}
+            onClose={() => {
+              setIsActivityModal(false);
+            }}
+            ticketId={ticketNumber}
+          />
+        ) : null}
       </CustomSideBarPanel>
       <ConfirmationModal
         open={isSpamModal}
