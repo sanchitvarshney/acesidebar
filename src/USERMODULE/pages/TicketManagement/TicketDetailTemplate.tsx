@@ -631,13 +631,13 @@ const TicketDetailTemplate = () => {
                             });
                           } catch (_) {}
                         }}
-                        close={handleMoreClose}
-                        openMoreOptions={openMoreOptions}
+                        onMenuClose={handleMoreClose}
                       />
                     }
                     slotProps={{
                       popper: {
                         disablePortal: true,
+                        keepMounted: true,
                       },
                       tooltip: {
                         sx: {
