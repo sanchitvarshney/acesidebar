@@ -1247,7 +1247,6 @@ const TicketThreadSection = ({
     }
   }, [showEditorNote, showReplyEditor]);
 
-
   return (
     <div className="flex flex-col gap-2  w-full h-[100%]  overflow-hidden border border-r-2 border-[#e0e0e0]">
       <div className="w-full p-2 ">
@@ -1503,7 +1502,7 @@ const TicketThreadSection = ({
                       setImages([]);
                     }}
                     sx={{
-                      backgroundColor: "#e5e7eb", // Tailwind: bg-gray-200
+                      backgroundColor: "#e5e7eb", 
                       color: "#374151", // Tailwind: text-gray-700
                       fontWeight: 600,
                       fontSize: "0.875rem", // text-sm
@@ -1517,8 +1516,16 @@ const TicketThreadSection = ({
                     Reset
                   </Button>
 
-                  <CustomToolTip title={<Typography variant="subtitle2" sx={{color:"#fff", px:1, py:0.6}} >{`Submit as ${header?.status?.name}`}</Typography>} bg="#000000b2">
-  <Button
+                  <CustomToolTip
+                    title={
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ color: "#fff", px: 1, py: 0.6 }}
+                      >{`Submit as ${header?.status?.name}`}</Typography>
+                    }
+                    bg="#000000b2"
+                  >
+                    <Button
                       onClick={handleSave}
                       disabled={threadLoading}
                       sx={{
@@ -1527,7 +1534,7 @@ const TicketThreadSection = ({
                         fontWeight: 600,
                         fontSize: "0.875rem",
                         padding: "6px 16px",
-                         borderRadius: "0.375rem",
+                        borderRadius: "0.375rem",
                         "&:hover": {
                           backgroundColor: "#4b5563",
                         },
@@ -1544,8 +1551,6 @@ const TicketThreadSection = ({
                       )}
                     </Button>
                   </CustomToolTip>
-                  
-                
 
                   {/* Status Dropdown Menu */}
                   <Menu

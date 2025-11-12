@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { Plus, Search } from "lucide-react";
 import emailPlaceholder from "../../../assets/email.png";
+import { AnimatePresence, motion } from "framer-motion";
 
 type TicketMessage = {
   id: string;
@@ -300,6 +301,7 @@ const UserHomeScreen = () => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [sortedTickets, setSortedTickets] = useState(mockTickets);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isOpenReply, setIsOpenReply] = useState(false);
   const filteredTickets = useMemo(() => {
     return sortedTickets.filter((ticket) => {
       const q = searchQuery.toLowerCase();
@@ -499,7 +501,7 @@ const UserHomeScreen = () => {
               </div>
               <div className="flex items-center gap-1">
                 <Tooltip title="Reply to requester">
-                  <IconButton size="small">
+                  <IconButton size="small" onClick={()=>setIsOpenReply(!isOpenReply)}>
                     <Reply fontSize="small" />
                   </IconButton>
                 </Tooltip>
@@ -702,7 +704,17 @@ const UserHomeScreen = () => {
               </div>
             </div>
             <Divider />
-            <div className="px-5 py-4 border-t border-gray-100 bg-gray-50">
+            <AnimatePresence initial={false}>
+              {isOpenReply && (
+                <motion.div
+                  key="reply-box"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                <div className="px-5 py-4 border-t border-gray-100 bg-gray-50">
               <Typography variant="subtitle2" className="text-gray-600 mb-2">
                 Customer Reply
               </Typography>
@@ -712,21 +724,12 @@ const UserHomeScreen = () => {
                   className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                   placeholder={`Reply to ${selectedTicket.requester.name}…`}
                 />
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Button variant="outlined" size="small">
-                      Add internal note
-                    </Button>
-                    <Button variant="outlined" size="small">
-                      Insert macro
-                    </Button>
-                  </div>
-                  <Button variant="contained" size="small">
-                    Send reply
-                  </Button>
-                </div>
-              </div>
+             
             </div>
+            </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-white">
