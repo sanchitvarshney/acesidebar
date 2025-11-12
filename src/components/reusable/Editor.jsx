@@ -780,7 +780,7 @@ const StackEditor = ({
           </div>
         </>
       ) : selectedIndex === "4" ? (
-        <div className="w-full flex flex-col gap-2">
+        <div className="w-full flex  gap-2">
           <div className="w-full flex flex-wrap items-center gap-2">
             <span className="font-semibold text-gray-600 text-sm">To:</span>
             <EmailAutocomplete

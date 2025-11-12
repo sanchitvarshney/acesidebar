@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Box, Zoom } from "@mui/material";
 import { Apps, AddTask, More } from "@mui/icons-material";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
@@ -96,6 +96,7 @@ const TicketDetailTemplate = () => {
   const [showEditorNote, setShowEditorNote] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
+  const anchorRef = useRef<HTMLButtonElement | null>(null);
   const [expandedAccordion, setExpandedAccordion] = React.useState<
     string | null
   >("customer");
@@ -116,6 +117,7 @@ const TicketDetailTemplate = () => {
     const body = headerOverride?.description ?? base?.body;
     return { ...base, subject, description, body };
   }, [ticket, headerOverride]);
+ 
 
   const [triggerForward] = useCommanApiMutation();
 
@@ -527,16 +529,7 @@ const TicketDetailTemplate = () => {
                       </div>
                     </div>
 
-                    {/* Fixed Chat Input Area - Bottom */}
-                    {/* <div
-                    style={{
-                      
-                      padding: "10px",
-                      backgroundColor: "white",
-                      borderTop: "1px solid #e0e0e0",
-                      zIndex: 1000,
-                    }}
-                  > */}
+                  
                     <div
                       style={{
                         display: "flex",
@@ -668,7 +661,7 @@ const TicketDetailTemplate = () => {
                     arrow
                     placement="left"
                   >
-                    {/* <Tooltip title="More" placement="left"> */}
+                 
                     <button
                       onClick={handleMoreOpen}
                       style={{
