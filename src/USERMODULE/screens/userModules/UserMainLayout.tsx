@@ -23,7 +23,7 @@ const Main = styled("main", {
     duration: theme.transitions.duration.leavingScreen,
   }),
 
-  backgroundColor: "#fff",
+  backgroundColor: "#f3f4f6",
   width: "100%",
   height: "100%",
   overflow: "auto",
@@ -62,7 +62,7 @@ const Main = styled("main", {
 
 const MainContent = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(8),
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: "#f3f4f6",
   borderRadius: theme.shape.borderRadius,
   overflow: "auto",
 }));

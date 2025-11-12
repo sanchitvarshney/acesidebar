@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Box, Zoom } from "@mui/material";
+import { Box, Grow, Zoom } from "@mui/material";
 import { Apps, AddTask, More } from "@mui/icons-material";
 import CustomSideBarPanel from "../../../components/reusable/CustomSideBarPanel";
 import Tasks from "../task/Tasks";
@@ -42,7 +42,7 @@ const TicketDetailTemplate = () => {
   };
 
   const handleMoreOpen = () => {
-    setOpenMoreOptions(p=>!p);
+    setOpenMoreOptions((p) => !p);
   };
   const { data: ticket, isFetching: isTicketDetailLoading } =
     useGetTicketDetailStaffViewQuery(
@@ -117,7 +117,6 @@ const TicketDetailTemplate = () => {
     const body = headerOverride?.description ?? base?.body;
     return { ...base, subject, description, body };
   }, [ticket, headerOverride]);
- 
 
   const [triggerForward] = useCommanApiMutation();
 
@@ -529,7 +528,6 @@ const TicketDetailTemplate = () => {
                       </div>
                     </div>
 
-                  
                     <div
                       style={{
                         display: "flex",
@@ -615,7 +613,7 @@ const TicketDetailTemplate = () => {
                     disableHoverListener
                     disableTouchListener
                     slots={{
-                      transition: Zoom,
+                      transition: Grow,
                     }}
                     sx={{
                       backgroundColor: "#fff",
@@ -661,7 +659,6 @@ const TicketDetailTemplate = () => {
                     arrow
                     placement="left"
                   >
-                 
                     <button
                       onClick={handleMoreOpen}
                       style={{
@@ -674,7 +671,6 @@ const TicketDetailTemplate = () => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        transition: "all 0.2s ease",
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = "#e8eaec";

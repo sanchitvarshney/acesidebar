@@ -38,7 +38,6 @@ const StyledDrawer = styled(Drawer, {
   },
 }));
 
-
 const UserSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,17 +47,17 @@ const UserSidebar = () => {
     {
       label: "All tickets",
       path: "/user-module/tickets",
-    icon: AssignmentTurnedIn,
+      icon: AssignmentTurnedIn,
     },
-    {
-      label: "Chat",
-      path: "/user-module/chat",
-    icon: ChatBubbleOutline,
-    },
+    // {
+    //   label: "Chat",
+    //   path: "/user-module/chat",
+    // icon: ChatBubbleOutline,
+    // },
     {
       label: "Tasks",
       path: "/user-module/todo",
-    icon: CheckCircleOutline,
+      icon: CheckCircleOutline,
     },
   ];
 
@@ -108,7 +107,10 @@ const UserSidebar = () => {
               <Typography variant="subtitle1">name</Typography>
               <Typography variant="body2">email</Typography>
             </div>
-            <IconButton size="small" onClick={() => navigate("/user-module/settings")}>
+            <IconButton
+              size="small"
+              onClick={() => navigate("/user-module/settings")}
+            >
               <Settings fontSize="small" sx={{ color: "#fff" }} />
             </IconButton>
           </div>{" "}

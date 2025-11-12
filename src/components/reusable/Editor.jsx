@@ -3,7 +3,7 @@ import { Editor } from "primereact/editor";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CheckIcon from "@mui/icons-material/Check";
 import ReplyIcon from "@mui/icons-material/Reply";
-import FlakyIcon from '@mui/icons-material/Flaky';
+import FlakyIcon from "@mui/icons-material/Flaky";
 import PrivateConnectivityIcon from "@mui/icons-material/PrivateConnectivity";
 import PublicIcon from "@mui/icons-material/Public";
 import { useDispatch, useSelector } from "react-redux";
@@ -84,7 +84,7 @@ const StackEditor = ({
     customHeight = "calc(100vh - 342px)",
     handleChangeValue,
     selectedValue,
-    changeNotify = () => { },
+    changeNotify = () => {},
     notifyTag = [],
 
     ticketData,
@@ -211,7 +211,7 @@ const StackEditor = ({
         setTimeout(() => {
           try {
             inputEl.focus();
-          } catch (e) { }
+          } catch (e) {}
         }, 200);
       }
     }
@@ -350,7 +350,7 @@ const StackEditor = ({
       if (!imageElement) return;
       // imageElement.style.width = `${IMAGE_DEFAULT_WIDTH}%`;
       imageElement.style.maxWidth = `${IMAGE_DEFAULT_WIDTH}%`;
-    } catch (_) { }
+    } catch (_) {}
   };
 
   const setImageSizeByUrl = (quillInstance, imageUrl) => {
@@ -361,12 +361,12 @@ const StackEditor = ({
       imgs
         .filter((img) => (img?.src || "") === imageUrl)
         .forEach((img) => setImageElementSize(img));
-    } catch (_) { }
+    } catch (_) {}
   };
 
   // Handle paste images into editor: upload then insert URL
   useEffect(() => {
-    let removeListener = () => { };
+    let removeListener = () => {};
     let cancelled = false;
     let pasteInProgress = false;
 
@@ -399,7 +399,7 @@ const StackEditor = ({
             // Remove the base64 image if upload fails
             try {
               img.remove();
-            } catch (_) { }
+            } catch (_) {}
             showToast(err?.message || "Failed to upload pasted image", "error");
           }
         }
@@ -432,11 +432,11 @@ const StackEditor = ({
           event.preventDefault();
           try {
             event.stopPropagation();
-          } catch (_) { }
+          } catch (_) {}
           try {
             if (typeof event.stopImmediatePropagation === "function")
               event.stopImmediatePropagation();
-          } catch (_) { }
+          } catch (_) {}
           pasteInProgress = true;
           if (!process.env.REACT_APP_API_URL) {
             showToast("Missing API URL configuration", "error");
@@ -468,7 +468,7 @@ const StackEditor = ({
               dataImgs.forEach((img) => {
                 try {
                   img.remove();
-                } catch (_) { }
+                } catch (_) {}
               });
               showToast(err?.message || "Failed to upload image", "error");
             }
@@ -650,7 +650,9 @@ const StackEditor = ({
         <span className="text-sm  ">Email: {ticketData?.assignee?.email}</span>
       ) : selectedIndex === "4" ? (
         <div className="flex flex-col leading-tight">
-          <span className="text-sm font-medium text-gray-700">Need Approval</span>
+          <span className="text-sm font-medium text-gray-700">
+            Need Approval
+          </span>
           <span className="text-xs text-gray-500">Only visible to you</span>
         </div>
       ) : (
@@ -881,22 +883,25 @@ const StackEditor = ({
   const editorHeight = isFullscreen
     ? "100vh"
     : isEditorExpended
-      ? "450px"
-      : (showCc || showBcc) && currentSignature
-        ? "calc(100vh - 552px)"
-        : showCc || showBcc
-          ? "calc(100vh - 378px)"
-          : currentSignature
-            ? "calc(100vh - 513px)"
-            : selectedIndex !== "1"
-              ? "calc(100vh - 352px)"
-              : customHeight;
+    ? "450px"
+    : (showCc || showBcc) && currentSignature
+    ? "calc(100vh - 552px)"
+    : showCc || showBcc
+    ? "calc(100vh - 378px)"
+    : currentSignature
+    ? "calc(100vh - 513px)"
+    : selectedIndex !== "1"
+    ? "calc(100vh - 352px)"
+    : selectedIndex === "2" && selectedValue === "public"
+    ? "calc(100vh - 852px)"
+    : customHeight;
 
   const editorPlaceholder = React.useMemo(() => {
     if (selectedIndex === "1") {
       return "Reply to the customer...";
     }
     if (selectedIndex === "2") {
+      setOptionChangeKey((prevKey) => prevKey + 1);
       return selectedValue === "private"
         ? "Add a private note (that will be not visible to customer only to your team)"
         : "Add a public note (that will be visible to the customer)";
@@ -911,8 +916,8 @@ const StackEditor = ({
     selectedIndex === "4"
       ? "#ecf9f9"
       : selectedValue === "private"
-        ? "#fff3cd"
-        : "transparent";
+      ? "#fff3cd"
+      : "transparent";
 
   return (
     <div
@@ -941,7 +946,7 @@ const StackEditor = ({
                 title={renderToolTipComponent}
                 placement="bottom-start"
                 open={isOptionsOpen}
-              // close={() => setIsOptionsOpen(false)}
+                // close={() => setIsOptionsOpen(false)}
               >
                 <span
                   onClick={() => setIsOptionsOpen(true)}
@@ -1086,8 +1091,6 @@ const StackEditor = ({
         />
       )}
     </div>
-
-    // </div>
   );
 };
 

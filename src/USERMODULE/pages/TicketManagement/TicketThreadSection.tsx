@@ -1247,6 +1247,7 @@ const TicketThreadSection = ({
     }
   }, [showEditorNote, showReplyEditor]);
 
+
   return (
     <div className="flex flex-col gap-2  w-full h-[100%]  overflow-hidden border border-r-2 border-[#e0e0e0]">
       <div className="w-full p-2 ">
@@ -1413,7 +1414,7 @@ const TicketThreadSection = ({
                     </Select>
                   </FormControl>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 ">
                     {images?.length > 0 && (
                       <CustomToolTip
                         title={
@@ -1489,7 +1490,7 @@ const TicketThreadSection = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mx-2">
                   <Button
                     variant="contained"
                     onClick={() => {
@@ -1516,17 +1517,8 @@ const TicketThreadSection = ({
                     Reset
                   </Button>
 
-                  {/* Split Button */}
-                  <ButtonGroup
-                    variant="contained"
-                    sx={{
-                      "& .MuiButtonGroup-grouped": {
-                        border: "none",
-                      },
-                    }}
-                  >
-                    {/* Main Save Button */}
-                    <Button
+                  <CustomToolTip title={<Typography variant="subtitle2" sx={{color:"#fff", px:1, py:0.6}} >{`Submit as ${header?.status?.name}`}</Typography>} bg="#000000b2">
+  <Button
                       onClick={handleSave}
                       disabled={threadLoading}
                       sx={{
@@ -1535,10 +1527,7 @@ const TicketThreadSection = ({
                         fontWeight: 600,
                         fontSize: "0.875rem",
                         padding: "6px 16px",
-                        borderTopLeftRadius: "0.375rem",
-                        borderBottomLeftRadius: "0.375rem",
-                        borderTopRightRadius: 0,
-                        borderBottomRightRadius: 0,
+                         borderRadius: "0.375rem",
                         "&:hover": {
                           backgroundColor: "#4b5563",
                         },
@@ -1551,44 +1540,12 @@ const TicketThreadSection = ({
                       {threadLoading ? (
                         <CircularProgress size={16} color="inherit" />
                       ) : (
-                        selectedButtonText
+                        "Submit"
                       )}
                     </Button>
-                    {/* Dropdown Button */}
-                    <Tooltip title="Select status" arrow>
-                      <Button
-                        onClick={(e) => {
-                          setStatusMenuAnchorEl(e.currentTarget);
-                          setIsReplyStatusOpen(true);
-                        }}
-                        disabled={threadLoading}
-                        sx={{
-                          backgroundColor: "#374151",
-                          color: "white",
-                          minWidth: "40px",
-                          padding: "6px 8px",
-                          borderTopRightRadius: "0.375rem",
-                          borderBottomRightRadius: "0.375rem",
-                          borderTopLeftRadius: 0,
-                          borderBottomLeftRadius: 0,
-                          borderLeft: "1px solid rgba(255, 255, 255, 0.2)",
-                          "&:hover": {
-                            backgroundColor: "#4b5563",
-                          },
-                          "&:focus": {
-                            outline: "1px solid #3b82f6",
-                            outlineOffset: "-1px",
-                          },
-                          "&:disabled": {
-                            backgroundColor: "#374151",
-                            opacity: 0.7,
-                          },
-                        }}
-                      >
-                        <ArrowDropDownIcon sx={{ fontSize: "1.2rem" }} />
-                      </Button>
-                    </Tooltip>
-                  </ButtonGroup>
+                  </CustomToolTip>
+                  
+                
 
                   {/* Status Dropdown Menu */}
                   <Menu

@@ -11,7 +11,8 @@ interface CustomizedTooltipProps {
   open?: boolean;
   close?: any;
   disableHoverListener?: boolean;
-  width?: string | number
+  width?: string | number;
+  bg?: string;
 }
 
 const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -20,15 +21,13 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
     arrow
     TransitionComponent={Fade}
     TransitionProps={{ timeout: 200 }}
-    classes={{ popper: className, }}
+    classes={{ popper: className }}
   />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.arrow}`]: {
-    color: "#fff",
     filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.08))",
   },
   [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "#fff",
     transition: "opacity 0.2s ease-in-out",
     filter: "drop-shadow(0px 2px 2px rgba(214, 214, 214, 0.8))",
     padding: 0,
@@ -46,7 +45,8 @@ const CustomToolTip: FC<CustomizedTooltipProps> = ({
   open,
   close,
   disableHoverListener = false,
-  width
+  width,
+  bg = "#fff",
 }) => {
   return (
     <BootstrapTooltip
@@ -61,10 +61,13 @@ const CustomToolTip: FC<CustomizedTooltipProps> = ({
           [`& .${tooltipClasses.tooltip}`]: {
             width: width || "auto",
             maxWidth: "none",
+            backgroundColor: bg,
+          },
+          [`& .${tooltipClasses.arrow}`]: {
+            color: bg,
           },
         },
       }}
-
     >
       {children}
     </BootstrapTooltip>

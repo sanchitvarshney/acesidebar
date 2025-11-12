@@ -491,10 +491,6 @@ export const router = createBrowserRouter([
         element: <UserHomeScreen />,
       },
       {
-        path: "user-module",
-        element: <UserHomeScreen />,
-      },
-      {
         path: "chat",
         element: <UserChatScreen />,
       },

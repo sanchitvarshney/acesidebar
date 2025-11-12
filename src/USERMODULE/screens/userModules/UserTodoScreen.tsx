@@ -1,5 +1,13 @@
-import { FormEvent, useMemo, useState } from "react";
-import { Calendar, CheckCircle2, Circle, Plus, Search, Trash2 } from "lucide-react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Calendar,
+  CheckCircle2,
+  Circle,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 type TodoStatus = "pending" | "completed";
 
@@ -16,7 +24,8 @@ const initialTodos: Todo[] = [
   {
     id: "todo-1",
     title: "Follow up with Andrea on billing ticket",
-    description: "Confirm the credit memo was issued and send update to customer.",
+    description:
+      "Confirm the credit memo was issued and send update to customer.",
     status: "pending",
     dueDate: "Today, 4:30 PM",
     createdAt: "2025-11-09",
@@ -64,7 +73,9 @@ const UserTodoScreen = () => {
   }, [todos, filter, search]);
 
   const pendingCount = todos.filter((todo) => todo.status === "pending").length;
-  const completedCount = todos.filter((todo) => todo.status === "completed").length;
+  const completedCount = todos.filter(
+    (todo) => todo.status === "completed"
+  ).length;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -84,7 +95,10 @@ const UserTodoScreen = () => {
     setTodos((prev) =>
       prev.map((todo) =>
         todo.id === id
-          ? { ...todo, status: todo.status === "pending" ? "completed" : "pending" }
+          ? {
+              ...todo,
+              status: todo.status === "pending" ? "completed" : "pending",
+            }
           : todo
       )
     );
@@ -99,22 +113,26 @@ const UserTodoScreen = () => {
     month: "long",
     day: "numeric",
   });
+  const { scrollY,  } = useScroll();
+  const y = useTransform(scrollY, [0, 80], [0, -30]); 
+  const opacity = useTransform(scrollY, [0, 80], [1, 0.95]);
+
+
+
 
   return (
     <div className="w-full h-full min-h-[calc(100vh-74px)] bg-slate-100 flex flex-col overflow-hidden">
       <header className="px-8 py-6 border-b border-slate-200 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-wide text-slate-500">To-do</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Personal checklist</h1>
+          <p className="text-sm uppercase tracking-wide text-slate-500">
+            To-do
+          </p>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Personal checklist
+          </h1>
           <p className="text-sm text-slate-500 mt-1">{todayLabel}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-sm">
-          <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600">
-            Pending <span className="font-semibold">{pendingCount}</span>
-          </span>
-          <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600">
-            Completed <span className="font-semibold">{completedCount}</span>
-          </span>
           <div className="flex items-center bg-white border border-slate-200 rounded-full px-3 py-1.5">
             <Search size={16} className="text-slate-400 mr-2" />
             <input
@@ -126,72 +144,94 @@ const UserTodoScreen = () => {
           </div>
         </div>
       </header>
+  
 
-      <main className="flex-1 overflow-y-auto px-6 sm:px-10 py-6">
+      <main  className="flex-1 overflow-y-auto px-6 sm:px-10 py-6">
         <section className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <form onSubmit={handleSubmit} className="border-b border-slate-200 px-6 py-6 space-y-4">
-            <div className="flex items-start gap-3">
-              <button
-                type="submit"
-                className="mt-1 h-11 w-11 rounded-full bg-[#00a884] text-white flex items-center justify-center shadow hover:bg-[#008f72] transition"
-                title="Add todo"
-              >
-                <Plus size={20} />
-              </button>
-              <div className="flex-1 space-y-3">
-                <div>
-                  <input
-                    className="w-full text-base font-medium text-slate-900 bg-transparent border-none outline-none placeholder:text-slate-400"
-                    placeholder="What do you need to do?"
-                    value={draft.title}
-                    onChange={(e) => setDraft((prev) => ({ ...prev, title: e.target.value }))}
-                  />
-                  <textarea
-                    className="mt-2 w-full text-sm text-slate-600 bg-transparent border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#00a884]/20 focus:border-[#00a884]"
-                    placeholder="Optional: add notes or context…"
-                    rows={2}
-                    value={draft.description}
-                    onChange={(e) =>
-                      setDraft((prev) => ({ ...prev, description: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <label className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-slate-200 text-slate-500 hover:border-[#00a884]">
-                    <Calendar size={14} />
+            <div className="px-6 py-[6px] border-b border-slate-100">
+          <motion.div
+            style={{ y, opacity, }}
+            className="sticky top-0 z-20 bg-white border-b border-slate-200 w-full shadow-sm transition-all"
+          >
+             
+            <form
+              onSubmit={handleSubmit}
+              className="border-b border-slate-200 px-6 py-6 space-y-4"
+            >
+              <div className="flex items-start gap-3">
+                <button
+                  type="submit"
+                  className="mt-1 h-11 w-11 rounded-full bg-[#00a884] text-white flex items-center justify-center shadow hover:bg-[#008f72] transition"
+                  title="Add todo"
+                >
+                  <Plus size={20} />
+                </button>
+                <div className="flex-1 space-y-3">
+                  <div>
                     <input
-                      type="text"
-                      className="bg-transparent border-none outline-none w-32 text-xs"
-                      placeholder="Due date"
-                      value={draft.dueDate ?? ""}
-                      onChange={(e) => setDraft((prev) => ({ ...prev, dueDate: e.target.value }))}
+                      className="w-full text-base font-medium text-slate-900 bg-transparent border-none outline-none placeholder:text-slate-400"
+                      placeholder="What do you need to do?"
+                      value={draft.title}
+                      onChange={(e) =>
+                        setDraft((prev) => ({ ...prev, title: e.target.value }))
+                      }
                     />
-                  </label>
+                    <textarea
+                      className="mt-2 w-full text-sm text-slate-600 bg-transparent border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#00a884]/20 focus:border-[#00a884]"
+                      placeholder="Optional: add notes or context…"
+                      rows={2}
+                      value={draft.description}
+                      onChange={(e) =>
+                        setDraft((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-slate-200 text-slate-500 hover:border-[#00a884]">
+                      <Calendar size={14} />
+                      <input
+                        type="text"
+                        className="bg-transparent border-none outline-none w-32 text-xs"
+                        placeholder="Due date"
+                        value={draft.dueDate ?? ""}
+                        onChange={(e) =>
+                          setDraft((prev) => ({
+                            ...prev,
+                            dueDate: e.target.value,
+                          }))
+                        }
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
+            </form>
+
+            <div className="px-6 py-4 flex items-center gap-2 text-sm border-b border-slate-200">
+              {(["all", "pending", "completed"] as const).map((value) => (
+                <button
+                  key={value}
+                  className={`px-3 py-1.5 rounded-full transition text-sm ${
+                    filter === value
+                      ? "bg-[#e6f7f3] text-[#005f4f] font-medium"
+                      : "text-slate-500 hover:bg-slate-100"
+                  }`}
+                  onClick={() => setFilter(value)}
+                >
+                  {value === "all"
+                    ? "All"
+                    : value === "pending"
+                    ? "Pending"
+                    : "Completed"}
+                </button>
+              ))}
             </div>
-          </form>
-
-          <div className="px-6 py-4 flex items-center gap-2 text-sm border-b border-slate-200">
-            {(["all", "pending", "completed"] as const).map((value) => (
-              <button
-                key={value}
-                className={`px-3 py-1.5 rounded-full transition text-sm ${
-                  filter === value
-                    ? "bg-[#e6f7f3] text-[#005f4f] font-medium"
-                    : "text-slate-500 hover:bg-slate-100"
-                }`}
-                onClick={() => setFilter(value)}
-              >
-                {value === "all"
-                  ? "All"
-                  : value === "pending"
-                  ? "Pending"
-                  : "Completed"}
-              </button>
-            ))}
-          </div>
-
+          
+          </motion.div>
+            </div>
           <ul className="divide-y divide-slate-200">
             {filteredTodos.length === 0 && (
               <li className="px-6 py-10 text-center text-slate-400 text-sm">
@@ -215,7 +255,9 @@ const UserTodoScreen = () => {
                         : "border-slate-300 text-transparent"
                     }`}
                     onClick={() => toggleTodo(todo.id)}
-                    aria-label={isCompleted ? "Mark as pending" : "Mark as completed"}
+                    aria-label={
+                      isCompleted ? "Mark as pending" : "Mark as completed"
+                    }
                   >
                     <CheckCircle2 size={18} />
                   </button>
@@ -223,7 +265,9 @@ const UserTodoScreen = () => {
                     <div className="flex items-center justify-between gap-3">
                       <h3
                         className={`text-sm font-semibold ${
-                          isCompleted ? "text-slate-500 line-through" : "text-slate-900"
+                          isCompleted
+                            ? "text-slate-500 line-through"
+                            : "text-slate-900"
                         }`}
                       >
                         {todo.title}
@@ -239,7 +283,9 @@ const UserTodoScreen = () => {
                     {todo.description && (
                       <p
                         className={`mt-1 text-sm ${
-                          isCompleted ? "text-slate-400 line-through" : "text-slate-600"
+                          isCompleted
+                            ? "text-slate-400 line-through"
+                            : "text-slate-600"
                         }`}
                       >
                         {todo.description}
@@ -251,7 +297,10 @@ const UserTodoScreen = () => {
                         {todo.dueDate ?? "No due date"}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Circle size={10} className="fill-[#00a884] text-[#00a884]" />
+                        <Circle
+                          size={10}
+                          className="fill-[#00a884] text-[#00a884]"
+                        />
                         Created {todo.createdAt}
                       </span>
                     </div>
@@ -267,4 +316,3 @@ const UserTodoScreen = () => {
 };
 
 export default UserTodoScreen;
-
