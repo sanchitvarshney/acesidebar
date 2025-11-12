@@ -31,6 +31,9 @@ import { useLazyGetAgentsBySeachQuery } from "../../services/agentServices";
 import { setSelectedIndex } from "../../reduxStore/Slices/shotcutSlices";
 import CloseIcon from "@mui/icons-material/Close";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import avatarEditor from "../../assets/icons/avatar-editor.png";
+
+const MAX_WORDS = 350;
 
 const selectionsOptions = [
   {
@@ -90,6 +93,7 @@ const StackEditor = ({
 
     ticketData,
     setIsReply,
+    onWordLimitChange = () => {},
   } = props;
   const ticketId = ticketData?.ticketId;
 
@@ -116,6 +120,59 @@ const StackEditor = ({
   const [uploadingCount, setUploadingCount] = useState(0);
   const [uploadFileApi] = useUploadFileApiMutation();
   const [triggerSeachAgent] = useLazyGetAgentsBySeachQuery();
+  const [wordCount, setWordCount] = React.useState(0);
+  const [remainingWords, setRemainingWords] = React.useState(MAX_WORDS);
+
+  const normalizePlainText = React.useCallback((value = "") => {
+    return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+  }, []);
+
+  const getWordCountFromPlainText = React.useCallback(
+    (value = "") => {
+      const normalized = normalizePlainText(value);
+      if (!normalized) return 0;
+
+      const tokens = normalized.split(" ");
+
+      return tokens.reduce((count, token) => {
+        const cleanedToken = token.replace(/[^\p{L}\p{N}]/gu, "");
+        if (cleanedToken.length >= 3) {
+          return count + 1;
+        }
+        return count;
+      }, 0);
+    },
+    [normalizePlainText]
+  );
+
+  const getPlainTextFromHtml = React.useCallback((html = "") => {
+    if (typeof window === "undefined") {
+      return html;
+    }
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    const text = div.textContent || div.innerText || "";
+    return text;
+  }, []);
+
+  const updateWordMetrics = React.useCallback(
+    (plainText = "") => {
+      const count = getWordCountFromPlainText(plainText);
+      const remaining = Math.max(0, MAX_WORDS - count);
+
+      setWordCount(count);
+      setRemainingWords(remaining);
+
+      onWordLimitChange({
+        wordCount: count,
+        remainingWords: remaining,
+        isLimitReached: remaining <= 0,
+      });
+
+      return count;
+    },
+    [getWordCountFromPlainText, onWordLimitChange, showToast]
+  );
 
   // Helper function to compare arrays
   const arraysEqual = (a, b) => {
@@ -568,6 +625,29 @@ const StackEditor = ({
     setIsFullscreen((prev) => !prev);
   };
 
+  useEffect(() => {
+    const html = initialContent || "";
+    const plain = getPlainTextFromHtml(html);
+    updateWordMetrics(plain);
+  }, [initialContent, getPlainTextFromHtml, updateWordMetrics]);
+
+  const handleEditorTextChange = React.useCallback(
+    (event) => {
+      const plainText = event?.textValue ?? "";
+      const wordTotal = getWordCountFromPlainText(plainText);
+      const quill = editorRef.current?.getQuill?.();
+
+      if (wordTotal > MAX_WORDS) {
+        quill?.history?.undo?.();
+        return;
+      }
+
+      updateWordMetrics(plainText);
+      onChange(event.htmlValue);
+    },
+    [getWordCountFromPlainText, onChange, updateWordMetrics]
+  );
+
   const handleSelect = (index) => {
     setIsReply(index === "2" ? false : true);
     dispatch(setSelectedIndex(index));
@@ -606,7 +686,16 @@ const StackEditor = ({
         </div>
 
         {isFull && (
-          <div className="space-x-2 flex items-center">
+          <div className="space-x-3 flex items-center w-full justify-end">
+            {remainingWords <= 50 && (
+              <span
+                className={`text-xs font-medium ${
+                  remainingWords <= 20 ? "text-red-500" : "text-orange-500"
+                }`}
+              >
+                {remainingWords} words left
+              </span>
+            )}
             <button
               className="ql-fullscreen"
               aria-label="Full Screen"
@@ -699,7 +788,7 @@ const StackEditor = ({
     <Paper
       elevation={0}
       sx={{
-        backgroundColor: "transparent",
+        boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)"
       }}
     >
       <ClickAwayListener onClickAway={handleClose}>
@@ -743,7 +832,7 @@ const StackEditor = ({
               >
                 <span>{item.name}</span>
                 {isSelected && (
-                  <CheckIcon sx={{ color: "#000", fontSize: 18, ml: 2 }} />
+                  <CheckIcon sx={{ color: "#03363d", fontSize: 20, ml: 2 }} />
                 )}
               </MenuItem>
             );
@@ -766,7 +855,7 @@ const StackEditor = ({
           <div className="flex items-center gap-2 ml-auto">
             {!showCc && (
               <p
-                className="text-xs text-gray-500 cursor-pointer hover:underline"
+                className="text-xs text-gray-500 cursor-pointer hover:underline font-bold"
                 onClick={() => setShowCc(true)}
               >
                 CC
@@ -774,10 +863,10 @@ const StackEditor = ({
             )}
             {!showBcc && (
               <p
-                className="text-xs text-gray-500 cursor-pointer hover:underline"
+                className="text-xs text-gray-500 cursor-pointer hover:underline font-bold"
                 onClick={() => setShowBcc(true)}
               >
-                Bcc
+                BCC
               </p>
             )}
           </div>
@@ -787,7 +876,7 @@ const StackEditor = ({
           <div className="w-full flex flex-wrap items-center gap-2">
             <span className="font-semibold text-gray-600 text-sm">To:</span>
             <EmailAutocomplete
-              label="Add email address"
+              label="Specify Email"
               value={approvalTo}
               onChange={handleApprovalToChange}
               qtkMethod={triggerSeachAgent}
@@ -803,7 +892,7 @@ const StackEditor = ({
             />
             {!showApprovalCc && (
               <p
-                className="text-xs text-gray-500 cursor-pointer hover:underline ml-auto"
+                className="text-xs text-gray-500 cursor-pointer hover:underline ml-auto font-bold"
                 onClick={() =>
                   setShowApprovalCc((prev) => {
                     const next = !prev;
@@ -820,9 +909,9 @@ const StackEditor = ({
           </div>
           {showApprovalCc && (
             <div className="w-full flex flex-wrap items-center gap-2">
-              <span className="font-semibold text-gray-600 text-sm">Cc:</span>
+              <span className="font-semibold text-gray-600 text-sm">CC:</span>
               <EmailAutocomplete
-                label="Cc"
+                label="Carbon Copy"
                 value={approvalCc}
                 onChange={handleApprovalCcChange}
                 qtkMethod={triggerSeachAgent}
@@ -863,7 +952,7 @@ const StackEditor = ({
         <div className="w-full flex items-center gap-2">
           <span className="font-semibold text-gray-600 text-sm">Notify:</span>
           <EmailAutocomplete
-            // label="Notify"
+            label="Specify Email"
             value={localNotifyTag}
             onChange={(value) => handleSelectedOption(value)}
             qtkMethod={triggerSeachAgent}
@@ -897,7 +986,7 @@ const StackEditor = ({
 
   const editorHeight = React.useMemo(() => {
     if (isFullscreen) {
-      return "70vh";
+      return baseEditorHeight;
     }
 
     if (isEditorExpended) {
@@ -967,15 +1056,14 @@ const StackEditor = ({
             style={isFullscreen ? { position: "relative", zIndex: 10000 } : {}}
           >
             <div className="flex items-center gap-2 z-[10000]">
-              <Avatar
-                src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                sx={{ width: 25, height: 25 }}
-              />
+              <Avatar src={avatarEditor} sx={{ width: 25, height: 25 }} />
 
               <CustomToolTip
                 title={renderToolTipComponent}
                 placement="bottom-start"
                 open={isOptionsOpen}
+                width={300}
+                bg="#fff"
                 // close={() => setIsOptionsOpen(false)}
               >
                 <span
@@ -1015,7 +1103,7 @@ const StackEditor = ({
           {showCc && (
             <div className="flex items-center gap-2">
               <EmailAutocomplete
-                label="CC"
+                label="Carbon Copy"
                 value={ccValue}
                 onChange={setCcValue}
                 qtkMethod={triggerSeachAgent}
@@ -1051,7 +1139,7 @@ const StackEditor = ({
           {showBcc && (
             <div className="flex items-center gap-2">
               <EmailAutocomplete
-                label="Bcc"
+                label="Blind Carbon Copy"
                 value={bccValue}
                 onChange={setBccValue}
                 qtkMethod={triggerSeachAgent}
@@ -1093,7 +1181,7 @@ const StackEditor = ({
           ref={editorRef}
           key={optionChangeKey}
           value={initialContent}
-          onTextChange={(text) => onChange(text.htmlValue)}
+          onTextChange={handleEditorTextChange}
           style={{
             height: editorHeight,
             backgroundColor: editorBackgroundColor,

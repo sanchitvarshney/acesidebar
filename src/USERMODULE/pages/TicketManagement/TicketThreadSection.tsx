@@ -902,6 +902,8 @@ const TicketThreadSection = ({
 
   const [commonApi, { isLoading: threadLoading }] = useCommanApiMutation();
   const [showEditor, setShowEditor] = useState<any>(false);
+  const [isSubmitDisabledByWordLimit, setIsSubmitDisabledByWordLimit] =
+    useState(false);
   const [showShotcut, setShowShotcut] = useState(false);
   const [slashTriggered, setSlashTriggered] = useState(false);
   const shotcutRef = React.useRef(null);
@@ -1369,6 +1371,9 @@ const TicketThreadSection = ({
                   // ticketId={header?.ticketId}
                   setIsReply={(value: any) => dispatch(setIsReply(value))}
                   ticketData={header}
+                  onWordLimitChange={({ remainingWords }: any) => {
+                    setIsSubmitDisabledByWordLimit(remainingWords <= 0);
+                  }}
                 />
               </div>
 
@@ -1527,7 +1532,7 @@ const TicketThreadSection = ({
                   >
                     <Button
                       onClick={handleSave}
-                      disabled={threadLoading}
+                      disabled={threadLoading || isSubmitDisabledByWordLimit}
                       sx={{
                         backgroundColor: "#374151",
                         color: "white",
