@@ -689,7 +689,7 @@ const TicketDetailTemplate = () => {
 
               {/* AddTask Icon */}
               <div style={{ position: "relative" }}>
-                <button
+                {/* <button
                   onClick={() => {
                     setIsAddTask(true);
                   }}
@@ -713,10 +713,10 @@ const TicketDetailTemplate = () => {
                   }}
                 >
                   <AddTask style={{ fontSize: "20px", color: "#666" }} />
-                </button>
+                </button> */}
 
                 {/* Blue Counter Badge */}
-                <div
+                {/* <div
                   style={{
                     position: "absolute",
                     top: "-6px",
@@ -737,9 +737,9 @@ const TicketDetailTemplate = () => {
                     padding: "0 2px",
                   }}
                 >
-                  {/* You can replace this with actual task count */}
+                 
                   {ticket?.other?.taskCount || 0}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

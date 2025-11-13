@@ -400,6 +400,8 @@ const ThreadItem = ({
       .catch((error) => {});
   };
 
+ 
+
   return (
     <div className={`w-full flex p-2 overflow-auto ${marginBottomClass}`}>
       {/* Email content */}
@@ -471,7 +473,9 @@ const ThreadItem = ({
           <div
             className="w-[100%] flex flex-col items-center justify-between border border-gray-200 shadow-[0_2px_3px_0_rgb(172,172,172,0.4)] rounded-lg"
             style={{ backgroundColor: bubbleBackgroundColor }}
-            onMouseEnter={() => setIsHovered(true)}
+            onMouseEnter={() => {
+              setIsHovered(true);
+            }}
             onMouseLeave={() => setIsHovered(false)}
           >
             <div className="flex items-center justify-between  w-full px-8 py-2">
@@ -682,10 +686,12 @@ const ThreadItem = ({
         </div>
       </div>
 
-      {/* Thread Detail Modal */}
       <Modal
         open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={(e: any) => {
+          e.stopPropagation();
+          setIsModalOpen(false);
+        }}
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{
@@ -694,6 +700,12 @@ const ThreadItem = ({
       >
         <Fade in={isModalOpen}>
           <Box
+            onClick={(e) => {
+              e.stopPropagation();
+              if (e.target === e.currentTarget) {
+                setIsModalOpen(false);
+              }
+            }}
             sx={{
               position: "absolute",
               top: "50%",
@@ -1264,7 +1276,10 @@ const TicketThreadSection = ({
             onToggleOptions={handleToggleOptions}
           />
         </div>
-        <div className="rounded p-1 w-[75.8%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)" id="reply-editor-container">
+        <div
+          className="rounded p-1 w-[75.8%]  bg-white  flex z-[999] absolute bottom-0 hover:shadow-[0_1px_6px_rgba(32,33,36,0.28)"
+          id="reply-editor-container"
+        >
           <Accordion
             elevation={0}
             expanded={showEditor || showReplyEditor || showEditorNote}
@@ -1507,7 +1522,7 @@ const TicketThreadSection = ({
                       setImages([]);
                     }}
                     sx={{
-                      backgroundColor: "#e5e7eb", 
+                      backgroundColor: "#e5e7eb",
                       color: "#374151", // Tailwind: text-gray-700
                       fontWeight: 600,
                       fontSize: "0.875rem", // text-sm

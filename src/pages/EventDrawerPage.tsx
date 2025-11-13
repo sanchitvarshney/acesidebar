@@ -804,7 +804,7 @@ const EventDrawerPage: React.FC<EventDrawerPageProps> = ({ open, onClose }) => {
               sx={{ minWidth: 140, ml: "auto", alignSelf: "center" }}
             >
               <Select
-                value={viewLayout}
+                value={viewLayout ?? ""}
                 onChange={(event) =>
                   setViewLayout(event.target.value as typeof viewLayout)
                 }

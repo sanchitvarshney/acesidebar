@@ -124,7 +124,10 @@ const StackEditor = ({
   const [remainingWords, setRemainingWords] = React.useState(MAX_WORDS);
 
   const normalizePlainText = React.useCallback((value = "") => {
-    return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+    return value
+      .replace(/\u00a0/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   }, []);
 
   const getWordCountFromPlainText = React.useCallback(
@@ -649,6 +652,7 @@ const StackEditor = ({
   );
 
   const handleSelect = (index) => {
+    setIsOptionsOpen(false);
     setIsReply(index === "2" ? false : true);
     dispatch(setSelectedIndex(index));
     setShowBcc(false);
@@ -656,7 +660,7 @@ const StackEditor = ({
     setShowApprovalCc(false);
     handleApprovalToChange([]);
     handleApprovalCcChange([]);
-    setIsOptionsOpen(false); // Close after selection
+
     setOptionChangeKey((prevKey) => prevKey + 1);
 
     setTimeout(focusEditor, 150);
@@ -701,7 +705,7 @@ const StackEditor = ({
               aria-label="Full Screen"
               onClick={toggleFullscreen}
             >
-            <FullscreenIcon fontSize="small" />
+              <FullscreenIcon fontSize="small" />
             </button>
           </div>
         )}
@@ -788,7 +792,7 @@ const StackEditor = ({
     <Paper
       elevation={0}
       sx={{
-        boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)"
+        boxShadow: "0 2px 4px rgba(202, 202, 202, 0.8)",
       }}
     >
       <ClickAwayListener onClickAway={handleClose}>

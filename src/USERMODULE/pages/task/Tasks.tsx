@@ -700,7 +700,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                 <FormControl fullWidth>
                   <InputLabel>Priority</InputLabel>
                   <Select label="Priority" size="medium" value={""}>
-                    {priorityList?.map((option:any) => (
+                    {  priorityList?.map((option:any) => (
                       <MenuItem key={option.key} value={option.key || ""}>
                         <div className="flex items-center">
                           <div

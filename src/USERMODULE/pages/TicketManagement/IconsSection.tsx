@@ -65,8 +65,8 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onInfoClick, onPersonClick,
         }} />
       </IconButton>
 
-      {/* Chat Icon */}
-      <Box sx={{ position: 'relative' }}>
+   
+      {/* <Box sx={{ position: 'relative' }}>
         <IconButton
           onClick={onChatClick}
           sx={{
@@ -85,7 +85,7 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onInfoClick, onPersonClick,
           }} />
         </IconButton>
         
-        {/* Blue Counter Badge */}
+  
         <Box
           sx={{
             position: 'absolute',
@@ -109,7 +109,7 @@ const IconsSection: React.FC<IconsSectionProps> = ({ onInfoClick, onPersonClick,
         >
           {chatCount}
         </Box>
-      </Box>
+      </Box> */}
 
     </Box>
   );

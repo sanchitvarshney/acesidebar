@@ -1027,7 +1027,7 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             <div className="flex gap-2">
                               <FormControl size="small">
                                 <Select
-                                  value={taskStatus}
+                                  value={taskStatus ?? ""}
                                   onChange={(e) =>
                                     handleStatusChange(
                                       taskcomment?.data?.taskID,
@@ -1773,7 +1773,7 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               <div className="grid grid-cols-2 gap-6">
                 <FormControl fullWidth>
                   <InputLabel>Priority</InputLabel>
-                  <Select label="Priority" size="medium">
+                  <Select label="Priority" size="medium" value={""}>
                     {priorityOptions.map((option:any) => (
                       <MenuItem key={option.value} value={option.value}>
                         <div className="flex items-center">
@@ -1811,7 +1811,7 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                   <Select
                     label="Assigned To"
                     size="medium"
-                    value={currentAgent}
+                    value={currentAgent ?? ""}
                   >
                     <MenuItem value={currentAgent}>{currentAgent}</MenuItem>
                   </Select>
@@ -1991,7 +1991,7 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             sx={{ minWidth: 120, flex: 1 }}
                           >
                             <Select
-                              value={condition.field}
+                              value={condition.field ?? " "}
                               onChange={(e) =>
                                 updateCondition(
                                   condition.id,
@@ -2042,7 +2042,7 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             sx={{ minWidth: 120, flex: 1 }}
                           >
                             <Select
-                              value={condition.condition}
+                              value={condition.condition ?? ""}
                               onChange={(e) =>
                                 updateCondition(
                                   condition.id,

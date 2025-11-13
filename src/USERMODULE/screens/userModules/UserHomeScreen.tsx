@@ -521,7 +521,7 @@ const UserHomeScreen = () => {
                 isOpenReply
                   ? "max-h-[calc(100vh-400px)] overflow-y-auto min-h-[calc(100vh-400px)]"
                   : "max-h-[calc(100vh-300px)] overflow-y-auto min-h-[calc(100vh-200px)]"
-              }  `}
+              } transition-height ease-in-out duration-300`}
             >
               <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center gap-3">
                 <Avatar
@@ -713,10 +713,9 @@ const UserHomeScreen = () => {
               </div>
             </div>
             <Divider />
-            {
-              isOpenReply && (
-                <AnimatePresence initial={false}>
-         
+
+            <AnimatePresence initial={false}>
+              {isOpenReply && (
                 <motion.div
                   key="reply-box"
                   initial={{ y: 0, opacity: 0 }}
@@ -745,10 +744,8 @@ const UserHomeScreen = () => {
                     </div>
                   </div>
                 </motion.div>
-         
+              )}
             </AnimatePresence>
-              )
-            }
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-white">
