@@ -15,7 +15,7 @@ import OnlineVisitors from "../USERMODULE/pages/TicketManagement/OnlineVisitors"
 import CreateTicketPage from "../USERMODULE/pages/TicketManagement/CreateTicketPage";
 import CreateUser from "../USERMODULE/pages/CreateUser";
 import LoginScreen from "../USERMODULE/screens/LoginScreen";
-import SignupScreen from "../USERMODULE/screens/SignupScreen";
+import AdminSignupScreen from "../ADMINMODULE/screens/AdminSignupScreen";
 import Settings from "../USERMODULE/components/Settings";
 import SessionManagementPage from "../USERMODULE/pages/SessionManagementPage";
 import SessionExpiredPage from "../pages/SessionExpiredPage";
@@ -135,7 +135,7 @@ export const router = createBrowserRouter([
     path: "/signup",
     element: (
       <Protected authentication={false}>
-        <SignupScreen />
+        <AdminSignupScreen />
       </Protected>
     ),
   },
