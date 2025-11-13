@@ -1,6 +1,6 @@
 import ErrorPage from "../pages/ErrorPage"; // 👈 your custom error page
 
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import MainLayout from "../components/layout/MainLayout";
 import Protected from "../components/protected/Protected";
@@ -132,12 +132,16 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/sign-up",
+    path: "/signup",
     element: (
       <Protected authentication={false}>
         <SignupScreen />
       </Protected>
     ),
+  },
+  {
+    path: "/sign-up",
+    element: <Navigate to="/signup" replace />,
   },
   {
     path: "/session-management",

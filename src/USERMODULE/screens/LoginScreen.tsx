@@ -835,17 +835,27 @@ const LoginScreen = () => {
                     }}
                   >
                     New to Ajaxter TMS ?{" "}
-                    <Link
-                      href="#"
-                      underline="none"
+                    <Typography
+                      component="span"
+                      role="button"
+                      tabIndex={0}
                       sx={{
                         color: LINK_COLOR,
                         fontWeight: 600,
+                        cursor: "pointer",
                         "&:hover": { textDecoration: "underline" },
+                        outline: "none",
+                      }}
+                      onClick={() => navigation("/signup")}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          navigation("/signup");
+                        }
                       }}
                     >
-                      Create a Account
-                    </Link>
+                      Create an Account
+                    </Typography>
                   </Typography>
                 </Box>
               </Box>
