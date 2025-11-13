@@ -29,6 +29,7 @@ import { useToast } from "../../../hooks/useToast";
 import { useGetTicketListQuery } from "../../../services/ticketAuth";
 import { AnimatePresence, motion } from "framer-motion";
 import MoreOptionsPage from "../../../components/MoreOptionsPage";
+import DrawerTask from "../drawerTask/DrawerTask";
 
 const TicketDetailTemplate = () => {
   const navigate = useNavigate();
@@ -823,7 +824,7 @@ const TicketDetailTemplate = () => {
         title={"Add Task"}
         width={"80%"}
       >
-        <Tasks isAddTask={isAddTask} ticketId={ticket?.header?.ticketId} />
+        <DrawerTask isAddTask={isAddTask} ticketId={ticket?.header?.ticketId} />
       </CustomSideBarPanel>
     </Box>
   );

@@ -1,6 +1,4 @@
-import {
-  RouterProvider,
-} from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -14,7 +12,7 @@ import { StatusProvider } from "./contextApi/StatusContext";
 import { HelpCenterProvider } from "./contextApi/HelpCenterContext";
 import { ErrorProvider } from "./BUGREPORT";
 import theme from "./theme";
-import "./font.css"
+import "./font.css";
 import { TabsProvider } from "./contextApi/TabsContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 // Placeholder components for routes
@@ -47,6 +45,5 @@ function App() {
     </ErrorBoundary>
   );
 }
-
 
 export default App;

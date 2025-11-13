@@ -1,0 +1,161 @@
+import React, { memo, useMemo } from "react";
+import {
+  TextField,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import {
+  FilterList as FilterListIcon,
+  ManageSearch as ManageSearchIcon,
+} from "@mui/icons-material";
+import { filterTasksBySearch } from "../task/utils/taskUtils";
+import TaskListSkeleton from "../../skeleton/TaskListSkeleton";
+import DrawerTaskCard from "./DrawerTaskCard";
+
+
+
+interface TaskListProps {
+  tasks: any;
+  selectedTasks: string[];
+  selectedTask: any | null;
+  searchQuery: string;
+  page: number;
+  rowsPerPage: number;
+  totalPages?: any;
+  totalCount?: number;
+  onSearchChange: (query: string) => void;
+  onTaskSelect: (taskId: string, checked: boolean) => void;
+  onTaskClick: (task: any) => void;
+  onPageChange: (page: number) => void;
+  onRowsPerPageChange: (rowsPerPage: number) => void;
+  onAdvancedSearchOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  getStatusIcon: (status: string) => React.ReactNode;
+  isAddTask?: boolean;
+  isLoading?: boolean;
+  loadingTaskId?: string | null;
+  loadingAttachmentTaskId?: string | null;
+  taskId:any
+}
+
+
+const DrawerTaskList: React.FC<TaskListProps> = memo(
+  ({
+    tasks,
+    selectedTasks,
+    selectedTask,
+    searchQuery,
+    onSearchChange,
+    onTaskSelect,
+    onTaskClick,  
+    onAdvancedSearchOpen,
+    getStatusIcon,
+    isAddTask,
+    isLoading,
+    loadingTaskId,
+    loadingAttachmentTaskId,
+    taskId
+  }) => {
+  
+    // Use tasks data directly from API since pagination is handled by backend
+    const taskData = useMemo(() => {
+      return tasks?.data || [];
+    }, [tasks]);
+
+    // Filter tasks based on search query (client-side filtering for search)
+    const filteredTasks = useMemo(() => {
+      if (!searchQuery) return taskData;
+      return filterTasksBySearch(taskData, searchQuery, {
+        title: true,
+        description: true,
+        ticketId: true,
+        assignedTo: true,
+        tags: true,
+      });
+    }, [taskData, searchQuery]);
+
+    // Use filtered tasks directly since pagination is handled by backend
+    const paginatedTasks = useMemo(() => {
+      return filteredTasks;
+    }, [filteredTasks]);
+
+    return (
+      <div className="w-[35%] flex flex-col border-r h-[calc(100vh-158px)] bg-white  ">
+        {!isAddTask && (
+          <div className="px-6 py-4 border-b bg-[#f5f5f5] border-b-[#ccc]">
+            <div className="flex items-center gap-2 mb-3">
+              {/* Search */}
+              <TextField
+                placeholder="Search tasks or tickets..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <ManageSearchIcon className="text-gray-400 mr-2" />
+                  ),
+                }}
+                size="small"
+                fullWidth
+              />
+
+              {/* Task Advanced Search Button */}
+              <Tooltip title="Task Advanced Filters" placement="bottom">
+                <IconButton
+                  onClick={(e) => onAdvancedSearchOpen(e)}
+                  sx={{
+                    color: "#374151",
+                    backgroundColor: "#f8f9fa",
+                    border: "1px solid #e9ecef",
+                    "&:hover": {
+                      backgroundColor: "#e9ecef",
+                      borderColor: "#dee2e6",
+                    },
+                    width: 40,
+                    height: 40,
+                  }}
+                >
+                  <FilterListIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </div>
+          </div>
+        )}
+
+        {/* Task List */}
+        {/* <div className="flex-1  h-[calc(100vh-200px)] z-99  overflow-y-auto"> */}
+          <div className="p-4  h-[calc(100vh-160px)] z-99  overflow-y-auto  space-y-2 custom-scrollbar">
+            { isLoading ? (
+              <TaskListSkeleton count={4} />
+            ) : (
+              <>
+                {" "}
+                {paginatedTasks?.map((task:any) => (
+                  <DrawerTaskCard
+                    key={task.taskKey}
+                    task={task}
+                    isSelected={selectedTasks.includes(task.taskKey)}
+                    isCurrentTask={
+                      selectedTask?.taskKey === task.taskKey ||
+                      taskId === task.taskID
+                    }
+                    onSelect={onTaskSelect}
+                    onClick={onTaskClick}
+                    getStatusIcon={getStatusIcon}
+                    isAddTask={isAddTask}
+                    isLoading={loadingTaskId === task.taskID}
+                    loadingAttachmentTaskId={
+                      loadingAttachmentTaskId === task.taskID
+                    }
+                  />
+                ))}{" "}
+              </>
+            )}
+          </div>
+ 
+      </div>
+    );
+  }
+);
+
+DrawerTaskList.displayName = "DrawerTaskList";
+
+export default React.memo(DrawerTaskList);

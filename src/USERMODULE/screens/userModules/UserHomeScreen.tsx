@@ -337,7 +337,7 @@ const UserHomeScreen = () => {
   };
 
   return (
-    <div className="w-full h-full min-h-[calc(100vh-74px)] flex gap-3 bg-[#f3f4f6] p-2">
+    <div className="w-full h-full min-h-[calc(100vh-74px)] flex gap-3 bg-[#f3f4f6] p-2 overflow-hidden">
       <div
         className={`bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden transition-all duration-300 ease-out ${
           selectedTicket ? "w-[40%]" : "w-[70%]"
@@ -478,7 +478,7 @@ const UserHomeScreen = () => {
       </div>
 
       <div
-        className={`bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden transition-all duration-300 ease-out ${
+        className={`bg-white rounded-xl shadow-sm border  border-gray-100 flex flex-col overflow-hidden  ease-out ${
           selectedTicket ? "flex-1" : "w-[30%]"
         }`}
       >
@@ -501,7 +501,10 @@ const UserHomeScreen = () => {
               </div>
               <div className="flex items-center gap-1">
                 <Tooltip title="Reply to requester">
-                  <IconButton size="small" onClick={()=>setIsOpenReply(!isOpenReply)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setIsOpenReply(!isOpenReply)}
+                  >
                     <Reply fontSize="small" />
                   </IconButton>
                 </Tooltip>
@@ -513,7 +516,13 @@ const UserHomeScreen = () => {
                 </Tooltip>
               </div>
             </div>
-            <div className="max-h-[calc(100vh-400px)] overflow-y-auto min-h-[calc(100vh-400px)] ">
+            <div
+              className={`${
+                isOpenReply
+                  ? "max-h-[calc(100vh-400px)] overflow-y-auto min-h-[calc(100vh-400px)]"
+                  : "max-h-[calc(100vh-300px)] overflow-y-auto min-h-[calc(100vh-200px)]"
+              }  `}
+            >
               <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center gap-3">
                 <Avatar
                   sx={{
@@ -704,32 +713,42 @@ const UserHomeScreen = () => {
               </div>
             </div>
             <Divider />
-            <AnimatePresence initial={false}>
-              {isOpenReply && (
+            {
+              isOpenReply && (
+                <AnimatePresence initial={false}>
+         
                 <motion.div
                   key="reply-box"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  initial={{ y: 0, opacity: 0 }}
+                  animate={{
+                    height: isOpenReply ? "auto" : 0,
+                    opacity: 1,
+                    overflow: "hidden",
+                  }}
+                  exit={{ height: 0, opacity: 0, overflow: "hidden" }}
+                  // transition={{ duration: 0.1, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                <div className="px-5 py-4 border-t border-gray-100 bg-gray-50">
-              <Typography variant="subtitle2" className="text-gray-600 mb-2">
-                Customer Reply
-              </Typography>
-              <div className="flex flex-col gap-3">
-                <textarea
-                  rows={4}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                  placeholder={`Reply to ${selectedTicket.requester.name}…`}
-                />
-             
-            </div>
-            </div>
+                  <div className="px-5 py-4 border-t border-gray-100 bg-gray-50">
+                    <Typography
+                      variant="subtitle2"
+                      className="text-gray-600 mb-2"
+                    >
+                      Customer Reply
+                    </Typography>
+                    <div className="flex flex-col gap-3">
+                      <textarea
+                        rows={4}
+                        className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        placeholder={`Reply to ${selectedTicket.requester.name}…`}
+                      />
+                    </div>
+                  </div>
                 </motion.div>
-              )}
+         
             </AnimatePresence>
+              )
+            }
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-white">
