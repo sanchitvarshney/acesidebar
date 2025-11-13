@@ -106,7 +106,7 @@ const UserLeftMenu: React.FC = () => {
                         primaryTypographyProps={{
                           fontSize: "0.875rem",
                           fontWeight: item.isActive ? 600 : 400,
-                          color: item.isActive ? "#03363d" : "#333",
+                          color: item.isActive ? "#2566b0" : "#333",
                         }}
                       />
                     </ListItemButton>

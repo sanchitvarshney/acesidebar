@@ -96,14 +96,14 @@ const ChatLeftMenu: React.FC = () => {
                   }
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 40, color: '#03363d' }}>
+                <ListItemIcon sx={{ minWidth: 40, color: '#2566b0' }}>
                   {section.icon}
                 </ListItemIcon>
                 <ListItemText 
                   primary={section.title}
                   primaryTypographyProps={{
                     fontWeight: 'medium',
-                    color: '#03363d'
+                    color: '#2566b0'
                   }}
                 />
                 {openSections[section.section as keyof typeof openSections] ? 
@@ -132,14 +132,14 @@ const ChatLeftMenu: React.FC = () => {
                         }
                       }}
                     >
-                      <ListItemIcon sx={{ minWidth: 40, color: isActive(item.path) ? '#03363d' : '#666' }}>
+                      <ListItemIcon sx={{ minWidth: 40, color: isActive(item.path) ? '#2566b0' : '#666' }}>
                         {item.icon}
                       </ListItemIcon>
                       <ListItemText 
                         primary={item.label}
                         primaryTypographyProps={{
                           fontSize: '0.875rem',
-                          color: isActive(item.path) ? '#03363d' : '#666',
+                          color: isActive(item.path) ? '#2566b0' : '#666',
                           fontWeight: isActive(item.path) ? 'medium' : 'normal'
                         }}
                       />

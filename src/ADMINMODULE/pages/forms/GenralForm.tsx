@@ -384,7 +384,7 @@ const GenralForm = ({ pageId }: { pageId: string | number }) => {
           onDrop={handleDrop}
           sx={{
             p: 1,
-            border: isDragOver ? "2px dashed #03363d" : "2px dashed #03363d",
+            border: isDragOver ? "2px dashed #2566b0" : "2px dashed #2566b0",
             borderRadius: 2,
             backgroundColor: isDragOver ? "#f3f8ff" : "#fafafa",
             textAlign: "center",

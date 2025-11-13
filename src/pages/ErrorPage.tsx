@@ -56,7 +56,7 @@ const ErrorPage = ({ onReload }: { onReload?: () => void }) => {
               <Typography
                 variant="h6"
                 sx={{
-                  color: "#03363d",
+                  color: "#2566b0",
                   mb: 3,
                   fontWeight: 600,
                   fontStyle: "italic",

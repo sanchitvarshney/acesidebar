@@ -289,10 +289,10 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                         borderColor: "#dadce0",
                       },
                       "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#03363d",
+                        borderColor: "#2566b0",
                       },
                       "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#03363d",
+                        borderColor: "#2566b0",
                       },
                       backgroundColor: "#fff",
                     }}
@@ -838,7 +838,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
                 component="span"
                 sx={{
                   fontWeight: 600,
-                  color: "#03363d",
+                  color: "#2566b0",
                 }}
               >
                 {countdown} sec
@@ -853,7 +853,7 @@ const AccountPopup: React.FC<AccountPopupProps> = ({
               fullWidth
               sx={{
                 backgroundColor: "#e3f2fd",
-                color: "#03363d",
+                color: "#2566b0",
                 textTransform: "none",
                 fontWeight: 600,
                 py: 1.5,

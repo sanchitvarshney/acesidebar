@@ -432,7 +432,7 @@ const TicketDetailTemplate = () => {
                         >
                           <div
                             style={{
-                              backgroundColor: "#03363d",
+                              backgroundColor: "#2566b0",
                               color: "white",
                               padding: "8px 12px",
                               borderRadius: "18px 18px 4px 18px",

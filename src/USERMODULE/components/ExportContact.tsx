@@ -85,7 +85,7 @@ export default function ExportContact() {
           sx={{
             mb: 3,
             borderRadius: 2,
-            "& .MuiAlert-icon": { color: "#03363d" },
+            "& .MuiAlert-icon": { color: "#2566b0" },
           }}
         >
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -101,9 +101,9 @@ export default function ExportContact() {
                 checked={selected.length === exportOptions.length}
                 onChange={handleSelectAll}
                 sx={{
-                  color: "#03363d",
+                  color: "#2566b0",
                   "&.Mui-checked": {
-                    color: "#03363d",
+                    color: "#2566b0",
                   },
                 }}
               />
@@ -111,7 +111,7 @@ export default function ExportContact() {
             label={
               <Typography
                 variant="h6"
-                sx={{ fontWeight: 600, color: "#03363d" }}
+                sx={{ fontWeight: 600, color: "#2566b0" }}
               >
                 Select all fields
               </Typography>
@@ -130,7 +130,7 @@ export default function ExportContact() {
                 variant="h6"
                 sx={{
                   mb: 2,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -149,9 +149,9 @@ export default function ExportContact() {
                         checked={selected.includes(label)}
                         onChange={() => handleToggle(label)}
                         sx={{
-                          color: "#03363d",
+                          color: "#2566b0",
                           "&.Mui-checked": {
-                            color: "#03363d",
+                            color: "#2566b0",
                           },
                         }}
                       />
@@ -174,7 +174,7 @@ export default function ExportContact() {
                 variant="h6"
                 sx={{
                   mb: 2,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -193,9 +193,9 @@ export default function ExportContact() {
                         checked={selected.includes(label)}
                         onChange={() => handleToggle(label)}
                         sx={{
-                          color: "#03363d",
+                          color: "#2566b0",
                           "&.Mui-checked": {
-                            color: "#03363d",
+                            color: "#2566b0",
                           },
                         }}
                       />
@@ -218,7 +218,7 @@ export default function ExportContact() {
                 variant="h6"
                 sx={{
                   mb: 2,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -237,9 +237,9 @@ export default function ExportContact() {
                         checked={selected.includes(label)}
                         onChange={() => handleToggle(label)}
                         sx={{
-                          color: "#03363d",
+                          color: "#2566b0",
                           "&.Mui-checked": {
-                            color: "#03363d",
+                            color: "#2566b0",
                           },
                         }}
                       />

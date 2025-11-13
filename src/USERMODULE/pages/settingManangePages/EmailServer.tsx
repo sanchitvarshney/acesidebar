@@ -177,7 +177,7 @@ const EmailServerPage: React.FC = () => {
                         zIndex: 10,
                         height: 4,
                         "& .MuiLinearProgress-bar": {
-                          backgroundColor: "#03363d",
+                          backgroundColor: "#2566b0",
                         },
                         "& .MuiLinearProgress-root": {
                           backgroundColor: "#e0e0e0",

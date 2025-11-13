@@ -71,7 +71,7 @@ const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
               sx={{
                 borderRadius: 0,
                 justifyContent: "space-between",
-                color: selectedField === field.key ? "#03363d" : "1f2937",
+                color: selectedField === field.key ? "#2566b0" : "1f2937",
                 fontWeight: selectedField === field.key ? 600 : 400,
               }}
             >
@@ -92,7 +92,7 @@ const TicketSortingPopover: React.FC<TicketSortingPopoverProps> = ({
               sx={{
                 borderRadius: 0,
                 justifyContent: "space-between",
-                color: selectedMode === mode.key ? "#03363d" : undefined,
+                color: selectedMode === mode.key ? "#2566b0" : undefined,
                 fontWeight: selectedMode === mode.key ? 600 : 400,
               }}
             >

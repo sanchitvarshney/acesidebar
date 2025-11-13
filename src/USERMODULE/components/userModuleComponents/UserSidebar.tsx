@@ -119,7 +119,7 @@ const UserSidebar = () => {
         <Box sx={{ px: 2, mb: 2 }}>
           <button
             type="button"
-            className="w-full rounded-full bg-white text-[#03363d] font-semibold py-3 shadow-sm border border-transparent hover:shadow-md hover:border-[#03363d]/20 transition-all text-sm flex items-center justify-center gap-2"
+            className="w-full rounded-full bg-white text-[#2566b0] font-semibold py-3 shadow-sm border border-transparent hover:shadow-md hover:border-[#2566b0]/20 transition-all text-sm flex items-center justify-center gap-2"
             onClick={() => navigate("/user-module/tickets")}
           >
             <svg

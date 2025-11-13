@@ -251,7 +251,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
               display: "flex",
               alignItems: "center",
               borderRadius: 2,
-              "& .MuiAlert-icon": { color: "#03363d" },
+              "& .MuiAlert-icon": { color: "#2566b0" },
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -280,7 +280,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 variant="subtitle1"
                 sx={{
                   mb: 1,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -354,7 +354,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 variant="subtitle1"
                 sx={{
                   mb: 1,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -667,7 +667,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 variant="subtitle1"
                 sx={{
                   mb: 1,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -687,7 +687,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 variant="subtitle1"
                 sx={{
                   mb: 1,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -732,7 +732,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                           "& .MuiOutlinedInput-root": {
                             borderRadius: 1,
                             "&:hover .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#03363d",
+                              borderColor: "#2566b0",
                             },
                           },
                           "& .MuiAutocomplete-popper": {
@@ -779,7 +779,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                           "& .MuiOutlinedInput-root": {
                             borderRadius: 1,
                             "&:hover .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#03363d",
+                              borderColor: "#2566b0",
                             },
                           },
                         }}
@@ -796,7 +796,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 variant="subtitle1"
                 sx={{
                   mb: 2,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -907,7 +907,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                 variant="subtitle1"
                 sx={{
                   mb: 2,
-                  color: "#03363d",
+                  color: "#2566b0",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
@@ -941,7 +941,7 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                         "& .MuiOutlinedInput-root": {
                           borderRadius: 1,
                           "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#03363d",
+                            borderColor: "#2566b0",
                           },
                         },
                       }}

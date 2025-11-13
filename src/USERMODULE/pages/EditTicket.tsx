@@ -245,7 +245,7 @@ const EditTicket = ({ onClose, open, ticket, onUpdated }: any) => {
               "& .MuiOutlinedInput-root": {
                 borderColor: errors.subject ? "#d32f2f" : "#dadce0",
                 "&.Mui-focused": {
-                  borderColor: errors.subject ? "#d32f2f" : "#03363d",
+                  borderColor: errors.subject ? "#d32f2f" : "#2566b0",
                 },
               },
             }}

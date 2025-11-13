@@ -212,7 +212,7 @@ const InteractionHistorySection: React.FC<InteractionHistorySectionProps> = ({
                       >
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: 600, color: "#03363d" }}
+                          sx={{ fontWeight: 600, color: "#2566b0" }}
                         >
                           {ticket.id}
                         </Typography>

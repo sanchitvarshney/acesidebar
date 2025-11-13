@@ -78,7 +78,7 @@ const UserTopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
       position="fixed"
       sx={{
         height: "70px",
-        backgroundColor: "#03363d",
+        backgroundColor: "#2566b0",
         boxShadow: "1px 3px 6px rgb(227, 224, 224)",
         width: {
           sm: `calc(100% - ${open ? drawerWidth : collapsedDrawerWidth}px)`,
@@ -197,7 +197,7 @@ const UserTopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
           sx={{
             px: 4,
             py: 3,
-            backgroundColor: "#03363d",
+            backgroundColor: "#2566b0",
             color: "#fff",
             display: "flex",
             alignItems: "center",

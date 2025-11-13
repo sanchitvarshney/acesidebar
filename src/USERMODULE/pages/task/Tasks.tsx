@@ -599,7 +599,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
               textTransform: "none",
               fontSize: "0.875rem",
               fontWeight: 600,
-              backgroundColor: "#03363d",
+              backgroundColor: "#2566b0",
               "&:hover": {
                 backgroundColor: "#1565c0",
               },

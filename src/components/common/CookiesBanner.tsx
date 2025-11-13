@@ -125,7 +125,7 @@ const CookiesBanner = () => {
                             borderRadius: 9999,
                             textTransform: "none",
                             fontWeight: 600,
-                            bgcolor: "#03363d",
+                            bgcolor: "#2566b0",
                             color: "#ffffff"
                         }}
                     >

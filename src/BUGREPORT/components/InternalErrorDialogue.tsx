@@ -143,7 +143,7 @@ const InternalErrorDialogue: React.FC<InternalErrorDialogueProps> = ({
               component="span"
               onClick={onContactCustomerCare}
               sx={{
-                color: "#03363d",
+                color: "#2566b0",
                 fontSize: "0.8rem",
                 textDecoration: "underline",
                 textDecorationStyle: "dotted",

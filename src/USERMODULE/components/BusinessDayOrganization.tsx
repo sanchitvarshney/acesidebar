@@ -118,7 +118,7 @@ const BusinessDayOrganization: React.FC<BusinessDayOrganizationProps> = ({
       timezone: "UTC+5:30",
       maxTicketsPerDay: 50,
       currentTickets: 23,
-      color: "#03363d",
+      color: "#2566b0",
     },
     {
       id: "2",

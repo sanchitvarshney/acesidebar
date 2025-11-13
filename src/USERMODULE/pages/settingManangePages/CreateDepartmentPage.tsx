@@ -846,7 +846,7 @@ const CreateDepartmentPage = () => {
                               width: 32,
                               height: 32,
                               mr: 2,
-                              bgcolor: "#03363d",
+                              bgcolor: "#2566b0",
                             }}
                           >
                             {member.name.charAt(0)}

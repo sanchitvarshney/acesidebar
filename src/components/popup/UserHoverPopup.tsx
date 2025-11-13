@@ -186,7 +186,7 @@ const UserHoverPopup: React.FC<UserHoverPopupProps> = ({
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "#03363d",
+                    color: "#2566b0",
                     cursor: "pointer",
                     fontSize: "0.75rem",
                     "&:hover": {

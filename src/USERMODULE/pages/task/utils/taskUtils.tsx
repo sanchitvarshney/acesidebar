@@ -19,7 +19,7 @@ export const getStatusColor = (status: any): string => {
     case "hold":
       return "#FFC107"; // Amber (warning)
     case "in-process":
-      return "#03363d"; // Blue (primary)
+      return "#2566b0"; // Blue (primary)
     case "postponed":
       return "#91e2deff"; // Greyish (secondary)
     case "in-queue":

@@ -731,7 +731,7 @@ const ChatsOverview: React.FC = () => {
                         color: "#999",
                         fontSize: "0.875rem",
                         "&:hover": {
-                          borderColor: "#03363d",
+                          borderColor: "#2566b0",
                           backgroundColor: "#f5f5f5",
                           color: "#666",
                         },
@@ -810,8 +810,8 @@ const ChatsOverview: React.FC = () => {
                     color: "#666",
                     border: "1px solid #e0e0e0",
                     "&:hover": {
-                      color: "#03363d",
-                      borderColor: "#03363d",
+                      color: "#2566b0",
+                      borderColor: "#2566b0",
                       backgroundColor: "#f5f5f5",
                     },
                   }}
@@ -862,7 +862,7 @@ const ChatsOverview: React.FC = () => {
                       zIndex: 1,
                       height: 4,
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: "#03363d",
+                        backgroundColor: "#2566b0",
                       },
                       "& .MuiLinearProgress-root": {
                         backgroundColor: "#e0e0e0",
@@ -972,7 +972,7 @@ const ChatsOverview: React.FC = () => {
                           size="small"
                           sx={{
                             bgcolor: "#e3f2fd",
-                            color: "#03363d",
+                            color: "#2566b0",
                             fontWeight: 500,
                             fontSize: "11px",
                           }}

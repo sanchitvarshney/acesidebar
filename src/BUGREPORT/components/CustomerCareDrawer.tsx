@@ -303,7 +303,7 @@ const CustomerCareDrawer: React.FC<CustomerCareDrawerProps> = ({
                                         checked={emailOptIn}
                                         onChange={(e) => setEmailOptIn(e.target.checked)}
                                         disabled={isSubmitting}
-                                        sx={{ color: "#03363d" }} 
+                                        sx={{ color: "#2566b0" }} 
                                     />
                                 }
                                 label={
@@ -390,7 +390,7 @@ const CustomerCareDrawer: React.FC<CustomerCareDrawerProps> = ({
                                     component="span"
                                     sx={{
                                         fontSize: "0.75rem",
-                                        color: "#03363d",
+                                        color: "#2566b0",
                                         textDecoration: "underline",
                                         textDecorationStyle: "dotted",
                                         cursor: "pointer",
@@ -403,7 +403,7 @@ const CustomerCareDrawer: React.FC<CustomerCareDrawerProps> = ({
                                     component="span"
                                     sx={{
                                         fontSize: "0.75rem",
-                                        color: "#03363d",
+                                        color: "#2566b0",
                                         textDecoration: "underline",
                                         textDecorationStyle: "dotted",
                                         cursor: "pointer",

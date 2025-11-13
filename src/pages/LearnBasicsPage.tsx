@@ -25,7 +25,7 @@ const learnBasicsItems = [
     id: 1,
     title: "Welcome to Ajaxter",
     description: "Get started with the basics of our platform",
-    icon: <SchoolIcon sx={{ color: "#03363d", fontSize: 24 }} />,
+    icon: <SchoolIcon sx={{ color: "#2566b0", fontSize: 24 }} />,
     type: "video",
     duration: "5 min",
     completed: true,
@@ -106,7 +106,7 @@ const LearnBasicsPage: React.FC = () => {
               "&:hover": {
                 transform: "translateY(-2px)",
                 boxShadow: 4,
-                borderColor: "#03363d",
+                borderColor: "#2566b0",
               },
             }}
             onClick={() => handleModuleClick(item.id)}
@@ -169,7 +169,7 @@ const LearnBasicsPage: React.FC = () => {
                 </Box>
 
                 <Box>
-                  <PlayArrowIcon sx={{ color: "#03363d", fontSize: 28 }} />
+                  <PlayArrowIcon sx={{ color: "#2566b0", fontSize: 28 }} />
                 </Box>
               </Box>
             </CardContent>

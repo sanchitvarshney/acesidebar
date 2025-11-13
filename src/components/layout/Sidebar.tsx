@@ -29,24 +29,24 @@ const StyledDrawer = styled(Drawer, {
     width: open ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
     transition: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
     overflowX: "hidden",
-    backgroundColor: "#03363d",
+    backgroundColor: "#2566b0",
     borderRight: "none",
   },
 }));
 
 const iconColors = [
-  "#68868b", // green
-  "#68868b", // blue
-  "#68868b", // orange
-  "#68868b", // red
-  "#68868b", // purple
-  "#68868b", // cyan
+  "#f5f5f5", // green
+  "#f5f5f5", // blue
+  "#f5f5f5", // orange
+  "#f5f5f5", // red
+  "#f5f5f5", // purple
+  "#f5f5f5", // cyan
 ];
 
 const ColoredShortcutButton = styled(IconButton)<{ bgcolor: string }>(
   ({ theme, bgcolor }) => ({
     margin: theme.spacing(1),
-    color: "#fff",
+    color: "#2566b0",
     backgroundColor: bgcolor,
     borderRadius: 8,
     width: 40,

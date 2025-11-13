@@ -2,15 +2,21 @@ import {
   Box,
   Button,
   Checkbox,
+  FormControl,
   FormControlLabel,
+  FormLabel,
+  IconButton,
   Link,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import {
+import React, {
   ChangeEvent,
   ClipboardEvent,
+  FormEvent,
   KeyboardEvent,
   useEffect,
   useMemo,
@@ -24,6 +30,7 @@ import z from "zod";
 import CheckIcon from "@mui/icons-material/Check";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import EastIcon from "@mui/icons-material/East";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
 
 import GoogleRecaptcha, {
   GoogleRecaptchaRef,
@@ -37,14 +44,30 @@ const signUpSchema = z.object({
   email: z.string({ required_error: "Email is required" }).email("Invalid email"),
 });
 
-const otpSchema = z.object({
-  otp: z
-    .string({ required_error: "OTP is required" })
-    .regex(/^\d{6}$/, "OTP must be 6 digits"),
+const personalInfoSchema = z.object({
+  firstName: z.string({ required_error: "First name is required" }).min(1, "First name is required"),
+  lastName: z.string({ required_error: "Last name is required" }).min(1, "Last name is required"),
+  gender: z.enum(["male", "female", "other"], {
+    required_error: "Please select a gender",
+  }),
+  phoneNumber: z
+    .string({ required_error: "Phone number is required" })
+    .min(8, "Phone number must be at least 8 characters")
+    .max(15, "Phone number must be 15 characters or fewer"),
+});
+
+const organizationSchema = z.object({
+  organizationName: z
+    .string({ required_error: "Organization name is required" })
+    .min(2, "Organization name must be at least 2 characters"),
+  tenantDomain: z
+    .string({ required_error: "Tenant domain is required" })
+    .regex(/^[a-z0-9-]+$/i, "Use only letters, numbers, and hyphens"),
 });
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
-type OtpFormValues = z.infer<typeof otpSchema>;
+type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
+type OrganizationFormValues = z.infer<typeof organizationSchema>;
 
 const AdminSignupScreen = () => {
   const navigate = useNavigate();
@@ -66,30 +89,46 @@ const AdminSignupScreen = () => {
   });
 
   const {
-    register: registerOtp,
-    handleSubmit: handleOtpSubmit,
-    reset: resetOtpForm,
-    setValue: setOtpValue,
-    formState: {
-      errors: otpErrors,
-      isSubmitted: isOtpSubmitted,
-      touchedFields: otpTouchedFields,
-    },
-  } = useForm<OtpFormValues>({
-    resolver: zodResolver(otpSchema),
+    register: registerPersonal,
+    handleSubmit: handlePersonalSubmit,
+    reset: resetPersonalForm,
+    formState: { errors: personalErrors, isValid: isPersonalValid },
+  } = useForm<PersonalInfoFormValues>({
+    resolver: zodResolver(personalInfoSchema),
     mode: "onChange",
     defaultValues: {
-      otp: "",
+      firstName: "",
+      lastName: "",
+      gender: "male",
+      phoneNumber: "",
+    },
+  });
+
+  const {
+    register: registerOrganization,
+    handleSubmit: handleOrganizationSubmit,
+    reset: resetOrganizationForm,
+    formState: { errors: organizationErrors, isValid: isOrganizationValid },
+  } = useForm<OrganizationFormValues>({
+    resolver: zodResolver(organizationSchema),
+    mode: "onChange",
+    defaultValues: {
+      organizationName: "",
+      tenantDomain: "",
     },
   });
 
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState<boolean>(false);
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [isCaptchaVerified, setIsCaptchaVerified] = useState<boolean>(false);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(""));
   const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfoFormValues | null>(null);
+  const [organizationInfo, setOrganizationInfo] = useState<OrganizationFormValues | null>(null);
+  const [resendAttempts, setResendAttempts] = useState<number>(0);
+  const [resendTimer, setResendTimer] = useState<number>(0);
 
   const recaptchaRef = useRef<GoogleRecaptchaRef>(null);
 
@@ -102,14 +141,32 @@ const AdminSignupScreen = () => {
   }, [hasAcceptedTerms, step]);
 
   useEffect(() => {
-    registerOtp("otp");
-  }, [registerOtp]);
+    if (personalInfo) {
+      resetPersonalForm(personalInfo);
+    }
+  }, [personalInfo, resetPersonalForm]);
+
+  useEffect(() => {
+    if (organizationInfo) {
+      resetOrganizationForm(organizationInfo);
+    }
+  }, [organizationInfo, resetOrganizationForm]);
+
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const intervalId = window.setInterval(() => {
+      setResendTimer((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [resendTimer]);
 
   const emailValue = watch("email");
   const isEmailInvalid =
     !!(isSubmitted || touchedFields.email) && !!errors.email;
 
-  const isOtpValid = otpDigits.join("").length === 6 && !otpErrors.otp;
+  const isOtpValid = otpDigits.join("").length === 6;
 
   const isSubmitDisabled = useMemo(() => {
     if (!emailValue || isEmailInvalid) return true;
@@ -118,23 +175,58 @@ const AdminSignupScreen = () => {
     return false;
   }, [emailValue, isEmailInvalid, hasAcceptedTerms, isCaptchaVerified, captchaToken]);
 
-  const progressStatuses =
-    step === 1
-      ? ["current", "upcoming", "upcoming", "upcoming"]
-      : ["completed", "current", "upcoming", "upcoming"];
+  const totalSteps = 5;
+  const progressStatuses = useMemo(() => {
+    return Array.from({ length: totalSteps }).map((_, index) => {
+      if (index < step - 1) return "completed";
+      if (index === step - 1) return "current";
+      return "upcoming";
+    });
+  }, [step]);
 
   const onEmailSubmit = (data: SignUpFormValues) => {
     setSubmittedEmail(data.email.trim());
-    resetOtpForm();
     setOtpDigits(Array(6).fill(""));
-    setOtpValue("otp", "", { shouldValidate: true, shouldTouch: false, shouldDirty: false });
+    setPersonalInfo(null);
+    setOrganizationInfo(null);
+    setResendAttempts(0);
+    setResendTimer(0);
+    resetPersonalForm({
+      firstName: "",
+      lastName: "",
+      gender: "male",
+      phoneNumber: "",
+    });
+    resetOrganizationForm({
+      organizationName: "",
+      tenantDomain: "",
+    });
     setStep(2);
   };
 
-  const onOtpSubmit = (values: OtpFormValues) => {
+  const onOtpSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const otpValue = otpDigits.join("");
+    if (otpValue.length !== 6) {
+      return;
+    }
     console.log("Verify OTP", {
       email: submittedEmail,
-      otp: values.otp,
+      otp: otpValue,
+    });
+    setResendTimer(0);
+    setStep(3);
+    setPersonalInfo(null);
+    setOrganizationInfo(null);
+    resetPersonalForm({
+      firstName: "",
+      lastName: "",
+      gender: "male",
+      phoneNumber: "",
+    });
+    resetOrganizationForm({
+      organizationName: "",
+      tenantDomain: "",
     });
   };
 
@@ -143,32 +235,49 @@ const AdminSignupScreen = () => {
     setHasAcceptedTerms(false);
     setIsCaptchaVerified(false);
     setCaptchaToken("");
-    resetOtpForm();
     setOtpDigits(Array(6).fill(""));
-    setOtpValue("otp", "", { shouldValidate: false, shouldTouch: false, shouldDirty: false });
+    setResendAttempts(0);
+    setResendTimer(0);
     setEmailValue("email", submittedEmail);
     recaptchaRef.current?.reset();
   };
 
   const handleResendCode = () => {
+    if (resendAttempts >= 2 || resendTimer > 0) return;
     console.log("Resend OTP for", submittedEmail);
     setOtpDigits(Array(6).fill(""));
-    setOtpValue("otp", "", {
-      shouldValidate: true,
-      shouldDirty: false,
-      shouldTouch: false,
-    });
     otpInputRefs.current[0]?.focus();
+    setResendAttempts((prev) => prev + 1);
+    setResendTimer(60);
+  };
+
+  const onPersonalInfoSubmit = (values: PersonalInfoFormValues) => {
+    setPersonalInfo(values);
+    setStep(4);
+  };
+
+  const onOrganizationSubmit = (values: OrganizationFormValues) => {
+    setOrganizationInfo(values);
+    console.log("Collected admin signup details", {
+      email: submittedEmail,
+      personal: personalInfo,
+      organization: values,
+    });
+    setStep(5);
+  };
+
+  const handleBackToOtp = () => {
+    setStep(2);
+    otpInputRefs.current[0]?.focus();
+  };
+
+  const handleBackToPersonal = () => {
+    setStep(3);
   };
 
   const updateOtpDigits = (updater: (prev: string[]) => string[]) => {
     setOtpDigits((prev) => {
       const next = updater(prev);
-      setOtpValue("otp", next.join(""), {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: false,
-      });
       return next;
     });
   };
@@ -247,6 +356,13 @@ const AdminSignupScreen = () => {
       otpInputRefs.current[focusIndex]?.focus();
       otpInputRefs.current[focusIndex]?.select?.();
     };
+
+  const canResend = resendAttempts < 2 && resendTimer === 0;
+  const resendHelperText = canResend
+    ? "Resend code"
+    : resendAttempts >= 2
+      ? "Resend limit reached"
+      : `Resend in ${resendTimer}s`;
 
   return (
     <Box sx={{ minHeight: "100vh", width: "100%", backgroundColor: SECONDARY_BG }}>
@@ -585,10 +701,10 @@ const AdminSignupScreen = () => {
               Get Started
             </Button>
           </Box>
-        ) : (
+        ) : step === 2 ? (
           <Box
             component="form"
-            onSubmit={handleOtpSubmit(onOtpSubmit)}
+            onSubmit={onOtpSubmit}
             sx={{
               gridColumn: { xs: "1 / -1", md: "2 / 3" },
               backgroundColor: "#ffffff",
@@ -613,9 +729,31 @@ const AdminSignupScreen = () => {
               >
                 Check your inbox for the verification code.
               </Typography>
-              <Typography sx={{ mt: 1.5, color: "#5f6c86", fontSize: { xs: 14, md: 16 } }}>
-                We’ve emailed a one-time password to {submittedEmail}.
-              </Typography>
+              <Box
+                sx={{
+                  mt: 1.5,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  color: "#5f6c86",
+                  fontSize: { xs: 14, md: 16 },
+                }}
+              >
+                <Typography component="span">
+                  We’ve emailed a one-time password to{" "}
+                  <Typography component="span" sx={{ fontWeight: 600, color: PRIMARY_DARK }}>
+                    {submittedEmail}
+                  </Typography>
+                </Typography>
+                <IconButton
+                  size="small"
+                  sx={{ color: PRIMARY_COLOR }}
+                  onClick={handleChangeEmail}
+                >
+                  <BorderColorIcon fontSize="small" />
+                </IconButton>
+                <Typography component="span">here.</Typography>
+              </Box>
             </Box>
 
             <Box
@@ -665,28 +803,28 @@ const AdminSignupScreen = () => {
                       },
                     },
                   }}
-                  error={
-                    isOtpSubmitted || otpTouchedFields.otp ? !!otpErrors.otp : false
-                  }
+                  error={false}
                 />
               ))}
             </Box>
-            {(isOtpSubmitted || otpTouchedFields.otp) && otpErrors.otp && (
-              <Typography sx={{ color: "error.main", textAlign: "center" }}>
-                {otpErrors.otp.message}
-              </Typography>
-            )}
-
             <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-              <Link
-                component="button"
+              <Button
                 type="button"
-                underline="none"
-                sx={{ fontWeight: 600, color: PRIMARY_COLOR }}
+                variant="text"
                 onClick={handleResendCode}
+                disabled={!canResend}
+                sx={{
+                  fontWeight: 600,
+                  color: canResend ? PRIMARY_COLOR : "#9ca3af",
+                  textTransform: "none",
+                  px: 0,
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                  },
+                }}
               >
-                Resend code
-              </Link>
+                {resendHelperText}
+              </Button>
             </Box>
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
@@ -712,10 +850,89 @@ const AdminSignupScreen = () => {
               >
                 Verify OTP
               </Button>
+            </Box>
+          </Box>
+        ) : step === 3 ? (
+          <Box
+            component="form"
+            onSubmit={handlePersonalSubmit(onPersonalInfoSubmit)}
+            sx={{
+              gridColumn: { xs: "1 / -1", md: "2 / 3" },
+              backgroundColor: "#ffffff",
+              px: { xs: 4, sm: 6, md: 8 },
+              py: { xs: 6, md: 10 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              justifyContent: "center",
+              overflowY: { md: "auto" },
+              maxHeight: { md: "100vh" },
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  mt: 2,
+                  color: "#1f2a37",
+                  fontWeight: 600,
+                  fontSize: { xs: 20, md: 24 },
+                }}
+              >
+                Tell us about yourself.
+              </Typography>
+              <Typography sx={{ mt: 1.5, color: "#5f6c86", fontSize: { xs: 14, md: 16 } }}>
+                Share your details so we can personalize your admin workspace.
+              </Typography>
+            </Box>
+
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                {...registerPersonal("firstName")}
+                label="First Name"
+                fullWidth
+                error={!!personalErrors.firstName}
+                helperText={personalErrors.firstName?.message}
+              />
+              <TextField
+                {...registerPersonal("lastName")}
+                label="Last Name"
+                fullWidth
+                error={!!personalErrors.lastName}
+                helperText={personalErrors.lastName?.message}
+              />
+            </Stack>
+
+            <FormControl component="fieldset" error={!!personalErrors.gender}>
+              <FormLabel component="legend">Gender</FormLabel>
+              <RadioGroup row {...registerPersonal("gender")}>
+                <FormControlLabel value="male" control={<Radio />} label="Male" />
+                <FormControlLabel value="female" control={<Radio />} label="Female" />
+                <FormControlLabel value="other" control={<Radio />} label="Other" />
+              </RadioGroup>
+              {personalErrors.gender && (
+                <Typography variant="caption" sx={{ color: "error.main", mt: 0.5 }}>
+                  {personalErrors.gender.message}
+                </Typography>
+              )}
+            </FormControl>
+
+            <TextField
+              {...registerPersonal("phoneNumber")}
+              label="Phone Number"
+              fullWidth
+              inputProps={{
+                inputMode: "tel",
+                pattern: "[0-9]*",
+              }}
+              error={!!personalErrors.phoneNumber}
+              helperText={personalErrors.phoneNumber?.message || "We’ll verify this later."}
+            />
+
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               <Button
                 type="button"
                 variant="outlined"
-                onClick={handleChangeEmail}
+                onClick={handleBackToOtp}
                 sx={{
                   px: { xs: 4, md: 6 },
                   borderRadius: 2,
@@ -726,9 +943,187 @@ const AdminSignupScreen = () => {
                   letterSpacing: 1,
                 }}
               >
-                Change Email Address
+                Back
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={!isPersonalValid}
+                endIcon={<EastIcon sx={{ fontSize: 20 }} />}
+                sx={{
+                  px: { xs: 4, md: 6 },
+                  background: "#7E40EF",
+                  borderRadius: 2,
+                  py: 1.25,
+                  fontWeight: 600,
+                  fontSize: 16,
+                  boxShadow: "0 18px 30px -18px rgba(126,64,239,0.65)",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  "&:hover": {
+                    background: "#6931d8",
+                  },
+                }}
+              >
+                Next
               </Button>
             </Box>
+          </Box>
+        ) : step === 4 ? (
+          <Box
+            component="form"
+            onSubmit={handleOrganizationSubmit(onOrganizationSubmit)}
+            sx={{
+              gridColumn: { xs: "1 / -1", md: "2 / 3" },
+              backgroundColor: "#ffffff",
+              px: { xs: 4, sm: 6, md: 8 },
+              py: { xs: 6, md: 10 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              justifyContent: "center",
+              overflowY: { md: "auto" },
+              maxHeight: { md: "100vh" },
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  mt: 2,
+                  color: "#1f2a37",
+                  fontWeight: 600,
+                  fontSize: { xs: 20, md: 24 },
+                }}
+              >
+                Set up your organization.
+              </Typography>
+              <Typography sx={{ mt: 1.5, color: "#5f6c86", fontSize: { xs: 14, md: 16 } }}>
+                Choose a name and tenant domain for your Ajaxter workspace.
+              </Typography>
+            </Box>
+
+            <TextField
+              {...registerOrganization("organizationName")}
+              label="Organization Name"
+              fullWidth
+              error={!!organizationErrors.organizationName}
+              helperText={organizationErrors.organizationName?.message}
+            />
+
+            <TextField
+              {...registerOrganization("tenantDomain")}
+              label="Tenant Domain"
+              fullWidth
+              placeholder="your-workspace"
+              error={!!organizationErrors.tenantDomain}
+              helperText={organizationErrors.tenantDomain?.message}
+            />
+
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={handleBackToPersonal}
+                sx={{
+                  px: { xs: 4, md: 6 },
+                  borderRadius: 2,
+                  py: 1.25,
+                  fontWeight: 600,
+                  fontSize: 16,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}
+              >
+                Back
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={!isOrganizationValid}
+                endIcon={<EastIcon sx={{ fontSize: 20 }} />}
+                sx={{
+                  px: { xs: 4, md: 6 },
+                  background: "#7E40EF",
+                  borderRadius: 2,
+                  py: 1.25,
+                  fontWeight: 600,
+                  fontSize: 16,
+                  boxShadow: "0 18px 30px -18px rgba(126,64,239,0.65)",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  "&:hover": {
+                    background: "#6931d8",
+                  },
+                }}
+              >
+                Save
+              </Button>
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              gridColumn: { xs: "1 / -1", md: "2 / 3" },
+              backgroundColor: "#ffffff",
+              px: { xs: 4, sm: 6, md: 8 },
+              py: { xs: 6, md: 10 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+              justifyContent: "center",
+              alignItems: "flex-start",
+              textAlign: "left",
+            }}
+          >
+            <Typography
+              sx={{
+                color: PRIMARY_DARK,
+                fontWeight: 700,
+                fontSize: { xs: 26, md: 30 },
+              }}
+            >
+              Congratulations, all done!
+            </Typography>
+            <Typography sx={{ color: "#5f6c86", fontSize: { xs: 15, md: 16 }, maxWidth: 520 }}>
+              We’ll send you an email after we verify{" "}
+              <Typography component="span" sx={{ fontWeight: 600, color: PRIMARY_DARK }}>
+                {organizationInfo?.tenantDomain || "your tenant domain"}
+              </Typography>
+              . In the meantime, you can head back to the login screen or explore our help center.
+            </Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate("/login")}
+                sx={{
+                  px: { xs: 4, md: 6 },
+                  borderRadius: 2,
+                  py: 1.25,
+                  fontWeight: 600,
+                  fontSize: 16,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}
+              >
+                Go to Login
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => window.open("https://support.ajaxter.com", "_blank")}
+                sx={{
+                  px: { xs: 4, md: 6 },
+                  borderRadius: 2,
+                  py: 1.25,
+                  fontWeight: 600,
+                  fontSize: 16,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}
+              >
+                Visit Help Center
+              </Button>
+            </Stack>
           </Box>
         )}
       </Box>

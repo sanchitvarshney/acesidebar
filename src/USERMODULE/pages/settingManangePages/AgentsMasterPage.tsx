@@ -53,9 +53,9 @@ const departmentColumns = [
       <Checkbox
         size="small"
         sx={{
-          color: "#03363d",
+          color: "#2566b0",
           "&.Mui-checked": {
-            color: "#03363d",
+            color: "#2566b0",
           },
         }}
       />
@@ -64,9 +64,9 @@ const departmentColumns = [
       <Checkbox
         size="small"
         sx={{
-          color: "#03363d",
+          color: "#2566b0",
           "&.Mui-checked": {
-            color: "#03363d",
+            color: "#2566b0",
           },
         }}
       />
@@ -88,7 +88,7 @@ const departmentColumns = [
         size="small"
         sx={{
           bgcolor: "#e3f2fd",
-          color: "#03363d",
+          color: "#2566b0",
           fontWeight: 500,
           fontSize: "11px",
         }}
@@ -633,7 +633,7 @@ const DepartmentsManagement = () => {
                       color: "#999",
                       fontSize: "0.875rem",
                       "&:hover": {
-                        borderColor: "#03363d",
+                        borderColor: "#2566b0",
                         backgroundColor: "#f5f5f5",
                         color: "#666",
                       },
@@ -712,8 +712,8 @@ const DepartmentsManagement = () => {
                   color: "#666",
                   border: "1px solid #e0e0e0",
                   "&:hover": {
-                    color: "#03363d",
-                    borderColor: "#03363d",
+                    color: "#2566b0",
+                    borderColor: "#2566b0",
                     backgroundColor: "#f5f5f5",
                   },
                 }}
@@ -763,7 +763,7 @@ const DepartmentsManagement = () => {
                       zIndex: 10,
                       height: 4,
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: "#03363d",
+                        backgroundColor: "#2566b0",
                       },
                       "& .MuiLinearProgress-root": {
                         backgroundColor: "#e0e0e0",
@@ -873,7 +873,7 @@ const DepartmentsManagement = () => {
                           size="small"
                           sx={{
                             bgcolor: "#e3f2fd",
-                            color: "#03363d",
+                            color: "#2566b0",
                             fontWeight: 500,
                             fontSize: "11px",
                           }}

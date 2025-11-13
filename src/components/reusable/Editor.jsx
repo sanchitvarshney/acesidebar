@@ -836,7 +836,7 @@ const StackEditor = ({
               >
                 <span>{item.name}</span>
                 {isSelected && (
-                  <CheckIcon sx={{ color: "#03363d", fontSize: 20, ml: 2 }} />
+                  <CheckIcon sx={{ color: "#2566b0", fontSize: 20, ml: 2 }} />
                 )}
               </MenuItem>
             );

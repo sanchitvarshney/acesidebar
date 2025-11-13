@@ -185,7 +185,7 @@ const CustomerInfoSection: React.FC<CustomerInfoSectionProps> = ({
             <Typography
               variant="body2"
               sx={{
-                color: "#03363d",
+                color: "#2566b0",
                 textDecoration: "underline",
                 cursor: "pointer",
               }}
@@ -324,7 +324,7 @@ const CustomerInfoSection: React.FC<CustomerInfoSectionProps> = ({
                   borderColor: "#bdbdbd",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#03363d",
+                  borderColor: "#2566b0",
                 },
               },
             }}

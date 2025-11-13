@@ -182,7 +182,7 @@ const LeftMenu: React.FC = () => {
         overflow: "visible",
         width: gettingStartedExpanded ? 240 : 35,
         transition: "width 0.3s ease",
-        backgroundColor: "#e3ebeb",
+        backgroundColor: "#dde4ed",
         marginTop: "60px",
         display: helpCenterOpen ? "none" : "flex",
         position: "relative",
@@ -440,7 +440,7 @@ const LeftMenu: React.FC = () => {
             <IconButton
               sx={{
                 backgroundColor: "#fff",
-                color: "#03363d",
+                color: "#2566b0",
                 "&:hover": {
                   backgroundColor: "#f5f5f5",
                 },
