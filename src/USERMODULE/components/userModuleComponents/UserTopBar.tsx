@@ -245,7 +245,7 @@ const UserTopBar: React.FC<TopBarProps> = ({ open, handleDrawerToggle }) => {
                 }}
               >
                 <ListItemAvatar>
-                  <Avatar sx={{ bgcolor: "#00a884", fontSize: 13 }}>{item.avatar}</Avatar>
+                  <Avatar sx={{ bgcolor: "#ff7800", fontSize: 13 }}>{item.avatar}</Avatar>
                 </ListItemAvatar>
                 <ListItemText
                   primary={

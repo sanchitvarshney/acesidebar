@@ -247,7 +247,7 @@ const UserTodoScreen = () => {
                 <div className="flex items-start gap-3">
                   <button
                     type="submit"
-                    className="mt-1 h-11 w-11 rounded-full bg-[#00a884] text-white flex items-center justify-center shadow hover:bg-[#008f72] transition"
+                    className="mt-1 h-11 w-11 rounded-full bg-[#ff7800] text-white flex items-center justify-center shadow hover:bg-[#008f72] transition"
                     title="Add todo"
                   >
                     <Plus size={20} />
@@ -266,7 +266,7 @@ const UserTodoScreen = () => {
                         }
                       />
                       <textarea
-                        className="mt-2 w-full text-sm text-slate-600 bg-transparent border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#00a884]/20 focus:border-[#00a884]"
+                        className="mt-2 w-full text-sm text-slate-600 bg-transparent border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#ff7800]/20 focus:border-[#ff7800]"
                         placeholder="Optional: add notes or context…"
                         rows={2}
                         value={draft.description}
@@ -279,7 +279,7 @@ const UserTodoScreen = () => {
                       />
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <label className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-slate-200 text-slate-500 hover:border-[#00a884]">
+                      <label className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-slate-200 text-slate-500 hover:border-[#ff7800]">
                         <Calendar size={14} />
                         <input
                           type="text"
@@ -339,7 +339,7 @@ const UserTodoScreen = () => {
                   <button
                     className={`mt-1 h-6 w-6 flex-shrink-0 rounded-full border-2 flex items-center justify-center transition ${
                       isCompleted
-                        ? "bg-[#00a884] border-[#00a884] text-white"
+                        ? "bg-[#ff7800] border-[#ff7800] text-white"
                         : "border-slate-300 text-transparent"
                     }`}
                     onClick={() => toggleTodo(todo.id)}
@@ -387,7 +387,7 @@ const UserTodoScreen = () => {
                       <span className="flex items-center gap-1">
                         <Circle
                           size={10}
-                          className="fill-[#00a884] text-[#00a884]"
+                          className="fill-[#ff7800] text-[#ff7800]"
                         />
                         Created {todo.createdAt}
                       </span>
