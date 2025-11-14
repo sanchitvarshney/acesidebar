@@ -71,12 +71,20 @@ const extendedAuthApi = baseInstanceOfApi.injectEndpoints({
         body: credentials.body,
       }),
     }),
-      getUserIsAvailable: builder.query<any, any>({
+    getUserIsAvailable: builder.query<any, any>({
       query: ({ userId }: any) => ({
-         url: `/auth/status/${userId}`,
+        url: `/auth/status/${userId}`,
         method: "GET",
       }),
       transformResponse: (response: any) => response?.data,
+    }),
+
+    adminSignUp: builder.mutation({
+      query: (credentials) => ({
+        url: `/signup/${credentials?.url}`,
+        method: "POST",
+        body: credentials?.body ,
+      }),
     }),
   }),
   overrideExisting: false,
@@ -92,5 +100,6 @@ export const {
   useLazyGetUserTicketsQuery,
   useUpdateUserDataMutation,
   useUpdateActiveStatusMutation,
-  useGetUserIsAvailableQuery
+  useGetUserIsAvailableQuery,
+  useAdminSignUpMutation,
 } = extendedAuthApi;
