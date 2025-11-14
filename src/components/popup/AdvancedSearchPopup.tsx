@@ -624,7 +624,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
                   textTransform: 'none',
                   justifyContent: 'flex-start',
                   '&.MuiButton-contained': {
-                    backgroundColor: '#1a73e8',
+                    backgroundColor: '#2566b0',
                     '&:hover': { backgroundColor: '#1557b0' }
                   }
                 }}
@@ -904,7 +904,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
                         startIcon={index === steps.length - 1 && isLoading ? <CircularProgress size={16} color="inherit" /> : undefined}
                         sx={{ 
                           mr: 1,
-                          backgroundColor: '#1a73e8',
+                          backgroundColor: '#2566b0',
                           textTransform: 'none',
                           '&:hover': { backgroundColor: '#1557b0' },
                           '&:disabled': {
@@ -949,7 +949,7 @@ const AdvancedSearchPopup: React.FC<AdvancedSearchPopupProps> = ({ open, onClose
             variant="text"
             startIcon={<OpenInNewIcon />}
             sx={{ 
-              color: '#1a73e8',
+              color: '#2566b0',
               textTransform: 'none',
               fontSize: '0.875rem',
               minWidth: 'auto',

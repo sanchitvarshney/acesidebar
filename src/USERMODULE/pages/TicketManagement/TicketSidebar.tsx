@@ -387,7 +387,7 @@ const TicketFilterPanel: React.FC<any> = ({ onApplyFilters }) => {
                 onClick={handlePopoverOpen}
                 disabled={!canAddMoreFilters}
                 sx={{
-                  color: "#1a73e8",
+                  color: "#2566b0",
                   fontWeight: 500,
                   textTransform: "none",
                   pl: 0,

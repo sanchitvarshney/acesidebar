@@ -222,7 +222,7 @@ export const fieldOptions: FieldOption[] = [
 export const statusOptions: FieldOption[] = [
   { value: "pending", label: "Pending", color: "#6B7280" },
   { value: "hold", label: "On Hold", color: "#F59E0B" },
-  { value: "progress", label: "In Progress", color: "#3B82F6" },
+  { value: "progress", label: "In Progress", color: "#2566b0" },
   { value: "postponed", label: "Postponed", color: "#8B5CF6" },
   { value: "queue", label: "In Queue", color: "#8B5CF6" },
   { value: "completed", label: "Completed", color: "#10B981" },
@@ -232,7 +232,7 @@ export const statusOptions: FieldOption[] = [
 // Priority options
 export const priorityOptions: FieldOption[] = [
   { value: "low", label: "Low", color: "#10B981" },
-  { value: "medium", label: "Medium", color: "#3B82F6" },
+  { value: "medium", label: "Medium", color: "#2566b0" },
   { value: "high", label: "High", color: "#EF4444" },
   { value: "urgent", label: "Urgent", color: "#EF4444" },
 ];

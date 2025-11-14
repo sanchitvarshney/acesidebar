@@ -48,7 +48,7 @@ const SearchContainer = styled("div", {
 })<SearchStyleProps>(({ theme, bgColor, bgOpacity, borderRadius }) => ({
   position: "relative",
   borderRadius:  4,
-  border:"2px solid #1a73e8",
+  border:"2px solid #2566b0",
   backgroundColor: alpha(
     bgColor ?? theme.palette.common.white,
     bgOpacity ?? 0.15

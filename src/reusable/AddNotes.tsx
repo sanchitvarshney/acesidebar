@@ -61,7 +61,7 @@ const AddNotes = ({ label = "Write your note here", rows = 4, inputText, note, o
         </Button>
         <Button
           variant="contained"
-          sx={{ bgcolor: "#1a73e8", color: "white" }}
+          sx={{ bgcolor: "#2566b0", color: "white" }}
           onClick={handleSave}
           disabled={isEditLoading || addingLoading || !note.trim()}
         >

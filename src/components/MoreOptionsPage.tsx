@@ -116,7 +116,7 @@ const MoreOptionsPage = ({
       {
         id: "change-owner",
         title: "Change Owner",
-        icon: <PersonAddAlt1Icon sx={{ color: "#1a73e8" }} />,
+        icon: <PersonAddAlt1Icon sx={{ color: "#2566b0" }} />,
         iconBg: "#dbeafe",
         onClick: () => {
           openThenClose(setIsChangeOwnerModal);
@@ -243,7 +243,7 @@ const MoreOptionsPage = ({
               "&:hover": {
                 // transform: "translateY(-2px)",
                 // boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-                borderColor: "#1a73e8",
+                borderColor: "#2566b0",
                 backgroundColor: "#e0e0e0", //light gray
               },
             }}

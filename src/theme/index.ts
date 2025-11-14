@@ -82,7 +82,7 @@ export const theme = createTheme({
             borderColor: "#6b7280",
           },
           "&.Mui-focused:before": {
-            borderColor: "#1a73e8",
+            borderColor: "#2566b0",
           },
           fontSize: "13px",
           "&.Mui-disabled": {
@@ -149,7 +149,7 @@ export const theme = createTheme({
   palette: {
     primary: {
       light: "#22d3ee", // Light teal
-      main: "#1a73e8", // Main teal
+      main: "#2566b0", // Main teal
       dark: "#0e7490", // Dark teal
       contrastText: "#fff",
     },

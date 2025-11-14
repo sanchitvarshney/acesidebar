@@ -1097,7 +1097,7 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                     }
                                     sx={{
                                       textTransform: "none",
-                                      backgroundColor: "#1a73e8",
+                                      backgroundColor: "#2566b0",
                                       "&:hover": {
                                         backgroundColor: "#1557b0",
                                       },
@@ -1282,7 +1282,7 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                                         onClick={() => setRightActiveTab(1)}
                                         sx={{
                                           textTransform: "none",
-                                          color: "#1a73e8",
+                                          color: "#2566b0",
                                           "&:hover": {
                                             backgroundColor:
                                               "rgba(26, 115, 232, 0.04)",
@@ -2134,10 +2134,10 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               textTransform: "none",
                               backgroundColor:
                                 logicOperator === "AND"
-                                  ? "#1a73e8"
+                                  ? "#2566b0"
                                   : "transparent",
                               color:
-                                logicOperator === "AND" ? "#fff" : "#1a73e8",
+                                logicOperator === "AND" ? "#fff" : "#2566b0",
                               borderRadius: 0,
                               borderRight: "1px solid #e3f2fd",
                               "&:hover": {
@@ -2164,10 +2164,10 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               textTransform: "none",
                               backgroundColor:
                                 logicOperator === "OR"
-                                  ? "#1a73e8"
+                                  ? "#2566b0"
                                   : "transparent",
                               color:
-                                logicOperator === "OR" ? "#fff" : "#1a73e8",
+                                logicOperator === "OR" ? "#fff" : "#2566b0",
                               borderRadius: 0,
                               "&:hover": {
                                 backgroundColor:
@@ -2211,12 +2211,12 @@ const DrawerTask: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                     taskSearchConditions.length >= 4 ||
                     getAvailableFields("").length === 0
                       ? "#ccc"
-                      : "#1a73e8",
+                      : "#2566b0",
                   color:
                     taskSearchConditions.length >= 4 ||
                     getAvailableFields("").length === 0
                       ? "#999"
-                      : "#1a73e8",
+                      : "#2566b0",
                   backgroundColor: "#fff",
                   "&:hover": {
                     borderColor:

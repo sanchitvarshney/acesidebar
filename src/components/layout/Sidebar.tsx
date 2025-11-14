@@ -29,7 +29,7 @@ const StyledDrawer = styled(Drawer, {
     width: open ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH,
     transition: "width 150ms cubic-bezier(0.4,0,0.2,1) 0ms",
     overflowX: "hidden",
-    backgroundColor: "#2566b0",
+    backgroundColor: "#12344d",
     borderRight: "none",
   },
 }));
@@ -46,7 +46,7 @@ const iconColors = [
 const ColoredShortcutButton = styled(IconButton)<{ bgcolor: string }>(
   ({ theme, bgcolor }) => ({
     margin: theme.spacing(1),
-    color: "#2566b0",
+    color: "#39566b",
     backgroundColor: bgcolor,
     borderRadius: 8,
     width: 40,

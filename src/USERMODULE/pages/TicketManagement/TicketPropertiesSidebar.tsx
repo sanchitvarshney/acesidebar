@@ -222,7 +222,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
         sx={{
           borderBottom: 1,
           borderColor: "divider",
-          backgroundColor: "white",
+          backgroundColor: "transparent",
           flexShrink: 0,
           overflow: "hidden",
           // Mobile adjustments
@@ -249,11 +249,11 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
               color: "#6b7280",
               fontSize: { xs: "0.75rem", sm: "0.875rem" },
               "&.Mui-selected": {
-                color: "#1a73e8",
+                color: "#2566b0",
               },
             },
             "& .MuiTabs-indicator": {
-              backgroundColor: "#1a73e8",
+              backgroundColor: "#2566b0",
             },
             "& .MuiTabs-scrollButtons": {
               display: { xs: "flex", sm: "flex" },
@@ -279,7 +279,7 @@ const TicketPropertiesSidebar = ({ ticket }: any) => {
           width: "100%",
           overflow: "auto",
           height: "100%",
-          backgroundColor: "#f8f9fa",
+          backgroundColor: "transparent",
           p: { xs: 0.5, sm: 1 },
           // Mobile improvements
           flex: 1,

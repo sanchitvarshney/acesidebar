@@ -55,7 +55,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
         className={`relative border mb-3 transition-shadow transition-all duration-200
         ${
           isCurrentTask
-            ? "border-[#1a73e8] shadow-lg scale-[1.02] before:bg-[#1a73e8]"
+            ? "border-[#2566b0] shadow-lg scale-[1.02] before:bg-[#2566b0]"
             : "border-gray-300 hover:shadow-md hover:bg-gray-100 before:bg-gray-300"
         } before:content-[''] before:absolute before:top-0 before:left-0 before:w-1 before:h-full before:rounded-l ${"cursor-pointer"}`}
         onClick={handleClick}
@@ -89,7 +89,7 @@ const TaskCard: React.FC<TaskCardProps> = memo(
                             sx={{
                               color: "#666",
                               "&.Mui-checked": {
-                                color: "#1a73e8",
+                                color: "#2566b0",
                               },
                               "&:hover": {
                                 backgroundColor: "rgba(26, 115, 232, 0.04)",

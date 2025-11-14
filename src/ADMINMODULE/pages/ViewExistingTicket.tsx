@@ -65,9 +65,9 @@ const ViewExistingTicket = () => {
                 borderRadius: "4px",
                 backgroundColor: "#f9fafb",
                 "&:hover fieldset": { borderColor: "#9ca3af" },
-                "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                "&.Mui-focused fieldset": { borderColor: "#2566b0" },
               },
-              "& label.Mui-focused": { color: "#1a73e8" },
+              "& label.Mui-focused": { color: "#2566b0" },
               "& label": { fontWeight: "bold" },
             }}
           />
@@ -83,7 +83,7 @@ const ViewExistingTicket = () => {
             onClick={() => setDialogOpen(true)}
             sx={{
               fontWeight: "bold",
-              color: "#1a73e8",
+              color: "#2566b0",
               cursor: "pointer",
               textDecoration: "underline",
               "&:hover": { textDecoration: "none" },

@@ -1313,7 +1313,7 @@ const CanenResponseMasterPage = () => {
                       width={400}
                     >
                       <span
-                        className="bg-[#1a73e8] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
+                        className="bg-[#2566b0] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
                         onClick={() => setShowImagesModal(true)}
                       >
                         {images.length}

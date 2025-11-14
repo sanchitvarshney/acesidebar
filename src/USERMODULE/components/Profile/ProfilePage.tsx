@@ -141,7 +141,7 @@ const ProfilePage = () => {
             onClick={() => setIsEdit(true)}
             sx={{
               fontWeight: 500,
-              color: "#1a73e8",
+              color: "#2566b0",
               fontSize: "0.875rem",
             }}
           >
@@ -168,7 +168,7 @@ const ProfilePage = () => {
             onClick={handleMergeContact}
             sx={{
               fontWeight: 500,
-              color: "#1a73e8",
+              color: "#2566b0",
               fontSize: "0.875rem",
             }}
           >
@@ -181,7 +181,7 @@ const ProfilePage = () => {
             onClick={() => setIsConvertProfile(true)}
             sx={{
               fontWeight: 500,
-              color: "#1a73e8",
+              color: "#2566b0",
               fontSize: "0.875rem",
             }}
           >
@@ -194,7 +194,7 @@ const ProfilePage = () => {
             onClick={() => setIsChangePassword(true)}
             sx={{
               fontWeight: 500,
-              color: "#1a73e8",
+              color: "#2566b0",
               fontSize: "0.875rem",
             }}
           >
@@ -207,7 +207,7 @@ const ProfilePage = () => {
             onClick={() => navigate("/create-ticket")}
             sx={{
               fontWeight: 500,
-              color: "#1a73e8",
+              color: "#2566b0",
               fontSize: "0.875rem",
             }}
           >

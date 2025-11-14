@@ -325,7 +325,7 @@ const TicketDetailHeader = ({
           <ArrowBackIcon fontSize="small" />
         </IconButton>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <span className="text-[#1a73e8] font-semibold text-md">
+          <span className="text-[#2566b0] font-semibold text-md">
             {ticket?.ticketId && ticket?.ticketId}
           </span>
           <Tooltip title="Copy ticket number" arrow>
@@ -344,7 +344,7 @@ const TicketDetailHeader = ({
                 "&:hover": { bgcolor: "rgba(26, 115, 232, 0.08)" },
               }}
             >
-              <ContentCopyIcon sx={{ fontSize: 14, color: "#1a73e8" }} />
+              <ContentCopyIcon sx={{ fontSize: 14, color: "#2566b0" }} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -410,9 +410,9 @@ const TicketDetailHeader = ({
               size="small"
               sx={{
                 "& .MuiSwitch-switchBase.Mui-checked": {
-                  color: "#1a73e8",
+                  color: "#2566b0",
                   "& + .MuiSwitch-track": {
-                    backgroundColor: "#1a73e8",
+                    backgroundColor: "#2566b0",
                   },
                 },
                 "& .MuiSwitch-track": {
@@ -645,9 +645,9 @@ const TicketDetailHeader = ({
                     borderRadius: "4px",
                     backgroundColor: "#f9fafb",
                     "&:hover fieldset": { borderColor: "#9ca3af" },
-                    "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                    "&.Mui-focused fieldset": { borderColor: "#2566b0" },
                   },
-                  "& label.Mui-focused": { color: "#1a73e8" },
+                  "& label.Mui-focused": { color: "#2566b0" },
                   "& label": { fontWeight: "bold" },
                 }}
               />

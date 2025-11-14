@@ -163,7 +163,7 @@ const TasksPopup: React.FC<TasksPopupProps> = ({ open, onClose, anchorEl }) => {
                         <Typography 
                           variant="caption" 
                           sx={{ 
-                            color: '#1a73e8', 
+                            color: '#2566b0', 
                             cursor: 'pointer', 
                             textDecoration: 'underline',
                             '&:hover': { textDecoration: 'none' }
@@ -208,7 +208,7 @@ const TasksPopup: React.FC<TasksPopupProps> = ({ open, onClose, anchorEl }) => {
                         <Typography 
                           variant="caption" 
                           sx={{ 
-                            color: '#1a73e8', 
+                            color: '#2566b0', 
                             cursor: 'pointer', 
                             textDecoration: 'underline',
                             '&:hover': { textDecoration: 'none' }
@@ -253,7 +253,7 @@ const TasksPopup: React.FC<TasksPopupProps> = ({ open, onClose, anchorEl }) => {
                         <Typography 
                           variant="caption" 
                           sx={{ 
-                            color: '#1a73e8', 
+                            color: '#2566b0', 
                             cursor: 'pointer', 
                             textDecoration: 'underline',
                             '&:hover': { textDecoration: 'none' }
@@ -349,7 +349,7 @@ const TasksPopup: React.FC<TasksPopupProps> = ({ open, onClose, anchorEl }) => {
                 flex: 1,
                 color: '#666',
                 '&.Mui-selected': {
-                  color: '#1a73e8',
+                  color: '#2566b0',
                 },
                 '&.Mui-disabled': {
                   color: '#ccc',
@@ -358,7 +358,7 @@ const TasksPopup: React.FC<TasksPopupProps> = ({ open, onClose, anchorEl }) => {
                 },
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: '#1a73e8',
+                backgroundColor: '#2566b0',
                 height: 2,
               },
             }}
