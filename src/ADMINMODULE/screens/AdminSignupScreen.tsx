@@ -43,9 +43,72 @@ import GoogleRecaptcha, {
 } from "../../components/reusable/GoogleRecaptcha";
 import lockIconGreen from "../../assets/icons/lock_icon_green.svg";
 
+// Constants
 const PRIMARY_COLOR = "#2567B3";
 const PRIMARY_DARK = "#1E4D8A";
 const SECONDARY_BG = "#F5F7FB";
+const TOTAL_STEPS = 4;
+const MAX_RESEND_ATTEMPTS = 2;
+const RESEND_TIMER_SECONDS = 60;
+const OTP_LENGTH = 6;
+
+// Button Styles
+const primaryButtonStyles = {
+  px: { xs: 4, md: 6 },
+  background: PRIMARY_COLOR,
+  borderRadius: 0,
+  py: 1.25,
+  fontWeight: 600,
+  fontSize: 16,
+  boxShadow: "0 18px 30px -18px rgba(37, 103, 179, 0.65)",
+  textTransform: "uppercase" as const,
+  letterSpacing: 1,
+  "&:hover": {
+    background: PRIMARY_DARK,
+  },
+};
+
+const outlinedButtonStyles = {
+  px: { xs: 4, md: 6 },
+  borderRadius: 0,
+  py: 1.25,
+  fontWeight: 600,
+  fontSize: 16,
+  textTransform: "uppercase" as const,
+  letterSpacing: 1,
+};
+
+// Helper Component for Helper Text with Icon
+const HelperTextWithIcon = ({ message }: { message: string }) => (
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      gap: 1,
+      color: "warning.main",
+    }}
+  >
+    <LightbulbIcon sx={{ fontSize: 18 }} />
+    <Typography variant="caption" sx={{ color: "inherit" }}>
+      {message}
+    </Typography>
+  </Box>
+);
+
+// Animation styles for step content transition
+const stepContentAnimation = {
+  "@keyframes slideDown": {
+    "0%": {
+      opacity: 0,
+      transform: "translateY(-20px)",
+    },
+    "100%": {
+      opacity: 1,
+      transform: "translateY(0)",
+    },
+  },
+  animation: "slideDown 0.4s ease-out",
+};
 
 const signUpSchema = z.object({
   email: z
@@ -166,12 +229,12 @@ const AdminSignupScreen = () => {
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState<boolean>(false);
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [isCaptchaVerified, setIsCaptchaVerified] = useState<boolean>(false);
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [isSignupComplete, setIsSignupComplete] = useState<boolean>(false);
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
-  const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(""));
+  const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoFormValues | null>(null);
-  const [organizationInfo, setOrganizationInfo] = useState<OrganizationFormValues | null>(null);
   const [resendAttempts, setResendAttempts] = useState<number>(0);
   const [resendTimer, setResendTimer] = useState<number>(0);
   const baseDomain = useMemo(() => {
@@ -199,18 +262,6 @@ const AdminSignupScreen = () => {
   }, [hasAcceptedTerms, step]);
 
   useEffect(() => {
-    if (personalInfo) {
-      resetPersonalForm(personalInfo);
-    }
-  }, [personalInfo, resetPersonalForm]);
-
-  useEffect(() => {
-    if (organizationInfo) {
-      resetOrganizationForm(organizationInfo);
-    }
-  }, [organizationInfo, resetOrganizationForm]);
-
-  useEffect(() => {
     if (resendTimer <= 0) return;
     const intervalId = window.setInterval(() => {
       setResendTimer((prev) => (prev > 0 ? prev - 1 : 0));
@@ -224,7 +275,7 @@ const AdminSignupScreen = () => {
   const isEmailInvalid =
     !!(isSubmitted || touchedFields.email) && !!errors.email;
 
-  const isOtpValid = otpDigits.join("").length === 6;
+  const isOtpValid = otpDigits.join("").length === OTP_LENGTH;
 
   const isSubmitDisabled = useMemo(() => {
     if (!emailValue || isEmailInvalid) return true;
@@ -233,22 +284,16 @@ const AdminSignupScreen = () => {
     return false;
   }, [emailValue, isEmailInvalid, hasAcceptedTerms, isCaptchaVerified, captchaToken]);
 
-  const totalSteps = 5;
   const progressStatuses = useMemo(() => {
-    return Array.from({ length: totalSteps }).map((_, index) => {
+    return Array.from({ length: TOTAL_STEPS }).map((_, index) => {
       if (index < step - 1) return "completed";
       if (index === step - 1) return "current";
       return "upcoming";
     });
   }, [step]);
 
-  const onEmailSubmit = (data: SignUpFormValues) => {
-    setSubmittedEmail(data.email.trim());
-    setOtpDigits(Array(6).fill(""));
-    setPersonalInfo(null);
-    setOrganizationInfo(null);
-    setResendAttempts(0);
-    setResendTimer(0);
+  const resetForms = () => {
+    setIsSignupComplete(false);
     resetPersonalForm({
       fullName: "",
       gender: "male",
@@ -257,13 +302,21 @@ const AdminSignupScreen = () => {
     resetOrganizationForm({
       tenantDomain: "",
     });
+  };
+
+  const onEmailSubmit = (data: SignUpFormValues) => {
+    setSubmittedEmail(data.email.trim());
+    setOtpDigits(Array(OTP_LENGTH).fill(""));
+    setResendAttempts(0);
+    setResendTimer(0);
+    resetForms();
     setStep(2);
   };
 
   const onOtpSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const otpValue = otpDigits.join("");
-    if (otpValue.length !== 6) {
+    if (otpValue.length !== OTP_LENGTH) {
       return;
     }
     console.log("Verify OTP", {
@@ -272,16 +325,7 @@ const AdminSignupScreen = () => {
     });
     setResendTimer(0);
     setStep(3);
-    setPersonalInfo(null);
-    setOrganizationInfo(null);
-    resetPersonalForm({
-      fullName: "",
-      gender: "male",
-      organizationName: "",
-    });
-    resetOrganizationForm({
-      tenantDomain: "",
-    });
+    resetForms();
   };
 
   const handleChangeEmail = () => {
@@ -289,7 +333,7 @@ const AdminSignupScreen = () => {
     setHasAcceptedTerms(false);
     setIsCaptchaVerified(false);
     setCaptchaToken("");
-    setOtpDigits(Array(6).fill(""));
+    setOtpDigits(Array(OTP_LENGTH).fill(""));
     setResendAttempts(0);
     setResendTimer(0);
     setEmailValue("email", submittedEmail);
@@ -297,12 +341,12 @@ const AdminSignupScreen = () => {
   };
 
   const handleResendCode = () => {
-    if (resendAttempts >= 2 || resendTimer > 0) return;
+    if (resendAttempts >= MAX_RESEND_ATTEMPTS || resendTimer > 0) return;
     console.log("Resend OTP for", submittedEmail);
-    setOtpDigits(Array(6).fill(""));
+    setOtpDigits(Array(OTP_LENGTH).fill(""));
     otpInputRefs.current[0]?.focus();
     setResendAttempts((prev) => prev + 1);
-    setResendTimer(60);
+    setResendTimer(RESEND_TIMER_SECONDS);
   };
 
   const onPersonalInfoSubmit = (values: PersonalInfoFormValues) => {
@@ -311,7 +355,6 @@ const AdminSignupScreen = () => {
   };
 
   const onOrganizationSubmit = (values: OrganizationFormValues) => {
-    setOrganizationInfo(values);
     const workspaceUrl = values.tenantDomain
       ? `${values.tenantDomain}.${baseDomain}`
       : baseDomain;
@@ -321,10 +364,11 @@ const AdminSignupScreen = () => {
       organization: values,
       workspaceUrl,
     });
-    setStep(5);
+    setIsSignupComplete(true);
   };
 
   const handleBackToPersonal = () => {
+    setIsSignupComplete(false);
     setStep(3);
   };
 
@@ -410,10 +454,10 @@ const AdminSignupScreen = () => {
       otpInputRefs.current[focusIndex]?.select?.();
     };
 
-  const canResend = resendAttempts < 2 && resendTimer === 0;
+  const canResend = resendAttempts < MAX_RESEND_ATTEMPTS && resendTimer === 0;
   const resendHelperText = canResend
     ? "Resend code"
-    : resendAttempts >= 2
+    : resendAttempts >= MAX_RESEND_ATTEMPTS
       ? "Resend limit reached"
       : `Resend in ${resendTimer}s`;
 
@@ -509,8 +553,10 @@ const AdminSignupScreen = () => {
             {progressStatuses.map((status, index) => {
               const isCurrent = status === "current";
               const isCompleted = status === "completed";
-              const ringColor = isCurrent || isCompleted ? "#409a00" : "#d0d4df";
-              const innerColor = isCurrent || isCompleted ? "#409a00" : "#b6bcc9";
+              const isLastStep = index === TOTAL_STEPS - 1;
+              const showCheckMark = isCompleted || (isLastStep && isSignupComplete);
+              const ringColor = isCurrent || isCompleted || (isLastStep && isSignupComplete) ? "#409a00" : "#d0d4df";
+              const innerColor = isCurrent || isCompleted || (isLastStep && isSignupComplete) ? "#409a00" : "#b6bcc9";
               const isConnectorActive = index < step - 1;
 
               return (
@@ -530,7 +576,7 @@ const AdminSignupScreen = () => {
                       height: 48,
                       borderRadius: "50%",
                       backgroundColor: "#ffffff",
-                      boxShadow: isCurrent || isCompleted
+                      boxShadow: isCurrent || isCompleted || (isLastStep && isSignupComplete)
                         ? "0 18px 30px rgba(114, 87, 255, 0.35)"
                         : "0 12px 24px rgba(34, 61, 120, 0.18)",
                       display: "flex",
@@ -540,7 +586,7 @@ const AdminSignupScreen = () => {
                       transition: "all 0.3s ease",
                     }}
                   >
-                    {isCompleted ? (
+                    {showCheckMark ? (
                       <CheckIcon sx={{ color: "#409a00", fontSize: 22 }} />
                     ) : (
                       <Box
@@ -589,6 +635,7 @@ const AdminSignupScreen = () => {
               justifyContent: "center",
               overflowY: { md: "auto" },
               maxHeight: { md: "100vh" },
+              ...stepContentAnimation,
             }}
           >
             <Box>
@@ -628,19 +675,7 @@ const AdminSignupScreen = () => {
                 isEmailInvalid ? (
                   errors.email?.message
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      color: "warning.main",
-                    }}
-                  >
-                    <LightbulbIcon sx={{ fontSize: 18 }} />
-                    <Typography variant="caption" sx={{ color: "inherit" }}>
-                      We’ll send OTP here.
-                    </Typography>
-                  </Box>
+                  <HelperTextWithIcon message="We'll send OTP here." />
                 )
               }
               FormHelperTextProps={{
@@ -764,6 +799,7 @@ const AdminSignupScreen = () => {
               justifyContent: "center",
               overflowY: { md: "auto" },
               maxHeight: { md: "100vh" },
+              ...stepContentAnimation,
             }}
           >
             <Box>
@@ -812,7 +848,7 @@ const AdminSignupScreen = () => {
                 flexWrap: "wrap",
               }}
             >
-              {Array.from({ length: 6 }).map((_, index) => (
+              {Array.from({ length: OTP_LENGTH }).map((_, index) => (
                 <TextField
                   key={index}
                   value={otpDigits[index]}
@@ -881,20 +917,7 @@ const AdminSignupScreen = () => {
                 variant="contained"
                 disabled={!isOtpValid}
                 endIcon={<EastIcon sx={{ fontSize: 20 }} />}
-                sx={{
-                  px: { xs: 4, md: 6 },
-                  background: "#7E40EF",
-                  borderRadius: 2,
-                  py: 1.25,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  boxShadow: "0 18px 30px -18px rgba(126,64,239,0.65)",
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                  "&:hover": {
-                    background: "#6931d8",
-                  },
-                }}
+                sx={primaryButtonStyles}
               >
                 Verify OTP
               </Button>
@@ -915,6 +938,7 @@ const AdminSignupScreen = () => {
               justifyContent: "center",
               overflowY: { md: "auto" },
               maxHeight: { md: "100vh" },
+              ...stepContentAnimation,
             }}
           >
             <Box>
@@ -938,22 +962,8 @@ const AdminSignupScreen = () => {
               fullWidth
               error={!!personalErrors.fullName}
               helperText={
-                personalErrors.fullName?.message ? (
-                  personalErrors.fullName.message
-                ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      color: "warning.main",
-                    }}
-                  >
-                    <LightbulbIcon sx={{ fontSize: 18 }} />
-                    <Typography variant="caption" sx={{ color: "inherit" }}>
-                      Cannot be changed later
-                    </Typography>
-                  </Box>
+                personalErrors.fullName?.message || (
+                  <HelperTextWithIcon message="Cannot be changed later" />
                 )
               }
               InputProps={{
@@ -1021,22 +1031,8 @@ const AdminSignupScreen = () => {
               fullWidth
               error={!!personalErrors.organizationName}
               helperText={
-                personalErrors.organizationName?.message ? (
-                  personalErrors.organizationName.message
-                ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      color: "warning.main",
-                    }}
-                  >
-                    <LightbulbIcon sx={{ fontSize: 18 }} />
-                    <Typography variant="caption" sx={{ color: "inherit" }}>
-                      Organization name cannot be changed later
-                    </Typography>
-                  </Box>
+                personalErrors.organizationName?.message || (
+                  <HelperTextWithIcon message="Organization name cannot be changed later" />
                 )
               }
               InputProps={{
@@ -1054,42 +1050,83 @@ const AdminSignupScreen = () => {
                 variant="contained"
                 disabled={!isPersonalValid}
                 endIcon={<EastIcon sx={{ fontSize: 20 }} />}
-                sx={{
-                  px: { xs: 4, md: 6 },
-                  background: "#7E40EF",
-                  borderRadius: 2,
-                  py: 1.25,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  boxShadow: "0 18px 30px -18px rgba(126,64,239,0.65)",
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                  "&:hover": {
-                    background: "#6931d8",
-                  },
-                }}
+                sx={primaryButtonStyles}
               >
                 Next
               </Button>
             </Box>
           </Box>
         ) : step === 4 ? (
-          <Box
-            component="form"
-            onSubmit={handleOrganizationSubmit(onOrganizationSubmit)}
-            sx={{
-              gridColumn: { xs: "1 / -1", md: "2 / 3" },
-              backgroundColor: "#ffffff",
-              px: { xs: 4, sm: 6, md: 8 },
-              py: { xs: 6, md: 10 },
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-              justifyContent: "center",
-              overflowY: { md: "auto" },
-              maxHeight: { md: "100vh" },
-            }}
-          >
+          isSignupComplete ? (
+            <Box
+              sx={{
+                gridColumn: { xs: "1 / -1", md: "2 / 3" },
+                backgroundColor: "#ffffff",
+                px: { xs: 4, sm: 6, md: 8 },
+                py: { xs: 6, md: 10 },
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+                justifyContent: "center",
+                alignItems: "flex-start",
+                textAlign: "left",
+                ...stepContentAnimation,
+              }}
+            >
+              <Typography
+                sx={{
+                  color: PRIMARY_DARK,
+                  fontWeight: 700,
+                  fontSize: { xs: 26, md: 30 },
+                }}
+              >
+                Congratulations, all done!
+              </Typography>
+              <Typography sx={{ color: "#5f6c86", fontSize: { xs: 15, md: 16 }, maxWidth: 520 }}>
+                We'll send you an email after we verify{" "}
+                <Typography component="span" sx={{ fontWeight: 600, color: PRIMARY_DARK }}>
+                  {tenantDomainValue
+                    ? `${tenantDomainValue}.${baseDomain}`
+                    : `your tenant domain on ${baseDomain}`}
+                </Typography>
+                . In the meantime, you can head back to the login screen or explore our help center.
+              </Typography>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate("/login")}
+                  sx={primaryButtonStyles}
+                >
+                  Go to Login
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => window.open("https://support.ajaxter.com", "_blank")}
+                  sx={outlinedButtonStyles}
+                >
+                  Visit Help Center
+                </Button>
+              </Stack>
+            </Box>
+          ) : (
+            <Box
+              component="form"
+              onSubmit={handleOrganizationSubmit(onOrganizationSubmit)}
+              sx={{
+                gridColumn: { xs: "1 / -1", md: "2 / 3" },
+                backgroundColor: "#ffffff",
+                px: { xs: 4, sm: 6, md: 8 },
+                py: { xs: 6, md: 10 },
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+                justifyContent: "center",
+                overflowY: { md: "auto" },
+                maxHeight: { md: "100vh" },
+                ...stepContentAnimation,
+              }}
+            >
             <Box>
               <Typography
                 sx={{
@@ -1111,22 +1148,8 @@ const AdminSignupScreen = () => {
               placeholder="your-workspace"
               error={!!organizationErrors.tenantDomain}
               helperText={
-                organizationErrors.tenantDomain?.message ? (
-                  organizationErrors.tenantDomain.message
-                ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      color: "warning.main",
-                    }}
-                  >
-                    <LightbulbIcon sx={{ fontSize: 18 }} />
-                    <Typography variant="caption" sx={{ color: "inherit" }}>
-                      Use lowercase letters, numbers, or hyphens.
-                    </Typography>
-                  </Box>
+                organizationErrors.tenantDomain?.message || (
+                  <HelperTextWithIcon message="Use lowercase letters, numbers, or hyphens." />
                 )
               }
               InputProps={{
@@ -1193,15 +1216,7 @@ const AdminSignupScreen = () => {
                 type="button"
                 variant="outlined"
                 onClick={handleBackToPersonal}
-                sx={{
-                  px: { xs: 4, md: 6 },
-                  borderRadius: 0,
-                  py: 1.25,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                }}
+                sx={outlinedButtonStyles}
               >
                 Back
               </Button>
@@ -1210,93 +1225,14 @@ const AdminSignupScreen = () => {
                 variant="contained"
                 disabled={!isOrganizationValid}
                 endIcon={<EastIcon sx={{ fontSize: 20 }} />}
-                sx={{
-                  px: { xs: 4, md: 6 },
-                  background: "#7E40EF",
-                  borderRadius: 2,
-                  py: 1.25,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  boxShadow: "0 18px 30px -18px rgba(126,64,239,0.65)",
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                  "&:hover": {
-                    background: "#6931d8",
-                  },
-                }}
+                sx={primaryButtonStyles}
               >
                 Save
               </Button>
             </Box>
           </Box>
-        ) : (
-          <Box
-            sx={{
-              gridColumn: { xs: "1 / -1", md: "2 / 3" },
-              backgroundColor: "#ffffff",
-              px: { xs: 4, sm: 6, md: 8 },
-              py: { xs: 6, md: 10 },
-              display: "flex",
-              flexDirection: "column",
-              gap: 3,
-              justifyContent: "center",
-              alignItems: "flex-start",
-              textAlign: "left",
-            }}
-          >
-            <Typography
-              sx={{
-                color: PRIMARY_DARK,
-                fontWeight: 700,
-                fontSize: { xs: 26, md: 30 },
-              }}
-            >
-              Congratulations, all done!
-            </Typography>
-            <Typography sx={{ color: "#5f6c86", fontSize: { xs: 15, md: 16 }, maxWidth: 520 }}>
-              We’ll send you an email after we verify{" "}
-              <Typography component="span" sx={{ fontWeight: 600, color: PRIMARY_DARK }}>
-                {organizationInfo?.tenantDomain
-                  ? `${organizationInfo.tenantDomain}.${baseDomain}`
-                  : `your tenant domain on ${baseDomain}`}
-              </Typography>
-              . In the meantime, you can head back to the login screen or explore our help center.
-            </Typography>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => navigate("/login")}
-                sx={{
-                  px: { xs: 4, md: 6 },
-                  borderRadius: 0,
-                  py: 1.25,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                }}
-              >
-                Go to Login
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => window.open("https://support.ajaxter.com", "_blank")}
-                sx={{
-                  px: { xs: 4, md: 6 },
-                  borderRadius: 0,
-                  py: 1.25,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                }}
-              >
-                Visit Help Center
-              </Button>
-            </Stack>
-          </Box>
-        )}
+          )
+        ) : null}
       </Box>
     </Box>
   );
