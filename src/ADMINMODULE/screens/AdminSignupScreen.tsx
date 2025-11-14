@@ -6,6 +6,7 @@ import {
   FormControlLabel,
   FormLabel,
   IconButton,
+  InputAdornment,
   Link,
   Radio,
   RadioGroup,
@@ -31,38 +32,80 @@ import CheckIcon from "@mui/icons-material/Check";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import EastIcon from "@mui/icons-material/East";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
+import TravelExploreIcon from "@mui/icons-material/TravelExplore";
+import CorporateFareIcon from "@mui/icons-material/CorporateFare";
+import RecentActorsIcon from "@mui/icons-material/RecentActors";
+import ManIcon from "@mui/icons-material/Man";
+import WomanIcon from "@mui/icons-material/Woman";
 
 import GoogleRecaptcha, {
   GoogleRecaptchaRef,
 } from "../../components/reusable/GoogleRecaptcha";
+import lockIconGreen from "../../assets/icons/lock_icon_green.svg";
 
 const PRIMARY_COLOR = "#2567B3";
 const PRIMARY_DARK = "#1E4D8A";
 const SECONDARY_BG = "#F5F7FB";
 
 const signUpSchema = z.object({
-  email: z.string({ required_error: "Email is required" }).email("Invalid email"),
+  email: z
+    .string({ required_error: "Email is required" })
+    .email("Invalid email")
+    .max(30, "Email must be 30 characters or less"),
 });
 
 const personalInfoSchema = z.object({
-  firstName: z.string({ required_error: "First name is required" }).min(1, "First name is required"),
-  lastName: z.string({ required_error: "Last name is required" }).min(1, "Last name is required"),
+  fullName: z
+    .string({ required_error: "Full name is required" })
+    .min(4, "Full name must be at least 4 characters")
+    .max(18, "Full name must be 18 characters or less")
+    .refine(
+      (val) => /^[A-Za-z\s]+$/.test(val),
+      "Only letters and spaces allowed. No numbers or special characters."
+    )
+    .refine(
+      (val) => {
+        const spaceCount = (val.match(/\s/g) || []).length;
+        return spaceCount >= 1 && spaceCount <= 3;
+      },
+      "Must contain 1 to 3 spaces"
+    )
+    .refine(
+      (val) => /^[A-Za-z]+(\s[A-Za-z]+){1,3}$/.test(val.trim()),
+      "Invalid format. Use only letters with 1 to 3 spaces between words."
+    ),
   gender: z.enum(["male", "female", "other"], {
     required_error: "Please select a gender",
+    invalid_type_error: "Please select a gender",
   }),
-  phoneNumber: z
-    .string({ required_error: "Phone number is required" })
-    .min(8, "Phone number must be at least 8 characters")
-    .max(15, "Phone number must be 15 characters or fewer"),
+  organizationName: z
+    .string({ required_error: "Organization name is required" })
+    .min(4, "Organization name must be at least 4 characters")
+    .max(20, "Organization name must be 20 characters or less"),
 });
 
 const organizationSchema = z.object({
-  organizationName: z
-    .string({ required_error: "Organization name is required" })
-    .min(2, "Organization name must be at least 2 characters"),
   tenantDomain: z
-    .string({ required_error: "Tenant domain is required" })
-    .regex(/^[a-z0-9-]+$/i, "Use only letters, numbers, and hyphens"),
+    .string({ required_error: "Subdomain is required" })
+    .min(4, "Subdomain must be at least 4 characters")
+    .max(15, "Subdomain must be 15 characters or less")
+    .refine(
+      (val) => !val.includes("."),
+      "Cannot contain dots"
+    )
+    .refine(
+      (val) => !val.startsWith("-") && !val.endsWith("-"),
+      "Cannot start or end with a hyphen"
+    )
+    .refine(
+      (val) => !val.includes("--"),
+      "Cannot contain consecutive hyphens"
+    )
+    .transform((val) => val.toLowerCase())
+    .refine(
+      (val) => /^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(val),
+      "Use only lowercase letters, numbers, and hyphens. Must start and end with a letter or number."
+    ),
 });
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
@@ -92,15 +135,16 @@ const AdminSignupScreen = () => {
     register: registerPersonal,
     handleSubmit: handlePersonalSubmit,
     reset: resetPersonalForm,
+    setValue: setPersonalValue,
+    watch: watchPersonal,
     formState: { errors: personalErrors, isValid: isPersonalValid },
   } = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
     mode: "onChange",
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      fullName: "",
       gender: "male",
-      phoneNumber: "",
+      organizationName: "",
     },
   });
 
@@ -108,12 +152,13 @@ const AdminSignupScreen = () => {
     register: registerOrganization,
     handleSubmit: handleOrganizationSubmit,
     reset: resetOrganizationForm,
+    watch: watchOrganization,
+    setValue: setOrganizationValue,
     formState: { errors: organizationErrors, isValid: isOrganizationValid },
   } = useForm<OrganizationFormValues>({
     resolver: zodResolver(organizationSchema),
     mode: "onChange",
     defaultValues: {
-      organizationName: "",
       tenantDomain: "",
     },
   });
@@ -129,6 +174,19 @@ const AdminSignupScreen = () => {
   const [organizationInfo, setOrganizationInfo] = useState<OrganizationFormValues | null>(null);
   const [resendAttempts, setResendAttempts] = useState<number>(0);
   const [resendTimer, setResendTimer] = useState<number>(0);
+  const baseDomain = useMemo(() => {
+    const { hostname, port } = window.location;
+    const hostWithoutPort = hostname.split(":")[0];
+    const isLocalLike =
+      hostWithoutPort === "localhost" || hostWithoutPort.endsWith(".localhost");
+    if (isLocalLike) {
+      return port ? `localhost:${port}` : "localhost";
+    }
+    const parts = hostWithoutPort.split(".");
+    return parts.length > 2 ? parts.slice(-2).join(".") : hostWithoutPort;
+  }, []);
+  const genderValue = watchPersonal("gender");
+  const tenantDomainValue = watchOrganization("tenantDomain");
 
   const recaptchaRef = useRef<GoogleRecaptchaRef>(null);
 
@@ -192,13 +250,11 @@ const AdminSignupScreen = () => {
     setResendAttempts(0);
     setResendTimer(0);
     resetPersonalForm({
-      firstName: "",
-      lastName: "",
+      fullName: "",
       gender: "male",
-      phoneNumber: "",
+      organizationName: "",
     });
     resetOrganizationForm({
-      organizationName: "",
       tenantDomain: "",
     });
     setStep(2);
@@ -219,13 +275,11 @@ const AdminSignupScreen = () => {
     setPersonalInfo(null);
     setOrganizationInfo(null);
     resetPersonalForm({
-      firstName: "",
-      lastName: "",
+      fullName: "",
       gender: "male",
-      phoneNumber: "",
+      organizationName: "",
     });
     resetOrganizationForm({
-      organizationName: "",
       tenantDomain: "",
     });
   };
@@ -258,17 +312,16 @@ const AdminSignupScreen = () => {
 
   const onOrganizationSubmit = (values: OrganizationFormValues) => {
     setOrganizationInfo(values);
+    const workspaceUrl = values.tenantDomain
+      ? `${values.tenantDomain}.${baseDomain}`
+      : baseDomain;
     console.log("Collected admin signup details", {
       email: submittedEmail,
       personal: personalInfo,
       organization: values,
+      workspaceUrl,
     });
     setStep(5);
-  };
-
-  const handleBackToOtp = () => {
-    setStep(2);
-    otpInputRefs.current[0]?.focus();
   };
 
   const handleBackToPersonal = () => {
@@ -456,8 +509,8 @@ const AdminSignupScreen = () => {
             {progressStatuses.map((status, index) => {
               const isCurrent = status === "current";
               const isCompleted = status === "completed";
-              const ringColor = isCurrent ? "#7257ff" : "#d0d4df";
-              const innerColor = isCurrent ? "#7257ff" : "#b6bcc9";
+              const ringColor = isCurrent || isCompleted ? "#409a00" : "#d0d4df";
+              const innerColor = isCurrent || isCompleted ? "#409a00" : "#b6bcc9";
               const isConnectorActive = index < step - 1;
 
               return (
@@ -477,8 +530,8 @@ const AdminSignupScreen = () => {
                       height: 48,
                       borderRadius: "50%",
                       backgroundColor: "#ffffff",
-                      boxShadow: isCurrent
-                        ? "0 18px 30px rgba(34, 61, 120, 0.35)"
+                      boxShadow: isCurrent || isCompleted
+                        ? "0 18px 30px rgba(114, 87, 255, 0.35)"
                         : "0 12px 24px rgba(34, 61, 120, 0.18)",
                       display: "flex",
                       alignItems: "center",
@@ -488,17 +541,17 @@ const AdminSignupScreen = () => {
                     }}
                   >
                     {isCompleted ? (
-                      <CheckIcon sx={{ color: PRIMARY_DARK, fontSize: 22 }} />
+                      <CheckIcon sx={{ color: "#409a00", fontSize: 22 }} />
                     ) : (
                       <Box
                         sx={{
                           width: isCurrent ? 12 : 8,
                           height: isCurrent ? 12 : 8,
                           borderRadius: "50%",
-                          border: isCurrent ? "4px solid rgba(114,87,255,0.35)" : "none",
+                          border: isCurrent ? "4px solid rgb(36 98 171 / 63%)" : "none",
                           background: isCurrent ? "#fff" : innerColor,
                           boxShadow: isCurrent
-                            ? "0 0 0 4px rgba(114,87,255,0.2)"
+                            ? "0 0 0 4px rgb(36 97 169 / 42%)"
                             : "inset 0 0 4px rgba(0,0,0,0.12)",
                         }}
                       />
@@ -507,12 +560,7 @@ const AdminSignupScreen = () => {
                   {index < progressStatuses.length - 1 && (
                     <Box
                       sx={{
-                        width: 4,
-                        height: 56,
-                        borderRadius: 999,
-                        background: isConnectorActive
-                          ? "linear-gradient(180deg, rgba(114,87,255,0.4) 0%, rgba(114,87,255,0.1) 100%)"
-                          : "rgba(25,48,87,0.15)",
+                        height: 25
                       }}
                     />
                   )}
@@ -680,16 +728,16 @@ const AdminSignupScreen = () => {
                 mt: 2,
                 alignSelf: { xs: "stretch", md: "flex-start" },
                 px: { xs: 4, md: 6 },
-                background: "#7E40EF",
-                borderRadius: 2,
+                background: PRIMARY_COLOR,
+                borderRadius: 0,
                 py: 1.25,
                 fontWeight: 600,
                 fontSize: 16,
-                boxShadow: "0 18px 30px -18px rgba(126,64,239,0.65)",
+                boxShadow: "0 18px 30px -18px rgba(37, 103, 179, 0.65)",
                 textTransform: "uppercase",
                 letterSpacing: 1,
                 "&:hover": {
-                  background: "#6931d8",
+                  background: PRIMARY_DARK,
                 },
                 "&.Mui-disabled": {
                   backgroundColor: "#d9dce7",
@@ -885,29 +933,81 @@ const AdminSignupScreen = () => {
               </Typography>
             </Box>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                {...registerPersonal("firstName")}
-                label="First Name"
-                fullWidth
-                error={!!personalErrors.firstName}
-                helperText={personalErrors.firstName?.message}
-              />
-              <TextField
-                {...registerPersonal("lastName")}
-                label="Last Name"
-                fullWidth
-                error={!!personalErrors.lastName}
-                helperText={personalErrors.lastName?.message}
-              />
-            </Stack>
+            <TextField
+              {...registerPersonal("fullName")}
+              fullWidth
+              error={!!personalErrors.fullName}
+              helperText={
+                personalErrors.fullName?.message ? (
+                  personalErrors.fullName.message
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      color: "warning.main",
+                    }}
+                  >
+                    <LightbulbIcon sx={{ fontSize: 18 }} />
+                    <Typography variant="caption" sx={{ color: "inherit" }}>
+                      Cannot be changed later
+                    </Typography>
+                  </Box>
+                )
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <RecentActorsIcon sx={{ color: "#5f6c86", fontSize: 20 }} />
+                  </InputAdornment>
+                ),
+              }}
+              onChange={(e) => {
+                let value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                // Prevent multiple consecutive spaces
+                value = value.replace(/\s+/g, " ");
+                setPersonalValue("fullName", value, { shouldValidate: true });
+              }}
+            />
 
             <FormControl component="fieldset" error={!!personalErrors.gender}>
               <FormLabel component="legend">Gender</FormLabel>
-              <RadioGroup row {...registerPersonal("gender")}>
-                <FormControlLabel value="male" control={<Radio />} label="Male" />
-                <FormControlLabel value="female" control={<Radio />} label="Female" />
-                <FormControlLabel value="other" control={<Radio />} label="Other" />
+              <RadioGroup
+                row
+                value={genderValue ?? ""}
+                onChange={(event) =>
+                  setPersonalValue("gender", event.target.value as PersonalInfoFormValues["gender"], {
+                    shouldValidate: true,
+                    shouldTouch: true,
+                  })
+                }
+              >
+                <FormControlLabel
+                  value="male"
+                  control={<Radio {...registerPersonal("gender")} />}
+                  label={
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <ManIcon sx={{ fontSize: 20, color: "#5f6c86" }} />
+                      <Typography>Male</Typography>
+                    </Box>
+                  }
+                />
+                <FormControlLabel
+                  value="female"
+                  control={<Radio {...registerPersonal("gender")} />}
+                  label={
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <WomanIcon sx={{ fontSize: 20, color: "#5f6c86" }} />
+                      <Typography>Female</Typography>
+                    </Box>
+                  }
+                />
+                <FormControlLabel
+                  value="other"
+                  control={<Radio {...registerPersonal("gender")} />}
+                  label="Other"
+                />
               </RadioGroup>
               {personalErrors.gender && (
                 <Typography variant="caption" sx={{ color: "error.main", mt: 0.5 }}>
@@ -917,34 +1017,38 @@ const AdminSignupScreen = () => {
             </FormControl>
 
             <TextField
-              {...registerPersonal("phoneNumber")}
-              label="Phone Number"
+              {...registerPersonal("organizationName")}
               fullWidth
-              inputProps={{
-                inputMode: "tel",
-                pattern: "[0-9]*",
+              error={!!personalErrors.organizationName}
+              helperText={
+                personalErrors.organizationName?.message ? (
+                  personalErrors.organizationName.message
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      color: "warning.main",
+                    }}
+                  >
+                    <LightbulbIcon sx={{ fontSize: 18 }} />
+                    <Typography variant="caption" sx={{ color: "inherit" }}>
+                      Organization name cannot be changed later
+                    </Typography>
+                  </Box>
+                )
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <CorporateFareIcon sx={{ color: "#5f6c86", fontSize: 20 }} />
+                  </InputAdornment>
+                ),
               }}
-              error={!!personalErrors.phoneNumber}
-              helperText={personalErrors.phoneNumber?.message || "We’ll verify this later."}
             />
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-              <Button
-                type="button"
-                variant="outlined"
-                onClick={handleBackToOtp}
-                sx={{
-                  px: { xs: 4, md: 6 },
-                  borderRadius: 2,
-                  py: 1.25,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                }}
-              >
-                Back
-              </Button>
               <Button
                 type="submit"
                 variant="contained"
@@ -995,29 +1099,94 @@ const AdminSignupScreen = () => {
                   fontSize: { xs: 20, md: 24 },
                 }}
               >
-                Set up your organization.
+                Set up your workspace.
               </Typography>
               <Typography sx={{ mt: 1.5, color: "#5f6c86", fontSize: { xs: 14, md: 16 } }}>
-                Choose a name and tenant domain for your Ajaxter workspace.
+                Choose a tenant domain for your Ajaxter workspace.
               </Typography>
             </Box>
 
             <TextField
-              {...registerOrganization("organizationName")}
-              label="Organization Name"
-              fullWidth
-              error={!!organizationErrors.organizationName}
-              helperText={organizationErrors.organizationName?.message}
-            />
-
-            <TextField
               {...registerOrganization("tenantDomain")}
-              label="Tenant Domain"
-              fullWidth
               placeholder="your-workspace"
               error={!!organizationErrors.tenantDomain}
-              helperText={organizationErrors.tenantDomain?.message}
+              helperText={
+                organizationErrors.tenantDomain?.message ? (
+                  organizationErrors.tenantDomain.message
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      color: "warning.main",
+                    }}
+                  >
+                    <LightbulbIcon sx={{ fontSize: 18 }} />
+                    <Typography variant="caption" sx={{ color: "inherit" }}>
+                      Use lowercase letters, numbers, or hyphens.
+                    </Typography>
+                  </Box>
+                )
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <TravelExploreIcon sx={{ color: "#5f6c86", fontSize: 20 }} />
+                  </InputAdornment>
+                ),
+              }}
+              inputProps={{
+                style: { textTransform: "lowercase" },
+              }}
+              onChange={(e) => {
+                const value = e.target.value.toLowerCase();
+                setOrganizationValue("tenantDomain", value, { shouldValidate: true });
+              }}
+              sx={{ width: "auto", minWidth: 250, maxWidth: 250 }}
             />
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                border: "1px solid #d7dce5",
+                borderRadius: 1,
+                px: 2,
+                py: 1.5,
+                backgroundColor: "#ffffff",
+              }}
+            >
+              <Box
+                component="img"
+                src={lockIconGreen}
+                alt="Secure"
+                sx={{
+                  width: 16,
+                  height: 16,
+                }}
+              />
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "#188038",
+                }}
+              >
+                Secure | https://
+              </Typography>
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: 14,
+                  color: tenantDomainValue ? "#1f2a37" : "#9ca3af",
+                  fontWeight: tenantDomainValue ? 500 : 400,
+                }}
+              >
+                {tenantDomainValue ? `${tenantDomainValue}.${baseDomain}` : "Enter website to secure (Example: domain.com)"}
+              </Typography>
+            </Box>
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               <Button
@@ -1026,7 +1195,7 @@ const AdminSignupScreen = () => {
                 onClick={handleBackToPersonal}
                 sx={{
                   px: { xs: 4, md: 6 },
-                  borderRadius: 2,
+                  borderRadius: 0,
                   py: 1.25,
                   fontWeight: 600,
                   fontSize: 16,
@@ -1087,7 +1256,9 @@ const AdminSignupScreen = () => {
             <Typography sx={{ color: "#5f6c86", fontSize: { xs: 15, md: 16 }, maxWidth: 520 }}>
               We’ll send you an email after we verify{" "}
               <Typography component="span" sx={{ fontWeight: 600, color: PRIMARY_DARK }}>
-                {organizationInfo?.tenantDomain || "your tenant domain"}
+                {organizationInfo?.tenantDomain
+                  ? `${organizationInfo.tenantDomain}.${baseDomain}`
+                  : `your tenant domain on ${baseDomain}`}
               </Typography>
               . In the meantime, you can head back to the login screen or explore our help center.
             </Typography>
@@ -1098,7 +1269,7 @@ const AdminSignupScreen = () => {
                 onClick={() => navigate("/login")}
                 sx={{
                   px: { xs: 4, md: 6 },
-                  borderRadius: 2,
+                  borderRadius: 0,
                   py: 1.25,
                   fontWeight: 600,
                   fontSize: 16,
@@ -1113,7 +1284,7 @@ const AdminSignupScreen = () => {
                 onClick={() => window.open("https://support.ajaxter.com", "_blank")}
                 sx={{
                   px: { xs: 4, md: 6 },
-                  borderRadius: 2,
+                  borderRadius: 0,
                   py: 1.25,
                   fontWeight: 600,
                   fontSize: 16,
