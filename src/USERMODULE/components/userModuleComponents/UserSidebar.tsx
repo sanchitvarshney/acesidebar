@@ -95,7 +95,7 @@ const UserSidebar = () => {
             width: "100%",
             height: 140,
             maxHeight: 140,
-            bgcolor: "#125c66",
+            bgcolor: "#1e5ba0",
             mb: 2,
             px: 2,
             color: "#fff",

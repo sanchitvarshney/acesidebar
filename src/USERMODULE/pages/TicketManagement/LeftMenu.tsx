@@ -182,7 +182,7 @@ const LeftMenu: React.FC = () => {
         overflow: "visible",
         width: gettingStartedExpanded ? 240 : 35,
         transition: "width 0.3s ease",
-        backgroundColor: "#dde4ed",
+        backgroundColor: "#d2ddea",
         marginTop: "60px",
         display: helpCenterOpen ? "none" : "flex",
         position: "relative",
