@@ -428,7 +428,7 @@ const UserHomeScreen = () => {
                           : "bg-white hover:bg-slate-50"
                       } ${
                         isSelected
-                          ? "ring-2 ring-[#00a884] bg-[#e6f7f3] scale-[0.98]"
+                          ? "ring-2 ring-[#ff7800] bg-[#e6f7f3] scale-[0.98]"
                           : "scale-100"
                       }`}
                       onClick={() => setSelectedTicket(ticket)}

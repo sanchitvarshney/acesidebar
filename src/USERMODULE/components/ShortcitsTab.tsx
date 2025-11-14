@@ -259,7 +259,7 @@ const ShortcutsTab = () => {
                       borderColor: "#ccc",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#1a73e8",
+                      borderColor: "#2566b0",
                     },
                   },
                   "& .MuiInputLabel-root": {
@@ -296,7 +296,7 @@ const ShortcutsTab = () => {
                     borderColor: "#ccc", // border color on hover
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "#1a73e8", // border color on focus
+                    borderColor: "#2566b0", // border color on focus
                     // backgroundColor: "#fff",
                   },
                 },

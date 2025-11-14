@@ -618,10 +618,10 @@ const { data: topicList } = useGetTopicListQuery({});
                                     borderColor: "#9ca3af",
                                   },
                                   "&.Mui-focused fieldset": {
-                                    borderColor: "#1a73e8",
+                                    borderColor: "#2566b0",
                                   },
                                 },
-                                "& label.Mui-focused": { color: "#1a73e8" },
+                                "& label.Mui-focused": { color: "#2566b0" },
                                 "& label": { fontWeight: "bold" },
                               }}
                             />

@@ -35,7 +35,7 @@ const SearchItems: React.FC<SearchItemsProps> = ({
                 }
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   activeFilter === tab.id
-                    ? "bg-[#1a73e8] text-white"
+                    ? "bg-[#2566b0] text-white"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                 }`}
               >

@@ -36,7 +36,7 @@ const UserSettingsScreen = () => {
             <label className="flex flex-col gap-1 text-sm">
               <span className="text-slate-600 font-medium">Display name</span>
               <input
-                className="rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#00a884]/20 focus:border-[#00a884]"
+                className="rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#ff7800]/20 focus:border-[#ff7800]"
                 value={profile.name}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
               />
@@ -45,7 +45,7 @@ const UserSettingsScreen = () => {
               <span className="text-slate-600 font-medium">Email</span>
               <input
                 type="email"
-                className="rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#00a884]/20 focus:border-[#00a884]"
+                className="rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#ff7800]/20 focus:border-[#ff7800]"
                 value={profile.email}
                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
               />
@@ -53,7 +53,7 @@ const UserSettingsScreen = () => {
             <label className="flex flex-col gap-1 text-sm">
               <span className="text-slate-600 font-medium">Mobile number</span>
               <input
-                className="rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#00a884]/20 focus:border-[#00a884]"
+                className="rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#ff7800]/20 focus:border-[#ff7800]"
                 value={profile.mobile}
                 onChange={(e) => setProfile({ ...profile, mobile: e.target.value })}
               />
@@ -61,7 +61,7 @@ const UserSettingsScreen = () => {
             <label className="flex flex-col gap-1 text-sm">
               <span className="text-slate-600 font-medium">Timezone</span>
               <input
-                className="rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#00a884]/20 focus:border-[#00a884]"
+                className="rounded-lg border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#ff7800]/20 focus:border-[#ff7800]"
                 value={profile.timezone}
                 onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
               />
@@ -71,7 +71,7 @@ const UserSettingsScreen = () => {
             <button className="px-4 py-2 rounded-full border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-100">
               Cancel
             </button>
-            <button className="px-4 py-2 rounded-full bg-[#00a884] text-white text-sm font-medium hover:bg-[#008f72]">
+            <button className="px-4 py-2 rounded-full bg-[#ff7800] text-white text-sm font-medium hover:bg-[#008f72]">
               Save changes
             </button>
           </div>
@@ -128,7 +128,7 @@ const UserSettingsScreen = () => {
             <label className="inline-flex items-center gap-3 text-sm text-slate-600">
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-slate-300 text-[#00a884] focus:ring-[#00a884]"
+                className="h-4 w-4 rounded border-slate-300 text-[#ff7800] focus:ring-[#ff7800]"
                 checked={preferences.newsletter}
                 onChange={(e) =>
                   setPreferences((prev) => ({ ...prev, newsletter: e.target.checked }))
@@ -137,7 +137,7 @@ const UserSettingsScreen = () => {
               Subscribe to weekly product newsletter
             </label>
             <label className="inline-flex items-center gap-3 text-sm text-slate-600">
-              <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-[#00a884]" />
+              <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-[#ff7800]" />
               Send me release notes and enhancements
             </label>
           </div>

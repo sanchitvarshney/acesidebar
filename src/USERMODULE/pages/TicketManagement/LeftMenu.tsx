@@ -182,7 +182,7 @@ const LeftMenu: React.FC = () => {
         overflow: "visible",
         width: gettingStartedExpanded ? 240 : 35,
         transition: "width 0.3s ease",
-        backgroundColor: "#dde4ed",
+        backgroundColor: "#d0d8dd",
         marginTop: "60px",
         display: helpCenterOpen ? "none" : "flex",
         position: "relative",
@@ -316,7 +316,7 @@ const LeftMenu: React.FC = () => {
                                 variant="body2"
                                 sx={{
                                   fontSize: "0.8125rem",
-                                  color: isSelected ? "#1a73e8" : "#424242",
+                                  color: isSelected ? "#2566b0" : "#424242",
                                   fontWeight: isSelected ? 600 : 500,
                                 }}
                               >
@@ -383,7 +383,7 @@ const LeftMenu: React.FC = () => {
                                 variant="body2"
                                 sx={{
                                   fontSize: "0.8125rem",
-                                  color: isSelected ? "#1a73e8" : "#424242",
+                                  color: isSelected ? "#2566b0" : "#424242",
                                   fontWeight: isSelected ? 600 : 500,
                                 }}
                               >
@@ -440,7 +440,7 @@ const LeftMenu: React.FC = () => {
             <IconButton
               sx={{
                 backgroundColor: "#fff",
-                color: "#2566b0",
+                color: "#12344d",
                 "&:hover": {
                   backgroundColor: "#f5f5f5",
                 },

@@ -890,9 +890,9 @@ const AddContact = ({ isAdd, close }: { isAdd: any; close: any }) => {
                           borderRadius: "4px",
                           backgroundColor: "#f9fafb",
                           "&:hover fieldset": { borderColor: "#9ca3af" },
-                          "&.Mui-focused fieldset": { borderColor: "#1a73e8" },
+                          "&.Mui-focused fieldset": { borderColor: "#2566b0" },
                         },
-                        "& label.Mui-focused": { color: "#1a73e8" },
+                        "& label.Mui-focused": { color: "#2566b0" },
                         "& label": { fontWeight: "bold" },
                       }}
                     />

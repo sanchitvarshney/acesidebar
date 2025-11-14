@@ -66,7 +66,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
       details: "Ticket #TKT-2024-001 assigned to Abhishek Srivastava <abhishek.srivastava@oakter.com>",
       date: "Jul 23",
       severity: "MEDIUM",
-      icon: <EmailIcon sx={{ color: '#1a73e8' }} />,
+      icon: <EmailIcon sx={{ color: '#2566b0' }} />,
       severityColor: '#fef7e0',
       severityTextColor: '#000',
       type: 'all',
@@ -80,7 +80,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
       details: "Ticket #TKT-2024-002 status changed to 'In Progress' by Amit Vashisth <amit.vashisth@oakter.com>",
       date: "Jul 23",
       severity: "MEDIUM",
-      icon: <EmailIcon sx={{ color: '#1a73e8' }} />,
+      icon: <EmailIcon sx={{ color: '#2566b0' }} />,
       severityColor: '#fef7e0',
       severityTextColor: '#000',
       type: 'all',
@@ -122,7 +122,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
       details: "New feedback received for ticket #TKT-2024-005 from Rohit Jain <jainrohit0751@gmail.com>",
       date: "Apr 21",
       severity: "MEDIUM",
-      icon: <EmailIcon sx={{ color: '#1a73e8' }} />,
+      icon: <EmailIcon sx={{ color: '#2566b0' }} />,
       severityColor: '#fef7e0',
       severityTextColor: '#000',
       type: 'all',
@@ -186,7 +186,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
         }} />
         <NotificationsIcon sx={{
           fontSize: 60,
-          color: '#1a73e8',
+          color: '#2566b0',
           zIndex: 1,
           position: 'relative'
         }} />
@@ -294,7 +294,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
               }
             },
             '& .MuiTabs-indicator': {
-              backgroundColor: '#1a73e8',
+              backgroundColor: '#2566b0',
               height: 2
             }
           }}
@@ -336,7 +336,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ open, onClose, an
             >
               {option.label}
               {selectedFilter.value === option.value && (
-                <CheckIcon fontSize="small" sx={{ ml: 'auto', color: '#1a73e8' }} />
+                <CheckIcon fontSize="small" sx={{ ml: 'auto', color: '#2566b0' }} />
               )}
             </MenuItem>
           ))}

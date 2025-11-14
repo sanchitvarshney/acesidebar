@@ -823,7 +823,7 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                       setCommentTab("comments");
                     }}
                     sx={{
-                      backgroundColor: isActive ? "#1a73e8" : "white",
+                      backgroundColor: isActive ? "#2566b0" : "white",
                       color: isActive ? "white" : "#1f2937",
                       border: "1px solid #d6e0f0",
                       width: 44,
@@ -948,8 +948,8 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                             sx={{
                               textTransform: "none",
                               fontWeight: 600,
-                              color: isActive ? "#1a73e8" : "#475569",
-                              borderBottom: isActive ? "2px solid #1a73e8" : "2px solid transparent",
+                              color: isActive ? "#2566b0" : "#475569",
+                              borderBottom: isActive ? "2px solid #2566b0" : "2px solid transparent",
                               borderRadius: 0,
                               paddingBottom: 0.75,
                             }}
@@ -1352,10 +1352,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               textTransform: "none",
                               backgroundColor:
                                 logicOperator === "AND"
-                                  ? "#1a73e8"
+                                  ? "#2566b0"
                                   : "transparent",
                               color:
-                                logicOperator === "AND" ? "#fff" : "#1a73e8",
+                                logicOperator === "AND" ? "#fff" : "#2566b0",
                               borderRadius: 0,
                               borderRight: "1px solid #e3f2fd",
                               "&:hover": {
@@ -1382,10 +1382,10 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                               textTransform: "none",
                               backgroundColor:
                                 logicOperator === "OR"
-                                  ? "#1a73e8"
+                                  ? "#2566b0"
                                   : "transparent",
                               color:
-                                logicOperator === "OR" ? "#fff" : "#1a73e8",
+                                logicOperator === "OR" ? "#fff" : "#2566b0",
                               borderRadius: 0,
                               "&:hover": {
                                 backgroundColor:
@@ -1429,12 +1429,12 @@ const Tasks: React.FC<TaskPropsType> = ({ isAddTask, ticketId }) => {
                     taskSearchConditions.length >= 4 ||
                     getAvailableFields("").length === 0
                       ? "#ccc"
-                      : "#1a73e8",
+                      : "#2566b0",
                   color:
                     taskSearchConditions.length >= 4 ||
                     getAvailableFields("").length === 0
                       ? "#999"
-                      : "#1a73e8",
+                      : "#2566b0",
                   backgroundColor: "#fff",
                   "&:hover": {
                     borderColor:

@@ -264,7 +264,7 @@ const DiagnosticsPage = () => {
                           borderColor: "#9ca3af",
                         },
                         "&.Mui-focused fieldset": {
-                          borderColor: "#3b82f6",
+                          borderColor: "#2566b0",
                         },
                       },
                     }}
@@ -388,7 +388,7 @@ const DiagnosticsPage = () => {
                         borderColor: "#9ca3af",
                       },
                       "&.Mui-focused fieldset": {
-                        borderColor: "#3b82f6",
+                        borderColor: "#2566b0",
                       },
                     },
                   }}

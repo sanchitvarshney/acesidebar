@@ -489,7 +489,7 @@ const ThreadItem = ({
                 >
                   <div className="flex items-center gap-2">
                     {" "}
-                    <span className="font-semibold text-[#1a73e8] text-sm">
+                    <span className="font-semibold text-[#2566b0] text-sm">
                       {item?.repliedBy?.name ?? item?.ticketId ?? "User"}
                     </span>
                     {item?.subject && isHovered && (
@@ -1449,7 +1449,7 @@ const TicketThreadSection = ({
                         width={400}
                       >
                         <span
-                          className="bg-[#1a73e8] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
+                          className="bg-[#2566b0] w-6 text-sm rounded-full h-6 flex items-center justify-center text-white cursor-pointer"
                           onClick={() => setShowImagesModal(true)}
                         >
                           {images.length}

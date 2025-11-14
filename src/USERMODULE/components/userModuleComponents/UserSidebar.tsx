@@ -95,7 +95,7 @@ const UserSidebar = () => {
             width: "100%",
             height: 140,
             maxHeight: 140,
-            bgcolor: "#125c66",
+            bgcolor: "#1e5ba0",
             mb: 2,
             px: 2,
             color: "#fff",
@@ -159,8 +159,8 @@ const UserSidebar = () => {
                 onClick={() => navigate(item.path)}
                 className={`w-28 h-28 rounded-3xl border-2 text-sm font-semibold tracking-wide transition-all flex items-center justify-center ${
                   active
-                    ? "bg-[#00a884] border-[#00a884] text-white shadow-lg"
-                    : "border-slate-300 text-slate-600 hover:bg-[#00a884] hover:border-[#00a884] hover:text-white hover:shadow-lg"
+                    ? "bg-[#1e5ba0] border-[#2566b0] text-white shadow-lg"
+                    : "border-slate-300 text-slate-600 hover:bg-[#2566b0] hover:border-[#1e5ba0] hover:text-white hover:shadow-lg"
                 }`}
               >
                 <span className="flex flex-col items-center justify-center gap-2">

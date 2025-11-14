@@ -127,7 +127,7 @@ const UserChatScreen = () => {
                 Message <span className="text-slate-500">(10)</span>
               </p>
             </div>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full bg-[#00a884]/10 text-[#00a884]">
+            <button className="h-10 w-10 flex items-center justify-center rounded-full bg-[#ff7800]/10 text-[#ff7800]">
               <Search size={18} />
             </button>
           </div>
@@ -139,7 +139,7 @@ const UserChatScreen = () => {
                 placeholder="Search conversation…"
               />
             </div>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full bg-[#00a884]/10 text-[#00a884]">
+            <button className="h-10 w-10 flex items-center justify-center rounded-full bg-[#ff7800]/10 text-[#ff7800]">
               <Plus size={18} />
             </button>
           </div>
@@ -171,7 +171,7 @@ const UserChatScreen = () => {
                     <p className="text-xs text-slate-500 truncate">{contact.status}</p>
                   </div>
                   {contact.unread > 0 && (
-                    <span className="text-xs font-semibold bg-[#00a884] text-white rounded-full px-2 py-0.5">
+                    <span className="text-xs font-semibold bg-[#ff7800] text-white rounded-full px-2 py-0.5">
                       {contact.unread}
                     </span>
                   )}
@@ -191,23 +191,23 @@ const UserChatScreen = () => {
             </div>
             <div>
               <p className="text-base font-semibold text-slate-900">Lea</p>
-              <p className="text-xs text-[#00a884] font-medium">Online</p>
+              <p className="text-xs text-[#ff7800] font-medium">Online</p>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-3 text-[#00a884]">
-            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#00a884]/10">
+          <div className="hidden md:flex items-center gap-3 text-[#ff7800]">
+            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#ff7800]/10">
               <Volume2 size={18} />
             </button>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#00a884]/10">
+            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#ff7800]/10">
               <Search size={18} />
             </button>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#00a884]/10">
+            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#ff7800]/10">
               <Image size={18} />
             </button>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#00a884]/10">
+            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#ff7800]/10">
               <Info size={18} />
             </button>
-            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#00a884]/10">
+            <button className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-[#ff7800]/10">
               <MoreHorizontal size={18} />
             </button>
           </div>
@@ -230,7 +230,7 @@ const UserChatScreen = () => {
                   <div
                     className={`rounded-2xl px-4 py-3 shadow-sm ${
                       isOwn
-                        ? "bg-[#00a884] text-white rounded-br-none"
+                        ? "bg-[#ff7800] text-white rounded-br-none"
                         : "bg-white text-slate-700 rounded-bl-none"
                     }`}
                   >
@@ -252,18 +252,18 @@ const UserChatScreen = () => {
 
         <footer className="px-8 py-5 border-t border-[#cde7de] bg-[#f0faf7]">
           <div className="flex items-center gap-3">
-            <button className="h-11 w-11 rounded-full bg-white text-[#00a884] flex items-center justify-center border border-[#cde7de]">
+            <button className="h-11 w-11 rounded-full bg-white text-[#ff7800] flex items-center justify-center border border-[#cde7de]">
               <Plus size={20} />
             </button>
             <div className="flex-1 flex items-center bg-white border border-[#cde7de] rounded-full px-4 py-2 shadow-sm">
-              <button className="text-[#00a884] mr-2">
+              <button className="text-[#ff7800] mr-2">
                 <Smile size={20} />
               </button>
               <input
                 className="flex-1 bg-transparent outline-none text-sm text-slate-600"
                 placeholder="Write your message…"
               />
-              <div className="flex items-center gap-3 text-[#00a884]">
+              <div className="flex items-center gap-3 text-[#ff7800]">
                 <button>
                   <Paperclip size={20} />
                 </button>
@@ -275,7 +275,7 @@ const UserChatScreen = () => {
                 </button>
               </div>
             </div>
-            <button className="h-11 w-11 rounded-full bg-[#00a884] text-white flex items-center justify-center shadow-md">
+            <button className="h-11 w-11 rounded-full bg-[#ff7800] text-white flex items-center justify-center shadow-md">
               <Send size={18} />
             </button>
           </div>

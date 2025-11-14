@@ -65,7 +65,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             mr: 1,
             color: "#666",
             "&.Mui-checked": {
-              color: "#1a73e8",
+              color: "#2566b0",
             },
             "&:hover": {
               backgroundColor: "rgba(26, 115, 232, 0.04)",
@@ -141,7 +141,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                   backgroundColor: "#e7edf6",
                 },
                 "&.Mui-selected": {
-                  backgroundColor: "#1a73e8",
+                  backgroundColor: "#2566b0",
                   color: "#fff",
                   boxShadow: "0 1px 2px rgba(26,115,232,0.35)",
                   "&:hover": {

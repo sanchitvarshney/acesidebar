@@ -168,7 +168,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ open, onClose, onLogin }) => 
                 alignSelf: "flex-end",
                 fontSize: 14,
                 fontWeight: 500,
-                color: "#1a73e8",
+                color: "#2566b0",
                 cursor: "pointer",
                 mt: 1,
               }}
@@ -231,7 +231,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ open, onClose, onLogin }) => 
               variant="text"
               fullWidth
               onClick={handleBackToLogin}
-              sx={{ color: "#1a73e8", fontWeight: 500 }}
+              sx={{ color: "#2566b0", fontWeight: 500 }}
             >
               ← Back to Login
             </Button>

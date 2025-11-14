@@ -664,7 +664,7 @@ const SetupWizard = () => {
                       "& .MuiLinearProgress-bar": {
                         borderRadius: 4,
                         background:
-                          "linear-gradient(to right, #3b82f6, #22c55e)", // blue → green
+                          "linear-gradient(to right, #2566b0, #22c55e)", // blue → green
                       },
                     }}
                   />

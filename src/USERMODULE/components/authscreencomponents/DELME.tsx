@@ -474,12 +474,12 @@ const LoginComponent = () => {
                   aria-label="toggle password visibility"
                   onClick={handleToggleVisibility}
                   edge="end"
-                  sx={{ color: "#1a73e8" }}
+                  sx={{ color: "#2566b0" }}
                 >
                   {showPassword ? (
-                    <VisibilityOffIcon sx={{ color: "#1a73e8" }} />
+                    <VisibilityOffIcon sx={{ color: "#2566b0" }} />
                   ) : (
-                    <VisibilityIcon sx={{ color: "#1a73e8" }} />
+                    <VisibilityIcon sx={{ color: "#2566b0" }} />
                   )}
                 </IconButton>
               </InputAdornment>
@@ -559,7 +559,7 @@ const LoginComponent = () => {
         <Link
           component="button"
           underline="hover"
-          sx={{ color: "#1a73e8" }}
+          sx={{ color: "#2566b0" }}
           onClick={() => setIsForgot(true)}
         >
           Forgot your password?

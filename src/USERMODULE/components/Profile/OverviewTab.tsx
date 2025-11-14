@@ -94,9 +94,9 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                     size="medium"
                     sx={{
                       bgcolor: "#e0e0e0",
-                      color: "#1a73e8",
+                      color: "#2566b0",
                       fontWeight: 500,
-                      "& .MuiChip-icon": { color: "#1a73e8" },
+                      "& .MuiChip-icon": { color: "#2566b0" },
                     }}
                   />
                   <Chip
@@ -318,7 +318,7 @@ const OverviewTab: React.FC<any> = ({ user }) => {
                     <Button
                       variant="text"
                       sx={{
-                        color: "#1a73e8",
+                        color: "#2566b0",
                         textTransform: "none",
                         fontWeight: 500,
                         p: 0,

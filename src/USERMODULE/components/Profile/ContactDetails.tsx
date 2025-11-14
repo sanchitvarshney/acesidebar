@@ -54,7 +54,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
                   border: "1px solid #dadce0",
                 }}
               >
-                <MailIcon sx={{ color: "#1a73e8" }} />
+                <MailIcon sx={{ color: "#2566b0" }} />
                 <Typography
                   variant="body2"
                   sx={{ fontWeight: 500, color: "#202124" }}
@@ -136,12 +136,12 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
               startIcon={<AddIcon />}
               sx={{
                 borderColor: "#dadce0",
-                color: "#1a73e8",
+                color: "#2566b0",
                 fontWeight: 500,
                 borderRadius: 2,
                 textTransform: "none",
                 "&:hover": {
-                  borderColor: "#1a73e8",
+                  borderColor: "#2566b0",
                   bgcolor: "#e0e0e0",
                 },
               }}

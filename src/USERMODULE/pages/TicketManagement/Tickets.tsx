@@ -525,13 +525,13 @@ const Tickets: React.FC = () => {
     <Paper
       elevation={0}
       sx={{
-        border: "2px solid #e8eaec",
+        border: "2px solid #7297b5",
         boxShadow: "none",
         maxWidth: 400,
         minWidth: 380,
         position: "relative",
         overflow: "visible",
-        backgroundColor: "#ecf9f9",
+        backgroundColor: "#e8f2ff",
         // borderRadius: 10,
       }}
       onMouseDown={(e) => e.stopPropagation()}
@@ -594,7 +594,7 @@ const Tickets: React.FC = () => {
                       borderColor: "#9ca3af",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#3b82f6",
+                      borderColor: "#2566b0",
                     },
                   },
                 }}
@@ -640,7 +640,7 @@ const Tickets: React.FC = () => {
                       borderColor: "#9ca3af",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#3b82f6",
+                      borderColor: "#2566b0",
                     },
                   },
                 }}
@@ -698,7 +698,7 @@ const Tickets: React.FC = () => {
             onClick={handleQuickUpdateProperty}
             sx={{
               textTransform: "none",
-              backgroundColor: "#3b82f6",
+              backgroundColor: "#2566b0",
               "&:hover": {
                 backgroundColor: "#2563eb",
               },
@@ -800,7 +800,7 @@ const Tickets: React.FC = () => {
               sx={{
                 color: "#666",
                 "&.Mui-checked": {
-                  color: "#1a73e8",
+                  color: "#2566b0",
                 },
                 zIndex: 99,
                 "&:hover": {
@@ -1032,7 +1032,7 @@ const Tickets: React.FC = () => {
               sx={{
                 color: "#666",
                 "&.Mui-checked": {
-                  color: "#1a73e8",
+                  color: "#2566b0",
                 },
                 "&:hover": {
                   backgroundColor: "rgba(26, 115, 232, 0.04)",

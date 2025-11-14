@@ -179,7 +179,7 @@ const NotesTab = ({ ticketData }: any) => {
                 <CircularProgress size={18} />
               ) : (
                 <span
-                  className="text-sm text-[#1a73e8] cursor-pointer p-2"
+                  className="text-sm text-[#2566b0] cursor-pointer p-2"
                   onClick={() => setIsNotes(true)}
                 >
                   + Add note
@@ -214,7 +214,7 @@ const NotesTab = ({ ticketData }: any) => {
               <CircularProgress size={18} />
             ) : (
               <span
-                className="text-sm text-[#1a73e8] cursor-pointer p-2"
+                className="text-sm text-[#2566b0] cursor-pointer p-2"
                 onClick={() => setIsNotes(true)}
               >
                 + Add note
