@@ -86,6 +86,20 @@ const extendedAuthApi = baseInstanceOfApi.injectEndpoints({
         body: credentials?.body ,
       }),
     }),
+    adminSignUpOtpVerify: builder.mutation({
+      query: (credentials) => ({
+        url: `/signup/validate-otp/${credentials?.param}`,
+        method: "POST",
+        body: credentials?.body ,
+      }),
+    }),
+        createAdminAccount: builder.mutation({
+      query: (credentials) => ({
+        url: `/signup/create-account/info/${credentials?.param}`,
+        method: "POST",
+        body: credentials?.body ,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -102,4 +116,6 @@ export const {
   useUpdateActiveStatusMutation,
   useGetUserIsAvailableQuery,
   useAdminSignUpMutation,
+  useAdminSignUpOtpVerifyMutation,
+  useCreateAdminAccountMutation
 } = extendedAuthApi;

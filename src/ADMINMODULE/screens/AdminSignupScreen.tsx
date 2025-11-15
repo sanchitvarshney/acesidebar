@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -43,7 +44,11 @@ import GoogleRecaptcha, {
 } from "../../components/reusable/GoogleRecaptcha";
 import lockIconGreen from "../../assets/icons/lock_icon_green.svg";
 import { ContactPhone } from "@mui/icons-material";
-import { useAdminSignUpMutation } from "../../services/auth";
+import {
+  useAdminSignUpMutation,
+  useAdminSignUpOtpVerifyMutation,
+  useCreateAdminAccountMutation,
+} from "../../services/auth";
 import { useToast } from "../../hooks/useToast";
 
 // Constants
@@ -250,7 +255,11 @@ const AdminSignupScreen = () => {
 
   const recaptchaRef = useRef<GoogleRecaptchaRef>(null);
 
-  const [adminSignUp, { isLoading }] = useAdminSignUpMutation();
+  const [adminSignUp, { isLoading: signupLoading }] = useAdminSignUpMutation();
+  const [adminSignUpOtpVerify, { isLoading: otpVerifyLoading }] =
+    useAdminSignUpOtpVerifyMutation();
+  const [createAdminAccount, { isLoading: createAdminAccountLoading }] =
+    useCreateAdminAccountMutation();
 
   const handleCheckSteps = () => {
     const refId = localStorage.getItem("refId");
@@ -345,9 +354,9 @@ const AdminSignupScreen = () => {
     adminSignUp(payload).then((res: any) => {
       if (res?.data?.success) {
         const s = res?.data?.data?.step;
-      
+
         setStep(s);
-        const refId = JSON.stringify(res?.data?.ref);
+        const refId = JSON.stringify(res?.data?.data?.ref);
         localStorage.setItem("refId", refId);
         setSubmittedEmail(data.email.trim());
         setOtpDigits(Array(OTP_LENGTH).fill(""));
@@ -357,25 +366,43 @@ const AdminSignupScreen = () => {
       }
       if (res?.data?.type === "error") {
         showToast(res?.data?.message, "error");
-        return
+        return;
       }
     });
   };
 
- 
   const onOtpSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const ref = JSON.parse(localStorage.getItem("refId") as string);
     const otpValue = otpDigits.join("");
-    if (otpValue.length !== OTP_LENGTH) {
+    if (otpValue.length !== OTP_LENGTH || !ref || ref === undefined) {
+      showToast("Invalid OTP or ref", "error");
       return;
     }
-    console.log("Verify OTP", {
-      email: submittedEmail,
-      otp: otpValue,
+    const payload = {
+      param: ref,
+      body: {
+        email: submittedEmail,
+        otp: otpValue,
+      },
+    };
+
+    adminSignUpOtpVerify(payload).then((res: any) => {
+      if (res?.data?.success) {
+        const s = res?.data?.data?.step;
+        setStep(s);
+        const refId = JSON.stringify(res?.data?.data?.ref);
+        localStorage.setItem("refId", refId);
+        setSubmittedEmail(res?.data?.email);
+        setResendTimer(0);
+
+        resetForms();
+      }
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message, "error");
+        return;
+      }
     });
-    setResendTimer(0);
-    setStep(3);
-    resetForms();
   };
 
   const handleChangeEmail = () => {
@@ -400,8 +427,41 @@ const AdminSignupScreen = () => {
   };
 
   const onPersonalInfoSubmit = (values: PersonalInfoFormValues) => {
-    setPersonalInfo(values);
-    setStep(4);
+    console.log("onPersonalInfoSubmit", values);
+    const ref = JSON.parse(localStorage.getItem("refId") as string);
+    if (!ref || ref === undefined) {
+      showToast("Invalid  ref", "error");
+      return;
+    }
+    const payload = {
+      param: {
+        ref,
+        email: submittedEmail,
+      },
+      body: {
+        email: submittedEmail,
+        // otp: otpValue,
+      },
+    };
+
+    adminSignUpOtpVerify(payload).then((res: any) => {
+      if (res?.data?.success) {
+        const s = res?.data?.data?.step;
+        setStep(s);
+        const refId = JSON.stringify(res?.data?.data?.ref);
+        localStorage.setItem("refId", refId);
+        setSubmittedEmail(res?.data?.email);
+        setResendTimer(0);
+
+        resetForms();
+      }
+      if (res?.data?.type === "error") {
+        showToast(res?.data?.message, "error");
+        return;
+      }
+    });
+    // setPersonalInfo(values);
+    // setStep(4);
   };
 
   const onOrganizationSubmit = (values: OrganizationFormValues) => {
@@ -845,7 +905,7 @@ const AdminSignupScreen = () => {
             <Button
               type="submit"
               variant="contained"
-              disabled={isSubmitDisabled}
+              disabled={isSubmitDisabled || signupLoading}
               sx={{
                 mt: 2,
                 alignSelf: { xs: "stretch", md: "flex-start" },
@@ -866,7 +926,13 @@ const AdminSignupScreen = () => {
                   color: "#fff",
                 },
               }}
-              endIcon={<EastIcon sx={{ fontSize: 20 }} />}
+              endIcon={
+                signupLoading ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <EastIcon sx={{ fontSize: 20 }} />
+                )
+              }
             >
               Get Started
             </Button>
@@ -1005,8 +1071,14 @@ const AdminSignupScreen = () => {
               <Button
                 type="submit"
                 variant="contained"
-                disabled={!isOtpValid}
-                endIcon={<EastIcon sx={{ fontSize: 20 }} />}
+                disabled={!isOtpValid || otpVerifyLoading}
+                endIcon={
+                  otpVerifyLoading ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <EastIcon sx={{ fontSize: 20 }} />
+                  )
+                }
                 sx={primaryButtonStyles}
               >
                 Verify OTP
